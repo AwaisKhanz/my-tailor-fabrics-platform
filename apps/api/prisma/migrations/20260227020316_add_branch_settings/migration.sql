@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Branch" ADD COLUMN     "pickupDiscount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "rushCapability" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "taxInclusive" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "taxRate" DOUBLE PRECISION NOT NULL DEFAULT 0;

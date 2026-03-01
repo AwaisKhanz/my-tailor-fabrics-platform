@@ -1,0 +1,201 @@
+"use client";
+
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { cn } from "@/lib/utils";
+
+export interface ColumnDef<T> {
+  header: string;
+  accessorKey?: keyof T;
+  cell?: (item: T) => React.ReactNode;
+  className?: string;
+  headerClassName?: string;
+  align?: "left" | "right" | "center";
+}
+
+interface DataTableProps<T> {
+  columns: ColumnDef<T>[];
+  data: T[];
+  loading?: boolean;
+  onRowClick?: (item: T) => void;
+  // Pagination
+  page?: number;
+  total?: number;
+  limit?: number;
+  onPageChange?: (page: number) => void;
+  emptyMessage?: string;
+  // Metadata
+  itemLabel?: string;
+}
+
+export function DataTable<T extends { id: string | number }>({
+  columns,
+  data = [],
+  loading,
+  onRowClick,
+  page,
+  total,
+  limit = 10,
+  onPageChange,
+  emptyMessage = "No results found.",
+  itemLabel = "items",
+}: DataTableProps<T>) {
+  const totalPages = total ? Math.ceil(total / limit) : 0;
+  const from = total === 0 ? 0 : page && limit ? (page - 1) * limit + 1 : 0;
+  const to = total && page && limit ? Math.min(page * limit, total) : 0;
+
+  const getPaginationPages = () => {
+    if (!page || !totalPages) return [];
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1, 2, 3);
+      if (page > 5) pages.push("...");
+      if (page > 4 && page < totalPages - 3) pages.push(page);
+      pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
+  if (loading) {
+    return <TableSkeleton rows={limit} cols={columns.length} />;
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table className="text-sm">
+          <TableHeader>
+            <tr className="border-b border-border bg-muted/20">
+              {columns.map((column, idx) => (
+                <TableHead
+                  key={idx}
+                  className={cn(
+                    "px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap",
+                    column.align === "right" && "text-right",
+                    column.align === "center" && "text-center",
+                    column.headerClassName
+                  )}
+                >
+                  {column.header}
+                </TableHead>
+              ))}
+            </tr>
+          </TableHeader>
+          <TableBody className="divide-y divide-border">
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="px-5 py-16 text-center text-sm text-muted-foreground"
+                >
+                  {emptyMessage}
+                </TableCell>
+              </TableRow>
+            ) : (
+              data.map((item) => (
+                <TableRow
+                  key={item.id}
+                  className={cn(
+                    "hover:bg-muted/20 transition-colors group",
+                    onRowClick && "cursor-pointer"
+                  )}
+                  onClick={() => onRowClick?.(item)}
+                >
+                  {columns.map((column, colIdx) => (
+                    <TableCell
+                      key={colIdx}
+                      className={cn(
+                        "px-4 py-3.5",
+                        column.align === "right" && "text-right",
+                        column.align === "center" && "text-center",
+                        column.className
+                      )}
+                    >
+                      {column.cell
+                        ? column.cell(item)
+                        : column.accessorKey
+                        ? (item[column.accessorKey] as React.ReactNode)
+                        : null}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination Footer */}
+      {totalPages > 0 && onPageChange && page && (
+        <div className="flex items-center justify-between px-5 py-3.5 border-t border-border bg-muted/10">
+          <p className="text-xs text-muted-foreground">
+            Showing <span className="font-bold text-foreground">{from}</span> to{" "}
+            <span className="font-bold text-foreground">{to}</span> of{" "}
+            <span className="font-bold text-foreground">{total}</span> {itemLabel}
+          </p>
+
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={page === 1}
+              onClick={() => onPageChange(page - 1)}
+              className="h-8 w-8 rounded-lg border-border bg-background hover:bg-muted disabled:opacity-40 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {getPaginationPages().map((p, i) =>
+              p === "..." ? (
+                <span
+                  key={`ellipsis-${i}`}
+                  className="h-8 w-8 flex items-center justify-center text-muted-foreground text-sm"
+                >
+                  ...
+                </span>
+              ) : (
+                <Button
+                  key={p}
+                  variant={page === p ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onPageChange(p as number)}
+                  className={cn(
+                    "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
+                    page === p
+                      ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-sm"
+                      : "border-border bg-background hover:bg-muted text-foreground"
+                  )}
+                >
+                  {p}
+                </Button>
+              )
+            )}
+
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={page === totalPages}
+              onClick={() => onPageChange(page + 1)}
+              className="h-8 w-8 rounded-lg border-border bg-background hover:bg-muted disabled:opacity-40 transition-colors"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

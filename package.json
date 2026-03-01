@@ -1,0 +1,27 @@
+{
+  "name": "tbms",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"api,web,shared,const\" -c \"cyan,green,yellow,magenta\" \"npm run dev -w api\" \"npm run dev -w web\" \"npm run dev -w @tbms/shared-types\" \"npm run dev -w @tbms/shared-constants\"",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "pdf-parse": "^2.4.5"
+  },
+  "overrides": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

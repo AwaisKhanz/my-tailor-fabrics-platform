@@ -1,0 +1,91 @@
+import { BranchesService } from './branches.service';
+import type { CreateBranchInput, UpdateBranchInput } from '@tbms/shared-types';
+export declare class BranchesController {
+    private readonly branchesService;
+    constructor(branchesService: BranchesService);
+    findAll(page?: string, limit?: string, search?: string): Promise<{
+        data: ({
+            _count: {
+                employees: number;
+                customers: number;
+                orders: number;
+            };
+        } & {
+            id: string;
+            code: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+        })[];
+        total: number;
+        success: boolean;
+    }>;
+    getStats(): Promise<{
+        success: boolean;
+        data: {
+            total: number;
+            active: number;
+            inactive: number;
+        };
+    }>;
+    findOne(id: string): Promise<{
+        success: boolean;
+        data: {
+            stats: {
+                totalGarments: number;
+                activeOverrides: number;
+                syncPercentage: number;
+            };
+            _count: {
+                employees: number;
+                customers: number;
+                orders: number;
+                priceOverrides: number;
+            };
+            id: string;
+            code: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+        };
+    }>;
+    createBranch(body: CreateBranchInput): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            code: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+        };
+    }>;
+    updateBranch(id: string, body: UpdateBranchInput): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            code: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+        };
+    }>;
+    remove(id: string): Promise<{
+        success: boolean;
+    }>;
+}

@@ -1,0 +1,130 @@
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+
+@Injectable()
+export class PaymentsService {
+    constructor(private readonly prisma: PrismaService) {}
+
+    async getEmployeeBalanceSummary(employeeId: string) {
+        const [earnedResult, totalPaid] = await Promise.all([
+            this.prisma.$queryRaw<[{ total: bigint }]>`
+                SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS total
+                FROM "OrderItem"
+                WHERE "employeeId" = ${employeeId}
+                  AND status IN ('COMPLETED', 'DELIVERED')
+            `,
+            this.prisma.payment.aggregate({
+                where: { employeeId, deletedAt: null },
+                _sum: { amount: true },
+            }),
+        ]);
+
+        const totalEarned = Number(earnedResult[0]?.total ?? 0);
+        const paid = totalPaid._sum.amount ?? 0;
+        const balance = totalEarned - paid;
+
+        return {
+            totalEarned,
+            totalPaid: paid,
+            currentBalance: balance,
+            weekly: await this.getWeeklyBreakdown(employeeId),
+        };
+    }
+
+    async getWeeklyBreakdown(employeeId: string, weeksBack = 8) {
+        return this.prisma.$queryRaw`
+            WITH weekly_earned AS (
+                SELECT
+                    date_trunc('week', "completedAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
+                    SUM("employeeRate" * quantity) AS earned
+                FROM "OrderItem"
+                WHERE "employeeId" = ${employeeId}
+                  AND status IN ('COMPLETED', 'DELIVERED')
+                  AND "completedAt" >= NOW() - INTERVAL '${weeksBack} weeks'
+                  AND "deletedAt" IS NULL
+                GROUP BY week_start
+            ),
+            weekly_paid AS (
+                SELECT
+                    date_trunc('week', "paidAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
+                    SUM(amount) AS paid
+                FROM "Payment"
+                WHERE "employeeId" = ${employeeId}
+                  AND "paidAt" >= NOW() - INTERVAL '${weeksBack} weeks'
+                  AND "deletedAt" IS NULL
+                GROUP BY week_start
+            )
+            SELECT
+                we.week_start as week_start,
+                we.week_start + INTERVAL '6 days' AS week_end,
+                COALESCE(we.earned, 0) AS earned,
+                COALESCE(wp.paid, 0)   AS paid,
+                COALESCE(we.earned, 0) - COALESCE(wp.paid, 0) AS closing_balance
+            FROM weekly_earned we
+            LEFT JOIN weekly_paid wp USING (week_start)
+            ORDER BY week_start DESC
+        `;
+    }
+
+    async disbursePay(employeeId: string, amount: number, processedById: string, note?: string) {
+        const summary = await this.getEmployeeBalanceSummary(employeeId);
+        
+        if (amount > summary.currentBalance) {
+            throw new UnprocessableEntityException({
+                code: 'PAYMENT_EXCEEDS_BALANCE',
+                message: `Cannot disburse ${amount / 100}. Balance is ${summary.currentBalance / 100}`
+            });
+        }
+
+        return this.prisma.payment.create({
+            data: {
+                employeeId,
+                amount,
+                processedById,
+                note
+            }
+        });
+    }
+
+    async getHistory(employeeId: string, page = 1, limit = 20, sortBy?: string, sortOrder?: 'asc' | 'desc') {
+        const skip = (page - 1) * limit;
+
+        const orderBy: Prisma.PaymentOrderByWithRelationInput = {};
+        if (sortBy) {
+            (orderBy as Record<string, 'asc' | 'desc'>)[sortBy] = sortOrder || 'desc';
+        } else {
+            orderBy.paidAt = 'desc';
+        }
+
+        const [data, total] = await Promise.all([
+            this.prisma.payment.findMany({
+                where: { employeeId, deletedAt: null },
+                skip,
+                take: limit,
+                orderBy
+            }),
+            this.prisma.payment.count({ where: { employeeId, deletedAt: null } })
+        ]);
+        
+        return {
+            data,
+            meta: { total, page, lastPage: Math.ceil(total / limit) }
+        };
+    }
+
+    async getWeeklyReport() {
+        return this.prisma.$queryRaw`
+            SELECT
+                e.id as "employeeId",
+                e."fullName" as "employeeName",
+                e."employeeCode" as "employeeCode",
+                SUM(p.amount) as "paidThisWeek"
+            FROM "Payment" p
+            JOIN "Employee" e ON e.id = p."employeeId"
+            WHERE p."paidAt" >= date_trunc('week', NOW() AT TIME ZONE 'Asia/Karachi')
+            GROUP BY e.id, e."fullName", e."employeeCode"
+            ORDER BY "paidThisWeek" DESC
+        `;
+    }
+}

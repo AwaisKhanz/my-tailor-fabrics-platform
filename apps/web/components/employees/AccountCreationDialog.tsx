@@ -1,0 +1,146 @@
+"use client";
+
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { employeesApi } from "@/lib/api/employees";
+import { typedZodResolver } from "@/lib/utils/form";
+import { accountCreationSchema, AccountCreationFormValues } from "@/types/employees";
+import type { Employee } from "@/types/employees";
+import { Key } from "lucide-react";
+
+
+interface AccountCreationDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  employee: Employee | null;
+  onSuccess: () => void;
+}
+
+export function AccountCreationDialog({
+  open,
+  onOpenChange,
+  employee,
+  onSuccess,
+}: AccountCreationDialogProps) {
+  const { toast } = useToast();
+  const form = useForm<AccountCreationFormValues>({
+    resolver: typedZodResolver<AccountCreationFormValues>(accountCreationSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+    }
+  }, [open, form]);
+
+  async function onSubmit(data: AccountCreationFormValues) {
+    if (!employee) return;
+    try {
+      await employeesApi.createUserAccount(employee.id, {
+        email: data.email,
+        passwordHash: data.password, // Backend handles hashing if not already done, but named as such for clarity
+      });
+      toast({ title: "Account Created", description: "Login credentials successfully provisioned." });
+      onSuccess();
+      onOpenChange(false);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to create user account. Email might be in use.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  const footerActions = (
+    <div className="flex justify-end gap-2 w-full">
+      <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+        Cancel
+      </Button>
+      <Button type="submit" form="account-creation-form" variant="premium">
+        Create Account
+      </Button>
+    </div>
+  );
+
+  return (
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Provision Login Account"
+      description={`Create login credentials for ${employee?.fullName}. This will allow them to access the system based on their role.`}
+      footerActions={footerActions}
+      maxWidthClass="sm:max-w-[400px]"
+    >
+      <div className="flex flex-col items-center justify-center mb-6 mt-2">
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <Key className="h-6 w-6 text-primary" />
+        </div>
+      </div>
+      <Form {...form}>
+        <form id="account-creation-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-1 pb-2">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input variant="premium" placeholder="staff@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input variant="premium" type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input variant="premium" type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </form>
+      </Form>
+    </ScrollableDialog>
+  );
+}

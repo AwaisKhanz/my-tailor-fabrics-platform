@@ -1,0 +1,43 @@
+import { Controller, Get, Post, Body, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { MailService } from './mail.service';
+import { Public } from '../common/decorators/auth.decorators';
+
+@Controller('mail')
+export class MailController {
+  constructor(private readonly mailService: MailService) {}
+
+  @Public()
+  @Get('auth-url')
+  getAuthUrl() {
+    try {
+      const url = this.mailService.getAuthUrl();
+      return { 
+        success: true, 
+        message: 'Visit this URL to generate an authorization code, then exchange that code in the OAuth2 Playground for a Refresh Token.',
+        url 
+      };
+    } catch (error: unknown) {
+      throw new InternalServerErrorException((error as Error).message);
+    }
+  }
+
+  @Public()
+  @Post('test')
+  async sendTestMail(@Body() dto: { to: string }) {
+    if (!dto.to) {
+      throw new BadRequestException('Please provide a "to" email address.');
+    }
+
+    try {
+      const result = await this.mailService.sendMail(
+        dto.to,
+        'My Tailor & Fabrics - Test Email',
+        'Hello! This is a test email sent from the Gmail API integration using OAuth2 in NestJS.',
+        '<h3>Hello!</h3><p>This is a test email sent from the <strong>Gmail API</strong> integration using OAuth2 in NestJS.</p>'
+      );
+      return { success: true, message: 'Test email sent successfully!', result };
+    } catch (error: unknown) {
+      throw new InternalServerErrorException((error as Error).message);
+    }
+  }
+}

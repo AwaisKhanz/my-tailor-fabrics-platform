@@ -1,0 +1,57 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DiscountType = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
+// --- Prisma Enums (Synced) ---
+var Role;
+(function (Role) {
+    Role["SUPER_ADMIN"] = "SUPER_ADMIN";
+    Role["ADMIN"] = "ADMIN";
+    Role["ENTRY_OPERATOR"] = "ENTRY_OPERATOR";
+    Role["VIEWER"] = "VIEWER";
+    Role["EMPLOYEE"] = "EMPLOYEE";
+})(Role || (exports.Role = Role = {}));
+var EmployeeStatus;
+(function (EmployeeStatus) {
+    EmployeeStatus["ACTIVE"] = "ACTIVE";
+    EmployeeStatus["INACTIVE"] = "INACTIVE";
+    EmployeeStatus["LEFT"] = "LEFT";
+})(EmployeeStatus || (exports.EmployeeStatus = EmployeeStatus = {}));
+var PaymentType;
+(function (PaymentType) {
+    PaymentType["PER_PIECE"] = "PER_PIECE";
+    PaymentType["WEEKLY_FIXED"] = "WEEKLY_FIXED";
+})(PaymentType || (exports.PaymentType = PaymentType = {}));
+var CustomerStatus;
+(function (CustomerStatus) {
+    CustomerStatus["ACTIVE"] = "ACTIVE";
+    CustomerStatus["INACTIVE"] = "INACTIVE";
+    CustomerStatus["BLACKLISTED"] = "BLACKLISTED";
+})(CustomerStatus || (exports.CustomerStatus = CustomerStatus = {}));
+var FieldType;
+(function (FieldType) {
+    FieldType["NUMBER"] = "NUMBER";
+    FieldType["TEXT"] = "TEXT";
+    FieldType["DROPDOWN"] = "DROPDOWN";
+})(FieldType || (exports.FieldType = FieldType = {}));
+var OrderStatus;
+(function (OrderStatus) {
+    OrderStatus["NEW"] = "NEW";
+    OrderStatus["IN_PROGRESS"] = "IN_PROGRESS";
+    OrderStatus["READY"] = "READY";
+    OrderStatus["OVERDUE"] = "OVERDUE";
+    OrderStatus["DELIVERED"] = "DELIVERED";
+    OrderStatus["COMPLETED"] = "COMPLETED";
+    OrderStatus["CANCELLED"] = "CANCELLED";
+})(OrderStatus || (exports.OrderStatus = OrderStatus = {}));
+var ItemStatus;
+(function (ItemStatus) {
+    ItemStatus["PENDING"] = "PENDING";
+    ItemStatus["IN_PROGRESS"] = "IN_PROGRESS";
+    ItemStatus["COMPLETED"] = "COMPLETED";
+    ItemStatus["CANCELLED"] = "CANCELLED";
+})(ItemStatus || (exports.ItemStatus = ItemStatus = {}));
+var DiscountType;
+(function (DiscountType) {
+    DiscountType["FIXED"] = "FIXED";
+    DiscountType["PERCENTAGE"] = "PERCENTAGE";
+})(DiscountType || (exports.DiscountType = DiscountType = {}));

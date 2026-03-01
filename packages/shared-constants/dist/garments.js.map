@@ -1,0 +1,1 @@
+{"version":3,"file":"garments.js","sourceRoot":"","sources":["../src/garments.ts"],"names":[],"mappings":";;;AAAa,QAAA,qBAAqB,GAAG;IACnC,MAAM,EAAE,QAAQ;IAChB,QAAQ,EAAE,UAAU;IACpB,MAAM,EAAE,QAAQ;IAChB,QAAQ,EAAE,UAAU;CACrB,CAAC;AAEW,QAAA,sBAAsB,GAAG;IACpC,MAAM,EAAE,8CAA8C;IACtD,QAAQ,EAAE,mCAAmC;CAC9C,CAAC"}

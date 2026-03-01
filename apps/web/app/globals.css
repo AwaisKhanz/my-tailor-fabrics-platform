@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+
+
+@layer base {
+  :root {
+    --background: 210 40% 98%; /* Light Gray #F1F5F9 */
+    --foreground: 215 25% 27%; /* Slate Gray #334155 */
+    --card: 0 0% 100%; /* White #FFFFFF */
+    --card-foreground: 215 25% 27%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+    --primary: 180 100% 25%; /* Professional Teal #008080 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 16% 47%; /* Desaturated Slate */
+    --secondary-foreground: 215 25% 27%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 180 100% 25% / 0.1; /* Light Teal Tint */
+    --accent-foreground: 180 100% 25%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 180 100% 25%;
+    --radius: 0.5rem; /* Slightly more rounded for modern feel */
+
+    /* Semantic Status Colors (Mapped to Teal/Slate context where possible) */
+    --success: 160 84% 39%;
+    --success-foreground: 160 100% 95%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 100% 95%;
+    --info: 180 100% 25%; /* Same as primary teal */
+    --info-foreground: 180 100% 95%;
+    --pending: 215 16% 47%;
+    --pending-foreground: 210 40% 98%;
+    --ready: 262 83% 58%;
+    --ready-foreground: 262 100% 95%;
+  }
+  .dark {
+    --background: 0 0% 3%; /* Rich Neutral Charcoal #080808 */
+    --foreground: 210 40% 98%;
+    --card: 0 0% 8%; /* Subtle Neutral Elevation #141414 */
+    --card-foreground: 210 40% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 180 100% 40%; /* Refined Teal for Dark Mode visibility */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 12%; /* Darker Gray Neutral */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 180 100% 40% / 0.15;
+    --accent-foreground: 180 100% 45%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 15%; /* Neutral Charcoal Dividers */
+    --input: 0 0% 15%;
+    --ring: 180 100% 40%;
+
+    /* Semantic Status Colors - Neutral Dark context */
+    --success: 142 70% 45%; /* Pure Emerald */
+    --success-foreground: 142 100% 95%;
+    --warning: 48 96% 53%; /* Bright Amber */
+    --warning-foreground: 48 100% 95%;
+    --info: 180 100% 40%;
+    --info-foreground: 180 100% 95%;
+    --ready: 262 83% 58%;
+    --ready-foreground: 262 100% 95%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

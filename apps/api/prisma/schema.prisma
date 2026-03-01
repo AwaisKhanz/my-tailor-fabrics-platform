@@ -1,0 +1,434 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  ENTRY_OPERATOR
+  VIEWER
+  EMPLOYEE
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  LEFT
+}
+
+enum PaymentType {
+  PER_PIECE
+  WEEKLY_FIXED
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLACKLISTED
+}
+
+enum FieldType {
+  NUMBER
+  TEXT
+  DROPDOWN
+}
+
+enum OrderStatus {
+  NEW
+  IN_PROGRESS
+  READY
+  OVERDUE
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum ItemStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum DiscountType {
+  FIXED
+  PERCENTAGE
+}
+
+model Branch {
+  id                String               @id @default(cuid())
+  code              String               @unique // e.g. 'LHR', 'KHI' - used in Size Numbers
+  name              String
+  address           String?
+  phone             String?
+  isActive          Boolean              @default(true)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  deletedAt         DateTime?
+  users             User[]
+  employees         Employee[]
+  customers         Customer[]
+  orders            Order[]
+  expenses          Expense[]
+  priceOverrides    BranchGarmentPrice[]
+  attendanceRecords AttendanceRecord[]
+  priceLogs         BranchPriceLog[]
+}
+
+model User {
+  id                String     @id @default(cuid())
+  name              String
+  email             String     @unique
+  passwordHash      String
+  role              Role       @default(ENTRY_OPERATOR)
+  branchId          String? // null = Super Admin (all branches)
+  branch            Branch?    @relation(fields: [branchId], references: [id])
+  employeeId        String?    @unique // only set when role = EMPLOYEE
+  employee          Employee?  @relation(fields: [employeeId], references: [id])
+  isActive          Boolean    @default(true)
+  lastLoginAt       DateTime?
+  refreshToken      String? // hashed refresh token
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  deletedAt         DateTime?
+  auditLogs         AuditLog[]
+  paymentsProcessed Payment[]
+  priceChanges      BranchPriceLog[]
+
+  @@index([branchId])
+  @@index([role])
+}
+
+model Employee {
+  id                String                   @id @default(cuid())
+  employeeCode      String                   @unique // auto-gen: EMP-LHR-0001
+  branchId          String
+  branch            Branch                   @relation(fields: [branchId], references: [id])
+  fullName          String
+  fatherName        String?
+  phone             String
+  phone2            String?
+  address           String?
+  city              String?
+  cnic              String?                  @unique
+  dateOfBirth       DateTime?
+  dateOfJoining     DateTime                 @default(now())
+  designation       String?
+  paymentType       PaymentType              @default(PER_PIECE)
+  accountNumber     String? // bank / JazzCash / EasyPaisa
+  emergencyName     String?
+  emergencyPhone    String?
+  photoUrl          String?
+  status            EmployeeStatus           @default(ACTIVE)
+  notes             String?
+  searchVector      Unsupported("tsvector")?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  deletedAt         DateTime?
+  documents         EmployeeDocument[]
+  orderItems        OrderItem[]
+  payments          Payment[]
+  userAccount       User? // linked login account (EMPLOYEE role)
+  attendanceRecords AttendanceRecord[]
+
+  @@index([branchId, status])
+  @@index([searchVector], type: Gin)
+}
+
+model EmployeeDocument {
+  id           String   @id @default(cuid())
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  label        String // e.g. 'CNIC Front', 'Contract'
+  fileUrl      String // Cloudflare R2 signed URL key
+  fileType     String // 'image/jpeg', 'application/pdf'
+  uploadedById String
+  createdAt    DateTime @default(now())
+  deletedAt    DateTime?
+
+  @@index([employeeId])
+}
+
+model Customer {
+  id            String                   @id @default(cuid())
+  branchId      String
+  branch        Branch                   @relation(fields: [branchId], references: [id])
+  sizeNumber    String                   @unique // C-LHR-0045 - critical fast-lookup field
+  fullName      String
+  phone         String
+  whatsapp      String?
+  email         String?
+  address       String?
+  city          String?
+  notes         String?
+  status        CustomerStatus           @default(ACTIVE)
+  isVip         Boolean                  @default(false) // loyalty flag
+  lifetimeValue Int                      @default(0) // paisas: total paid across all orders
+  searchVector  Unsupported("tsvector")?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  deletedAt     DateTime?
+  measurements  CustomerMeasurement[]
+  orders        Order[]
+
+  @@index([branchId, deletedAt])
+  @@index([sizeNumber]) // prefix search for order entry
+  @@index([searchVector], type: Gin)
+}
+
+model MeasurementCategory {
+  id           String                @id @default(cuid())
+  name         String // 'Shalwar Kameez', 'Coat', 'Waistcoat'
+  sortOrder    Int                   @default(0)
+  isActive     Boolean               @default(true)
+  createdAt    DateTime              @default(now())
+  deletedAt    DateTime?
+  fields       MeasurementField[]
+  measurements CustomerMeasurement[]
+  garmentTypes GarmentType[]
+}
+
+model MeasurementField {
+  id              String              @id @default(cuid())
+  categoryId      String
+  category        MeasurementCategory @relation(fields: [categoryId], references: [id])
+  label           String // 'Shoulder', 'Chest', 'Collar'
+  fieldType       FieldType           @default(NUMBER)
+  unit            String? // 'inches', 'cm'
+  isRequired      Boolean             @default(false)
+  sortOrder       Int                 @default(0)
+  dropdownOptions String[] // only used when fieldType = DROPDOWN
+  deletedAt       DateTime?
+}
+
+model CustomerMeasurement {
+  id         String              @id @default(cuid())
+  customerId String
+  customer   Customer            @relation(fields: [customerId], references: [id])
+  categoryId String
+  category   MeasurementCategory @relation(fields: [categoryId], references: [id])
+  // values: { "fieldId_abc": "42", "fieldId_def": "16.5" }
+  values     Json
+  updatedAt  DateTime            @updatedAt
+
+  @@unique([customerId, categoryId]) // one measurement set per category per customer
+}
+
+model GarmentType {
+  id              String               @id @default(cuid())
+  name            String // 'Shalwar Kameez', '3-Piece Suit', 'Waistcoat'
+  customerPrice   Int // paisas — global default: what shop charges customer
+  employeeRate    Int // paisas — global default: what tailor earns per piece
+  description     String?
+  sortOrder       Int                  @default(0)
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  deletedAt       DateTime?
+  orderItems      OrderItem[]
+  branchOverrides BranchGarmentPrice[]
+  branchPriceLogs BranchPriceLog[]
+  measurementCategories MeasurementCategory[]
+}
+
+// Per-branch price overrides (Decision 2)
+model BranchGarmentPrice {
+  id            String      @id @default(cuid())
+  branchId      String
+  branch        Branch      @relation(fields: [branchId], references: [id])
+  garmentTypeId String
+  garmentType   GarmentType @relation(fields: [garmentTypeId], references: [id])
+  customerPrice Int? // null = use global default
+  employeeRate  Int? // null = use global default
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  @@unique([branchId, garmentTypeId])
+}
+
+model Order {
+  id             String                   @id @default(cuid())
+  orderNumber    String                   @unique // ORD-2025-LHR-00047
+  branchId       String
+  branch         Branch                   @relation(fields: [branchId], references: [id])
+  customerId     String
+  customer       Customer                 @relation(fields: [customerId], references: [id])
+  orderDate      DateTime                 @default(now())
+  dueDate        DateTime
+  subtotal       Int // paisas: SUM(unitPrice * qty) non-cancelled items
+  discountType   DiscountType? // FIXED | PERCENTAGE | null
+  discountValue  Int                      @default(0) // paisas if FIXED, basis points if PERCENTAGE
+  discountAmount Int                      @default(0) // paisas: computed and stored
+  totalAmount    Int // paisas: subtotal - discountAmount
+  totalPaid      Int                      @default(0) // paisas: SUM of all OrderPayments
+  balanceDue     Int // paisas: totalAmount - totalPaid (denormalized)
+  notes          String?
+  status         OrderStatus              @default(NEW)
+  createdById    String
+  shareToken     String?                  @unique // public shareable token
+  sharePin       String? // 4-digit PIN for customer verification
+  searchVector   Unsupported("tsvector")?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  deletedAt      DateTime?
+  items          OrderItem[]
+  payments       OrderPayment[]
+  statusHistory  OrderStatusHistory[]
+
+  @@index([branchId, status])
+  @@index([customerId])
+  @@index([dueDate]) // overdue cron query
+  @@index([searchVector], type: Gin)
+}
+
+model OrderItem {
+  id              String      @id @default(cuid())
+  orderId         String
+  order           Order       @relation(fields: [orderId], references: [id])
+  garmentTypeId   String
+  garmentType     GarmentType @relation(fields: [garmentTypeId], references: [id])
+  garmentTypeName String // SNAPSHOT: name at time of order
+  employeeId      String?
+  employee        Employee?   @relation(fields: [employeeId], references: [id])
+  quantity        Int         @default(1)
+  unitPrice       Int // paisas: SNAPSHOT customer price at order time
+  employeeRate    Int // paisas: SNAPSHOT employee rate at order time
+  description     String? // fabric colour, embroidery, button type, etc.
+  dueDate         DateTime? // item-level due date (can differ from order)
+  status          ItemStatus  @default(PENDING)
+  completedAt     DateTime? // set when status -> COMPLETED
+  deletedAt       DateTime?
+
+  @@index([orderId])
+  @@index([employeeId, status]) // employee earnings query
+}
+
+model OrderPayment {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id])
+  amount       Int // paisas received from customer
+  paidAt       DateTime @default(now())
+  receivedById String // userId
+  note         String?
+  deletedAt    DateTime?
+
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id          String       @id @default(cuid())
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id])
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  changedById String? // null when actor = SYSTEM (cron job)
+  actor       String       @default("USER") // 'USER' | 'SYSTEM'
+  note        String?
+  createdAt   DateTime     @default(now())
+
+  @@index([orderId])
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  amount        Int // paisas disbursed to employee
+  paidAt        DateTime @default(now())
+  processedById String
+  processedBy   User     @relation(fields: [processedById], references: [id])
+  note          String?
+  deletedAt     DateTime?
+
+  @@index([employeeId, paidAt])
+}
+
+model ExpenseCategory {
+  id       String    @id @default(cuid())
+  name     String // 'Rent', 'Electricity', 'Equipment', 'Supplies'
+  isActive Boolean   @default(true)
+  deletedAt DateTime?
+  expenses Expense[]
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  branchId    String
+  branch      Branch          @relation(fields: [branchId], references: [id])
+  categoryId  String
+  category    ExpenseCategory @relation(fields: [categoryId], references: [id])
+  amount      Int // paisas
+  description String?
+  receiptUrl  String?
+  expenseDate DateTime
+  addedById   String
+  createdAt   DateTime        @default(now())
+  deletedAt   DateTime?
+
+  @@index([branchId, expenseDate])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String // CREATE | UPDATE | DELETE | LOGIN | PAYMENT | STATUS_CHANGE
+  entity    String // 'Order' | 'Employee' | 'Customer' | 'Payment' ...
+  entityId  String
+  branchId  String?
+  oldValue  Json? // snapshot before mutation
+  newValue  Json? // snapshot after mutation
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── Phase 4: Attendance Tracking ─────────────────────────────────────────────
+
+model AttendanceRecord {
+  id          String    @id @default(cuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  branchId    String
+  branch      Branch    @relation(fields: [branchId], references: [id])
+  date        DateTime // date-only for daily attendance queries (midnight UTC)
+  clockIn     DateTime
+  clockOut    DateTime?
+  hoursWorked Float? // computed and stored on clock-out
+  note        String?
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  @@index([employeeId, date])
+  @@index([branchId, date])
+}
+model BranchPriceLog {
+  id            String      @id @default(cuid())
+  branchId      String
+  branch        Branch      @relation(fields: [branchId], references: [id])
+  garmentTypeId String
+  garmentType   GarmentType @relation(fields: [garmentTypeId], references: [id])
+  changedById   String
+  changedBy     User        @relation(fields: [changedById], references: [id])
+  oldCustomerPrice Int?     // null if it was global
+  oldEmployeeRate  Int?     // null if it was global
+  newCustomerPrice Int?     // null if it's a reset to global
+  newEmployeeRate  Int?     // null if it's a reset to global
+  action        String      // 'UPDATE' | 'RESET'
+  createdAt     DateTime    @default(now())
+
+  @@index([branchId, garmentTypeId])
+  @@index([createdAt])
+}

@@ -1,0 +1,11 @@
+# .cursorrules for My Tailor & Fabrics TBMS
+
+Always Include These Rules in interactions:
+1. All money is stored as INTEGER PAISAS. Rs 1,500 = 150000. Never use floats for money.
+2. Soft deletes only. All queries must filter: deletedAt IS NULL. Never hard delete.
+3. All queries must scope by branchId unless the user role is SUPER_ADMIN.
+4. Price snapshot: copy unitPrice + employeeRate onto OrderItem at creation time.
+5. EMPLOYEE role must never see unitPrice (customer price) — only their employeeRate.
+6. Cancelled items never count toward employee earnings. Enforced at DB query level.
+7. TypeScript strict mode. No 'any' types anywhere.
+8. All monetary display uses the formatPKR() utility function.

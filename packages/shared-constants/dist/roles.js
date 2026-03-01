@@ -1,0 +1,19 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ROLE_BADGE = exports.ROLES = void 0;
+const shared_types_1 = require("@tbms/shared-types");
+exports.ROLES = [
+    { value: shared_types_1.Role.SUPER_ADMIN, label: 'Super Admin' },
+    { value: shared_types_1.Role.ADMIN, label: 'Admin' },
+    { value: shared_types_1.Role.ENTRY_OPERATOR, label: 'Entry Operator' },
+    { value: shared_types_1.Role.VIEWER, label: 'Viewer' },
+    { value: shared_types_1.Role.EMPLOYEE, label: 'Employee' },
+];
+exports.ROLE_BADGE = {
+    [shared_types_1.Role.SUPER_ADMIN]: 'royal',
+    [shared_types_1.Role.ADMIN]: 'admin',
+    [shared_types_1.Role.ENTRY_OPERATOR]: 'amber',
+    [shared_types_1.Role.VIEWER]: 'outline',
+    [shared_types_1.Role.EMPLOYEE]: 'success',
+};
+//# sourceMappingURL=roles.js.map

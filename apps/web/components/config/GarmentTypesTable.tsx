@@ -1,0 +1,328 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Edit2, Shirt, Trash2, Filter, Clock } from "lucide-react";
+import { DataTable, ColumnDef } from "@/components/ui/data-table";
+import { configApi } from "@/lib/api/config";
+import { GarmentType } from "@/types/config";
+
+import { GarmentTypeDialog } from "./GarmentTypeDialog";
+import { BranchPriceHistoryDialog } from "./BranchPriceHistoryDialog";
+import { useToast } from "@/hooks/use-toast";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useBranchStore } from "@/store/useBranchStore";
+import { cn } from "@/lib/utils";
+import { GARMENT_STATUS_LABELS, GARMENT_OVERRIDE_BADGE } from "@tbms/shared-constants";
+import Link from "next/link";
+
+export function GarmentTypesTable() {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<GarmentType[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<GarmentType | null>(null);
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [typeToDelete, setTypeToDelete] = useState<GarmentType | null>(null);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const { activeBranchId, availableBranches } = useBranchStore();
+  const activeBranch = availableBranches.find(b => b.id === activeBranchId);
+
+  const { toast } = useToast();
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await configApi.getGarmentTypes({
+        search: debouncedSearch,
+        page: currentPage,
+        limit: itemsPerPage,
+        branchId: activeBranchId || undefined
+      });
+      if (response.success) {
+        setData(response.data.data);
+        setTotalCount(response.data.total);
+      }
+    } catch (error) {
+      console.error("Failed to fetch garment types:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, currentPage, activeBranchId]);
+
+  const handleEdit = (type: GarmentType) => {
+    setSelectedType(type);
+    setIsDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedType(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = (type: GarmentType) => {
+    setTypeToDelete(type);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!typeToDelete) return;
+    try {
+        await configApi.deleteGarmentType(typeToDelete.id);
+        toast({ title: "Success", description: "Garment type deleted" });
+        fetchData();
+    } catch {
+        toast({ title: "Error", description: "Failed to delete garment type", variant: "destructive" });
+    }
+  };
+
+  const handleReset = (type: GarmentType) => {
+    setSelectedType(type);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmReset = async () => {
+    if (!selectedType || !activeBranchId) return;
+    try {
+      await configApi.deleteBranchPrice(selectedType.id, activeBranchId);
+      toast({ title: "Success", description: "Branch prices reset to global defaults" });
+      fetchData();
+    } catch {
+      toast({ title: "Error", description: "Failed to reset prices", variant: "destructive" });
+    }
+  };
+
+
+  const columns: ColumnDef<GarmentType>[] = [
+    {
+      header: "Garment Name",
+      cell: (item) => (
+        <div className="flex items-center gap-4 group/row">
+          <div className="h-10 w-10 rounded-lg bg-muted border border-border flex items-center justify-center shrink-0 group-hover/row:bg-primary/5 group-hover/row:border-primary/20 transition-colors">
+            <Shirt className="h-5 w-5 text-muted-foreground group-hover/row:text-primary transition-colors" />
+          </div>
+          <Link href={`/settings/garments/${item.id}`} className="flex flex-col group/link hover:opacity-80 transition-opacity">
+            <span className="text-sm font-bold text-foreground leading-tight group-hover/link:text-primary transition-colors">{item.name}</span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">ID: GT-{item.id.slice(-4).toUpperCase()}</span>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      header: activeBranchId ? "Global Price" : "Global Customer Price",
+      cell: (item) => (
+        <span className={cn(
+          "text-sm font-bold",
+          activeBranchId ? "text-muted-foreground/70 font-medium italic" : "text-foreground"
+        )}>
+          Rs. {(item.customerPrice / 100).toLocaleString()}
+        </span>
+      ),
+    },
+    ...(activeBranchId ? [
+      {
+        header: "Branch Price",
+        cell: (item: GarmentType) => (
+          <span className={cn(
+            "text-sm font-bold",
+            item.isOverridden ? "text-success" : "text-foreground"
+          )}>
+            Rs. {((item.resolvedCustomerPrice ?? 0) / 100).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        header: "Branch Rate",
+        cell: (item: GarmentType) => (
+          <span className={cn(
+            "text-sm font-bold",
+            item.isOverridden ? "text-success" : "text-foreground"
+          )}>
+            Rs. {((item.resolvedEmployeeRate ?? 0) / 100).toLocaleString()}
+          </span>
+        ),
+      }
+    ] : [
+      {
+        header: "Global Employee Rate",
+        cell: (item: GarmentType) => <span className="text-sm font-bold text-foreground">Rs. {(item.employeeRate / 100).toLocaleString()}</span>,
+      }
+    ]),
+    {
+      header: "Status",
+      cell: (item: GarmentType) => (
+        activeBranchId ? (
+          <Badge 
+            variant={item.isOverridden ? "success" : "outline"} 
+            className={cn(
+              "uppercase font-bold tracking-widest text-[9px] px-2 py-0.5",
+              item.isOverridden ? GARMENT_OVERRIDE_BADGE.CUSTOM : GARMENT_OVERRIDE_BADGE.STANDARD
+            )}
+          >
+            {item.isOverridden ? GARMENT_STATUS_LABELS.CUSTOM : GARMENT_STATUS_LABELS.STANDARD}
+          </Badge>
+        ) : (
+          <Badge variant={item.isActive ? "success" : "outline"} className="uppercase">
+            {item.isActive ? GARMENT_STATUS_LABELS.ACTIVE : GARMENT_STATUS_LABELS.INACTIVE}
+          </Badge>
+        )
+      ),
+    },
+    {
+      header: "Overrides",
+      cell: (item: GarmentType) => (
+        <Badge variant={item.overridesCount > 0 ? "secondary" : "outline"} className={`uppercase font-bold tracking-widest text-[9px] px-2 py-0.5 ${item.overridesCount > 0 ? 'bg-warning/10 text-warning border-warning/20' : 'bg-muted/50 text-muted-foreground'}`}>
+          {item.overridesCount > 0 ? `${item.overridesCount} Branches` : 'None'}
+        </Badge>
+      ),
+    },
+    {
+      header: "Actions",
+      align: "right",
+      cell: (item: GarmentType) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => handleEdit(item)}>
+            <Edit2 className="h-4 w-4" />
+          </Button>
+
+          {activeBranchId && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                onClick={() => {
+                  setSelectedType(item);
+                  setIsHistoryOpen(true);
+                }}
+              >
+                <Clock className="h-4 w-4" />
+              </Button>
+              
+              {item.isOverridden && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                  onClick={() => handleReset(item)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </>
+          )}
+
+          {!activeBranchId && (
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(item)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Garment Management</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">Configure garment types, inventory pricing models, and production rates.</p>
+        </div>
+        <Button variant="premium" size="xl" onClick={handleAdd}>
+          <Plus className="mr-2 h-5 w-5" /> Add New Garment Type
+        </Button>
+      </div>
+
+      {/* Garment Type Inventory Table */}
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+             <h2 className="font-bold text-lg text-foreground">Garment Type Inventory</h2>
+             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+                {totalCount} results
+             </span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+             <div className="relative group flex-1 md:w-64">
+                <Input 
+                   placeholder="Search garments..." 
+                   variant="premium"
+                   className="pl-9"
+                   value={search}
+                   onChange={(e) => {
+                      setSearch(e.target.value);
+                      setCurrentPage(1);
+                   }}
+                />
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+             </div>
+          
+          </div>
+        </div>
+
+        <div className="p-6">
+          <DataTable
+            columns={columns}
+            data={data}
+            loading={loading}
+            emptyMessage="No garment types found."
+            itemLabel="types"
+            page={currentPage}
+            total={totalCount}
+            limit={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      </div>
+
+    
+
+      <GarmentTypeDialog 
+        open={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+        initialData={selectedType}
+        onSuccess={fetchData}
+        branchId={activeBranchId || undefined}
+        branchName={activeBranch?.name}
+      />
+
+      <BranchPriceHistoryDialog
+        open={isHistoryOpen}
+        onOpenChange={setIsHistoryOpen}
+        garmentId={selectedType?.id || ""}
+        garmentName={selectedType?.name || ""}
+        branchId={activeBranchId || ""}
+        branchName={activeBranch?.name || ""}
+      />
+
+      <ConfirmDialog
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        title={activeBranchId ? "Reset Branch Prices" : "Delete Garment Type"}
+        description={activeBranchId 
+          ? `Are you sure you want to reset "${selectedType?.name}" to global prices for ${activeBranch?.name}?`
+          : `Are you sure you want to delete "${selectedType?.name}"? This action cannot be undone.`
+        }
+        onConfirm={activeBranchId ? confirmReset : confirmDelete}
+        confirmText={activeBranchId ? "Reset Prices" : "Delete Garment Type"}
+      />
+    </div>
+  );
+}
