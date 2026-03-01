@@ -22,12 +22,11 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
-    - name: Generate Prisma Client (API)
-      run: |
-        cd apps/api
-        npx prisma generate
+    - name: Generate Prisma Client
+      run: npm run prisma:generate --workspace api
 
-    - name: Build API
-      run: |
-        cd apps/api
-        npm run build
+    - name: Build All Workspaces
+      run: npm run build
+
+    - name: Lint Check
+      run: npm run lint
