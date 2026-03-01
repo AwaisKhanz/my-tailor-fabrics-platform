@@ -18,22 +18,22 @@ export class ReportsController {
 
     @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
     @Get('dashboard')
-    async getDashboard(@Req() req: AuthenticatedRequest, @Query('branchId') overrideBranchId?: string) {
+    async getDashboard(@Req() req: AuthenticatedRequest, @Query('branchId') targetBranchId?: string) {
         // Only SUPER_ADMIN can request dashboard data for branches they don't explicitly belong to or globally (if branchId is not provided)
         let resolvedBranchId: string | undefined = req.branchId; // from BranchGuard
         
-        if (req.user.role === Role.SUPER_ADMIN && overrideBranchId !== undefined) {
-             resolvedBranchId = overrideBranchId === 'all' ? undefined : overrideBranchId;
+        if (req.user.role === Role.SUPER_ADMIN && targetBranchId !== undefined) {
+             resolvedBranchId = targetBranchId === 'all' ? undefined : targetBranchId;
         }
 
         const data = await this.reportsService.getDashboardStats(resolvedBranchId);
         return { success: true, data };
     }
 
-    private resolveBranch(req: AuthenticatedRequest, overrideBranchId?: string) {
+    private resolveBranch(req: AuthenticatedRequest, targetBranchId?: string) {
         let resolved: string | undefined = req.branchId;
-        if (req.user.role === Role.SUPER_ADMIN && overrideBranchId !== undefined) {
-             resolved = overrideBranchId === 'all' ? undefined : overrideBranchId;
+        if (req.user.role === Role.SUPER_ADMIN && targetBranchId !== undefined) {
+             resolved = targetBranchId === 'all' ? undefined : targetBranchId;
         }
         return resolved;
     }
@@ -43,11 +43,11 @@ export class ReportsController {
     async exportOrders(
         @Req() req: AuthenticatedRequest, 
         @Res() res: import('express').Response, 
-        @Query('branchId') overrideBranchId?: string,
+        @Query('branchId') targetBranchId?: string,
         @Query('from') from?: string,
         @Query('to') to?: string,
     ) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportOrders(branchId, from, to);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -61,11 +61,11 @@ export class ReportsController {
     async exportPayments(
         @Req() req: AuthenticatedRequest, 
         @Res() res: import('express').Response, 
-        @Query('branchId') overrideBranchId?: string,
+        @Query('branchId') targetBranchId?: string,
         @Query('from') from?: string,
         @Query('to') to?: string,
     ) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportPayments(branchId, from, to);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -79,11 +79,11 @@ export class ReportsController {
     async exportExpenses(
         @Req() req: AuthenticatedRequest, 
         @Res() res: import('express').Response, 
-        @Query('branchId') overrideBranchId?: string,
+        @Query('branchId') targetBranchId?: string,
         @Query('from') from?: string,
         @Query('to') to?: string,
     ) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportExpenses(branchId, from, to);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -97,9 +97,9 @@ export class ReportsController {
     async exportEmployees(
         @Req() req: AuthenticatedRequest, 
         @Res() res: import('express').Response, 
-        @Query('branchId') overrideBranchId?: string
+        @Query('branchId') targetBranchId?: string
     ) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportEmployeeSummaries(branchId);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

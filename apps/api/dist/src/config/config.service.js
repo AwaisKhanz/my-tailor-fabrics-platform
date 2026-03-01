@@ -23,21 +23,27 @@ let ConfigService = class ConfigService {
             where: { isActive: true }
         });
     }
-    async resolvePrices(garmentTypeId, branchId) {
-        const [global, override] = await Promise.all([
-            this.prisma.garmentType.findUniqueOrThrow({ where: { id: garmentTypeId } }),
-            this.prisma.branchGarmentPrice.findUnique({
-                where: { branchId_garmentTypeId: { branchId, garmentTypeId } }
-            }),
-        ]);
-        return {
-            customerPrice: override?.customerPrice ?? global.customerPrice,
-            employeeRate: override?.employeeRate ?? global.employeeRate,
-            garmentTypeName: global.name
-        };
+    async getSystemSettings() {
+        let settings = await this.prisma.systemSettings.findUnique({
+            where: { id: "default" }
+        });
+        if (!settings) {
+            settings = await this.prisma.systemSettings.create({
+                data: { id: "default" }
+            });
+        }
+        return settings;
+    }
+    async updateSystemSettings(dto) {
+        const settings = await this.prisma.systemSettings.upsert({
+            where: { id: "default" },
+            update: dto,
+            create: { id: "default", ...dto }
+        });
+        return settings;
     }
     async getGarmentTypes(options = {}) {
-        const { branchId, search, page = 1, limit = 10 } = options;
+        const { search, page = 1, limit = 10 } = options;
         const skip = (page - 1) * limit;
         const where = { isActive: true, deletedAt: null };
         if (search) {
@@ -54,53 +60,95 @@ let ConfigService = class ConfigService {
                 skip,
                 take: limit,
                 include: {
-                    measurementCategories: true,
-                    branchOverrides: branchId ? { where: { branchId } } : true
+                    measurementCategories: true
                 }
             })
         ]);
         const data = types.map((t) => {
-            const overrides = t.branchOverrides || [];
-            const override = branchId ? overrides[0] : null;
-            const resolvedCustomerPrice = override?.customerPrice ?? t.customerPrice;
-            const resolvedEmployeeRate = override?.employeeRate ?? t.employeeRate;
             return {
                 ...t,
-                resolvedCustomerPrice,
-                resolvedEmployeeRate,
-                isOverridden: !!override,
-                overridesCount: overrides.length,
-                marginAmount: resolvedCustomerPrice - resolvedEmployeeRate,
-                marginPercentage: resolvedCustomerPrice > 0 ? Math.round(((resolvedCustomerPrice - resolvedEmployeeRate) / resolvedCustomerPrice) * 100) : 0,
-                priceOffset: resolvedCustomerPrice - t.customerPrice
+                marginAmount: t.customerPrice - t.employeeRate,
+                marginPercentage: t.customerPrice > 0 ? Math.round(((t.customerPrice - t.employeeRate) / t.customerPrice) * 100) : 0
             };
         });
         return { data, total };
     }
-    async getGarmentType(id, branchId) {
+    async getGarmentType(id) {
         const garment = await this.prisma.garmentType.findUniqueOrThrow({
             where: { id, deletedAt: null },
             include: {
                 measurementCategories: {
+                    where: { deletedAt: null },
                     include: { fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } }
                 },
-                branchOverrides: branchId ? { where: { branchId } } : true
+                priceLogs: {
+                    take: 10,
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        changedBy: { select: { name: true } }
+                    }
+                }
             }
         });
-        const overrides = garment.branchOverrides || [];
-        const override = branchId ? overrides[0] : null;
-        const resolvedCustomerPrice = override?.customerPrice ?? garment.customerPrice;
-        const resolvedEmployeeRate = override?.employeeRate ?? garment.employeeRate;
-        return {
+        const orderStats = await this.prisma.orderItem.aggregate({
+            where: { garmentTypeId: id, deletedAt: null },
+            _count: { id: true },
+            _sum: { unitPrice: true, employeeRate: true },
+        });
+        const activeOrdersCount = await this.prisma.orderItem.count({
+            where: {
+                garmentTypeId: id,
+                status: { in: ['PENDING', 'IN_PROGRESS'] },
+                deletedAt: null
+            }
+        });
+        const topTailorsData = await this.prisma.orderItem.groupBy({
+            by: ['employeeId'],
+            where: {
+                garmentTypeId: id,
+                employeeId: { not: null },
+                status: 'COMPLETED',
+                deletedAt: null
+            },
+            _count: { id: true },
+            orderBy: { _count: { id: 'desc' } },
+            take: 3
+        });
+        const topTailors = await Promise.all(topTailorsData.map(async (t) => {
+            const employee = await this.prisma.employee.findUnique({
+                where: { id: t.employeeId },
+                select: { fullName: true }
+            });
+            return {
+                name: employee?.fullName || "Removed Employee",
+                count: t._count.id
+            };
+        }));
+        const result = {
             ...garment,
-            resolvedCustomerPrice,
-            resolvedEmployeeRate,
-            isOverridden: !!override,
-            overridesCount: overrides.length,
-            marginAmount: resolvedCustomerPrice - resolvedEmployeeRate,
-            marginPercentage: resolvedCustomerPrice > 0 ? Math.round(((resolvedCustomerPrice - resolvedEmployeeRate) / resolvedCustomerPrice) * 100) : 0,
-            priceOffset: resolvedCustomerPrice - garment.customerPrice
+            marginAmount: garment.customerPrice - garment.employeeRate,
+            marginPercentage: garment.customerPrice > 0 ? Math.round(((garment.customerPrice - garment.employeeRate) / garment.customerPrice) * 100) : 0,
+            priceLogs: (garment.priceLogs || []).map(log => ({
+                ...log,
+                changedBy: { name: log.changedBy.name }
+            })),
+            measurementCategories: (garment.measurementCategories || []).map((cat) => ({
+                ...cat,
+                fields: (cat.fields || []).map((f) => ({
+                    ...f,
+                    fieldType: f.fieldType
+                }))
+            })),
+            analytics: {
+                totalOrders: orderStats._count.id,
+                activeOrders: activeOrdersCount,
+                totalRevenue: orderStats._sum.unitPrice || 0,
+                totalPayout: orderStats._sum.employeeRate || 0,
+                avgActualPrice: orderStats._count.id > 0 ? Math.round((orderStats._sum.unitPrice || 0) / orderStats._count.id) : garment.customerPrice,
+                topTailors
+            }
         };
+        return result;
     }
     async createGarmentType(dto) {
         const { measurementCategoryIds, ...data } = dto;
@@ -113,10 +161,10 @@ let ConfigService = class ConfigService {
             }
         });
     }
-    async updateGarmentType(id, dto) {
-        await this.prisma.garmentType.findUniqueOrThrow({ where: { id } });
+    async updateGarmentType(id, dto, userId) {
+        const current = await this.prisma.garmentType.findUniqueOrThrow({ where: { id } });
         const { measurementCategoryIds, ...data } = dto;
-        return this.prisma.garmentType.update({
+        const result = await this.prisma.garmentType.update({
             where: { id },
             data: {
                 ...data,
@@ -125,6 +173,21 @@ let ConfigService = class ConfigService {
                 } : undefined
             }
         });
+        if ((dto.customerPrice !== undefined && dto.customerPrice !== current.customerPrice) ||
+            (dto.employeeRate !== undefined && dto.employeeRate !== current.employeeRate)) {
+            await this.prisma.garmentPriceLog.create({
+                data: {
+                    garmentType: { connect: { id } },
+                    changedBy: { connect: { id: userId } },
+                    oldCustomerPrice: current.customerPrice,
+                    oldEmployeeRate: current.employeeRate,
+                    newCustomerPrice: dto.customerPrice ?? current.customerPrice,
+                    newEmployeeRate: dto.employeeRate ?? current.employeeRate,
+                    action: 'UPDATE'
+                }
+            });
+        }
+        return result;
     }
     async deleteGarmentType(id) {
         await this.prisma.garmentType.findUniqueOrThrow({ where: { id, deletedAt: null } });
@@ -148,69 +211,9 @@ let ConfigService = class ConfigService {
             activeProduction
         };
     }
-    async getBranchPrices(garmentTypeId) {
-        return this.prisma.branchGarmentPrice.findMany({
+    async getGarmentPriceHistory(garmentTypeId) {
+        return this.prisma.garmentPriceLog.findMany({
             where: { garmentTypeId },
-            include: { branch: true }
-        });
-    }
-    async setBranchPrice(garmentTypeId, branchId, dto, userId) {
-        const current = await this.prisma.branchGarmentPrice.findUnique({
-            where: { branchId_garmentTypeId: { branchId, garmentTypeId } }
-        });
-        const result = await this.prisma.branchGarmentPrice.upsert({
-            where: { branchId_garmentTypeId: { branchId, garmentTypeId } },
-            create: {
-                branchId,
-                garmentTypeId,
-                customerPrice: dto.customerPrice,
-                employeeRate: dto.employeeRate
-            },
-            update: {
-                customerPrice: dto.customerPrice,
-                employeeRate: dto.employeeRate
-            }
-        });
-        await this.prisma.branchPriceLog.create({
-            data: {
-                branch: { connect: { id: branchId } },
-                garmentType: { connect: { id: garmentTypeId } },
-                changedBy: { connect: { id: userId } },
-                oldCustomerPrice: current?.customerPrice ?? null,
-                oldEmployeeRate: current?.employeeRate ?? null,
-                newCustomerPrice: dto.customerPrice,
-                newEmployeeRate: dto.employeeRate,
-                action: 'UPDATE'
-            }
-        });
-        return result;
-    }
-    async deleteBranchPrice(garmentTypeId, branchId, userId) {
-        const current = await this.prisma.branchGarmentPrice.findUnique({
-            where: { branchId_garmentTypeId: { branchId, garmentTypeId } }
-        });
-        if (!current)
-            return;
-        const result = await this.prisma.branchGarmentPrice.delete({
-            where: { branchId_garmentTypeId: { branchId, garmentTypeId } }
-        });
-        await this.prisma.branchPriceLog.create({
-            data: {
-                branch: { connect: { id: branchId } },
-                garmentType: { connect: { id: garmentTypeId } },
-                changedBy: { connect: { id: userId } },
-                oldCustomerPrice: current.customerPrice,
-                oldEmployeeRate: current.employeeRate,
-                newCustomerPrice: null,
-                newEmployeeRate: null,
-                action: 'RESET'
-            }
-        });
-        return result;
-    }
-    async getBranchPriceHistory(garmentTypeId, branchId) {
-        return this.prisma.branchPriceLog.findMany({
-            where: { garmentTypeId, branchId },
             orderBy: { createdAt: 'desc' },
             include: {
                 changedBy: { select: { name: true, email: true } },

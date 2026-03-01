@@ -13,6 +13,8 @@ export declare class OrdersController {
         data: {
             items: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;
@@ -109,12 +111,14 @@ export declare class OrdersController {
             };
             payments: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 orderId: string;
                 amount: number;
-                note: string | null;
                 paidAt: Date;
                 receivedById: string;
+                note: string | null;
             }[];
             items: ({
                 employee: {
@@ -123,6 +127,8 @@ export declare class OrdersController {
                 } | null;
             } & {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;
@@ -182,6 +188,8 @@ export declare class OrdersController {
         data: {
             items: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;
@@ -256,6 +264,8 @@ export declare class OrdersController {
         data: {
             items: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;
@@ -300,6 +310,8 @@ export declare class OrdersController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -322,6 +334,8 @@ export declare class OrdersController {
         data: {
             items: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;

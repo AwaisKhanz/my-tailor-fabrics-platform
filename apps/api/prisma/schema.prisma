@@ -62,44 +62,42 @@ enum DiscountType {
 }
 
 model Branch {
-  id                String               @id @default(cuid())
-  code              String               @unique // e.g. 'LHR', 'KHI' - used in Size Numbers
+  id                String             @id @default(cuid())
+  code              String             @unique // e.g. 'LHR', 'KHI' - used in Size Numbers
   name              String
   address           String?
   phone             String?
-  isActive          Boolean              @default(true)
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   deletedAt         DateTime?
   users             User[]
   employees         Employee[]
   customers         Customer[]
   orders            Order[]
   expenses          Expense[]
-  priceOverrides    BranchGarmentPrice[]
   attendanceRecords AttendanceRecord[]
-  priceLogs         BranchPriceLog[]
 }
 
 model User {
-  id                String     @id @default(cuid())
+  id                String            @id @default(cuid())
   name              String
-  email             String     @unique
+  email             String            @unique
   passwordHash      String
-  role              Role       @default(ENTRY_OPERATOR)
+  role              Role              @default(ENTRY_OPERATOR)
   branchId          String? // null = Super Admin (all branches)
-  branch            Branch?    @relation(fields: [branchId], references: [id])
-  employeeId        String?    @unique // only set when role = EMPLOYEE
-  employee          Employee?  @relation(fields: [employeeId], references: [id])
-  isActive          Boolean    @default(true)
+  branch            Branch?           @relation(fields: [branchId], references: [id])
+  employeeId        String?           @unique // only set when role = EMPLOYEE
+  employee          Employee?         @relation(fields: [employeeId], references: [id])
+  isActive          Boolean           @default(true)
   lastLoginAt       DateTime?
   refreshToken      String? // hashed refresh token
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
   deletedAt         DateTime?
   auditLogs         AuditLog[]
   paymentsProcessed Payment[]
-  priceChanges      BranchPriceLog[]
+  priceLogs         GarmentPriceLog[]
 
   @@index([branchId])
   @@index([role])
@@ -142,14 +140,14 @@ model Employee {
 }
 
 model EmployeeDocument {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   employeeId   String
-  employee     Employee @relation(fields: [employeeId], references: [id])
+  employee     Employee  @relation(fields: [employeeId], references: [id])
   label        String // e.g. 'CNIC Front', 'Contract'
   fileUrl      String // Cloudflare R2 signed URL key
   fileType     String // 'image/jpeg', 'application/pdf'
   uploadedById String
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
   deletedAt    DateTime?
 
   @@index([employeeId])
@@ -188,6 +186,7 @@ model MeasurementCategory {
   sortOrder    Int                   @default(0)
   isActive     Boolean               @default(true)
   createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
   deletedAt    DateTime?
   fields       MeasurementField[]
   measurements CustomerMeasurement[]
@@ -204,6 +203,8 @@ model MeasurementField {
   isRequired      Boolean             @default(false)
   sortOrder       Int                 @default(0)
   dropdownOptions String[] // only used when fieldType = DROPDOWN
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   deletedAt       DateTime?
 }
 
@@ -215,41 +216,26 @@ model CustomerMeasurement {
   category   MeasurementCategory @relation(fields: [categoryId], references: [id])
   // values: { "fieldId_abc": "42", "fieldId_def": "16.5" }
   values     Json
+  createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
 
   @@unique([customerId, categoryId]) // one measurement set per category per customer
 }
 
 model GarmentType {
-  id              String               @id @default(cuid())
-  name            String // 'Shalwar Kameez', '3-Piece Suit', 'Waistcoat'
-  customerPrice   Int // paisas — global default: what shop charges customer
-  employeeRate    Int // paisas — global default: what tailor earns per piece
-  description     String?
-  sortOrder       Int                  @default(0)
-  isActive        Boolean              @default(true)
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  deletedAt       DateTime?
-  orderItems      OrderItem[]
-  branchOverrides BranchGarmentPrice[]
-  branchPriceLogs BranchPriceLog[]
+  id                    String                @id @default(cuid())
+  name                  String // 'Shalwar Kameez', '3-Piece Suit', 'Waistcoat'
+  customerPrice         Int // paisas — global default: what shop charges customer
+  employeeRate          Int // paisas — global default: what tailor earns per piece
+  description           String?
+  sortOrder             Int                   @default(0)
+  isActive              Boolean               @default(true)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  deletedAt             DateTime?
+  orderItems            OrderItem[]
+  priceLogs             GarmentPriceLog[]
   measurementCategories MeasurementCategory[]
-}
-
-// Per-branch price overrides (Decision 2)
-model BranchGarmentPrice {
-  id            String      @id @default(cuid())
-  branchId      String
-  branch        Branch      @relation(fields: [branchId], references: [id])
-  garmentTypeId String
-  garmentType   GarmentType @relation(fields: [garmentTypeId], references: [id])
-  customerPrice Int? // null = use global default
-  employeeRate  Int? // null = use global default
-  updatedAt     DateTime    @updatedAt
-  deletedAt     DateTime?
-
-  @@unique([branchId, garmentTypeId])
 }
 
 model Order {
@@ -303,6 +289,8 @@ model OrderItem {
   dueDate         DateTime? // item-level due date (can differ from order)
   status          ItemStatus  @default(PENDING)
   completedAt     DateTime? // set when status -> COMPLETED
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   deletedAt       DateTime?
 
   @@index([orderId])
@@ -310,13 +298,15 @@ model OrderItem {
 }
 
 model OrderPayment {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   orderId      String
-  order        Order    @relation(fields: [orderId], references: [id])
+  order        Order     @relation(fields: [orderId], references: [id])
   amount       Int // paisas received from customer
-  paidAt       DateTime @default(now())
+  paidAt       DateTime  @default(now())
   receivedById String // userId
   note         String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
   @@index([orderId])
@@ -337,25 +327,29 @@ model OrderStatusHistory {
 }
 
 model Payment {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   employeeId    String
-  employee      Employee @relation(fields: [employeeId], references: [id])
+  employee      Employee  @relation(fields: [employeeId], references: [id])
   amount        Int // paisas disbursed to employee
-  paidAt        DateTime @default(now())
+  paidAt        DateTime  @default(now())
   processedById String
-  processedBy   User     @relation(fields: [processedById], references: [id])
+  processedBy   User      @relation(fields: [processedById], references: [id])
   note          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
   @@index([employeeId, paidAt])
 }
 
 model ExpenseCategory {
-  id       String    @id @default(cuid())
-  name     String // 'Rent', 'Electricity', 'Equipment', 'Supplies'
-  isActive Boolean   @default(true)
+  id        String    @id @default(cuid())
+  name      String // 'Rent', 'Electricity', 'Equipment', 'Supplies'
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  expenses Expense[]
+  expenses  Expense[]
 }
 
 model Expense {
@@ -370,15 +364,16 @@ model Expense {
   expenseDate DateTime
   addedById   String
   createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?
 
   @@index([branchId, expenseDate])
 }
 
 model AuditLog {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   action    String // CREATE | UPDATE | DELETE | LOGIN | PAYMENT | STATUS_CHANGE
   entity    String // 'Order' | 'Employee' | 'Customer' | 'Payment' ...
   entityId  String
@@ -387,7 +382,7 @@ model AuditLog {
   newValue  Json? // snapshot after mutation
   ipAddress String?
   userAgent String?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 
   @@index([entity, entityId])
@@ -409,26 +404,35 @@ model AttendanceRecord {
   hoursWorked Float? // computed and stored on clock-out
   note        String?
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   @@index([employeeId, date])
   @@index([branchId, date])
 }
-model BranchPriceLog {
-  id            String      @id @default(cuid())
-  branchId      String
-  branch        Branch      @relation(fields: [branchId], references: [id])
-  garmentTypeId String
-  garmentType   GarmentType @relation(fields: [garmentTypeId], references: [id])
-  changedById   String
-  changedBy     User        @relation(fields: [changedById], references: [id])
-  oldCustomerPrice Int?     // null if it was global
-  oldEmployeeRate  Int?     // null if it was global
-  newCustomerPrice Int?     // null if it's a reset to global
-  newEmployeeRate  Int?     // null if it's a reset to global
-  action        String      // 'UPDATE' | 'RESET'
-  createdAt     DateTime    @default(now())
 
-  @@index([branchId, garmentTypeId])
+model GarmentPriceLog {
+  id               String      @id @default(cuid())
+  garmentTypeId    String
+  garmentType      GarmentType @relation(fields: [garmentTypeId], references: [id])
+  changedById      String
+  changedBy        User        @relation(fields: [changedById], references: [id])
+  oldCustomerPrice Int?
+  oldEmployeeRate  Int?
+  newCustomerPrice Int?
+  newEmployeeRate  Int?
+  action           String // 'UPDATE'
+  createdAt        DateTime    @default(now())
+
+  @@index([garmentTypeId])
   @@index([createdAt])
+}
+
+// ─── Phase 0: System Configurations ───────────────────────────────────────────
+
+model SystemSettings {
+  id              String   @id @default("default") // Only one row
+  useTaskWorkflow Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

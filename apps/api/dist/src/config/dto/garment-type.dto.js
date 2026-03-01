@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SetBranchPriceDto = exports.UpdateGarmentTypeDto = exports.CreateGarmentTypeDto = void 0;
+exports.UpdateGarmentTypeDto = exports.CreateGarmentTypeDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateGarmentTypeDto {
     name;
@@ -98,19 +98,4 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], UpdateGarmentTypeDto.prototype, "measurementCategoryIds", void 0);
-class SetBranchPriceDto {
-    customerPrice;
-    employeeRate;
-}
-exports.SetBranchPriceDto = SetBranchPriceDto;
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
-], SetBranchPriceDto.prototype, "customerPrice", void 0);
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
-], SetBranchPriceDto.prototype, "employeeRate", void 0);
 //# sourceMappingURL=garment-type.dto.js.map

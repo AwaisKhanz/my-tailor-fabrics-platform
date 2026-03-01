@@ -55,15 +55,13 @@ let OrdersService = class OrdersService {
             const resolvedItems = [];
             for (const item of createOrderDto.items) {
                 const type = await tx.garmentType.findUnique({
-                    where: { id: item.garmentTypeId },
-                    include: { branchOverrides: { where: { branchId: orderBranchId } } }
+                    where: { id: item.garmentTypeId }
                 });
                 if (!type || !type.isActive) {
                     throw new common_1.BadRequestException(`Garment Type ${item.garmentTypeId} not found or inactive`);
                 }
-                const override = type.branchOverrides[0];
-                const customerPrice = override?.customerPrice ?? type.customerPrice;
-                const employeeRate = override?.employeeRate ?? type.employeeRate;
+                const customerPrice = type.customerPrice;
+                const employeeRate = type.employeeRate;
                 subtotal += (customerPrice * item.quantity);
                 resolvedItems.push({
                     garmentTypeId: type.id,
@@ -400,15 +398,13 @@ let OrdersService = class OrdersService {
             if (!order)
                 throw new common_1.NotFoundException('Order not found');
             const type = await tx.garmentType.findUnique({
-                where: { id: itemDto.garmentTypeId },
-                include: { branchOverrides: { where: { branchId } } }
+                where: { id: itemDto.garmentTypeId }
             });
             if (!type || !type.isActive) {
                 throw new common_1.BadRequestException('Garment type not found or inactive');
             }
-            const override = type.branchOverrides[0];
-            const customerPrice = override?.customerPrice ?? type.customerPrice;
-            const employeeRate = override?.employeeRate ?? type.employeeRate;
+            const customerPrice = type.customerPrice;
+            const employeeRate = type.employeeRate;
             await tx.orderItem.create({
                 data: {
                     orderId,

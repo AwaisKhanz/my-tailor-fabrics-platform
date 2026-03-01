@@ -37,14 +37,11 @@ export declare class BranchesController {
         data: {
             stats: {
                 totalGarments: number;
-                activeOverrides: number;
-                syncPercentage: number;
             };
             _count: {
                 employees: number;
                 customers: number;
                 orders: number;
-                priceOverrides: number;
             };
             id: string;
             code: string;

@@ -49,6 +49,15 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Log detailed error info for debugging connection issues
+    if (!error.response) {
+      console.error('Network/Connection Error:', {
+        message: error.message,
+        code: error.code,
+        config: error.config?.url
+      });
+    }
+
     // Prevent redirect loops by checking if we are already on the login page or trying to fetch session.
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       const isLoginPage = window.location.pathname.includes('/login');

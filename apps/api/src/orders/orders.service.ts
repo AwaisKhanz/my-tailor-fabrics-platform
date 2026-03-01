@@ -57,22 +57,19 @@ export class OrdersService {
       let subtotal = 0;
       const resolvedItems = [];
 
-      // Fetch all necessary garments and branch overrides in one go preferably, 
+      // Fetch all necessary garments in one go preferably, 
       // but loop is fine for small N items
       for (const item of createOrderDto.items) {
           const type = await tx.garmentType.findUnique({ 
-              where: { id: item.garmentTypeId },
-              include: { branchOverrides: { where: { branchId: orderBranchId } } }
+              where: { id: item.garmentTypeId }
           });
 
           if (!type || !type.isActive) {
               throw new BadRequestException(`Garment Type ${item.garmentTypeId} not found or inactive`);
           }
 
-          // Use override if exists, otherwise global default
-          const override = type.branchOverrides[0];
-          const customerPrice = override?.customerPrice ?? type.customerPrice;
-          const employeeRate = override?.employeeRate ?? type.employeeRate;
+          const customerPrice = type.customerPrice;
+          const employeeRate = type.employeeRate;
 
           subtotal += (customerPrice * item.quantity);
 
@@ -494,17 +491,15 @@ export class OrdersService {
       if (!order) throw new NotFoundException('Order not found');
 
       const type = await tx.garmentType.findUnique({ 
-        where: { id: itemDto.garmentTypeId },
-        include: { branchOverrides: { where: { branchId } } }
+        where: { id: itemDto.garmentTypeId }
       });
 
       if (!type || !type.isActive) {
         throw new BadRequestException('Garment type not found or inactive');
       }
 
-      const override = type.branchOverrides[0];
-      const customerPrice = override?.customerPrice ?? type.customerPrice;
-      const employeeRate = override?.employeeRate ?? type.employeeRate;
+      const customerPrice = type.customerPrice;
+      const employeeRate = type.employeeRate;
 
       await tx.orderItem.create({
         data: {

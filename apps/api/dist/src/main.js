@@ -8,6 +8,8 @@ const common_1 = require("@nestjs/common");
 const app_module_1 = require("./app.module");
 const helmet_1 = __importDefault(require("helmet"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const core_2 = require("@nestjs/core");
+const all_exceptions_filter_1 = require("./common/filters/all-exceptions.filter");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.use((0, helmet_1.default)());
@@ -21,6 +23,8 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
+    const httpAdapterHost = app.get(core_2.HttpAdapterHost);
+    app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter(httpAdapterHost));
     await app.listen(process.env.PORT ?? 5000);
 }
 bootstrap();

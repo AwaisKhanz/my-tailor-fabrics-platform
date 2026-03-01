@@ -29,7 +29,7 @@ export interface MeasurementCategory {
   sortOrder: number;
   isActive: boolean;
   fields: MeasurementField[];
-  createdAt: string;
+  createdAt: Date | string;
 }
 
 export interface GarmentType {
@@ -40,42 +40,51 @@ export interface GarmentType {
   description?: string | null;
   sortOrder: number;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  resolvedCustomerPrice?: number;
-  resolvedEmployeeRate?: number;
-  isOverridden?: boolean;
-  overridesCount: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   measurementCategories?: MeasurementCategory[];
 }
 
-export interface BranchPriceOverride {
+export interface GarmentPriceLog {
   id: string;
-  branchId: string;
-  garmentTypeId: string;
-  customerPrice: number | null;
-  employeeRate: number | null;
-  updatedAt: string;
-  branch?: {
-    id: string;
-    name: string;
-    code: string;
-  };
-}
-
-export interface BranchPriceLog {
-  id: string;
-  action: 'UPDATE' | 'RESET';
+  action: string;
   oldCustomerPrice: number | null;
   oldEmployeeRate: number | null;
   newCustomerPrice: number | null;
   newEmployeeRate: number | null;
-  createdAt: string;
+  createdAt: Date | string;
   changedBy: {
     name: string;
-    email: string;
+    email?: string;
   };
-  garmentType: {
+  garmentType?: {
     name: string;
   };
+}
+
+export interface GarmentTypeAnalytics {
+  totalOrders: number;
+  activeOrders: number;
+  totalRevenue: number;
+  totalPayout: number;
+  avgActualPrice: number;
+  topTailors: { name: string; count: number }[];
+}
+
+export interface GarmentTypeWithAnalytics extends GarmentType {
+  marginAmount: number;
+  marginPercentage: number;
+  priceLogs: GarmentPriceLog[];
+  analytics: GarmentTypeAnalytics;
+}
+
+export interface SystemSettings {
+  id: string;
+  useTaskWorkflow: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface UpdateSystemSettingsInput {
+  useTaskWorkflow?: boolean;
 }

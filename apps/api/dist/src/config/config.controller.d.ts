@@ -1,7 +1,8 @@
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { ConfigService } from './config.service';
-import { CreateGarmentTypeDto, UpdateGarmentTypeDto, SetBranchPriceDto } from './dto/garment-type.dto';
+import { CreateGarmentTypeDto, UpdateGarmentTypeDto } from './dto/garment-type.dto';
 import { CreateMeasurementCategoryDto, UpdateMeasurementCategoryDto, CreateMeasurementFieldDto, UpdateMeasurementFieldDto } from './dto/measurement-category.dto';
+import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
 export declare class ConfigController {
     private readonly configService;
     constructor(configService: ConfigService);
@@ -19,31 +20,26 @@ export declare class ConfigController {
             deletedAt: Date | null;
         }[];
     }>;
-    getGarmentTypes(req: AuthenticatedRequest, search?: string, page?: string, limit?: string, branchIdQuery?: string): Promise<{
+    getSystemSettings(): Promise<{
+        success: boolean;
+        data: import("@tbms/shared-types").SystemSettings;
+    }>;
+    updateSystemSettings(dto: UpdateSystemSettingsDto): Promise<{
+        success: boolean;
+        data: import("@tbms/shared-types").SystemSettings;
+    }>;
+    getGarmentTypes(search?: string, page?: string, limit?: string): Promise<{
         success: boolean;
         data: {
             data: {
-                resolvedCustomerPrice: number;
-                resolvedEmployeeRate: number;
-                isOverridden: boolean;
-                overridesCount: number;
                 marginAmount: number;
                 marginPercentage: number;
-                priceOffset: number;
-                branchOverrides: {
-                    id: string;
-                    updatedAt: Date;
-                    deletedAt: Date | null;
-                    branchId: string;
-                    customerPrice: number | null;
-                    employeeRate: number | null;
-                    garmentTypeId: string;
-                }[];
                 measurementCategories: {
                     id: string;
                     name: string;
                     isActive: boolean;
                     createdAt: Date;
+                    updatedAt: Date;
                     deletedAt: Date | null;
                     sortOrder: number;
                 }[];
@@ -61,56 +57,9 @@ export declare class ConfigController {
             total: number;
         };
     }>;
-    getGarmentType(id: string, req: AuthenticatedRequest, branchIdQuery?: string): Promise<{
+    getGarmentType(id: string): Promise<{
         success: boolean;
-        data: {
-            resolvedCustomerPrice: number;
-            resolvedEmployeeRate: number;
-            isOverridden: boolean;
-            overridesCount: number;
-            marginAmount: number;
-            marginPercentage: number;
-            priceOffset: number;
-            branchOverrides: {
-                id: string;
-                updatedAt: Date;
-                deletedAt: Date | null;
-                branchId: string;
-                customerPrice: number | null;
-                employeeRate: number | null;
-                garmentTypeId: string;
-            }[];
-            measurementCategories: ({
-                fields: {
-                    id: string;
-                    deletedAt: Date | null;
-                    sortOrder: number;
-                    categoryId: string;
-                    label: string;
-                    fieldType: import(".prisma/client").$Enums.FieldType;
-                    unit: string | null;
-                    isRequired: boolean;
-                    dropdownOptions: string[];
-                }[];
-            } & {
-                id: string;
-                name: string;
-                isActive: boolean;
-                createdAt: Date;
-                deletedAt: Date | null;
-                sortOrder: number;
-            })[];
-            id: string;
-            name: string;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            customerPrice: number;
-            employeeRate: number;
-            description: string | null;
-            sortOrder: number;
-        };
+        data: import("@tbms/shared-types").GarmentTypeWithAnalytics;
     }>;
     getGarmentStats(): Promise<{
         success: boolean;
@@ -135,7 +84,7 @@ export declare class ConfigController {
             sortOrder: number;
         };
     }>;
-    updateGarmentType(id: string, dto: UpdateGarmentTypeDto): Promise<{
+    updateGarmentType(id: string, dto: UpdateGarmentTypeDto, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             id: string;
@@ -150,46 +99,7 @@ export declare class ConfigController {
             sortOrder: number;
         };
     }>;
-    getBranchPrices(garmentTypeId: string): Promise<{
-        success: boolean;
-        data: ({
-            branch: {
-                id: string;
-                code: string;
-                name: string;
-                address: string | null;
-                phone: string | null;
-                isActive: boolean;
-                createdAt: Date;
-                updatedAt: Date;
-                deletedAt: Date | null;
-            };
-        } & {
-            id: string;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
-            customerPrice: number | null;
-            employeeRate: number | null;
-            garmentTypeId: string;
-        })[];
-    }>;
-    setBranchPrice(garmentTypeId: string, body: SetBranchPriceDto, req: AuthenticatedRequest): Promise<{
-        success: boolean;
-        data: {
-            id: string;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
-            customerPrice: number | null;
-            employeeRate: number | null;
-            garmentTypeId: string;
-        };
-    }>;
-    deleteBranchPrice(garmentTypeId: string, req: AuthenticatedRequest): Promise<{
-        success: boolean;
-    }>;
-    getBranchPriceHistory(garmentTypeId: string, req: AuthenticatedRequest): Promise<{
+    getGarmentPriceHistory(garmentTypeId: string): Promise<{
         success: boolean;
         data: ({
             garmentType: {
@@ -202,7 +112,6 @@ export declare class ConfigController {
         } & {
             id: string;
             createdAt: Date;
-            branchId: string;
             action: string;
             garmentTypeId: string;
             changedById: string;
@@ -218,6 +127,8 @@ export declare class ConfigController {
             data: ({
                 fields: {
                     id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     deletedAt: Date | null;
                     sortOrder: number;
                     categoryId: string;
@@ -232,6 +143,7 @@ export declare class ConfigController {
                 name: string;
                 isActive: boolean;
                 createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 sortOrder: number;
             })[];
@@ -245,6 +157,7 @@ export declare class ConfigController {
             name: string;
             isActive: boolean;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             sortOrder: number;
         };
@@ -256,6 +169,7 @@ export declare class ConfigController {
             name: string;
             isActive: boolean;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             sortOrder: number;
         };
@@ -264,6 +178,8 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             sortOrder: number;
             categoryId: string;
@@ -278,6 +194,8 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             sortOrder: number;
             categoryId: string;

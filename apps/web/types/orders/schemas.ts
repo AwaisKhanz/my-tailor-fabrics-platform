@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { DiscountType } from "@tbms/shared-types";
 
 export const orderItemSchema = z.object({
   garmentTypeId: z.string().min(1, "Garment type is required"),
@@ -14,7 +15,7 @@ export const orderSchema = z.object({
   customerId: z.string().min(1, "Customer is required"),
   dueDate: z.string().min(1, "Due date is required"),
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
-  discountType: z.enum(["FIXED", "PERCENTAGE"]),
+  discountType: z.nativeEnum(DiscountType),
   discountValue: z.coerce.number().default(0),
   advancePayment: z.coerce.number().default(0),
   notes: z.string().optional(),

@@ -13,6 +13,7 @@ export declare class AttendanceController {
         } & {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
@@ -33,6 +34,7 @@ export declare class AttendanceController {
         } & {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
@@ -53,6 +55,7 @@ export declare class AttendanceController {
         } & {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
@@ -77,6 +80,7 @@ export declare class AttendanceController {
             currentlyIn: {
                 id: string;
                 createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;
@@ -89,6 +93,7 @@ export declare class AttendanceController {
             records: {
                 id: string;
                 createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;

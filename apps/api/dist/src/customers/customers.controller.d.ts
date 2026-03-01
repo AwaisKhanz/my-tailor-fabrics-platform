@@ -65,15 +65,17 @@ export declare class CustomersController {
                     name: string;
                     isActive: boolean;
                     createdAt: Date;
+                    updatedAt: Date;
                     deletedAt: Date | null;
                     sortOrder: number;
                 };
             } & {
                 id: string;
+                createdAt: Date;
                 updatedAt: Date;
                 values: import("@prisma/client/runtime/library").JsonValue;
-                categoryId: string;
                 customerId: string;
+                categoryId: string;
             })[];
             id: string;
             address: string | null;
@@ -139,6 +141,8 @@ export declare class CustomersController {
         data: ({
             items: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;
@@ -186,10 +190,11 @@ export declare class CustomersController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
             updatedAt: Date;
             values: import("@prisma/client/runtime/library").JsonValue;
-            categoryId: string;
             customerId: string;
+            categoryId: string;
         };
     }>;
     toggleVip(id: string, isVip: boolean, req: AuthenticatedRequest): Promise<{

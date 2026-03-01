@@ -10,6 +10,8 @@ export declare class OrdersService {
     create(createOrderDto: CreateOrderDto, branchId: string, createdById: string, userRole: string): Promise<{
         items: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -49,6 +51,8 @@ export declare class OrdersService {
     recalcOrderTotals(orderId: string, tx?: Prisma.TransactionClient): Promise<{
         items: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -148,12 +152,14 @@ export declare class OrdersService {
         };
         payments: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             orderId: string;
             amount: number;
-            note: string | null;
             paidAt: Date;
             receivedById: string;
+            note: string | null;
         }[];
         items: ({
             employee: {
@@ -162,6 +168,8 @@ export declare class OrdersService {
             } | null;
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -211,6 +219,8 @@ export declare class OrdersService {
     addPayment(id: string, branchId: string, addPaymentDto: AddPaymentDto, receivedById: string): Promise<{
         items: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -286,6 +296,8 @@ export declare class OrdersService {
     }, userRole: string): Promise<{
         items: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -327,6 +339,8 @@ export declare class OrdersService {
         employeeId?: string;
     }): Promise<{
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
         employeeId: string | null;
         employeeRate: number;
@@ -343,6 +357,8 @@ export declare class OrdersService {
     removeItem(orderId: string, itemId: string, branchId: string): Promise<{
         items: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;
@@ -411,6 +427,8 @@ export declare class OrdersService {
     }): Promise<{
         items: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string | null;
             employeeRate: number;

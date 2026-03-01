@@ -5,7 +5,7 @@ export declare class ReportsController {
     private readonly reportsService;
     private readonly exportService;
     constructor(reportsService: ReportsService, exportService: ExportService);
-    getDashboard(req: AuthenticatedRequest, overrideBranchId?: string): Promise<{
+    getDashboard(req: AuthenticatedRequest, targetBranchId?: string): Promise<{
         success: boolean;
         data: {
             revenue: number;
@@ -15,8 +15,8 @@ export declare class ReportsController {
         };
     }>;
     private resolveBranch;
-    exportOrders(req: AuthenticatedRequest, res: import('express').Response, overrideBranchId?: string, from?: string, to?: string): Promise<void>;
-    exportPayments(req: AuthenticatedRequest, res: import('express').Response, overrideBranchId?: string, from?: string, to?: string): Promise<void>;
-    exportExpenses(req: AuthenticatedRequest, res: import('express').Response, overrideBranchId?: string, from?: string, to?: string): Promise<void>;
-    exportEmployees(req: AuthenticatedRequest, res: import('express').Response, overrideBranchId?: string): Promise<void>;
+    exportOrders(req: AuthenticatedRequest, res: import('express').Response, targetBranchId?: string, from?: string, to?: string): Promise<void>;
+    exportPayments(req: AuthenticatedRequest, res: import('express').Response, targetBranchId?: string, from?: string, to?: string): Promise<void>;
+    exportExpenses(req: AuthenticatedRequest, res: import('express').Response, targetBranchId?: string, from?: string, to?: string): Promise<void>;
+    exportEmployees(req: AuthenticatedRequest, res: import('express').Response, targetBranchId?: string): Promise<void>;
 }

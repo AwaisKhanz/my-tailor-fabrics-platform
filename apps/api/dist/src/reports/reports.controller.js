@@ -28,23 +28,23 @@ let ReportsController = class ReportsController {
         this.reportsService = reportsService;
         this.exportService = exportService;
     }
-    async getDashboard(req, overrideBranchId) {
+    async getDashboard(req, targetBranchId) {
         let resolvedBranchId = req.branchId;
-        if (req.user.role === shared_types_1.Role.SUPER_ADMIN && overrideBranchId !== undefined) {
-            resolvedBranchId = overrideBranchId === 'all' ? undefined : overrideBranchId;
+        if (req.user.role === shared_types_1.Role.SUPER_ADMIN && targetBranchId !== undefined) {
+            resolvedBranchId = targetBranchId === 'all' ? undefined : targetBranchId;
         }
         const data = await this.reportsService.getDashboardStats(resolvedBranchId);
         return { success: true, data };
     }
-    resolveBranch(req, overrideBranchId) {
+    resolveBranch(req, targetBranchId) {
         let resolved = req.branchId;
-        if (req.user.role === shared_types_1.Role.SUPER_ADMIN && overrideBranchId !== undefined) {
-            resolved = overrideBranchId === 'all' ? undefined : overrideBranchId;
+        if (req.user.role === shared_types_1.Role.SUPER_ADMIN && targetBranchId !== undefined) {
+            resolved = targetBranchId === 'all' ? undefined : targetBranchId;
         }
         return resolved;
     }
-    async exportOrders(req, res, overrideBranchId, from, to) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+    async exportOrders(req, res, targetBranchId, from, to) {
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportOrders(branchId, from, to);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -52,8 +52,8 @@ let ReportsController = class ReportsController {
         });
         stream.pipe(res);
     }
-    async exportPayments(req, res, overrideBranchId, from, to) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+    async exportPayments(req, res, targetBranchId, from, to) {
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportPayments(branchId, from, to);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -61,8 +61,8 @@ let ReportsController = class ReportsController {
         });
         stream.pipe(res);
     }
-    async exportExpenses(req, res, overrideBranchId, from, to) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+    async exportExpenses(req, res, targetBranchId, from, to) {
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportExpenses(branchId, from, to);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -70,8 +70,8 @@ let ReportsController = class ReportsController {
         });
         stream.pipe(res);
     }
-    async exportEmployees(req, res, overrideBranchId) {
-        const branchId = this.resolveBranch(req, overrideBranchId);
+    async exportEmployees(req, res, targetBranchId) {
+        const branchId = this.resolveBranch(req, targetBranchId);
         const stream = await this.exportService.exportEmployeeSummaries(branchId);
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

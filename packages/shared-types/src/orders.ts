@@ -1,5 +1,23 @@
 import { OrderStatus, ItemStatus, DiscountType } from './common';
 
+export interface OrderItemInput {
+  garmentTypeId: string;
+  quantity: number;
+  employeeId?: string | null;
+  description?: string;
+  dueDate?: string;
+}
+
+export interface CreateOrderInput {
+  customerId: string;
+  dueDate: string;
+  items: OrderItemInput[];
+  discountType: DiscountType;
+  discountValue: number;
+  advancePayment: number;
+  notes?: string;
+}
+
 export interface OrderItem {
   id: string;
   garmentTypeId: string;

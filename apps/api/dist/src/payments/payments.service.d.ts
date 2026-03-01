@@ -11,21 +11,25 @@ export declare class PaymentsService {
     getWeeklyBreakdown(employeeId: string, weeksBack?: number): Promise<unknown>;
     disbursePay(employeeId: string, amount: number, processedById: string, note?: string): Promise<{
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
         employeeId: string;
         amount: number;
-        note: string | null;
         paidAt: Date;
+        note: string | null;
         processedById: string;
     }>;
     getHistory(employeeId: string, page?: number, limit?: number, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             amount: number;
-            note: string | null;
             paidAt: Date;
+            note: string | null;
             processedById: string;
         }[];
         meta: {

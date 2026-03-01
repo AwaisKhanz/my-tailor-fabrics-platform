@@ -55,7 +55,7 @@ let BranchesService = class BranchesService {
         const branch = await this.prisma.branch.findFirst({
             where: { id, deletedAt: null },
             include: {
-                _count: { select: { employees: true, customers: true, orders: true, priceOverrides: true } },
+                _count: { select: { employees: true, customers: true, orders: true } },
             },
         });
         if (!branch)
@@ -65,8 +65,6 @@ let BranchesService = class BranchesService {
             ...branch,
             stats: {
                 totalGarments: totalGarmentTypes,
-                activeOverrides: branch._count.priceOverrides,
-                syncPercentage: totalGarmentTypes > 0 ? Math.round(((totalGarmentTypes - branch._count.priceOverrides) / totalGarmentTypes) * 100) : 100
             }
         };
     }

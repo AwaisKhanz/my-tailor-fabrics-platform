@@ -13,7 +13,9 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ? parseInt(process.env.JWT_EXPIRES_IN, 10) : 604800 },
+      signOptions: { 
+        expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any
+      },
     }),
   ],
   controllers: [AuthController],

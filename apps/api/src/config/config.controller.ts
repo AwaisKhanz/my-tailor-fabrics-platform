@@ -1,8 +1,9 @@
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { Controller, Get, Post, Body, Put, Param, Delete, Req, UseGuards, Query } from '@nestjs/common';
 import { ConfigService } from './config.service';
-import { CreateGarmentTypeDto, UpdateGarmentTypeDto, SetBranchPriceDto } from './dto/garment-type.dto';
+import { CreateGarmentTypeDto, UpdateGarmentTypeDto } from './dto/garment-type.dto';
 import { CreateMeasurementCategoryDto, UpdateMeasurementCategoryDto, CreateMeasurementFieldDto, UpdateMeasurementFieldDto } from './dto/measurement-category.dto';
+import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
@@ -21,22 +22,29 @@ export class ConfigController {
     return { success: true, data };
   }
 
+  // --- System Settings ---
+  @Get('settings')
+  async getSystemSettings() {
+    const data = await this.configService.getSystemSettings();
+    return { success: true, data };
+  }
+
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Put('settings')
+  async updateSystemSettings(@Body() dto: UpdateSystemSettingsDto) {
+    const data = await this.configService.updateSystemSettings(dto);
+    return { success: true, data };
+  }
+
   // --- Garment Types ---
   // Any authenticated user can read garment types, but it resolves prices based on their active branch via header
   @Get('garment-types')
   async getGarmentTypes(
-      @Req() req: AuthenticatedRequest, 
       @Query('search') search?: string,
       @Query('page') page?: string,
-      @Query('limit') limit?: string,
-      @Query('branchId') branchIdQuery?: string
+      @Query('limit') limit?: string
   ) {
-    // req.branchId is set by BranchGuard. Note SuperAdmins can optionally bypass this
-    // If branchId is explicitly passed in query, use that instead of the guard's one
-    const activeBranchId = branchIdQuery || req.branchId;
-    
     const data = await this.configService.getGarmentTypes({
-        branchId: activeBranchId,
         search,
         page: page ? parseInt(page) : 1,
         limit: limit ? parseInt(limit) : 10
@@ -45,9 +53,8 @@ export class ConfigController {
   }
 
   @Get('garment-types/:id')
-  async getGarmentType(@Param('id') id: string, @Req() req: AuthenticatedRequest, @Query('branchId') branchIdQuery?: string) {
-    const activeBranchId = branchIdQuery || req.branchId;
-    const data = await this.configService.getGarmentType(id, activeBranchId);
+  async getGarmentType(@Param('id') id: string) {
+    const data = await this.configService.getGarmentType(id);
     return { success: true, data };
   }
 
@@ -67,37 +74,15 @@ export class ConfigController {
 
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Put('garment-types/:id')
-  async updateGarmentType(@Param('id') id: string, @Body() dto: UpdateGarmentTypeDto) {
-    const data = await this.configService.updateGarmentType(id, dto);
+  async updateGarmentType(@Param('id') id: string, @Body() dto: UpdateGarmentTypeDto, @Req() req: AuthenticatedRequest) {
+    const data = await this.configService.updateGarmentType(id, dto, req.user.userId);
     return { success: true, data };
-  }
-
-  // --- Branch Price Overrides ---
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  @Get('garment-types/:id/branch-prices')
-  async getBranchPrices(@Param('id') garmentTypeId: string) {
-    const data = await this.configService.getBranchPrices(garmentTypeId);
-    return { success: true, data };
-  }
-
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  @Put('garment-types/:id/branch-prices')
-  async setBranchPrice(@Param('id') garmentTypeId: string, @Body() body: SetBranchPriceDto, @Req() req: AuthenticatedRequest) {
-    const data = await this.configService.setBranchPrice(garmentTypeId, req.branchId, body, req.user.userId);
-    return { success: true, data };
-  }
-
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  @Delete('garment-types/:id/branch-prices')
-  async deleteBranchPrice(@Param('id') garmentTypeId: string, @Req() req: AuthenticatedRequest) {
-    await this.configService.deleteBranchPrice(garmentTypeId, req.branchId, req.user.userId);
-    return { success: true };
   }
 
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Get('garment-types/:id/history')
-  async getBranchPriceHistory(@Param('id') garmentTypeId: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.configService.getBranchPriceHistory(garmentTypeId, req.branchId);
+  async getGarmentPriceHistory(@Param('id') garmentTypeId: string) {
+    const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
     return { success: true, data };
   }
 

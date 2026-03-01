@@ -62,15 +62,17 @@ export declare class CustomersService {
                 name: string;
                 isActive: boolean;
                 createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 sortOrder: number;
             };
         } & {
             id: string;
+            createdAt: Date;
             updatedAt: Date;
             values: Prisma.JsonValue;
-            categoryId: string;
             customerId: string;
+            categoryId: string;
         })[];
         id: string;
         address: string | null;
@@ -129,6 +131,8 @@ export declare class CustomersService {
         data: ({
             items: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string | null;
                 employeeRate: number;
@@ -173,10 +177,11 @@ export declare class CustomersService {
     }>;
     upsertMeasurement(id: string, branchId: string, dto: UpsertMeasurementDto): Promise<{
         id: string;
+        createdAt: Date;
         updatedAt: Date;
         values: Prisma.JsonValue;
-        categoryId: string;
         customerId: string;
+        categoryId: string;
     }>;
     toggleVip(id: string, branchId: string, isVip: boolean): Promise<{
         id: string;

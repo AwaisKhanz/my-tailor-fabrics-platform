@@ -9,6 +9,7 @@ export declare class ExpensesController {
         data: {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
@@ -25,11 +26,14 @@ export declare class ExpensesController {
                 id: string;
                 name: string;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
             };
         } & {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
@@ -52,6 +56,8 @@ export declare class ExpensesController {
             id: string;
             name: string;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
         }[];
     }>;
@@ -62,11 +68,14 @@ export declare class ExpensesController {
                 id: string;
                 name: string;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
             };
         } & {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
@@ -82,6 +91,7 @@ export declare class ExpensesController {
         data: {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             branchId: string;
             description: string | null;

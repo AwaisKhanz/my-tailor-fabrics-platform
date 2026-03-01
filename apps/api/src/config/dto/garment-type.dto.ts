@@ -57,12 +57,3 @@ export class UpdateGarmentTypeDto {
   measurementCategoryIds?: string[];
 }
 
-export class SetBranchPriceDto {
-  @IsInt()
-  @IsOptional()
-  customerPrice?: number;
-
-  @IsInt()
-  @IsOptional()
-  employeeRate?: number;
-}

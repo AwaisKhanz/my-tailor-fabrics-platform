@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import { DiscountType } from "@tbms/shared-types";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -57,7 +58,7 @@ export default function NewOrderPage() {
       customerId: "",
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       items: [{ garmentTypeId: "", quantity: 1, unitPrice: 0 }],
-      discountType: "FIXED",
+      discountType: DiscountType.FIXED,
       discountValue: 0,
       advancePayment: 0,
     },
@@ -94,7 +95,7 @@ export default function NewOrderPage() {
   const totals = useMemo(() => {
     const subtotal = watchedItems.reduce((acc, item) => acc + (item.unitPrice * (item.quantity || 0)), 0);
     let discountAmount = 0;
-    if (discountType === "FIXED") {
+    if (discountType === DiscountType.FIXED) {
       discountAmount = discountValue;
     } else {
       discountAmount = (subtotal * discountValue) / 100;
@@ -209,8 +210,8 @@ export default function NewOrderPage() {
                                     field.onChange(val);
                                     const gt = garmentTypes.find(g => g.id === val);
                                     if (gt) {
-                                      form.setValue(`items.${index}.unitPrice`, gt.resolvedCustomerPrice || gt.customerPrice);
-                                      form.setValue(`items.${index}.employeeRate`, gt.resolvedEmployeeRate || gt.employeeRate);
+                                      form.setValue(`items.${index}.unitPrice`, gt.customerPrice);
+                                      form.setValue(`items.${index}.employeeRate`, gt.employeeRate);
                                     }
                                   }} 
                                   value={field.value}
@@ -322,8 +323,8 @@ export default function NewOrderPage() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="FIXED">Flat (Rs)</SelectItem>
-                                  <SelectItem value="PERCENTAGE">Percent (%)</SelectItem>
+                                  <SelectItem value={DiscountType.FIXED}>Flat (Rs)</SelectItem>
+                                  <SelectItem value={DiscountType.PERCENTAGE}>Percent (%)</SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormItem>

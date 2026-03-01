@@ -12,7 +12,6 @@ export interface Branch {
     employees: number;
     customers: number;
     orders: number;
-    priceOverrides: number;
   };
 }
 

@@ -7,8 +7,6 @@ export const garmentTypeSchema = z.object({
   description: z.string().optional(),
   isActive: z.boolean().default(true),
   sortOrder: z.coerce.number().default(0),
-  branchCustomerPrice: z.coerce.number().optional(),
-  branchEmployeeRate: z.coerce.number().optional(),
   measurementCategoryIds: z.array(z.string()).default([]),
 });
 

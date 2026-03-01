@@ -16,7 +16,3 @@ export declare class UpdateGarmentTypeDto {
     sortOrder?: number;
     measurementCategoryIds?: string[];
 }
-export declare class SetBranchPriceDto {
-    customerPrice?: number;
-    employeeRate?: number;
-}

@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const config_service_1 = require("./config.service");
 const garment_type_dto_1 = require("./dto/garment-type.dto");
 const measurement_category_dto_1 = require("./dto/measurement-category.dto");
+const system_settings_dto_1 = require("./dto/system-settings.dto");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
@@ -31,19 +32,24 @@ let ConfigController = class ConfigController {
         const data = await this.configService.getBranches();
         return { success: true, data };
     }
-    async getGarmentTypes(req, search, page, limit, branchIdQuery) {
-        const activeBranchId = branchIdQuery || req.branchId;
+    async getSystemSettings() {
+        const data = await this.configService.getSystemSettings();
+        return { success: true, data };
+    }
+    async updateSystemSettings(dto) {
+        const data = await this.configService.updateSystemSettings(dto);
+        return { success: true, data };
+    }
+    async getGarmentTypes(search, page, limit) {
         const data = await this.configService.getGarmentTypes({
-            branchId: activeBranchId,
             search,
             page: page ? parseInt(page) : 1,
             limit: limit ? parseInt(limit) : 10
         });
         return { success: true, data };
     }
-    async getGarmentType(id, req, branchIdQuery) {
-        const activeBranchId = branchIdQuery || req.branchId;
-        const data = await this.configService.getGarmentType(id, activeBranchId);
+    async getGarmentType(id) {
+        const data = await this.configService.getGarmentType(id);
         return { success: true, data };
     }
     async getGarmentStats() {
@@ -54,24 +60,12 @@ let ConfigController = class ConfigController {
         const data = await this.configService.createGarmentType(dto);
         return { success: true, data };
     }
-    async updateGarmentType(id, dto) {
-        const data = await this.configService.updateGarmentType(id, dto);
+    async updateGarmentType(id, dto, req) {
+        const data = await this.configService.updateGarmentType(id, dto, req.user.userId);
         return { success: true, data };
     }
-    async getBranchPrices(garmentTypeId) {
-        const data = await this.configService.getBranchPrices(garmentTypeId);
-        return { success: true, data };
-    }
-    async setBranchPrice(garmentTypeId, body, req) {
-        const data = await this.configService.setBranchPrice(garmentTypeId, req.branchId, body, req.user.userId);
-        return { success: true, data };
-    }
-    async deleteBranchPrice(garmentTypeId, req) {
-        await this.configService.deleteBranchPrice(garmentTypeId, req.branchId, req.user.userId);
-        return { success: true };
-    }
-    async getBranchPriceHistory(garmentTypeId, req) {
-        const data = await this.configService.getBranchPriceHistory(garmentTypeId, req.branchId);
+    async getGarmentPriceHistory(garmentTypeId) {
+        const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
         return { success: true, data };
     }
     async getMeasurementCategories(search, page, limit) {
@@ -116,23 +110,33 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getBranches", null);
 __decorate([
-    (0, common_1.Get)('garment-types'),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Query)('search')),
-    __param(2, (0, common_1.Query)('page')),
-    __param(3, (0, common_1.Query)('limit')),
-    __param(4, (0, common_1.Query)('branchId')),
+    (0, common_1.Get)('settings'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String]),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ConfigController.prototype, "getSystemSettings", null);
+__decorate([
+    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.ADMIN),
+    (0, common_1.Put)('settings'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [system_settings_dto_1.UpdateSystemSettingsDto]),
+    __metadata("design:returntype", Promise)
+], ConfigController.prototype, "updateSystemSettings", null);
+__decorate([
+    (0, common_1.Get)('garment-types'),
+    __param(0, (0, common_1.Query)('search')),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGarmentTypes", null);
 __decorate([
     (0, common_1.Get)('garment-types/:id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Req)()),
-    __param(2, (0, common_1.Query)('branchId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, String]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGarmentType", null);
 __decorate([
@@ -155,46 +159,19 @@ __decorate([
     (0, common_1.Put)('garment-types/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, garment_type_dto_1.UpdateGarmentTypeDto]),
+    __metadata("design:paramtypes", [String, garment_type_dto_1.UpdateGarmentTypeDto, Object]),
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "updateGarmentType", null);
 __decorate([
     (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
-    (0, common_1.Get)('garment-types/:id/branch-prices'),
+    (0, common_1.Get)('garment-types/:id/history'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], ConfigController.prototype, "getBranchPrices", null);
-__decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
-    (0, common_1.Put)('garment-types/:id/branch-prices'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, garment_type_dto_1.SetBranchPriceDto, Object]),
-    __metadata("design:returntype", Promise)
-], ConfigController.prototype, "setBranchPrice", null);
-__decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
-    (0, common_1.Delete)('garment-types/:id/branch-prices'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], ConfigController.prototype, "deleteBranchPrice", null);
-__decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
-    (0, common_1.Get)('garment-types/:id/history'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], ConfigController.prototype, "getBranchPriceHistory", null);
+], ConfigController.prototype, "getGarmentPriceHistory", null);
 __decorate([
     (0, common_1.Get)('measurement-categories'),
     __param(0, (0, common_1.Query)('search')),

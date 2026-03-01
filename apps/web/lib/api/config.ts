@@ -2,19 +2,18 @@ import { api } from '../api';
 import { ApiResponse } from '@/types/common';
 import { 
   GarmentType, 
-  BranchPriceOverride, 
   MeasurementCategory, 
   MeasurementField, 
   CreateMeasurementCategoryInput, 
   UpdateMeasurementCategoryInput,
-  BranchPriceLog
+  GarmentPriceLog,
+  GarmentTypeWithAnalytics
 } from '@tbms/shared-types';
 
 export const configApi = {
   // Garment Types
-  getGarmentTypes: async (params: { branchId?: string; search?: string; page?: number; limit?: number } = {}) => {
+  getGarmentTypes: async (params: { search?: string; page?: number; limit?: number } = {}) => {
     const query = new URLSearchParams();
-    if (params.branchId) query.append('branchId', params.branchId);
     if (params.search) query.append('search', params.search);
     if (params.page) query.append('page', params.page.toString());
     if (params.limit) query.append('limit', params.limit.toString());
@@ -22,17 +21,15 @@ export const configApi = {
     const response = await api.get<ApiResponse<{ data: GarmentType[]; total: number }>>(`/config/garment-types?${query.toString()}`);
     return response.data;
   },
-  getGarmentType: async (id: string, branchId?: string) => {
-    const query = new URLSearchParams();
-    if (branchId) query.append('branchId', branchId);
-    const response = await api.get<ApiResponse<GarmentType>>(`/config/garment-types/${id}?${query.toString()}`);
+  getGarmentType: async (id: string) => {
+    const response = await api.get<ApiResponse<GarmentTypeWithAnalytics>>(`/config/garment-types/${id}`);
     return response.data;
   },
-  createGarmentType: async (data: Partial<GarmentType>) => {
+  createGarmentType: async (data: Partial<GarmentType> & { measurementCategoryIds?: string[] }) => {
     const response = await api.post<ApiResponse<GarmentType>>('/config/garment-types', data);
     return response.data;
   },
-  updateGarmentType: async (id: string, data: Partial<GarmentType>) => {
+  updateGarmentType: async (id: string, data: Partial<GarmentType> & { measurementCategoryIds?: string[] }) => {
     const response = await api.put<ApiResponse<GarmentType>>(`/config/garment-types/${id}`, data);
     return response.data;
   },
@@ -45,28 +42,9 @@ export const configApi = {
     return response.data;
   },
 
-  // Branch Price Overrides
-  getBranchPrices: async (garmentTypeId: string) => {
-    const response = await api.get<ApiResponse<BranchPriceOverride[]>>(`/config/garment-types/${garmentTypeId}/branch-prices`);
-    return response.data;
-  },
-  setBranchPrice: async (garmentTypeId: string, data: { customerPrice: number; employeeRate: number }, branchId?: string) => {
-    const response = await api.put<ApiResponse<BranchPriceOverride>>(`/config/garment-types/${garmentTypeId}/branch-prices`, data, {
-      headers: branchId ? { 'x-branch-id': branchId } : {}
-    });
-    return response.data;
-  },
-  deleteBranchPrice: async (garmentTypeId: string, branchId?: string) => {
-    const response = await api.delete<ApiResponse<void>>(`/config/garment-types/${garmentTypeId}/branch-prices`, {
-      headers: branchId ? { 'x-branch-id': branchId } : {}
-    });
-    return response.data;
-  },
-
-  getBranchPriceHistory: async (garmentTypeId: string, branchId?: string) => {
-    const response = await api.get<ApiResponse<BranchPriceLog[]>>(`/config/garment-types/${garmentTypeId}/history`, {
-      headers: branchId ? { 'x-branch-id': branchId } : {}
-    });
+  // Pricing History
+  getGarmentPriceHistory: async (garmentTypeId: string) => {
+    const response = await api.get<ApiResponse<GarmentPriceLog[]>>(`/config/garment-types/${garmentTypeId}/history`);
     return response.data;
   },
 

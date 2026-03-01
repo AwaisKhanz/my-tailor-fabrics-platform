@@ -7,11 +7,14 @@ export declare class ExpensesService {
         id: string;
         name: string;
         isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
     }[]>;
     create(branchId: string, addedById: string, dto: CreateExpenseDto): Promise<{
         id: string;
         createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
@@ -27,11 +30,14 @@ export declare class ExpensesService {
                 id: string;
                 name: string;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 deletedAt: Date | null;
             };
         } & {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
@@ -52,11 +58,14 @@ export declare class ExpensesService {
             id: string;
             name: string;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             deletedAt: Date | null;
         };
     } & {
         id: string;
         createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
@@ -69,6 +78,7 @@ export declare class ExpensesService {
     update(id: string, branchId: string, dto: UpdateExpenseDto): Promise<{
         id: string;
         createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
@@ -81,6 +91,7 @@ export declare class ExpensesService {
     remove(id: string, branchId: string): Promise<{
         id: string;
         createdAt: Date;
+        updatedAt: Date;
         deletedAt: Date | null;
         branchId: string;
         description: string | null;

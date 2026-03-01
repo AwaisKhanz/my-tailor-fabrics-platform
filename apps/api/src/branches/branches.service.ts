@@ -49,20 +49,18 @@ export class BranchesService {
     const branch = await this.prisma.branch.findFirst({
       where: { id, deletedAt: null },
       include: {
-        _count: { select: { employees: true, customers: true, orders: true, priceOverrides: true } },
+        _count: { select: { employees: true, customers: true, orders: true } },
       },
     });
     if (!branch) throw new NotFoundException('Branch not found');
     
-    // Get total garment types to calculate sync percentage
+    // Get total garment types
     const totalGarmentTypes = await this.prisma.garmentType.count({ where: { isActive: true } });
     
     return {
         ...branch,
         stats: {
             totalGarments: totalGarmentTypes,
-            activeOverrides: branch._count.priceOverrides,
-            syncPercentage: totalGarmentTypes > 0 ? Math.round(((totalGarmentTypes - branch._count.priceOverrides) / totalGarmentTypes) * 100) : 100
         }
     };
   }

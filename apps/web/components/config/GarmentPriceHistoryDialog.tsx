@@ -9,37 +9,33 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { configApi } from "@/lib/api/config";
-import { BranchPriceLog } from "@tbms/shared-types";
+import { GarmentPriceLog } from "@tbms/shared-types";
 import { format } from "date-fns";
 import { History, User, ArrowRight, RotateCcw, Edit3, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 
-interface BranchPriceHistoryDialogProps {
+interface GarmentPriceHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   garmentId: string;
   garmentName: string;
-  branchId: string;
-  branchName: string;
 }
 
-export function BranchPriceHistoryDialog({
+export function GarmentPriceHistoryDialog({
   open,
   onOpenChange,
   garmentId,
   garmentName,
-  branchId,
-  branchName,
-}: BranchPriceHistoryDialogProps) {
-  const [logs, setLogs] = useState<BranchPriceLog[]>([]);
+}: GarmentPriceHistoryDialogProps) {
+  const [logs, setLogs] = useState<GarmentPriceLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = React.useCallback(async () => {
     setLoading(true);
     try {
-      const res = await configApi.getBranchPriceHistory(garmentId, branchId);
+      const res = await configApi.getGarmentPriceHistory(garmentId);
       if (res.success) {
         setLogs(res.data);
       }
@@ -48,16 +44,16 @@ export function BranchPriceHistoryDialog({
     } finally {
       setLoading(false);
     }
-  }, [garmentId, branchId]);
+  }, [garmentId]);
 
   useEffect(() => {
-    if (open && garmentId && branchId) {
+    if (open && garmentId) {
       fetchHistory();
     }
-  }, [open, garmentId, branchId, fetchHistory]);
+  }, [open, garmentId, fetchHistory]);
 
   const formatPrice = (p: number | null) => {
-    if (p === null) return "Standard";
+    if (p === null) return "0.00";
     return `Rs. ${(p / 100).toLocaleString()}`;
   };
 
@@ -72,7 +68,7 @@ export function BranchPriceHistoryDialog({
              <div className="flex flex-col">
                 <DialogTitle className="text-2xl font-extrabold tracking-tight">Price History</DialogTitle>
                 <DialogDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-0.5">
-                   {garmentName} • {branchName}
+                   {garmentName} • Global Pricing
                 </DialogDescription>
              </div>
           </div>
@@ -91,7 +87,7 @@ export function BranchPriceHistoryDialog({
                </div>
                <div className="space-y-1">
                   <p className="font-bold text-foreground">No History Found</p>
-                   <p className="text-xs text-muted-foreground max-w-[240px]">This garment hasn&apos;t had any manual price overrides yet at this branch.</p>
+                   <p className="text-xs text-muted-foreground max-w-[240px]">This garment hasn&apos;t had any price updates yet.</p>
                </div>
             </div>
           ) : (
@@ -110,7 +106,7 @@ export function BranchPriceHistoryDialog({
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                            <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
-                             {log.action === "UPDATE" ? "Price Override Created" : "Override Reset to Global"}
+                             Price Updated
                            </p>
                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
                              {format(new Date(log.createdAt), "MMM d, yyyy • h:mm a")}

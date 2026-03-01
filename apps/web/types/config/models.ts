@@ -7,5 +7,4 @@ export type {
   CreateMeasurementCategoryInput,
   UpdateMeasurementCategoryInput,
   GarmentType,
-  BranchPriceOverride,
 } from '@tbms/shared-types';

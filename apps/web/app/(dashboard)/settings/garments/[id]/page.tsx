@@ -13,7 +13,12 @@ import {
   ClipboardList,
   AlertCircle,
   TrendingUp,
-  Layout
+  Layout,
+  History,
+  Users,
+  Target,
+  Activity,
+  ArrowUpRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,26 +26,21 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { configApi } from "@/lib/api/config";
-import type { GarmentType } from "@tbms/shared-types";
-import { useBranchStore } from "@/store/useBranchStore";
+import type { MeasurementCategory, GarmentTypeWithAnalytics } from "@tbms/shared-types";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default function GarmentDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
-  const { activeBranchId } = useBranchStore();
   const [loading, setLoading] = useState(true);
-  const [garment, setGarment] = useState<GarmentType & { 
-    marginAmount: number; 
-    marginPercentage: number; 
-    priceOffset: number;
-  } | null>(null);
+  const [garment, setGarment] = useState<GarmentTypeWithAnalytics | null>(null);
 
   useEffect(() => {
     const fetchGarment = async () => {
       setLoading(true);
       try {
-        const resp = await configApi.getGarmentType(id, activeBranchId || undefined);
+        const resp = await configApi.getGarmentType(id);
         if (resp.success) {
           setGarment(resp.data as typeof garment);
         }
@@ -51,7 +51,7 @@ export default function GarmentDetailPage() {
       }
     };
     fetchGarment();
-  }, [id, activeBranchId]);
+  }, [id]);
 
   if (loading) {
     return (
@@ -118,6 +118,57 @@ export default function GarmentDetailPage() {
               Edit Properties
            </Button>
         </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-border/50 shadow-sm transition-all hover:shadow-md bg-primary/[0.01]">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+               <ClipboardList className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Orders</p>
+               <p className="text-xl font-black">{garment.analytics.totalOrders.toLocaleString()}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-border/50 shadow-sm transition-all hover:shadow-md bg-warning/[0.01]">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center border border-warning/20">
+               <Activity className="h-5 w-5 text-warning" />
+            </div>
+            <div>
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Active Items</p>
+               <p className="text-xl font-black">{garment.analytics.activeOrders.toLocaleString()}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 shadow-sm transition-all hover:shadow-md bg-success/[0.01]">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-success/10 flex items-center justify-center border border-success/20">
+               <IndianRupee className="h-5 w-5 text-success" />
+            </div>
+            <div>
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Revenue</p>
+               <p className="text-xl font-black">Rs. {(garment.analytics.totalRevenue / 100).toLocaleString()}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 shadow-sm transition-all hover:shadow-md bg-ready/[0.01]">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-ready/10 flex items-center justify-center border border-ready/20">
+               <Target className="h-5 w-5 text-ready" />
+            </div>
+            <div>
+               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Avg Actual Price</p>
+               <p className="text-xl font-black">Rs. {(garment.analytics.avgActualPrice / 100).toLocaleString()}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -207,7 +258,7 @@ export default function GarmentDetailPage() {
                         </div>
                         <div>
                           <p className="text-sm font-bold group-hover:text-primary transition-colors">{category.name}</p>
-                          <p className="text-[10px] text-muted-foreground">{(category as typeof category & { fields?: unknown[] }).fields?.length || 0} measurement fields</p>
+                          <p className="text-[10px] text-muted-foreground">{(category as MeasurementCategory & { fields?: { id: string }[] }).fields?.length || 0} measurement fields</p>
                         </div>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
@@ -222,6 +273,61 @@ export default function GarmentDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Price History Timeline */}
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-3 border-b border-border/50">
+               <div className="flex items-center gap-2">
+                 <History className="h-4 w-4 text-primary" />
+                 <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Recent Pricing Logs</CardTitle>
+               </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+                {garment.priceLogs && garment.priceLogs.length > 0 ? (
+                 <div className="space-y-6 relative before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-px before:bg-border">
+                   {garment.priceLogs.map((log) => (
+                      <div key={log.id} className="relative pl-8">
+                         <div className="absolute left-0 top-1.5 h-5 w-5 rounded-full bg-background border-2 border-primary flex items-center justify-center z-10">
+                            <ArrowUpRight className="h-2.5 w-2.5 text-primary" />
+                         </div>
+                         <div className="flex items-center justify-between mb-1">
+                            <p className="text-sm font-bold">Price Updated</p>
+                            <p className="text-[10px] font-medium text-muted-foreground">{new Date(log.createdAt).toLocaleString()}</p>
+                         </div>
+                         <div className="bg-muted/30 rounded-lg p-3 border border-border/50 space-y-2">
+                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1.5 shrink-0">
+                                   <Users className="h-3 w-3" /> {log.changedBy.name}
+                                </span>
+                             </div>
+                             <div className="grid grid-cols-2 gap-4 pt-1">
+                                <div>
+                                   <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Customer Price</p>
+                                   <div className="flex items-center gap-2">
+                                      <span className="text-xs line-through opacity-50">Rs. {(log.oldCustomerPrice || 0) / 100}</span>
+                                      <span className="text-xs font-black text-foreground">Rs. {(log.newCustomerPrice || 0) / 100}</span>
+                                   </div>
+                                </div>
+                                <div>
+                                   <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Employee Rate</p>
+                                   <div className="flex items-center gap-2">
+                                      <span className="text-xs line-through opacity-50">Rs. {(log.oldEmployeeRate || 0) / 100}</span>
+                                      <span className="text-xs font-black text-foreground">Rs. {(log.newEmployeeRate || 0) / 100}</span>
+                                   </div>
+                                </div>
+                             </div>
+                         </div>
+                      </div>
+                   ))}
+                 </div>
+               ) : (
+                 <div className="py-12 text-center text-muted-foreground">
+                    <History className="h-8 w-8 mx-auto mb-3 opacity-20" />
+                    <p className="text-sm">No pricing change logs found yet.</p>
+                 </div>
+               )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar info / Pricing Sidebar */}
@@ -230,19 +336,19 @@ export default function GarmentDetailPage() {
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <IndianRupee className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Active Pricing</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Global Pricing</CardTitle>
               </div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">{activeBranchId ? "Resolved for Active Branch" : "Global Base Prices"}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Base Shop Rates</p>
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                    <span className="text-xs text-muted-foreground font-medium">Customer Price</span>
-                   <span className="text-lg font-black">Rs. {((garment.resolvedCustomerPrice ?? 0) / 100).toLocaleString()}</span>
+                   <span className="text-lg font-black">Rs. {((garment.customerPrice ?? 0) / 100).toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                    <span className="text-xs text-muted-foreground font-medium">Employee Rate</span>
-                   <span className="text-lg font-black">Rs. {((garment.resolvedEmployeeRate ?? 0) / 100).toLocaleString()}</span>
+                   <span className="text-lg font-black">Rs. {((garment.employeeRate ?? 0) / 100).toLocaleString()}</span>
                 </div>
                 
                 <Separator className="bg-primary/10" />
@@ -264,36 +370,37 @@ export default function GarmentDetailPage() {
                    </div>
                 </div>
               </div>
-              
-              {garment.isOverridden && (
-                <div className="mt-6 p-3 rounded-lg bg-success/5 border border-success/20 flex gap-3">
-                   <div className="h-5 w-5 rounded bg-success/10 flex items-center justify-center shrink-0">
-                      <AlertCircle className="h-3 w-3 text-success" />
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-bold text-success uppercase leading-none">Branch Override Active</p>
-                      <p className="text-[10px] text-success/80 font-medium">
-                         Prices are resolved from active branch. 
-                         Difference from global: 
-                         <strong> {garment.priceOffset > 0 ? " +" : ""}{garment.priceOffset / 100}</strong>
-                      </p>
-                   </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
+
           <Card className="border-border/50 shadow-sm pt-4">
-             <CardContent>
-                <div className="flex items-center gap-3">
-                   <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
-                      <IndianRupee className="h-5 w-5 text-warning" />
+             <CardHeader className="pt-0 pb-3">
+               <div className="flex items-center gap-2">
+                 <TrendingUp className="h-4 w-4 text-primary" />
+                 <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Top Tailors</CardTitle>
+               </div>
+               <p className="text-[10px] text-muted-foreground font-medium uppercase italic leading-none mt-1">Efficiency Champions</p>
+             </CardHeader>
+             <CardContent className="space-y-3">
+               {garment.analytics.topTailors.length > 0 ? (
+                 garment.analytics.topTailors.map((tailor, idx) => (
+                   <div key={idx} className="flex items-center justify-between">
+                     <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "h-6 w-6 rounded-md flex items-center justify-center text-[10px] font-black",
+                          idx === 0 ? "bg-ready/20 text-ready" : "bg-muted text-muted-foreground"
+                        )}>
+                           {idx + 1}
+                        </div>
+                        <p className="text-sm font-bold">{tailor.name}</p>
+                     </div>
+                     <Badge variant="outline" className="text-[10px] font-bold border-border">{tailor.count} Orders</Badge>
                    </div>
-                   <div>
-                      <p className="text-sm font-bold">{garment.overridesCount} Branches</p>
-                      <p className="text-xs text-muted-foreground">Active custom pricing overrides.</p>
-                   </div>
-                </div>
+                 ))
+               ) : (
+                 <p className="text-center text-xs text-muted-foreground py-4 italic">No production data yet.</p>
+               )}
              </CardContent>
           </Card>
         </div>
