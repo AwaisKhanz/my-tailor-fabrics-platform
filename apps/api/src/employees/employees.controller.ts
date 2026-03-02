@@ -24,7 +24,7 @@ export class EmployeesController {
   @Get()
   async findAll(@Query('page') page: string, @Query('limit') limit: string, @Query('search') search: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, search);
-    return { success: true, ...data };
+    return { success: true, data };
   }
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
@@ -71,7 +71,7 @@ export class EmployeesController {
   @Get(':id/items')
   async getItems(@Param('id') id: string, @Query('page') page: string, @Query('limit') limit: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getItems(id, req.branchId, Number(page) || 1, Number(limit) || 20);
-    return { success: true, ...data };
+    return { success: true, data };
   }
 
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
@@ -106,6 +106,6 @@ export class EmployeesController {
   @Get('my/items')
   async getMyItems(@Query('page') page: string, @Query('limit') limit: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyItems(req.user.employeeId!, req.branchId, Number(page) || 1, Number(limit) || 20);
-    return { success: true, ...data };
+    return { success: true, data };
   }
 }

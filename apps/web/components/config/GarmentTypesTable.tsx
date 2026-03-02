@@ -7,9 +7,11 @@ import { Plus, Edit2, Shirt, Trash2, Filter, Clock } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { configApi } from "@/lib/api/config";
 import { GarmentType } from "@/types/config";
+import { WorkflowStepTemplate } from "@tbms/shared-types";
 
 import { GarmentTypeDialog } from "./GarmentTypeDialog";
 import { GarmentPriceHistoryDialog } from "./GarmentPriceHistoryDialog";
+import { GarmentWorkflowStepsDialog } from "./GarmentWorkflowStepsDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +25,7 @@ export function GarmentTypesTable() {
   const [totalCount, setTotalCount] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<GarmentType | null>(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -142,6 +145,19 @@ export function GarmentTypesTable() {
           >
             <Clock className="h-4 w-4" />
           </Button>
+
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
+            onClick={() => {
+              setSelectedType(item);
+              setIsWorkflowOpen(true);
+            }}
+            title="Configure Production Workflow"
+          >
+            <Shirt className="h-4 w-4" />
+          </Button>
           
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(item)}>
             <Trash2 className="h-4 w-4" />
@@ -220,6 +236,15 @@ export function GarmentTypesTable() {
         onOpenChange={setIsHistoryOpen}
         garmentId={selectedType?.id || ""}
         garmentName={selectedType?.name || ""}
+      />
+
+      <GarmentWorkflowStepsDialog
+        open={isWorkflowOpen}
+        onOpenChange={setIsWorkflowOpen}
+        garmentId={selectedType?.id || ""}
+        garmentName={selectedType?.name || ""}
+        initialSteps={(selectedType as GarmentType & { workflowSteps?: WorkflowStepTemplate[] })?.workflowSteps || []}
+        onSuccess={fetchData}
       />
 
       <ConfirmDialog

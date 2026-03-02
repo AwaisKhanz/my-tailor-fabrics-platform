@@ -8,6 +8,9 @@ import {
   Printer,
   History,
   Search,
+  Plus,
+  ChevronRight,
+  User
 } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { Order, OrderStatus } from "@/types/orders";
@@ -42,9 +45,21 @@ export default function OrdersPage() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
+      let from: string | undefined;
+      const now = new Date();
+      
+      if (dateRange === "7") {
+        from = new Date(now.setDate(now.getDate() - 7)).toISOString();
+      } else if (dateRange === "30") {
+        from = new Date(now.setDate(now.getDate() - 30)).toISOString();
+      } else if (dateRange === "90") {
+        from = new Date(now.setDate(now.getDate() - 90)).toISOString();
+      }
+
       const response = await ordersApi.getOrders({
         status: statusFilter === "ALL" ? undefined : statusFilter,
         search: search || undefined,
+        from,
         page,
         limit: PAGE_SIZE,
       });
@@ -57,7 +72,7 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, search, page, toast]);
+  }, [statusFilter, search, dateRange, page, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -119,7 +134,10 @@ export default function OrdersPage() {
       cell: (order) => {
         const sc = ORDER_STATUS_CONFIG[order.status] ?? ORDER_STATUS_CONFIG.NEW;
         return (
-          <Badge variant={sc.variant} className="uppercase tracking-wider">
+          <Badge 
+            variant={sc.variant} 
+            className="uppercase font-bold tracking-wider text-[10px] px-2"
+          >
             {sc.label}
           </Badge>
         );
@@ -175,10 +193,17 @@ export default function OrdersPage() {
   ];
 
   return (
-    <div className="space-y-5 max-w-9xl mx-auto">
+    <div className="space-y-6">
 
       {/* Page Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-row items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+          <p className="text-muted-foreground">Manage your customer orders and production workflow.</p>
+        </div>
+        <Button variant="premium" size="xl" onClick={() => router.push('/orders/new')}>
+          <Plus className="mr-2 h-4 w-4" /> New Order
+        </Button>
       </div>
 
       {/* Orders Table Card */}
@@ -192,8 +217,6 @@ export default function OrdersPage() {
                 <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
                   {total} results
                 </span>
-              </div>
-              <div className="flex items-center gap-2">
               </div>
             </div>
 
@@ -271,6 +294,7 @@ export default function OrdersPage() {
             onPageChange={setPage}
             itemLabel="orders"
             emptyMessage="No orders found matching your criteria."
+            onRowClick={(order) => router.push(`/orders/${order.id}`)}
           />
         </div>
       </div>

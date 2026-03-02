@@ -5,7 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { employeesApi, EmployeeWithRelations } from "@/lib/api/employees";
 import { attendanceApi } from "@/lib/api/attendance";
-import { OrderItem, AttendanceRecord } from "@tbms/shared-types";
+import { ordersApi } from "@/lib/api/orders";
+import { configApi } from "@/lib/api/config";
+import { OrderItem, AttendanceRecord, OrderItemTask, TaskStatus, SystemSettings } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,16 +33,18 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AccountCreationDialog } from "@/components/employees/AccountCreationDialog";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
-import { formatPKR, formatDate } from "@/lib/utils";
+import { formatPKR, formatDate, formatDateTime } from "@/lib/utils";
 import { 
   EMPLOYEE_STATUS_LABELS, 
   EMPLOYEE_STATUS_BADGE,
-  PAYMENT_TYPE_LABELS 
+  PAYMENT_TYPE_LABELS,
+  TASK_STATUS_LABELS 
 } from "@tbms/shared-constants";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -51,8 +55,10 @@ export default function EmployeeDetailPage() {
   const [employee, setEmployee] = useState<EmployeeWithRelations | null>(null);
   const [stats, setStats] = useState({ totalEarned: 0, totalPaid: 0, balance: 0 });
   const [items, setItems] = useState<(OrderItem & { order: { orderNumber: string } })[]>([]);
+  const [tasks, setTasks] = useState<(OrderItemTask & { item: { garmentTypeName: string; order: { orderNumber: string } } })[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  
+  const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
+
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDocDialogOpen, setIsDocDialogOpen] = useState(false);
@@ -64,19 +70,26 @@ export default function EmployeeDetailPage() {
   const fetchEmployeeData = useCallback(async () => {
     setLoading(true);
     try {
-      const [empRes, statsRes, itemsRes, attnRes] = await Promise.all([
+      const [empRes, statsRes, itemsRes, attnRes, tasksRes, settingsRes] = await Promise.all([
         employeesApi.getEmployee(params.id as string),
         employeesApi.getStats(params.id as string),
         employeesApi.getItems(params.id as string),
-        attendanceApi.getAttendance({ limit: 10 }) // Basic last 10 records
+        attendanceApi.getAttendance({ limit: 10 }), // Basic last 10 records
+        ordersApi.getTasksByEmployee(params.id as string),
+        configApi.getSystemSettings()
       ]);
       
       if (empRes.success) setEmployee(empRes.data);
       if (statsRes.success) setStats(statsRes.data);
-      if (itemsRes.success) setItems(itemsRes.data);
-      // attendance records are filtered by employeeId on the backend if implemented,
-      // here we just take the global list if no filter exists yet (simplified)
-      setAttendance(attnRes.data || []);
+      if (itemsRes.success) setItems(itemsRes.data.data);
+      if (tasksRes.success) setTasks(tasksRes.data as any);
+      if (settingsRes.success) setSystemSettings(settingsRes.data);
+      if (attnRes.success) setAttendance(attnRes.data.data);
+      if (tasksRes.success) {
+        // Check if tasksRes.data is paginated or flat
+        const taskData = (tasksRes.data as any).data || tasksRes.data;
+        setTasks(taskData);
+      }
     } catch {
       toast({ title: "Error", description: "Employee not found", variant: "destructive" });
       router.push("/employees");
@@ -185,6 +198,61 @@ export default function EmployeeDetailPage() {
       header: "Hours",
       align: "right",
       cell: (rec) => <span className="font-bold">{rec.hoursWorked?.toFixed(1) || '0.0'}h</span>,
+    },
+  ];
+
+  const handleTaskStatusChange = async (taskId: string, status: TaskStatus) => {
+    try {
+      await ordersApi.updateTaskStatus(taskId, status);
+      toast({ title: "Status Updated" });
+      fetchEmployeeData();
+    } catch {
+      toast({ title: "Update Failed", variant: "destructive" });
+    }
+  };
+
+  const taskColumns: ColumnDef<OrderItemTask & { item: { garmentTypeName: string; order: { orderNumber: string } } }>[] = [
+    {
+      header: "Order #",
+      cell: (task) => <span className="font-bold">{task.item.order.orderNumber}</span>,
+    },
+    {
+      header: "Item/Step",
+      cell: (task) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{task.item.garmentTypeName}</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">
+            {task.stepName}
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: "Status",
+      cell: (task) => (
+        <Select 
+            value={task.status} 
+            onValueChange={(val) => handleTaskStatusChange(task.id, val as TaskStatus)}
+        >
+            <SelectTrigger className="h-7 w-[130px] text-[10px] uppercase font-bold">
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                {Object.entries(TASK_STATUS_LABELS).map(([k, v]) => (
+                    <SelectItem key={k} value={k} className="text-[10px] uppercase font-bold">{v}</SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+      ),
+    },
+    {
+      header: "Last Update",
+      align: "right",
+      cell: (task) => (
+        <span className="text-[10px] text-muted-foreground">
+          {formatDateTime(task.updatedAt)}
+        </span>
+      ),
     },
   ];
 
@@ -316,8 +384,13 @@ export default function EmployeeDetailPage() {
         </div>
 
         <div className="lg:col-span-3">
-          <Tabs defaultValue="history" className="border rounded-xl bg-card overflow-hidden">
+          <Tabs defaultValue={systemSettings?.useTaskWorkflow ? "tasks" : "history"} className="border rounded-xl bg-card overflow-hidden">
             <TabsList variant="premium" className="px-4 border-b">
+              {systemSettings?.useTaskWorkflow && (
+                <TabsTrigger variant="premium" value="tasks">
+                  Production Tasks
+                </TabsTrigger>
+              )}
               <TabsTrigger variant="premium" value="history">
                 Work History
               </TabsTrigger>
@@ -332,6 +405,15 @@ export default function EmployeeDetailPage() {
               </TabsTrigger>
             </TabsList>
             
+            <TabsContent value="tasks" className="p-0 border-none">
+              <DataTable
+                columns={taskColumns as any}
+                data={tasks}
+                loading={loading}
+                emptyMessage="No assigned tasks found."
+              />
+            </TabsContent>
+
             <TabsContent value="history" className="p-0 border-none">
               <DataTable
                 columns={historyColumns}

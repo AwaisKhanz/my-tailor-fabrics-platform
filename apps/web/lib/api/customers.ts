@@ -5,7 +5,7 @@ import { MeasurementCategory } from '@/types/config';
 
 export const customerApi = {
   getCustomers: async (page = 1, limit = 20, search?: string) => {
-    const response = await api.get<PaginatedResponse<Customer>>('/customers', {
+    const response = await api.get<ApiResponse<PaginatedResponse<Customer>>>('/customers', {
       params: { page, limit, search },
     });
     return response.data;
@@ -22,7 +22,7 @@ export const customerApi = {
   },
 
   updateCustomer: async (id: string, data: Partial<Customer>) => {
-    const response = await api.patch<ApiResponse<Customer>>(`/customers/${id}`, data);
+    const response = await api.put<ApiResponse<Customer>>(`/customers/${id}`, data);
     return response.data;
   },
 

@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
+import { ApiResponse, PaginatedResponse } from '@/types/common';
 
 import { Branch } from '@tbms/shared-types';
 
@@ -7,7 +7,7 @@ export type { Branch };
 
 export const branchesApi = {
   getBranches: async (params?: { search?: string; page?: number; limit?: number }) => {
-    const response = await api.get<{ success: boolean; data: Branch[]; total: number }>('/branches', { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<Branch>>>('/branches', { params });
     return response.data;
   },
   

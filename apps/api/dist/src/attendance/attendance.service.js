@@ -76,7 +76,7 @@ let AttendanceService = class AttendanceService {
             }),
             this.prisma.attendanceRecord.count({ where }),
         ]);
-        return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+        return { data, total };
     }
     async getEmployeeSummary(employeeId, branchId) {
         const records = await this.prisma.attendanceRecord.findMany({

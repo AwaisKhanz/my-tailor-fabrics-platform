@@ -55,8 +55,8 @@ export function BranchesTable() {
         setBranches(res as unknown as Branch[]);
         setTotalCount((res as unknown as Branch[]).length);
       } else {
-        setBranches(res.data);
-        setTotalCount(res.total);
+        setBranches(res.data.data);
+        setTotalCount(res.data.total);
       }
     } catch {
       toast({ title: "Error", description: "Failed to load branches", variant: "destructive" });

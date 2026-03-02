@@ -47,7 +47,7 @@ export class AttendanceController {
       Number(page) || 1,
       Number(limit) || 20,
     );
-    return { success: true, ...data };
+    return { success: true, data };
   }
 
   /** Get attendance summary for a specific employee */

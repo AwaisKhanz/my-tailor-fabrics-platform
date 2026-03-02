@@ -54,8 +54,12 @@ export default function ExpensesPage() {
         expensesApi.getExpenses(params),
         expensesApi.getCategories(),
       ]);
-      setExpenses(res.data);
-      setCategories(catRes.data);
+      if (res.success) {
+        setExpenses(res.data.data);
+      }
+      if (catRes.success) {
+        setCategories(catRes.data);
+      }
     } catch {
       toast({ title: "Error", description: "Failed to load expenses", variant: "destructive" });
     } finally {

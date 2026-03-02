@@ -56,6 +56,62 @@ async function main() {
     },
   });
 
+  // Shalwar Kameez Workflow Steps
+  const stepsSK = [
+    { key: 'CUTTING', name: 'Cutting', order: 10, isRequired: true },
+    { key: 'STITCHING', name: 'Stitching', order: 20, isRequired: true },
+    { key: 'DESIGNING', name: 'Designing', order: 25, isRequired: false },
+    { key: 'FINISHING', name: 'Finishing & Kajj/Button', order: 30, isRequired: true },
+    { key: 'PRESSING', name: 'Pressing & Packing', order: 40, isRequired: true },
+  ];
+
+  for (const step of stepsSK) {
+    await prisma.workflowStepTemplate.upsert({
+      where: { garmentTypeId_stepKey: { garmentTypeId: gtShalwar.id, stepKey: step.key } },
+      update: {},
+      create: {
+        garmentTypeId: gtShalwar.id,
+        stepKey: step.key,
+        stepName: step.name,
+        sortOrder: step.order,
+        isRequired: step.isRequired,
+      }
+    });
+  }
+
+  const gtCoat = await prisma.garmentType.upsert({
+    where: { id: 'gt_coat' },
+    update: {},
+    create: {
+      id: 'gt_coat',
+      name: 'Coat',
+      customerPrice: 2000000,
+      employeeRate: 800000,
+    },
+  });
+
+  // Coat Workflow Steps
+  const stepsCoat = [
+    { key: 'CUTTING', name: 'Cutting', order: 10, isRequired: true },
+    { key: 'STITCHING', name: 'Stitching', order: 20, isRequired: true },
+    { key: 'FINISHING', name: 'Finishing', order: 30, isRequired: true },
+    { key: 'PRESSING', name: 'Pressing', order: 40, isRequired: true },
+  ];
+
+  for (const step of stepsCoat) {
+    await prisma.workflowStepTemplate.upsert({
+      where: { garmentTypeId_stepKey: { garmentTypeId: gtCoat.id, stepKey: step.key } },
+      update: {},
+      create: {
+        garmentTypeId: gtCoat.id,
+        stepKey: step.key,
+        stepName: step.name,
+        sortOrder: step.order,
+        isRequired: step.isRequired,
+      }
+    });
+  }
+
   const catShalwar = await prisma.measurementCategory.upsert({
     where: { id: 'cat_shalwar' },
     update: {},

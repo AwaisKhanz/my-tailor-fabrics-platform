@@ -21,3 +21,13 @@ export function formatDate(date: string | Date) {
     year: "numeric",
   });
 }
+
+export function formatDateTime(date: string | Date | undefined) {
+  if (!date) return "—";
+  return new Date(date).toLocaleString("en-PK", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}

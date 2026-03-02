@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
+import { ApiResponse, PaginatedResponse } from '@/types/common';
 
 import { Expense, ExpenseCategory } from '@tbms/shared-types';
 
@@ -7,7 +7,7 @@ export type { Expense, ExpenseCategory };
 
 export const expensesApi = {
   getExpenses: async (params?: { categoryId?: string; from?: string; to?: string; page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<Expense[]>>('/expenses', { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<Expense>>>('/expenses', { params });
     return response.data;
   },
 

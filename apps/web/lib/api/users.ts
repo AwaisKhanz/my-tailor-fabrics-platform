@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
+import { ApiResponse, PaginatedResponse } from '@/types/common';
 
 import { UserAccount } from '@tbms/shared-types';
 
@@ -8,7 +8,7 @@ export type { UserAccount };
 export const usersApi = {
   getUsers: async (branchId?: string) => {
     const params = branchId ? { branchId } : {};
-    const response = await api.get<ApiResponse<UserAccount[]>>('/users', { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<UserAccount>>>('/users', { params });
     return response.data;
   },
 

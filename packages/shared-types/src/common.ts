@@ -61,6 +61,13 @@ export enum ItemStatus {
   CANCELLED = 'CANCELLED'
 }
 
+export enum TaskStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+  CANCELLED = 'CANCELLED'
+}
+
 export enum DiscountType {
   FIXED = 'FIXED',
   PERCENTAGE = 'PERCENTAGE'

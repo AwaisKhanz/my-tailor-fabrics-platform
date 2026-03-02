@@ -1,4 +1,4 @@
-import { OrderStatus, ItemStatus, BadgeVariant } from '@tbms/shared-types';
+import { OrderStatus, ItemStatus, TaskStatus, BadgeVariant } from '@tbms/shared-types';
 
 export const ORDER_STATUS_CONFIG: Record<
   OrderStatus,
@@ -18,4 +18,11 @@ export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
   [ItemStatus.IN_PROGRESS]: 'In Progress',
   [ItemStatus.COMPLETED]: 'Completed',
   [ItemStatus.CANCELLED]: 'Cancelled',
+};
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  [TaskStatus.PENDING]: 'Pending',
+  [TaskStatus.IN_PROGRESS]: 'In Progress',
+  [TaskStatus.DONE]: 'Done',
+  [TaskStatus.CANCELLED]: 'Cancelled',
 };

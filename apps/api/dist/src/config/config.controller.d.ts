@@ -3,6 +3,7 @@ import { ConfigService } from './config.service';
 import { CreateGarmentTypeDto, UpdateGarmentTypeDto } from './dto/garment-type.dto';
 import { CreateMeasurementCategoryDto, UpdateMeasurementCategoryDto, CreateMeasurementFieldDto, UpdateMeasurementFieldDto } from './dto/measurement-category.dto';
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
+import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 export declare class ConfigController {
     private readonly configService;
     constructor(configService: ConfigService);
@@ -10,13 +11,13 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
-            code: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
+            code: string;
             address: string | null;
             phone: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             deletedAt: Date | null;
         }[];
     }>;
@@ -36,18 +37,18 @@ export declare class ConfigController {
                 marginPercentage: number;
                 measurementCategories: {
                     id: string;
-                    name: string;
-                    isActive: boolean;
                     createdAt: Date;
                     updatedAt: Date;
+                    name: string;
+                    isActive: boolean;
                     deletedAt: Date | null;
                     sortOrder: number;
                 }[];
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                isActive: boolean;
                 deletedAt: Date | null;
                 customerPrice: number;
                 employeeRate: number;
@@ -73,10 +74,10 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
             customerPrice: number;
             employeeRate: number;
@@ -88,10 +89,10 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
             customerPrice: number;
             employeeRate: number;
@@ -112,14 +113,28 @@ export declare class ConfigController {
         } & {
             id: string;
             createdAt: Date;
-            action: string;
             garmentTypeId: string;
+            action: string;
             changedById: string;
             oldCustomerPrice: number | null;
             oldEmployeeRate: number | null;
             newCustomerPrice: number | null;
             newEmployeeRate: number | null;
         })[];
+    }>;
+    updateGarmentWorkflowSteps(garmentTypeId: string, dto: UpdateGarmentWorkflowStepsDto): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            createdAt: Date;
+            isActive: boolean;
+            deletedAt: Date | null;
+            sortOrder: number;
+            garmentTypeId: string;
+            stepKey: string;
+            stepName: string;
+            isRequired: boolean;
+        }[];
     }>;
     getMeasurementCategories(search?: string, page?: string, limit?: string): Promise<{
         success: boolean;
@@ -131,19 +146,19 @@ export declare class ConfigController {
                     updatedAt: Date;
                     deletedAt: Date | null;
                     sortOrder: number;
-                    categoryId: string;
+                    isRequired: boolean;
                     label: string;
                     fieldType: import(".prisma/client").$Enums.FieldType;
                     unit: string | null;
-                    isRequired: boolean;
                     dropdownOptions: string[];
+                    categoryId: string;
                 }[];
             } & {
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                isActive: boolean;
                 deletedAt: Date | null;
                 sortOrder: number;
             })[];
@@ -154,10 +169,10 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
             sortOrder: number;
         };
@@ -166,10 +181,10 @@ export declare class ConfigController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
             sortOrder: number;
         };
@@ -182,12 +197,12 @@ export declare class ConfigController {
             updatedAt: Date;
             deletedAt: Date | null;
             sortOrder: number;
-            categoryId: string;
+            isRequired: boolean;
             label: string;
             fieldType: import(".prisma/client").$Enums.FieldType;
             unit: string | null;
-            isRequired: boolean;
             dropdownOptions: string[];
+            categoryId: string;
         };
     }>;
     updateMeasurementField(id: string, dto: UpdateMeasurementFieldDto): Promise<{
@@ -198,12 +213,12 @@ export declare class ConfigController {
             updatedAt: Date;
             deletedAt: Date | null;
             sortOrder: number;
-            categoryId: string;
+            isRequired: boolean;
             label: string;
             fieldType: import(".prisma/client").$Enums.FieldType;
             unit: string | null;
-            isRequired: boolean;
             dropdownOptions: string[];
+            categoryId: string;
         };
     }>;
     deleteMeasurementField(id: string): Promise<{

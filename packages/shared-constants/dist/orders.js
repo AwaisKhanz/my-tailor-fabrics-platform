@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ITEM_STATUS_LABELS = exports.ORDER_STATUS_CONFIG = void 0;
+exports.TASK_STATUS_LABELS = exports.ITEM_STATUS_LABELS = exports.ORDER_STATUS_CONFIG = void 0;
 const shared_types_1 = require("@tbms/shared-types");
 exports.ORDER_STATUS_CONFIG = {
     [shared_types_1.OrderStatus.NEW]: { label: "NEW", variant: "outline" },
@@ -16,5 +16,11 @@ exports.ITEM_STATUS_LABELS = {
     [shared_types_1.ItemStatus.IN_PROGRESS]: 'In Progress',
     [shared_types_1.ItemStatus.COMPLETED]: 'Completed',
     [shared_types_1.ItemStatus.CANCELLED]: 'Cancelled',
+};
+exports.TASK_STATUS_LABELS = {
+    [shared_types_1.TaskStatus.PENDING]: 'Pending',
+    [shared_types_1.TaskStatus.IN_PROGRESS]: 'In Progress',
+    [shared_types_1.TaskStatus.DONE]: 'Done',
+    [shared_types_1.TaskStatus.CANCELLED]: 'Cancelled',
 };
 //# sourceMappingURL=orders.js.map

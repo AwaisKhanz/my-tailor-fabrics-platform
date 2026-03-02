@@ -2,19 +2,20 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateGarmentTypeDto, UpdateGarmentTypeDto } from './dto/garment-type.dto';
 import { CreateMeasurementCategoryDto, UpdateMeasurementCategoryDto, CreateMeasurementFieldDto, UpdateMeasurementFieldDto } from './dto/measurement-category.dto';
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
+import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import { GarmentTypeWithAnalytics, SystemSettings } from '@tbms/shared-types';
 export declare class ConfigService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     getBranches(): Promise<{
         id: string;
-        code: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
+        code: string;
         address: string | null;
         phone: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         deletedAt: Date | null;
     }[]>;
     getSystemSettings(): Promise<SystemSettings>;
@@ -29,18 +30,18 @@ export declare class ConfigService {
             marginPercentage: number;
             measurementCategories: {
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                isActive: boolean;
                 deletedAt: Date | null;
                 sortOrder: number;
             }[];
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
             customerPrice: number;
             employeeRate: number;
@@ -52,10 +53,10 @@ export declare class ConfigService {
     getGarmentType(id: string): Promise<GarmentTypeWithAnalytics>;
     createGarmentType(dto: CreateGarmentTypeDto): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
         customerPrice: number;
         employeeRate: number;
@@ -64,10 +65,10 @@ export declare class ConfigService {
     }>;
     updateGarmentType(id: string, dto: UpdateGarmentTypeDto, userId: string): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
         customerPrice: number;
         employeeRate: number;
@@ -76,16 +77,27 @@ export declare class ConfigService {
     }>;
     deleteGarmentType(id: string): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
         customerPrice: number;
         employeeRate: number;
         description: string | null;
         sortOrder: number;
     }>;
+    updateGarmentWorkflowSteps(garmentTypeId: string, dto: UpdateGarmentWorkflowStepsDto): Promise<{
+        id: string;
+        createdAt: Date;
+        isActive: boolean;
+        deletedAt: Date | null;
+        sortOrder: number;
+        garmentTypeId: string;
+        stepKey: string;
+        stepName: string;
+        isRequired: boolean;
+    }[]>;
     getGarmentStats(): Promise<{
         totalCount: number;
         avgRetailPrice: number;
@@ -102,8 +114,8 @@ export declare class ConfigService {
     } & {
         id: string;
         createdAt: Date;
-        action: string;
         garmentTypeId: string;
+        action: string;
         changedById: string;
         oldCustomerPrice: number | null;
         oldEmployeeRate: number | null;
@@ -122,19 +134,19 @@ export declare class ConfigService {
                 updatedAt: Date;
                 deletedAt: Date | null;
                 sortOrder: number;
-                categoryId: string;
+                isRequired: boolean;
                 label: string;
                 fieldType: import(".prisma/client").$Enums.FieldType;
                 unit: string | null;
-                isRequired: boolean;
                 dropdownOptions: string[];
+                categoryId: string;
             }[];
         } & {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
             sortOrder: number;
         })[];
@@ -142,19 +154,19 @@ export declare class ConfigService {
     }>;
     createMeasurementCategory(dto: CreateMeasurementCategoryDto): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
         sortOrder: number;
     }>;
     updateMeasurementCategory(id: string, dto: UpdateMeasurementCategoryDto): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
         sortOrder: number;
     }>;
@@ -164,12 +176,12 @@ export declare class ConfigService {
         updatedAt: Date;
         deletedAt: Date | null;
         sortOrder: number;
-        categoryId: string;
+        isRequired: boolean;
         label: string;
         fieldType: import(".prisma/client").$Enums.FieldType;
         unit: string | null;
-        isRequired: boolean;
         dropdownOptions: string[];
+        categoryId: string;
     }>;
     updateMeasurementField(id: string, dto: UpdateMeasurementFieldDto): Promise<{
         id: string;
@@ -177,12 +189,12 @@ export declare class ConfigService {
         updatedAt: Date;
         deletedAt: Date | null;
         sortOrder: number;
-        categoryId: string;
+        isRequired: boolean;
         label: string;
         fieldType: import(".prisma/client").$Enums.FieldType;
         unit: string | null;
-        isRequired: boolean;
         dropdownOptions: string[];
+        categoryId: string;
     }>;
     deleteMeasurementField(id: string): Promise<{
         id: string;
@@ -190,19 +202,19 @@ export declare class ConfigService {
         updatedAt: Date;
         deletedAt: Date | null;
         sortOrder: number;
-        categoryId: string;
+        isRequired: boolean;
         label: string;
         fieldType: import(".prisma/client").$Enums.FieldType;
         unit: string | null;
-        isRequired: boolean;
         dropdownOptions: string[];
+        categoryId: string;
     }>;
     deleteMeasurementCategory(id: string): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
         sortOrder: number;
     }>;

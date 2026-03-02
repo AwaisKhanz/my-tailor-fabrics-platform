@@ -7,7 +7,9 @@ import {
   CreateMeasurementCategoryInput, 
   UpdateMeasurementCategoryInput,
   GarmentPriceLog,
-  GarmentTypeWithAnalytics
+  GarmentTypeWithAnalytics,
+  WorkflowStepTemplate,
+  SystemSettings
 } from '@tbms/shared-types';
 
 export const configApi = {
@@ -39,6 +41,10 @@ export const configApi = {
   },
   getGarmentStats: async () => {
     const response = await api.get<ApiResponse<{ totalCount: number; avgRetailPrice: number; activeProduction: number }>>('/config/garment-stats');
+    return response.data;
+  },
+  updateGarmentWorkflowSteps: async (id: string, steps: Partial<WorkflowStepTemplate>[]) => {
+    const response = await api.put<ApiResponse<WorkflowStepTemplate[]>>(`/config/garment-types/${id}/steps`, { steps });
     return response.data;
   },
 
@@ -80,6 +86,16 @@ export const configApi = {
   },
   deleteMeasurementCategory: async (id: string) => {
     const response = await api.delete<ApiResponse<void>>(`/config/measurement-categories/${id}`);
+    return response.data;
+  },
+  
+  // System Settings
+  getSystemSettings: async () => {
+    const response = await api.get<ApiResponse<SystemSettings>>('/config/settings');
+    return response.data;
+  },
+  updateSystemSettings: async (data: Partial<SystemSettings>) => {
+    const response = await api.put<ApiResponse<SystemSettings>>('/config/settings', data);
     return response.data;
   },
 };

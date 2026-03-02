@@ -75,14 +75,11 @@ export function CustomerTable() {
     setLoading(true);
     try {
       const response = await customerApi.getCustomers(page, limit, search);
-      let fetched = response.data;
-
-      if (statusTab !== "ALL") {
-        fetched = fetched.filter((c) => c.status === statusTab);
+      
+      if (response.success) {
+        setCustomers(response.data.data);
+        setTotal(response.data.total);
       }
-
-      setCustomers(fetched);
-      setTotal(response.total);
     } catch {
       console.error("Failed to fetch customers");
     } finally {

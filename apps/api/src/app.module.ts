@@ -25,6 +25,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { BranchesModule } from './branches/branches.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { MailModule } from './mail/mail.module';
     AttendanceModule,
     BranchesModule,
     MailModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,9 +1,9 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import { Order, OrderStatus, DashboardStats, CreateOrderInput } from '@tbms/shared-types';
+import { Order, OrderStatus, DashboardStats, CreateOrderInput, OrderItemTask, TaskStatus } from '@tbms/shared-types';
 
 export const ordersApi = {
-  getOrders: async (params: { page?: number; limit?: number; status?: string; search?: string }) => {
+  getOrders: async (params: { page?: number; limit?: number; status?: string; search?: string; from?: string; to?: string }) => {
     const response = await api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params });
     return response.data;
   },
@@ -35,14 +35,29 @@ export const ordersApi = {
     const response = await api.delete<ApiResponse<void>>(`/orders/${orderId}/items/${itemId}`);
     return response.data;
   },
+
+  // -- Tasks --
+  assignTask: async (taskId: string, employeeId: string) => {
+    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/assign`, { employeeId });
+    return response.data;
+  },
+  updateTaskStatus: async (taskId: string, status: TaskStatus) => {
+    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/status`, { status });
+    return response.data;
+  },
+  getTasksByEmployee: async (employeeId: string) => {
+    const response = await api.get<ApiResponse<OrderItemTask[]>>(`/tasks/employee/${employeeId}`);
+    return response.data;
+  },
+
   getDashboardStats: async (): Promise<DashboardStats> => {
     // Fetch overdue and recent orders in parallel, then derive stats
     const [overdueRes, recentRes] = await Promise.all([
-      api.get<ApiResponse<Order[]>>('/orders', { params: { status: OrderStatus.OVERDUE, limit: 100 } }),
-      api.get<ApiResponse<Order[]>>('/orders', { params: { limit: 5 } }),
+      api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params: { status: OrderStatus.OVERDUE, limit: 100 } }),
+      api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params: { limit: 5 } }),
     ]);
-    const overdueOrders = overdueRes.data.data ?? [];
-    const recentOrders = recentRes.data.data ?? [];
+    const overdueOrders = overdueRes.data.data?.data ?? [];
+    const recentOrders = recentRes.data.data?.data ?? [];
 
     return {
       overdueCount: overdueOrders.length,

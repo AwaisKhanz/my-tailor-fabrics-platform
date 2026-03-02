@@ -39,8 +39,8 @@ export default function EmployeesPage() {
         limit: PAGE_SIZE 
       });
       if (response.success) {
-        setEmployees(response.data);
-        setTotal(response.meta?.total || 0);
+        setEmployees(response.data.data);
+        setTotal(response.data.total);
       }
     } catch {
       toast({ title: "Error", description: "Failed to fetch employees", variant: "destructive" });

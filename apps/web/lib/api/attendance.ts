@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
+import { ApiResponse, PaginatedResponse } from '@/types/common';
 import type { AttendanceRecord, AttendanceSummary } from '@/types/attendance';
 
 export const attendanceApi = {
@@ -19,7 +19,7 @@ export const attendanceApi = {
   },
 
   getAttendance: async (params: { employeeId?: string; page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<AttendanceRecord[]>>('/attendance', { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<AttendanceRecord>>>('/attendance', { params });
     return response.data;
   },
 

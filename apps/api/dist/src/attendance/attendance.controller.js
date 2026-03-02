@@ -35,7 +35,7 @@ let AttendanceController = class AttendanceController {
     }
     async findAll(employeeId, page, limit, req) {
         const data = await this.attendanceService.findAll(req.branchId, employeeId, Number(page) || 1, Number(limit) || 20);
-        return { success: true, ...data };
+        return { success: true, data };
     }
     async getEmployeeSummary(employeeId, req) {
         const data = await this.attendanceService.getEmployeeSummary(employeeId, req.branchId);

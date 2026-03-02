@@ -18,6 +18,7 @@ const config_service_1 = require("./config.service");
 const garment_type_dto_1 = require("./dto/garment-type.dto");
 const measurement_category_dto_1 = require("./dto/measurement-category.dto");
 const system_settings_dto_1 = require("./dto/system-settings.dto");
+const workflow_step_dto_1 = require("./dto/workflow-step.dto");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
@@ -66,6 +67,10 @@ let ConfigController = class ConfigController {
     }
     async getGarmentPriceHistory(garmentTypeId) {
         const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
+        return { success: true, data };
+    }
+    async updateGarmentWorkflowSteps(garmentTypeId, dto) {
+        const data = await this.configService.updateGarmentWorkflowSteps(garmentTypeId, dto);
         return { success: true, data };
     }
     async getMeasurementCategories(search, page, limit) {
@@ -172,6 +177,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGarmentPriceHistory", null);
+__decorate([
+    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, common_1.Put)('garment-types/:id/steps'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, workflow_step_dto_1.UpdateGarmentWorkflowStepsDto]),
+    __metadata("design:returntype", Promise)
+], ConfigController.prototype, "updateGarmentWorkflowSteps", null);
 __decorate([
     (0, common_1.Get)('measurement-categories'),
     __param(0, (0, common_1.Query)('search')),

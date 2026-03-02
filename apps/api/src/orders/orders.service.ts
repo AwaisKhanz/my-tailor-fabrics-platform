@@ -138,6 +138,32 @@ export class OrdersService {
           }
       });
 
+      // 5.1 If System Settings useTaskWorkflow is enabled, generate tasks
+      const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
+      if (settings?.useTaskWorkflow) {
+          for (const item of newOrder.items) {
+              const templates = await tx.workflowStepTemplate.findMany({
+                  where: { garmentTypeId: item.garmentTypeId, isActive: true },
+                  orderBy: { sortOrder: 'asc' }
+              });
+
+              if (templates.length > 0) {
+                  const tasksToCreate = templates.map((t: any) => ({
+                      orderItemId: item.id,
+                      stepTemplateId: t.id,
+                      stepKey: t.stepKey,
+                      stepName: t.stepName,
+                      sortOrder: t.sortOrder,
+                      status: 'PENDING' as any,
+                  }));
+
+                  await (tx as any).orderItemTask.createMany({
+                      data: tasksToCreate
+                  });
+              }
+          }
+      }
+
       // 5.5 Recalculate Totals (sets subtotal, discountAmount, totalAmount, balanceDue correctly)
       const updatedOrder = await this.recalcOrderTotals(newOrder.id, tx);
 
@@ -225,7 +251,7 @@ export class OrdersService {
     branchId: string, 
     page = 1, 
     limit = 20, 
-    filters: { status?: string; from?: string; to?: string; employeeId?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' } = {}
+    filters: { status?: string; from?: string; to?: string; employeeId?: string; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' } = {}
   ) {
     const skip = (page - 1) * limit;
     const whereClause: Prisma.OrderWhereInput = { deletedAt: null };
@@ -254,6 +280,15 @@ export class OrdersService {
     if (filters.employeeId) {
         whereClause.items = { some: { employeeId: filters.employeeId } };
     }
+    
+    if (filters.search) {
+        const search = filters.search.trim();
+        whereClause.OR = [
+            { orderNumber: { contains: search, mode: 'insensitive' } },
+            { customer: { fullName: { contains: search, mode: 'insensitive' } } },
+            { customer: { phone: { contains: search, mode: 'insensitive' } } },
+        ];
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
@@ -268,10 +303,7 @@ export class OrdersService {
       this.prisma.order.count({ where: whereClause })
     ]);
 
-    return {
-      data,
-      meta: { total, page, lastPage: Math.ceil(total / limit) }
-    };
+    return { data, total };
   }
 
   async findOne(id: string, branchId: string) {
@@ -501,7 +533,7 @@ export class OrdersService {
       const customerPrice = type.customerPrice;
       const employeeRate = type.employeeRate;
 
-      await tx.orderItem.create({
+      const orderItem = await tx.orderItem.create({
         data: {
           orderId,
           garmentTypeId: type.id,
@@ -514,6 +546,29 @@ export class OrdersService {
           dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null
         }
       });
+
+      const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
+      if (settings?.useTaskWorkflow) {
+          const templates = await tx.workflowStepTemplate.findMany({
+              where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
+              orderBy: { sortOrder: 'asc' }
+          });
+
+          if (templates.length > 0) {
+              const tasksToCreate = templates.map((t: any) => ({
+                  orderItemId: orderItem.id,
+                  stepTemplateId: t.id,
+                  stepKey: t.stepKey,
+                  stepName: t.stepName,
+                  sortOrder: t.sortOrder,
+                  status: 'PENDING' as any,
+              }));
+
+              await (tx as any).orderItemTask.createMany({
+                  data: tasksToCreate
+              });
+          }
+      }
 
       return this.recalcOrderTotals(orderId, tx);
     });

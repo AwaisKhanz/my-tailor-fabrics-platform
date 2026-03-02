@@ -6,19 +6,22 @@ export declare class UsersController {
     findAll(branchId?: string): Promise<{
         success: boolean;
         data: {
-            id: string;
-            name: string;
-            isActive: boolean;
-            createdAt: Date;
-            branch: {
-                code: string;
+            data: {
+                id: string;
                 name: string;
-            } | null;
-            email: string;
-            role: import(".prisma/client").$Enums.Role;
-            branchId: string | null;
-            lastLoginAt: Date | null;
-        }[];
+                email: string;
+                role: import(".prisma/client").$Enums.Role;
+                branchId: string | null;
+                isActive: boolean;
+                lastLoginAt: Date | null;
+                createdAt: Date;
+                branch: {
+                    name: string;
+                    code: string;
+                } | null;
+            }[];
+            total: number;
+        };
     }>;
     getStats(): Promise<{
         success: boolean;
@@ -33,11 +36,11 @@ export declare class UsersController {
         data: {
             id: string;
             name: string;
-            isActive: boolean;
-            createdAt: Date;
             email: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
+            isActive: boolean;
+            createdAt: Date;
         };
     }>;
     setActive(id: string, isActive: boolean): Promise<{
@@ -45,17 +48,17 @@ export declare class UsersController {
         data: {
             id: string;
             name: string;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
             email: string;
-            employeeId: string | null;
             passwordHash: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
+            employeeId: string | null;
+            isActive: boolean;
             lastLoginAt: Date | null;
             refreshToken: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
         };
     }>;
     remove(id: string): Promise<{
@@ -66,11 +69,11 @@ export declare class UsersController {
         data: {
             id: string;
             name: string;
-            isActive: boolean;
-            createdAt: Date;
             email: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
+            isActive: boolean;
+            createdAt: Date;
         };
     }>;
 }

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { ordersApi } from "@/lib/api/orders";
 import { employeesApi } from "@/lib/api/employees";
-import { Order, OrderStatus } from "@tbms/shared-types";
+import { Order, OrderStatus, OrderItem } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TaskAssignmentDialog } from "./TaskAssignmentDialog";
 
 import { formatDate } from "@/lib/utils";
 
@@ -38,7 +39,6 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
   
-  // Dialog states
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -46,6 +46,9 @@ export default function OrderDetailPage() {
 
   const [shareOpen, setShareOpen] = useState(false);
   const [shareData, setShareData] = useState<Record<string, unknown> | null>(null);
+
+  const [taskOpen, setTaskOpen] = useState(false);
+  const [taskItem, setTaskItem] = useState<OrderItem | null>(null);
 
   const [employees, setEmployees] = useState<Array<{ id: string; fullName: string }>>([]);
 
@@ -67,7 +70,9 @@ export default function OrderDetailPage() {
   useEffect(() => {
     if (params.id) {
         fetchOrder();
-        employeesApi.getEmployees({ limit: 100 }).then(res => setEmployees(res.data)).catch(() => {});
+        employeesApi.getEmployees({ limit: 100 }).then(res => {
+          if (res.success) setEmployees(res.data.data);
+        }).catch(() => {});
     }
   }, [params.id, fetchOrder]);
 
@@ -289,15 +294,27 @@ export default function OrderDetailPage() {
                       return (
                         <tr key={idx} className="hover:bg-muted/50 transition-colors">
                           <td className="px-6 py-5 font-bold text-foreground text-sm">{item.garmentTypeName}</td>
-                          <td className="px-4 py-5">
-                            {empName !== "—" ? (
-                              <div className="flex items-center gap-2.5">
-                                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/20">
-                                  {initials}
+                          <td className="px-4 py-5 font-medium text-xs">
+                              {item.tasks && item.tasks.length > 0 ? (
+                                  <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="h-7 text-[10px] font-bold tracking-widest uppercase hover:bg-primary/5 hover:text-primary transition-colors border-primary/20"
+                                      onClick={() => {
+                                          setTaskItem(item);
+                                          setTaskOpen(true);
+                                      }}
+                                  >
+                                      Manage Tasks ({item.tasks.length})
+                                  </Button>
+                              ) : empName !== "—" ? (
+                                <div className="flex items-center gap-2.5">
+                                  <div className="h-8 w-8 rounded-full bg-primary/10 text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/20">
+                                    {initials}
+                                  </div>
+                                  <span className="text-sm text-muted-foreground font-bold">{empName}</span>
                                 </div>
-                                <span className="text-sm text-muted-foreground font-bold">{empName}</span>
-                              </div>
-                            ) : <span className="text-muted-foreground text-xs font-medium">Unassigned</span>}
+                              ) : <span className="text-muted-foreground">Unassigned</span>}
                           </td>
                           <td className="px-4 py-5">
                             <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px]">
@@ -535,6 +552,14 @@ export default function OrderDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <TaskAssignmentDialog
+        open={taskOpen}
+        onOpenChange={setTaskOpen}
+        orderItem={taskItem}
+        employees={employees}
+        onSuccess={fetchOrder}
+      />
     </div>
   );
 }

@@ -35,6 +35,7 @@ export class OrdersController {
     @Query('from') from: string,
     @Query('to') to: string,
     @Query('employeeId') employeeId: string,
+    @Query('search') search: string,
     @Query('sortBy') sortBy: string,
     @Query('sortOrder') sortOrder: 'asc' | 'desc',
     @Req() req: AuthenticatedRequest
@@ -43,9 +44,9 @@ export class OrdersController {
       req.branchId,
       Number(page) || 1,
       Number(limit) || 20,
-      { status, from, to, employeeId, sortBy, sortOrder }
+      { status, from, to, employeeId, search, sortBy, sortOrder }
     );
-    return { success: true, ...data };
+    return { success: true, data };
   }
 
   @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)

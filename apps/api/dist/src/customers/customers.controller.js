@@ -33,7 +33,7 @@ let CustomersController = class CustomersController {
     }
     async findAll(page, limit, search, isVip, req) {
         const data = await this.customersService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, search, isVip === 'true' ? true : undefined);
-        return { success: true, ...data };
+        return { success: true, data };
     }
     async findOne(id, req) {
         const data = await this.customersService.findOne(id, req.branchId);
@@ -49,7 +49,7 @@ let CustomersController = class CustomersController {
     }
     async getOrders(id, page, limit, req) {
         const data = await this.customersService.getOrders(id, req.branchId, Number(page) || 1, Number(limit) || 20);
-        return { success: true, ...data };
+        return { success: true, data };
     }
     async upsertMeasurement(id, dto, req) {
         const data = await this.customersService.upsertMeasurement(id, req.branchId, dto);

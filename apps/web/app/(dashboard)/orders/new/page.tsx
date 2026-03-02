@@ -78,8 +78,14 @@ export default function NewOrderPage() {
           employeesApi.getEmployees({ limit: 100 }),
         ]);
         if (gtRes.success) setGarmentTypes(gtRes.data.data);
-        setCustomers(cRes.data || []);
-        if (eRes.success) setTailors(eRes.data.filter((e: Employee) => e.designation?.toLowerCase().includes('tailor') || e.designation?.toLowerCase().includes('master')));
+        if (cRes.success) setCustomers(cRes.data.data || []);
+        if (eRes.success) {
+          const empList = eRes.data.data || [];
+          setTailors(empList.filter((e: Employee) => 
+            e.designation?.toLowerCase().includes('tailor') || 
+            e.designation?.toLowerCase().includes('master')
+          ));
+        }
       } catch {
         toast({ title: "Error", description: "Failed to load master data" });
       }

@@ -7,19 +7,19 @@ export declare class SearchController {
         success: boolean;
         data: {
             id: string;
-            address: string | null;
-            phone: string;
             createdAt: Date;
             updatedAt: Date;
+            address: string | null;
+            phone: string;
             deletedAt: Date | null;
             email: string | null;
             branchId: string;
-            sizeNumber: string;
             fullName: string;
-            whatsapp: string | null;
             city: string | null;
-            notes: string | null;
             status: import(".prisma/client").$Enums.CustomerStatus;
+            notes: string | null;
+            sizeNumber: string;
+            whatsapp: string | null;
             isVip: boolean;
             lifetimeValue: number;
         }[];
@@ -28,20 +28,18 @@ export declare class SearchController {
         success: boolean;
         data: {
             id: string;
-            address: string | null;
-            phone: string;
             createdAt: Date;
             updatedAt: Date;
+            address: string | null;
+            phone: string;
             deletedAt: Date | null;
             branchId: string;
-            fullName: string;
-            city: string | null;
-            notes: string | null;
-            status: import(".prisma/client").$Enums.EmployeeStatus;
             employeeCode: string;
+            cnic: string | null;
+            fullName: string;
             fatherName: string | null;
             phone2: string | null;
-            cnic: string | null;
+            city: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -50,6 +48,8 @@ export declare class SearchController {
             emergencyName: string | null;
             emergencyPhone: string | null;
             photoUrl: string | null;
+            status: import(".prisma/client").$Enums.EmployeeStatus;
+            notes: string | null;
         }[];
     }>;
 }

@@ -77,6 +77,10 @@ let ConfigService = class ConfigService {
         const garment = await this.prisma.garmentType.findUniqueOrThrow({
             where: { id, deletedAt: null },
             include: {
+                workflowSteps: {
+                    where: { deletedAt: null },
+                    orderBy: { sortOrder: 'asc' }
+                },
                 measurementCategories: {
                     where: { deletedAt: null },
                     include: { fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } }
@@ -139,6 +143,7 @@ let ConfigService = class ConfigService {
                     fieldType: f.fieldType
                 }))
             })),
+            workflowSteps: garment.workflowSteps || [],
             analytics: {
                 totalOrders: orderStats._count.id,
                 activeOrders: activeOrdersCount,
@@ -192,6 +197,39 @@ let ConfigService = class ConfigService {
     async deleteGarmentType(id) {
         await this.prisma.garmentType.findUniqueOrThrow({ where: { id, deletedAt: null } });
         return this.prisma.garmentType.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } });
+    }
+    async updateGarmentWorkflowSteps(garmentTypeId, dto) {
+        await this.prisma.garmentType.findUniqueOrThrow({ where: { id: garmentTypeId, deletedAt: null } });
+        return this.prisma.$transaction(async (tx) => {
+            await tx.workflowStepTemplate.updateMany({
+                where: { garmentTypeId },
+                data: { deletedAt: new Date(), isActive: false }
+            });
+            for (const step of dto.steps) {
+                await tx.workflowStepTemplate.upsert({
+                    where: { garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey } },
+                    update: {
+                        stepName: step.stepName,
+                        sortOrder: step.sortOrder,
+                        isRequired: step.isRequired ?? true,
+                        isActive: step.isActive ?? true,
+                        deletedAt: null
+                    },
+                    create: {
+                        garmentTypeId: garmentTypeId,
+                        stepKey: step.stepKey,
+                        stepName: step.stepName,
+                        sortOrder: step.sortOrder,
+                        isRequired: step.isRequired ?? true,
+                        isActive: step.isActive ?? true,
+                    }
+                });
+            }
+            return tx.workflowStepTemplate.findMany({
+                where: { garmentTypeId, deletedAt: null },
+                orderBy: { sortOrder: 'asc' }
+            });
+        });
     }
     async getGarmentStats() {
         const [totalCount, activeProduction, prices] = await Promise.all([

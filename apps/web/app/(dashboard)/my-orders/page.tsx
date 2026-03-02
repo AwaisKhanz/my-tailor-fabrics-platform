@@ -35,14 +35,16 @@ export default function MyOrdersPage() {
     setLoading(true);
     try {
       const res = await employeesApi.getAssignedItems();
-      const data = (res.data || []) as AssignedWorkItem[];
-      
-      // Client-side search for now as the employee endpoint might not support server-side search yet
-      const filtered = data.filter((item) => 
-        item.order.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-        item.garmentTypeName.toLowerCase().includes(search.toLowerCase())
-      );
-      setItems(filtered);
+      if (res.success) {
+        const data = (res.data.data || []) as AssignedWorkItem[];
+        
+        // Client-side search for now as the employee endpoint might not support server-side search yet
+        const filtered = data.filter((item) => 
+          item.order.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
+          item.garmentTypeName.toLowerCase().includes(search.toLowerCase())
+        );
+        setItems(filtered);
+      }
     } catch {
       toast({ title: "Error", description: "Failed to load your assigned orders", variant: "destructive" });
     } finally {

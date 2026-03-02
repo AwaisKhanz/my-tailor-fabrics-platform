@@ -23,7 +23,7 @@ export class BranchesController {
       limit: limit ? Number(limit) : undefined,
       search,
     });
-    return { success: true, ...data };
+    return { success: true, data };
   }
 
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)

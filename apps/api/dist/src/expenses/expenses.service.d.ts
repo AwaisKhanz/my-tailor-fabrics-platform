@@ -5,10 +5,10 @@ export declare class ExpensesService {
     constructor(prisma: PrismaService);
     findAllCategories(): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
     }[]>;
     create(branchId: string, addedById: string, dto: CreateExpenseDto): Promise<{
@@ -18,8 +18,8 @@ export declare class ExpensesService {
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
-        categoryId: string;
         amount: number;
+        categoryId: string;
         receiptUrl: string | null;
         expenseDate: Date;
         addedById: string;
@@ -28,10 +28,10 @@ export declare class ExpensesService {
         data: ({
             category: {
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                isActive: boolean;
                 deletedAt: Date | null;
             };
         } & {
@@ -41,8 +41,8 @@ export declare class ExpensesService {
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
-            categoryId: string;
             amount: number;
+            categoryId: string;
             receiptUrl: string | null;
             expenseDate: Date;
             addedById: string;
@@ -56,10 +56,10 @@ export declare class ExpensesService {
     findOne(id: string, branchId: string): Promise<{
         category: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
         };
     } & {
@@ -69,8 +69,8 @@ export declare class ExpensesService {
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
-        categoryId: string;
         amount: number;
+        categoryId: string;
         receiptUrl: string | null;
         expenseDate: Date;
         addedById: string;
@@ -82,8 +82,8 @@ export declare class ExpensesService {
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
-        categoryId: string;
         amount: number;
+        categoryId: string;
         receiptUrl: string | null;
         expenseDate: Date;
         addedById: string;
@@ -95,8 +95,8 @@ export declare class ExpensesService {
         deletedAt: Date | null;
         branchId: string;
         description: string | null;
-        categoryId: string;
         amount: number;
+        categoryId: string;
         receiptUrl: string | null;
         expenseDate: Date;
         addedById: string;

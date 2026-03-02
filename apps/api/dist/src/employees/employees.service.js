@@ -111,10 +111,7 @@ let EmployeesService = class EmployeesService {
                 }
             })
         ]);
-        return {
-            data,
-            meta: { total, page, lastPage: Math.ceil(total / limit) }
-        };
+        return { data, total };
     }
     async findOne(id, branchId) {
         const employee = await this.prisma.employee.findFirst({
@@ -211,7 +208,7 @@ let EmployeesService = class EmployeesService {
             }),
             this.prisma.orderItem.count({ where: { employeeId: id } })
         ]);
-        return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+        return { data, total };
     }
     async addDocument(id, branchId, label, fileUrl, fileType, uploadedById) {
         await this.findOne(id, branchId);

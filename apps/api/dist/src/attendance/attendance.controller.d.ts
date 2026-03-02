@@ -7,70 +7,68 @@ export declare class AttendanceController {
         success: boolean;
         data: {
             employee: {
-                fullName: string;
                 employeeCode: string;
+                fullName: string;
             };
         } & {
             id: string;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
+            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
-            note: string | null;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
         };
     }>;
     clockOut(recordId: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             employee: {
-                fullName: string;
                 employeeCode: string;
+                fullName: string;
             };
         } & {
             id: string;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
+            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
-            note: string | null;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
         };
     }>;
     findAll(employeeId: string | undefined, page: string, limit: string, req: AuthenticatedRequest): Promise<{
-        data: ({
-            employee: {
-                fullName: string;
-                employeeCode: string;
-                designation: string | null;
-            };
-        } & {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            employeeId: string;
-            branchId: string;
-            note: string | null;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
-        })[];
-        meta: {
-            total: number;
-            page: number;
-            lastPage: number;
-        };
         success: boolean;
+        data: {
+            data: ({
+                employee: {
+                    employeeCode: string;
+                    fullName: string;
+                    designation: string | null;
+                };
+            } & {
+                id: string;
+                date: Date;
+                clockIn: Date;
+                clockOut: Date | null;
+                hoursWorked: number | null;
+                note: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                deletedAt: Date | null;
+                employeeId: string;
+                branchId: string;
+            })[];
+            total: number;
+        };
     }>;
     getEmployeeSummary(employeeId: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
@@ -79,29 +77,29 @@ export declare class AttendanceController {
             totalHours: number;
             currentlyIn: {
                 id: string;
+                date: Date;
+                clockIn: Date;
+                clockOut: Date | null;
+                hoursWorked: number | null;
+                note: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;
-                note: string | null;
-                date: Date;
-                clockIn: Date;
-                clockOut: Date | null;
-                hoursWorked: number | null;
             } | undefined;
             records: {
                 id: string;
+                date: Date;
+                clockIn: Date;
+                clockOut: Date | null;
+                hoursWorked: number | null;
+                note: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;
-                note: string | null;
-                date: Date;
-                clockIn: Date;
-                clockOut: Date | null;
-                hoursWorked: number | null;
             }[];
         };
     }>;

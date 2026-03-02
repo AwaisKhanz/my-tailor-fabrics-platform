@@ -30,7 +30,7 @@ let BranchesController = class BranchesController {
             limit: limit ? Number(limit) : undefined,
             search,
         });
-        return { success: true, ...data };
+        return { success: true, data };
     }
     async getStats() {
         const data = await this.branchesService.getStats();

@@ -35,9 +35,9 @@ let OrdersController = class OrdersController {
         const data = await this.ordersService.create(createOrderDto, req.branchId, req.user.userId, req.user.role);
         return { success: true, data };
     }
-    async findAll(page, limit, status, from, to, employeeId, sortBy, sortOrder, req) {
-        const data = await this.ordersService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, { status, from, to, employeeId, sortBy, sortOrder });
-        return { success: true, ...data };
+    async findAll(page, limit, status, from, to, employeeId, search, sortBy, sortOrder, req) {
+        const data = await this.ordersService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, { status, from, to, employeeId, search, sortBy, sortOrder });
+        return { success: true, data };
     }
     async findOne(id, req) {
         const data = await this.ordersService.findOne(id, req.branchId);
@@ -95,11 +95,12 @@ __decorate([
     __param(3, (0, common_1.Query)('from')),
     __param(4, (0, common_1.Query)('to')),
     __param(5, (0, common_1.Query)('employeeId')),
-    __param(6, (0, common_1.Query)('sortBy')),
-    __param(7, (0, common_1.Query)('sortOrder')),
-    __param(8, (0, common_1.Req)()),
+    __param(6, (0, common_1.Query)('search')),
+    __param(7, (0, common_1.Query)('sortBy')),
+    __param(8, (0, common_1.Query)('sortOrder')),
+    __param(9, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String, Object]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "findAll", null);
 __decorate([

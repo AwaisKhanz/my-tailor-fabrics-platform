@@ -73,7 +73,7 @@ export class AttendanceService {
       this.prisma.attendanceRecord.count({ where }),
     ]);
 
-    return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+    return { data, total };
   }
 
   async getEmployeeSummary(employeeId: string, branchId: string) {

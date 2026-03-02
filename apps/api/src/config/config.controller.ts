@@ -4,6 +4,7 @@ import { ConfigService } from './config.service';
 import { CreateGarmentTypeDto, UpdateGarmentTypeDto } from './dto/garment-type.dto';
 import { CreateMeasurementCategoryDto, UpdateMeasurementCategoryDto, CreateMeasurementFieldDto, UpdateMeasurementFieldDto } from './dto/measurement-category.dto';
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
+import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
@@ -83,6 +84,13 @@ export class ConfigController {
   @Get('garment-types/:id/history')
   async getGarmentPriceHistory(@Param('id') garmentTypeId: string) {
     const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
+    return { success: true, data };
+  }
+
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Put('garment-types/:id/steps')
+  async updateGarmentWorkflowSteps(@Param('id') garmentTypeId: string, @Body() dto: UpdateGarmentWorkflowStepsDto) {
+    const data = await this.configService.updateGarmentWorkflowSteps(garmentTypeId, dto);
     return { success: true, data };
   }
 

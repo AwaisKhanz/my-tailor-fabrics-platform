@@ -4,25 +4,27 @@ export declare class BranchesController {
     private readonly branchesService;
     constructor(branchesService: BranchesService);
     findAll(page?: string, limit?: string, search?: string): Promise<{
-        data: ({
-            _count: {
-                employees: number;
-                customers: number;
-                orders: number;
-            };
-        } & {
-            id: string;
-            code: string;
-            name: string;
-            address: string | null;
-            phone: string | null;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-        })[];
-        total: number;
         success: boolean;
+        data: {
+            data: ({
+                _count: {
+                    employees: number;
+                    customers: number;
+                    orders: number;
+                };
+            } & {
+                id: string;
+                code: string;
+                name: string;
+                address: string | null;
+                phone: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                deletedAt: Date | null;
+            })[];
+            total: number;
+        };
     }>;
     getStats(): Promise<{
         success: boolean;

@@ -74,10 +74,7 @@ export class EmployeesService {
       })
     ]);
 
-    return {
-      data,
-      meta: { total, page, lastPage: Math.ceil(total / limit) }
-    };
+    return { data, total };
   }
 
   async findOne(id: string, branchId: string) {
@@ -193,7 +190,7 @@ export class EmployeesService {
         this.prisma.orderItem.count({ where: { employeeId: id } })
     ]);
 
-    return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+    return { data, total };
   }
 
   async addDocument(id: string, branchId: string, label: string, fileUrl: string, fileType: string, uploadedById: string) {

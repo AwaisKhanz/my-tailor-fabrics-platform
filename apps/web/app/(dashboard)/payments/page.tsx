@@ -29,7 +29,9 @@ export default function PaymentsPage() {
   const [disbursing, setDisbursing] = useState(false);
 
   useEffect(() => {
-    employeesApi.getEmployees({ page: 1, limit: 100 }).then((res) => setEmployees(res.data)).catch(() => {});
+    employeesApi.getEmployees({ page: 1, limit: 100 }).then((res) => {
+      if (res.success) setEmployees(res.data.data);
+    }).catch(() => {});
   }, []);
 
   const loadSummary = useCallback(async (empId: string) => {

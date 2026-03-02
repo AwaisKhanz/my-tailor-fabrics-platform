@@ -49,6 +49,12 @@ export declare enum ItemStatus {
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED"
 }
+export declare enum TaskStatus {
+    PENDING = "PENDING",
+    IN_PROGRESS = "IN_PROGRESS",
+    DONE = "DONE",
+    CANCELLED = "CANCELLED"
+}
 export declare enum DiscountType {
     FIXED = "FIXED",
     PERCENTAGE = "PERCENTAGE"

@@ -37,7 +37,7 @@ export class CustomersController {
       search,
       isVip === 'true' ? true : undefined,
     );
-    return { success: true, ...data };
+    return { success: true, data };
   }
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
@@ -65,7 +65,7 @@ export class CustomersController {
   @Get(':id/orders')
   async getOrders(@Param('id') id: string, @Query('page') page: string, @Query('limit') limit: string, @Req() req: AuthenticatedRequest) {
      const data = await this.customersService.getOrders(id, req.branchId, Number(page) || 1, Number(limit) || 20);
-     return { success: true, ...data };
+     return { success: true, data };
   }
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)

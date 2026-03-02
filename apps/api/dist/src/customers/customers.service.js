@@ -117,7 +117,7 @@ let CustomersService = class CustomersService {
             }),
             this.prisma.order.count({ where: { customerId: id, deletedAt: null, ...(branchId ? { branchId } : {}) } }),
         ]);
-        return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+        return { data, total };
     }
     async upsertMeasurement(id, branchId, dto) {
         await this.findOne(id, branchId);

@@ -32,7 +32,7 @@ let EmployeesController = class EmployeesController {
     }
     async findAll(page, limit, search, req) {
         const data = await this.employeesService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, search);
-        return { success: true, ...data };
+        return { success: true, data };
     }
     async findOne(id, req) {
         const data = await this.employeesService.findOne(id, req.branchId);
@@ -56,7 +56,7 @@ let EmployeesController = class EmployeesController {
     }
     async getItems(id, page, limit, req) {
         const data = await this.employeesService.getItems(id, req.branchId, Number(page) || 1, Number(limit) || 20);
-        return { success: true, ...data };
+        return { success: true, data };
     }
     async addDocument(id, label, fileUrl, fileType, req) {
         const data = await this.employeesService.addDocument(id, req.branchId, label, fileUrl, fileType, req.user.userId);
@@ -72,7 +72,7 @@ let EmployeesController = class EmployeesController {
     }
     async getMyItems(page, limit, req) {
         const data = await this.employeesService.getMyItems(req.user.employeeId, req.branchId, Number(page) || 1, Number(limit) || 20);
-        return { success: true, ...data };
+        return { success: true, data };
     }
 };
 exports.EmployeesController = EmployeesController;

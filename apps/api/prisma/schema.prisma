@@ -56,6 +56,13 @@ enum ItemStatus {
   CANCELLED
 }
 
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
 enum DiscountType {
   FIXED
   PERCENTAGE
@@ -98,6 +105,7 @@ model User {
   auditLogs         AuditLog[]
   paymentsProcessed Payment[]
   priceLogs         GarmentPriceLog[]
+  taskAssignmentEvents OrderItemTaskAssignmentEvent[]
 
   @@index([branchId])
   @@index([role])
@@ -134,6 +142,7 @@ model Employee {
   payments          Payment[]
   userAccount       User? // linked login account (EMPLOYEE role)
   attendanceRecords AttendanceRecord[]
+  assignedTasks     OrderItemTask[]
 
   @@index([branchId, status])
   @@index([searchVector], type: Gin)
@@ -236,6 +245,7 @@ model GarmentType {
   orderItems            OrderItem[]
   priceLogs             GarmentPriceLog[]
   measurementCategories MeasurementCategory[]
+  workflowSteps         WorkflowStepTemplate[]
 }
 
 model Order {
@@ -292,6 +302,7 @@ model OrderItem {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   deletedAt       DateTime?
+  tasks           OrderItemTask[]
 
   @@index([orderId])
   @@index([employeeId, status]) // employee earnings query
@@ -426,6 +437,79 @@ model GarmentPriceLog {
 
   @@index([garmentTypeId])
   @@index([createdAt])
+}
+
+// ─── Phase 1: Production workflow core ────────────────────────────────────────
+
+model WorkflowStepTemplate {
+  id            String      @id @default(cuid())
+  garmentTypeId String
+  garmentType   GarmentType @relation(fields: [garmentTypeId], references: [id])
+
+  // dynamic key (NOT enum)
+  stepKey       String // e.g. "CUTTING", "STITCHING", "DESIGNING", "FINISHING", "PRESSING"
+  stepName      String
+
+  sortOrder     Int     @default(0)
+  isRequired    Boolean @default(true)
+  isActive      Boolean @default(true)
+
+  createdAt     DateTime @default(now())
+  deletedAt     DateTime?
+
+  tasks         OrderItemTask[]
+
+  @@unique([garmentTypeId, stepKey])
+  @@index([garmentTypeId, sortOrder])
+}
+
+model OrderItemTask {
+  id              String   @id @default(cuid())
+  orderItemId     String
+  orderItem       OrderItem @relation(fields: [orderItemId], references: [id])
+
+  stepTemplateId  String?
+  stepTemplate    WorkflowStepTemplate? @relation(fields: [stepTemplateId], references: [id])
+
+  stepKey         String
+  stepName        String
+  sortOrder       Int      @default(0)
+
+  status          TaskStatus @default(PENDING)
+
+  assignedEmployeeId String?
+  assignedEmployee   Employee? @relation(fields: [assignedEmployeeId], references: [id])
+
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  assignmentEvents OrderItemTaskAssignmentEvent[]
+
+  @@index([orderItemId, sortOrder])
+  @@index([assignedEmployeeId, status])
+  @@index([stepKey])
+}
+
+model OrderItemTaskAssignmentEvent {
+  id             String @id @default(cuid())
+  taskId         String
+  task           OrderItemTask @relation(fields: [taskId], references: [id])
+
+  fromEmployeeId String?
+  toEmployeeId   String?
+
+  changedById    String?
+  changedBy      User? @relation(fields: [changedById], references: [id])
+
+  note           String?
+  createdAt      DateTime @default(now())
+
+  @@index([taskId])
 }
 
 // ─── Phase 0: System Configurations ───────────────────────────────────────────

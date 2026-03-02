@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
+import { ApiResponse, PaginatedResponse } from '@/types/common';
 import { Employee, EmployeeDocument } from '@/types/employees';
 import { OrderItem } from '@tbms/shared-types';
 
@@ -18,7 +18,7 @@ export interface EmployeeWithRelations extends Employee {
 
 export const employeesApi = {
   getEmployees: async (params: { page?: number; limit?: number; search?: string }) => {
-    const response = await api.get<{ success: boolean; data: Employee[]; meta?: { total: number } }>('/employees', { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<Employee>>>('/employees', { params });
     return response.data;
   },
   getEmployee: async (id: string) => {
@@ -38,7 +38,7 @@ export const employeesApi = {
     return response.data;
   },
   getAssignedItems: async () => {
-    const response = await api.get<ApiResponse<unknown[]>>('/employees/my/items');
+    const response = await api.get<ApiResponse<PaginatedResponse<unknown>>>('/employees/my/items');
     return response.data;
   },
   getMyProfile: async () => {
@@ -54,7 +54,7 @@ export const employeesApi = {
     return response.data;
   },
   getItems: async (id: string, params: { page?: number; limit?: number } = {}) => {
-    const response = await api.get<ApiResponse<(OrderItem & { order: { orderNumber: string } })[]>>(`/employees/${id}/items`, { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<OrderItem & { order: { orderNumber: string } }>>>(`/employees/${id}/items`, { params });
     return response.data;
   },
   uploadDocument: async (id: string, data: { label: string; fileUrl: string; fileType: string }) => {

@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { CreateGarmentTypeDto, UpdateGarmentTypeDto } from './dto/garment-type.dto';
 import { CreateMeasurementCategoryDto, UpdateMeasurementCategoryDto, CreateMeasurementFieldDto, UpdateMeasurementFieldDto } from './dto/measurement-category.dto';
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
+import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import { GarmentTypeWithAnalytics, FieldType, SystemSettings } from '@tbms/shared-types';
 
 @Injectable()
@@ -88,6 +89,10 @@ export class ConfigService {
       const garment = await this.prisma.garmentType.findUniqueOrThrow({
           where: { id, deletedAt: null },
           include: { 
+            workflowSteps: {
+                where: { deletedAt: null },
+                orderBy: { sortOrder: 'asc' }
+            },
             measurementCategories: {
                 where: { deletedAt: null },
                 include: { fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } }
@@ -159,6 +164,7 @@ export class ConfigService {
                   fieldType: f.fieldType as FieldType
               }))
           })),
+          workflowSteps: garment.workflowSteps || [],
           analytics: {
               totalOrders: orderStats._count.id,
               activeOrders: activeOrdersCount,
@@ -222,6 +228,45 @@ export class ConfigService {
   async deleteGarmentType(id: string) {
       await this.prisma.garmentType.findUniqueOrThrow({ where: { id, deletedAt: null }});
       return this.prisma.garmentType.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } });
+  }
+
+  async updateGarmentWorkflowSteps(garmentTypeId: string, dto: UpdateGarmentWorkflowStepsDto) {
+      await this.prisma.garmentType.findUniqueOrThrow({ where: { id: garmentTypeId, deletedAt: null } });
+
+      return this.prisma.$transaction(async (tx) => {
+          // Soft delete existing active steps not in the incoming payload (if needed, or just hard delete if they haven't been used, but soft delete is safer)
+          await tx.workflowStepTemplate.updateMany({
+              where: { garmentTypeId },
+              data: { deletedAt: new Date(), isActive: false }
+          });
+
+          // Insert or Update the incoming steps
+          for (const step of dto.steps) {
+              await tx.workflowStepTemplate.upsert({
+                  where: { garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey } },
+                  update: {
+                      stepName: step.stepName,
+                      sortOrder: step.sortOrder,
+                      isRequired: step.isRequired ?? true,
+                      isActive: step.isActive ?? true,
+                      deletedAt: null // Restore if previously soft deleted
+                  },
+                  create: {
+                      garmentTypeId: garmentTypeId,
+                      stepKey: step.stepKey,
+                      stepName: step.stepName,
+                      sortOrder: step.sortOrder,
+                      isRequired: step.isRequired ?? true,
+                      isActive: step.isActive ?? true,
+                  }
+              });
+          }
+
+          return tx.workflowStepTemplate.findMany({
+              where: { garmentTypeId, deletedAt: null },
+              orderBy: { sortOrder: 'asc' }
+          });
+      });
   }
 
   async getGarmentStats() {

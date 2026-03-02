@@ -13,8 +13,8 @@ export declare class ExpensesController {
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
-            categoryId: string;
             amount: number;
+            categoryId: string;
             receiptUrl: string | null;
             expenseDate: Date;
             addedById: string;
@@ -24,10 +24,10 @@ export declare class ExpensesController {
         data: ({
             category: {
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                isActive: boolean;
                 deletedAt: Date | null;
             };
         } & {
@@ -37,8 +37,8 @@ export declare class ExpensesController {
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
-            categoryId: string;
             amount: number;
+            categoryId: string;
             receiptUrl: string | null;
             expenseDate: Date;
             addedById: string;
@@ -54,10 +54,10 @@ export declare class ExpensesController {
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
             deletedAt: Date | null;
         }[];
     }>;
@@ -66,10 +66,10 @@ export declare class ExpensesController {
         data: {
             category: {
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
+                name: string;
+                isActive: boolean;
                 deletedAt: Date | null;
             };
         } & {
@@ -79,8 +79,8 @@ export declare class ExpensesController {
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
-            categoryId: string;
             amount: number;
+            categoryId: string;
             receiptUrl: string | null;
             expenseDate: Date;
             addedById: string;
@@ -95,8 +95,8 @@ export declare class ExpensesController {
             deletedAt: Date | null;
             branchId: string;
             description: string | null;
-            categoryId: string;
             amount: number;
+            categoryId: string;
             receiptUrl: string | null;
             expenseDate: Date;
             addedById: string;

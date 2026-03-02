@@ -68,24 +68,29 @@ let UsersService = class UsersService {
         return this.prisma.user.update({ where: { id: userId }, data: { refreshToken } });
     }
     async findAll(branchId) {
-        return this.prisma.user.findMany({
-            where: {
-                deletedAt: null,
-                ...(branchId ? { branchId } : {}),
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                isActive: true,
-                branchId: true,
-                lastLoginAt: true,
-                createdAt: true,
-                branch: { select: { name: true, code: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+        const where = {
+            deletedAt: null,
+            ...(branchId ? { branchId } : {}),
+        };
+        const [data, total] = await Promise.all([
+            this.prisma.user.findMany({
+                where,
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    isActive: true,
+                    branchId: true,
+                    lastLoginAt: true,
+                    createdAt: true,
+                    branch: { select: { name: true, code: true } },
+                },
+                orderBy: { createdAt: 'desc' },
+            }),
+            this.prisma.user.count({ where })
+        ]);
+        return { data, total };
     }
     async setupInitialSuperAdmin(data) {
         const existing = await this.prisma.user.findUnique({ where: { email: data.email } });

@@ -1,4 +1,4 @@
-import { OrderStatus, ItemStatus, DiscountType } from './common';
+import { OrderStatus, ItemStatus, DiscountType, TaskStatus } from './common';
 
 export interface OrderItemInput {
   garmentTypeId: string;
@@ -31,6 +31,7 @@ export interface OrderItem {
   completedAt?: string | null;
   status: ItemStatus;
   orderId: string;
+  tasks?: OrderItemTask[];
   employee?: {
     id: string;
     fullName: string;
@@ -81,6 +82,47 @@ export interface OrderStatusHistory {
   toStatus: OrderStatus;
   note?: string | null;
   actor: string;
+  createdAt: string;
+}
+
+export interface WorkflowStepTemplate {
+  id: string;
+  garmentTypeId: string;
+  stepKey: string;
+  stepName: string;
+  sortOrder: number;
+  isRequired: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface OrderItemTask {
+  id: string;
+  orderItemId: string;
+  stepTemplateId?: string | null;
+  stepKey: string;
+  stepName: string;
+  sortOrder: number;
+  status: TaskStatus;
+  assignedEmployeeId?: string | null;
+  assignedEmployee?: {
+    id: string;
+    fullName: string;
+  };
+  startedAt?: string | null;
+  completedAt?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderItemTaskAssignmentEvent {
+  id: string;
+  taskId: string;
+  fromEmployeeId?: string | null;
+  toEmployeeId?: string | null;
+  changedById?: string | null;
+  note?: string | null;
   createdAt: string;
 }
 

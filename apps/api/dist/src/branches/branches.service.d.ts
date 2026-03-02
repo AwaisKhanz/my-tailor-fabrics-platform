@@ -16,13 +16,13 @@ export declare class BranchesService {
             };
         } & {
             id: string;
-            code: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
+            code: string;
             address: string | null;
             phone: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             deletedAt: Date | null;
         })[];
         total: number;
@@ -37,46 +37,46 @@ export declare class BranchesService {
             orders: number;
         };
         id: string;
-        code: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
+        code: string;
         address: string | null;
         phone: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         deletedAt: Date | null;
     }>;
     create(data: CreateBranchInput): Promise<{
         id: string;
-        code: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
+        code: string;
         address: string | null;
         phone: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         deletedAt: Date | null;
     }>;
     update(id: string, data: UpdateBranchInput): Promise<{
         id: string;
-        code: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
+        code: string;
         address: string | null;
         phone: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         deletedAt: Date | null;
     }>;
     remove(id: string): Promise<{
         id: string;
-        code: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
+        code: string;
         address: string | null;
         phone: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         deletedAt: Date | null;
     }>;
     getStats(): Promise<{

@@ -47,8 +47,12 @@ export function UsersTable() {
     setLoading(true);
     try {
       const [usersRes, branchesRes] = await Promise.all([usersApi.getUsers(), branchesApi.getBranches()]);
-      setUsers(usersRes.data);
-      setBranches(branchesRes.data);
+      if (usersRes.success) {
+        setUsers(usersRes.data.data);
+      }
+      if (branchesRes.success) {
+        setBranches(branchesRes.data.data);
+      }
       fetchStats();
     } catch {
       toast({ title: "Error", description: "Failed to load users", variant: "destructive" });
