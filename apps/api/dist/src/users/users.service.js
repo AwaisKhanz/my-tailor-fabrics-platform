@@ -55,17 +55,20 @@ let UsersService = class UsersService {
     async findByEmail(email) {
         return this.prisma.user.findFirst({
             where: { email, deletedAt: null },
-            include: { branch: true }
+            include: { branch: true },
         });
     }
     async findById(id) {
         return this.prisma.user.findFirst({
             where: { id, deletedAt: null },
-            include: { branch: true }
+            include: { branch: true },
         });
     }
     async updateRefreshToken(userId, refreshToken) {
-        return this.prisma.user.update({ where: { id: userId }, data: { refreshToken } });
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { refreshToken },
+        });
     }
     async findAll(branchId) {
         const where = {
@@ -88,12 +91,14 @@ let UsersService = class UsersService {
                 },
                 orderBy: { createdAt: 'desc' },
             }),
-            this.prisma.user.count({ where })
+            this.prisma.user.count({ where }),
         ]);
         return { data, total };
     }
     async setupInitialSuperAdmin(data) {
-        const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+        const existing = await this.prisma.user.findUnique({
+            where: { email: data.email },
+        });
         if (existing) {
             if (existing.deletedAt) {
                 throw new common_1.ConflictException('A user with this email existed and was deleted. Contact support.');
@@ -123,7 +128,9 @@ let UsersService = class UsersService {
         });
     }
     async create(data) {
-        const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+        const existing = await this.prisma.user.findUnique({
+            where: { email: data.email },
+        });
         if (existing) {
             if (existing.deletedAt) {
                 throw new common_1.ConflictException('A user with this email existed and was deleted. Contact support.');
@@ -161,7 +168,7 @@ let UsersService = class UsersService {
         await this.findById(id);
         return this.prisma.user.update({
             where: { id },
-            data: { deletedAt: new Date(), isActive: false }
+            data: { deletedAt: new Date(), isActive: false },
         });
     }
     async update(id, dataParams) {
@@ -172,7 +179,9 @@ let UsersService = class UsersService {
             name: dataParams.name,
             email: dataParams.email,
             role: dataParams.role,
-            branchId: dataParams.branchId === undefined ? undefined : (dataParams.branchId ?? null),
+            branchId: dataParams.branchId === undefined
+                ? undefined
+                : (dataParams.branchId ?? null),
         };
         if (dataParams.password) {
             data.passwordHash = await bcrypt.hash(dataParams.password, 12);
@@ -198,8 +207,8 @@ let UsersService = class UsersService {
             this.prisma.user.count({
                 where: {
                     deletedAt: null,
-                    role: { in: [shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN] }
-                }
+                    role: { in: [shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN] },
+                },
             }),
         ]);
         return { total, active, privileged };

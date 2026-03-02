@@ -1,8 +1,22 @@
+import * as express from 'express';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
-import { Controller, Get, Post, Body, Patch, Param, Query, Req, Res, UseGuards, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ReceiptService } from './receipt.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -16,13 +30,21 @@ import { Role } from '@tbms/shared-types';
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
-    private readonly receiptService: ReceiptService
+    private readonly receiptService: ReceiptService,
   ) {}
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Post()
-  async create(@Body() createOrderDto: CreateOrderDto, @Req() req: AuthenticatedRequest) {
-    const data = await this.ordersService.create(createOrderDto, req.branchId, req.user.userId, req.user.role);
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ordersService.create(
+      createOrderDto,
+      req.branchId,
+      req.user.userId,
+      req.user.role,
+    );
     return { success: true, data };
   }
 
@@ -38,13 +60,13 @@ export class OrdersController {
     @Query('search') search: string,
     @Query('sortBy') sortBy: string,
     @Query('sortOrder') sortOrder: 'asc' | 'desc',
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.ordersService.findAll(
       req.branchId,
       Number(page) || 1,
       Number(limit) || 20,
-      { status, from, to, employeeId, search, sortBy, sortOrder }
+      { status, from, to, employeeId, search, sortBy, sortOrder },
     );
     return { success: true, data };
   }
@@ -58,24 +80,40 @@ export class OrdersController {
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: { dueDate?: string; notes?: string; discountType?: 'PERCENTAGE' | 'FIXED'; discountValue?: number; status?: string; employeeId?: string; }, @Req() req: AuthenticatedRequest) {
-    const data = await this.ordersService.update(id, req.branchId, dto, req.user.role);
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateOrderDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ordersService.update(
+      id,
+      req.branchId,
+      dto,
+      req.user.role,
+    );
     return { success: true, data };
   }
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
   async cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.ordersService.cancelOrder(id, req.branchId, req.user.userId);
+    const data = await this.ordersService.cancelOrder(
+      id,
+      req.branchId,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Post(':id/items')
-  async addItem(@Param('id') id: string, @Body() dto: { garmentTypeId: string; employeeId?: string; quantity?: number; description?: string; dueDate?: string; }, @Req() req: AuthenticatedRequest) {
+  async addItem(
+    @Param('id') id: string,
+    @Body() dto: OrderItemDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.ordersService.addItem(id, req.branchId, dto);
     return { success: true, data };
   }
-
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Patch(':id/items/:itemId')
@@ -83,9 +121,14 @@ export class OrdersController {
     @Param('id') id: string,
     @Param('itemId') itemId: string,
     @Body() dto: { status?: string; employeeId?: string },
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.ordersService.updateItem(id, itemId, req.branchId, dto);
+    const data = await this.ordersService.updateItem(
+      id,
+      itemId,
+      req.branchId,
+      dto,
+    );
     return { success: true, data };
   }
 
@@ -94,7 +137,7 @@ export class OrdersController {
   async removeItem(
     @Param('id') id: string,
     @Param('itemId') itemId: string,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
   ) {
     await this.ordersService.removeItem(id, itemId, req.branchId);
     return { success: true };
@@ -102,22 +145,47 @@ export class OrdersController {
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Post(':id/payment')
-  async addPayment(@Param('id') id: string, @Body() addPaymentDto: AddPaymentDto, @Req() req: AuthenticatedRequest) {
-    const data = await this.ordersService.addPayment(id, req.branchId, addPaymentDto, req.user.userId);
+  async addPayment(
+    @Param('id') id: string,
+    @Body() addPaymentDto: AddPaymentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ordersService.addPayment(
+      id,
+      req.branchId,
+      addPaymentDto,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Patch(':id/status')
-  async updateStatus(@Param('id') id: string, @Body() updateStatusDto: UpdateOrderStatusDto, @Req() req: AuthenticatedRequest) {
-    const data = await this.ordersService.updateStatus(id, req.branchId, updateStatusDto, req.user.userId);
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateOrderStatusDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ordersService.updateStatus(
+      id,
+      req.branchId,
+      updateStatusDto,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
   @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Get(':id/receipt')
-  async getReceipt(@Param('id') id: string, @Req() req: AuthenticatedRequest, @Res() res: any) {
-    const stream = await this.receiptService.generateOrderReceipt(id, req.branchId);
+  async getReceipt(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: express.Response,
+  ) {
+    const stream = await this.receiptService.generateOrderReceipt(
+      id,
+      req.branchId,
+    );
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename=receipt-${id}.pdf`,

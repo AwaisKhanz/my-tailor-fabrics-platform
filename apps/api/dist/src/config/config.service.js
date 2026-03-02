@@ -20,36 +20,39 @@ let ConfigService = class ConfigService {
     async getBranches() {
         return this.prisma.branch.findMany({
             orderBy: { createdAt: 'desc' },
-            where: { isActive: true }
+            where: { isActive: true },
         });
     }
     async getSystemSettings() {
         let settings = await this.prisma.systemSettings.findUnique({
-            where: { id: "default" }
+            where: { id: 'default' },
         });
         if (!settings) {
             settings = await this.prisma.systemSettings.create({
-                data: { id: "default" }
+                data: { id: 'default' },
             });
         }
         return settings;
     }
     async updateSystemSettings(dto) {
         const settings = await this.prisma.systemSettings.upsert({
-            where: { id: "default" },
+            where: { id: 'default' },
             update: dto,
-            create: { id: "default", ...dto }
+            create: { id: 'default', ...dto },
         });
         return settings;
     }
     async getGarmentTypes(options = {}) {
         const { search, page = 1, limit = 10 } = options;
         const skip = (page - 1) * limit;
-        const where = { isActive: true, deletedAt: null };
+        const where = {
+            isActive: true,
+            deletedAt: null,
+        };
         if (search) {
             where.OR = [
                 { name: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } }
+                { description: { contains: search, mode: 'insensitive' } },
             ];
         }
         const [total, types] = await Promise.all([
@@ -60,15 +63,17 @@ let ConfigService = class ConfigService {
                 skip,
                 take: limit,
                 include: {
-                    measurementCategories: true
-                }
-            })
+                    measurementCategories: true,
+                },
+            }),
         ]);
         const data = types.map((t) => {
             return {
                 ...t,
                 marginAmount: t.customerPrice - t.employeeRate,
-                marginPercentage: t.customerPrice > 0 ? Math.round(((t.customerPrice - t.employeeRate) / t.customerPrice) * 100) : 0
+                marginPercentage: t.customerPrice > 0
+                    ? Math.round(((t.customerPrice - t.employeeRate) / t.customerPrice) * 100)
+                    : 0,
             };
         });
         return { data, total };
@@ -79,24 +84,29 @@ let ConfigService = class ConfigService {
             include: {
                 workflowSteps: {
                     where: { deletedAt: null },
-                    orderBy: { sortOrder: 'asc' }
+                    orderBy: { sortOrder: 'asc' },
                 },
                 measurementCategories: {
                     where: { deletedAt: null },
-                    include: { fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } }
+                    include: {
+                        fields: {
+                            where: { deletedAt: null },
+                            orderBy: { sortOrder: 'asc' },
+                        },
+                    },
                 },
                 priceLogs: {
                     take: 10,
                     orderBy: { createdAt: 'desc' },
                     include: {
-                        changedBy: { select: { name: true } }
-                    }
+                        changedBy: { select: { name: true } },
+                    },
                 },
                 rateCards: {
                     where: { deletedAt: null, effectiveTo: null },
-                    include: { branch: { select: { name: true, code: true } } }
-                }
-            }
+                    include: { branch: { select: { name: true, code: true } } },
+                },
+            },
         });
         const orderStats = await this.prisma.orderItem.aggregate({
             where: { garmentTypeId: id, deletedAt: null },
@@ -107,8 +117,8 @@ let ConfigService = class ConfigService {
             where: {
                 garmentTypeId: id,
                 status: { in: ['PENDING', 'IN_PROGRESS'] },
-                deletedAt: null
-            }
+                deletedAt: null,
+            },
         });
         const topTailorsData = await this.prisma.orderItem.groupBy({
             by: ['employeeId'],
@@ -116,36 +126,40 @@ let ConfigService = class ConfigService {
                 garmentTypeId: id,
                 employeeId: { not: null },
                 status: 'COMPLETED',
-                deletedAt: null
+                deletedAt: null,
             },
             _count: { id: true },
             orderBy: { _count: { id: 'desc' } },
-            take: 3
+            take: 3,
         });
         const topTailors = await Promise.all(topTailorsData.map(async (t) => {
             const employee = await this.prisma.employee.findUnique({
                 where: { id: t.employeeId },
-                select: { fullName: true }
+                select: { fullName: true },
             });
             return {
-                name: employee?.fullName || "Removed Employee",
-                count: t._count.id
+                name: employee?.fullName || 'Removed Employee',
+                count: t._count.id,
             };
         }));
         const result = {
             ...garment,
             marginAmount: garment.customerPrice - garment.employeeRate,
-            marginPercentage: garment.customerPrice > 0 ? Math.round(((garment.customerPrice - garment.employeeRate) / garment.customerPrice) * 100) : 0,
-            priceLogs: (garment.priceLogs || []).map(log => ({
+            marginPercentage: garment.customerPrice > 0
+                ? Math.round(((garment.customerPrice - garment.employeeRate) /
+                    garment.customerPrice) *
+                    100)
+                : 0,
+            priceLogs: (garment.priceLogs || []).map((log) => ({
                 ...log,
-                changedBy: { name: log.changedBy.name }
+                changedBy: { name: log.changedBy.name },
             })),
             measurementCategories: (garment.measurementCategories || []).map((cat) => ({
                 ...cat,
                 fields: (cat.fields || []).map((f) => ({
                     ...f,
-                    fieldType: f.fieldType
-                }))
+                    fieldType: f.fieldType,
+                })),
             })),
             workflowSteps: garment.workflowSteps || [],
             analytics: {
@@ -153,9 +167,11 @@ let ConfigService = class ConfigService {
                 activeOrders: activeOrdersCount,
                 totalRevenue: orderStats._sum.unitPrice || 0,
                 totalPayout: orderStats._sum.employeeRate || 0,
-                avgActualPrice: orderStats._count.id > 0 ? Math.round((orderStats._sum.unitPrice || 0) / orderStats._count.id) : garment.customerPrice,
-                topTailors
-            }
+                avgActualPrice: orderStats._count.id > 0
+                    ? Math.round((orderStats._sum.unitPrice || 0) / orderStats._count.id)
+                    : garment.customerPrice,
+                topTailors,
+            },
         };
         return result;
     }
@@ -164,26 +180,34 @@ let ConfigService = class ConfigService {
         return this.prisma.garmentType.create({
             data: {
                 ...data,
-                measurementCategories: measurementCategoryIds ? {
-                    connect: measurementCategoryIds.map(id => ({ id }))
-                } : undefined
-            }
+                measurementCategories: measurementCategoryIds
+                    ? {
+                        connect: measurementCategoryIds.map((id) => ({ id })),
+                    }
+                    : undefined,
+            },
         });
     }
     async updateGarmentType(id, dto, userId) {
-        const current = await this.prisma.garmentType.findUniqueOrThrow({ where: { id } });
+        const current = await this.prisma.garmentType.findUniqueOrThrow({
+            where: { id },
+        });
         const { measurementCategoryIds, ...data } = dto;
         const result = await this.prisma.garmentType.update({
             where: { id },
             data: {
                 ...data,
-                measurementCategories: measurementCategoryIds ? {
-                    set: measurementCategoryIds.map(id => ({ id }))
-                } : undefined
-            }
+                measurementCategories: measurementCategoryIds
+                    ? {
+                        set: measurementCategoryIds.map((id) => ({ id })),
+                    }
+                    : undefined,
+            },
         });
-        if ((dto.customerPrice !== undefined && dto.customerPrice !== current.customerPrice) ||
-            (dto.employeeRate !== undefined && dto.employeeRate !== current.employeeRate)) {
+        if ((dto.customerPrice !== undefined &&
+            dto.customerPrice !== current.customerPrice) ||
+            (dto.employeeRate !== undefined &&
+                dto.employeeRate !== current.employeeRate)) {
             await this.prisma.garmentPriceLog.create({
                 data: {
                     garmentType: { connect: { id } },
@@ -192,32 +216,41 @@ let ConfigService = class ConfigService {
                     oldEmployeeRate: current.employeeRate,
                     newCustomerPrice: dto.customerPrice ?? current.customerPrice,
                     newEmployeeRate: dto.employeeRate ?? current.employeeRate,
-                    action: 'UPDATE'
-                }
+                    action: 'UPDATE',
+                },
             });
         }
         return result;
     }
     async deleteGarmentType(id) {
-        await this.prisma.garmentType.findUniqueOrThrow({ where: { id, deletedAt: null } });
-        return this.prisma.garmentType.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } });
+        await this.prisma.garmentType.findUniqueOrThrow({
+            where: { id, deletedAt: null },
+        });
+        return this.prisma.garmentType.update({
+            where: { id },
+            data: { deletedAt: new Date(), isActive: false },
+        });
     }
     async updateGarmentWorkflowSteps(garmentTypeId, dto) {
-        await this.prisma.garmentType.findUniqueOrThrow({ where: { id: garmentTypeId, deletedAt: null } });
+        await this.prisma.garmentType.findUniqueOrThrow({
+            where: { id: garmentTypeId, deletedAt: null },
+        });
         return this.prisma.$transaction(async (tx) => {
             await tx.workflowStepTemplate.updateMany({
                 where: { garmentTypeId },
-                data: { deletedAt: new Date(), isActive: false }
+                data: { deletedAt: new Date(), isActive: false },
             });
             for (const step of dto.steps) {
                 await tx.workflowStepTemplate.upsert({
-                    where: { garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey } },
+                    where: {
+                        garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey },
+                    },
                     update: {
                         stepName: step.stepName,
                         sortOrder: step.sortOrder,
                         isRequired: step.isRequired ?? true,
                         isActive: step.isActive ?? true,
-                        deletedAt: null
+                        deletedAt: null,
                     },
                     create: {
                         garmentTypeId: garmentTypeId,
@@ -226,23 +259,25 @@ let ConfigService = class ConfigService {
                         sortOrder: step.sortOrder,
                         isRequired: step.isRequired ?? true,
                         isActive: step.isActive ?? true,
-                    }
+                    },
                 });
             }
             return tx.workflowStepTemplate.findMany({
                 where: { garmentTypeId, deletedAt: null },
-                orderBy: { sortOrder: 'asc' }
+                orderBy: { sortOrder: 'asc' },
             });
         });
     }
     async getGarmentStats() {
         const [totalCount, activeProduction, prices] = await Promise.all([
             this.prisma.garmentType.count({ where: { deletedAt: null } }),
-            this.prisma.garmentType.count({ where: { deletedAt: null, isActive: true } }),
+            this.prisma.garmentType.count({
+                where: { deletedAt: null, isActive: true },
+            }),
             this.prisma.garmentType.findMany({
                 where: { deletedAt: null },
-                select: { customerPrice: true }
-            })
+                select: { customerPrice: true },
+            }),
         ]);
         const avgRetailPrice = prices.length > 0
             ? prices.reduce((sum, p) => sum + p.customerPrice, 0) / prices.length
@@ -250,7 +285,7 @@ let ConfigService = class ConfigService {
         return {
             totalCount,
             avgRetailPrice,
-            activeProduction
+            activeProduction,
         };
     }
     async getGarmentPriceHistory(garmentTypeId) {
@@ -259,14 +294,17 @@ let ConfigService = class ConfigService {
             orderBy: { createdAt: 'desc' },
             include: {
                 changedBy: { select: { name: true, email: true } },
-                garmentType: { select: { name: true } }
-            }
+                garmentType: { select: { name: true } },
+            },
         });
     }
     async getMeasurementCategories(options = {}) {
         const { search, page = 1, limit = 10 } = options;
         const skip = (page - 1) * limit;
-        const where = { isActive: true, deletedAt: null };
+        const where = {
+            isActive: true,
+            deletedAt: null,
+        };
         if (search) {
             where.name = { contains: search, mode: 'insensitive' };
         }
@@ -277,8 +315,10 @@ let ConfigService = class ConfigService {
                 orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,
-                include: { fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } }
-            })
+                include: {
+                    fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } },
+                },
+            }),
         ]);
         return { data, total };
     }
@@ -287,67 +327,81 @@ let ConfigService = class ConfigService {
         const createData = {
             ...data,
             name: data.name,
-            fields: fields ? {
-                create: fields.map(f => ({
-                    label: f.label,
-                    fieldType: f.fieldType,
-                    unit: f.unit,
-                    isRequired: f.isRequired,
-                    sortOrder: f.sortOrder,
-                    dropdownOptions: f.dropdownOptions
-                }))
-            } : undefined
+            fields: fields
+                ? {
+                    create: fields.map((f) => ({
+                        label: f.label,
+                        fieldType: f.fieldType,
+                        unit: f.unit,
+                        isRequired: f.isRequired,
+                        sortOrder: f.sortOrder,
+                        dropdownOptions: f.dropdownOptions,
+                    })),
+                }
+                : undefined,
         };
         return this.prisma.measurementCategory.create({
-            data: createData
+            data: createData,
         });
     }
     async updateMeasurementCategory(id, dto) {
         await this.prisma.measurementCategory.findUniqueOrThrow({ where: { id } });
         return this.prisma.measurementCategory.update({
             where: { id },
-            data: dto
+            data: dto,
         });
     }
     async addMeasurementField(categoryId, dto) {
         const label = dto.label;
         const category = await this.prisma.measurementCategory.findUniqueOrThrow({
             where: { id: categoryId },
-            include: { fields: { where: { deletedAt: null } } }
+            include: { fields: { where: { deletedAt: null } } },
         });
-        const isDuplicate = category.fields.some(f => f.label.toLowerCase() === label.toLowerCase());
+        const isDuplicate = category.fields.some((f) => f.label.toLowerCase() === label.toLowerCase());
         if (isDuplicate) {
             throw new common_1.ConflictException(`A field with label "${label}" already exists in this category.`);
         }
         return this.prisma.measurementField.create({
-            data: { ...dto, categoryId }
+            data: { ...dto, categoryId },
         });
     }
     async updateMeasurementField(id, dto) {
-        const field = await this.prisma.measurementField.findUniqueOrThrow({ where: { id } });
+        const field = await this.prisma.measurementField.findUniqueOrThrow({
+            where: { id },
+        });
         if (dto.label) {
             const label = dto.label;
             const category = await this.prisma.measurementCategory.findUniqueOrThrow({
                 where: { id: field.categoryId },
-                include: { fields: { where: { deletedAt: null, NOT: { id } } } }
+                include: { fields: { where: { deletedAt: null, NOT: { id } } } },
             });
-            const isDuplicate = category.fields.some(f => f.label.toLowerCase() === label.toLowerCase());
+            const isDuplicate = category.fields.some((f) => f.label.toLowerCase() === label.toLowerCase());
             if (isDuplicate) {
                 throw new common_1.ConflictException(`A field with label "${label}" already exists in this category.`);
             }
         }
         return this.prisma.measurementField.update({
             where: { id },
-            data: dto
+            data: dto,
         });
     }
     async deleteMeasurementField(id) {
-        await this.prisma.measurementField.findUniqueOrThrow({ where: { id, deletedAt: null } });
-        return this.prisma.measurementField.update({ where: { id }, data: { deletedAt: new Date() } });
+        await this.prisma.measurementField.findUniqueOrThrow({
+            where: { id, deletedAt: null },
+        });
+        return this.prisma.measurementField.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+        });
     }
     async deleteMeasurementCategory(id) {
-        await this.prisma.measurementCategory.findUniqueOrThrow({ where: { id, deletedAt: null } });
-        return this.prisma.measurementCategory.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } });
+        await this.prisma.measurementCategory.findUniqueOrThrow({
+            where: { id, deletedAt: null },
+        });
+        return this.prisma.measurementCategory.update({
+            where: { id },
+            data: { deletedAt: new Date(), isActive: false },
+        });
     }
 };
 exports.ConfigService = ConfigService;

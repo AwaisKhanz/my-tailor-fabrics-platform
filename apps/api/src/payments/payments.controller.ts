@@ -1,5 +1,15 @@
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
-import { Controller, Get, Post, Body, Param, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { DisbursePaymentDto } from './dto/payment.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -14,20 +24,24 @@ import { WeeklyPdfService } from './weekly-pdf.service';
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class PaymentsController {
   constructor(
-      private readonly paymentsService: PaymentsService,
-      private readonly weeklyPdfService: WeeklyPdfService
+    private readonly paymentsService: PaymentsService,
+    private readonly weeklyPdfService: WeeklyPdfService,
   ) {}
 
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Get('employee/:id/summary')
   async getSummary(@Param('id') employeeId: string) {
-    const data = await this.paymentsService.getEmployeeBalanceSummary(employeeId);
+    const data =
+      await this.paymentsService.getEmployeeBalanceSummary(employeeId);
     return { success: true, data };
   }
 
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Post()
-  async disbursePay(@Body() dto: DisbursePaymentDto, @Req() req: AuthenticatedRequest) {
+  async disbursePay(
+    @Body() dto: DisbursePaymentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.paymentsService.disbursePay(
       dto.employeeId,
       dto.amount,
@@ -41,13 +55,19 @@ export class PaymentsController {
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Get('employee/:id/history')
   async getHistory(
-    @Param('id') employeeId: string, 
-    @Query('page') page: string, 
+    @Param('id') employeeId: string,
+    @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc'
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
-    const data = await this.paymentsService.getHistory(employeeId, Number(page) || 1, Number(limit) || 20, sortBy, sortOrder);
+    const data = await this.paymentsService.getHistory(
+      employeeId,
+      Number(page) || 1,
+      Number(limit) || 20,
+      sortBy,
+      sortOrder,
+    );
     return { success: true, ...data };
   }
 
@@ -62,8 +82,14 @@ export class PaymentsController {
   @Get('weekly-report/pdf')
   async getWeeklyReportPdf(@Res() res: import('express').Response) {
     const data = await this.paymentsService.getWeeklyReport();
-    const pdfStream = await this.weeklyPdfService.generatePdfStream(data as { employeeCode: string; employeeName: string; paidThisWeek: number | string; }[]);
-    
+    const pdfStream = await this.weeklyPdfService.generatePdfStream(
+      data as {
+        employeeCode: string;
+        employeeName: string;
+        paidThisWeek: number | string;
+      }[],
+    );
+
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'inline; filename="weekly_payments.pdf"',

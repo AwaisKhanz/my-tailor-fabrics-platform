@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsEnum, IsNotEmpty, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNotEmpty,
+  IsDateString,
+} from 'class-validator';
 import { EmployeeStatus, PaymentType } from '@tbms/shared-types';
 
 export class CreateEmployeeDto {

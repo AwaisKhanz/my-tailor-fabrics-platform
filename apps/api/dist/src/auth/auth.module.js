@@ -26,7 +26,7 @@ exports.AuthModule = AuthModule = __decorate([
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
                 signOptions: {
-                    expiresIn: (process.env.JWT_EXPIRES_IN || '7d')
+                    expiresIn: (process.env.JWT_EXPIRES_IN || '7d'),
                 },
             }),
         ],

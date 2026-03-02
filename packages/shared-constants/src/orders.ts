@@ -1,4 +1,4 @@
-import { OrderStatus, ItemStatus, TaskStatus, BadgeVariant } from '@tbms/shared-types';
+import { OrderStatus, ItemStatus, TaskStatus, BadgeVariant, AddonType } from '@tbms/shared-types';
 
 export const ORDER_STATUS_CONFIG: Record<
   OrderStatus,
@@ -25,4 +25,10 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TaskStatus.IN_PROGRESS]: 'In Progress',
   [TaskStatus.DONE]: 'Done',
   [TaskStatus.CANCELLED]: 'Cancelled',
+};
+
+export const ADDON_TYPE_LABELS: Record<AddonType, string> = {
+  [AddonType.EXTRA]: 'Extra Charge',
+  [AddonType.ALTERATION]: 'Alteration',
+  [AddonType.DESIGN_CHARGE]: 'Design Charge',
 };

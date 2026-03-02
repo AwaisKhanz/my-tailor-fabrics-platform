@@ -37,6 +37,7 @@ const mail_module_1 = require("./mail/mail.module");
 const tasks_module_1 = require("./tasks/tasks.module");
 const rates_module_1 = require("./rates/rates.module");
 const ledger_module_1 = require("./ledger/ledger.module");
+const design_types_module_1 = require("./design-types/design-types.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -46,15 +47,18 @@ exports.AppModule = AppModule = __decorate([
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
-            throttler_1.ThrottlerModule.forRoot([{
+            throttler_1.ThrottlerModule.forRoot([
+                {
                     ttl: 60000,
                     limit: 100,
-                }]),
+                },
+            ]),
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
                 useFactory: async () => {
                     const redisUrl = process.env.REDIS_URL;
-                    if (redisUrl && (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))) {
+                    if (redisUrl &&
+                        (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))) {
                         return {
                             store: await (0, cache_manager_redis_yet_1.redisStore)({
                                 url: redisUrl,
@@ -80,6 +84,7 @@ exports.AppModule = AppModule = __decorate([
             tasks_module_1.TasksModule,
             rates_module_1.RatesModule,
             ledger_module_1.LedgerModule,
+            design_types_module_1.DesignTypesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -99,7 +104,7 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_INTERCEPTOR,
                 useClass: audit_interceptor_1.AuditInterceptor,
-            }
+            },
         ],
     })
 ], AppModule);

@@ -9,14 +9,14 @@ export declare class PaymentsService {
         totalPaid: number;
         currentBalance: number;
         weekly: {
-            week_start: any;
+            week_start: Date;
             earned: number;
             paid: number;
             closing_balance: number;
         }[];
     }>;
     getWeeklyBreakdown(employeeId: string, weeksBack?: number): Promise<{
-        week_start: any;
+        week_start: Date;
         earned: number;
         paid: number;
         closing_balance: number;

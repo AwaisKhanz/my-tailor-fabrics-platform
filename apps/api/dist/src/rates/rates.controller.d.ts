@@ -46,31 +46,37 @@ export declare class RatesController {
             branchId: string;
         };
     }): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepKey: string;
-        stepTemplateId: string | null;
-        amount: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
-        createdById: string;
+        success: boolean;
+        data: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+            branchId: string | null;
+            garmentTypeId: string;
+            stepKey: string;
+            stepTemplateId: string | null;
+            amount: number;
+            effectiveFrom: Date;
+            effectiveTo: Date | null;
+            createdById: string;
+        };
     }>;
     getHistory(garmentTypeId: string, stepKey: string, branchId?: string): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepKey: string;
-        stepTemplateId: string | null;
-        amount: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
-        createdById: string;
-    }[]>;
+        success: boolean;
+        data: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+            branchId: string | null;
+            garmentTypeId: string;
+            stepKey: string;
+            stepTemplateId: string | null;
+            amount: number;
+            effectiveFrom: Date;
+            effectiveTo: Date | null;
+            createdById: string;
+        }[];
+    }>;
 }

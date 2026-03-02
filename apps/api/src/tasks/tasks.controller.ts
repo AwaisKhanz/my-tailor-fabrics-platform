@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, Request, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  Request,
+  Req,
+} from '@nestjs/common';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -13,9 +23,15 @@ export class TasksController {
   async assignTask(
     @Param('id') id: string,
     @Body('employeeId') employeeId: string,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.tasksService.assignTask(id, employeeId, req.branchId as string, req.user!.userId, req.user!.role);
+    const data = await this.tasksService.assignTask(
+      id,
+      employeeId,
+      req.branchId,
+      req.user.userId,
+      req.user.role,
+    );
     return { success: true, data };
   }
 
@@ -23,9 +39,14 @@ export class TasksController {
   async updateStatus(
     @Param('id') id: string,
     @Body('status') status: TaskStatus,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.tasksService.updateTaskStatus(id, status, req.branchId as string, req.user!.userId);
+    const data = await this.tasksService.updateTaskStatus(
+      id,
+      status,
+      req.branchId,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
@@ -33,21 +54,35 @@ export class TasksController {
   async updateRate(
     @Param('id') id: string,
     @Body('rateOverride') rateOverride: number,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.tasksService.updateTaskRate(id, rateOverride, req.branchId as string, req.user!.role);
+    const data = await this.tasksService.updateTaskRate(
+      id,
+      rateOverride,
+      req.branchId,
+      req.user.role,
+    );
     return { success: true, data };
   }
 
   @Get('order/:orderId')
-  async findByOrder(@Param('orderId') orderId: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.tasksService.findAllByOrder(orderId, req.branchId as string);
+  async findByOrder(
+    @Param('orderId') orderId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.tasksService.findAllByOrder(orderId, req.branchId);
     return { success: true, data };
   }
 
   @Get('employee/:employeeId')
-  async findByEmployee(@Param('employeeId') employeeId: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.tasksService.findAllByEmployee(employeeId, req.branchId as string);
+  async findByEmployee(
+    @Param('employeeId') employeeId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.tasksService.findAllByEmployee(
+      employeeId,
+      req.branchId,
+    );
     return { success: true, data };
   }
 }

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Plus, Edit2, Shirt, Trash2, Filter, Clock } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { configApi } from "@/lib/api/config";
@@ -101,7 +102,7 @@ export function GarmentTypesTable() {
           </div>
           <Link href={`/settings/garments/${item.id}`} className="flex flex-col group/link hover:opacity-80 transition-opacity">
             <span className="text-sm font-bold text-foreground leading-tight group-hover/link:text-primary transition-colors">{item.name}</span>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">ID: GT-{item.id.slice(-4).toUpperCase()}</span>
+            <Label variant="dashboard" className="mt-0.5">ID: GT-{item.id.slice(-4).toUpperCase()}</Label>
           </Link>
         </div>
       ),
@@ -121,7 +122,7 @@ export function GarmentTypesTable() {
     {
       header: "Status",
       cell: (item: GarmentType) => (
-        <Badge variant={item.isActive ? "success" : "outline"} className="uppercase">
+        <Badge variant={item.isActive ? "success" : "outline"} size="xs">
           {item.isActive ? GARMENT_STATUS_LABELS.ACTIVE : GARMENT_STATUS_LABELS.INACTIVE}
         </Badge>
       ),
@@ -175,7 +176,7 @@ export function GarmentTypesTable() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Garment Management</h1>
           <p className="text-xs md:text-sm text-muted-foreground mt-1">Configure garment types, inventory pricing models, and production rates.</p>
         </div>
-        <Button variant="premium" size="xl" onClick={handleAdd}>
+        <Button variant="premium" size="lg" onClick={handleAdd}>
           <Plus className="mr-2 h-5 w-5" /> Add New Garment Type
         </Button>
       </div>
@@ -185,9 +186,9 @@ export function GarmentTypesTable() {
         <div className="px-6 py-4 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
              <h2 className="font-bold text-lg text-foreground">Garment Type Inventory</h2>
-             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+             <Badge variant="secondary" size="xs" className="ring-1 ring-border">
                 {totalCount} results
-             </span>
+             </Badge>
           </div>
           
           <div className="flex items-center gap-3">

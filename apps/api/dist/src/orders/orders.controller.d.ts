@@ -1,7 +1,9 @@
+import * as express from 'express';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { OrdersService } from './orders.service';
 import { ReceiptService } from './receipt.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 export declare class OrdersController {
@@ -28,6 +30,7 @@ export declare class OrdersController {
                 completedAt: Date | null;
                 fabricSource: import(".prisma/client").$Enums.FabricSource;
                 pieceNo: number;
+                designTypeId: string | null;
                 orderId: string;
             }[];
         } & {
@@ -158,6 +161,69 @@ export declare class OrdersController {
                     id: string;
                     fullName: string;
                 } | null;
+                tasks: ({
+                    designType: {
+                        id: string;
+                        createdAt: Date;
+                        updatedAt: Date;
+                        name: string;
+                        isActive: boolean;
+                        deletedAt: Date | null;
+                        branchId: string | null;
+                        sortOrder: number;
+                        garmentTypeId: string | null;
+                        defaultPrice: number;
+                        defaultRate: number;
+                    } | null;
+                    assignedEmployee: {
+                        id: string;
+                        fullName: string;
+                    } | null;
+                } & {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    deletedAt: Date | null;
+                    sortOrder: number;
+                    stepKey: string;
+                    stepName: string;
+                    stepTemplateId: string | null;
+                    status: import(".prisma/client").$Enums.TaskStatus;
+                    notes: string | null;
+                    completedAt: Date | null;
+                    designTypeId: string | null;
+                    assignedEmployeeId: string | null;
+                    rateOverride: number | null;
+                    rateSnapshot: number | null;
+                    orderItemId: string;
+                    startedAt: Date | null;
+                    rateCardId: string | null;
+                })[];
+                addons: {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    name: string;
+                    deletedAt: Date | null;
+                    note: string | null;
+                    type: import(".prisma/client").$Enums.AddonType;
+                    price: number;
+                    cost: number | null;
+                    orderItemId: string;
+                }[];
+                designType: {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    name: string;
+                    isActive: boolean;
+                    deletedAt: Date | null;
+                    branchId: string | null;
+                    sortOrder: number;
+                    garmentTypeId: string | null;
+                    defaultPrice: number;
+                    defaultRate: number;
+                } | null;
             } & {
                 id: string;
                 createdAt: Date;
@@ -175,6 +241,7 @@ export declare class OrdersController {
                 completedAt: Date | null;
                 fabricSource: import(".prisma/client").$Enums.FabricSource;
                 pieceNo: number;
+                designTypeId: string | null;
                 orderId: string;
             })[];
             statusHistory: ({
@@ -215,14 +282,7 @@ export declare class OrdersController {
             sharePin: string | null;
         };
     }>;
-    update(id: string, dto: {
-        dueDate?: string;
-        notes?: string;
-        discountType?: 'PERCENTAGE' | 'FIXED';
-        discountValue?: number;
-        status?: string;
-        employeeId?: string;
-    }, req: AuthenticatedRequest): Promise<{
+    update(id: string, dto: UpdateOrderDto, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             items: {
@@ -242,6 +302,7 @@ export declare class OrdersController {
                 completedAt: Date | null;
                 fabricSource: import(".prisma/client").$Enums.FabricSource;
                 pieceNo: number;
+                designTypeId: string | null;
                 orderId: string;
             }[];
         } & {
@@ -294,13 +355,7 @@ export declare class OrdersController {
             sharePin: string | null;
         };
     }>;
-    addItem(id: string, dto: {
-        garmentTypeId: string;
-        employeeId?: string;
-        quantity?: number;
-        description?: string;
-        dueDate?: string;
-    }, req: AuthenticatedRequest): Promise<{
+    addItem(id: string, dto: OrderItemDto, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             items: {
@@ -320,6 +375,7 @@ export declare class OrdersController {
                 completedAt: Date | null;
                 fabricSource: import(".prisma/client").$Enums.FabricSource;
                 pieceNo: number;
+                designTypeId: string | null;
                 orderId: string;
             }[];
         } & {
@@ -368,6 +424,7 @@ export declare class OrdersController {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         };
     }>;
@@ -394,6 +451,7 @@ export declare class OrdersController {
                 completedAt: Date | null;
                 fabricSource: import(".prisma/client").$Enums.FabricSource;
                 pieceNo: number;
+                designTypeId: string | null;
                 orderId: string;
             }[];
         } & {
@@ -446,7 +504,7 @@ export declare class OrdersController {
             sharePin: string | null;
         };
     }>;
-    getReceipt(id: string, req: AuthenticatedRequest, res: any): Promise<void>;
+    getReceipt(id: string, req: AuthenticatedRequest, res: express.Response): Promise<void>;
     shareOrder(id: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {

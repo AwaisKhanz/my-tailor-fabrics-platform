@@ -42,7 +42,7 @@ let RolesGuard = class RolesGuard {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
-        if (!user || (!user.role)) {
+        if (!user || !user.role) {
             return false;
         }
         const userRoleValue = ROLE_HIERARCHY[user.role];

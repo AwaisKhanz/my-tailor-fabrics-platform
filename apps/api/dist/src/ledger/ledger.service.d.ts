@@ -71,7 +71,7 @@ export declare class LedgerService {
         };
     }>;
     getEarningsByPeriod(employeeId: string, weeksBack?: number): Promise<{
-        period: any;
+        period: Date;
         earned: number;
         paid: number;
         closingBalance: number;

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -34,7 +44,10 @@ export class UsersController {
 
   @Roles(Role.SUPER_ADMIN)
   @Patch(':id/status')
-  async setActive(@Param('id') id: string, @Body('isActive') isActive: boolean) {
+  async setActive(
+    @Param('id') id: string,
+    @Body('isActive') isActive: boolean,
+  ) {
     const data = await this.usersService.setActive(id, isActive);
     return { success: true, data };
   }

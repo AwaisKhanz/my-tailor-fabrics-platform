@@ -7,32 +7,6 @@ export declare class TasksController {
     assignTask(id: string, employeeId: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
-            assignedEmployee: {
-                id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                address: string | null;
-                phone: string;
-                deletedAt: Date | null;
-                branchId: string;
-                employeeCode: string;
-                cnic: string | null;
-                fullName: string;
-                fatherName: string | null;
-                phone2: string | null;
-                city: string | null;
-                dateOfBirth: Date | null;
-                dateOfJoining: Date;
-                designation: string | null;
-                paymentType: import(".prisma/client").$Enums.PaymentType;
-                accountNumber: string | null;
-                emergencyName: string | null;
-                emergencyPhone: string | null;
-                photoUrl: string | null;
-                status: import(".prisma/client").$Enums.EmployeeStatus;
-                notes: string | null;
-            } | null;
-        } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -44,22 +18,18 @@ export declare class TasksController {
             status: import(".prisma/client").$Enums.TaskStatus;
             notes: string | null;
             completedAt: Date | null;
-            orderItemId: string;
+            designTypeId: string | null;
             assignedEmployeeId: string | null;
-            startedAt: Date | null;
-            rateCardId: string | null;
             rateOverride: number | null;
             rateSnapshot: number | null;
+            orderItemId: string;
+            startedAt: Date | null;
+            rateCardId: string | null;
         };
     }>;
     updateStatus(id: string, status: TaskStatus, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
-            assignedEmployee: {
-                id: string;
-                fullName: string;
-            } | null;
-        } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -71,12 +41,13 @@ export declare class TasksController {
             status: import(".prisma/client").$Enums.TaskStatus;
             notes: string | null;
             completedAt: Date | null;
-            orderItemId: string;
+            designTypeId: string | null;
             assignedEmployeeId: string | null;
-            startedAt: Date | null;
-            rateCardId: string | null;
             rateOverride: number | null;
             rateSnapshot: number | null;
+            orderItemId: string;
+            startedAt: Date | null;
+            rateCardId: string | null;
         };
     }>;
     updateRate(id: string, rateOverride: number, req: AuthenticatedRequest): Promise<{
@@ -98,12 +69,13 @@ export declare class TasksController {
             status: import(".prisma/client").$Enums.TaskStatus;
             notes: string | null;
             completedAt: Date | null;
-            orderItemId: string;
+            designTypeId: string | null;
             assignedEmployeeId: string | null;
-            startedAt: Date | null;
-            rateCardId: string | null;
             rateOverride: number | null;
             rateSnapshot: number | null;
+            orderItemId: string;
+            startedAt: Date | null;
+            rateCardId: string | null;
         };
     }>;
     findByOrder(orderId: string, req: AuthenticatedRequest): Promise<{
@@ -129,12 +101,13 @@ export declare class TasksController {
             status: import(".prisma/client").$Enums.TaskStatus;
             notes: string | null;
             completedAt: Date | null;
-            orderItemId: string;
+            designTypeId: string | null;
             assignedEmployeeId: string | null;
-            startedAt: Date | null;
-            rateCardId: string | null;
             rateOverride: number | null;
             rateSnapshot: number | null;
+            orderItemId: string;
+            startedAt: Date | null;
+            rateCardId: string | null;
         })[];
     }>;
     findByEmployee(employeeId: string, req: AuthenticatedRequest): Promise<{
@@ -159,12 +132,13 @@ export declare class TasksController {
             status: import(".prisma/client").$Enums.TaskStatus;
             notes: string | null;
             completedAt: Date | null;
-            orderItemId: string;
+            designTypeId: string | null;
             assignedEmployeeId: string | null;
-            startedAt: Date | null;
-            rateCardId: string | null;
             rateOverride: number | null;
             rateSnapshot: number | null;
+            orderItemId: string;
+            startedAt: Date | null;
+            rateCardId: string | null;
         })[];
     }>;
 }

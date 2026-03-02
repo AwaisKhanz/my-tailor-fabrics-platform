@@ -166,7 +166,14 @@ export default function OrderDetailPage() {
       cell: (item) => (
         <div className="flex items-center gap-2">
           <Scissors className="h-3.5 w-3.5 text-muted-foreground opacity-50" />
-          <span className="font-bold text-foreground">{item.garmentTypeName}</span>
+          <div className="flex flex-col">
+            <span className="font-bold text-foreground">{item.garmentTypeName}</span>
+            {item.designType && (
+              <span className="text-[10px] text-primary font-bold uppercase tracking-wider">
+                {item.designType.name}
+              </span>
+            )}
+          </div>
         </div>
       )
     },
@@ -192,12 +199,12 @@ export default function OrderDetailPage() {
               </Button>
             ) : empName !== "—" ? (
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/20">
+                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center shrink-0 border border-primary/20">
                   {initials}
                 </div>
                 <span className="text-sm text-muted-foreground font-bold">{empName}</span>
               </div>
-            ) : <span className="text-muted-foreground text-xs italic">Unassigned</span>}
+            ) : <span className="text-muted-foreground text-xs ">Unassigned</span>}
           </div>
         )
       }
@@ -205,16 +212,27 @@ export default function OrderDetailPage() {
     {
       header: "Description",
       cell: (item) => (
-        <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px] truncate">
-          {item.description || "—"}
-        </p>
+        <div className="space-y-1">
+          <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px] truncate">
+            {item.description || "—"}
+          </p>
+          {item.addons && item.addons.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {item.addons.map((a, i) => (
+                <Badge key={i} variant="outline" className="text-[8px] px-1 h-4 border-dashed">
+                  {a.name}: +{formatPKR(a.price)}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       )
     },
     {
       header: "Fabric",
       align: "center",
       cell: (item) => (
-        <Badge variant="royal" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
+        <Badge variant="royal" className="text-[9px] font-bold uppercase tracking-tight px-2 py-0.5">
           {item.fabricSource}
         </Badge>
       )
@@ -229,9 +247,22 @@ export default function OrderDetailPage() {
     {
       header: "Total",
       align: "right",
-      cell: (item) => (
-        <span className="font-bold text-foreground">{formatPKR(item.unitPrice)}</span>
-      )
+      cell: (item) => {
+        const addonsTotal = (item.addons || []).reduce((acc, a) => acc + a.price, 0);
+        const designPrice = item.designType?.defaultPrice || 0;
+        const total = (item.unitPrice * item.quantity) + (designPrice * item.quantity) + addonsTotal;
+        return (
+          <div className="flex flex-col items-end">
+            <span className="font-bold text-foreground">{formatPKR(total)}</span>
+            {(addonsTotal > 0 || designPrice > 0) && (
+              <span className="text-[9px] text-muted-foreground">
+                {designPrice > 0 ? `Incl. ${formatPKR(designPrice)} design` : ''}
+                {addonsTotal > 0 ? `${designPrice > 0 ? ' & ' : 'Incl. '}${formatPKR(addonsTotal)} addons` : ''}
+              </span>
+            )}
+          </div>
+        );
+      }
     }
   ];
 
@@ -255,8 +286,8 @@ export default function OrderDetailPage() {
         <CardContent className="px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-muted/5">
           <div>
             <div className="flex items-center gap-4 flex-wrap">
-              <h1 className="text-4xl font-black tracking-tighter text-foreground">{order.orderNumber}</h1>
-              <Badge variant={sc.variant} className="uppercase font-black text-[10px] tracking-[0.2em] px-3 py-1 ring-1 ring-border">
+              <h1 className="text-4xl font-bold tracking-tight text-foreground">{order.orderNumber}</h1>
+              <Badge variant={sc.variant} size="xs" className="uppercase font-bold ring-1 ring-border">
                 {sc.label}
               </Badge>
             </div>
@@ -320,7 +351,7 @@ export default function OrderDetailPage() {
                 <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
                   <Package className="h-4 w-4 text-primary" />
                 </div>
-                <CardTitle className="text-sm font-black uppercase tracking-widest">Customer Insight</CardTitle>
+                <CardTitle variant="dashboard">Customer Insight</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="px-6 pb-6 pt-6">
@@ -328,17 +359,17 @@ export default function OrderDetailPage() {
                 {/* Left - Basic Info */}
                 <div className="space-y-6">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">Legal Name</p>
-                    <p className="font-black text-2xl text-foreground tracking-tight">{order.customer.fullName}</p>
+                    <Label variant="dashboard" className="opacity-50">Legal Name</Label>
+                    <p className="font-bold text-2xl text-foreground tracking-tight">{order.customer.fullName}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">Contact info</p>
+                      <Label variant="dashboard" className="opacity-50">Contact info</Label>
                       <p className="font-bold text-sm text-foreground/90">{order.customer.phone}</p>
                     </div>
                     <div className="space-y-1 text-right">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">Global ID</p>
-                      <Badge variant="outline" className="font-black text-[10px] tracking-widest uppercase">
+                      <Label variant="dashboard" className="opacity-50">Global ID</Label>
+                      <Badge variant="outline" className="font-bold text-[10px] tracking-tight uppercase">
                         {order.customer.sizeNumber}
                       </Badge>
                     </div>
@@ -348,15 +379,15 @@ export default function OrderDetailPage() {
                 {/* Right - Measurements Summary Box */}
                 <div className="bg-muted/30 border border-border/50 rounded-2xl p-6 ring-1 ring-inset ring-white/10 shadow-inner">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">Measurements Profile</p>
-                    <Badge variant="info" className="text-[8px] font-black tracking-[0.2em] px-1.5 py-0">SYNCED</Badge>
+                    <Label variant="dashboard">Measurements Profile</Label>
+                    <Badge variant="info" size="xs">SYNCED</Badge>
                   </div>
                   {(() => {
                     const customerMeasurements = order.customer.measurements || [];
                     const mSet = customerMeasurements[0];
 
                     if (!mSet || !mSet.values || Object.keys(mSet.values).length === 0) {
-                      return <p className="text-xs text-muted-foreground italic text-center py-4">No bio-metric data recorded.</p>;
+                      return <p className="text-xs text-muted-foreground  text-center py-4">No bio-metric data recorded.</p>;
                     }
 
                     const fields = mSet.category?.fields || [];
@@ -370,8 +401,8 @@ export default function OrderDetailPage() {
                       <div className="grid grid-cols-2 gap-x-8 gap-y-3.5">
                         {displayItems.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between group">
-                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate pr-2 opacity-60 group-hover:opacity-100 transition-opacity">{item.label}</span>
-                            <span className="text-xs font-black text-foreground shrink-0 tabular-nums">{item.value}&quot;</span>
+                            <Label variant="dashboard" className="truncate pr-2 opacity-60 group-hover:opacity-100 transition-opacity">{item.label}</Label>
+                            <span className="text-xs font-bold text-foreground shrink-0 tabular-nums">{item.value}&quot;</span>
                           </div>
                         ))}
                       </div>
@@ -386,8 +417,8 @@ export default function OrderDetailPage() {
           <div className="space-y-3">
              <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
-                   <h2 className="text-sm font-black uppercase tracking-widest">Hardware / Garment Pieces</h2>
-                   <Badge variant="secondary" className="font-black text-[10px] tracking-[0.2em]">{order.items.length} UNITS</Badge>
+                   <CardTitle variant="dashboard">Hardware / Garment Pieces</CardTitle>
+                   <Badge variant="secondary" size="xs">{order.items.length} UNITS</Badge>
                 </div>
              </div>
              <Card className="shadow-sm border-border overflow-hidden">
@@ -411,29 +442,29 @@ export default function OrderDetailPage() {
                 <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
                   <CreditCard className="h-4 w-4 text-primary" />
                 </div>
-                <CardTitle className="text-sm font-black uppercase tracking-widest">Financial Ledger</CardTitle>
+                <CardTitle variant="dashboard">Financial Ledger</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="px-6 pb-6 pt-6 space-y-5">
               <div className="space-y-3 bg-muted/20 p-4 rounded-xl border border-border/50">
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground font-bold uppercase tracking-widest opacity-60">Base Subtotal</span>
-                  <span className="font-black text-foreground tabular-nums">{formatPKR(order.subtotal)}</span>
+                  <Label variant="dashboard" className="opacity-60">Base Subtotal</Label>
+                  <span className="font-bold text-foreground tabular-nums">{formatPKR(order.subtotal)}</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-success font-bold uppercase tracking-widest opacity-80">
                       Discounts {order.discountType === 'PERCENTAGE' ? `(${order.discountValue}%)` : ''}
                     </span>
-                    <span className="text-success font-black tabular-nums">- {formatPKR(order.discountAmount)}</span>
+                    <span className="text-success font-bold tabular-nums">- {formatPKR(order.discountAmount)}</span>
                   </div>
                 )}
               </div>
     
               <div className="px-1">
                 <div className="flex justify-between items-end border-b border-border/30 pb-4">
-                  <span className="text-[10px] font-black text-foreground uppercase tracking-[0.2em]">Net Invoice</span>
-                  <span className="text-3xl font-black text-primary tracking-tighter tabular-nums">{formatPKR(order.totalAmount)}</span>
+                  <span className="text-[10px] font-bold text-foreground uppercase tracking-tight">Net Invoice</span>
+                  <span className="text-3xl font-bold text-primary tracking-tight tabular-nums">{formatPKR(order.totalAmount)}</span>
                 </div>
                 {order.totalPaid > 0 && (
                   <div className="flex justify-between text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-bold font-mono">
@@ -444,14 +475,14 @@ export default function OrderDetailPage() {
               </div>
     
               <div className="flex items-center justify-between py-5 px-6 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/20 ring-1 ring-white/20">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Balance Pending</span>
-                <span className="text-2xl font-black tabular-nums tracking-tighter">{formatPKR(order.balanceDue)}</span>
+                <span className="text-[10px] font-bold uppercase tracking-tight">Balance Pending</span>
+                <span className="text-2xl font-bold tabular-nums tracking-tight">{formatPKR(order.balanceDue)}</span>
               </div>
 
               <Button
                 variant="premium"
-                size="xl"
-                className="w-full font-black uppercase tracking-[0.15em] text-xs h-14 shadow-lg shadow-primary/30"
+                size="lg"
+                className="w-full font-bold uppercase tracking-tight text-xs h-14 shadow-lg shadow-primary/30"
                 onClick={() => setPaymentOpen(true)}
               >
                 Capture Payment
@@ -466,7 +497,7 @@ export default function OrderDetailPage() {
                 <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
                   <Clock className="h-4 w-4 text-primary" />
                 </div>
-                <CardTitle className="text-sm font-black uppercase tracking-widest">Workflow Timeline</CardTitle>
+                <CardTitle variant="dashboard">Workflow Timeline</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="px-6 pb-6 pt-6">
@@ -497,20 +528,20 @@ export default function OrderDetailPage() {
                       </div>
 
                       <div className="flex-1 pt-0.5">
-                        <p className={`text-xs font-black uppercase tracking-widest border-b border-transparent inline-block ${step.active ? "text-primary border-primary/20 pb-0.5" : step.done ? "text-foreground" : "text-muted-foreground opacity-40"}`}>
+                        <p className={`text-xs font-bold uppercase tracking-tight border-b border-transparent inline-block ${step.active ? "text-primary border-primary/20 pb-0.5" : step.done ? "text-foreground" : "text-muted-foreground opacity-40"}`}>
                           {step.key}
                         </p>
                         {historyEntry ? (
                           <div className="mt-2 space-y-0.5">
-                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.1em] opacity-60">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight opacity-60">
                               {new Date(historyEntry.createdAt).toLocaleDateString("en-PK", { day: "2-digit", month: "short" })} @ {new Date(historyEntry.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })}
                             </p>
-                            {historyEntry.note && <p className="text-[10px] text-muted-foreground font-bold italic truncate opacity-80">{historyEntry.note}</p>}
+                            {historyEntry.note && <p className="text-[10px] text-muted-foreground font-bold  truncate opacity-80">{historyEntry.note}</p>}
                           </div>
                         ) : step.active ? (
                           <div className="mt-2 flex items-center gap-1.5">
                              <span className="h-1 w-1 rounded-full bg-success animate-ping" />
-                             <p className="text-[9px] font-black text-success uppercase tracking-widest">Current Status</p>
+                             <p className="text-[9px] font-bold text-success uppercase tracking-tight">Current Status</p>
                           </div>
                         ) : null}
                       </div>
@@ -525,27 +556,27 @@ export default function OrderDetailPage() {
           {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.COMPLETED && (
             <Card className="shadow-sm border-border overflow-hidden">
                <CardHeader className="px-5 pt-4 pb-0">
-                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 text-center">Lifecycle Advancement</CardTitle>
+                  <CardTitle className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground opacity-50 text-center">Lifecycle Advancement</CardTitle>
                </CardHeader>
               <CardContent className="px-5 py-5 space-y-3">
                 {order.status === OrderStatus.NEW && (
-                  <Button variant="premium" size="xl" className="w-full shadow-lg shadow-primary/20" onClick={() => handleStatusUpdate(OrderStatus.IN_PROGRESS)} disabled={statusLoading}>
+                  <Button variant="premium" size="lg" className="w-full shadow-lg shadow-primary/20" onClick={() => handleStatusUpdate(OrderStatus.IN_PROGRESS)} disabled={statusLoading}>
                     {statusLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <ChevronRight className="h-4 w-4 mr-2" />}
                     Begin Production
                   </Button>
                 )}
                 {order.status === OrderStatus.IN_PROGRESS && (
-                  <Button className="w-full bg-foreground text-background hover:bg-foreground/90 font-black h-12 uppercase tracking-widest text-[10px]" onClick={() => handleStatusUpdate(OrderStatus.READY)} disabled={statusLoading}>
+                  <Button className="w-full bg-foreground text-background hover:bg-foreground/90 font-bold h-12 uppercase tracking-tight text-[10px]" onClick={() => handleStatusUpdate(OrderStatus.READY)} disabled={statusLoading}>
                     Mark Ready for trial
                   </Button>
                 )}
                 {order.status === OrderStatus.READY && (
-                  <Button className="w-full border-primary/20 hover:bg-primary/5 text-primary font-black h-12 uppercase tracking-widest text-[10px]" variant="outline" onClick={() => handleStatusUpdate(OrderStatus.DELIVERED)} disabled={statusLoading}>
+                  <Button className="w-full border-primary/20 hover:bg-primary/5 text-primary font-bold h-12 uppercase tracking-tight text-[10px]" variant="outline" onClick={() => handleStatusUpdate(OrderStatus.DELIVERED)} disabled={statusLoading}>
                     Dispatch Piece
                   </Button>
                 )}
                 {order.status === OrderStatus.DELIVERED && (
-                  <Button className="w-full shadow-xl font-black h-12 uppercase tracking-widest text-[10px]" variant="premium" onClick={() => handleStatusUpdate(OrderStatus.COMPLETED)} disabled={statusLoading}>
+                  <Button className="w-full shadow-xl font-bold h-12 uppercase tracking-tight text-[10px]" variant="premium" onClick={() => handleStatusUpdate(OrderStatus.COMPLETED)} disabled={statusLoading}>
                     Seal Order
                   </Button>
                 )}
@@ -564,15 +595,15 @@ export default function OrderDetailPage() {
           </DialogHeader>
           <div className="space-y-5 py-4">
             <div className="flex justify-between items-center px-5 py-4 bg-muted border border-border/50 rounded-2xl">
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Pending amount</span>
-              <span className="text-xl font-black text-foreground tabular-nums">{formatPKR(order.balanceDue)}</span>
+              <span className="text-[10px] font-bold uppercase tracking-tight opacity-50">Pending amount</span>
+              <span className="text-xl font-bold text-foreground tabular-nums">{formatPKR(order.balanceDue)}</span>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-wider">Deposit Amount (Rs.) <span className="text-destructive">*</span></Label>
-              <Input type="number" variant="premium" className="h-12 font-black text-lg" placeholder="e.g. 1000" value={amount} onChange={(e) => setAmount(e.target.value)} max={order.balanceDue / 100} />
+              <Label className="text-xs font-bold uppercase tracking-tight">Deposit Amount (Rs.) <span className="text-destructive">*</span></Label>
+              <Input type="number" variant="premium" className="h-12 font-bold text-lg" placeholder="e.g. 1000" value={amount} onChange={(e) => setAmount(e.target.value)} max={order.balanceDue / 100} />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-wider">Transaction Note</Label>
+              <Label className="text-xs font-bold uppercase tracking-tight">Transaction Note</Label>
               <Input variant="premium" className="h-12" placeholder="e.g. Received via Cash / Bank Transfer" value={note} onChange={(e) => setNote(e.target.value)} />
             </div>
           </div>
@@ -604,7 +635,7 @@ export default function OrderDetailPage() {
           {shareData && (
             <div className="space-y-6 py-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Public URL</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">Public URL</Label>
                 <div className="flex gap-2">
                   <Input 
                     readOnly 
@@ -619,15 +650,15 @@ export default function OrderDetailPage() {
               
               <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                   <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Access PIN</p>
-                   <p className="text-3xl font-black text-primary tracking-widest">{shareData.pin}</p>
+                   <p className="text-[10px] font-bold uppercase tracking-tight text-primary/60">Access PIN</p>
+                   <p className="text-3xl font-bold text-primary tracking-tight">{shareData.pin}</p>
                 </div>
                 <Button size="sm" variant="ghost" className="text-primary font-bold" onClick={() => copyToClipboard(shareData.pin)}>
                   Copy PIN
                 </Button>
               </div>
               
-              <p className="text-[10px] text-muted-foreground font-bold italic text-center">
+              <p className="text-[10px] text-muted-foreground font-bold  text-center">
                 * Customers will need the 4-digit PIN to access their order details.
               </p>
             </div>

@@ -19,7 +19,9 @@ export class MailService {
     this.senderEmail = process.env.GOOGLE_EMAIL;
 
     if (!clientId || !clientSecret) {
-      this.logger.warn('Google Client ID or Secret missing. Mail wrapper disabled.');
+      this.logger.warn(
+        'Google Client ID or Secret missing. Mail wrapper disabled.',
+      );
       return;
     }
 
@@ -27,27 +29,38 @@ export class MailService {
     this.oAuth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
-      process.env.GOOGLE_REDIRECT_URI || 'https://developers.google.com/oauthplayground'
+      process.env.GOOGLE_REDIRECT_URI ||
+        'https://developers.google.com/oauthplayground',
     );
 
     if (refreshToken && this.senderEmail) {
       try {
         this.oAuth2Client.setCredentials({ refresh_token: refreshToken });
-        
+
         // Initialize the official Gmail REST API client
-        this.gmailClient = google.gmail({ version: 'v1', auth: this.oAuth2Client });
-        
-        this.logger.log(`Mail service fully initialized via official Gmail API for ${this.senderEmail}`);
+        this.gmailClient = google.gmail({
+          version: 'v1',
+          auth: this.oAuth2Client,
+        });
+
+        this.logger.log(
+          `Mail service fully initialized via official Gmail API for ${this.senderEmail}`,
+        );
       } catch (err) {
         this.logger.error('Failed to initialize Gmail Client', err);
       }
     } else {
-      this.logger.warn('GOOGLE_REFRESH_TOKEN or GOOGLE_EMAIL missing. You cannot send emails yet.');
+      this.logger.warn(
+        'GOOGLE_REFRESH_TOKEN or GOOGLE_EMAIL missing. You cannot send emails yet.',
+      );
     }
   }
 
   getAuthUrl(): string {
-    if (!this.oAuth2Client) throw new Error('OAuth2 Client not initialized because ID/Secret missing');
+    if (!this.oAuth2Client)
+      throw new Error(
+        'OAuth2 Client not initialized because ID/Secret missing',
+      );
     return this.oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
@@ -70,11 +83,16 @@ export class MailService {
   /**
    * Constructs an RFC 2822 formatted email message
    */
-  private createRawMessage(to: string, subject: string, text: string, html?: string): string {
+  private createRawMessage(
+    to: string,
+    subject: string,
+    text: string,
+    html?: string,
+  ): string {
     const boundary = `----=_NextPart_${Date.now()}`;
     const date = new Date().toUTCString();
-    
-    let message = 
+
+    let message =
       `From: My Tailor & Fabrics <${this.senderEmail}>\n` +
       `To: ${to}\n` +
       `Subject: ${subject}\n` +
@@ -82,7 +100,7 @@ export class MailService {
       `MIME-Version: 1.0\n`;
 
     if (html) {
-      message += 
+      message +=
         `Content-Type: multipart/alternative; boundary="${boundary}"\n\n` +
         `--${boundary}\n` +
         `Content-Type: text/plain; charset="UTF-8"\n\n` +
@@ -92,9 +110,7 @@ export class MailService {
         `${html}\n\n` +
         `--${boundary}--`;
     } else {
-      message += 
-        `Content-Type: text/plain; charset="UTF-8"\n\n` +
-        `${text}`;
+      message += `Content-Type: text/plain; charset="UTF-8"\n\n` + `${text}`;
     }
 
     return message;
@@ -102,12 +118,14 @@ export class MailService {
 
   async sendMail(to: string, subject: string, text: string, html?: string) {
     if (!this.gmailClient) {
-      throw new Error('Gmail client is not fully initialized. Ensure GOOGLE_REFRESH_TOKEN and GOOGLE_EMAIL are set in .env.');
+      throw new Error(
+        'Gmail client is not fully initialized. Ensure GOOGLE_REFRESH_TOKEN and GOOGLE_EMAIL are set in .env.',
+      );
     }
 
     // 1. Construct the raw RFC 2822 email string
     const rawMessage = this.createRawMessage(to, subject, text, html);
-    
+
     // 2. Encode to base64url format
     const encodedMessage = this.encodeBase64Url(rawMessage);
 

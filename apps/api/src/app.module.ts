@@ -28,21 +28,27 @@ import { MailModule } from './mail/mail.module';
 import { TasksModule } from './tasks/tasks.module';
 import { RatesModule } from './rates/rates.module';
 import { LedgerModule } from './ledger/ledger.module';
+import { DesignTypesModule } from './design-types/design-types.module';
 
 @Module({
   imports: [
-    PrismaModule, 
-    AuthModule, 
+    PrismaModule,
+    AuthModule,
     UsersModule,
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => {
         const redisUrl = process.env.REDIS_URL;
-        if (redisUrl && (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))) {
+        if (
+          redisUrl &&
+          (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))
+        ) {
           return {
             store: await redisStore({
               url: redisUrl,
@@ -69,6 +75,7 @@ import { LedgerModule } from './ledger/ledger.module';
     TasksModule,
     RatesModule,
     LedgerModule,
+    DesignTypesModule,
   ],
   controllers: [AppController],
   providers: [
@@ -89,7 +96,7 @@ import { LedgerModule } from './ledger/ledger.module';
       // Note: Because it's provided here globally, it's injected with PrismaService automatically
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,
-    }
+    },
   ],
 })
 export class AppModule {}

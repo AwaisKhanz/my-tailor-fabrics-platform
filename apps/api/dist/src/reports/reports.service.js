@@ -19,49 +19,106 @@ let ReportsService = class ReportsService {
         this.prisma = prisma;
     }
     async getDashboardStats(branchId) {
-        const baseOrderWhere = branchId ? { branchId, deletedAt: null } : { deletedAt: null };
-        const baseExpenseWhere = branchId ? { branchId, deletedAt: null } : { deletedAt: null };
+        const baseOrderWhere = branchId
+            ? { branchId, deletedAt: null }
+            : { deletedAt: null };
+        const baseExpenseWhere = branchId
+            ? { branchId, deletedAt: null }
+            : { deletedAt: null };
         const revenue = await this.prisma.orderPayment.aggregate({
             _sum: { amount: true },
-            where: { order: baseOrderWhere }
+            where: { order: baseOrderWhere },
         });
         const expenses = await this.prisma.expense.aggregate({
             _sum: { amount: true },
-            where: baseExpenseWhere
+            where: baseExpenseWhere,
         });
-        const earnedConditionItem = branchId ? `AND o."branchId" = '${branchId}'` : '';
-        const earnedConditionTask = branchId ? `AND o."branchId" = '${branchId}'` : '';
+        const earnedConditionItem = branchId
+            ? `AND o."branchId" = '${branchId}'`
+            : '';
+        const earnedConditionTask = branchId
+            ? `AND o."branchId" = '${branchId}'`
+            : '';
         const totalEarnedQuery = await this.prisma.$queryRawUnsafe(`
             SELECT (
-                (SELECT COALESCE(SUM(oi."employeeRate" * oi.quantity), 0) FROM "OrderItem" oi JOIN "Order" o ON o.id = oi."orderId" WHERE oi.status IN ('COMPLETED', 'DELIVERED') AND o."deletedAt" IS NULL ${earnedConditionItem})
+                (SELECT COALESCE(SUM(oi."employeeRate" * oi.quantity), 0) FROM "OrderItem" oi JOIN "Order" o ON o.id = oi."orderId" WHERE oi.status IN ('COMPLETED') AND o."deletedAt" IS NULL ${earnedConditionItem})
                 +
-                (SELECT COALESCE(SUM(COALESCE(oit."rateOverride", oit."rateSnapshot", 0)), 0) FROM "OrderItemTask" oit JOIN "OrderItem" oi ON oi.id = oit."orderItemId" JOIN "Order" o ON o.id = oi."orderId" WHERE oit.status = 'DONE' AND o."deletedAt" IS NULL ${earnedConditionTask})
+                (SELECT COALESCE(SUM(COALESCE(oit."rateOverride", dt."defaultRate", oit."rateSnapshot", 0)), 0) 
+                 FROM "OrderItemTask" oit 
+                 JOIN "OrderItem" oi ON oi.id = oit."orderItemId" 
+                 JOIN "Order" o ON o.id = oi."orderId" 
+                 LEFT JOIN "DesignType" dt ON dt.id = oit."designTypeId"
+                 WHERE oit.status = 'DONE' AND o."deletedAt" IS NULL ${earnedConditionTask})
             ) AS total
         `);
-        const employeeCondition = branchId ? { employee: { branchId, deletedAt: null } } : { employee: { deletedAt: null } };
+        const employeeCondition = branchId
+            ? { employee: { branchId, deletedAt: null } }
+            : { employee: { deletedAt: null } };
         const totalPaid = await this.prisma.payment.aggregate({
             _sum: { amount: true },
-            where: employeeCondition
+            where: employeeCondition,
         });
         const totalEarned = Number(totalEarnedQuery[0]?.total ?? 0);
         const paidOut = totalPaid._sum.amount ?? 0;
         const outstandingBalances = totalEarned - paidOut;
-        const overdueOrders = await this.prisma.order.count({
+        const overdueCount = await this.prisma.order.count({
             where: {
                 ...baseOrderWhere,
-                status: shared_types_1.OrderStatus.OVERDUE
-            }
+                status: shared_types_1.OrderStatus.OVERDUE,
+            },
+        });
+        const totalOrders = await this.prisma.order.count({
+            where: baseOrderWhere,
+        });
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const newToday = await this.prisma.order.count({
+            where: {
+                ...baseOrderWhere,
+                createdAt: { gte: today },
+            },
+        });
+        const totalCustomers = await this.prisma.customer.count({
+            where: branchId ? { branchId, deletedAt: null } : { deletedAt: null },
+        });
+        const activeEmployees = await this.prisma.employee.count({
+            where: branchId
+                ? { branchId, status: 'ACTIVE', deletedAt: null }
+                : { status: 'ACTIVE', deletedAt: null },
+        });
+        const recentOrders = await this.prisma.order.findMany({
+            where: {
+                ...baseOrderWhere,
+                status: shared_types_1.OrderStatus.OVERDUE,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5,
+            include: {
+                customer: true,
+                items: true,
+            },
         });
         return {
             revenue: revenue._sum.amount ?? 0,
             expenses: expenses._sum.amount ?? 0,
             outstandingBalances,
-            overdueOrders
+            overdueOrders: overdueCount,
+            overdueCount,
+            totalOrders,
+            newToday,
+            totalOutstandingBalance: outstandingBalances,
+            totalCustomers,
+            activeEmployees,
+            recentOrders: recentOrders,
         };
     }
     async getRevenueVsExpenses(branchId, months = 6) {
-        const branchConditionOrder = branchId ? `AND o."branchId" = '${branchId}'` : '';
-        const branchConditionExpense = branchId ? `AND e."branchId" = '${branchId}'` : '';
+        const branchConditionOrder = branchId
+            ? `AND o."branchId" = '${branchId}'`
+            : '';
+        const branchConditionExpense = branchId
+            ? `AND e."branchId" = '${branchId}'`
+            : '';
         const revenueRaw = await this.prisma.$queryRawUnsafe(`
             SELECT date_trunc('month', op."paidAt") as month, SUM(op.amount) as total
             FROM "OrderPayment" op
@@ -82,8 +139,14 @@ let ReportsService = class ReportsService {
             ORDER BY month ASC
         `);
         return {
-            revenue: revenueRaw.map(r => ({ month: r.month, total: Number(r.total) })),
-            expenses: expenseRaw.map(e => ({ month: e.month, total: Number(e.total) })),
+            revenue: revenueRaw.map((r) => ({
+                month: r.month,
+                total: Number(r.total),
+            })),
+            expenses: expenseRaw.map((e) => ({
+                month: e.month,
+                total: Number(e.total),
+            })),
         };
     }
     async getGarmentTypesRevenue(branchId) {
@@ -98,18 +161,22 @@ let ReportsService = class ReportsService {
             GROUP BY oi."garmentTypeName"
             ORDER BY value DESC
         `);
-        return result.map(r => ({ label: r.label, value: Number(r.value) }));
+        return result.map((r) => ({ label: r.label, value: Number(r.value) }));
     }
     async getEmployeeProductivity(branchId) {
-        const branchConditionItem = branchId ? `AND o."branchId" = '${branchId}'` : '';
-        const branchConditionTask = branchId ? `AND o."branchId" = '${branchId}'` : '';
+        const branchConditionItem = branchId
+            ? `AND o."branchId" = '${branchId}'`
+            : '';
+        const branchConditionTask = branchId
+            ? `AND o."branchId" = '${branchId}'`
+            : '';
         const result = await this.prisma.$queryRawUnsafe(`
             WITH item_prod AS (
                 SELECT emp.id, emp."fullName" as label, SUM(oi.quantity) as value
                 FROM "OrderItem" oi
                 JOIN "Order" o ON o.id = oi."orderId"
                 JOIN "Employee" emp ON emp.id = oi."employeeId"
-                WHERE oi.status IN ('COMPLETED', 'DELIVERED')
+                WHERE oi.status IN ('COMPLETED')
                 AND o."deletedAt" IS NULL
                 AND emp."deletedAt" IS NULL
                 ${branchConditionItem}
@@ -141,7 +208,87 @@ let ReportsService = class ReportsService {
             ORDER BY value DESC
             LIMIT 10
         `);
-        return result.map(r => ({ label: r.label, value: Number(r.value) }));
+        return result.map((r) => ({ label: r.label, value: Number(r.value) }));
+    }
+    async getDesignAnalytics(branchId, from, to) {
+        const branchCondition = branchId ? `AND o."branchId" = '${branchId}'` : '';
+        const dateCondition = from && to
+            ? `AND o."createdAt" BETWEEN '${from}' AND '${to}'`
+            : from
+                ? `AND o."createdAt" >= '${from}'`
+                : to
+                    ? `AND o."createdAt" <= '${to}'`
+                    : '';
+        const result = await this.prisma.$queryRawUnsafe(`
+            SELECT 
+                dt.name, 
+                COUNT(oi.id) as count, 
+                SUM(dt."defaultPrice") as revenue,
+                SUM(dt."defaultRate") as payout
+            FROM "OrderItem" oi
+            JOIN "DesignType" dt ON dt.id = oi."designTypeId"
+            JOIN "Order" o ON o.id = oi."orderId"
+            WHERE o."deletedAt" IS NULL
+            AND oi.status NOT IN ('CANCELLED')
+            ${branchCondition}
+            ${dateCondition}
+            GROUP BY dt.name
+            ORDER BY count DESC
+        `);
+        return result.map((r) => ({
+            name: r.name,
+            count: Number(r.count),
+            revenue: Number(r.revenue),
+            payout: Number(r.payout),
+        }));
+    }
+    async getAddonAnalytics(branchId, from, to) {
+        const branchCondition = branchId ? `AND o."branchId" = '${branchId}'` : '';
+        const dateCondition = from && to
+            ? `AND o."createdAt" BETWEEN '${from}' AND '${to}'`
+            : from
+                ? `AND o."createdAt" >= '${from}'`
+                : to
+                    ? `AND o."createdAt" <= '${to}'`
+                    : '';
+        const result = await this.prisma.$queryRawUnsafe(`
+            SELECT 
+                a.type, 
+                COUNT(a.id) as count, 
+                SUM(a.price) as total
+            FROM "OrderItemAddon" a
+            JOIN "OrderItem" oi ON oi.id = a."orderItemId"
+            JOIN "Order" o ON o.id = oi."orderId"
+            WHERE o."deletedAt" IS NULL
+            AND a."deletedAt" IS NULL
+            AND oi.status NOT IN ('CANCELLED')
+            ${branchCondition}
+            ${dateCondition}
+            GROUP BY a.type
+            ORDER BY total DESC
+        `);
+        return result.map((r) => ({
+            type: r.type,
+            count: Number(r.count),
+            total: Number(r.total),
+        }));
+    }
+    async getSummary(branchId, from, to) {
+        const filters = { branchId, from, to };
+        const [designs, addons, dashboard] = await Promise.all([
+            this.getDesignAnalytics(branchId, from, to),
+            this.getAddonAnalytics(branchId, from, to),
+            this.getDashboardStats(branchId),
+        ]);
+        const totalDesignRevenue = designs.reduce((sum, d) => sum + d.revenue, 0);
+        const totalAddonRevenue = addons.reduce((sum, a) => sum + a.total, 0);
+        return {
+            ...dashboard,
+            totalDesignRevenue,
+            totalAddonRevenue,
+            designs,
+            addons,
+        };
     }
 };
 exports.ReportsService = ReportsService;

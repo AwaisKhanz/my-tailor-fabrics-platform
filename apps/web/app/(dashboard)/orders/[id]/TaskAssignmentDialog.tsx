@@ -149,7 +149,7 @@ export function TaskAssignmentDialog({
       header: "Labor Rate",
       align: "right",
       cell: (task) => {
-        const currentRate = getEffectiveTaskRate(task.rateSnapshot, task.rateOverride) / 100;
+        const currentRate = getEffectiveTaskRate(task.rateSnapshot, task.rateOverride, task.designType?.defaultRate) / 100;
         const isEditing = editingRateId === task.id;
 
         if (isEditing) {
@@ -179,11 +179,11 @@ export function TaskAssignmentDialog({
         return (
           <div className="flex items-center justify-end gap-2 group">
             <div className="flex flex-col items-end">
-              <span className={`font-bold text-sm ${task.rateOverride ? 'text-primary' : 'text-foreground'}`}>
-                {formatPKR(getEffectiveTaskRate(task.rateSnapshot, task.rateOverride))}
+              <span className={`font-bold text-sm ${task.rateOverride ? 'text-primary' : (task.designType?.defaultRate ? 'text-primary/80' : 'text-foreground')}`}>
+                {formatPKR(getEffectiveTaskRate(task.rateSnapshot, task.rateOverride, task.designType?.defaultRate))}
               </span>
               {task.rateOverride && (
-                <span className="text-[9px] text-muted-foreground line-through italic">
+                <span className="text-[9px] text-muted-foreground line-through ">
                   Base: {formatPKR(task.rateSnapshot ?? 0)}
                 </span>
               )}

@@ -75,7 +75,7 @@ let AuthService = class AuthService {
             sub: user.id,
             role: user.role,
             branchId: user.branchId,
-            employeeId: user.employeeId
+            employeeId: user.employeeId,
         };
         const accessToken = await this.jwtService.signAsync(payload);
         return {
@@ -88,7 +88,7 @@ let AuthService = class AuthService {
                 role: user.role,
                 branchId: user.branchId,
                 employeeId: user.employeeId,
-            }
+            },
         };
     }
     async logout(userId) {
@@ -108,7 +108,7 @@ let AuthService = class AuthService {
             sub: user.id,
             role: user.role,
             branchId: user.branchId,
-            employeeId: user.employeeId
+            employeeId: user.employeeId,
         };
         const newAccessToken = await this.jwtService.signAsync(payload);
         return {

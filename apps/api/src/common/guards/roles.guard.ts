@@ -35,13 +35,13 @@ export class RolesGuard implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest();
-    
-    if (!user || (!user.role)) {
+
+    if (!user || !user.role) {
       return false;
     }
 
     const userRoleValue = ROLE_HIERARCHY[user.role as Role];
-    
+
     // Check if the user meets at least one of the required roles based on hierarchy
     return requiredRoles.some((role) => userRoleValue >= ROLE_HIERARCHY[role]);
   }

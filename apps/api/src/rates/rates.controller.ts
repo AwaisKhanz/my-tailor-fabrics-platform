@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { RatesService } from './rates.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -19,36 +27,38 @@ export class RatesController {
     @Query('limit') limit?: string,
     @Query('search') search?: string,
   ) {
-    const branchId = req.user.role === Role.SUPER_ADMIN ? null : req.user.branchId;
+    const branchId =
+      req.user.role === Role.SUPER_ADMIN ? null : req.user.branchId;
     const { data, total } = await this.ratesService.findAll({
       branchId,
       search,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
     });
-    
+
     return {
       success: true,
       data,
-      meta: { 
-        total, 
-        page: page ? parseInt(page) : 1, 
-        lastPage: Math.ceil(total / (limit ? parseInt(limit) : 10)) 
-      }
+      meta: {
+        total,
+        page: page ? parseInt(page) : 1,
+        lastPage: Math.ceil(total / (limit ? parseInt(limit) : 10)),
+      },
     };
   }
 
   @Post()
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   async create(
-    @Body() dto: CreateRateCardInput, 
-    @Request() req: { user: { id: string; role: Role; branchId: string } }
+    @Body() dto: CreateRateCardInput,
+    @Request() req: { user: { id: string; role: Role; branchId: string } },
   ) {
     // Ensure admins don't create rates for other branches unless super admin
     if (req.user.role !== Role.SUPER_ADMIN) {
       dto.branchId = req.user.branchId;
     }
-    return this.ratesService.create({ ...dto, createdById: req.user.id });
+    const data = await this.ratesService.create({ ...dto, createdById: req.user.id });
+    return { success: true, data };
   }
 
   @Get('history')
@@ -58,6 +68,7 @@ export class RatesController {
     @Query('stepKey') stepKey: string,
     @Query('branchId') branchId?: string,
   ) {
-    return this.ratesService.getHistory(garmentTypeId, stepKey, branchId);
+    const data = await this.ratesService.getHistory(garmentTypeId, stepKey, branchId);
+    return { success: true, data };
   }
 }

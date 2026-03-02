@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { BranchesService } from './branches.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -11,7 +21,13 @@ import { Role } from '@tbms/shared-types';
 export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.ENTRY_OPERATOR, Role.VIEWER, Role.EMPLOYEE)
+  @Roles(
+    Role.SUPER_ADMIN,
+    Role.ADMIN,
+    Role.ENTRY_OPERATOR,
+    Role.VIEWER,
+    Role.EMPLOYEE,
+  )
   @Get()
   async findAll(
     @Query('page') page?: string,

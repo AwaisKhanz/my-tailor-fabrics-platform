@@ -27,7 +27,7 @@ let MailController = class MailController {
             return {
                 success: true,
                 message: 'Visit this URL to generate an authorization code, then exchange that code in the OAuth2 Playground for a Refresh Token.',
-                url
+                url,
             };
         }
         catch (error) {
@@ -40,7 +40,11 @@ let MailController = class MailController {
         }
         try {
             const result = await this.mailService.sendMail(dto.to, 'My Tailor & Fabrics - Test Email', 'Hello! This is a test email sent from the Gmail API integration using OAuth2 in NestJS.', '<h3>Hello!</h3><p>This is a test email sent from the <strong>Gmail API</strong> integration using OAuth2 in NestJS.</p>');
-            return { success: true, message: 'Test email sent successfully!', result };
+            return {
+                success: true,
+                message: 'Test email sent successfully!',
+                result,
+            };
         }
         catch (error) {
             throw new common_1.InternalServerErrorException(error.message);

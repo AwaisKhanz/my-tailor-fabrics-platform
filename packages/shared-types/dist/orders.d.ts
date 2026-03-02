@@ -1,4 +1,4 @@
-import { OrderStatus, ItemStatus, DiscountType, TaskStatus, FabricSource } from './common';
+import { OrderStatus, ItemStatus, DiscountType, TaskStatus, FabricSource, AddonType } from './common';
 import { EmployeeLedgerEntry } from './ledger';
 export interface OrderItemInput {
     garmentTypeId: string;
@@ -7,6 +7,13 @@ export interface OrderItemInput {
     description?: string;
     fabricSource?: FabricSource;
     dueDate?: string;
+    designTypeId?: string | null;
+    addons?: {
+        type: string;
+        name: string;
+        price: number;
+        cost?: number;
+    }[];
 }
 export interface CreateOrderInput {
     customerId: string;
@@ -16,6 +23,18 @@ export interface CreateOrderInput {
     discountValue: number;
     advancePayment: number;
     notes?: string;
+}
+export interface UpdateOrderItemInput extends Partial<OrderItemInput> {
+    id?: string;
+    unitPrice?: number;
+    employeeRate?: number;
+}
+export interface UpdateOrderInput {
+    dueDate?: string;
+    notes?: string;
+    discountType?: DiscountType;
+    discountValue?: number;
+    items?: UpdateOrderItemInput[];
 }
 export interface OrderItem {
     id: string;
@@ -36,6 +55,9 @@ export interface OrderItem {
     completedAt?: string | null;
     status: ItemStatus;
     tasks?: OrderItemTask[];
+    addons?: OrderItemAddon[];
+    designTypeId?: string | null;
+    designType?: DesignType | null;
     employee?: {
         id: string;
         fullName: string;
@@ -122,6 +144,31 @@ export interface OrderItemTask {
     completedAt?: string | null;
     notes?: string | null;
     ledgerEntries?: EmployeeLedgerEntry[];
+    designTypeId?: string | null;
+    designType?: DesignType | null;
+    createdAt: string;
+    updatedAt: string;
+}
+export interface DesignType {
+    id: string;
+    branchId?: string | null;
+    garmentTypeId?: string | null;
+    name: string;
+    defaultPrice: number;
+    defaultRate: number;
+    isActive: boolean;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+}
+export interface OrderItemAddon {
+    id: string;
+    orderItemId: string;
+    type: AddonType;
+    name: string;
+    price: number;
+    cost?: number | null;
+    note?: string | null;
     createdAt: string;
     updatedAt: string;
 }

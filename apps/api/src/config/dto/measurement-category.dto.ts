@@ -1,4 +1,12 @@
-import { IsString, IsBoolean, IsOptional, IsInt, IsEnum, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsInt,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { FieldType } from '@tbms/shared-types';
 

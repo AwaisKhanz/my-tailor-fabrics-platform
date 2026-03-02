@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "./ThemeToggle";
 import {
   DropdownMenu,
@@ -68,9 +69,9 @@ export function Topbar() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1 p-2">
                 <p className="text-sm font-bold leading-none text-foreground">{user?.email || "User Account"}</p>
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground opacity-80">
+                <Label variant="dashboard">
                   {role?.replace("_", " ") || "Member"}
-                </p>
+                </Label>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

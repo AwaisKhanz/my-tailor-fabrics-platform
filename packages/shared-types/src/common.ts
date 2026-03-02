@@ -87,6 +87,12 @@ export enum LedgerEntryType {
   SALARY = 'SALARY'
 }
 
+export enum AddonType {
+  EXTRA = 'EXTRA',
+  ALTERATION = 'ALTERATION',
+  DESIGN_CHARGE = 'DESIGN_CHARGE'
+}
+
 // UI Type Definitions
 export type BadgeVariant = 
   | 'default' 

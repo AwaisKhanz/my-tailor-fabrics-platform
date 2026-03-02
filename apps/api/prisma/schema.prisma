@@ -9,14 +9,14 @@ datasource db {
 }
 
 model Branch {
-  id                String             @id @default(cuid())
-  code              String             @unique
+  id                String                @id @default(cuid())
+  code              String                @unique
   name              String
   address           String?
   phone             String?
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  isActive          Boolean               @default(true)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
   deletedAt         DateTime?
   attendanceRecords AttendanceRecord[]
   customers         Customer[]
@@ -26,6 +26,7 @@ model Branch {
   rateCards         RateCard[]
   users             User[]
   ledgerEntries     EmployeeLedgerEntry[]
+  designTypes       DesignType[]
 }
 
 model User {
@@ -191,6 +192,7 @@ model GarmentType {
   rateCards             RateCard[]
   workflowSteps         WorkflowStepTemplate[]
   measurementCategories MeasurementCategory[]  @relation("GarmentTypeToMeasurementCategory")
+  designTypes           DesignType[]
 }
 
 model Order {
@@ -229,27 +231,30 @@ model Order {
 }
 
 model OrderItem {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   orderId         String
   garmentTypeId   String
   garmentTypeName String
   employeeId      String?
-  quantity        Int             @default(1)
+  quantity        Int              @default(1)
   unitPrice       Int
   employeeRate    Int
   description     String?
   dueDate         DateTime?
-  status          ItemStatus      @default(PENDING)
+  status          ItemStatus       @default(PENDING)
   completedAt     DateTime?
   deletedAt       DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  fabricSource    FabricSource    @default(SHOP)
-  pieceNo         Int             @default(1)
-  employee        Employee?       @relation(fields: [employeeId], references: [id])
-  garmentType     GarmentType     @relation(fields: [garmentTypeId], references: [id])
-  order           Order           @relation(fields: [orderId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  fabricSource    FabricSource     @default(SHOP)
+  pieceNo         Int              @default(1)
+  employee        Employee?        @relation(fields: [employeeId], references: [id])
+  garmentType     GarmentType      @relation(fields: [garmentTypeId], references: [id])
+  order           Order            @relation(fields: [orderId], references: [id])
   tasks           OrderItemTask[]
+  addons          OrderItemAddon[]
+  designTypeId    String?
+  designType      DesignType?      @relation(fields: [designTypeId], references: [id])
 
   @@unique([orderId, garmentTypeId, pieceNo])
   @@index([orderId])
@@ -287,17 +292,17 @@ model OrderStatusHistory {
 }
 
 model Payment {
-  id            String    @id @default(cuid())
+  id            String                @id @default(cuid())
   employeeId    String
   amount        Int
-  paidAt        DateTime  @default(now())
+  paidAt        DateTime              @default(now())
   processedById String
   note          String?
   deletedAt     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  employee      Employee  @relation(fields: [employeeId], references: [id])
-  processedBy   User      @relation(fields: [processedById], references: [id])
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  employee      Employee              @relation(fields: [employeeId], references: [id])
+  processedBy   User                  @relation(fields: [processedById], references: [id])
   ledgerEntries EmployeeLedgerEntry[]
 
   @@index([employeeId, paidAt])
@@ -450,6 +455,8 @@ model OrderItemTask {
   orderItem          OrderItem                      @relation(fields: [orderItemId], references: [id])
   rateCard           RateCard?                      @relation(fields: [rateCardId], references: [id])
   stepTemplate       WorkflowStepTemplate?          @relation(fields: [stepTemplateId], references: [id])
+  designTypeId       String?
+  designType         DesignType?                    @relation(fields: [designTypeId], references: [id])
   assignmentEvents   OrderItemTaskAssignmentEvent[]
   ledgerEntries      EmployeeLedgerEntry[]
 
@@ -553,30 +560,81 @@ enum LedgerEntryType {
   SALARY
 }
 
+enum AddonType {
+  EXTRA
+  ALTERATION
+  DESIGN_CHARGE
+}
+
+model DesignType {
+  id String @id @default(cuid())
+
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  garmentTypeId String?
+  garmentType   GarmentType? @relation(fields: [garmentTypeId], references: [id])
+
+  name         String
+  defaultPrice Int
+  defaultRate  Int
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  tasks     OrderItemTask[]
+  orderItems OrderItem[]
+
+  @@index([branchId, garmentTypeId])
+}
+
+model OrderItemAddon {
+  id String @id @default(cuid())
+
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+
+  type  AddonType @default(EXTRA)
+  name  String
+  price Int
+  cost  Int?
+
+  note      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([orderItemId])
+}
+
 model EmployeeLedgerEntry {
-  id              String          @id @default(cuid())
+  id String @id @default(cuid())
 
-  employeeId      String
-  employee        Employee        @relation(fields: [employeeId], references: [id])
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
 
-  branchId        String
-  branch          Branch          @relation(fields: [branchId], references: [id])
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
 
-  type            LedgerEntryType
-  amount          Int             // positive = earning, negative = payout/deduction
+  type   LedgerEntryType
+  amount Int // positive = earning, negative = payout/deduction
 
   orderItemTaskId String?
-  orderItemTask   OrderItemTask?  @relation(fields: [orderItemTaskId], references: [id])
+  orderItemTask   OrderItemTask? @relation(fields: [orderItemTaskId], references: [id])
 
-  paymentId       String?
-  payment         Payment?        @relation(fields: [paymentId], references: [id])
+  paymentId String?
+  payment   Payment? @relation(fields: [paymentId], references: [id])
 
-  createdById     String?
-  createdBy       User?           @relation(fields: [createdById], references: [id])
+  createdById String?
+  createdBy   User?   @relation(fields: [createdById], references: [id])
 
-  note            String?
-  createdAt       DateTime        @default(now())
-  deletedAt       DateTime?
+  note      String?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
 
   @@index([employeeId, createdAt])
   @@index([branchId, createdAt])

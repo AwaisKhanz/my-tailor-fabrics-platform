@@ -7,6 +7,6 @@ import { RatesModule } from '../rates/rates.module';
 @Module({
   imports: [RatesModule],
   providers: [OrdersService, ReceiptService],
-  controllers: [OrdersController]
+  controllers: [OrdersController],
 })
 export class OrdersModule {}

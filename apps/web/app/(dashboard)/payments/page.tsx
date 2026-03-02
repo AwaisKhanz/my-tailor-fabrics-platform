@@ -134,7 +134,7 @@ export default function PaymentsPage() {
     {
       header: "Note",
       cell: (p) => (
-        <span className="text-xs text-muted-foreground italic">
+        <span className="text-xs text-muted-foreground ">
           {p.note || "—"}
         </span>
       )
@@ -161,11 +161,11 @@ export default function PaymentsPage() {
 
       <Card className="border-border/50 shadow-sm overflow-hidden">
         <CardHeader className="pb-4 bg-muted/5 border-b border-border/50">
-          <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Active Selection</CardTitle>
+          <CardTitle variant="dashboard">Active Selection</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="max-w-md space-y-2">
-            <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Select Tailor / Staff</Label>
+            <Label variant="dashboard">Select Tailor / Staff</Label>
             <Select value={selectedEmpId} onValueChange={handleEmployeeChange}>
               <SelectTrigger variant="premium" className="h-11">
                 <SelectValue placeholder="Choose an employee…" />
@@ -193,29 +193,29 @@ export default function PaymentsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Card className="border-border/50 shadow-sm overflow-hidden border-l-4 border-l-success">
                   <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
-                    <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Earned</CardTitle>
+                    <CardTitle variant="dashboard">Total Earned</CardTitle>
                     <Banknote className="h-4 w-4 text-success" />
                   </CardHeader>
                   <CardContent className="pt-4">
                     <p className="text-3xl font-bold text-success tracking-tight">{formatPKR(summary.totalEarned)}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">All lifecycle steps</p>
+                    <Label variant="dashboard" className="mt-1">All lifecycle steps</Label>
                   </CardContent>
                 </Card>
 
                 <Card className="border-border/50 shadow-sm overflow-hidden border-l-4 border-l-primary">
                   <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
-                    <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Paid</CardTitle>
+                    <CardTitle variant="dashboard">Total Paid</CardTitle>
                     <Banknote className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent className="pt-4">
                     <p className="text-3xl font-bold text-primary tracking-tight">{formatPKR(summary.totalPaid)}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Settled disbursements</p>
+                    <Label variant="dashboard" className="mt-1">Settled disbursements</Label>
                   </CardContent>
                 </Card>
 
                 <Card className={`border-border/50 shadow-sm overflow-hidden border-l-4 ${currentBalance > 0 ? "border-l-warning bg-warning/5" : "border-l-muted"}`}>
                   <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
-                    <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Outstanding Balance</CardTitle>
+                    <CardTitle variant="dashboard">Outstanding Balance</CardTitle>
                     <Banknote className="h-4 w-4 text-warning" />
                   </CardHeader>
                   <CardContent className="pt-4">
@@ -224,12 +224,12 @@ export default function PaymentsPage() {
                         {formatPKR(currentBalance)}
                       </p>
                       {currentBalance > 0 && (
-                        <Button variant="premium" size="sm" className="h-8 font-bold text-[10px] uppercase tracking-wider" onClick={() => setDisburseOpen(true)}>
+                        <Button variant="premium" size="xs" className="h-8" onClick={() => setDisburseOpen(true)}>
                           <Plus className="h-3 w-3 mr-1" /> Disburse
                         </Button>
                       )}
                     </div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Payable amount</p>
+                    <Label variant="dashboard" className="mt-1">Payable amount</Label>
                   </CardContent>
                 </Card>
               </div>
@@ -237,7 +237,7 @@ export default function PaymentsPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
                    <h2 className="text-lg font-bold tracking-tight">Payment History</h2>
-                   <Badge variant="secondary" className="font-bold text-[10px] tracking-widest uppercase">{totalHistory} records</Badge>
+                   <Badge variant="secondary" size="xs">{totalHistory} records</Badge>
                 </div>
                 <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
                   <DataTable
@@ -275,12 +275,12 @@ export default function PaymentsPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="p-4 bg-muted/30 border border-border/50 rounded-xl">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest block mb-1">Available to pay</span>
+              <Label variant="dashboard" className="block mb-1">Available to pay</Label>
               <span className="text-2xl font-bold text-warning tracking-tight">{formatPKR(currentBalance)}</span>
             </div>
             
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider">Amount (Rs.) <span className="text-destructive">*</span></Label>
+              <Label variant="dashboard">Amount (Rs.) <span className="text-destructive">*</span></Label>
               <Input
                 variant="premium"
                 type="number"
@@ -293,7 +293,7 @@ export default function PaymentsPage() {
             </div>
             
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider">Note / Remarks</Label>
+              <Label variant="dashboard">Note / Remarks</Label>
               <Input variant="premium" className="h-11" placeholder="e.g. Weekly settlement, Advance payment..." value={note} onChange={(e) => setNote(e.target.value)} />
             </div>
           </div>

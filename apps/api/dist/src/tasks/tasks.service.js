@@ -26,62 +26,53 @@ let TasksService = class TasksService {
             throw new common_1.ForbiddenException('Only Admins can assign tasks');
         }
         const task = await this.prisma.orderItemTask.findFirst({
-            where: { id: taskId, deletedAt: null, orderItem: { order: { branchId } } },
-            include: { orderItem: { include: { order: true } } }
+            where: {
+                id: taskId,
+                orderItem: { order: { branchId } },
+            },
         });
         if (!task)
             throw new common_1.NotFoundException('Task not found');
-        const employee = await this.prisma.employee.findFirst({
-            where: { id: employeeId, branchId }
-        });
-        if (!employee)
-            throw new common_1.NotFoundException('Employee not found in this branch');
-        return this.prisma.$transaction(async (tx) => {
-            await tx.orderItemTaskAssignmentEvent.create({
-                data: {
-                    taskId,
-                    fromEmployeeId: task.assignedEmployeeId,
-                    toEmployeeId: employeeId,
-                    changedById: assignedById,
-                    note: 'Task assigned via branch admin'
-                }
-            });
-            return tx.orderItemTask.update({
-                where: { id: taskId },
-                data: {
-                    assignedEmployeeId: employeeId,
-                    status: 'PENDING'
-                },
-                include: { assignedEmployee: true }
-            });
+        return this.prisma.orderItemTask.update({
+            where: { id: taskId },
+            data: {
+                assignedEmployeeId: employeeId,
+            },
         });
     }
     async updateTaskStatus(taskId, status, branchId, updatedById) {
         const task = await this.prisma.orderItemTask.findFirst({
-            where: { id: taskId, deletedAt: null, orderItem: { order: { branchId } } },
-            include: { orderItem: { include: { order: true } } }
+            where: {
+                id: taskId,
+                orderItem: { order: { branchId } },
+            },
+            include: {
+                orderItem: {
+                    include: {
+                        order: true,
+                    },
+                },
+                designType: true,
+            },
         });
         if (!task)
-            throw new common_1.NotFoundException('Task not found or does not belong to your branch');
-        let startedAt = task.startedAt;
-        let completedAt = task.completedAt;
-        if (status === shared_types_1.TaskStatus.IN_PROGRESS && task.status !== shared_types_1.TaskStatus.IN_PROGRESS && !startedAt) {
-            startedAt = new Date();
+            throw new common_1.NotFoundException('Task not found');
+        const data = { status };
+        if (status === shared_types_1.TaskStatus.IN_PROGRESS && !task.startedAt) {
+            data.startedAt = new Date();
         }
-        else if (status === shared_types_1.TaskStatus.DONE && task.status !== shared_types_1.TaskStatus.DONE) {
-            completedAt = new Date();
-            if (!startedAt)
-                startedAt = new Date();
+        if (status === shared_types_1.TaskStatus.DONE && !task.completedAt) {
+            data.completedAt = new Date();
         }
         const updatedTask = await this.prisma.orderItemTask.update({
             where: { id: taskId },
-            data: { status, startedAt, completedAt },
-            include: {
-                assignedEmployee: { select: { fullName: true, id: true } }
-            }
+            data,
         });
-        if (status === shared_types_1.TaskStatus.DONE && task.status !== shared_types_1.TaskStatus.DONE && task.assignedEmployeeId) {
-            const earningAmount = task.rateOverride ?? task.rateSnapshot ?? 0;
+        if (status === shared_types_1.TaskStatus.DONE && task.assignedEmployeeId) {
+            const earningAmount = task.rateOverride ??
+                task.designType?.defaultRate ??
+                task.rateSnapshot ??
+                0;
             if (earningAmount > 0) {
                 await this.ledgerService.createEntry({
                     employeeId: task.assignedEmployeeId,
@@ -100,16 +91,13 @@ let TasksService = class TasksService {
         return this.prisma.orderItemTask.findMany({
             where: {
                 orderItem: { orderId, order: { branchId } },
-                deletedAt: null
+                deletedAt: null,
             },
-            orderBy: [
-                { orderItemId: 'asc' },
-                { sortOrder: 'asc' }
-            ],
+            orderBy: [{ orderItemId: 'asc' }, { sortOrder: 'asc' }],
             include: {
                 assignedEmployee: { select: { fullName: true, id: true } },
-                orderItem: { select: { garmentTypeName: true, description: true } }
-            }
+                orderItem: { select: { garmentTypeName: true, description: true } },
+            },
         });
     }
     async findAllByEmployee(employeeId, branchId) {
@@ -117,12 +105,17 @@ let TasksService = class TasksService {
             where: {
                 assignedEmployeeId: employeeId,
                 orderItem: { order: { branchId } },
-                deletedAt: null
+                deletedAt: null,
             },
             orderBy: { createdAt: 'desc' },
             include: {
-                orderItem: { select: { garmentTypeName: true, order: { select: { orderNumber: true, dueDate: true } } } }
-            }
+                orderItem: {
+                    select: {
+                        garmentTypeName: true,
+                        order: { select: { orderNumber: true, dueDate: true } },
+                    },
+                },
+            },
         });
     }
     async updateTaskRate(taskId, rateOverride, branchId, userRole) {
@@ -130,14 +123,18 @@ let TasksService = class TasksService {
             throw new common_1.ForbiddenException('Only Admins can override task rates');
         }
         const task = await this.prisma.orderItemTask.findFirst({
-            where: { id: taskId, deletedAt: null, orderItem: { order: { branchId } } }
+            where: {
+                id: taskId,
+                deletedAt: null,
+                orderItem: { order: { branchId } },
+            },
         });
         if (!task)
             throw new common_1.NotFoundException('Task not found');
         return this.prisma.orderItemTask.update({
             where: { id: taskId },
             data: { rateOverride },
-            include: { assignedEmployee: { select: { fullName: true, id: true } } }
+            include: { assignedEmployee: { select: { fullName: true, id: true } } },
         });
     }
 };

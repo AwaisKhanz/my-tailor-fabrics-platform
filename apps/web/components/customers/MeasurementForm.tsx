@@ -22,6 +22,7 @@ import {
 import {
   customerApi,
 } from "@/lib/api/customers";
+import { configApi } from "@/lib/api/config";
 import { MeasurementCategory } from "@/types/config";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -52,11 +53,12 @@ export function MeasurementForm({
   useEffect(() => {
     async function loadCategories() {
       try {
-        const response = await customerApi.getMeasurementCategories();
-        if (response.success) {
-          setCategories(response.data);
+        const response = await configApi.getMeasurementCategories();
+        if (response.success && response.data?.data) {
+          const categoriesData = response.data.data;
+          setCategories(categoriesData);
           if (initialCategoryId) {
-            const cat = response.data.find((c) => c.id === initialCategoryId);
+            const cat = categoriesData.find((c) => c.id === initialCategoryId);
             if (cat) setSelectedCategory(cat);
           }
         }

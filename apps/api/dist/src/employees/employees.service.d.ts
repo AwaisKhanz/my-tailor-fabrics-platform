@@ -199,7 +199,7 @@ export declare class EmployeesService {
         refreshToken: string | null;
     }>;
     getStats(id: string, branchId: string): Promise<{
-        totalEarned: any;
+        totalEarned: number;
         totalPaid: number;
         balance: number;
     }>;
@@ -272,7 +272,7 @@ export declare class EmployeesService {
         notes: string | null;
     }>;
     getMyStats(employeeId: string, branchId: string): Promise<{
-        totalEarned: any;
+        totalEarned: number;
         totalPaid: number;
         balance: number;
     }>;

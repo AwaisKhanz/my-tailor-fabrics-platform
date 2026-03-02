@@ -20,10 +20,7 @@ export class RatesService {
         garmentTypeId,
         stepKey,
         effectiveFrom: { lte: date },
-        OR: [
-          { effectiveTo: null },
-          { effectiveTo: { gte: date } },
-        ],
+        OR: [{ effectiveTo: null }, { effectiveTo: { gte: date } }],
         deletedAt: null,
       },
       orderBy: { effectiveFrom: 'desc' },
@@ -37,10 +34,7 @@ export class RatesService {
           garmentTypeId,
           stepKey,
           effectiveFrom: { lte: date },
-          OR: [
-            { effectiveTo: null },
-            { effectiveTo: { gte: date } },
-          ],
+          OR: [{ effectiveTo: null }, { effectiveTo: { gte: date } }],
           deletedAt: null,
         },
         orderBy: { effectiveFrom: 'desc' },
@@ -99,12 +93,14 @@ export class RatesService {
     });
   }
 
-  async findAll(options: { 
-    branchId?: string | null, 
-    search?: string, 
-    page?: number, 
-    limit?: number 
-  } = {}) {
+  async findAll(
+    options: {
+      branchId?: string | null;
+      search?: string;
+      page?: number;
+      limit?: number;
+    } = {},
+  ) {
     const { branchId, search, page = 1, limit = 10 } = options;
     const skip = (page - 1) * limit;
 

@@ -20,7 +20,7 @@ let ExpensesService = class ExpensesService {
     async findAllCategories() {
         return this.prisma.expenseCategory.findMany({
             where: { deletedAt: null },
-            orderBy: { id: 'desc' }
+            orderBy: { id: 'desc' },
         });
     }
     async create(branchId, addedById, dto) {
@@ -32,8 +32,8 @@ let ExpensesService = class ExpensesService {
                 description: dto.description,
                 receiptUrl: dto.receiptUrl,
                 expenseDate: new Date(dto.expenseDate),
-                addedById
-            }
+                addedById,
+            },
         });
     }
     async findAll(branchId, page = 1, limit = 20, categoryId, from, to, sortBy, sortOrder) {
@@ -55,7 +55,10 @@ let ExpensesService = class ExpensesService {
         else if (to) {
             dateFilter = { lte: new Date(to) };
         }
-        const where = { deletedAt: null, ...(branchId ? { branchId } : {}) };
+        const where = {
+            deletedAt: null,
+            ...(branchId ? { branchId } : {}),
+        };
         if (categoryId)
             where.categoryId = categoryId;
         if (dateFilter)
@@ -66,19 +69,19 @@ let ExpensesService = class ExpensesService {
                 skip,
                 take: limit,
                 orderBy,
-                include: { category: true }
+                include: { category: true },
             }),
-            this.prisma.expense.count({ where })
+            this.prisma.expense.count({ where }),
         ]);
         return {
             data,
-            meta: { total, page, lastPage: Math.ceil(total / limit) }
+            meta: { total, page, lastPage: Math.ceil(total / limit) },
         };
     }
     async findOne(id, branchId) {
         const expense = await this.prisma.expense.findFirst({
             where: { id, deletedAt: null, ...(branchId ? { branchId } : {}) },
-            include: { category: true }
+            include: { category: true },
         });
         if (!expense)
             throw new common_1.NotFoundException('Expense not found');
@@ -90,15 +93,15 @@ let ExpensesService = class ExpensesService {
             where: { id },
             data: {
                 ...dto,
-                ...(dto.expenseDate ? { expenseDate: new Date(dto.expenseDate) } : {})
-            }
+                ...(dto.expenseDate ? { expenseDate: new Date(dto.expenseDate) } : {}),
+            },
         });
     }
     async remove(id, branchId) {
         await this.findOne(id, branchId);
         return this.prisma.expense.update({
             where: { id },
-            data: { deletedAt: new Date() }
+            data: { deletedAt: new Date() },
         });
     }
 };

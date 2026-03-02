@@ -71,4 +71,9 @@ export declare enum LedgerEntryType {
     ADJUSTMENT = "ADJUSTMENT",
     SALARY = "SALARY"
 }
+export declare enum AddonType {
+    EXTRA = "EXTRA",
+    ALTERATION = "ALTERATION",
+    DESIGN_CHARGE = "DESIGN_CHARGE"
+}
 export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'ready' | 'admin' | 'royal' | 'amber';

@@ -6,32 +6,6 @@ export declare class TasksService {
     private readonly ledgerService;
     constructor(prisma: PrismaService, ledgerService: LedgerService);
     assignTask(taskId: string, employeeId: string, branchId: string, assignedById: string, userRole: string): Promise<{
-        assignedEmployee: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string;
-            deletedAt: Date | null;
-            branchId: string;
-            employeeCode: string;
-            cnic: string | null;
-            fullName: string;
-            fatherName: string | null;
-            phone2: string | null;
-            city: string | null;
-            dateOfBirth: Date | null;
-            dateOfJoining: Date;
-            designation: string | null;
-            paymentType: import(".prisma/client").$Enums.PaymentType;
-            accountNumber: string | null;
-            emergencyName: string | null;
-            emergencyPhone: string | null;
-            photoUrl: string | null;
-            status: import(".prisma/client").$Enums.EmployeeStatus;
-            notes: string | null;
-        } | null;
-    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -43,19 +17,15 @@ export declare class TasksService {
         status: import(".prisma/client").$Enums.TaskStatus;
         notes: string | null;
         completedAt: Date | null;
-        orderItemId: string;
+        designTypeId: string | null;
         assignedEmployeeId: string | null;
-        startedAt: Date | null;
-        rateCardId: string | null;
         rateOverride: number | null;
         rateSnapshot: number | null;
+        orderItemId: string;
+        startedAt: Date | null;
+        rateCardId: string | null;
     }>;
     updateTaskStatus(taskId: string, status: TaskStatus, branchId: string, updatedById: string): Promise<{
-        assignedEmployee: {
-            id: string;
-            fullName: string;
-        } | null;
-    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -67,12 +37,13 @@ export declare class TasksService {
         status: import(".prisma/client").$Enums.TaskStatus;
         notes: string | null;
         completedAt: Date | null;
-        orderItemId: string;
+        designTypeId: string | null;
         assignedEmployeeId: string | null;
-        startedAt: Date | null;
-        rateCardId: string | null;
         rateOverride: number | null;
         rateSnapshot: number | null;
+        orderItemId: string;
+        startedAt: Date | null;
+        rateCardId: string | null;
     }>;
     findAllByOrder(orderId: string, branchId: string): Promise<({
         orderItem: {
@@ -95,12 +66,13 @@ export declare class TasksService {
         status: import(".prisma/client").$Enums.TaskStatus;
         notes: string | null;
         completedAt: Date | null;
-        orderItemId: string;
+        designTypeId: string | null;
         assignedEmployeeId: string | null;
-        startedAt: Date | null;
-        rateCardId: string | null;
         rateOverride: number | null;
         rateSnapshot: number | null;
+        orderItemId: string;
+        startedAt: Date | null;
+        rateCardId: string | null;
     })[]>;
     findAllByEmployee(employeeId: string, branchId: string): Promise<({
         orderItem: {
@@ -122,12 +94,13 @@ export declare class TasksService {
         status: import(".prisma/client").$Enums.TaskStatus;
         notes: string | null;
         completedAt: Date | null;
-        orderItemId: string;
+        designTypeId: string | null;
         assignedEmployeeId: string | null;
-        startedAt: Date | null;
-        rateCardId: string | null;
         rateOverride: number | null;
         rateSnapshot: number | null;
+        orderItemId: string;
+        startedAt: Date | null;
+        rateCardId: string | null;
     })[]>;
     updateTaskRate(taskId: string, rateOverride: number, branchId: string, userRole: string): Promise<{
         assignedEmployee: {
@@ -146,11 +119,12 @@ export declare class TasksService {
         status: import(".prisma/client").$Enums.TaskStatus;
         notes: string | null;
         completedAt: Date | null;
-        orderItemId: string;
+        designTypeId: string | null;
         assignedEmployeeId: string | null;
-        startedAt: Date | null;
-        rateCardId: string | null;
         rateOverride: number | null;
         rateSnapshot: number | null;
+        orderItemId: string;
+        startedAt: Date | null;
+        rateCardId: string | null;
     }>;
 }

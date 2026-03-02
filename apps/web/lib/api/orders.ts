@@ -1,6 +1,6 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import { Order, OrderStatus, DashboardStats, CreateOrderInput, OrderItemTask, TaskStatus } from '@tbms/shared-types';
+import { Order, OrderStatus, DashboardStats, CreateOrderInput, UpdateOrderInput, OrderItemTask, TaskStatus } from '@tbms/shared-types';
 
 export const ordersApi = {
   getOrders: async (params: { page?: number; limit?: number; status?: string; search?: string; from?: string; to?: string }) => {
@@ -13,6 +13,10 @@ export const ordersApi = {
   },
   createOrder: async (data: CreateOrderInput) => {
     const response = await api.post<ApiResponse<Order>>('/orders', data);
+    return response.data;
+  },
+  updateOrder: async (id: string, data: UpdateOrderInput) => {
+    const response = await api.patch<ApiResponse<Order>>(`/orders/${id}`, data);
     return response.data;
   },
   updateStatus: async (id: string, data: { status: OrderStatus; note?: string }) => {

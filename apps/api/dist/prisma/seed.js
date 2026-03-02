@@ -267,6 +267,26 @@ async function main() {
             }
         }
     });
+    const designTypes = [
+        { name: 'Simple', price: 20000, rate: 10000, sortOrder: 1 },
+        { name: 'Heavy', price: 30000, rate: 15000, sortOrder: 2 },
+        { name: 'Custom', price: 0, rate: 0, sortOrder: 3 },
+    ];
+    for (const dt of designTypes) {
+        await prisma.designType.upsert({
+            where: { id: `dt_${dt.name.toLowerCase()}` },
+            update: {},
+            create: {
+                id: `dt_${dt.name.toLowerCase()}`,
+                name: dt.name,
+                defaultPrice: dt.price,
+                defaultRate: dt.rate,
+                sortOrder: dt.sortOrder,
+                isActive: true,
+            }
+        });
+    }
+    console.log('Seeded Design Types.');
     console.log('Created Mock Employees, Customers, and Orders.');
     console.log('Seed complete! 🚀');
 }

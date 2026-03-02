@@ -12,9 +12,10 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
-      signOptions: { 
-        expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any
+      secret:
+        process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
+      signOptions: {
+        expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any, // Cast to any to satisfy the complex StringValue | number union from ms package
       },
     }),
   ],

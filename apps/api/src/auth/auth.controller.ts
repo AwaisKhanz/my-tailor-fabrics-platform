@@ -1,5 +1,16 @@
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
-import { Controller, Post, Body, HttpCode, HttpStatus, Req, Res, UseGuards, Get, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Req,
+  Res,
+  UseGuards,
+  Get,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -16,7 +27,7 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto);
-    
+
     res.cookie('Refresh-Token', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -25,11 +36,11 @@ export class AuthController {
     });
 
     return res.json({
-        success: true,
-        data: {
-            accessToken: result.accessToken,
-            user: result.user
-        }
+      success: true,
+      data: {
+        accessToken: result.accessToken,
+        user: result.user,
+      },
     });
   }
 
@@ -41,24 +52,27 @@ export class AuthController {
     try {
       const userId = req.user.userId;
       const refreshToken = (req.user as { refreshToken?: string }).refreshToken;
-      if (!refreshToken) throw new UnauthorizedException('No refresh token provided');
+      if (!refreshToken)
+        throw new UnauthorizedException('No refresh token provided');
 
       const result = await this.authService.refreshTokens(userId, refreshToken);
-      
+
       res.cookie('Refresh-Token', result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       return res.json({
         success: true,
-        data: { accessToken: result.accessToken }
+        data: { accessToken: result.accessToken },
       });
     } catch (error) {
       console.error('Refresh Error:', error);
-      return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, error: 'Unauthorized' });
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ success: false, error: 'Unauthorized' });
     }
   }
 
@@ -68,15 +82,18 @@ export class AuthController {
   async logout(@Req() req: AuthenticatedRequest, @Res() res: Response) {
     await this.authService.logout(req.user.userId);
     res.clearCookie('Refresh-Token');
-    return res.json({ success: true, data: { message: 'Logged out successfully' } });
+    return res.json({
+      success: true,
+      data: { message: 'Logged out successfully' },
+    });
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Req() req: AuthenticatedRequest) {
     return {
-        success: true,
-        data: req.user
+      success: true,
+      data: req.user,
     };
   }
 }

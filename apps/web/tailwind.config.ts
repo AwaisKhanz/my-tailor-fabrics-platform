@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
   	extend: {
 		fontFamily: {
-			sans: ['var(--font-public-sans)', 'var(--font-inter)', 'sans-serif'],
-			'public': ['var(--font-public-sans)', 'sans-serif'],
+			sans: ['var(--font-schibsted)', 'var(--font-inter)', 'sans-serif'],
+			'public': ['var(--font-schibsted)', 'sans-serif'],
 			'figtree': ['var(--font-figtree)', 'sans-serif'],
 			'instrument': ['var(--font-instrument-sans)', 'sans-serif'],
 			'schibsted': ['var(--font-schibsted)', 'sans-serif'],

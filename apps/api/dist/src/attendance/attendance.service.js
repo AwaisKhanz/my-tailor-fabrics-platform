@@ -21,13 +21,20 @@ let AttendanceService = class AttendanceService {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const existing = await this.prisma.attendanceRecord.findFirst({
-            where: { employeeId, date: { gte: today }, clockOut: null, deletedAt: null },
+            where: {
+                employeeId,
+                date: { gte: today },
+                clockOut: null,
+                deletedAt: null,
+            },
         });
         if (existing) {
             throw new common_1.BadRequestException('Employee already clocked in today. Please clock out first.');
         }
         const now = new Date();
-        const employee = await this.prisma.employee.findUnique({ where: { id: employeeId } });
+        const employee = await this.prisma.employee.findUnique({
+            where: { id: employeeId },
+        });
         if (!employee)
             throw new common_1.NotFoundException('Employee not found');
         const recordBranchId = branchId || employee.branchId;
@@ -44,7 +51,11 @@ let AttendanceService = class AttendanceService {
     }
     async clockOut(recordId, branchId) {
         const record = await this.prisma.attendanceRecord.findFirst({
-            where: { id: recordId, deletedAt: null, ...(branchId ? { branchId } : {}) },
+            where: {
+                id: recordId,
+                deletedAt: null,
+                ...(branchId ? { branchId } : {}),
+            },
         });
         if (!record)
             throw new common_1.NotFoundException('Attendance record not found');
@@ -72,7 +83,11 @@ let AttendanceService = class AttendanceService {
                 skip,
                 take: limit,
                 orderBy: { clockIn: 'desc' },
-                include: { employee: { select: { fullName: true, employeeCode: true, designation: true } } },
+                include: {
+                    employee: {
+                        select: { fullName: true, employeeCode: true, designation: true },
+                    },
+                },
             }),
             this.prisma.attendanceRecord.count({ where }),
         ]);
@@ -86,8 +101,13 @@ let AttendanceService = class AttendanceService {
         });
         const totalHours = records.reduce((sum, r) => sum + (r.hoursWorked ?? 0), 0);
         const totalDays = records.length;
-        const currentlyIn = records.find(r => !r.clockOut);
-        return { totalDays, totalHours: Math.round(totalHours * 100) / 100, currentlyIn, records };
+        const currentlyIn = records.find((r) => !r.clockOut);
+        return {
+            totalDays,
+            totalHours: Math.round(totalHours * 100) / 100,
+            currentlyIn,
+            records,
+        };
     }
 };
 exports.AttendanceService = AttendanceService;

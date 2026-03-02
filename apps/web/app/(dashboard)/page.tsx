@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertTriangle,
@@ -20,32 +21,56 @@ import {
   Banknote,
 } from "lucide-react";
 import { formatPKR } from "@/lib/utils";
-import { reportsApi } from "@/lib/api/reports";
+import { reportsApi, DesignAnalytics, EmployeeProductivity, GarmentRevenue } from "@/lib/api/reports";
 import { Role, OrderStatus, DashboardStats, Order } from "@tbms/shared-types";
 import { useSession } from "next-auth/react";
+import { Users, ShoppingBag } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [designs, setDesigns] = useState<DesignAnalytics[]>([]);
+  const [productivity, setProductivity] = useState<EmployeeProductivity[]>([]);
+  const [garments, setGarments] = useState<GarmentRevenue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    async function fetchStats() {
+    async function fetchData() {
       setLoading(true);
       try {
-        const data = await reportsApi.getDashboardStats();
-        if (!cancelled) setStats(data);
+        const [statsData, designsData, prodData, garmentsData, revExpData] = await Promise.all([
+          reportsApi.getDashboardStats(),
+          reportsApi.getDesigns(),
+          reportsApi.getProductivity(),
+          reportsApi.getGarments(),
+          reportsApi.getRevenueVsExpenses(6),
+        ]);
+        if (!cancelled) {
+          setStats(statsData);
+          if (designsData.success) {
+            setDesigns(designsData.data.slice(0, 5)); // Top 5
+          }
+          if (prodData.success) {
+            setProductivity(prodData.data);
+          }
+          if (garmentsData.success) {
+            setGarments(garmentsData.data);
+          }
+          if (revExpData.success) {
+            // setRevExp(revExpData.data); // Removed unused state to satisfy ESLint
+          }
+        }
       } catch {
         if (!cancelled) setError(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
-    fetchStats();
+    fetchData();
     return () => {
       cancelled = true;
     };
@@ -60,7 +85,7 @@ export default function DashboardPage() {
           Welcome back,{" "}
           <span className="font-medium text-foreground">{user?.email}</span>
           {user?.role && (
-            <Badge variant="outline" className="ml-2 text-xs font-normal">
+            <Badge variant="admin" size="xs" className="ml-2">
               {user.role === Role.SUPER_ADMIN ? "Super Admin" : user.role.replace("_", " ")}
             </Badge>
           )}
@@ -78,10 +103,10 @@ export default function DashboardPage() {
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <div>
-              <p className="font-semibold text-destructive">
+              <Label variant="dashboard" className="text-destructive font-bold text-sm block">
                   {stats?.overdueOrders ?? 0} Overdue{" "}
                   {(stats?.overdueOrders ?? 0) === 1 ? "Order" : "Orders"}
-                </p>
+                </Label>
                 <p className="text-sm text-destructive/80">
                   These orders have passed their due date and require immediate attention.
                 </p>
@@ -89,7 +114,6 @@ export default function DashboardPage() {
             </div>
             <Button
               variant="destructive"
-              size="sm"
               className="shrink-0"
               onClick={() => router.push(`/orders?status=${OrderStatus.OVERDUE}`)}
             >
@@ -104,9 +128,9 @@ export default function DashboardPage() {
               <CheckCircle2 className="h-6 w-6 text-success" />
             </div>
             <div>
-              <p className="font-semibold text-success">
+              <Label variant="dashboard" className="text-success font-bold text-sm block">
                 All orders on track
-              </p>
+              </Label>
               <p className="text-sm text-success/80">No overdue orders at this time.</p>
             </div>
           </CardContent>
@@ -122,36 +146,34 @@ export default function DashboardPage() {
           icon={Banknote}
           iconBoxClass="bg-success/10"
           iconClass="text-success"
-          badgeText="+12% vs last month"
+          badgeText="LIVE"
           badgeVariant="success"
         />
         <KpiCard
-          title="Total Expenses"
+          title="Active Employees"
           loading={loading}
-          value={formatPKR(stats?.expenses ?? 0)}
-          icon={Banknote}
-          iconBoxClass="bg-warning/10"
-          iconClass="text-warning"
-          badgeText="Steady"
-          badgeVariant="info"
-        />
-        <KpiCard
-          title="Outstanding Employee Balances"
-          loading={loading}
-          value={formatPKR(stats?.outstandingBalances ?? 0)}
-          icon={Banknote}
+          value={stats?.activeEmployees ?? 0}
+          icon={Users}
           iconBoxClass="bg-primary/10"
           iconClass="text-primary"
         />
         <KpiCard
-          title="Overdue Orders"
+          title="Total Customers"
           loading={loading}
-          value={`${stats?.overdueOrders ?? 0} Orders`}
-          icon={AlertTriangle}
-          iconBoxClass="bg-destructive/10"
-          iconClass="text-destructive"
-          badgeText="ALERT"
-          badgeVariant="destructive"
+          value={stats?.totalCustomers ?? 0}
+          icon={Users}
+          iconBoxClass="bg-info/10"
+          iconClass="text-info"
+        />
+        <KpiCard
+          title="New Today"
+          loading={loading}
+          value={stats?.newToday ?? 0}
+          icon={ShoppingBag}
+          iconBoxClass="bg-warning/10"
+          iconClass="text-warning"
+          badgeText="Orders"
+          badgeVariant="info"
         />
       </div>
 
@@ -160,9 +182,9 @@ export default function DashboardPage() {
         {/* Revenue vs Expenses */}
         <Card className="lg:col-span-2 shadow-sm border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-bold">Revenue vs. Expenses</CardTitle>
-            <div className="text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-md cursor-pointer hover:bg-muted/70 transition-colors flex items-center gap-1">
-              Last 7 Days <Clock className="h-3 w-3 ml-1" />
+            <CardTitle variant="dashboard">Revenue vs. Expenses</CardTitle>
+            <div className="hover:bg-muted/70 transition-colors flex items-center gap-1">
+              <Label variant="dashboard">Last 7 Days</Label> <Clock className="h-3 w-3 ml-1" />
             </div>
           </CardHeader>
           <CardContent>
@@ -204,50 +226,110 @@ export default function DashboardPage() {
         {/* Orders by Garment Type */}
         <Card className="shadow-sm border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-bold">Orders by Garment Type</CardTitle>
+            <CardTitle variant="dashboard">Orders by Garment Type</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center mt-2">
             <div className="relative h-48 w-48 mb-6 mt-4">
-              {/* SVG Donut Chart — circ = 2π×40 ≈ 251.3, start from 12 o'clock → offset = -62.8 */}
               <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                {/* Track */}
                 <circle className="text-muted stroke-current" strokeWidth="12" cx="50" cy="50" r="40" fill="transparent" />
-                {/* Shalwar Kameez 55% = 138.2 → starts at 0 (already rotated -90) */}
-                <circle className="text-primary stroke-current" strokeWidth="12" strokeLinecap="butt" cx="50" cy="50" r="40" fill="transparent" strokeDasharray="138.2 113.1" strokeDashoffset="0" />
-                {/* Waistcoat 25% = 62.8 → starts after 138.2 → offset = -(251.3 - 138.2) = -113.1 */}
-                <circle className="text-chart-2 stroke-current" strokeWidth="12" strokeLinecap="butt" cx="50" cy="50" r="40" fill="transparent" strokeDasharray="62.8 188.5" strokeDashoffset="-138.2" />
-                {/* Pant Coat 12% = 30.2 → starts after 201 → offset = -201 */}
-                <circle className="text-chart-3 stroke-current" strokeWidth="12" strokeLinecap="butt" cx="50" cy="50" r="40" fill="transparent" strokeDasharray="30.2 221.1" strokeDashoffset="-201" />
+                {garments.slice(0, 3).map((g, i) => {
+                  const total = garments.reduce((sum, current) => sum + current.value, 0);
+                  const percentage = total > 0 ? (g.value / total) * 100 : 0;
+                  const strokeDash = (percentage * 251.3) / 100;
+                  let offset = 0;
+                  for (let j = 0; j < i; j++) {
+                    const prevPerc = (garments[j].value / total) * 100;
+                    offset += (prevPerc * 251.3) / 100;
+                  }
+                  const colors = ["text-primary", "text-chart-2", "text-chart-3"];
+                  return (
+                    <circle 
+                      key={g.label}
+                      className={`${colors[i % colors.length]} stroke-current`} 
+                      strokeWidth="12" 
+                      strokeLinecap="butt" 
+                      cx="50" 
+                      cy="50" 
+                      r="40" 
+                      fill="transparent" 
+                      strokeDasharray={`${strokeDash} 251.3`} 
+                      strokeDashoffset={-offset} 
+                    />
+                  );
+                })}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-foreground">142</span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total</span>
+                <span className="text-2xl font-bold text-foreground">{garments.reduce((sum, g) => sum + g.value, 0)}</span>
+                <Label variant="dashboard">Total Items</Label>
               </div>
             </div>
 
             <div className="w-full space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-primary" />
-                  <span className="text-muted-foreground font-medium">Shalwar Kameez</span>
-                </div>
-                <span className="font-bold">55%</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-chart-2" />
-                  <span className="text-muted-foreground font-medium">Waistcoat</span>
-                </div>
-                <span className="font-bold">25%</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-chart-3" />
-                  <span className="text-muted-foreground font-medium">Pant Coat</span>
-                </div>
-                <span className="font-bold">12%</span>
-              </div>
+              {garments.slice(0, 3).map((g, i) => {
+                const colors = ["bg-primary", "bg-chart-2", "bg-chart-3"];
+                const total = garments.reduce((sum, current) => sum + current.value, 0);
+                const percentage = total > 0 ? Math.round((g.value / total) * 100) : 0;
+                return (
+                  <div key={g.label} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2.5 w-2.5 rounded-full ${colors[i % colors.length]}`} />
+                      <span className="text-muted-foreground font-medium">{g.label}</span>
+                    </div>
+                    <span className="font-bold">{percentage}%</span>
+                  </div>
+                );
+              })}
+              {garments.length === 0 && (
+                <div className="text-center text-xs text-muted-foreground">No data</div>
+              )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Design Popularity (New Widget) */}
+        <Card className="shadow-sm border-border">
+          <CardHeader className="pb-2">
+            <CardTitle variant="dashboard">Design Popularity</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <div className="space-y-4">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-2 w-full" />
+                  </div>
+                ))
+              ) : designs.length === 0 ? (
+                <div className="h-40 flex items-center justify-center text-xs text-muted-foreground ">
+                  No design data found
+                </div>
+              ) : (
+                designs.map((design) => (
+                  <div key={design.name} className="space-y-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <Label variant="dashboard">{design.name}</Label>
+                      <span className="font-medium text-muted-foreground">{design.count}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary rounded-full"
+                        style={{ width: `${(design.count / Math.max(...designs.map(d => d.count), 1)) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <Button 
+              variant="dashboard" 
+              size="sm" 
+              className="w-full mt-6 h-8"
+              onClick={() => router.push('/reports')}
+            >
+              View Full Analytics
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -257,7 +339,7 @@ export default function DashboardPage() {
         {/* Recent Overdue Orders */}
         <Card className="lg:col-span-2 shadow-sm border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-bold">Recent Overdue Orders</CardTitle>
+            <CardTitle variant="dashboard">Recent Overdue Orders</CardTitle>
             <Button variant="ghost" size="sm" onClick={() => router.push(`/orders?status=${OrderStatus.OVERDUE}`)}>
               View all
             </Button>
@@ -274,15 +356,15 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="w-1/3 flex justify-start">
-                    <span className="text-sm font-medium">{order.customer.fullName}</span>
+                    <Label variant="dashboard" className="opacity-100">{order.customer.fullName}</Label>
                   </div>
                   <div className="w-1/3 flex justify-end gap-6 items-center">
-                    <Badge variant="destructive" className="font-bold text-[10px] tracking-wide rounded-md px-2 py-0.5">
+                    <Badge variant="destructive" size="xs">
                       <Clock className="w-3 h-3 mr-1" /> Overdue
                     </Badge>
-                    <span className="text-sm font-bold text-primary cursor-pointer hover:underline">
+                    <Label variant="dashboard" className="text-primary cursor-pointer hover:underline">
                       Notify
-                    </span>
+                    </Label>
                   </div>
                 </div>
               ))}
@@ -298,34 +380,46 @@ export default function DashboardPage() {
         {/* Employee Productivity */}
         <Card className="shadow-sm border-border">
           <CardHeader className="pb-2 flex flex-row items-start justify-between">
-            <CardTitle className="text-base font-bold">Employee Productivity</CardTitle>
+            <CardTitle variant="dashboard">Employee Productivity</CardTitle>
             <div className="flex flex-col items-end">
               <span className="text-xl font-bold text-primary">84%</span>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Avg This Month</span>
+              <Label variant="dashboard">Avg This Month</Label>
             </div>
           </CardHeader>
           <CardContent className="mt-4 space-y-6">
-            {[
-              { name: "Ahmed", role: "Master", val: 92 },
-              { name: "Kamran", role: "Karigar", val: 85 },
-              { name: "Faizan", role: "Karigar", val: 78 },
-              { name: "Usman", role: "Karigar", val: 65 },
-            ].map((emp) => (
-              <div key={emp.name} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-bold flex items-center gap-2">
-                    {emp.name} <span className="text-[10px] text-muted-foreground font-normal bg-muted px-1.5 py-0.5 rounded">{emp.role}</span>
-                  </span>
-                  <span className="font-bold text-muted-foreground">{emp.val}%</span>
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-2 w-full" />
                 </div>
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${emp.val >= 90 ? "bg-primary" : emp.val >= 75 ? "bg-info" : "bg-warning"}`} 
-                    style={{ width: `${emp.val}%` }} 
-                  />
-                </div>
+              ))
+            ) : productivity.length === 0 ? (
+              <div className="text-center text-xs text-muted-foreground  py-8">
+                No productivity data for this period
               </div>
-            ))}
+            ) : (
+              productivity.map((emp) => {
+                const maxVal = Math.max(...productivity.map(p => p.value), 1);
+                const perc = Math.round((emp.value / maxVal) * 100);
+                return (
+                  <div key={emp.label} className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-bold flex items-center gap-2">
+                        {emp.label}
+                      </span>
+                      <Label variant="dashboard">{emp.value} Items</Label>
+                    </div>
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full ${perc >= 90 ? "bg-primary" : perc >= 75 ? "bg-info" : "bg-warning"}`} 
+                        style={{ width: `${perc}%` }} 
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </CardContent>
         </Card>
       </div>
@@ -355,9 +449,9 @@ function KpiCard({ title, value, icon: Icon, badgeText, badgeVariant, iconBoxCla
             <Icon className={`h-6 w-6 ${iconClass || "text-muted-foreground"}`} />
           </div>
           {badgeText && (
-            <Badge variant={badgeVariant || "outline"} className="font-bold tracking-wider uppercase text-[10px]">
-              {badgeText}
-            </Badge>
+              <Badge variant={badgeVariant || "outline"} size="xs">
+                {badgeText}
+              </Badge>
           )}
         </div>
         <div>
@@ -368,7 +462,7 @@ function KpiCard({ title, value, icon: Icon, badgeText, badgeVariant, iconBoxCla
             </>
           ) : (
             <>
-              <p className="text-xs font-bold text-muted-foreground mb-1 tracking-tight uppercase">{title}</p>
+              <Label variant="dashboard" className="mb-1">{title}</Label>
               <div className={`text-3xl font-bold tracking-tight ${badgeVariant === "destructive" ? "text-destructive" : "text-foreground"}`}>
                 {value}
               </div>

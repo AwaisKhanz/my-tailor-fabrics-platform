@@ -88,7 +88,7 @@ FormItem.displayName = "FormItem"
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & { variant?: "default" | "dashboard" }
 >(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField()
 

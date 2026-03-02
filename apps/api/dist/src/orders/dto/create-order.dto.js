@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateOrderDto = exports.OrderItemDto = void 0;
+exports.CreateOrderDto = exports.OrderItemAddonDto = exports.OrderItemDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const shared_types_1 = require("@tbms/shared-types");
@@ -20,6 +20,10 @@ class OrderItemDto {
     fabricSource;
     employeeId;
     dueDate;
+    designTypeId;
+    addons;
+    unitPrice;
+    employeeRate;
 }
 exports.OrderItemDto = OrderItemDto;
 __decorate([
@@ -48,10 +52,59 @@ __decorate([
     __metadata("design:type", String)
 ], OrderItemDto.prototype, "employeeId", void 0);
 __decorate([
-    (0, class_validator_1.IsDateString)(),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OrderItemDto.prototype, "dueDate", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OrderItemDto.prototype, "designTypeId", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => OrderItemAddonDto),
+    __metadata("design:type", Array)
+], OrderItemDto.prototype, "addons", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], OrderItemDto.prototype, "unitPrice", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], OrderItemDto.prototype, "employeeRate", void 0);
+class OrderItemAddonDto {
+    type;
+    name;
+    price;
+    cost;
+}
+exports.OrderItemAddonDto = OrderItemAddonDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], OrderItemAddonDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], OrderItemAddonDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], OrderItemAddonDto.prototype, "price", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], OrderItemAddonDto.prototype, "cost", void 0);
 class CreateOrderDto {
     customerId;
     dueDate;

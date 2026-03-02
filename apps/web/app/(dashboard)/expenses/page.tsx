@@ -144,7 +144,7 @@ export default function ExpensesPage() {
       cell: (e) => (
         <div className="flex items-center gap-2">
           <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-          <Badge variant="outline" className="font-bold text-[10px] uppercase tracking-wider bg-muted/30">
+          <Badge variant="outline" size="xs" className="bg-muted/30">
             {e.category.name}
           </Badge>
         </div>
@@ -193,25 +193,25 @@ export default function ExpensesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="md:col-span-1 border-border/50 shadow-sm overflow-hidden">
           <CardHeader className="pb-2 bg-muted/5 border-b border-border/50">
-            <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Listed</CardTitle>
+            <CardTitle variant="dashboard">Total Listed</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="flex flex-col">
               <span className="text-3xl font-bold text-destructive tracking-tight">
                 {formatPKR(expenses.reduce((sum, e) => sum + e.amount, 0))}
               </span>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase mt-1">on this page</span>
+              <Label variant="dashboard" className="mt-1">on this page</Label>
             </div>
           </CardContent>
         </Card>
 
         <Card className="md:col-span-3 border-border/50 shadow-sm overflow-hidden">
           <CardHeader className="pb-2 bg-muted/5 border-b border-border/50">
-            <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Quick Filters</CardTitle>
+            <CardTitle variant="dashboard">Quick Filters</CardTitle>
           </CardHeader>
           <CardContent className="pt-4 flex flex-wrap gap-5">
             <div className="flex flex-col gap-2 min-w-[180px]">
-              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Category</Label>
+              <Label variant="dashboard">Category</Label>
               <Select value={filters.categoryId} onValueChange={(v) => {
                 setFilters({ ...filters, categoryId: v });
                 setPage(1);
@@ -229,7 +229,7 @@ export default function ExpensesPage() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Date Range (From)</Label>
+              <Label variant="dashboard">Date Range (From)</Label>
               <Input 
                 variant="premium" 
                 type="date" 
@@ -243,7 +243,7 @@ export default function ExpensesPage() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Date Range (To)</Label>
+              <Label variant="dashboard">Date Range (To)</Label>
               <Input 
                 variant="premium" 
                 type="date" 
@@ -296,7 +296,7 @@ export default function ExpensesPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider">Category <span className="text-destructive">*</span></Label>
+              <Label variant="dashboard">Category <span className="text-destructive">*</span></Label>
               <Select value={form.categoryId} onValueChange={(v) => setForm({ ...form, categoryId: v })}>
                 <SelectTrigger variant="premium" className="h-11">
                   <SelectValue placeholder="Select category" />
@@ -310,17 +310,17 @@ export default function ExpensesPage() {
             </div>
             
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider">Amount (Rs.) <span className="text-destructive">*</span></Label>
+              <Label variant="dashboard">Amount (Rs.) <span className="text-destructive">*</span></Label>
               <Input variant="premium" type="number" placeholder="e.g. 500" className="h-11" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </div>
             
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider">Expense Date <span className="text-destructive">*</span></Label>
+              <Label variant="dashboard">Expense Date <span className="text-destructive">*</span></Label>
               <Input variant="premium" type="date" className="h-11" value={form.expenseDate} onChange={(e) => setForm({ ...form, expenseDate: e.target.value })} />
             </div>
             
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider">Description</Label>
+              <Label variant="dashboard">Description</Label>
               <Input variant="premium" placeholder="What was this for?" className="h-11" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
           </div>

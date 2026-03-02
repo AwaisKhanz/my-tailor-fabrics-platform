@@ -24,9 +24,11 @@ import {
   Banknote,
   Ruler,
   UserCog,
+  Layout,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface NavItem {
@@ -95,6 +97,7 @@ const NAV_ITEMS: NavItem[] = [
       { title: 'Branches', href: '/settings/branches', icon: Building2 },
       { title: 'Garments', href: '/settings/garments', icon: Shirt },
       { title: 'Labor Rates', href: '/settings/rates', icon: Banknote },
+      { title: 'Design Types', href: '/settings/design-types', icon: Layout },
       { title: 'Measurements', href: '/settings/measurements', icon: Ruler },
       { title: 'Staff Accounts', href: '/settings/users', icon: UserCog },
     ],
@@ -209,9 +212,9 @@ export function Sidebar() {
           className="object-contain"
         />
       <div className="flex flex-col">
-        <span className="font-extrabold text-sm tracking-tight text-foreground uppercase">{siteConfig.name}</span>
+        <Label variant="dashboard" className="opacity-100 text-foreground">{siteConfig.name}</Label>
         <div className="flex items-center gap-1.5">
-          <span className="text-[8px] font-bold text-primary tracking-[0.15em] uppercase">{siteConfig.branding.edition}</span>
+          <Label variant="dashboard">{siteConfig.branding.edition}</Label>
         </div>
       </div>
     </div>

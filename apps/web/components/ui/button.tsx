@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         premium:
-          "bg-primary text-primary-foreground shadow-lg shadow-primary/15 hover:bg-primary/90 font-bold",
+          "bg-primary text-primary-foreground shadow-lg shadow-primary/15 hover:bg-primary/90 font-bold uppercase tracking-tight",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -22,6 +22,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         muted: "border border-border bg-background hover:bg-muted text-muted-foreground",
+        dashboard: "border-primary/20 hover:bg-primary/5 text-primary border font-bold uppercase tracking-tight",
       },
       size: {
         default: "h-9 px-4 py-2",

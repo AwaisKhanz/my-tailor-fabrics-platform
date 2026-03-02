@@ -10,6 +10,7 @@ import { Employee } from "@/types/employees";
 import { useToast } from "@/hooks/use-toast";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { 
@@ -83,9 +84,9 @@ export default function EmployeesPage() {
              <span className="font-bold text-sm text-foreground leading-tight group-hover:text-primary transition-colors">
                {emp.fullName}
              </span>
-             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
+             <Label variant="dashboard" className="mt-0.5">
                {emp.employeeCode}
-             </span>
+             </Label>
           </div>
         </div>
       ),
@@ -93,7 +94,7 @@ export default function EmployeesPage() {
     {
       header: "Designation",
       cell: (emp) => (
-        <Badge variant="info" className="font-bold tracking-tight px-2 py-0.5 text-[10px]">
+        <Badge variant="info" size="xs">
           {emp.designation || "Staff"}
         </Badge>
       ),
@@ -113,7 +114,7 @@ export default function EmployeesPage() {
       cell: (emp) => (
         <Badge 
           variant={EMPLOYEE_STATUS_BADGE[emp.status] ?? "outline"} 
-          className="uppercase font-bold tracking-wider text-[10px]"
+          size="xs"
         >
           {EMPLOYEE_STATUS_LABELS[emp.status] ?? emp.status}
         </Badge>
@@ -147,7 +148,7 @@ export default function EmployeesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Employees</h1>
           <p className="text-muted-foreground">Manage your workshop staff and tailors.</p>
         </div>
-        <Button variant="premium" size="xl" onClick={handleAdd}>
+        <Button variant="premium" size="lg" onClick={handleAdd}>
           <Plus className="mr-2 h-4 w-4" /> Add Employee
         </Button>
       </div>
@@ -158,9 +159,9 @@ export default function EmployeesPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                  <h2 className="font-bold text-lg text-foreground">Staff Directory</h2>
-                 <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+                 <Badge variant="secondary" size="xs" className="ring-1 ring-border">
                     {total} results
-                 </span>
+                 </Badge>
               </div>
             </div>
             

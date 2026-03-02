@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '@tbms/shared-types';
 import { IS_PUBLIC_KEY } from '../decorators/auth.decorators';
@@ -25,7 +30,7 @@ export class BranchGuard implements CanActivate {
     }
 
     // Super Admin can access any branch, but MUST specify it via header for branch-specific actions
-    // If no header is provided and they need one, it will naturally fail at the service level, 
+    // If no header is provided and they need one, it will naturally fail at the service level,
     // but the guard passes them.
     if (user.role === Role.SUPER_ADMIN) {
       const targetBranch = request.headers['x-branch-id'];
@@ -35,7 +40,7 @@ export class BranchGuard implements CanActivate {
 
     // All other roles are strictly scoped to their assigned branch
     if (!user.branchId) {
-       throw new ForbiddenException('User is not assigned to any branch');
+      throw new ForbiddenException('User is not assigned to any branch');
     }
 
     // Force inject their assigned branch so services automatically filter by it

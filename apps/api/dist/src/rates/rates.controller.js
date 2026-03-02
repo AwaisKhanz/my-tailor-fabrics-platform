@@ -38,18 +38,20 @@ let RatesController = class RatesController {
             meta: {
                 total,
                 page: page ? parseInt(page) : 1,
-                lastPage: Math.ceil(total / (limit ? parseInt(limit) : 10))
-            }
+                lastPage: Math.ceil(total / (limit ? parseInt(limit) : 10)),
+            },
         };
     }
     async create(dto, req) {
         if (req.user.role !== shared_types_1.Role.SUPER_ADMIN) {
             dto.branchId = req.user.branchId;
         }
-        return this.ratesService.create({ ...dto, createdById: req.user.id });
+        const data = await this.ratesService.create({ ...dto, createdById: req.user.id });
+        return { success: true, data };
     }
     async getHistory(garmentTypeId, stepKey, branchId) {
-        return this.ratesService.getHistory(garmentTypeId, stepKey, branchId);
+        const data = await this.ratesService.getHistory(garmentTypeId, stepKey, branchId);
+        return { success: true, data };
     }
 };
 exports.RatesController = RatesController;

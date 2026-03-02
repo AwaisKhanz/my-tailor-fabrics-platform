@@ -101,7 +101,7 @@ export function MeasurementCategoriesTable() {
     {
       header: "Fields",
       cell: (cat: MeasurementCategory) => (
-        <Badge variant="info" className="font-medium">
+        <Badge variant="info" size="xs">
           {cat.fields?.length || 0} Fields
         </Badge>
       ),
@@ -109,7 +109,7 @@ export function MeasurementCategoriesTable() {
     {
       header: "Status",
       cell: (cat: MeasurementCategory) => (
-        <Badge variant={cat.isActive ? MEASUREMENT_STATUS_BADGE.ACTIVE : MEASUREMENT_STATUS_BADGE.HIDDEN} className="font-medium">
+        <Badge variant={cat.isActive ? MEASUREMENT_STATUS_BADGE.ACTIVE : MEASUREMENT_STATUS_BADGE.HIDDEN} size="xs">
           {cat.isActive ? MEASUREMENT_STATUS_LABELS.ACTIVE : MEASUREMENT_STATUS_LABELS.HIDDEN}
         </Badge>
       ),
@@ -140,7 +140,7 @@ export function MeasurementCategoriesTable() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Measurement Configuration</h1>
           <p className="text-sm text-muted-foreground mt-1">Define and manage measurement fields for your tailoring categories.</p>
         </div>
-        <Button variant="premium" size="xl" onClick={handleAddCategory}>
+        <Button variant="premium" size="lg" onClick={handleAddCategory}>
            <Plus className="mr-2 h-5 w-5" /> New Category
         </Button>
       </div>
@@ -150,9 +150,9 @@ export function MeasurementCategoriesTable() {
         <div className="px-6 py-4 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
              <h2 className="font-bold text-lg text-foreground">Categories Inventory</h2>
-             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+             <Badge variant="secondary" size="xs" className="ring-1 ring-border">
                 {total} results
-             </span>
+             </Badge>
           </div>
           
           <div className="flex items-center gap-3">

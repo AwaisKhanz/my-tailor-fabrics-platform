@@ -19,4 +19,9 @@ export const paymentsApi = {
     const response = await api.get<ApiResponse<PaginatedResponse<Payment>>>(`/payments/employee/${employeeId}/history`, { params });
     return response.data;
   },
+
+  getWeeklyReportPdf: async () => {
+    const response = await api.get('/payments/weekly-report/pdf', { responseType: 'blob' });
+    return response.data as Blob;
+  },
 };

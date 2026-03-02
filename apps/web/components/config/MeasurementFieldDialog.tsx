@@ -221,7 +221,7 @@ export function MeasurementFieldDialog({
             rules={{ required: "Label is required" }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Label</FormLabel>
+                <FormLabel variant="dashboard">Label</FormLabel>
                 <FormControl>
                   <Input variant="premium" placeholder="e.g., Shoulder, Chest, Collar" {...field} />
                 </FormControl>
@@ -237,7 +237,7 @@ export function MeasurementFieldDialog({
               name="fieldType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Field Type</FormLabel>
+                  <FormLabel variant="dashboard">Field Type</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger variant="premium">
@@ -259,7 +259,7 @@ export function MeasurementFieldDialog({
               name="unit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Unit</FormLabel>
+                  <FormLabel variant="dashboard">Unit</FormLabel>
                   <FormControl>
                     <Input variant="premium" placeholder="e.g., inches, cm" {...field} />
                   </FormControl>
@@ -318,7 +318,7 @@ export function MeasurementFieldDialog({
             render={({ field }) => (
               <FormItem className="flex items-center justify-between rounded-md border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-sm font-semibold cursor-pointer">
+                  <FormLabel variant="dashboard" className="cursor-pointer">
                     Required Field
                   </FormLabel>
                   <p className="text-xs text-muted-foreground">

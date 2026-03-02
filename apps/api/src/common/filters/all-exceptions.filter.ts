@@ -30,7 +30,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
-      message: (exception as any)?.message || 'Internal server error',
+      message:
+        exception instanceof Error
+          ? exception.message
+          : (exception as any)?.message || 'Internal server error',
     };
 
     // LOG THE CRASH/ERROR WITH STACK TRACE

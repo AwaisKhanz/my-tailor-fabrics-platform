@@ -6,13 +6,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { configApi } from "@/lib/api/config";
 import { GarmentPriceLog } from "@tbms/shared-types";
 import { format } from "date-fns";
 import { History, User, ArrowRight, RotateCcw, Edit3, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPKR } from "@/lib/utils";
 
@@ -68,9 +68,7 @@ export function GarmentPriceHistoryDialog({
              </div>
              <div className="flex flex-col">
                 <DialogTitle className="text-2xl font-extrabold tracking-tight">Price History</DialogTitle>
-                <DialogDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-0.5">
-                   {garmentName} • Global Pricing
-                </DialogDescription>
+                 <Label variant="dashboard" className="opacity-100 text-foreground text-xs">{garmentName} • Global Pricing</Label>
              </div>
           </div>
         </DialogHeader>
@@ -79,7 +77,7 @@ export function GarmentPriceHistoryDialog({
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm font-bold uppercase tracking-widest animate-pulse">Loading timeline...</p>
+              <Label variant="dashboard" className="animate-pulse">Loading timeline...</Label>
             </div>
           ) : logs.length === 0 ? (
             <div className="h-64 flex flex-col items-center justify-center gap-4 bg-muted/30 rounded-2xl border-2 border-dashed border-border p-8 text-center">
@@ -109,9 +107,9 @@ export function GarmentPriceHistoryDialog({
                            <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
                              Price Updated
                            </p>
-                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
+                           <Label variant="dashboard" className="opacity-100 text-[10px] mt-0.5">
                              {format(new Date(log.createdAt), "MMM d, yyyy • h:mm a")}
-                           </p>
+                           </Label>
                         </div>
                         <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest bg-muted/50">
                            {log.action}
@@ -120,7 +118,7 @@ export function GarmentPriceHistoryDialog({
 
                       <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-card border border-border/60 shadow-sm transition-all group-hover:border-primary/20 group-hover:shadow-md">
                         <div className="space-y-2">
-                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Retail Price</p>
+                           <Label variant="dashboard">Retail Price</Label>
                            <div className="flex items-center gap-2">
                               <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
                                  {formatPrice(log.oldCustomerPrice)}
@@ -133,7 +131,7 @@ export function GarmentPriceHistoryDialog({
                         </div>
 
                         <div className="space-y-2">
-                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Tailor Rate</p>
+                           <Label variant="dashboard">Tailor Rate</Label>
                            <div className="flex items-center gap-2">
                               <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
                                  {formatPrice(log.oldEmployeeRate)}

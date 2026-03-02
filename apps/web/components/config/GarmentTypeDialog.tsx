@@ -150,7 +150,7 @@ export function GarmentTypeDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold">Garment Name</FormLabel>
+                  <FormLabel variant="dashboard">Garment Name</FormLabel>
                   <FormControl>
                     <Input variant="premium" className="h-9 text-sm" placeholder="e.g. Mens Shirt" {...field} />
                   </FormControl>
@@ -163,7 +163,7 @@ export function GarmentTypeDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold">Description (Optional)</FormLabel>
+                  <FormLabel variant="dashboard">Description (Optional)</FormLabel>
                   <FormControl>
                     <Input variant="premium" className="h-9 text-sm" placeholder="e.g. Standard fitting" {...field} />
                   </FormControl>
@@ -184,7 +184,7 @@ export function GarmentTypeDialog({
                 name="customerPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[11px]">Price (Rs)</FormLabel>
+                    <FormLabel variant="dashboard">Price (Rs)</FormLabel>
                     <FormControl>
                       <Input variant="premium" className="h-9" type="number" {...field} />
                     </FormControl>
@@ -197,7 +197,7 @@ export function GarmentTypeDialog({
                 name="employeeRate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[11px]">Rate (Rs)</FormLabel>
+                    <FormLabel variant="dashboard">Rate (Rs)</FormLabel>
                     <FormControl>
                       <Input variant="premium" className="h-9" type="number" {...field} />
                     </FormControl>
@@ -240,7 +240,7 @@ export function GarmentTypeDialog({
               name="isActive"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border/50 p-2.5 h-[38px] bg-muted/20">
-                  <FormLabel className="text-xs font-bold cursor-pointer">Active</FormLabel>
+                  <FormLabel variant="dashboard" className="cursor-pointer">Active</FormLabel>
                   <FormControl>
                     <Switch
                       checked={field.value}

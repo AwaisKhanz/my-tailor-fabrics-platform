@@ -29,12 +29,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { 
-      email: user.email, 
-      sub: user.id, 
-      role: user.role, 
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
       branchId: user.branchId,
-      employeeId: user.employeeId 
+      employeeId: user.employeeId,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
@@ -49,7 +49,7 @@ export class AuthService {
         role: user.role,
         branchId: user.branchId,
         employeeId: user.employeeId,
-      }
+      },
     };
   }
 
@@ -63,21 +63,24 @@ export class AuthService {
       throw new UnauthorizedException('Access Denied');
     }
 
-    const refreshMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+    const refreshMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
     if (!refreshMatches) {
       throw new UnauthorizedException('Access Denied');
     }
 
-    const payload = { 
-      email: user.email, 
-      sub: user.id, 
-      role: user.role, 
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
       branchId: user.branchId,
-      employeeId: user.employeeId 
+      employeeId: user.employeeId,
     };
 
     const newAccessToken = await this.jwtService.signAsync(payload);
-    
+
     // Rotation is disabled to prevent race conditions in multi-tab/concurrent request scenarios.
     // The existing refresh token remains valid for its original duration.
     return {

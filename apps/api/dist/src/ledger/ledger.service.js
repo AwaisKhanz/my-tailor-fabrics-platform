@@ -123,7 +123,7 @@ let LedgerService = class LedgerService {
       FROM period_data
       ORDER BY period DESC
     `;
-        return rawData.map(item => ({
+        return rawData.map((item) => ({
             period: item.period,
             earned: Number(item.earned),
             paid: Number(item.paid),

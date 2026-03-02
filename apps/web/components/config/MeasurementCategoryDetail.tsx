@@ -8,6 +8,7 @@ import { configApi } from "@/lib/api/config";
 import { MeasurementCategory, MeasurementField } from "@/types/config";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { MeasurementFieldDialog } from "./MeasurementFieldDialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -79,7 +80,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
     {
       header: "Data Type",
       cell: (field) => (
-        <Badge variant="info">
+        <Badge variant="info" size="xs">
           {field.fieldType === 'NUMBER' ? 'Numeric (Inches)' : field.fieldType}
         </Badge>
       ),
@@ -89,12 +90,14 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
       cell: (field) => (
         <div className="flex items-center gap-2">
           {field.isRequired ? (
-            <div className="flex items-center gap-1.5 text-success font-medium text-xs uppercase tracking-wider">
-               <CheckCircle2 className="h-3.5 w-3.5" /> Required
+            <div className="flex items-center gap-1.5 text-success">
+               <CheckCircle2 className="h-3.5 w-3.5" /> 
+               <Label variant="dashboard" className="text-success">Required</Label>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-xs uppercase tracking-wider">
-               <div className="h-3.5 w-3.5 rounded-full border-2 border-muted" /> Optional
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+               <div className="h-3.5 w-3.5 rounded-full border-2 border-muted" /> 
+               <Label variant="dashboard">Optional</Label>
             </div>
           )}
         </div>
@@ -133,7 +136,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{category?.name} Fields</h1>
             <p className="text-sm text-muted-foreground">Manage specific measurement fields for this apparel category.</p>
          </div>
-         <Button variant="premium" size="xl" onClick={handleAddField}>
+         <Button variant="premium" size="lg" onClick={handleAddField}>
             <Plus className="mr-2 h-5 w-5" /> Add New Field
          </Button>
       </div>

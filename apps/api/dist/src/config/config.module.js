@@ -17,7 +17,7 @@ exports.AppConfigModule = AppConfigModule = __decorate([
     (0, common_1.Module)({
         controllers: [config_controller_1.ConfigController],
         providers: [config_service_1.ConfigService],
-        exports: [config_service_1.ConfigService]
+        exports: [config_service_1.ConfigService],
     })
 ], AppConfigModule);
 //# sourceMappingURL=config.module.js.map

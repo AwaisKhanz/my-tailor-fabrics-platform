@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
@@ -107,12 +108,12 @@ export default function RatesPage() {
       cell: (rate) => (
         <>
           {rate.branchId ? (
-            <Badge variant="outline" className="text-[10px] font-bold gap-1">
+            <Badge variant="outline" size="xs" className="gap-1">
               <GitBranch className="h-2.5 w-2.5" />
               {rate.branch?.code || 'Branch'}
             </Badge>
           ) : (
-            <Badge variant="secondary" className="text-[10px] font-bold">Global</Badge>
+            <Badge variant="secondary" size="xs">Global</Badge>
           )}
         </>
       )
@@ -121,7 +122,7 @@ export default function RatesPage() {
       header: "Rate",
       align: "right",
       cell: (rate) => (
-        <span className="font-black text-ready">
+        <span className="font-bold text-ready">
           {formatPKR(rate.amount)}
         </span>
       )
@@ -130,13 +131,13 @@ export default function RatesPage() {
       header: "Effective",
       align: "right",
       cell: (rate) => (
-        <div className="flex flex-col items-end text-[10px] text-muted-foreground whitespace-nowrap">
-          <span className="flex items-center gap-1 font-medium text-foreground">
+        <div className="flex flex-col items-end whitespace-nowrap">
+          <Label variant="dashboard" className="flex items-center gap-1">
             <Clock className="h-2.5 w-2.5" />
             {new Date(rate.effectiveFrom).toLocaleDateString()}
-          </span>
+          </Label>
           {rate.effectiveTo && (
-            <span>until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
+            <Label variant="dashboard">until {new Date(rate.effectiveTo).toLocaleDateString()}</Label>
           )}
         </div>
       )
@@ -164,8 +165,9 @@ export default function RatesPage() {
             </p>
           </div>
         </div>
-        <Button 
-          className="gap-2 font-bold uppercase tracking-wider text-[10px]"
+          <Button 
+            className="gap-2 font-bold"
+            size="sm"
           onClick={() => setShowCreateRate(true)}
         >
           <Plus className="h-4 w-4" />
@@ -192,8 +194,8 @@ export default function RatesPage() {
         <Card className="bg-primary/[0.02] border-primary/10">
           <CardContent className="p-4 flex items-center justify-between">
              <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Total Defined</p>
-                <p className="text-xl font-black">{total}</p>
+                <Label variant="dashboard">Total Defined</Label>
+                <p className="text-xl font-bold">{total}</p>
              </div>
              <TrendingUp className="h-5 w-5 text-primary opacity-50" />
           </CardContent>

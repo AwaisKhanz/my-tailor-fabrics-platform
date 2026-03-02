@@ -45,7 +45,7 @@ let ConfigController = class ConfigController {
         const data = await this.configService.getGarmentTypes({
             search,
             page: page ? parseInt(page) : 1,
-            limit: limit ? parseInt(limit) : 10
+            limit: limit ? parseInt(limit) : 10,
         });
         return { success: true, data };
     }
@@ -77,7 +77,7 @@ let ConfigController = class ConfigController {
         const data = await this.configService.getMeasurementCategories({
             search,
             page: page ? parseInt(page) : 1,
-            limit: limit ? parseInt(limit) : 10
+            limit: limit ? parseInt(limit) : 10,
         });
         return { success: true, data };
     }

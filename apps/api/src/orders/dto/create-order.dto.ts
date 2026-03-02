@@ -1,4 +1,14 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, IsDateString, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  IsDateString,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { DiscountType, FabricSource } from '@tbms/shared-types';
 
@@ -23,9 +33,45 @@ export class OrderItemDto {
   @IsOptional()
   employeeId?: string; // Optional tailor assignment at creation
 
-  @IsDateString()
+  @IsString()
   @IsOptional()
   dueDate?: string; // Optional item-specific due date
+
+  @IsString()
+  @IsOptional()
+  designTypeId?: string;
+
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemAddonDto)
+  addons?: OrderItemAddonDto[];
+
+  @IsNumber()
+  @IsOptional()
+  unitPrice?: number;
+
+  @IsNumber()
+  @IsOptional()
+  employeeRate?: number;
+}
+
+export class OrderItemAddonDto {
+  @IsString()
+  @IsNotEmpty()
+  type!: string; // AddonType enum string
+
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsNumber()
+  @Min(0)
+  price!: number;
+
+  @IsNumber()
+  @IsOptional()
+  cost?: number;
 }
 
 export class CreateOrderDto {

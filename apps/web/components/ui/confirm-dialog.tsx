@@ -87,7 +87,7 @@ export function ConfirmDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              size="xl"
+              size="lg"
               className="flex-1 font-semibold border-border/50 hover:bg-muted/50 transition-colors"
             >
               {cancelText}
@@ -96,7 +96,7 @@ export function ConfirmDialog({
               variant={variant === "destructive" ? "destructive" : "premium"}
               onClick={handleConfirm}
               disabled={isLoading}
-              size="xl"
+              size="lg"
               className="flex-1 font-semibold shadow-sm transition-all active:scale-95"
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

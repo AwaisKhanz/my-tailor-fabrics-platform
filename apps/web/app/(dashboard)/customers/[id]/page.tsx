@@ -3,8 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { configApi } from "@/lib/api/config";
 import { customerApi } from "@/lib/api/customers";
 import { Customer, CustomerMeasurement } from "@/types/customers";
+import { MeasurementCategory } from "@/types/config";
+import { Order } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,8 +28,15 @@ import {
 } from "@tbms/shared-constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { MeasurementForm } from "@/components/customers/MeasurementForm";
 import { CustomerDialog } from "@/components/customers/CustomerDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function CustomerDetailPage() {
   const params = useParams();
@@ -38,16 +48,24 @@ export default function CustomerDetailPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isMeasurementDialogOpen, setIsMeasurementDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("measurements");
+  const [categories, setCategories] = useState<MeasurementCategory[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  const fetchCustomer = React.useCallback(async () => {
+  const fetchCustomerData = React.useCallback(async () => {
     setLoading(true);
     try {
-      const response = await customerApi.getCustomer(params.id as string);
-      if (response.success) {
-        setCustomer(response.data);
-      }
+      const [customerRes, configRes, ordersRes] = await Promise.all([
+        customerApi.getCustomer(params.id as string),
+        configApi.getMeasurementCategories({ limit: 100 }),
+        customerApi.getOrders(params.id as string, { limit: 50 })
+      ]);
+      
+      if (customerRes.success) setCustomer(customerRes.data);
+      if (configRes.success) setCategories(configRes.data?.data || []);
+      if (ordersRes.success) setOrders(ordersRes.data?.data || []);
+      
     } catch {
-      toast({ title: "Error", description: "Customer not found", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to load customer data", variant: "destructive" });
       router.push("/customers");
     } finally {
       setLoading(false);
@@ -55,8 +73,15 @@ export default function CustomerDetailPage() {
   }, [params.id, router, toast]);
 
   useEffect(() => {
-    if (params.id) fetchCustomer();
-  }, [params.id, fetchCustomer]);
+    if (params.id) fetchCustomerData();
+  }, [params.id, fetchCustomerData]);
+
+  const getMeasurementLabel = (categoryId: string, fieldId: string) => {
+    const cat = categories.find(c => c.id === categoryId);
+    if (!cat) return fieldId.replace(/_/g, ' ');
+    const field = cat.fields.find(f => f.id === fieldId);
+    return field ? field.label : fieldId.replace(/_/g, ' ');
+  };
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-20 w-full" /><Skeleton className="h-64 w-full" /></div>;
   if (!customer) return null;
@@ -105,14 +130,14 @@ export default function CustomerDetailPage() {
             
             <div className="pt-4 border-t grid grid-cols-2 gap-4">
                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Total Orders</p>
+                <Label variant="dashboard" className="mb-1">Total Orders</Label>
                   <div className="flex items-center gap-2">
                      <ShoppingBag className="h-4 w-4 text-primary" />
                      <span className="text-lg font-bold">{customer.stats?.totalOrders || 0}</span>
                   </div>
                </div>
                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Total Spent</p>
+                <Label variant="dashboard" className="mb-1">Total Spent</Label>
                   <div className="flex items-center gap-2">
                      <Banknote className="h-4 w-4 text-success" />
                      <span className="text-lg font-bold">{formatPKR(customer.stats?.totalSpent || 0)}</span>
@@ -121,8 +146,8 @@ export default function CustomerDetailPage() {
             </div>
 
             <div className="pt-4 border-t">
-               <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Status</p>
-               <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} className="uppercase font-bold tracking-wider text-[10px]">
+                <Label variant="dashboard" className="mb-1">Status</Label>
+               <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} size="xs">
                  {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
                </Badge>
             </div>
@@ -151,14 +176,14 @@ export default function CustomerDetailPage() {
                       <CardHeader className="py-3 bg-muted/30">
                         <CardTitle className="text-sm flex justify-between items-center">
                           {m.category?.name || "Measurement Set"}
-                          <span className="text-[10px] font-normal text-muted-foreground">Updated: {new Date(m.updatedAt).toLocaleDateString()}</span>
+                          <Label variant="dashboard" className="font-normal opacity-50">Updated: {new Date(m.updatedAt).toLocaleDateString()}</Label>
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pt-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           {Object.entries(m.values).map(([key, val]) => (
                             <div key={key}>
-                              <p className="text-[10px] text-muted-foreground uppercase">{key.replace(/_/g, ' ')}</p>
+                              <Label variant="dashboard" className="block mb-0.5">{getMeasurementLabel(m.categoryId, key)}</Label>
                               <p className="font-semibold text-sm">{val as string}</p>
                             </div>
                           ))}
@@ -176,11 +201,30 @@ export default function CustomerDetailPage() {
                </div>
             </TabsContent>
             
-            <TabsContent value="orders" className="pt-4">
-               <div className="py-12 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
-                  <History className="h-8 w-8 mb-2 opacity-20" />
-                  <p className="text-sm italic text-center px-6">Customer order history will automatically populate as orders are booked.</p>
-               </div>
+            <TabsContent value="orders" className="pt-4 space-y-4">
+               {orders.length > 0 ? (
+                 <div className="space-y-4">
+                   {orders.map(order => (
+                     <Card key={order.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => router.push(`/orders/${order.id}`)}>
+                       <CardContent className="p-4 flex items-center justify-between">
+                         <div>
+                           <p className="font-semibold text-sm">{order.orderNumber}</p>
+                           <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</p>
+                         </div>
+                         <div className="text-right">
+                           <p className="font-semibold text-sm">{formatPKR(order.totalAmount)}</p>
+                           <Badge variant="outline" size="xs">{order.status}</Badge>
+                         </div>
+                       </CardContent>
+                     </Card>
+                   ))}
+                 </div>
+               ) : (
+                 <div className="py-12 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                    <History className="h-8 w-8 mb-2 opacity-20" />
+                    <p className="text-sm text-center px-6">Customer order history is currently empty.</p>
+                 </div>
+               )}
             </TabsContent>
 
             <TabsContent value="notes" className="pt-4">
@@ -200,7 +244,7 @@ export default function CustomerDetailPage() {
         open={isEditDialogOpen} 
         onOpenChange={setIsEditDialogOpen} 
         customer={customer} 
-        onSuccess={fetchCustomer} 
+        onSuccess={fetchCustomerData} 
       />
 
       {/* Measurement Modal */}
@@ -215,7 +259,7 @@ export default function CustomerDetailPage() {
                   customerId={customer.id} 
                   onSuccess={() => {
                     setIsMeasurementDialogOpen(false);
-                    fetchCustomer();
+                    fetchCustomerData();
                   }} 
                 />
              </div>
@@ -226,33 +270,3 @@ export default function CustomerDetailPage() {
   );
 }
 
-function Dialog({ children, open, onOpenChange }: { children: React.ReactNode; open: boolean; onOpenChange: (open: boolean) => void }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl relative">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="absolute right-2 top-2 h-8 w-8" 
-          onClick={() => onOpenChange(false)}
-        >
-          ✕
-        </Button>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function DialogContent({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={`p-6 ${className}`}>{children}</div>;
-}
-
-function DialogHeader({ children }: { children: React.ReactNode }) {
-  return <div className="mb-4">{children}</div>;
-}
-
-function DialogTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-lg font-bold">{children}</h2>;
-}

@@ -192,7 +192,7 @@ export default function LoginPage() {
       
 
               {/* Submit Button */}
-              <Button type="submit" variant="premium" size="xl" className="w-full" disabled={isLoading}>
+              <Button type="submit" variant="premium" size="lg" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In to Dashboard"}
               </Button>
             </form>

@@ -5,8 +5,6 @@ import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 
-
-
 const schibsted = Schibsted_Grotesk({ 
   subsets: ["latin"], 
   variable: "--font-schibsted" 
@@ -29,16 +27,7 @@ export default function RootLayout({
       <body
         className={`
           ${schibsted.variable} 
-          
-          /* --- FONT SELECTION --- */
-          /* Options: font-public, font-figtree, font-instrument, font-schibsted, font-inter */
-          
-          font-public
-          /* font-figtree */
-          /* font-instrument */
-          /* font-schibsted */
-          /* font-inter */
-          
+          font-schibsted
           antialiased
         `}
       >

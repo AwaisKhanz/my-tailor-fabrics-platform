@@ -28,13 +28,13 @@ let SchedulerService = SchedulerService_1 = class SchedulerService {
             where: {
                 deletedAt: null,
                 status: {
-                    in: [shared_types_1.OrderStatus.NEW, shared_types_1.OrderStatus.IN_PROGRESS, shared_types_1.OrderStatus.READY]
+                    in: [shared_types_1.OrderStatus.NEW, shared_types_1.OrderStatus.IN_PROGRESS, shared_types_1.OrderStatus.READY],
                 },
                 dueDate: {
-                    lt: now
-                }
+                    lt: now,
+                },
             },
-            select: { id: true, status: true }
+            select: { id: true, status: true },
         });
         if (overdueCandidates.length === 0) {
             this.logger.log('No overdue orders found today.');
@@ -51,12 +51,12 @@ let SchedulerService = SchedulerService_1 = class SchedulerService {
                             fromStatus: order.status,
                             toStatus: shared_types_1.OrderStatus.OVERDUE,
                             actor: 'SYSTEM',
-                            note: 'Automated CRON task transitioned to OVERDUE.'
-                        }
+                            note: 'Automated CRON task transitioned to OVERDUE.',
+                        },
                     });
                     await tx.order.update({
                         where: { id: order.id },
-                        data: { status: shared_types_1.OrderStatus.OVERDUE }
+                        data: { status: shared_types_1.OrderStatus.OVERDUE },
                     });
                 });
                 successCount++;

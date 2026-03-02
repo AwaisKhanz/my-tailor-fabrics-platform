@@ -18,7 +18,7 @@ let BranchesService = class BranchesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async findAll({ search, page = 1, limit } = {}) {
+    async findAll({ search, page = 1, limit, } = {}) {
         const where = { deletedAt: null };
         if (search) {
             where.OR = [
@@ -35,10 +35,12 @@ let BranchesService = class BranchesService {
                     skip,
                     take: limit,
                     include: {
-                        _count: { select: { employees: true, customers: true, orders: true } },
+                        _count: {
+                            select: { employees: true, customers: true, orders: true },
+                        },
                     },
                 }),
-                this.prisma.branch.count({ where })
+                this.prisma.branch.count({ where }),
             ]);
             return { data, total };
         }
@@ -60,16 +62,20 @@ let BranchesService = class BranchesService {
         });
         if (!branch)
             throw new common_1.NotFoundException('Branch not found');
-        const totalGarmentTypes = await this.prisma.garmentType.count({ where: { isActive: true } });
+        const totalGarmentTypes = await this.prisma.garmentType.count({
+            where: { isActive: true },
+        });
         return {
             ...branch,
             stats: {
                 totalGarments: totalGarmentTypes,
-            }
+            },
         };
     }
     async create(data) {
-        const existing = await this.prisma.branch.findUnique({ where: { code: data.code.toUpperCase() } });
+        const existing = await this.prisma.branch.findUnique({
+            where: { code: data.code.toUpperCase() },
+        });
         if (existing) {
             if (existing.deletedAt) {
                 throw new common_1.ConflictException(`Branch with code '${data.code}' existed but was deleted. Contact support.`);
@@ -92,20 +98,27 @@ let BranchesService = class BranchesService {
                     select: {
                         orders: {
                             where: {
-                                status: { in: [shared_types_1.OrderStatus.NEW, shared_types_1.OrderStatus.IN_PROGRESS, shared_types_1.OrderStatus.READY, shared_types_1.OrderStatus.OVERDUE] },
-                                deletedAt: null
-                            }
-                        }
-                    }
-                }
-            }
+                                status: {
+                                    in: [
+                                        shared_types_1.OrderStatus.NEW,
+                                        shared_types_1.OrderStatus.IN_PROGRESS,
+                                        shared_types_1.OrderStatus.READY,
+                                        shared_types_1.OrderStatus.OVERDUE,
+                                    ],
+                                },
+                                deletedAt: null,
+                            },
+                        },
+                    },
+                },
+            },
         });
         if (branch._count.orders > 0) {
             throw new common_1.ConflictException(`Cannot delete branch with ${branch._count.orders} active/overdue orders. Deactivate it instead, or complete/cancel the orders first.`);
         }
         return this.prisma.branch.update({
             where: { id },
-            data: { deletedAt: new Date(), isActive: false }
+            data: { deletedAt: new Date(), isActive: false },
         });
     }
     async getStats() {

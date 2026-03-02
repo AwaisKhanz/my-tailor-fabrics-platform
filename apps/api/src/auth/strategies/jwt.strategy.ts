@@ -17,13 +17,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
+      secretOrKey:
+        process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
     });
   }
 
   async validate(payload: JwtPayload) {
     const user = await this.usersService.findById(payload.sub);
-    if (!user || (!user.isActive)) {
+    if (!user || !user.isActive) {
       throw new UnauthorizedException('User no longer active or exists');
     }
     // returning what gets attached to req.user

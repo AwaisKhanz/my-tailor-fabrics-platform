@@ -28,7 +28,9 @@ let AllExceptionsFilter = class AllExceptionsFilter {
             statusCode: httpStatus,
             timestamp: new Date().toISOString(),
             path: httpAdapter.getRequestUrl(ctx.getRequest()),
-            message: exception?.message || 'Internal server error',
+            message: exception instanceof Error
+                ? exception.message
+                : exception?.message || 'Internal server error',
         };
         this.logger.error(`Unhandled Exception at ${responseBody.path}: ${responseBody.message}`, exception instanceof Error ? exception.stack : JSON.stringify(exception));
         httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);

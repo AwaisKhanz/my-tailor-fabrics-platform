@@ -206,7 +206,7 @@ export declare class EmployeesController {
     getStats(id: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
-            totalEarned: any;
+            totalEarned: number;
             totalPaid: number;
             balance: number;
         };
@@ -291,7 +291,7 @@ export declare class EmployeesController {
     getMyStats(req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
-            totalEarned: any;
+            totalEarned: number;
             totalPaid: number;
             balance: number;
         };

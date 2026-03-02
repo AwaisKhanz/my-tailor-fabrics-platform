@@ -85,13 +85,37 @@ const ReceiptDocument = ({ order }) => (React.createElement(renderer_1.Document,
             React.createElement(renderer_1.View, { style: styles.itemRow },
                 React.createElement(renderer_1.Text, { style: [styles.itemColName, { fontWeight: 'bold' }] }, "Item"),
                 React.createElement(renderer_1.Text, { style: [styles.itemColQty, { fontWeight: 'bold' }] }, "Qty"),
-                React.createElement(renderer_1.Text, { style: [styles.itemColPrice, { fontWeight: 'bold' }] }, "Price")),
-            order.items.map((item) => (React.createElement(renderer_1.View, { style: styles.itemRow, key: item.id },
-                React.createElement(renderer_1.Text, { style: styles.itemColName }, item.garmentTypeName),
-                React.createElement(renderer_1.Text, { style: styles.itemColQty }, item.quantity),
-                React.createElement(renderer_1.Text, { style: styles.itemColPrice },
-                    "Rs ",
-                    (item.unitPrice / 100).toFixed(2))))),
+                React.createElement(renderer_1.Text, { style: [styles.itemColPrice, { fontWeight: 'bold' }] }, "Total Price")),
+            order.items.map((item) => {
+                const designPrice = item.designType?.defaultPrice || 0;
+                const addonsPrice = item.addons?.reduce((sum, a) => sum + a.price, 0) || 0;
+                const itemTotal = (item.unitPrice * item.quantity) + (designPrice * item.quantity) + addonsPrice;
+                return (React.createElement(renderer_1.View, { key: item.id, style: { borderBottomWidth: 1, borderBottomColor: '#EEEEEE', paddingVertical: 5 } },
+                    React.createElement(renderer_1.View, { style: { flexDirection: 'row' } },
+                        React.createElement(renderer_1.Text, { style: [styles.itemColName, { fontWeight: 'bold' }] }, item.garmentTypeName),
+                        React.createElement(renderer_1.Text, { style: styles.itemColQty }, item.quantity),
+                        React.createElement(renderer_1.Text, { style: styles.itemColPrice },
+                            "Rs ",
+                            (itemTotal / 100).toFixed(2))),
+                    item.designType && (React.createElement(renderer_1.View, { style: { flexDirection: 'row', marginTop: 2 } },
+                        React.createElement(renderer_1.Text, { style: [styles.itemColName, { color: '#666666', fontSize: 9, paddingLeft: 10 }] },
+                            "\u2514 Design: ",
+                            item.designType.name),
+                        React.createElement(renderer_1.Text, { style: styles.itemColQty }),
+                        React.createElement(renderer_1.Text, { style: [styles.itemColPrice, { color: '#666666', fontSize: 9 }] },
+                            "(+Rs ",
+                            (item.designType.defaultPrice / 100).toFixed(2),
+                            ")"))),
+                    item.addons && item.addons.length > 0 && item.addons.map(addon => (React.createElement(renderer_1.View, { key: addon.id, style: { flexDirection: 'row', marginTop: 2 } },
+                        React.createElement(renderer_1.Text, { style: [styles.itemColName, { color: '#666666', fontSize: 9, paddingLeft: 10 }] },
+                            "\u2514 Addon: ",
+                            addon.name),
+                        React.createElement(renderer_1.Text, { style: styles.itemColQty }),
+                        React.createElement(renderer_1.Text, { style: [styles.itemColPrice, { color: '#666666', fontSize: 9 }] },
+                            "(+Rs ",
+                            (addon.price / 100).toFixed(2),
+                            ")"))))));
+            }),
             React.createElement(renderer_1.Text, { style: styles.title }, "Summary"),
             React.createElement(renderer_1.View, { style: styles.row },
                 React.createElement(renderer_1.Text, { style: styles.label }, "Subtotal:"),
@@ -129,7 +153,14 @@ let ReceiptService = class ReceiptService {
             include: {
                 customer: true,
                 branch: true,
-                items: true,
+                items: {
+                    where: { deletedAt: null },
+                    orderBy: { pieceNo: 'asc' },
+                    include: {
+                        designType: true,
+                        addons: { where: { deletedAt: null } }
+                    }
+                },
             },
         });
         if (!order) {

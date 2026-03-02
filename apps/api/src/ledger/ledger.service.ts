@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerEntryType } from '@tbms/shared-types';
 import type { CreateLedgerEntryInput, LedgerSummary } from '@tbms/shared-types';
-import { Prisma } from '@prisma/client';
+import { Prisma, LedgerEntryType as PrismaLedgerEntryType } from '@prisma/client';
 
 @Injectable()
 export class LedgerService {
@@ -18,7 +18,7 @@ export class LedgerService {
       data: {
         employeeId: dto.employeeId,
         branchId: dto.branchId,
-        type: dto.type as any,
+        type: dto.type as PrismaLedgerEntryType,
         amount: dto.amount,
         orderItemTaskId: dto.orderItemTaskId ?? null,
         paymentId: dto.paymentId ?? null,
@@ -80,7 +80,7 @@ export class LedgerService {
             },
           }
         : {}),
-      ...(type ? { type: type as any } : {}),
+      ...(type ? { type: type as PrismaLedgerEntryType } : {}),
     };
 
     const [entries, total, summary] = await Promise.all([
@@ -127,7 +127,14 @@ export class LedgerService {
    * Get earnings grouped by week for the last N weeks.
    */
   async getEarningsByPeriod(employeeId: string, weeksBack = 12) {
-    const rawData = await this.prisma.$queryRaw<any[]>`
+    const rawData = await this.prisma.$queryRaw<
+      {
+        period: Date;
+        earned: bigint;
+        paid: bigint;
+        closingBalance: bigint;
+      }[]
+    >`
       WITH period_data AS (
         SELECT
           date_trunc('week', "createdAt" AT TIME ZONE 'Asia/Karachi') AS period,
@@ -148,7 +155,7 @@ export class LedgerService {
       ORDER BY period DESC
     `;
 
-    return rawData.map(item => ({
+    return rawData.map((item) => ({
       period: item.period,
       earned: Number(item.earned),
       paid: Number(item.paid),

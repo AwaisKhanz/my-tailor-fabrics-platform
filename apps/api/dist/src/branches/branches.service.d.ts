@@ -3,7 +3,7 @@ import { CreateBranchInput, UpdateBranchInput } from '@tbms/shared-types';
 export declare class BranchesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    findAll({ search, page, limit }?: {
+    findAll({ search, page, limit, }?: {
         search?: string;
         page?: number;
         limit?: number;

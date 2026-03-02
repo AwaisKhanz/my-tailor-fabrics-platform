@@ -1,20 +1,72 @@
-import { api } from '../api';
-import { ApiResponse } from '@/types/common';
-import { DashboardStats } from '@tbms/shared-types';
+import { api } from "../api";
+import { ApiResponse, DashboardStats } from "@tbms/shared-types";
+
+export interface DesignAnalytics {
+  name: string;
+  count: number;
+  revenue: number;
+  payout: number;
+}
+
+export interface AddonAnalytics {
+  type: string;
+  count: number;
+  total: number;
+}
+
+export interface ReportSummary {
+  revenue: number;
+  expenses: number;
+  outstandingBalances: number;
+  overdueOrders: number;
+  totalDesignRevenue: number;
+  totalAddonRevenue: number;
+  designs: DesignAnalytics[];
+  addons: AddonAnalytics[];
+}
+
+export interface RevenueVsExpenses {
+  revenue: { month: string; total: number }[];
+  expenses: { month: string; total: number }[];
+}
+
+export interface GarmentRevenue {
+  label: string;
+  value: number;
+}
+
+export interface EmployeeProductivity {
+  label: string;
+  value: number;
+}
 
 export const reportsApi = {
-  getDashboardStats: async (branchId?: string) => {
-    const response = await api.get<ApiResponse<DashboardStats>>('/reports/dashboard', {
-      params: { branchId }
+  getDashboardStats: (branchId?: string) =>
+    api.get<ApiResponse<DashboardStats>>("/reports/dashboard", { params: { branchId } }).then((res) => res.data.data),
+
+  getDesigns: (from?: string, to?: string, branchId?: string) =>
+    api.get<ApiResponse<DesignAnalytics[]>>("/reports/designs", { params: { from, to, branchId } }).then((res) => res.data),
+
+  getAddons: (from?: string, to?: string, branchId?: string) =>
+    api.get<ApiResponse<AddonAnalytics[]>>("/reports/addons", { params: { from, to, branchId } }).then((res) => res.data),
+
+  getSummary: (from?: string, to?: string, branchId?: string) =>
+    api.get<ApiResponse<ReportSummary>>("/reports/summary", { params: { from, to, branchId } }).then((res) => res.data),
+
+  getRevenueVsExpenses: (months = 6, branchId?: string) =>
+    api.get<ApiResponse<RevenueVsExpenses>>("/reports/revenue-vs-expenses", { params: { months, branchId } }).then((res) => res.data),
+
+  getGarments: (branchId?: string) =>
+    api.get<ApiResponse<GarmentRevenue[]>>("/reports/garments", { params: { branchId } }).then((res) => res.data),
+
+  getProductivity: (branchId?: string) =>
+    api.get<ApiResponse<EmployeeProductivity[]>>("/reports/productivity", { params: { branchId } }).then((res) => res.data),
+
+  exportReport: async (type: string, format: string, from?: string, to?: string) => {
+    const response = await api.get(`/reports/export/${type}`, {
+      params: { format, from, to },
+      responseType: 'blob',
     });
-    return response.data.data;
+    return response.data as Blob;
   },
-  
-  getRevenueVsExpenses: async (params?: { branchId?: string; months?: number }) => {
-    const response = await api.get<ApiResponse<{
-      revenue: { month: string; total: number }[];
-      expenses: { month: string; total: number }[];
-    }>>('/reports/revenue-vs-expenses', { params });
-    return response.data;
-  }
 };

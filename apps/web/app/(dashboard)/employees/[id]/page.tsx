@@ -50,7 +50,8 @@ import {
   PAYMENT_TYPE_LABELS,
   TASK_STATUS_LABELS,
   LEDGER_ENTRY_TYPE_LABELS,
-  LEDGER_ENTRY_TYPE_BADGE
+  LEDGER_ENTRY_TYPE_BADGE,
+  getEffectiveTaskRate
 } from "@tbms/shared-constants";
 import { 
   Dialog, 
@@ -343,9 +344,9 @@ export default function EmployeeDetailPage() {
       cell: (task) => (
         <div className="flex flex-col">
           <span className="font-medium">{task.item?.garmentTypeName || "—"}</span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">
+          <Label variant="dashboard" className="font-mono">
             {task.stepName}
-          </span>
+          </Label>
         </div>
       ),
     },
@@ -365,6 +366,15 @@ export default function EmployeeDetailPage() {
                 ))}
             </SelectContent>
         </Select>
+      ),
+    },
+    {
+      header: "Rate",
+      align: "right",
+      cell: (task) => (
+        <span className="font-bold text-primary">
+          {formatPKR(getEffectiveTaskRate(task.rateSnapshot, task.rateOverride, task.designType?.defaultRate))}
+        </span>
       ),
     },
     {
@@ -390,7 +400,7 @@ export default function EmployeeDetailPage() {
     {
       header: "Type",
       cell: (e) => (
-        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[e.type]} className="text-[10px] font-bold uppercase tracking-wider">
+        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[e.type]} size="xs">
           {e.type === LedgerEntryType.EARNING || e.type === LedgerEntryType.SALARY || e.type === LedgerEntryType.ADJUSTMENT
             ? <ArrowUpRight className="h-3 w-3 mr-1 inline" />
             : <ArrowDownLeft className="h-3 w-3 mr-1 inline" />}
@@ -402,7 +412,7 @@ export default function EmployeeDetailPage() {
       header: "Amount",
       align: "right",
       cell: (e) => (
-        <span className={`font-black text-sm ${
+        <span className={`font-bold text-sm ${
           e.amount >= 0 ? 'text-ready' : 'text-destructive'
         }`}>
           {e.amount >= 0 ? '+' : ''}{formatPKR(Math.abs(e.amount))}
@@ -489,8 +499,8 @@ export default function EmployeeDetailPage() {
               <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                       <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Lifetime Earned</p>
-                          <h3 className="text-2xl font-black mt-1 text-foreground">{formatPKR(stats.totalEarned)}</h3>
+                          <Label variant="dashboard">Lifetime Earned</Label>
+                          <h3 className="text-2xl font-bold mt-1 text-foreground">{formatPKR(stats.totalEarned)}</h3>
                       </div>
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                           <Banknote className="h-5 w-5 text-primary" />
@@ -502,8 +512,8 @@ export default function EmployeeDetailPage() {
               <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                       <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Paid Out</p>
-                          <h3 className="text-2xl font-black mt-1 text-success">{formatPKR(stats.totalPaid)}</h3>
+                          <Label variant="dashboard">Total Paid Out</Label>
+                          <h3 className="text-2xl font-bold mt-1 text-success">{formatPKR(stats.totalPaid)}</h3>
                       </div>
                       <div className="h-10 w-10 rounded-full bg-success/10 flex items-center justify-center shrink-0 group-hover:bg-success/20 transition-colors">
                           <CheckCircle2 className="h-5 w-5 text-success" />
@@ -515,8 +525,8 @@ export default function EmployeeDetailPage() {
               <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                       <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Balance</p>
-                          <h3 className="text-2xl font-black mt-1 text-warning">{formatPKR(stats.currentBalance)}</h3>
+                          <Label variant="dashboard">Current Balance</Label>
+                          <h3 className="text-2xl font-bold mt-1 text-warning">{formatPKR(stats.currentBalance)}</h3>
                       </div>
                       <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center shrink-0 group-hover:bg-warning/20 transition-colors">
                           <Banknote className="h-5 w-5 text-warning" />
@@ -530,7 +540,7 @@ export default function EmployeeDetailPage() {
         <div className="lg:col-span-1 space-y-6">
           <Card>
             <CardHeader className="pb-3 border-b">
-              <CardTitle className="text-sm font-bold uppercase tracking-tight">Personal Info</CardTitle>
+              <CardTitle variant="dashboard">Personal Info</CardTitle>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
               <div className="flex items-center gap-3 text-sm">
@@ -543,7 +553,7 @@ export default function EmployeeDetailPage() {
               </div>
               <Separator />
               <div className="space-y-3">
-                 <p className="text-[10px] text-muted-foreground uppercase font-black">Emergency Contact</p>
+                 <Label variant="dashboard">Emergency Contact</Label>
                  <div>
                     <p className="text-sm font-bold">{employee.emergencyName || "Not set"}</p>
                     <p className="text-xs text-muted-foreground">{employee.emergencyPhone}</p>
@@ -554,7 +564,7 @@ export default function EmployeeDetailPage() {
           
           <Card>
             <CardHeader className="pb-3 border-b">
-              <CardTitle className="text-sm font-bold uppercase tracking-tight">Employment</CardTitle>
+              <CardTitle variant="dashboard">Employment</CardTitle>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
               <div className="flex justify-between text-sm">
@@ -567,7 +577,7 @@ export default function EmployeeDetailPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Status</span>
-                <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} className="uppercase font-bold tracking-wider text-[10px]">
+                <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs">
                   {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
                 </Badge>
               </div>
@@ -705,7 +715,7 @@ export default function EmployeeDetailPage() {
                        </div>
                        <div>
                          <p className="text-sm font-bold">{doc.label}</p>
-                         <p className="text-[10px] text-muted-foreground uppercase font-black">{doc.fileType}</p>
+                         <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">{doc.fileType}</p>
                        </div>
                      </div>
                      <div className="flex gap-2">
@@ -832,7 +842,7 @@ export default function EmployeeDetailPage() {
                   <SelectItem value={LedgerEntryType.SALARY}>💵 Monthly Salary</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-[10px] text-muted-foreground uppercase font-black">
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
                 {[LedgerEntryType.ADVANCE, LedgerEntryType.DEDUCTION].includes(newEntryType) 
                   ? "⚠️ This will decrease employee balance" 
                   : "ℹ️ This will increase employee balance"}

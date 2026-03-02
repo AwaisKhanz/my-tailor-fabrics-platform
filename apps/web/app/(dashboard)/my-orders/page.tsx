@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatDate, formatPKR } from "@/lib/utils";
 import { ItemStatus } from "@tbms/shared-types";
@@ -69,7 +70,7 @@ export default function MyOrdersPage() {
       cell: (item) => (
         <div className="flex flex-col">
           <span className="font-semibold text-foreground text-sm leading-tight">{item.garmentTypeName}</span>
-          <span className="text-xs text-muted-foreground mt-0.5">{item.description}</span>
+          <Label variant="dashboard" className="mt-0.5">{item.description}</Label>
         </div>
       ),
     },
@@ -77,7 +78,7 @@ export default function MyOrdersPage() {
       header: "Due Date",
       cell: (item) => {
         const date = formatDate(item.dueDate || item.order.dueDate);
-        return <span className="text-sm text-muted-foreground whitespace-nowrap">{date}</span>;
+        return <Label variant="dashboard">{date}</Label>;
       },
     },
     {
@@ -91,7 +92,7 @@ export default function MyOrdersPage() {
         };
         const config = STATUS_MAP[item.status] || STATUS_MAP[ItemStatus.PENDING];
         return (
-          <Badge variant={config.variant} className="uppercase tracking-wider">
+          <Badge variant={config.variant} size="xs">
             {config.label}
           </Badge>
         );
@@ -118,9 +119,9 @@ export default function MyOrdersPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 p-4 bg-card border border-border rounded-xl shadow-sm">
         {/* Left Group: Search */}
         <div className="flex flex-col gap-1.5 flex-1 min-w-[240px] max-w-sm">
-          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+          <Label variant="dashboard" className="ml-1">
             Search My Orders
-          </label>
+          </Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input

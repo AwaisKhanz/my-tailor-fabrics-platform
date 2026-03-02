@@ -44,13 +44,33 @@ const CardHeader = React.forwardRef<
 ))
 CardHeader.displayName = "CardHeader"
 
+const cardTitleVariants = cva(
+  "font-semibold leading-none tracking-tight",
+  {
+    variants: {
+      variant: {
+        default: "",
+        dashboard: "text-sm font-bold uppercase tracking-tight",
+        heading: "text-3xl font-bold tracking-tight",
+      }
+    },
+    defaultVariants: {
+      variant: "default"
+    }
+  }
+)
+
+export interface CardTitleProps 
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardTitleVariants> {}
+
 const CardTitle = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  CardTitleProps
+>(({ className, variant, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
+    className={cn(cardTitleVariants({ variant }), className)}
     {...props}
   />
 ))

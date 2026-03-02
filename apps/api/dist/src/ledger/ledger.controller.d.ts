@@ -77,7 +77,7 @@ export declare class LedgerController {
     getEarnings(employeeId: string, weeksBack?: string): Promise<{
         success: boolean;
         data: {
-            period: any;
+            period: Date;
             earned: number;
             paid: number;
             closingBalance: number;

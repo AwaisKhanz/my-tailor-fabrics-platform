@@ -33,11 +33,11 @@ let PaymentsService = class PaymentsService {
     }
     async getWeeklyBreakdown(employeeId, weeksBack = 8) {
         const earnings = await this.ledgerService.getEarningsByPeriod(employeeId, weeksBack);
-        return earnings.map(item => ({
+        return earnings.map((item) => ({
             week_start: item.period,
             earned: item.earned,
             paid: item.paid,
-            closing_balance: item.closingBalance
+            closing_balance: item.closingBalance,
         }));
     }
     async disbursePay(employeeId, amount, processedById, branchId, note) {
@@ -45,11 +45,11 @@ let PaymentsService = class PaymentsService {
         if (amount > summary.currentBalance) {
             throw new common_1.UnprocessableEntityException({
                 code: 'PAYMENT_EXCEEDS_BALANCE',
-                message: `Cannot disburse ${amount / 100}. Balance is ${summary.currentBalance / 100}`
+                message: `Cannot disburse ${amount / 100}. Balance is ${summary.currentBalance / 100}`,
             });
         }
         const payment = await this.prisma.payment.create({
-            data: { employeeId, amount, processedById, note }
+            data: { employeeId, amount, processedById, note },
         });
         await this.ledgerService.createEntry({
             employeeId,
@@ -76,13 +76,13 @@ let PaymentsService = class PaymentsService {
                 where: { employeeId, deletedAt: null },
                 skip,
                 take: limit,
-                orderBy
+                orderBy,
             }),
-            this.prisma.payment.count({ where: { employeeId, deletedAt: null } })
+            this.prisma.payment.count({ where: { employeeId, deletedAt: null } }),
         ]);
         return {
             data,
-            meta: { total, page, lastPage: Math.ceil(total / limit) }
+            meta: { total, page, lastPage: Math.ceil(total / limit) },
         };
     }
     async getWeeklyReport() {

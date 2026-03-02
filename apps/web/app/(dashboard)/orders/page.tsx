@@ -16,7 +16,7 @@ import { formatPKR } from "@/lib/utils";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { OrderStatus as SharedOrderStatus } from "@tbms/shared-types";
+import { OrderStatus as SharedOrderStatus, BadgeVariant } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 
 const PAGE_SIZE = 10;
 
@@ -97,7 +98,7 @@ export default function OrdersPage() {
       cell: (order) => (
         <div className="flex flex-col">
           <span className="font-semibold text-foreground text-sm leading-tight">{order.customer.fullName}</span>
-          <span className="text-xs text-muted-foreground mt-0.5">{order.customer.phone}</span>
+          <Label variant="dashboard" className="mt-0.5">{order.customer.phone}</Label>
         </div>
       ),
     },
@@ -134,8 +135,9 @@ export default function OrdersPage() {
         const sc = ORDER_STATUS_CONFIG[order.status] ?? ORDER_STATUS_CONFIG.NEW;
         return (
           <Badge 
-            variant={sc.variant} 
-            className="uppercase font-bold tracking-wider text-[10px] px-2"
+            variant={sc.variant as BadgeVariant} 
+            size="xs"
+            className="px-2"
           >
             {sc.label}
           </Badge>
@@ -200,7 +202,7 @@ export default function OrdersPage() {
           <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
           <p className="text-muted-foreground">Manage your customer orders and production workflow.</p>
         </div>
-        <Button variant="premium" size="xl" onClick={() => router.push('/orders/new')}>
+        <Button variant="premium" size="lg" onClick={() => router.push('/orders/new')}>
           <Plus className="mr-2 h-4 w-4" /> New Order
         </Button>
       </div>
@@ -213,9 +215,9 @@ export default function OrdersPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h2 className="font-bold text-lg text-foreground">Order Book</h2>
-                <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+                <Badge variant="secondary" size="xs" >
                   {total} results
-                </span>
+                </Badge>
               </div>
             </div>
 

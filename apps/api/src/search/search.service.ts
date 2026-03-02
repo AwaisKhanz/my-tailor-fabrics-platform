@@ -11,12 +11,16 @@ export class SearchService {
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
-  async searchCustomers(query: string, branchId: string, limit = 10): Promise<Customer[]> {
+  async searchCustomers(
+    query: string,
+    branchId: string,
+    limit = 10,
+  ): Promise<Customer[]> {
     if (!query || query.trim().length < 2) return [];
-    
+
     const q = query.trim();
     const cacheKey = `search:cust:${branchId}:${q.toLowerCase()}`;
-    
+
     // Attempt cache hit
     const hit = await this.cache.get<Customer[]>(cacheKey);
     if (hit) return hit;
@@ -51,17 +55,21 @@ export class SearchService {
 
     // Set map in Redis with 30s TTL
     // @ts-ignore - The underlying store supports TTL in ms
-    await this.cache.set(cacheKey, result, 30000); 
+    await this.cache.set(cacheKey, result, 30000);
 
     return result;
   }
 
-  async searchEmployees(query: string, branchId: string, limit = 10): Promise<Employee[]> {
+  async searchEmployees(
+    query: string,
+    branchId: string,
+    limit = 10,
+  ): Promise<Employee[]> {
     if (!query || query.trim().length < 2) return [];
-    
+
     const q = query.trim();
     const cacheKey = `search:emp:${branchId}:${q.toLowerCase()}`;
-    
+
     const hit = await this.cache.get<Employee[]>(cacheKey);
     if (hit) return hit;
 

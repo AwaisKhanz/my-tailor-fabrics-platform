@@ -30,11 +30,15 @@ let MailService = MailService_1 = class MailService {
             this.logger.warn('Google Client ID or Secret missing. Mail wrapper disabled.');
             return;
         }
-        this.oAuth2Client = new googleapis_1.google.auth.OAuth2(clientId, clientSecret, process.env.GOOGLE_REDIRECT_URI || 'https://developers.google.com/oauthplayground');
+        this.oAuth2Client = new googleapis_1.google.auth.OAuth2(clientId, clientSecret, process.env.GOOGLE_REDIRECT_URI ||
+            'https://developers.google.com/oauthplayground');
         if (refreshToken && this.senderEmail) {
             try {
                 this.oAuth2Client.setCredentials({ refresh_token: refreshToken });
-                this.gmailClient = googleapis_1.google.gmail({ version: 'v1', auth: this.oAuth2Client });
+                this.gmailClient = googleapis_1.google.gmail({
+                    version: 'v1',
+                    auth: this.oAuth2Client,
+                });
                 this.logger.log(`Mail service fully initialized via official Gmail API for ${this.senderEmail}`);
             }
             catch (err) {
@@ -81,9 +85,7 @@ let MailService = MailService_1 = class MailService {
                     `--${boundary}--`;
         }
         else {
-            message +=
-                `Content-Type: text/plain; charset="UTF-8"\n\n` +
-                    `${text}`;
+            message += `Content-Type: text/plain; charset="UTF-8"\n\n` + `${text}`;
         }
         return message;
     }

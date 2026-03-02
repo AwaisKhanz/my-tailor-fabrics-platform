@@ -18,7 +18,7 @@ exports.EmployeesModule = EmployeesModule = __decorate([
     (0, common_1.Module)({
         imports: [search_module_1.SearchModule],
         providers: [employees_service_1.EmployeesService],
-        controllers: [employees_controller_1.EmployeesController]
+        controllers: [employees_controller_1.EmployeesController],
     })
 ], EmployeesModule);
 //# sourceMappingURL=employees.module.js.map

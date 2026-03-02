@@ -142,7 +142,7 @@ export function BranchesTable() {
       cell: (b) => (
         <div className="flex flex-col">
           <span className="text-sm font-bold text-foreground leading-tight">{b.name}</span>
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">Physical Hub</span>
+          <Label variant="dashboard" className="mt-0.5">Physical Hub</Label>
         </div>
       ),
     },
@@ -157,7 +157,7 @@ export function BranchesTable() {
     {
       header: "Status",
       cell: (b) => (
-        <Badge variant={b.isActive ? "success" : "outline"} className="uppercase font-bold tracking-wider">
+        <Badge variant={b.isActive ? "success" : "outline"} size="xs">
           {b.isActive ? "Active" : "Inactive"}
         </Badge>
       ),
@@ -218,7 +218,7 @@ export function BranchesTable() {
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Branch Management</h1>
             <p className="text-xs md:text-sm text-muted-foreground mt-1">Configure and oversee all physical organizational locations and their status.</p>
           </div>
-          <Button variant="premium" size="xl" onClick={openCreate}>
+          <Button variant="premium" size="lg" onClick={openCreate}>
             <Plus className="mr-2 h-5 w-5" /> Add New Branch
           </Button>
         </div>
@@ -228,9 +228,9 @@ export function BranchesTable() {
         <div className="px-6 py-4 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
              <h2 className="font-bold text-lg text-foreground">Location Directory</h2>
-             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+             <Badge variant="secondary" size="xs" className="ring-1 ring-border">
                 {totalCount} results
-             </span>
+             </Badge>
           </div>
           
           <div className="flex items-center gap-3">
@@ -306,19 +306,19 @@ export function BranchesTable() {
               </p>
               
               <div className="p-3 bg-muted/50 rounded-lg border border-border space-y-2">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Linked Records Impact</p>
+                <Label variant="dashboard">Linked Records Impact</Label>
                 <div className="grid grid-cols-3 gap-2">
                    <div className="flex flex-col px-2 py-1.5 bg-background rounded-md border border-border shadow-sm">
                       <span className="text-xs font-bold text-foreground">{branchToDelete?._count?.employees || 0}</span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase">Staff</span>
+                      <Label variant="dashboard" className="text-[9px]">Staff</Label>
                    </div>
                    <div className="flex flex-col px-2 py-1.5 bg-background rounded-md border border-border shadow-sm">
                       <span className="text-xs font-bold text-foreground">{branchToDelete?._count?.customers || 0}</span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase">Clients</span>
+                      <Label variant="dashboard" className="text-[9px]">Clients</Label>
                    </div>
                    <div className="flex flex-col px-2 py-1.5 bg-background rounded-md border border-border shadow-sm">
                       <span className="text-xs font-bold text-foreground">{branchToDelete?._count?.orders || 0}</span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase">All Orders</span>
+                      <Label variant="dashboard" className="text-[9px]">All Orders</Label>
                    </div>
                 </div>
               </div>

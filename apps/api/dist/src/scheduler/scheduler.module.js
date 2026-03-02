@@ -14,7 +14,7 @@ let SchedulerModule = class SchedulerModule {
 exports.SchedulerModule = SchedulerModule;
 exports.SchedulerModule = SchedulerModule = __decorate([
     (0, common_1.Module)({
-        providers: [scheduler_service_1.SchedulerService]
+        providers: [scheduler_service_1.SchedulerService],
     })
 ], SchedulerModule);
 //# sourceMappingURL=scheduler.module.js.map

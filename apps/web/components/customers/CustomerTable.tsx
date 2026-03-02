@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { customerApi } from "@/lib/api/customers";
-import { Customer, CustomerStatus } from "@tbms/shared-types";
+import { Customer, CustomerStatus, BadgeVariant } from "@tbms/shared-types";
 import { CUSTOMER_STATUS_LABELS, CUSTOMER_STATUS_BADGE } from "@tbms/shared-constants";
 import {
   Search,
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { formatPKR } from "@/lib/utils";
@@ -132,9 +133,9 @@ export function CustomerTable() {
                 {customer.fullName}
               </span>
               {customer.isVip && (
-                <span className="mt-0.5 inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-warning/10 text-warning border border-warning/20 uppercase tracking-wider w-fit">
-                  VIP Customer
-                </span>
+                  <Badge variant="warning" size="xs">
+                    VIP Customer
+                  </Badge>
               )}
             </div>
           </div>
@@ -149,12 +150,12 @@ export function CustomerTable() {
           {customer.whatsapp ? (
             <div className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-success/50 shrink-0" />
-              <span className="text-xs text-muted-foreground">WhatsApp Connected</span>
+              <Label variant="dashboard" className="text-success opacity-100">WhatsApp Connected</Label>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-muted-foreground/50 shrink-0" />
-              <span className="text-xs text-muted-foreground">No WhatsApp</span>
+              <Label variant="dashboard">No WhatsApp</Label>
             </div>
           )}
         </div>
@@ -163,9 +164,9 @@ export function CustomerTable() {
     {
       header: "City",
       cell: (customer) => (
-        <span className="text-sm text-muted-foreground">
+        <Label variant="dashboard">
           {customer.city || "—"}
-        </span>
+        </Label>
       ),
     },
     {
@@ -181,7 +182,7 @@ export function CustomerTable() {
       cell: (customer: Customer) => {
         const variant = CUSTOMER_STATUS_BADGE[customer.status] ?? "outline";
         return (
-          <Badge variant={variant} className="uppercase tracking-wider">
+          <Badge variant={variant as BadgeVariant} size="xs">
             {CUSTOMER_STATUS_LABELS[customer.status] || customer.status}
           </Badge>
         );
@@ -192,20 +193,24 @@ export function CustomerTable() {
       align: "right",
       cell: (customer) => (
         <div className="flex items-center justify-end gap-1">
-          <button
-            className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
             onClick={() => router.push(`/customers/${customer.id}`)}
             title="View"
           >
             <Eye className="h-4 w-4" />
-          </button>
-          <button
-            className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
             onClick={() => handleEdit(customer)}
             title="Edit"
           >
             <Pencil className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       ),
     },
@@ -222,7 +227,7 @@ export function CustomerTable() {
         <Button
           onClick={handleAdd}
           variant="premium"
-          size="xl"
+          size="lg"
           className="gap-2"
         >
           <UserPlus className="h-4 w-4" />
@@ -237,9 +242,9 @@ export function CustomerTable() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
                <h2 className="font-bold text-lg text-foreground">Client Directory</h2>
-               <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md ring-1 ring-border">
+               <Badge variant="secondary" size="xs" className="ring-1 ring-border">
                   {total} results
-               </span>
+               </Badge>
             </div>
             
             <div className="flex flex-col md:flex-row items-center gap-3">

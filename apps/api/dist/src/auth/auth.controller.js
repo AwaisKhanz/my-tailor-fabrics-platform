@@ -36,8 +36,8 @@ let AuthController = class AuthController {
             success: true,
             data: {
                 accessToken: result.accessToken,
-                user: result.user
-            }
+                user: result.user,
+            },
         });
     }
     async refresh(req, res) {
@@ -55,23 +55,28 @@ let AuthController = class AuthController {
             });
             return res.json({
                 success: true,
-                data: { accessToken: result.accessToken }
+                data: { accessToken: result.accessToken },
             });
         }
         catch (error) {
             console.error('Refresh Error:', error);
-            return res.status(common_1.HttpStatus.UNAUTHORIZED).json({ success: false, error: 'Unauthorized' });
+            return res
+                .status(common_1.HttpStatus.UNAUTHORIZED)
+                .json({ success: false, error: 'Unauthorized' });
         }
     }
     async logout(req, res) {
         await this.authService.logout(req.user.userId);
         res.clearCookie('Refresh-Token');
-        return res.json({ success: true, data: { message: 'Logged out successfully' } });
+        return res.json({
+            success: true,
+            data: { message: 'Logged out successfully' },
+        });
     }
     getProfile(req) {
         return {
             success: true,
-            data: req.user
+            data: req.user,
         };
     }
 };

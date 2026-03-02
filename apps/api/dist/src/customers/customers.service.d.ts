@@ -146,6 +146,7 @@ export declare class CustomersService {
                 completedAt: Date | null;
                 fabricSource: import(".prisma/client").$Enums.FabricSource;
                 pieceNo: number;
+                designTypeId: string | null;
                 orderId: string;
             }[];
         } & {

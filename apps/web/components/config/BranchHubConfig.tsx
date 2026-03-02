@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 
 interface BranchHubConfigProps {
   branchId: string;
@@ -50,12 +51,16 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
   return (
     <div className="max-w-9xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-        <Link href="/" className="hover:text-primary">Home</Link>
-        <ChevronRight className="h-3 w-3" />
-        <Link href="/settings/branches" className="hover:text-primary">Branches</Link>
-        <ChevronRight className="h-3 w-3" />
-        <span className="text-foreground">{branch?.name || 'Branch'} Overview</span>
+      <nav className="flex items-center gap-2">
+        <Link href="/" className="hover:text-primary transition-colors">
+          <Label variant="dashboard" className="cursor-pointer">Home</Label>
+        </Link>
+        <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+        <Link href="/settings/branches" className="hover:text-primary transition-colors">
+          <Label variant="dashboard" className="cursor-pointer">Branches</Label>
+        </Link>
+        <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+        <Label variant="dashboard" className="opacity-100 text-foreground">{branch?.name || 'Branch'} Overview</Label>
       </nav>
 
       {/* Main Header + Profile */}
@@ -64,12 +69,12 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
           <div className="space-y-4 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-4xl font-extrabold tracking-tight text-foreground">{branch?.name || 'Branch Overview'}</h1>
-              <Badge variant={branch?.isActive ? "success" : "outline"} className="uppercase font-bold tracking-widest text-[10px] px-3 py-1">
+              <Badge variant={branch?.isActive ? "success" : "outline"} size="xs">
                 {branch?.isActive ? 'Active' : 'Inactive'}
               </Badge>
-              <span className="bg-muted text-muted-foreground font-bold text-[10px] uppercase tracking-widest px-2 py-1 rounded ring-1 ring-border">
+              <Badge variant="secondary" size="xs">
                 {branch?.code}
-              </span>
+              </Badge>
             </div>
             
             <div className="flex flex-wrap items-center gap-6 text-sm">
@@ -96,7 +101,7 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
                 <Users className="h-6 w-6 text-chart-1" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Employees</span>
+                <Label variant="dashboard" className="mb-0.5">Employees</Label>
                 <span className="text-2xl font-black text-foreground">{branch?._count?.employees || 0}</span>
               </div>
             </div>
@@ -105,7 +110,7 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
                 <Users className="h-5 w-5 text-chart-2" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Customers</span>
+                <Label variant="dashboard" className="mb-0.5">Customers</Label>
                 <span className="text-xl font-extrabold text-foreground">{branch?._count?.customers || 0}</span>
               </div>
            </div>
@@ -114,7 +119,7 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
                 <Briefcase className="h-6 w-6 text-primary" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Orders</span>
+                <Label variant="dashboard" className="mb-0.5">Orders</Label>
                 <span className="text-2xl font-black text-foreground">{branch?._count?.orders || 0}</span>
               </div>
            </div>

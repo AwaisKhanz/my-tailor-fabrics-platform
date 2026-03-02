@@ -1,6 +1,7 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { RatesService } from '../rates/rates.service';
@@ -27,6 +28,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         }[];
     } & {
@@ -70,6 +72,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         }[];
     } & {
@@ -202,6 +205,69 @@ export declare class OrdersService {
                 id: string;
                 fullName: string;
             } | null;
+            tasks: ({
+                designType: {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    name: string;
+                    isActive: boolean;
+                    deletedAt: Date | null;
+                    branchId: string | null;
+                    sortOrder: number;
+                    garmentTypeId: string | null;
+                    defaultPrice: number;
+                    defaultRate: number;
+                } | null;
+                assignedEmployee: {
+                    id: string;
+                    fullName: string;
+                } | null;
+            } & {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                deletedAt: Date | null;
+                sortOrder: number;
+                stepKey: string;
+                stepName: string;
+                stepTemplateId: string | null;
+                status: import(".prisma/client").$Enums.TaskStatus;
+                notes: string | null;
+                completedAt: Date | null;
+                designTypeId: string | null;
+                assignedEmployeeId: string | null;
+                rateOverride: number | null;
+                rateSnapshot: number | null;
+                orderItemId: string;
+                startedAt: Date | null;
+                rateCardId: string | null;
+            })[];
+            addons: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
+                deletedAt: Date | null;
+                note: string | null;
+                type: import(".prisma/client").$Enums.AddonType;
+                price: number;
+                cost: number | null;
+                orderItemId: string;
+            }[];
+            designType: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
+                isActive: boolean;
+                deletedAt: Date | null;
+                branchId: string | null;
+                sortOrder: number;
+                garmentTypeId: string | null;
+                defaultPrice: number;
+                defaultRate: number;
+            } | null;
         } & {
             id: string;
             createdAt: Date;
@@ -219,6 +285,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         })[];
         statusHistory: ({
@@ -276,6 +343,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         }[];
     } & {
@@ -330,14 +398,7 @@ export declare class OrdersService {
         shareToken: string | null;
         sharePin: string | null;
     }>;
-    update(id: string, branchId: string, dto: {
-        dueDate?: string;
-        notes?: string;
-        discountType?: 'PERCENTAGE' | 'FIXED';
-        discountValue?: number;
-        status?: string;
-        employeeId?: string;
-    }, userRole: string): Promise<{
+    update(id: string, branchId: string, dto: UpdateOrderDto, userRole: string): Promise<{
         items: {
             id: string;
             createdAt: Date;
@@ -355,6 +416,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         }[];
     } & {
@@ -400,6 +462,7 @@ export declare class OrdersService {
         completedAt: Date | null;
         fabricSource: import(".prisma/client").$Enums.FabricSource;
         pieceNo: number;
+        designTypeId: string | null;
         orderId: string;
     }>;
     removeItem(orderId: string, itemId: string, branchId: string): Promise<{
@@ -420,6 +483,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         }[];
     } & {
@@ -468,13 +532,7 @@ export declare class OrdersService {
         balanceDue: number;
         sharePin: string | null;
     }>;
-    addItem(orderId: string, branchId: string, itemDto: {
-        garmentTypeId: string;
-        employeeId?: string;
-        quantity?: number;
-        description?: string;
-        dueDate?: string;
-    }): Promise<{
+    addItem(orderId: string, branchId: string, itemDto: OrderItemDto): Promise<{
         items: {
             id: string;
             createdAt: Date;
@@ -492,6 +550,7 @@ export declare class OrdersService {
             completedAt: Date | null;
             fabricSource: import(".prisma/client").$Enums.FabricSource;
             pieceNo: number;
+            designTypeId: string | null;
             orderId: string;
         }[];
     } & {

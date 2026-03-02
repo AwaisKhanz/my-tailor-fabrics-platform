@@ -136,7 +136,7 @@ export function GarmentWorkflowStepsDialog({
               
               <div className="grid grid-cols-2 flex-1 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-[10px] uppercase tracking-wider">Step Name</Label>
+                  <Label variant="dashboard">Step Name</Label>
                   <Input
                     placeholder="e.g. Cutting"
                     value={step.stepName || ""}
@@ -145,7 +145,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] uppercase tracking-wider">Unique Key</Label>
+                  <Label variant="dashboard">Unique Key</Label>
                   <Input
                     placeholder="e.g. CUTTING"
                     value={step.stepKey || ""}
@@ -157,14 +157,14 @@ export function GarmentWorkflowStepsDialog({
 
               <div className="flex items-center gap-4 px-2 border-l border-r">
                  <div className="flex flex-col items-center gap-1">
-                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Required</Label>
+                    <Label variant="dashboard" className="text-muted-foreground">Required</Label>
                     <Switch
                         checked={step.isRequired}
                         onCheckedChange={(v) => handleChange(index, "isRequired", v)}
                     />
                  </div>
                  <div className="flex flex-col items-center gap-1">
-                    <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Active</Label>
+                    <Label variant="dashboard" className="text-muted-foreground">Active</Label>
                     <Switch
                         checked={step.isActive}
                         onCheckedChange={(v) => handleChange(index, "isActive", v)}

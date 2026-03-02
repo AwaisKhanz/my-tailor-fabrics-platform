@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsEnum, IsNotEmpty, ValidateNested, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNotEmpty,
+  ValidateNested,
+  IsArray,
+} from 'class-validator';
 import { CustomerStatus } from '@tbms/shared-types';
 import { Type } from 'class-transformer';
 

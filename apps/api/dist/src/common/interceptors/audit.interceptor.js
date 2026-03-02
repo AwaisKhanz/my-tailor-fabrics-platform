@@ -60,11 +60,15 @@ let AuditInterceptor = AuditInterceptor_1 = class AuditInterceptor {
             entity = 'MeasurementCategory';
         const entityId = params?.id || body?.id || 'unknown';
         let oldValue = null;
-        if (['PUT', 'PATCH', 'DELETE'].includes(method) && entity !== 'Unknown' && entityId !== 'unknown') {
+        if (['PUT', 'PATCH', 'DELETE'].includes(method) &&
+            entity !== 'Unknown' &&
+            entityId !== 'unknown') {
             try {
                 const modelName = entity.charAt(0).toLowerCase() + entity.slice(1);
                 if (this.prisma[modelName]) {
-                    oldValue = await this.prisma[modelName].findUnique({ where: { id: entityId } });
+                    oldValue = await this.prisma[modelName].findUnique({
+                        where: { id: entityId },
+                    });
                 }
             }
             catch (err) {
@@ -73,19 +77,27 @@ let AuditInterceptor = AuditInterceptor_1 = class AuditInterceptor {
         }
         return next.handle().pipe((0, operators_1.tap)((response) => {
             const entityIdFromRes = response?.data?.id || response?.id || entityId;
-            this.prisma.auditLog.create({
+            this.prisma.auditLog
+                .create({
                 data: {
                     userId: user.userId,
                     action,
                     entity,
                     entityId: String(entityIdFromRes),
                     branchId: user.branchId || null,
-                    oldValue: oldValue ? oldValue : client_1.Prisma.JsonNull,
-                    newValue: method === 'DELETE' ? client_1.Prisma.JsonNull : (body ? body : client_1.Prisma.JsonNull),
+                    oldValue: oldValue
+                        ? oldValue
+                        : client_1.Prisma.JsonNull,
+                    newValue: method === 'DELETE'
+                        ? client_1.Prisma.JsonNull
+                        : body
+                            ? body
+                            : client_1.Prisma.JsonNull,
                     ipAddress: request.ip,
                     userAgent: request.headers['user-agent'],
-                }
-            }).catch((err) => {
+                },
+            })
+                .catch((err) => {
                 this.logger.error('Audit Log failed:', err);
             });
         }));

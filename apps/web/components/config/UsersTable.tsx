@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { CardTitle } from "@/components/ui/card";
 import { Plus, Users, Pencil, ShieldAlert, Monitor, UserCheck, Trash2, Filter } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { ROLES, ROLE_BADGE } from "@tbms/shared-constants";
@@ -128,7 +129,7 @@ export function UsersTable() {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold text-foreground leading-tight">{u.name}</span>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">ID: STAFF-{u.id ? u.id.slice(0,3).toUpperCase() : '001'}</span>
+            <Label variant="dashboard" className="mt-0.5">ID: STAFF-{u.id ? u.id.slice(0,3).toUpperCase() : '001'}</Label>
           </div>
         </div>
       ),
@@ -140,7 +141,7 @@ export function UsersTable() {
     {
       header: "Role",
       cell: (u) => (
-        <Badge variant={ROLE_BADGE[u.role as Role] ?? "outline"} className="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">
+        <Badge variant={ROLE_BADGE[u.role as Role] ?? "outline"} size="xs">
           {u.role.replace("_", " ")}
         </Badge>
       ),
@@ -150,7 +151,7 @@ export function UsersTable() {
       cell: (u) => (
         <div className="flex flex-col">
           <span className="text-sm text-foreground font-bold">{u.branch ? u.branch.name : "All Branches"}</span>
-          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{u.branch ? u.branch.code : "Master Access"}</span>
+          <Label variant="dashboard">{u.branch ? u.branch.code : "Master Access"}</Label>
         </div>
       ),
     },
@@ -159,7 +160,7 @@ export function UsersTable() {
       cell: (u) => (
         <div className="flex flex-col">
           <span className="text-sm text-foreground font-bold">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString("en-PK") : "Never"}</span>
-          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">System Log</span>
+          <Label variant="dashboard">System Log</Label>
         </div>
       ),
     },
@@ -226,7 +227,7 @@ export function UsersTable() {
                <UserCheck className="h-6 w-6 md:h-7 md:w-7 text-primary" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Active Accounts</p>
+              <Label variant="dashboard" className="mb-1">Active Accounts</Label>
               <div className="flex items-end gap-3">
                 <h3 className="text-2xl md:text-3xl font-bold text-foreground leading-none">{stats.active}</h3>
                 <span className="text-[10px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-lg">Secure</span>
@@ -239,10 +240,10 @@ export function UsersTable() {
                <ShieldAlert className="h-6 w-6 md:h-7 md:w-7 text-primary" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Privileged Roles</p>
+              <Label variant="dashboard" className="mb-1">Privileged Roles</Label>
               <div className="flex flex-col">
                 <h3 className="text-2xl md:text-3xl font-bold text-foreground leading-none">{stats.privileged} Users</h3>
-                <span className="text-[10px] font-bold text-muted-foreground mt-1.5 uppercase tracking-wide">Admins & Operators</span>
+                <Label variant="dashboard" className="mt-1.5">Admins & Operators</Label>
               </div>
             </div>
           </div>
@@ -252,10 +253,10 @@ export function UsersTable() {
                <Monitor className="h-6 w-6 md:h-7 md:w-7 text-primary" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">System Health</p>
+              <Label variant="dashboard" className="mb-1">System Health</Label>
               <div className="flex flex-col">
                 <h3 className="text-2xl md:text-3xl font-bold text-foreground leading-none">100%</h3>
-                <span className="text-[10px] font-bold text-primary mt-1.5 uppercase tracking-wide">Live Access Control</span>
+                <Label variant="dashboard" className="mt-1.5">Live Access Control</Label>
               </div>
             </div>
           </div>
@@ -265,7 +266,7 @@ export function UsersTable() {
       {/* Users DataTable */}
       <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden text-sm">
         <div className="px-6 py-6 border-b border-border/50 flex items-center justify-between">
-          <h2 className="font-bold text-lg text-foreground">Staff Access Directory</h2>
+          <CardTitle variant="dashboard">Staff Access Directory</CardTitle>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
               <Filter className="h-4 w-4" />

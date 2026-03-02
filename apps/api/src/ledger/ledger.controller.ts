@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Query, Delete, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Delete,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { LedgerService } from './ledger.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -18,7 +28,10 @@ export class LedgerController {
    */
   @Post()
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  async createManualEntry(@Body() dto: CreateLedgerEntryInput, @Req() req: AuthenticatedRequest) {
+  async createManualEntry(
+    @Body() dto: CreateLedgerEntryInput,
+    @Req() req: AuthenticatedRequest,
+  ) {
     // Force branchId from token to ensure data integrity
     const data = await this.ledgerService.createEntry({
       ...dto,

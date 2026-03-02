@@ -21,51 +21,57 @@ export class SchedulerService {
       where: {
         deletedAt: null,
         status: {
-          in: [OrderStatus.NEW, OrderStatus.IN_PROGRESS, OrderStatus.READY]
+          in: [OrderStatus.NEW, OrderStatus.IN_PROGRESS, OrderStatus.READY],
         },
         dueDate: {
-          lt: now
-        }
+          lt: now,
+        },
       },
-      select: { id: true, status: true }
+      select: { id: true, status: true },
     });
 
     if (overdueCandidates.length === 0) {
-        this.logger.log('No overdue orders found today.');
-        return;
+      this.logger.log('No overdue orders found today.');
+      return;
     }
 
-    this.logger.log(`Found ${overdueCandidates.length} orders to mark as OVERDUE.`);
+    this.logger.log(
+      `Found ${overdueCandidates.length} orders to mark as OVERDUE.`,
+    );
 
     let successCount = 0;
 
     // Process them sequentially to avoid locking the whole DB
     for (const order of overdueCandidates) {
       try {
-        await this.prisma.$transaction(async (tx: import('.prisma/client').Prisma.TransactionClient) => {
+        await this.prisma.$transaction(
+          async (tx: import('.prisma/client').Prisma.TransactionClient) => {
             // 1. Log transition
             await tx.orderStatusHistory.create({
-                data: {
-                    orderId: order.id,
-                    fromStatus: order.status,
-                    toStatus: OrderStatus.OVERDUE,
-                    actor: 'SYSTEM',
-                    note: 'Automated CRON task transitioned to OVERDUE.'
-                }
+              data: {
+                orderId: order.id,
+                fromStatus: order.status,
+                toStatus: OrderStatus.OVERDUE,
+                actor: 'SYSTEM',
+                note: 'Automated CRON task transitioned to OVERDUE.',
+              },
             });
 
             // 2. Update status
             await tx.order.update({
-                where: { id: order.id },
-                data: { status: OrderStatus.OVERDUE }
+              where: { id: order.id },
+              data: { status: OrderStatus.OVERDUE },
             });
-        });
+          },
+        );
         successCount++;
       } catch (err) {
-          this.logger.error(`Failed to mark order ${order.id} as OVERDUE:`, err);
+        this.logger.error(`Failed to mark order ${order.id} as OVERDUE:`, err);
       }
     }
 
-    this.logger.log(`Successfully marked ${successCount} out of ${overdueCandidates.length} orders as OVERDUE.`);
+    this.logger.log(
+      `Successfully marked ${successCount} out of ${overdueCandidates.length} orders as OVERDUE.`,
+    );
   }
 }

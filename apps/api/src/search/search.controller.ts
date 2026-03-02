@@ -14,21 +14,35 @@ export class SearchController {
 
   @Get('customers')
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
-  async queryCustomers(@Query('q') query: string, @Req() req: AuthenticatedRequest) {
+  async queryCustomers(
+    @Query('q') query: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const branchId = req.branchId; // Set by BranchGuard
     const limit = Number(req.query.limit) || 10;
-    
-    const data = await this.searchService.searchCustomers(query || '', branchId, limit);
+
+    const data = await this.searchService.searchCustomers(
+      query || '',
+      branchId,
+      limit,
+    );
     return { success: true, data };
   }
 
   @Get('employees')
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
-  async queryEmployees(@Query('q') query: string, @Req() req: AuthenticatedRequest) {
+  async queryEmployees(
+    @Query('q') query: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const branchId = req.branchId; // Set by BranchGuard
     const limit = Number(req.query.limit) || 10;
 
-    const data = await this.searchService.searchEmployees(query || '', branchId, limit);
+    const data = await this.searchService.searchEmployees(
+      query || '',
+      branchId,
+      limit,
+    );
     return { success: true, data };
   }
 }

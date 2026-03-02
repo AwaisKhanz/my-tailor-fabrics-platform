@@ -7,6 +7,13 @@ export declare class ReportsService {
         expenses: number;
         outstandingBalances: number;
         overdueOrders: number;
+        overdueCount: number;
+        totalOrders: number;
+        newToday: number;
+        totalOutstandingBalance: number;
+        totalCustomers: number;
+        activeEmployees: number;
+        recentOrders: any;
     }>;
     getRevenueVsExpenses(branchId?: string, months?: number): Promise<{
         revenue: {
@@ -26,4 +33,41 @@ export declare class ReportsService {
         label: string;
         value: number;
     }[]>;
+    getDesignAnalytics(branchId?: string, from?: string, to?: string): Promise<{
+        name: string;
+        count: number;
+        revenue: number;
+        payout: number;
+    }[]>;
+    getAddonAnalytics(branchId?: string, from?: string, to?: string): Promise<{
+        type: string;
+        count: number;
+        total: number;
+    }[]>;
+    getSummary(branchId?: string, from?: string, to?: string): Promise<{
+        totalDesignRevenue: number;
+        totalAddonRevenue: number;
+        designs: {
+            name: string;
+            count: number;
+            revenue: number;
+            payout: number;
+        }[];
+        addons: {
+            type: string;
+            count: number;
+            total: number;
+        }[];
+        revenue: number;
+        expenses: number;
+        outstandingBalances: number;
+        overdueOrders: number;
+        overdueCount: number;
+        totalOrders: number;
+        newToday: number;
+        totalOutstandingBalance: number;
+        totalCustomers: number;
+        activeEmployees: number;
+        recentOrders: any;
+    }>;
 }

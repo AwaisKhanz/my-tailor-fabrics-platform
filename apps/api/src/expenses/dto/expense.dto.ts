@@ -1,4 +1,10 @@
-import { IsString, IsInt, IsOptional, Min, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsOptional,
+  Min,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateExpenseDto {
   @IsString()

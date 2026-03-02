@@ -21,7 +21,9 @@ let CustomersService = class CustomersService {
         this.searchService = searchService;
     }
     async generateSizeNumber(branchId) {
-        const branch = await this.prisma.branch.findUnique({ where: { id: branchId } });
+        const branch = await this.prisma.branch.findUnique({
+            where: { id: branchId },
+        });
         if (!branch)
             throw new common_1.NotFoundException('Branch not found');
         const prefix = `C-${branch.code}-`;
@@ -46,7 +48,10 @@ let CustomersService = class CustomersService {
     async findAll(branchId, page = 1, limit = 20, search, isVip) {
         if (search && search.trim().length >= 2) {
             const results = await this.searchService.searchCustomers(search, branchId, limit);
-            return { data: results, meta: { total: results.length, page: 1, lastPage: 1 } };
+            return {
+                data: results,
+                meta: { total: results.length, page: 1, lastPage: 1 },
+            };
         }
         const skip = (page - 1) * limit;
         const where = {
@@ -55,7 +60,12 @@ let CustomersService = class CustomersService {
             ...(typeof isVip === 'boolean' ? { isVip } : {}),
         };
         const [data, total] = await Promise.all([
-            this.prisma.customer.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+            this.prisma.customer.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+            }),
             this.prisma.customer.count({ where }),
         ]);
         return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
@@ -65,7 +75,7 @@ let CustomersService = class CustomersService {
             where: {
                 id,
                 deletedAt: null,
-                ...(branchId ? { branchId } : {})
+                ...(branchId ? { branchId } : {}),
             },
             include: { measurements: { include: { category: true } } },
         });
@@ -76,58 +86,82 @@ let CustomersService = class CustomersService {
                 where: {
                     customerId: id,
                     deletedAt: null,
-                    ...(branchId ? { branchId } : {})
-                }
+                    ...(branchId ? { branchId } : {}),
+                },
             }),
             this.prisma.order.aggregate({
                 where: {
                     customerId: id,
                     deletedAt: null,
-                    ...(branchId ? { branchId } : {})
+                    ...(branchId ? { branchId } : {}),
                 },
-                _sum: { totalPaid: true }
-            })
+                _sum: { totalPaid: true },
+            }),
         ]);
         return {
             ...customer,
             stats: {
                 totalOrders,
-                totalSpent: stats._sum.totalPaid || 0
-            }
+                totalSpent: stats._sum.totalPaid || 0,
+            },
         };
     }
     async update(id, branchId, updateCustomerDto) {
         await this.findOne(id, branchId);
-        return this.prisma.customer.update({ where: { id }, data: updateCustomerDto });
+        return this.prisma.customer.update({
+            where: { id },
+            data: updateCustomerDto,
+        });
     }
     async remove(id, branchId) {
         await this.findOne(id, branchId);
-        return this.prisma.customer.update({ where: { id }, data: { deletedAt: new Date() } });
+        return this.prisma.customer.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+        });
     }
     async getOrders(id, branchId, page = 1, limit = 20) {
         await this.findOne(id, branchId);
         const skip = (page - 1) * limit;
         const [data, total] = await Promise.all([
             this.prisma.order.findMany({
-                where: { customerId: id, deletedAt: null, ...(branchId ? { branchId } : {}) },
+                where: {
+                    customerId: id,
+                    deletedAt: null,
+                    ...(branchId ? { branchId } : {}),
+                },
                 skip,
                 take: limit,
                 orderBy: { orderDate: 'desc' },
                 include: { items: true },
             }),
-            this.prisma.order.count({ where: { customerId: id, deletedAt: null, ...(branchId ? { branchId } : {}) } }),
+            this.prisma.order.count({
+                where: {
+                    customerId: id,
+                    deletedAt: null,
+                    ...(branchId ? { branchId } : {}),
+                },
+            }),
         ]);
         return { data, total };
     }
     async upsertMeasurement(id, branchId, dto) {
         await this.findOne(id, branchId);
-        const category = await this.prisma.measurementCategory.findUnique({ where: { id: dto.categoryId } });
+        const category = await this.prisma.measurementCategory.findUnique({
+            where: { id: dto.categoryId },
+        });
         if (!category || !category.isActive)
             throw new common_1.NotFoundException('Measurement Category not found or inactive');
         return this.prisma.customerMeasurement.upsert({
-            where: { customerId_categoryId: { customerId: id, categoryId: dto.categoryId } },
+            where: {
+                customerId_categoryId: { customerId: id, categoryId: dto.categoryId },
+            },
             update: { values: dto.values },
-            create: { customerId: id, categoryId: dto.categoryId, values: dto.values },
+            create: {
+                customerId: id,
+                categoryId: dto.categoryId,
+                values: dto.values,
+            },
         });
     }
     async toggleVip(id, branchId, isVip) {
@@ -138,6 +172,7 @@ let CustomersService = class CustomersService {
 exports.CustomersService = CustomersService;
 exports.CustomersService = CustomersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService, search_service_1.SearchService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        search_service_1.SearchService])
 ], CustomersService);
 //# sourceMappingURL=customers.service.js.map

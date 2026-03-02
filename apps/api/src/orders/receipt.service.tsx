@@ -23,7 +23,14 @@ interface ReceiptOrder {
   orderDate: Date | string;
   customer: { fullName: string; phone: string; };
   branch: { name: string; };
-  items: { id: string; garmentTypeName: string; quantity: number; unitPrice: number; }[];
+  items: { 
+    id: string; 
+    garmentTypeName: string; 
+    quantity: number; 
+    unitPrice: number;
+    designType?: { name: string; defaultPrice: number } | null;
+    addons?: { id: string; name: string; price: number }[];
+  }[];
   subtotal: number;
   discountAmount: number;
   totalAmount: number;
@@ -58,16 +65,48 @@ const ReceiptDocument = ({ order }: { order: ReceiptOrder }) => (
         <View style={styles.itemRow}>
           <Text style={[styles.itemColName, { fontWeight: 'bold' }]}>Item</Text>
           <Text style={[styles.itemColQty, { fontWeight: 'bold' }]}>Qty</Text>
-          <Text style={[styles.itemColPrice, { fontWeight: 'bold' }]}>Price</Text>
+          <Text style={[styles.itemColPrice, { fontWeight: 'bold' }]}>Total Price</Text>
         </View>
         
-        {order.items.map((item) => (
-          <View style={styles.itemRow} key={item.id}>
-            <Text style={styles.itemColName}>{item.garmentTypeName}</Text>
-            <Text style={styles.itemColQty}>{item.quantity}</Text>
-            <Text style={styles.itemColPrice}>Rs {(item.unitPrice / 100).toFixed(2)}</Text>
-          </View>
-        ))}
+        {order.items.map((item) => {
+          const designPrice = item.designType?.defaultPrice || 0;
+          const addonsPrice = item.addons?.reduce((sum, a) => sum + a.price, 0) || 0;
+          const itemTotal = (item.unitPrice * item.quantity) + (designPrice * item.quantity) + addonsPrice;
+
+          return (
+            <View key={item.id} style={{ borderBottomWidth: 1, borderBottomColor: '#EEEEEE', paddingVertical: 5 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={[styles.itemColName, { fontWeight: 'bold' }]}>{item.garmentTypeName}</Text>
+                <Text style={styles.itemColQty}>{item.quantity}</Text>
+                <Text style={styles.itemColPrice}>Rs {(itemTotal / 100).toFixed(2)}</Text>
+              </View>
+              {/* Optional Design Type Sub-row */}
+              {item.designType && (
+                <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                  <Text style={[styles.itemColName, { color: '#666666', fontSize: 9, paddingLeft: 10 }]}>
+                    └ Design: {item.designType.name}
+                  </Text>
+                  <Text style={styles.itemColQty}></Text>
+                  <Text style={[styles.itemColPrice, { color: '#666666', fontSize: 9 }]}>
+                    (+Rs {(item.designType.defaultPrice / 100).toFixed(2)})
+                  </Text>
+                </View>
+              )}
+              {/* Optional Addons Sub-rows */}
+              {item.addons && item.addons.length > 0 && item.addons.map(addon => (
+                <View key={addon.id} style={{ flexDirection: 'row', marginTop: 2 }}>
+                  <Text style={[styles.itemColName, { color: '#666666', fontSize: 9, paddingLeft: 10 }]}>
+                    └ Addon: {addon.name}
+                  </Text>
+                  <Text style={styles.itemColQty}></Text>
+                  <Text style={[styles.itemColPrice, { color: '#666666', fontSize: 9 }]}>
+                    (+Rs {(addon.price / 100).toFixed(2)})
+                  </Text>
+                </View>
+              ))}
+            </View>
+          );
+        })}
 
         <Text style={styles.title}>Summary</Text>
         <View style={styles.row}>
@@ -105,7 +144,14 @@ export class ReceiptService {
       include: {
         customer: true,
         branch: true,
-        items: true,
+        items: {
+          where: { deletedAt: null },
+          orderBy: { pieceNo: 'asc' },
+          include: {
+            designType: true,
+            addons: { where: { deletedAt: null } }
+          }
+        },
       },
     });
 

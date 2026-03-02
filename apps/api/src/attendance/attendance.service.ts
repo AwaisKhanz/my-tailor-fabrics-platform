@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
@@ -12,15 +16,24 @@ export class AttendanceService {
     today.setHours(0, 0, 0, 0);
 
     const existing = await this.prisma.attendanceRecord.findFirst({
-      where: { employeeId, date: { gte: today }, clockOut: null, deletedAt: null },
+      where: {
+        employeeId,
+        date: { gte: today },
+        clockOut: null,
+        deletedAt: null,
+      },
     });
     if (existing) {
-      throw new BadRequestException('Employee already clocked in today. Please clock out first.');
+      throw new BadRequestException(
+        'Employee already clocked in today. Please clock out first.',
+      );
     }
 
     const now = new Date();
 
-    const employee = await this.prisma.employee.findUnique({ where: { id: employeeId } });
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: employeeId },
+    });
     if (!employee) throw new NotFoundException('Employee not found');
     const recordBranchId = branchId || employee.branchId;
 
@@ -38,7 +51,11 @@ export class AttendanceService {
 
   async clockOut(recordId: string, branchId: string) {
     const record = await this.prisma.attendanceRecord.findFirst({
-      where: { id: recordId, deletedAt: null, ...(branchId ? { branchId } : {}) },
+      where: {
+        id: recordId,
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
+      },
     });
     if (!record) throw new NotFoundException('Attendance record not found');
     if (record.clockOut) throw new BadRequestException('Already clocked out');
@@ -68,7 +85,11 @@ export class AttendanceService {
         skip,
         take: limit,
         orderBy: { clockIn: 'desc' },
-        include: { employee: { select: { fullName: true, employeeCode: true, designation: true } } },
+        include: {
+          employee: {
+            select: { fullName: true, employeeCode: true, designation: true },
+          },
+        },
       }),
       this.prisma.attendanceRecord.count({ where }),
     ]);
@@ -83,10 +104,18 @@ export class AttendanceService {
       take: 30, // last 30 records
     });
 
-    const totalHours = records.reduce((sum: number, r) => sum + (r.hoursWorked ?? 0), 0);
+    const totalHours = records.reduce(
+      (sum: number, r) => sum + (r.hoursWorked ?? 0),
+      0,
+    );
     const totalDays = records.length;
-    const currentlyIn = records.find(r => !r.clockOut);
+    const currentlyIn = records.find((r) => !r.clockOut);
 
-    return { totalDays, totalHours: Math.round(totalHours * 100) / 100, currentlyIn, records };
+    return {
+      totalDays,
+      totalHours: Math.round(totalHours * 100) / 100,
+      currentlyIn,
+      records,
+    };
   }
 }

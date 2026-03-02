@@ -59,7 +59,9 @@ let ExportService = class ExportService {
         return passThrough;
     }
     async exportOrders(branchId, from, to) {
-        const where = branchId ? { branchId } : {};
+        const where = branchId
+            ? { branchId }
+            : {};
         if (from && to) {
             where.orderDate = { gte: new Date(from), lte: new Date(to) };
         }
@@ -72,7 +74,7 @@ let ExportService = class ExportService {
         const orders = await this.prisma.order.findMany({
             where,
             include: { customer: true, items: true, branch: true },
-            orderBy: { orderDate: 'desc' }
+            orderBy: { orderDate: 'desc' },
         });
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Orders');
@@ -89,7 +91,7 @@ let ExportService = class ExportService {
             { header: 'Balance Due (Rs)', key: 'balanceDue', width: 15 },
             { header: 'Items Count', key: 'itemsCount', width: 15 },
         ];
-        orders.forEach(o => {
+        orders.forEach((o) => {
             sheet.addRow({
                 orderNumber: o.orderNumber,
                 orderDate: o.orderDate.toISOString().split('T')[0],
@@ -101,7 +103,7 @@ let ExportService = class ExportService {
                 total: o.totalAmount / 100,
                 paid: o.totalPaid / 100,
                 balanceDue: o.balanceDue / 100,
-                itemsCount: o.items.reduce((sum, item) => sum + item.quantity, 0)
+                itemsCount: o.items.reduce((sum, item) => sum + item.quantity, 0),
             });
         });
         return this.exportToStream(workbook);
@@ -122,7 +124,7 @@ let ExportService = class ExportService {
         const payments = await this.prisma.payment.findMany({
             where,
             include: { employee: true, processedBy: true },
-            orderBy: { paidAt: 'desc' }
+            orderBy: { paidAt: 'desc' },
         });
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Payments');
@@ -133,17 +135,19 @@ let ExportService = class ExportService {
             { header: 'Processed By', key: 'processedBy', width: 25 },
             { header: 'Notes', key: 'note', width: 40 },
         ];
-        payments.forEach(p => sheet.addRow({
+        payments.forEach((p) => sheet.addRow({
             date: p.paidAt.toISOString().split('T')[0],
             employee: p.employee.fullName,
             amount: p.amount / 100,
             processedBy: p.processedBy.email,
-            note: p.note
+            note: p.note,
         }));
         return this.exportToStream(workbook);
     }
     async exportExpenses(branchId, from, to) {
-        const where = branchId ? { branchId } : {};
+        const where = branchId
+            ? { branchId }
+            : {};
         let dateFilter;
         if (from && to)
             dateFilter = { gte: new Date(from), lte: new Date(to) };
@@ -155,7 +159,7 @@ let ExportService = class ExportService {
             where.expenseDate = dateFilter;
         const expenses = await this.prisma.expense.findMany({
             where,
-            orderBy: { expenseDate: 'desc' }
+            orderBy: { expenseDate: 'desc' },
         });
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Expenses');
@@ -167,21 +171,23 @@ let ExportService = class ExportService {
             { header: 'Description', key: 'description', width: 35 },
             { header: 'Added By (ID)', key: 'addedById', width: 25 },
         ];
-        expenses.forEach(e => sheet.addRow({
+        expenses.forEach((e) => sheet.addRow({
             date: e.expenseDate.toISOString().split('T')[0],
             branchId: e.branchId,
             categoryId: e.categoryId,
             amount: e.amount / 100,
             description: e.description,
-            addedById: e.addedById
+            addedById: e.addedById,
         }));
         return this.exportToStream(workbook);
     }
     async exportEmployeeSummaries(branchId) {
-        const employeeCondition = branchId ? `WHERE "branchId" = '${branchId}'` : '';
+        const employeeCondition = branchId
+            ? `WHERE "branchId" = '${branchId}'`
+            : '';
         const employees = await this.prisma.employee.findMany({
             where: branchId ? { branchId } : {},
-            include: { branch: true }
+            include: { branch: true },
         });
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Employee Summaries');
@@ -201,7 +207,7 @@ let ExportService = class ExportService {
             `);
             const paid = await this.prisma.payment.aggregate({
                 where: { employeeId: emp.id },
-                _sum: { amount: true }
+                _sum: { amount: true },
             });
             const earnedAmt = Number(raw[0]?.earned ?? 0);
             const paidAmt = paid._sum.amount ?? 0;
@@ -211,7 +217,7 @@ let ExportService = class ExportService {
                 branch: emp.branch.name,
                 earned: earnedAmt / 100,
                 paid: paidAmt / 100,
-                balance: (earnedAmt - paidAmt) / 100
+                balance: (earnedAmt - paidAmt) / 100,
             });
         }
         return this.exportToStream(workbook);

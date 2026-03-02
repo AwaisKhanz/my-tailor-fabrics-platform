@@ -16,6 +16,11 @@ export const customerApi = {
     return response.data;
   },
 
+  getOrders: async (id: string, params?: { page?: number; limit?: number }) => {
+    const response = await api.get<ApiResponse<PaginatedResponse<any>>>(`/customers/${id}/orders`, { params });
+    return response.data;
+  },
+
   createCustomer: async (data: Partial<Customer>) => {
     const response = await api.post<ApiResponse<Customer>>('/customers', data);
     return response.data;
@@ -36,11 +41,6 @@ export const customerApi = {
       categoryId,
       values,
     });
-    return response.data;
-  },
-
-  getMeasurementCategories: async () => {
-    const response = await api.get<ApiResponse<MeasurementCategory[]>>('/config/measurement-categories');
     return response.data;
   },
 };

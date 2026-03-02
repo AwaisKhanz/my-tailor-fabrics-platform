@@ -24,10 +24,7 @@ let RatesService = class RatesService {
                 garmentTypeId,
                 stepKey,
                 effectiveFrom: { lte: date },
-                OR: [
-                    { effectiveTo: null },
-                    { effectiveTo: { gte: date } },
-                ],
+                OR: [{ effectiveTo: null }, { effectiveTo: { gte: date } }],
                 deletedAt: null,
             },
             orderBy: { effectiveFrom: 'desc' },
@@ -39,10 +36,7 @@ let RatesService = class RatesService {
                     garmentTypeId,
                     stepKey,
                     effectiveFrom: { lte: date },
-                    OR: [
-                        { effectiveTo: null },
-                        { effectiveTo: { gte: date } },
-                    ],
+                    OR: [{ effectiveTo: null }, { effectiveTo: { gte: date } }],
                     deletedAt: null,
                 },
                 orderBy: { effectiveFrom: 'desc' },

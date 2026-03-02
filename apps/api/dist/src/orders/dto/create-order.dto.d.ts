@@ -6,6 +6,16 @@ export declare class OrderItemDto {
     fabricSource?: FabricSource;
     employeeId?: string;
     dueDate?: string;
+    designTypeId?: string;
+    addons?: OrderItemAddonDto[];
+    unitPrice?: number;
+    employeeRate?: number;
+}
+export declare class OrderItemAddonDto {
+    type: string;
+    name: string;
+    price: number;
+    cost?: number;
 }
 export declare class CreateOrderDto {
     customerId: string;

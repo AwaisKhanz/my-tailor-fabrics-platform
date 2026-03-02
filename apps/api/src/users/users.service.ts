@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { Role, CreateUserInput, UpdateUserInput } from '@tbms/shared-types';
@@ -9,21 +13,24 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string) {
-    return this.prisma.user.findFirst({ 
-      where: { email, deletedAt: null }, 
-      include: { branch: true } 
+    return this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
+      include: { branch: true },
     });
   }
 
   async findById(id: string) {
-    return this.prisma.user.findFirst({ 
-      where: { id, deletedAt: null }, 
-      include: { branch: true } 
+    return this.prisma.user.findFirst({
+      where: { id, deletedAt: null },
+      include: { branch: true },
     });
   }
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
-    return this.prisma.user.update({ where: { id: userId }, data: { refreshToken } });
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken },
+    });
   }
 
   async findAll(branchId?: string) {
@@ -47,18 +54,22 @@ export class UsersService {
         },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.user.count({ where })
+      this.prisma.user.count({ where }),
     ]);
     return { data, total };
   }
 
   async setupInitialSuperAdmin(data: CreateUserInput) {
-    const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+    const existing = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
     if (existing) {
-        if (existing.deletedAt) {
-            throw new ConflictException('A user with this email existed and was deleted. Contact support.');
-        }
-        throw new ConflictException('A user with this email already exists');
+      if (existing.deletedAt) {
+        throw new ConflictException(
+          'A user with this email existed and was deleted. Contact support.',
+        );
+      }
+      throw new ConflictException('A user with this email already exists');
     }
     // Generate a temporary password if none provided
     const tempPassword = data.password || Math.random().toString(36).slice(-8);
@@ -73,7 +84,8 @@ export class UsersService {
         branchId: data.branchId,
         isActive: true,
       },
-      select: { // Added select block to match other create/update methods
+      select: {
+        // Added select block to match other create/update methods
         id: true,
         name: true,
         email: true,
@@ -86,12 +98,16 @@ export class UsersService {
   }
 
   async create(data: CreateUserInput) {
-    const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+    const existing = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
     if (existing) {
-        if (existing.deletedAt) {
-            throw new ConflictException('A user with this email existed and was deleted. Contact support.');
-        }
-        throw new ConflictException('A user with this email already exists');
+      if (existing.deletedAt) {
+        throw new ConflictException(
+          'A user with this email existed and was deleted. Contact support.',
+        );
+      }
+      throw new ConflictException('A user with this email already exists');
     }
 
     const tempPassword = data.password || Math.random().toString(36).slice(-8);
@@ -123,11 +139,11 @@ export class UsersService {
   }
 
   async remove(id: string) {
-      await this.findById(id);
-      return this.prisma.user.update({
-          where: { id },
-          data: { deletedAt: new Date(), isActive: false }
-      });
+    await this.findById(id);
+    return this.prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date(), isActive: false },
+    });
   }
 
   async update(id: string, dataParams: UpdateUserInput) {
@@ -138,7 +154,10 @@ export class UsersService {
       name: dataParams.name,
       email: dataParams.email,
       role: dataParams.role as Role | undefined,
-      branchId: dataParams.branchId === undefined ? undefined : (dataParams.branchId ?? null),
+      branchId:
+        dataParams.branchId === undefined
+          ? undefined
+          : (dataParams.branchId ?? null),
     };
 
     if (dataParams.password) {
@@ -164,11 +183,11 @@ export class UsersService {
     const [total, active, privileged] = await Promise.all([
       this.prisma.user.count({ where: { deletedAt: null } }),
       this.prisma.user.count({ where: { deletedAt: null, isActive: true } }),
-      this.prisma.user.count({ 
-        where: { 
-          deletedAt: null, 
-          role: { in: [Role.ADMIN, Role.SUPER_ADMIN] } 
-        } 
+      this.prisma.user.count({
+        where: {
+          deletedAt: null,
+          role: { in: [Role.ADMIN, Role.SUPER_ADMIN] },
+        },
       }),
     ]);
 

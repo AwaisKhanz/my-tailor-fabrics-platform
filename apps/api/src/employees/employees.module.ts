@@ -6,6 +6,6 @@ import { SearchModule } from '../search/search.module';
 @Module({
   imports: [SearchModule],
   providers: [EmployeesService],
-  controllers: [EmployeesController]
+  controllers: [EmployeesController],
 })
 export class EmployeesModule {}
