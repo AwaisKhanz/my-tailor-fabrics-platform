@@ -78,6 +78,15 @@ export enum FabricSource {
   CUSTOMER = 'CUSTOMER'
 }
 
+export enum LedgerEntryType {
+  EARNING = 'EARNING',
+  PAYOUT = 'PAYOUT',
+  ADVANCE = 'ADVANCE',
+  DEDUCTION = 'DEDUCTION',
+  ADJUSTMENT = 'ADJUSTMENT',
+  SALARY = 'SALARY'
+}
+
 // UI Type Definitions
 export type BadgeVariant = 
   | 'default' 

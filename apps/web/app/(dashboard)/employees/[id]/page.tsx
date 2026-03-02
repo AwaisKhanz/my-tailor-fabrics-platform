@@ -7,7 +7,16 @@ import { employeesApi, EmployeeWithRelations } from "@/lib/api/employees";
 import { attendanceApi } from "@/lib/api/attendance";
 import { ordersApi } from "@/lib/api/orders";
 import { configApi } from "@/lib/api/config";
-import { OrderItem, AttendanceRecord, OrderItemTask, TaskStatus, SystemSettings } from "@tbms/shared-types";
+import { ledgerApi } from "@/lib/api/ledger";
+import { 
+  OrderItem, 
+  AttendanceRecord, 
+  OrderItemTask, 
+  TaskStatus, 
+  SystemSettings, 
+  EmployeeLedgerEntry,
+  LedgerEntryType 
+} from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,16 +25,17 @@ import {
   MapPin, 
   Phone, 
   ShieldCheck, 
-  FileText,
-  UserPlus,
-  Trash2,
-  Edit2,
-  TrendingUp,
-  Wallet,
-  ExternalLink,
-  ChevronRight,
-  Plus,
-  CheckCircle2
+  FileText, 
+  UserPlus, 
+  Trash2, 
+  Edit2, 
+  Banknote, 
+  ExternalLink, 
+  ChevronRight, 
+  Plus, 
+  CheckCircle2, 
+  ArrowUpRight, 
+  ArrowDownLeft 
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -38,13 +48,28 @@ import {
   EMPLOYEE_STATUS_LABELS, 
   EMPLOYEE_STATUS_BADGE,
   PAYMENT_TYPE_LABELS,
-  TASK_STATUS_LABELS 
+  TASK_STATUS_LABELS,
+  LEDGER_ENTRY_TYPE_LABELS,
+  LEDGER_ENTRY_TYPE_BADGE
 } from "@tbms/shared-constants";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter, 
+  DialogDescription 
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 export default function EmployeeDetailPage() {
   const params = useParams();
@@ -53,11 +78,28 @@ export default function EmployeeDetailPage() {
   
   const [loading, setLoading] = useState(true);
   const [employee, setEmployee] = useState<EmployeeWithRelations | null>(null);
-  const [stats, setStats] = useState({ totalEarned: 0, totalPaid: 0, balance: 0 });
+  const [stats, setStats] = useState({ totalEarned: 0, totalPaid: 0, currentBalance: 0 });
   const [items, setItems] = useState<OrderItem[]>([]);
   const [tasks, setTasks] = useState<OrderItemTask[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
+
+  // Ledger state
+  const [ledgerEntries, setLedgerEntries] = useState<EmployeeLedgerEntry[]>([]);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
+  const [ledgerFrom, setLedgerFrom] = useState("");
+  const [ledgerTo, setLedgerTo] = useState("");
+  const [ledgerType, setLedgerType] = useState<string>("all");
+  const [ledgerPage, setLedgerPage] = useState(1);
+  const [ledgerTotal, setLedgerTotal] = useState(0);
+  const LEDGER_LIMIT = 20;
+
+  // New Ledger Entry Dialog State
+  const [isLedgerDialogOpen, setIsLedgerDialogOpen] = useState(false);
+  const [newEntryType, setNewEntryType] = useState<LedgerEntryType>(LedgerEntryType.ADJUSTMENT);
+  const [newEntryAmount, setNewEntryAmount] = useState<string>("");
+  const [newEntryNote, setNewEntryNote] = useState("");
+  const [isSubmittingLedger, setIsSubmittingLedger] = useState(false);
 
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -68,6 +110,7 @@ export default function EmployeeDetailPage() {
   const [uploading, setUploading] = useState(false);
 
   const fetchEmployeeData = useCallback(async () => {
+    if (!params.id) return;
     setLoading(true);
     try {
       const [empRes, statsRes, itemsRes, attnRes, tasksRes, settingsRes] = await Promise.all([
@@ -80,7 +123,11 @@ export default function EmployeeDetailPage() {
       ]);
       
       if (empRes.success) setEmployee(empRes.data);
-      if (statsRes.success) setStats(statsRes.data);
+      if (statsRes.success) setStats({
+        totalEarned: statsRes.data.totalEarned ?? 0,
+        totalPaid: statsRes.data.totalPaid ?? 0,
+        currentBalance: statsRes.data.currentBalance ?? 0
+      });
       if (itemsRes.success) setItems(itemsRes.data.data);
       if (settingsRes.success) setSystemSettings(settingsRes.data);
       if (attnRes.success) setAttendance(attnRes.data.data);
@@ -88,19 +135,92 @@ export default function EmployeeDetailPage() {
         setTasks(tasksRes.data);
       }
     } catch {
-      toast({ title: "Error", description: "Employee not found", variant: "destructive" });
-      router.push("/employees");
+      toast({ title: "Error", description: "Employee data could not be loaded", variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  }, [params.id, router, toast]);
+  }, [params.id, toast]);
+
+  // Fetch ledger entries separately (lazy loaded on tab switch)
+  const fetchLedger = useCallback(async (page = 1) => {
+    if (!params.id) return;
+    setLedgerLoading(true);
+    try {
+      const res = await ledgerApi.getStatement(params.id as string, {
+        from: ledgerFrom || undefined,
+        to: ledgerTo || undefined,
+        type: ledgerType === "all" ? undefined : (ledgerType as LedgerEntryType),
+        page,
+        limit: LEDGER_LIMIT,
+      });
+      if (res.success) {
+        setLedgerEntries(res.data.entries);
+        setLedgerTotal(res.data.meta.total);
+        setLedgerPage(page);
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to load ledger", variant: "destructive" });
+    } finally {
+      setLedgerLoading(false);
+    }
+  }, [params.id, ledgerFrom, ledgerTo, ledgerType, toast]);
+
+  const submitLedgerEntry = async () => {
+    if (!params.id || !newEntryAmount) return;
+    setIsSubmittingLedger(true);
+    try {
+      const amountInRupees = parseFloat(newEntryAmount);
+      if (isNaN(amountInRupees)) return;
+
+      const paisas = Math.round(amountInRupees * 100);
+      
+      // Payout/Advance/Deduction should be negative
+      const finalAmount = [LedgerEntryType.PAYOUT, LedgerEntryType.ADVANCE, LedgerEntryType.DEDUCTION].includes(newEntryType)
+        ? -Math.abs(paisas)
+        : Math.abs(paisas);
+
+      const res = await ledgerApi.createEntry({
+        employeeId: params.id as string,
+        type: newEntryType,
+        amount: finalAmount,
+        note: newEntryNote
+      });
+
+      if (res.success) {
+        toast({ title: "Entry Recorded", description: "Ledger has been updated successfully." });
+        setIsLedgerDialogOpen(false);
+        setNewEntryAmount("");
+        setNewEntryNote("");
+        fetchLedger(1);
+        fetchEmployeeData(); // Refresh balance cards
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to create ledger entry", variant: "destructive" });
+    } finally {
+      setIsSubmittingLedger(false);
+    }
+  };
+
+  const handleDeleteEntry = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this ledger entry? This cannot be undone.")) return;
+    try {
+      const res = await ledgerApi.deleteEntry(id);
+      if (res.success) {
+        toast({ title: "Entry Deleted" });
+        fetchLedger(ledgerPage);
+        fetchEmployeeData(); // Refresh stats
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to delete entry", variant: "destructive" });
+    }
+  };
 
   useEffect(() => {
     if (params.id) fetchEmployeeData();
   }, [params.id, fetchEmployeeData]);
 
   const handleUploadDoc = async () => {
-    if (!docLabel || !docUrl) return;
+    if (!docLabel || !docUrl || !params.id) return;
     setUploading(true);
     try {
         await employeesApi.uploadDocument(params.id as string, {
@@ -132,7 +252,12 @@ export default function EmployeeDetailPage() {
     </div>
   );
 
-  if (!employee) return null;
+  if (!employee) return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <h2 className="text-xl font-bold">Employee not found</h2>
+      <Button variant="link" onClick={() => router.push("/employees")}>Back to list</Button>
+    </div>
+  );
 
   const historyColumns: ColumnDef<OrderItem>[] = [
     {
@@ -253,8 +378,78 @@ export default function EmployeeDetailPage() {
     },
   ];
 
+  const ledgerColumns: ColumnDef<EmployeeLedgerEntry>[] = [
+    {
+      header: "Date",
+      cell: (e) => (
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {formatDateTime(e.createdAt as string)}
+        </span>
+      ),
+    },
+    {
+      header: "Type",
+      cell: (e) => (
+        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[e.type]} className="text-[10px] font-bold uppercase tracking-wider">
+          {e.type === LedgerEntryType.EARNING || e.type === LedgerEntryType.SALARY || e.type === LedgerEntryType.ADJUSTMENT
+            ? <ArrowUpRight className="h-3 w-3 mr-1 inline" />
+            : <ArrowDownLeft className="h-3 w-3 mr-1 inline" />}
+          {LEDGER_ENTRY_TYPE_LABELS[e.type]}
+        </Badge>
+      ),
+    },
+    {
+      header: "Amount",
+      align: "right",
+      cell: (e) => (
+        <span className={`font-black text-sm ${
+          e.amount >= 0 ? 'text-ready' : 'text-destructive'
+        }`}>
+          {e.amount >= 0 ? '+' : ''}{formatPKR(Math.abs(e.amount))}
+        </span>
+      ),
+    },
+    {
+      header: "Task / Note",
+      cell: (e) => (
+        <div className="flex flex-col max-w-xs">
+          {e.orderItemTask && (
+            <span className="text-xs font-semibold">
+              {e.orderItemTask.stepName} — {e.orderItemTask.orderItem?.garmentTypeName}
+            </span>
+          )}
+          {e.note && (
+            <span className="text-[10px] text-muted-foreground">{e.note}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Order #",
+      cell: (e) => (
+        <span className="text-xs text-muted-foreground">
+          {e.orderItemTask?.orderItem?.order?.orderNumber ?? "—"}
+        </span>
+      ),
+    },
+    {
+      header: "Action",
+      align: "right",
+      cell: (e) => (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+          onClick={() => handleDeleteEntry(e.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-6 ">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.push("/employees")}>
@@ -298,7 +493,7 @@ export default function EmployeeDetailPage() {
                           <h3 className="text-2xl font-black mt-1 text-foreground">{formatPKR(stats.totalEarned)}</h3>
                       </div>
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                          <TrendingUp className="h-5 w-5 text-primary" />
+                          <Banknote className="h-5 w-5 text-primary" />
                       </div>
                   </div>
               </CardContent>
@@ -321,10 +516,10 @@ export default function EmployeeDetailPage() {
                   <div className="flex items-center justify-between">
                       <div>
                           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Balance</p>
-                          <h3 className="text-2xl font-black mt-1 text-warning">{formatPKR(stats.balance)}</h3>
+                          <h3 className="text-2xl font-black mt-1 text-warning">{formatPKR(stats.currentBalance)}</h3>
                       </div>
                       <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center shrink-0 group-hover:bg-warning/20 transition-colors">
-                          <Wallet className="h-5 w-5 text-warning" />
+                          <Banknote className="h-5 w-5 text-warning" />
                       </div>
                   </div>
               </CardContent>
@@ -391,6 +586,9 @@ export default function EmployeeDetailPage() {
               <TabsTrigger variant="premium" value="history">
                 Work History
               </TabsTrigger>
+              <TabsTrigger variant="premium" value="ledger" onClick={() => fetchLedger(1)}>
+                🧾 Khata Ledger
+              </TabsTrigger>
               <TabsTrigger variant="premium" value="attendance">
                 Attendance
               </TabsTrigger>
@@ -418,6 +616,69 @@ export default function EmployeeDetailPage() {
                 loading={loading}
                 emptyMessage="No work items found."
               />
+            </TabsContent>
+
+            <TabsContent value="ledger" className="p-4 border-none space-y-4">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <Input 
+                  type="date" className="h-8 w-36 px-2 text-xs" 
+                  value={ledgerFrom} onChange={(e) => setLedgerFrom(e.target.value)}
+                />
+                <Input 
+                  type="date" className="h-8 w-36 px-2 text-xs" 
+                  value={ledgerTo} onChange={(e) => setLedgerTo(e.target.value)}
+                />
+                <Select value={ledgerType} onValueChange={setLedgerType}>
+                  <SelectTrigger className="h-8 w-[140px] text-xs">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    {Object.entries(LEDGER_ENTRY_TYPE_LABELS).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button size="sm" variant="outline" className="h-8" onClick={() => fetchLedger(1)}>Filter</Button>
+                
+                <div className="flex-1" />
+                
+                <Button 
+                  size="sm" 
+                  variant="premium" 
+                  className="h-8"
+                  onClick={() => setIsLedgerDialogOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Entry
+                </Button>
+              </div>
+
+              <DataTable<EmployeeLedgerEntry>
+                columns={ledgerColumns}
+                data={ledgerEntries}
+                loading={ledgerLoading}
+                emptyMessage="No ledger entries found."
+              />
+
+              {ledgerTotal > LEDGER_LIMIT && (
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs text-muted-foreground">
+                    Showing {(ledgerPage - 1) * LEDGER_LIMIT + 1}–{Math.min(ledgerPage * LEDGER_LIMIT, ledgerTotal)} of {ledgerTotal}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm" variant="outline" className="h-7 text-xs"
+                      disabled={ledgerPage <= 1}
+                      onClick={() => fetchLedger(ledgerPage - 1)}
+                    >Prev</Button>
+                    <Button
+                      size="sm" variant="outline" className="h-7 text-xs"
+                      disabled={ledgerPage * LEDGER_LIMIT >= ledgerTotal}
+                      onClick={() => fetchLedger(ledgerPage + 1)}
+                    >Next</Button>
+                  </div>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="attendance" className="p-0 border-none">
@@ -451,9 +712,6 @@ export default function EmployeeDetailPage() {
                          <Button variant="ghost" size="icon" asChild>
                              <a href={doc.fileUrl} target="_blank" rel="noreferrer"><ExternalLink className="h-4 w-4" /></a>
                          </Button>
-                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
-                             <Trash2 className="h-4 w-4" />
-                         </Button>
                      </div>
                    </div>
                  ))}
@@ -461,7 +719,6 @@ export default function EmployeeDetailPage() {
                    <div className="col-span-2 py-16 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-muted-foreground bg-muted/50">
                       <FileText className="h-12 w-12 mb-3 opacity-20" />
                       <p className="text-sm font-medium">No documentation uploaded yet.</p>
-                      <p className="text-xs text-muted-foreground mt-1">Upload CNIC, Photo, or Contract files.</p>
                    </div>
                  )}
               </div>
@@ -483,11 +740,10 @@ export default function EmployeeDetailPage() {
                     </div>
                     <div className="flex items-center justify-between text-sm py-2 border-b">
                       <span className="text-muted-foreground">Status</span>
-                      <Badge variant={employee.userAccount.isActive ? 'success' : 'destructive'}>
+                      <Badge variant={'outline'}>
                           {employee.userAccount.isActive ? 'ACTIVE' : 'INACTIVE'}
                       </Badge>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full mt-4">Reset Login Password</Button>
                   </CardContent>
                 </Card>
               ) : (
@@ -497,7 +753,7 @@ export default function EmployeeDetailPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold">No Portal Account</h3>
-                    <p className="text-sm text-muted-foreground max-w-[300px] mt-1">Creation of an account allows the tailor to view their own assigned orders and history.</p>
+                    <p className="text-sm text-muted-foreground max-w-[300px] mt-1">Provision an account to allow order tracking access.</p>
                   </div>
                   <Button size="lg" className="rounded-full px-8" onClick={() => setIsAccountDialogOpen(true)}>
                     <UserPlus className="h-4 w-4 mr-2" /> Provision Account Now
@@ -514,15 +770,15 @@ export default function EmployeeDetailPage() {
           <DialogContent className="max-w-sm">
               <DialogHeader>
                   <DialogTitle>Add Document</DialogTitle>
-                  <DialogDescription>Attach a file for this employee&apos;s records.</DialogDescription>
+                  <DialogDescription>Attach a file URL for this employee&apos;s records.</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2">
                   <div className="space-y-1.5">
                       <Label>Document Label</Label>
-                      <Input placeholder="e.g. CNIC Front, Contract" value={docLabel} onChange={(e) => setDocLabel(e.target.value)} />
+                      <Input placeholder="e.g. CNIC Front" value={docLabel} onChange={(e) => setDocLabel(e.target.value)} />
                   </div>
                   <div className="space-y-1.5">
-                      <Label>File URL (Cloud Storage)</Label>
+                      <Label>File URL</Label>
                       <Input placeholder="https://..." value={docUrl} onChange={(e) => setDocUrl(e.target.value)} />
                   </div>
               </div>
@@ -535,9 +791,9 @@ export default function EmployeeDetailPage() {
           </DialogContent>
       </Dialog>
 
-      <AccountCreationDialog
-        open={isAccountDialogOpen}
-        onOpenChange={setIsAccountDialogOpen}
+      <AccountCreationDialog 
+        open={isAccountDialogOpen} 
+        onOpenChange={setIsAccountDialogOpen} 
         employee={employee}
         onSuccess={fetchEmployeeData}
       />
@@ -548,6 +804,73 @@ export default function EmployeeDetailPage() {
         initialData={employee}
         onSuccess={fetchEmployeeData}
       />
+
+      {/* Manual Ledger Entry Dialog */}
+      <Dialog open={isLedgerDialogOpen} onOpenChange={setIsLedgerDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Banknote className="h-5 w-5 text-primary" />
+              Record Ledger Entry
+            </DialogTitle>
+            <DialogDescription>
+              Manually record a transaction for <strong>{employee.fullName}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Entry Type</Label>
+              <Select value={newEntryType} onValueChange={(v) => setNewEntryType(v as LedgerEntryType)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={LedgerEntryType.ADVANCE}>💰 Advance Payment</SelectItem>
+                  <SelectItem value={LedgerEntryType.DEDUCTION}>✂️ Deduction (Damage/Other)</SelectItem>
+                  <SelectItem value={LedgerEntryType.ADJUSTMENT}>⚖️ General Adjustment</SelectItem>
+                  <SelectItem value={LedgerEntryType.SALARY}>💵 Monthly Salary</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground uppercase font-black">
+                {[LedgerEntryType.ADVANCE, LedgerEntryType.DEDUCTION].includes(newEntryType) 
+                  ? "⚠️ This will decrease employee balance" 
+                  : "ℹ️ This will increase employee balance"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Amount (PKR)</Label>
+              <Input 
+                type="number" 
+                placeholder="e.g. 5000" 
+                value={newEntryAmount} 
+                onChange={(e) => setNewEntryAmount(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Note / Description</Label>
+              <Input 
+                placeholder="e.g. Advance for medical bill" 
+                value={newEntryNote} 
+                onChange={(e) => setNewEntryNote(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsLedgerDialogOpen(false)}>Cancel</Button>
+            <Button 
+              variant="premium" 
+              onClick={submitLedgerEntry} 
+              disabled={isSubmittingLedger || !newEntryAmount}
+            >
+              {isSubmittingLedger ? "Recording..." : "Confirm & Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

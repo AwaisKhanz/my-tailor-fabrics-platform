@@ -36,6 +36,7 @@ const throttler_1 = require("@nestjs/throttler");
 const mail_module_1 = require("./mail/mail.module");
 const tasks_module_1 = require("./tasks/tasks.module");
 const rates_module_1 = require("./rates/rates.module");
+const ledger_module_1 = require("./ledger/ledger.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -78,6 +79,7 @@ exports.AppModule = AppModule = __decorate([
             mail_module_1.MailModule,
             tasks_module_1.TasksModule,
             rates_module_1.RatesModule,
+            ledger_module_1.LedgerModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

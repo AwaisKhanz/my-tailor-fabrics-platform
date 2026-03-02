@@ -34,7 +34,7 @@ let PaymentsController = class PaymentsController {
         return { success: true, data };
     }
     async disbursePay(dto, req) {
-        const data = await this.paymentsService.disbursePay(dto.employeeId, dto.amount, req.user.userId, dto.note);
+        const data = await this.paymentsService.disbursePay(dto.employeeId, dto.amount, req.user.userId, req.user.branchId ?? '', dto.note);
         return { success: true, data };
     }
     async getHistory(employeeId, page, limit, sortBy, sortOrder) {

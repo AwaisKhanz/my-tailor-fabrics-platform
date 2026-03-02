@@ -16,12 +16,11 @@ import {
   ArrowRight,
   Clock,
   CheckCircle2,
-  TrendingUp,
-  Wallet,
-  Users,
   BarChart,
+  Banknote,
 } from "lucide-react";
-import { ordersApi } from "@/lib/api/orders";
+import { formatPKR } from "@/lib/utils";
+import { reportsApi } from "@/lib/api/reports";
 import { Role, OrderStatus, DashboardStats, Order } from "@tbms/shared-types";
 import { useSession } from "next-auth/react";
 
@@ -38,7 +37,7 @@ export default function DashboardPage() {
     async function fetchStats() {
       setLoading(true);
       try {
-        const data = await ordersApi.getDashboardStats();
+        const data = await reportsApi.getDashboardStats();
         if (!cancelled) setStats(data);
       } catch {
         if (!cancelled) setError(true);
@@ -79,9 +78,9 @@ export default function DashboardPage() {
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <div>
-                <p className="font-semibold text-destructive">
-                  {stats!.overdueCount} Overdue{" "}
-                  {stats!.overdueCount === 1 ? "Order" : "Orders"}
+              <p className="font-semibold text-destructive">
+                  {stats?.overdueOrders ?? 0} Overdue{" "}
+                  {(stats?.overdueOrders ?? 0) === 1 ? "Order" : "Orders"}
                 </p>
                 <p className="text-sm text-destructive/80">
                   These orders have passed their due date and require immediate attention.
@@ -119,8 +118,8 @@ export default function DashboardPage() {
         <KpiCard
           title="Total Revenue"
           loading={loading}
-          value={`Rs. ${(((stats as { totalRevenue?: number })?.totalRevenue) ?? 845250).toLocaleString()}`}
-          icon={TrendingUp}
+          value={formatPKR(stats?.revenue ?? 0)}
+          icon={Banknote}
           iconBoxClass="bg-success/10"
           iconClass="text-success"
           badgeText="+12% vs last month"
@@ -129,8 +128,8 @@ export default function DashboardPage() {
         <KpiCard
           title="Total Expenses"
           loading={loading}
-          value={`Rs. ${(((stats as { totalExpenses?: number })?.totalExpenses) ?? 312800).toLocaleString()}`}
-          icon={Wallet}
+          value={formatPKR(stats?.expenses ?? 0)}
+          icon={Banknote}
           iconBoxClass="bg-warning/10"
           iconClass="text-warning"
           badgeText="Steady"
@@ -139,15 +138,15 @@ export default function DashboardPage() {
         <KpiCard
           title="Outstanding Employee Balances"
           loading={loading}
-          value={`Rs. ${(stats?.totalOutstandingBalance ?? 45000).toLocaleString()}`}
-          icon={Users}
+          value={formatPKR(stats?.outstandingBalances ?? 0)}
+          icon={Banknote}
           iconBoxClass="bg-primary/10"
           iconClass="text-primary"
         />
         <KpiCard
           title="Overdue Orders"
           loading={loading}
-          value={`${stats?.overdueCount ?? 14} Orders`}
+          value={`${stats?.overdueOrders ?? 0} Orders`}
           icon={AlertTriangle}
           iconBoxClass="bg-destructive/10"
           iconClass="text-destructive"

@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Clock, GitBranch } from "lucide-react";
 import { type RateCard } from "@tbms/shared-types";
+import { formatPKR } from "@/lib/utils";
 
 interface RatesListProps {
   rates: (RateCard & { branch?: { code: string; name: string } | null })[];
@@ -57,7 +58,7 @@ export function RatesList({ rates, showBranch = true }: RatesListProps) {
                 </TableCell>
               )}
               <TableCell className="text-right font-black text-ready">
-                Rs. {(rate.amount / 100).toLocaleString()}
+                {formatPKR(rate.amount)}
               </TableCell>
               <TableCell className="text-right text-[10px] text-muted-foreground whitespace-nowrap">
                 <div className="flex flex-col items-end">

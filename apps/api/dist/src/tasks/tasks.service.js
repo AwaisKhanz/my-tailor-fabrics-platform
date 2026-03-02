@@ -13,10 +13,13 @@ exports.TasksService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const shared_types_1 = require("@tbms/shared-types");
+const ledger_service_1 = require("../ledger/ledger.service");
 let TasksService = class TasksService {
     prisma;
-    constructor(prisma) {
+    ledgerService;
+    constructor(prisma, ledgerService) {
         this.prisma = prisma;
+        this.ledgerService = ledgerService;
     }
     async assignTask(taskId, employeeId, branchId, assignedById, userRole) {
         if (![shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN].includes(userRole)) {
@@ -55,7 +58,8 @@ let TasksService = class TasksService {
     }
     async updateTaskStatus(taskId, status, branchId, updatedById) {
         const task = await this.prisma.orderItemTask.findFirst({
-            where: { id: taskId, deletedAt: null, orderItem: { order: { branchId } } }
+            where: { id: taskId, deletedAt: null, orderItem: { order: { branchId } } },
+            include: { orderItem: { include: { order: true } } }
         });
         if (!task)
             throw new common_1.NotFoundException('Task not found or does not belong to your branch');
@@ -69,17 +73,28 @@ let TasksService = class TasksService {
             if (!startedAt)
                 startedAt = new Date();
         }
-        return this.prisma.orderItemTask.update({
+        const updatedTask = await this.prisma.orderItemTask.update({
             where: { id: taskId },
-            data: {
-                status,
-                startedAt,
-                completedAt
-            },
+            data: { status, startedAt, completedAt },
             include: {
                 assignedEmployee: { select: { fullName: true, id: true } }
             }
         });
+        if (status === shared_types_1.TaskStatus.DONE && task.status !== shared_types_1.TaskStatus.DONE && task.assignedEmployeeId) {
+            const earningAmount = task.rateOverride ?? task.rateSnapshot ?? 0;
+            if (earningAmount > 0) {
+                await this.ledgerService.createEntry({
+                    employeeId: task.assignedEmployeeId,
+                    branchId: task.orderItem.order.branchId,
+                    type: shared_types_1.LedgerEntryType.EARNING,
+                    amount: earningAmount,
+                    orderItemTaskId: taskId,
+                    createdById: updatedById,
+                    note: `Earned for ${task.stepName} task`,
+                });
+            }
+        }
+        return updatedTask;
     }
     async findAllByOrder(orderId, branchId) {
         return this.prisma.orderItemTask.findMany({
@@ -129,6 +144,7 @@ let TasksService = class TasksService {
 exports.TasksService = TasksService;
 exports.TasksService = TasksService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        ledger_service_1.LedgerService])
 ], TasksService);
 //# sourceMappingURL=tasks.service.js.map

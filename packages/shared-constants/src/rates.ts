@@ -24,11 +24,15 @@ export const STEP_KEY_LABELS: Record<StepKey, string> = {
 };
 
 /**
- * Converts a paisa (integer) amount to rupees with 2 decimal places string.
+ * Formats a paisa (integer) amount to a PKR currency string (e.g. Rs. 1,000).
  * Always use paisa (Int) for storage. Display using this helper.
  */
-export function paisaToRupees(paisa: number): string {
-  return (paisa / 100).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export function formatPKR(paisa: number): string {
+  return new Intl.NumberFormat('en-PK', {
+    style: 'currency',
+    currency: 'PKR',
+    minimumFractionDigits: 0,
+  }).format(paisa / 100);
 }
 
 /**

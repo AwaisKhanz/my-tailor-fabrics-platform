@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, TrendingUp, DollarSign, Plus, Calendar } from "lucide-react";
+import { Banknote, Plus, Calendar } from "lucide-react";
 import { formatPKR, formatDate } from "@/lib/utils";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 
@@ -194,7 +194,7 @@ export default function PaymentsPage() {
                 <Card className="border-border/50 shadow-sm overflow-hidden border-l-4 border-l-success">
                   <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
                     <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Earned</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-success" />
+                    <Banknote className="h-4 w-4 text-success" />
                   </CardHeader>
                   <CardContent className="pt-4">
                     <p className="text-3xl font-bold text-success tracking-tight">{formatPKR(summary.totalEarned)}</p>
@@ -205,7 +205,7 @@ export default function PaymentsPage() {
                 <Card className="border-border/50 shadow-sm overflow-hidden border-l-4 border-l-primary">
                   <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
                     <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Paid</CardTitle>
-                    <DollarSign className="h-4 w-4 text-primary" />
+                    <Banknote className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent className="pt-4">
                     <p className="text-3xl font-bold text-primary tracking-tight">{formatPKR(summary.totalPaid)}</p>
@@ -216,7 +216,7 @@ export default function PaymentsPage() {
                 <Card className={`border-border/50 shadow-sm overflow-hidden border-l-4 ${currentBalance > 0 ? "border-l-warning bg-warning/5" : "border-l-muted"}`}>
                   <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
                     <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Outstanding Balance</CardTitle>
-                    <Wallet className="h-4 w-4 text-warning" />
+                    <Banknote className="h-4 w-4 text-warning" />
                   </CardHeader>
                   <CardContent className="pt-4">
                     <div className="flex items-center justify-between">
@@ -260,7 +260,7 @@ export default function PaymentsPage() {
 
       {!selectedEmpId && (
         <EmptyState 
-          icon={Wallet} 
+          icon={Banknote} 
           title="No Employee Selected" 
           description="Please choose an employee from the dropdown above to view their financial ledger and payout history." 
         />

@@ -64,9 +64,12 @@ export const ordersApi = {
     const recentOrders = recentRes.data.data?.data ?? [];
 
     return {
+      revenue: 0,
+      expenses: 0,
+      outstandingBalances: 0,
+      overdueOrders: overdueOrders.length,
       overdueCount: overdueOrders.length,
       recentOrders,
-      // These fields come from a dedicated endpoint if available, otherwise 0
       totalOrders: 0,
       newToday: 0,
       totalOutstandingBalance: overdueOrders.reduce((sum, o) => sum + (o.balanceDue ?? 0), 0),

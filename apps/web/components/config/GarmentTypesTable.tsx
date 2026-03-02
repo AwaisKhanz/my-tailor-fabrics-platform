@@ -17,6 +17,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { GARMENT_STATUS_LABELS } from "@tbms/shared-constants";
+import { formatPKR } from "@/lib/utils";
 import Link from "next/link";
 
 export function GarmentTypesTable() {
@@ -109,13 +110,13 @@ export function GarmentTypesTable() {
       header: "Customer Price",
       cell: (item) => (
         <span className="text-sm font-bold text-foreground">
-          Rs. {(item.customerPrice / 100).toLocaleString()}
+          {formatPKR(item.customerPrice)}
         </span>
       ),
     },
     {
       header: "Employee Rate",
-      cell: (item: GarmentType) => <span className="text-sm font-bold text-foreground">Rs. {(item.employeeRate / 100).toLocaleString()}</span>,
+      cell: (item: GarmentType) => <span className="text-sm font-bold text-foreground">{formatPKR(item.employeeRate)}</span>,
     },
     {
       header: "Status",

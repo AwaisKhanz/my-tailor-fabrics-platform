@@ -12,7 +12,12 @@ export declare class PaymentsController {
             totalEarned: number;
             totalPaid: number;
             currentBalance: number;
-            weekly: unknown;
+            weekly: {
+                week_start: any;
+                earned: number;
+                paid: number;
+                closing_balance: number;
+            }[];
         };
     }>;
     disbursePay(dto: DisbursePaymentDto, req: AuthenticatedRequest): Promise<{

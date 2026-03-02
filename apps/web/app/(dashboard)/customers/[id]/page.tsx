@@ -16,7 +16,7 @@ import {
   History, 
   Edit2, 
   ShoppingBag,
-  Wallet
+  Banknote
 } from "lucide-react";
 import { formatPKR } from "@/lib/utils";
 import { 
@@ -114,7 +114,7 @@ export default function CustomerDetailPage() {
                <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Total Spent</p>
                   <div className="flex items-center gap-2">
-                     <Wallet className="h-4 w-4 text-success" />
+                     <Banknote className="h-4 w-4 text-success" />
                      <span className="text-lg font-bold">{formatPKR(customer.stats?.totalSpent || 0)}</span>
                   </div>
                </div>

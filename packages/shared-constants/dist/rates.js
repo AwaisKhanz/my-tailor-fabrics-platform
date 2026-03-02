@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.STEP_KEY_LABELS = exports.STEP_KEYS = void 0;
-exports.paisaToRupees = paisaToRupees;
+exports.formatPKR = formatPKR;
 exports.rupeesToPaisa = rupeesToPaisa;
 exports.getEffectiveTaskRate = getEffectiveTaskRate;
 /**
@@ -26,11 +26,15 @@ exports.STEP_KEY_LABELS = {
     [exports.STEP_KEYS.QUALITY_CHECK]: 'Quality Check',
 };
 /**
- * Converts a paisa (integer) amount to rupees with 2 decimal places string.
+ * Formats a paisa (integer) amount to a PKR currency string (e.g. Rs. 1,000).
  * Always use paisa (Int) for storage. Display using this helper.
  */
-function paisaToRupees(paisa) {
-    return (paisa / 100).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function formatPKR(paisa) {
+    return new Intl.NumberFormat('en-PK', {
+        style: 'currency',
+        currency: 'PKR',
+        minimumFractionDigits: 0,
+    }).format(paisa / 100);
 }
 /**
  * Converts a rupees (float) input from UI to paisa for storage.

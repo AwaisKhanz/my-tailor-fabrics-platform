@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
+import { formatPKR } from "@/lib/utils";
 
 const AVATAR_COLORS = [
   "bg-primary/20 text-primary",
@@ -171,7 +172,7 @@ export function CustomerTable() {
       header: "Lifetime Value",
       cell: (customer) => (
         <span className="font-bold text-sm text-foreground">
-          Rs. {(customer.lifetimeValue / 100).toLocaleString("en-PK")}
+          {formatPKR(customer.lifetimeValue)}
         </span>
       ),
     },

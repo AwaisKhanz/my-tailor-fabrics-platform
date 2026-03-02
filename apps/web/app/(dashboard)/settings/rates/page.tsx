@@ -7,7 +7,7 @@ import {
   TrendingUp,
   GitBranch,
   ArrowLeft,
-  IndianRupee as IndianRupeeIcon, 
+  Banknote as BanknoteIcon, 
   Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,9 @@ import {
   type Branch, 
   type CreateRateCardInput 
 } from "@tbms/shared-types";
-import { STEP_KEYS, paisaToRupees } from "@tbms/shared-constants";
+import { STEP_KEYS } from "@tbms/shared-constants";
 import { useRouter } from "next/navigation";
+import { formatPKR } from "@/lib/utils";
 
 export default function RatesPage() {
   const router = useRouter();
@@ -121,7 +122,7 @@ export default function RatesPage() {
       align: "right",
       cell: (rate) => (
         <span className="font-black text-ready">
-          Rs. {paisaToRupees(rate.amount)}
+          {formatPKR(rate.amount)}
         </span>
       )
     },
@@ -158,7 +159,7 @@ export default function RatesPage() {
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Production Rates</h1>
             <p className="text-xs md:text-sm text-muted-foreground mt-1 flex items-center gap-2">
-              <IndianRupeeIcon className="h-3.5 w-3.5" />
+              <BanknoteIcon className="h-3.5 w-3.5" />
               Manage step-based labor costs & effective dates
             </p>
           </div>

@@ -28,8 +28,13 @@ export class PaymentsController {
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Post()
   async disbursePay(@Body() dto: DisbursePaymentDto, @Req() req: AuthenticatedRequest) {
-    // Note: User object contains id added by JwtAuthGuard
-    const data = await this.paymentsService.disbursePay(dto.employeeId, dto.amount, req.user.userId, dto.note);
+    const data = await this.paymentsService.disbursePay(
+      dto.employeeId,
+      dto.amount,
+      req.user.userId,
+      req.user.branchId ?? '',
+      dto.note,
+    );
     return { success: true, data };
   }
 

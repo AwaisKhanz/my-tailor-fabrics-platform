@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { History, User, ArrowRight, RotateCcw, Edit3, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatPKR } from "@/lib/utils";
 
 
 interface GarmentPriceHistoryDialogProps {
@@ -54,7 +55,7 @@ export function GarmentPriceHistoryDialog({
 
   const formatPrice = (p: number | null) => {
     if (p === null) return "0.00";
-    return `Rs. ${(p / 100).toLocaleString()}`;
+    return formatPKR(p);
   };
 
   return (

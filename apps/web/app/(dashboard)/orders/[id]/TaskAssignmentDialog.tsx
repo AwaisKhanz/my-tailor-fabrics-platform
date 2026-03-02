@@ -12,6 +12,7 @@ import { TASK_STATUS_LABELS, getEffectiveTaskRate } from "@tbms/shared-constants
 import { Edit2, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
+import { formatPKR } from "@/lib/utils";
 
 interface TaskAssignmentDialogProps {
   open: boolean;
@@ -179,11 +180,11 @@ export function TaskAssignmentDialog({
           <div className="flex items-center justify-end gap-2 group">
             <div className="flex flex-col items-end">
               <span className={`font-bold text-sm ${task.rateOverride ? 'text-primary' : 'text-foreground'}`}>
-                Rs. {currentRate.toLocaleString()}
+                {formatPKR(getEffectiveTaskRate(task.rateSnapshot, task.rateOverride))}
               </span>
               {task.rateOverride && (
                 <span className="text-[9px] text-muted-foreground line-through italic">
-                  Base: Rs. {(task.rateSnapshot ?? 0) / 100}
+                  Base: {formatPKR(task.rateSnapshot ?? 0)}
                 </span>
               )}
             </div>

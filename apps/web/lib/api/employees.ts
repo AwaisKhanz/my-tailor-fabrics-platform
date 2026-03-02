@@ -46,11 +46,11 @@ export const employeesApi = {
     return response.data;
   },
   getMyStats: async () => {
-    const response = await api.get<ApiResponse<{ totalEarned: number; totalPaid: number; balance: number }>>('/employees/my/stats');
+    const response = await api.get<ApiResponse<{ totalEarned: number; totalPaid: number; currentBalance: number }>>('/employees/my/stats');
     return response.data;
   },
   getStats: async (id: string) => {
-    const response = await api.get<ApiResponse<{ totalEarned: number; totalPaid: number; balance: number }>>(`/employees/${id}/stats`);
+    const response = await api.get<ApiResponse<{ totalEarned: number; totalPaid: number; currentBalance: number }>>(`/employees/${id}/stats`);
     return response.data;
   },
   getItems: async (id: string, params: { page?: number; limit?: number } = {}) => {

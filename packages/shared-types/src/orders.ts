@@ -1,4 +1,5 @@
 import { OrderStatus, ItemStatus, DiscountType, TaskStatus, FabricSource } from './common';
+import { EmployeeLedgerEntry } from './ledger';
 
 export interface OrderItemInput {
   garmentTypeId: string;
@@ -76,6 +77,7 @@ export interface OrderPayment {
   amount: number;
   paidAt: string;
   note?: string | null;
+  ledgerEntries?: import('./ledger').EmployeeLedgerEntry[];
 }
 
 export interface OrderStatusHistory {
@@ -125,6 +127,7 @@ export interface OrderItemTask {
   startedAt?: string | null;
   completedAt?: string | null;
   notes?: string | null;
+  ledgerEntries?: EmployeeLedgerEntry[];
   createdAt: string;
   updatedAt: string;
 }
@@ -140,6 +143,10 @@ export interface OrderItemTaskAssignmentEvent {
 }
 
 export interface DashboardStats {
+  revenue: number;
+  expenses: number;
+  outstandingBalances: number;
+  overdueOrders: number;
   totalOrders: number;
   overdueCount: number;
   newToday: number;

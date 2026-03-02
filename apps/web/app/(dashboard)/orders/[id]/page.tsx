@@ -35,7 +35,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TaskAssignmentDialog } from "./TaskAssignmentDialog";
 
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatPKR } from "@/lib/utils";
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -223,14 +223,14 @@ export default function OrderDetailPage() {
       header: "Unit Price",
       align: "right",
       cell: (item) => (
-        <span className="text-xs text-muted-foreground">Rs. {(item.unitPrice / 100).toLocaleString()}</span>
+        <span className="text-xs text-muted-foreground">{formatPKR(item.unitPrice)}</span>
       )
     },
     {
       header: "Total",
       align: "right",
       cell: (item) => (
-        <span className="font-bold text-foreground">Rs. {(item.unitPrice / 100).toLocaleString()}</span>
+        <span className="font-bold text-foreground">{formatPKR(item.unitPrice)}</span>
       )
     }
   ];
@@ -418,34 +418,34 @@ export default function OrderDetailPage() {
               <div className="space-y-3 bg-muted/20 p-4 rounded-xl border border-border/50">
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground font-bold uppercase tracking-widest opacity-60">Base Subtotal</span>
-                  <span className="font-black text-foreground tabular-nums">Rs. {(order.subtotal / 100).toLocaleString()}</span>
+                  <span className="font-black text-foreground tabular-nums">{formatPKR(order.subtotal)}</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-success font-bold uppercase tracking-widest opacity-80">
                       Discounts {order.discountType === 'PERCENTAGE' ? `(${order.discountValue}%)` : ''}
                     </span>
-                    <span className="text-success font-black tabular-nums">- Rs. {(order.discountAmount / 100).toLocaleString()}</span>
+                    <span className="text-success font-black tabular-nums">- {formatPKR(order.discountAmount)}</span>
                   </div>
                 )}
               </div>
-
+    
               <div className="px-1">
                 <div className="flex justify-between items-end border-b border-border/30 pb-4">
                   <span className="text-[10px] font-black text-foreground uppercase tracking-[0.2em]">Net Invoice</span>
-                  <span className="text-3xl font-black text-primary tracking-tighter tabular-nums">Rs. {(order.totalAmount / 100).toLocaleString()}</span>
+                  <span className="text-3xl font-black text-primary tracking-tighter tabular-nums">{formatPKR(order.totalAmount)}</span>
                 </div>
                 {order.totalPaid > 0 && (
                   <div className="flex justify-between text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-bold font-mono">
                     <span>Deposits Received</span>
-                    <span className="text-foreground">Rs. {(order.totalPaid / 100).toLocaleString()}</span>
+                    <span className="text-foreground">{formatPKR(order.totalPaid)}</span>
                   </div>
                 )}
               </div>
-
+    
               <div className="flex items-center justify-between py-5 px-6 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/20 ring-1 ring-white/20">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">Balance Pending</span>
-                <span className="text-2xl font-black tabular-nums tracking-tighter">Rs. {(order.balanceDue / 100).toLocaleString()}</span>
+                <span className="text-2xl font-black tabular-nums tracking-tighter">{formatPKR(order.balanceDue)}</span>
               </div>
 
               <Button
@@ -565,7 +565,7 @@ export default function OrderDetailPage() {
           <div className="space-y-5 py-4">
             <div className="flex justify-between items-center px-5 py-4 bg-muted border border-border/50 rounded-2xl">
               <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Pending amount</span>
-              <span className="text-xl font-black text-foreground tabular-nums">Rs. {(order.balanceDue / 100).toLocaleString()}</span>
+              <span className="text-xl font-black text-foreground tabular-nums">{formatPKR(order.balanceDue)}</span>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-black uppercase tracking-wider">Deposit Amount (Rs.) <span className="text-destructive">*</span></Label>

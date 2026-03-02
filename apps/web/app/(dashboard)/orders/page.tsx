@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { Order, OrderStatus } from "@/types/orders";
+import { formatPKR } from "@/lib/utils";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,7 +124,7 @@ export default function OrdersPage() {
       header: "Total Amount",
       cell: (order) => (
         <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-          Rs. {order.totalAmount.toLocaleString()}
+          {formatPKR(order.totalAmount)}
         </span>
       ),
     },

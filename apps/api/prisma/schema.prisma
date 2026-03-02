@@ -25,6 +25,7 @@ model Branch {
   orders            Order[]
   rateCards         RateCard[]
   users             User[]
+  ledgerEntries     EmployeeLedgerEntry[]
 }
 
 model User {
@@ -46,6 +47,7 @@ model User {
   rateCardsCreated     RateCard[]
   taskAssignmentEvents OrderItemTaskAssignmentEvent[]
   paymentsProcessed    Payment[]
+  ledgerEntries        EmployeeLedgerEntry[]
   branch               Branch?                        @relation(fields: [branchId], references: [id])
   employee             Employee?                      @relation(fields: [employeeId], references: [id])
 
@@ -85,6 +87,7 @@ model Employee {
   assignedTasks     OrderItemTask[]
   payments          Payment[]
   userAccount       User?
+  ledgerEntries     EmployeeLedgerEntry[]
 
   @@index([branchId, status])
   @@index([searchVector], type: Gin)
@@ -295,6 +298,7 @@ model Payment {
   updatedAt     DateTime  @updatedAt
   employee      Employee  @relation(fields: [employeeId], references: [id])
   processedBy   User      @relation(fields: [processedById], references: [id])
+  ledgerEntries EmployeeLedgerEntry[]
 
   @@index([employeeId, paidAt])
 }
@@ -447,6 +451,7 @@ model OrderItemTask {
   rateCard           RateCard?                      @relation(fields: [rateCardId], references: [id])
   stepTemplate       WorkflowStepTemplate?          @relation(fields: [stepTemplateId], references: [id])
   assignmentEvents   OrderItemTaskAssignmentEvent[]
+  ledgerEntries      EmployeeLedgerEntry[]
 
   @@index([orderItemId, sortOrder])
   @@index([assignedEmployeeId, status])
@@ -537,4 +542,43 @@ enum DiscountType {
 enum FabricSource {
   SHOP
   CUSTOMER
+}
+
+enum LedgerEntryType {
+  EARNING
+  PAYOUT
+  ADVANCE
+  DEDUCTION
+  ADJUSTMENT
+  SALARY
+}
+
+model EmployeeLedgerEntry {
+  id              String          @id @default(cuid())
+
+  employeeId      String
+  employee        Employee        @relation(fields: [employeeId], references: [id])
+
+  branchId        String
+  branch          Branch          @relation(fields: [branchId], references: [id])
+
+  type            LedgerEntryType
+  amount          Int             // positive = earning, negative = payout/deduction
+
+  orderItemTaskId String?
+  orderItemTask   OrderItemTask?  @relation(fields: [orderItemTaskId], references: [id])
+
+  paymentId       String?
+  payment         Payment?        @relation(fields: [paymentId], references: [id])
+
+  createdById     String?
+  createdBy       User?           @relation(fields: [createdById], references: [id])
+
+  note            String?
+  createdAt       DateTime        @default(now())
+  deletedAt       DateTime?
+
+  @@index([employeeId, createdAt])
+  @@index([branchId, createdAt])
+  @@index([orderItemTaskId])
 }

@@ -1,15 +1,27 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { LedgerService } from '../ledger/ledger.service';
 export declare class PaymentsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly ledgerService;
+    constructor(prisma: PrismaService, ledgerService: LedgerService);
     getEmployeeBalanceSummary(employeeId: string): Promise<{
         totalEarned: number;
         totalPaid: number;
         currentBalance: number;
-        weekly: unknown;
+        weekly: {
+            week_start: any;
+            earned: number;
+            paid: number;
+            closing_balance: number;
+        }[];
     }>;
-    getWeeklyBreakdown(employeeId: string, weeksBack?: number): Promise<unknown>;
-    disbursePay(employeeId: string, amount: number, processedById: string, note?: string): Promise<{
+    getWeeklyBreakdown(employeeId: string, weeksBack?: number): Promise<{
+        week_start: any;
+        earned: number;
+        paid: number;
+        closing_balance: number;
+    }[]>;
+    disbursePay(employeeId: string, amount: number, processedById: string, branchId: string, note?: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;

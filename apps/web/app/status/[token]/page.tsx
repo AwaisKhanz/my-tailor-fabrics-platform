@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { AlertCircle, Clock, CheckCircle2, Truck, AlertTriangle } from "lucide-react";
 import { siteConfig } from "@/lib/config";
 import Image from "next/image";
+import { formatPKR } from "@/lib/utils";
 import type { OrderStatus } from "@/types/orders";
 import type { Order } from "@/types/orders";
 
@@ -144,11 +145,11 @@ export default function OrderStatusPage({ params }: { params: { token: string } 
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Total</p>
-              <p className="font-medium">Rs. {order.totalAmount.toLocaleString()}</p>
+              <p className="font-medium">{formatPKR(order.totalAmount)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Balance Due</p>
-              <p className="font-medium text-destructive">Rs. {order.balanceDue.toLocaleString()}</p>
+              <p className="font-medium text-destructive">{formatPKR(order.balanceDue)}</p>
             </div>
           </div>
         </Card>
@@ -168,7 +169,7 @@ export default function OrderStatusPage({ params }: { params: { token: string } 
                 <div className="text-right">
                   <p className="font-medium">×{item.quantity}</p>
                   <p className="text-xs text-muted-foreground">
-                    Rs. {(item.unitPrice * item.quantity).toLocaleString()}
+                    {formatPKR(item.unitPrice * item.quantity)}
                   </p>
                 </div>
               </div>

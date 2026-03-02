@@ -7,19 +7,19 @@ import {
   ArrowLeft, 
   Settings, 
   BadgePercent, 
-  IndianRupee, 
+  Banknote, 
   Scale, 
   ChevronRight,
   ClipboardList,
   AlertCircle,
-  TrendingUp,
-  Layout,
   History,
   Users,
   Target,
   Activity,
-  ArrowUpRight
+  ArrowUpRight,
+  Layout
 } from "lucide-react";
+import { formatPKR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -175,11 +175,11 @@ export default function GarmentDetailPage() {
         <Card className="border-border/50 shadow-sm transition-all hover:shadow-md bg-success/[0.01]">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="h-10 w-10 rounded-xl bg-success/10 flex items-center justify-center border border-success/20">
-               <IndianRupee className="h-5 w-5 text-success" />
+               <Banknote className="h-5 w-5 text-success" />
             </div>
             <div>
                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Revenue</p>
-               <p className="text-xl font-black">Rs. {(garment.analytics.totalRevenue / 100).toLocaleString()}</p>
+               <p className="text-xl font-black">{formatPKR(garment.analytics.totalRevenue)}</p>
             </div>
           </CardContent>
         </Card>
@@ -191,7 +191,7 @@ export default function GarmentDetailPage() {
             </div>
             <div>
                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Avg Actual Price</p>
-               <p className="text-xl font-black">Rs. {(garment.analytics.avgActualPrice / 100).toLocaleString()}</p>
+               <p className="text-xl font-black">{formatPKR(garment.analytics.avgActualPrice)}</p>
             </div>
           </CardContent>
         </Card>
@@ -237,13 +237,13 @@ export default function GarmentDetailPage() {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                            <p className="text-[10px] text-muted-foreground font-medium">Margin</p>
-                           <p className="text-lg font-black text-foreground">Rs. {(garment.marginAmount / 100).toLocaleString()}</p>
+                           <p className="text-lg font-black text-foreground">{formatPKR(garment.marginAmount)}</p>
                         </div>
                         <div className="space-y-1">
                            <p className="text-[10px] text-muted-foreground font-medium">Profitability</p>
                            <div className="flex items-center gap-1.5">
                               <p className="text-lg font-black text-success">{garment.marginPercentage}%</p>
-                              <TrendingUp className="h-3.5 w-3.5 text-success" />
+                              <Banknote className="h-3.5 w-3.5 text-success" />
                            </div>
                         </div>
                     </div>
@@ -330,15 +330,15 @@ export default function GarmentDetailPage() {
                                 <div>
                                    <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Customer Price</p>
                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs line-through opacity-50">Rs. {(log.oldCustomerPrice || 0) / 100}</span>
-                                      <span className="text-xs font-black text-foreground">Rs. {(log.newCustomerPrice || 0) / 100}</span>
+                                      <span className="text-xs line-through opacity-50">{formatPKR(log.oldCustomerPrice || 0)}</span>
+                                      <span className="text-xs font-black text-foreground">{formatPKR(log.newCustomerPrice || 0)}</span>
                                    </div>
                                 </div>
                                 <div>
                                    <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Employee Rate</p>
                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs line-through opacity-50">Rs. {(log.oldEmployeeRate || 0) / 100}</span>
-                                      <span className="text-xs font-black text-foreground">Rs. {(log.newEmployeeRate || 0) / 100}</span>
+                                      <span className="text-xs line-through opacity-50">{formatPKR(log.oldEmployeeRate || 0)}</span>
+                                      <span className="text-xs font-black text-foreground">{formatPKR(log.newEmployeeRate || 0)}</span>
                                    </div>
                                 </div>
                              </div>
@@ -361,7 +361,7 @@ export default function GarmentDetailPage() {
           <Card className="border-border/50 shadow-sm bg-primary/[0.02]">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <IndianRupee className="h-4 w-4 text-primary" />
+                <Banknote className="h-4 w-4 text-primary" />
                 <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Global Pricing</CardTitle>
               </div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Base Shop Rates</p>
@@ -370,11 +370,11 @@ export default function GarmentDetailPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                    <span className="text-xs text-muted-foreground font-medium">Customer Price</span>
-                   <span className="text-lg font-black">Rs. {((garment.customerPrice ?? 0) / 100).toLocaleString()}</span>
+                   <span className="text-lg font-black">{formatPKR(garment.customerPrice ?? 0)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                    <span className="text-xs text-muted-foreground font-medium">Employee Rate</span>
-                   <span className="text-lg font-black">Rs. {((garment.employeeRate ?? 0) / 100).toLocaleString()}</span>
+                   <span className="text-lg font-black">{formatPKR(garment.employeeRate ?? 0)}</span>
                 </div>
                 
                 <Separator className="bg-primary/10" />
@@ -382,7 +382,7 @@ export default function GarmentDetailPage() {
                 <div className="pt-2">
                    <div className="flex items-center justify-between mb-2">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase">Revenue Share</span>
-                      <span className="text-[10px] font-black text-primary">Rs. {(garment.marginAmount / 100).toLocaleString()}</span>
+                      <span className="text-[10px] font-black text-primary">{formatPKR(garment.marginAmount)}</span>
                    </div>
                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                       <div 
@@ -403,7 +403,7 @@ export default function GarmentDetailPage() {
           <Card className="border-border/50 shadow-sm pt-4">
              <CardHeader className="pt-0 pb-3">
                <div className="flex items-center gap-2">
-                 <TrendingUp className="h-4 w-4 text-primary" />
+                 <Banknote className="h-4 w-4 text-primary" />
                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Top Tailors</CardTitle>
                </div>
                <p className="text-[10px] text-muted-foreground font-medium uppercase italic leading-none mt-1">Efficiency Champions</p>
@@ -437,7 +437,7 @@ export default function GarmentDetailPage() {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <IndianRupee className="h-4 w-4 text-primary" />
+              <Banknote className="h-4 w-4 text-primary" />
               <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Production Rates (Step-based)</CardTitle>
             </div>
             <CardDescription className="text-xs">

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { DiscountType, FabricSource } from "@tbms/shared-types";
+import { DiscountType, FabricSource, CreateOrderInput } from "@tbms/shared-types";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -21,15 +21,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
-import { 
-  Plus, 
+import { formatPKR } from "@/lib/utils";
+import {
+  Plus,
   Trash2
 } from "lucide-react";
 import { configApi } from "@/lib/api/config";
@@ -99,22 +100,36 @@ export default function NewOrderPage() {
   const advancePayment = form.watch("advancePayment");
 
   const totals = useMemo(() => {
-    const subtotal = watchedItems.reduce((acc, item) => acc + (item.unitPrice * (item.quantity || 0)), 0);
+    const subtotal = watchedItems.reduce((acc, item) => acc + (Number(item.unitPrice || 0) * (item.quantity || 0)), 0);
     let discountAmount = 0;
     if (discountType === DiscountType.FIXED) {
-      discountAmount = discountValue;
+      discountAmount = Number(discountValue || 0);
     } else {
-      discountAmount = (subtotal * discountValue) / 100;
+      discountAmount = (subtotal * Number(discountValue || 0)) / 100;
     }
-    const totalAmount = subtotal - discountAmount;
-    const balanceDue = totalAmount - advancePayment;
+    const totalAmount = Math.max(0, subtotal - discountAmount);
+    const balanceDue = totalAmount - Number(advancePayment || 0);
     return { subtotal, discountAmount, totalAmount, balanceDue };
   }, [watchedItems, discountType, discountValue, advancePayment]);
 
   async function onSubmit(data: OrderFormValues) {
     setSubmitting(true);
     try {
-      const response = await ordersApi.createOrder(data);
+      // Transform Rupees (UI) to Paise (API)
+      const payload = {
+        ...data,
+        items: data.items.map(item => ({
+          ...item,
+          unitPrice: Math.round(item.unitPrice * 100),
+          employeeRate: item.employeeRate ? Math.round(item.employeeRate * 100) : undefined,
+        })),
+        discountValue: data.discountType === DiscountType.FIXED 
+          ? Math.round(data.discountValue * 100) 
+          : data.discountValue,
+        advancePayment: Math.round(data.advancePayment * 100),
+      };
+
+      const response = await ordersApi.createOrder(payload as CreateOrderInput);
       if (response.success) {
         toast({ title: "Order Created", description: `Order #${response.data.orderNumber} successfully created.` });
         router.push(`/orders/${response.data.id}`);
@@ -216,8 +231,8 @@ export default function NewOrderPage() {
                                     field.onChange(val);
                                     const gt = garmentTypes.find(g => g.id === val);
                                     if (gt) {
-                                      form.setValue(`items.${index}.unitPrice`, gt.customerPrice);
-                                      form.setValue(`items.${index}.employeeRate`, gt.employeeRate);
+                                      form.setValue(`items.${index}.unitPrice`, gt.customerPrice / 100);
+                                      form.setValue(`items.${index}.employeeRate`, gt.employeeRate / 100);
                                     }
                                   }} 
                                   value={field.value}
@@ -333,7 +348,7 @@ export default function NewOrderPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">Rs. {totals.subtotal}</span>
+                      <span className="font-medium">{formatPKR(totals.subtotal * 100)}</span>
                     </div>
                     <div className="flex gap-2">
                       <div className="flex-1">
@@ -373,7 +388,7 @@ export default function NewOrderPage() {
                     </div>
                     <div className="flex justify-between text-sm text-success">
                       <span className="text-xs">Discount</span>
-                      <span className="font-medium">- Rs. {totals.discountAmount}</span>
+                      <span className="font-medium">- {formatPKR(totals.discountAmount * 100)}</span>
                     </div>
                   </div>
 
@@ -382,7 +397,7 @@ export default function NewOrderPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-lg font-bold">
                       <span>Total</span>
-                      <span>Rs. {totals.totalAmount}</span>
+                      <span>{formatPKR(totals.totalAmount * 100)}</span>
                     </div>
                     <FormField
                       control={form.control}
@@ -398,7 +413,7 @@ export default function NewOrderPage() {
                     />
                     <div className="flex justify-between text-sm font-bold pt-2 border-t">
                       <span className="text-destructive">Balance Due</span>
-                      <span className="text-destructive">Rs. {totals.balanceDue}</span>
+                      <span className="text-destructive">{formatPKR(totals.balanceDue * 100)}</span>
                     </div>
                   </div>
 

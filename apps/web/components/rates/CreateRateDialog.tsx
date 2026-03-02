@@ -19,7 +19,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { IndianRupee, Calendar } from "lucide-react";
+import { Banknote, Calendar } from "lucide-react";
 import type { CreateRateCardInput } from "@tbms/shared-types";
 
 interface CreateRateDialogProps {
@@ -134,7 +134,7 @@ export function CreateRateDialog({
               <div className="space-y-2">
                 <Label htmlFor="rate">Rate (Rs.)</Label>
                 <div className="relative">
-                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     id="rate" 
                     type="number" 

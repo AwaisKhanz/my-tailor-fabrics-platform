@@ -27,6 +27,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
 import { TasksModule } from './tasks/tasks.module';
 import { RatesModule } from './rates/rates.module';
+import { LedgerModule } from './ledger/ledger.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { RatesModule } from './rates/rates.module';
     MailModule,
     TasksModule,
     RatesModule,
+    LedgerModule,
   ],
   controllers: [AppController],
   providers: [

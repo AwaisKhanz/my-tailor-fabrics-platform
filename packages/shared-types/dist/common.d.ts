@@ -63,4 +63,12 @@ export declare enum FabricSource {
     SHOP = "SHOP",
     CUSTOMER = "CUSTOMER"
 }
+export declare enum LedgerEntryType {
+    EARNING = "EARNING",
+    PAYOUT = "PAYOUT",
+    ADVANCE = "ADVANCE",
+    DEDUCTION = "DEDUCTION",
+    ADJUSTMENT = "ADJUSTMENT",
+    SALARY = "SALARY"
+}
 export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'ready' | 'admin' | 'royal' | 'amber';

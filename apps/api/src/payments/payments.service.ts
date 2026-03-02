@@ -1,96 +1,49 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { LedgerService } from '../ledger/ledger.service';
+import { LedgerEntryType } from '@tbms/shared-types';
 
 @Injectable()
 export class PaymentsService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+      private readonly prisma: PrismaService,
+      private readonly ledgerService: LedgerService,
+    ) {}
 
     async getEmployeeBalanceSummary(employeeId: string) {
-        const [earnedResult, totalPaid] = await Promise.all([
-            this.prisma.$queryRaw<[{ total: bigint }]>`
-                SELECT (
-                    (SELECT COALESCE(SUM("employeeRate" * quantity), 0) FROM "OrderItem" WHERE "employeeId" = ${employeeId} AND status IN ('COMPLETED', 'DELIVERED') AND "deletedAt" IS NULL)
-                    +
-                    (SELECT COALESCE(SUM(COALESCE("rateOverride", "rateSnapshot", 0)), 0) FROM "OrderItemTask" WHERE "assignedEmployeeId" = ${employeeId} AND status = 'DONE' AND "deletedAt" IS NULL)
-                ) AS total
-            `,
-            this.prisma.payment.aggregate({
-                where: { employeeId, deletedAt: null },
-                _sum: { amount: true },
-            }),
-        ]);
-
-        const totalEarned = Number(earnedResult[0]?.total ?? 0);
-        const paid = totalPaid._sum.amount ?? 0;
-        const balance = totalEarned - paid;
-
+        // Use ledger as single source of truth for balance
+        const balance = await this.ledgerService.getBalance(employeeId);
+        const weekly = await this.getWeeklyBreakdown(employeeId);
         return {
-            totalEarned,
-            totalPaid: paid,
-            currentBalance: balance,
-            weekly: await this.getWeeklyBreakdown(employeeId),
+            totalEarned: balance.totalEarned,
+            totalPaid: balance.totalDeducted,
+            currentBalance: balance.currentBalance,
+            weekly,
         };
     }
 
     async getWeeklyBreakdown(employeeId: string, weeksBack = 8) {
-        return this.prisma.$queryRaw`
-            WITH weekly_item_earned AS (
-                SELECT
-                    date_trunc('week', "completedAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
-                    SUM("employeeRate" * quantity) AS earned
-                FROM "OrderItem"
-                WHERE "employeeId" = ${employeeId}
-                  AND status IN ('COMPLETED', 'DELIVERED')
-                  AND "completedAt" >= NOW() - INTERVAL '${weeksBack} weeks'
-                  AND "deletedAt" IS NULL
-                GROUP BY week_start
-            ),
-            weekly_task_earned AS (
-                SELECT
-                    date_trunc('week', "completedAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
-                    SUM(COALESCE("rateOverride", "rateSnapshot", 0)) AS earned
-                FROM "OrderItemTask"
-                WHERE "assignedEmployeeId" = ${employeeId}
-                  AND status = 'DONE'
-                  AND "completedAt" >= NOW() - INTERVAL '${weeksBack} weeks'
-                  AND "deletedAt" IS NULL
-                GROUP BY week_start
-            ),
-            combined_earned AS (
-                SELECT week_start, SUM(earned) as earned
-                FROM (
-                    SELECT week_start, earned FROM weekly_item_earned
-                    UNION ALL
-                    SELECT week_start, earned FROM weekly_task_earned
-                ) s
-                GROUP BY week_start
-            ),
-            weekly_paid AS (
-                SELECT
-                    date_trunc('week', "paidAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
-                    SUM(amount) AS paid
-                FROM "Payment"
-                WHERE "employeeId" = ${employeeId}
-                  AND "paidAt" >= NOW() - INTERVAL '${weeksBack} weeks'
-                  AND "deletedAt" IS NULL
-                GROUP BY week_start
-            )
-            SELECT
-                we.week_start as week_start,
-                we.week_start + INTERVAL '6 days' AS week_end,
-                COALESCE(we.earned, 0) AS earned,
-                COALESCE(wp.paid, 0)   AS paid,
-                COALESCE(we.earned, 0) - COALESCE(wp.paid, 0) AS closing_balance
-            FROM combined_earned we
-            LEFT JOIN weekly_paid wp USING (week_start)
-            ORDER BY week_start DESC
-        `;
+        const earnings = await this.ledgerService.getEarningsByPeriod(employeeId, weeksBack);
+        // Map Ledger earnings to the format expected by the legacy weekly breakdown if needed, 
+        // or just return the ledger results.
+        return earnings.map(item => ({
+            week_start: item.period,
+            earned: item.earned,
+            paid: item.paid,
+            closing_balance: item.closingBalance
+        }));
     }
 
-    async disbursePay(employeeId: string, amount: number, processedById: string, note?: string) {
+    async disbursePay(
+        employeeId: string,
+        amount: number,
+        processedById: string,
+        branchId: string,
+        note?: string,
+    ) {
         const summary = await this.getEmployeeBalanceSummary(employeeId);
-        
+
         if (amount > summary.currentBalance) {
             throw new UnprocessableEntityException({
                 code: 'PAYMENT_EXCEEDS_BALANCE',
@@ -98,14 +51,22 @@ export class PaymentsService {
             });
         }
 
-        return this.prisma.payment.create({
-            data: {
-                employeeId,
-                amount,
-                processedById,
-                note
-            }
+        const payment = await this.prisma.payment.create({
+            data: { employeeId, amount, processedById, note }
         });
+
+        // Auto-create PAYOUT ledger entry (negative amount) linked to the payment
+        await this.ledgerService.createEntry({
+            employeeId,
+            branchId,
+            type: LedgerEntryType.PAYOUT,
+            amount: -amount,
+            paymentId: payment.id,
+            createdById: processedById,
+            note: note || 'Salary payment',
+        });
+
+        return payment;
     }
 
     async getHistory(employeeId: string, page = 1, limit = 20, sortBy?: string, sortOrder?: 'asc' | 'desc') {

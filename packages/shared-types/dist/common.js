@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FabricSource = exports.DiscountType = exports.TaskStatus = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
+exports.LedgerEntryType = exports.FabricSource = exports.DiscountType = exports.TaskStatus = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
 // --- Prisma Enums (Synced) ---
 var Role;
 (function (Role) {
@@ -67,3 +67,12 @@ var FabricSource;
     FabricSource["SHOP"] = "SHOP";
     FabricSource["CUSTOMER"] = "CUSTOMER";
 })(FabricSource || (exports.FabricSource = FabricSource = {}));
+var LedgerEntryType;
+(function (LedgerEntryType) {
+    LedgerEntryType["EARNING"] = "EARNING";
+    LedgerEntryType["PAYOUT"] = "PAYOUT";
+    LedgerEntryType["ADVANCE"] = "ADVANCE";
+    LedgerEntryType["DEDUCTION"] = "DEDUCTION";
+    LedgerEntryType["ADJUSTMENT"] = "ADJUSTMENT";
+    LedgerEntryType["SALARY"] = "SALARY";
+})(LedgerEntryType || (exports.LedgerEntryType = LedgerEntryType = {}));

@@ -15,15 +15,13 @@ import {
   Briefcase,
   Menu,
   X,
-  Wallet,
   BarChart,
   LayoutDashboard,
-  DollarSign,
   ChevronDown,
   ChevronRight,
   Building2,
   Shirt,
-  IndianRupee,
+  Banknote,
   Ruler,
   UserCog,
 } from "lucide-react";
@@ -73,13 +71,13 @@ const NAV_ITEMS: NavItem[] = [
   {
     title: "Payments",
     href: "/payments",
-    icon: Wallet,
+    icon: Banknote,
     roles: [Role.SUPER_ADMIN, Role.ADMIN, "VIEWER"],
   },
   {
     title: "Expenses",
     href: "/expenses",
-    icon: DollarSign,
+    icon: Banknote,
     roles: [Role.SUPER_ADMIN, Role.ADMIN, "VIEWER"],
   },
   {
@@ -96,7 +94,7 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { title: 'Branches', href: '/settings/branches', icon: Building2 },
       { title: 'Garments', href: '/settings/garments', icon: Shirt },
-      { title: 'Labor Rates', href: '/settings/rates', icon: IndianRupee },
+      { title: 'Labor Rates', href: '/settings/rates', icon: Banknote },
       { title: 'Measurements', href: '/settings/measurements', icon: Ruler },
       { title: 'Staff Accounts', href: '/settings/users', icon: UserCog },
     ],

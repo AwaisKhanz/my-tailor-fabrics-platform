@@ -14,10 +14,10 @@ export type StepKey = (typeof STEP_KEYS)[keyof typeof STEP_KEYS];
 /** Human-readable labels for each production step key. */
 export declare const STEP_KEY_LABELS: Record<StepKey, string>;
 /**
- * Converts a paisa (integer) amount to rupees with 2 decimal places string.
+ * Formats a paisa (integer) amount to a PKR currency string (e.g. Rs. 1,000).
  * Always use paisa (Int) for storage. Display using this helper.
  */
-export declare function paisaToRupees(paisa: number): string;
+export declare function formatPKR(paisa: number): string;
 /**
  * Converts a rupees (float) input from UI to paisa for storage.
  * Rounds to nearest paisa to avoid floating-point errors.
