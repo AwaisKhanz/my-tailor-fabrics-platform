@@ -5,10 +5,14 @@ import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { OrderStatus, ItemStatus, DiscountType, Role } from '@tbms/shared-types';
+import { RatesService } from '../rates/rates.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly ratesService: RatesService,
+  ) {}
 
   private async generateOrderNumber(branchId: string, tx: Prisma.TransactionClient): Promise<string> {
     const branch = await tx.branch.findUnique({ where: { id: branchId } });
@@ -160,25 +164,7 @@ export class OrdersService {
       const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
       if (settings?.useTaskWorkflow) {
           for (const item of (newOrder as any).items) {
-              const templates = await tx.workflowStepTemplate.findMany({
-                  where: { garmentTypeId: item.garmentTypeId, isActive: true },
-                  orderBy: { sortOrder: 'asc' }
-              });
-
-              if (templates.length > 0) {
-                  const tasksToCreate = templates.map((t: any) => ({
-                      orderItemId: item.id,
-                      stepTemplateId: t.id,
-                      stepKey: t.stepKey,
-                      stepName: t.stepName,
-                      sortOrder: t.sortOrder,
-                      status: 'PENDING' as any,
-                  }));
-
-                  await (tx as any).orderItemTask.createMany({
-                      data: tasksToCreate
-                  });
-              }
+              await this.generateTasksForItem(item.id, item.garmentTypeId, orderBranchId, tx);
           }
       }
 
@@ -598,29 +584,40 @@ export class OrdersService {
         // 2. Generate Tasks
         const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
         if (settings?.useTaskWorkflow) {
-            const templates = await tx.workflowStepTemplate.findMany({
-                where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
-                orderBy: { sortOrder: 'asc' }
-            });
-
-            if (templates.length > 0) {
-                const tasksToCreate = templates.map((t: any) => ({
-                    orderItemId: orderItem.id,
-                    stepTemplateId: t.id,
-                    stepKey: t.stepKey,
-                    stepName: t.stepName,
-                    sortOrder: t.sortOrder,
-                    status: 'PENDING' as any,
-                }));
-
-                await (tx as any).orderItemTask.createMany({
-                    data: tasksToCreate
-                });
-            }
+            await this.generateTasksForItem(orderItem.id, orderItem.garmentTypeId, order.branchId, tx);
         }
       }
 
       return this.recalcOrderTotals(orderId, tx);
+    });
+  }
+
+  private async generateTasksForItem(orderItemId: string, garmentTypeId: string, branchId: string, tx: Prisma.TransactionClient) {
+    const templates = await tx.workflowStepTemplate.findMany({
+      where: { garmentTypeId, isActive: true },
+      orderBy: { sortOrder: 'asc' }
+    });
+
+    if (templates.length === 0) return;
+
+    const tasksToCreate = [];
+    for (const t of templates) {
+      const rateCard = await this.ratesService.findEffectiveRate(branchId, garmentTypeId, t.stepKey);
+      
+      tasksToCreate.push({
+        orderItemId,
+        stepTemplateId: t.id,
+        stepKey: t.stepKey,
+        stepName: t.stepName,
+        sortOrder: t.sortOrder,
+        status: 'PENDING' as any,
+        rateCardId: rateCard?.id || null,
+        rateSnapshot: rateCard?.rate || 0,
+      });
+    }
+
+    await (tx as any).orderItemTask.createMany({
+      data: tasksToCreate
     });
   }
 }

@@ -26,6 +26,7 @@ import { BranchesModule } from './branches/branches.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
 import { TasksModule } from './tasks/tasks.module';
+import { RatesModule } from './rates/rates.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { TasksModule } from './tasks/tasks.module';
     BranchesModule,
     MailModule,
     TasksModule,
+    RatesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -14,14 +14,14 @@ export declare class BranchesController {
                 };
             } & {
                 id: string;
+                name: string;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
+                deletedAt: Date | null;
                 code: string;
                 address: string | null;
                 phone: string | null;
-                isActive: boolean;
-                deletedAt: Date | null;
             })[];
             total: number;
         };
@@ -46,42 +46,42 @@ export declare class BranchesController {
                 orders: number;
             };
             id: string;
+            name: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
+            deletedAt: Date | null;
             code: string;
             address: string | null;
             phone: string | null;
-            isActive: boolean;
-            deletedAt: Date | null;
         };
     }>;
     createBranch(body: CreateBranchInput): Promise<{
         success: boolean;
         data: {
             id: string;
+            name: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
+            deletedAt: Date | null;
             code: string;
             address: string | null;
             phone: string | null;
-            isActive: boolean;
-            deletedAt: Date | null;
         };
     }>;
     updateBranch(id: string, body: UpdateBranchInput): Promise<{
         success: boolean;
         data: {
             id: string;
+            name: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
+            deletedAt: Date | null;
             code: string;
             address: string | null;
             phone: string | null;
-            isActive: boolean;
-            deletedAt: Date | null;
         };
     }>;
     remove(id: string): Promise<{

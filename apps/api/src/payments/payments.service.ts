@@ -9,10 +9,11 @@ export class PaymentsService {
     async getEmployeeBalanceSummary(employeeId: string) {
         const [earnedResult, totalPaid] = await Promise.all([
             this.prisma.$queryRaw<[{ total: bigint }]>`
-                SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS total
-                FROM "OrderItem"
-                WHERE "employeeId" = ${employeeId}
-                  AND status IN ('COMPLETED', 'DELIVERED')
+                SELECT (
+                    (SELECT COALESCE(SUM("employeeRate" * quantity), 0) FROM "OrderItem" WHERE "employeeId" = ${employeeId} AND status IN ('COMPLETED', 'DELIVERED') AND "deletedAt" IS NULL)
+                    +
+                    (SELECT COALESCE(SUM(COALESCE("rateOverride", "rateSnapshot", 0)), 0) FROM "OrderItemTask" WHERE "assignedEmployeeId" = ${employeeId} AND status = 'DONE' AND "deletedAt" IS NULL)
+                ) AS total
             `,
             this.prisma.payment.aggregate({
                 where: { employeeId, deletedAt: null },
@@ -34,7 +35,7 @@ export class PaymentsService {
 
     async getWeeklyBreakdown(employeeId: string, weeksBack = 8) {
         return this.prisma.$queryRaw`
-            WITH weekly_earned AS (
+            WITH weekly_item_earned AS (
                 SELECT
                     date_trunc('week', "completedAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
                     SUM("employeeRate" * quantity) AS earned
@@ -43,6 +44,26 @@ export class PaymentsService {
                   AND status IN ('COMPLETED', 'DELIVERED')
                   AND "completedAt" >= NOW() - INTERVAL '${weeksBack} weeks'
                   AND "deletedAt" IS NULL
+                GROUP BY week_start
+            ),
+            weekly_task_earned AS (
+                SELECT
+                    date_trunc('week', "completedAt" AT TIME ZONE 'Asia/Karachi') AS week_start,
+                    SUM(COALESCE("rateOverride", "rateSnapshot", 0)) AS earned
+                FROM "OrderItemTask"
+                WHERE "assignedEmployeeId" = ${employeeId}
+                  AND status = 'DONE'
+                  AND "completedAt" >= NOW() - INTERVAL '${weeksBack} weeks'
+                  AND "deletedAt" IS NULL
+                GROUP BY week_start
+            ),
+            combined_earned AS (
+                SELECT week_start, SUM(earned) as earned
+                FROM (
+                    SELECT week_start, earned FROM weekly_item_earned
+                    UNION ALL
+                    SELECT week_start, earned FROM weekly_task_earned
+                ) s
                 GROUP BY week_start
             ),
             weekly_paid AS (
@@ -61,7 +82,7 @@ export class PaymentsService {
                 COALESCE(we.earned, 0) AS earned,
                 COALESCE(wp.paid, 0)   AS paid,
                 COALESCE(we.earned, 0) - COALESCE(wp.paid, 0) AS closing_balance
-            FROM weekly_earned we
+            FROM combined_earned we
             LEFT JOIN weekly_paid wp USING (week_start)
             ORDER BY week_start DESC
         `;

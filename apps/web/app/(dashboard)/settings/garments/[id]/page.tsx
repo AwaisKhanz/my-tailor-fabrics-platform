@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   Shirt, 
@@ -26,7 +26,16 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { configApi } from "@/lib/api/config";
-import type { MeasurementCategory, GarmentTypeWithAnalytics } from "@tbms/shared-types";
+import { ratesApi } from "@/lib/api/rates";
+import { branchesApi } from "@/lib/api/branches";
+import { RatesList } from "@/components/rates/RatesList";
+import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
+import type { 
+  MeasurementCategory, 
+  GarmentTypeWithAnalytics, 
+  Branch,
+  CreateRateCardInput
+} from "@tbms/shared-types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -35,23 +44,40 @@ export default function GarmentDetailPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [garment, setGarment] = useState<GarmentTypeWithAnalytics | null>(null);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [showCreateRate, setShowCreateRate] = useState(false);
+
+  const fetchGarment = useCallback(async () => {
+    setLoading(true);
+    try {
+      const resp = await configApi.getGarmentType(id);
+      if (resp.success) {
+        setGarment(resp.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch garment:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
-    const fetchGarment = async () => {
-      setLoading(true);
-      try {
-        const resp = await configApi.getGarmentType(id);
-        if (resp.success) {
-          setGarment(resp.data as typeof garment);
-        }
-      } catch (err) {
-        console.error("Failed to fetch garment:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchGarment();
-  }, [id]);
+    
+    // Fetch branches for rate dialog
+    branchesApi.getBranches().then(resp => {
+      if (resp.success && resp.data) {
+        setBranches(resp.data.data);
+      }
+    });
+  }, [id, fetchGarment]);
+
+  const handleCreateRate = async (data: CreateRateCardInput) => {
+    const resp = await ratesApi.create(data);
+    if (resp.success) {
+      fetchGarment(); // Refresh rates
+    }
+  };
 
   if (loading) {
     return (
@@ -405,6 +431,41 @@ export default function GarmentDetailPage() {
           </Card>
         </div>
       </div>
+      
+      {/* Rates Section */}
+      <Card className="border-border/50 shadow-sm mt-6">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <IndianRupee className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Production Rates (Step-based)</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              Define how much tailors are paid for each step of this garment.
+            </CardDescription>
+          </div>
+          <Button 
+            size="sm" 
+            className="h-8 gap-2 font-bold text-[10px] uppercase tracking-wider"
+            onClick={() => setShowCreateRate(true)}
+          >
+            <Settings className="h-3 w-3" />
+            Update Rates
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <RatesList rates={garment.rateCards || []} />
+        </CardContent>
+      </Card>
+
+      <CreateRateDialog 
+        open={showCreateRate}
+        onOpenChange={setShowCreateRate}
+        onSubmit={handleCreateRate}
+        garmentTypes={[{ id: garment.id, name: garment.name }]}
+        branches={branches.map(b => ({ id: b.id, name: b.name, code: b.code }))}
+        steps={garment.workflowSteps?.map(s => s.stepKey) || []}
+      />
     </div>
   );
 }

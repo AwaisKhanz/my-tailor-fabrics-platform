@@ -72,7 +72,9 @@ export interface GarmentTypeWithAnalytics extends GarmentType {
     marginAmount: number;
     marginPercentage: number;
     priceLogs: GarmentPriceLog[];
+    rateCards: import('./rates').RateCard[];
     analytics: GarmentTypeAnalytics;
+    workflowSteps: import('./orders').WorkflowStepTemplate[];
 }
 export interface SystemSettings {
     id: string;

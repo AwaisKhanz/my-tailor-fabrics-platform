@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Building2,
   Shirt,
+  IndianRupee,
   Ruler,
   UserCog,
 } from "lucide-react";
@@ -95,6 +96,7 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { title: 'Branches', href: '/settings/branches', icon: Building2 },
       { title: 'Garments', href: '/settings/garments', icon: Shirt },
+      { title: 'Labor Rates', href: '/settings/rates', icon: IndianRupee },
       { title: 'Measurements', href: '/settings/measurements', icon: Ruler },
       { title: 'Staff Accounts', href: '/settings/users', icon: UserCog },
     ],

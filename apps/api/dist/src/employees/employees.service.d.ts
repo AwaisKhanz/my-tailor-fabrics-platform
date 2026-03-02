@@ -8,18 +8,20 @@ export declare class EmployeesService {
     private generateEmployeeCode;
     create(createEmployeeDto: CreateEmployeeDto, branchId: string): Promise<{
         id: string;
+        branchId: string;
         createdAt: Date;
         updatedAt: Date;
+        deletedAt: Date | null;
         address: string | null;
         phone: string;
-        deletedAt: Date | null;
-        branchId: string;
-        employeeCode: string;
-        cnic: string | null;
         fullName: string;
+        city: string | null;
+        notes: string | null;
+        status: import(".prisma/client").$Enums.EmployeeStatus;
+        employeeCode: string;
         fatherName: string | null;
         phone2: string | null;
-        city: string | null;
+        cnic: string | null;
         dateOfBirth: Date | null;
         dateOfJoining: Date;
         designation: string | null;
@@ -28,24 +30,24 @@ export declare class EmployeesService {
         emergencyName: string | null;
         emergencyPhone: string | null;
         photoUrl: string | null;
-        status: import(".prisma/client").$Enums.EmployeeStatus;
-        notes: string | null;
     }>;
     findAll(branchId: string, page?: number, limit?: number, search?: string): Promise<{
         data: {
             id: string;
+            branchId: string;
             createdAt: Date;
             updatedAt: Date;
+            deletedAt: Date | null;
             address: string | null;
             phone: string;
-            deletedAt: Date | null;
-            branchId: string;
-            employeeCode: string;
-            cnic: string | null;
             fullName: string;
+            city: string | null;
+            notes: string | null;
+            status: import(".prisma/client").$Enums.EmployeeStatus;
+            employeeCode: string;
             fatherName: string | null;
             phone2: string | null;
-            city: string | null;
+            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -54,8 +56,6 @@ export declare class EmployeesService {
             emergencyName: string | null;
             emergencyPhone: string | null;
             photoUrl: string | null;
-            status: import(".prisma/client").$Enums.EmployeeStatus;
-            notes: string | null;
         }[];
         meta: {
             total: number;
@@ -66,18 +66,20 @@ export declare class EmployeesService {
     } | {
         data: {
             id: string;
+            branchId: string;
             createdAt: Date;
             updatedAt: Date;
+            deletedAt: Date | null;
             address: string | null;
             phone: string;
-            deletedAt: Date | null;
-            branchId: string;
-            employeeCode: string;
-            cnic: string | null;
             fullName: string;
+            city: string | null;
+            notes: string | null;
+            status: import(".prisma/client").$Enums.EmployeeStatus;
+            employeeCode: string;
             fatherName: string | null;
             phone2: string | null;
-            city: string | null;
+            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -86,8 +88,6 @@ export declare class EmployeesService {
             emergencyName: string | null;
             emergencyPhone: string | null;
             photoUrl: string | null;
-            status: import(".prisma/client").$Enums.EmployeeStatus;
-            notes: string | null;
         }[];
         total: number;
         meta?: undefined;
@@ -95,9 +95,9 @@ export declare class EmployeesService {
     findOne(id: string, branchId: string): Promise<{
         documents: {
             id: string;
+            employeeId: string;
             createdAt: Date;
             deletedAt: Date | null;
-            employeeId: string;
             label: string;
             fileUrl: string;
             fileType: string;
@@ -105,23 +105,25 @@ export declare class EmployeesService {
         }[];
         userAccount: {
             id: string;
-            isActive: boolean;
             email: string;
+            isActive: boolean;
         } | null;
     } & {
         id: string;
+        branchId: string;
         createdAt: Date;
         updatedAt: Date;
+        deletedAt: Date | null;
         address: string | null;
         phone: string;
-        deletedAt: Date | null;
-        branchId: string;
-        employeeCode: string;
-        cnic: string | null;
         fullName: string;
+        city: string | null;
+        notes: string | null;
+        status: import(".prisma/client").$Enums.EmployeeStatus;
+        employeeCode: string;
         fatherName: string | null;
         phone2: string | null;
-        city: string | null;
+        cnic: string | null;
         dateOfBirth: Date | null;
         dateOfJoining: Date;
         designation: string | null;
@@ -130,23 +132,23 @@ export declare class EmployeesService {
         emergencyName: string | null;
         emergencyPhone: string | null;
         photoUrl: string | null;
-        status: import(".prisma/client").$Enums.EmployeeStatus;
-        notes: string | null;
     }>;
     update(id: string, branchId: string, updateEmployeeDto: UpdateEmployeeDto): Promise<{
         id: string;
+        branchId: string;
         createdAt: Date;
         updatedAt: Date;
+        deletedAt: Date | null;
         address: string | null;
         phone: string;
-        deletedAt: Date | null;
-        branchId: string;
-        employeeCode: string;
-        cnic: string | null;
         fullName: string;
+        city: string | null;
+        notes: string | null;
+        status: import(".prisma/client").$Enums.EmployeeStatus;
+        employeeCode: string;
         fatherName: string | null;
         phone2: string | null;
-        city: string | null;
+        cnic: string | null;
         dateOfBirth: Date | null;
         dateOfJoining: Date;
         designation: string | null;
@@ -155,23 +157,23 @@ export declare class EmployeesService {
         emergencyName: string | null;
         emergencyPhone: string | null;
         photoUrl: string | null;
-        status: import(".prisma/client").$Enums.EmployeeStatus;
-        notes: string | null;
     }>;
     remove(id: string, branchId: string): Promise<{
         id: string;
+        branchId: string;
         createdAt: Date;
         updatedAt: Date;
+        deletedAt: Date | null;
         address: string | null;
         phone: string;
-        deletedAt: Date | null;
-        branchId: string;
-        employeeCode: string;
-        cnic: string | null;
         fullName: string;
+        city: string | null;
+        notes: string | null;
+        status: import(".prisma/client").$Enums.EmployeeStatus;
+        employeeCode: string;
         fatherName: string | null;
         phone2: string | null;
-        city: string | null;
+        cnic: string | null;
         dateOfBirth: Date | null;
         dateOfJoining: Date;
         designation: string | null;
@@ -180,51 +182,49 @@ export declare class EmployeesService {
         emergencyName: string | null;
         emergencyPhone: string | null;
         photoUrl: string | null;
-        status: import(".prisma/client").$Enums.EmployeeStatus;
-        notes: string | null;
     }>;
     createUserAccount(employeeId: string, branchId: string, email: string, rawPass: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        isActive: boolean;
-        deletedAt: Date | null;
         email: string;
-        employeeId: string | null;
         passwordHash: string;
         role: import(".prisma/client").$Enums.Role;
         branchId: string | null;
+        employeeId: string | null;
+        isActive: boolean;
         lastLoginAt: Date | null;
         refreshToken: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        deletedAt: Date | null;
     }>;
     getStats(id: string, branchId: string): Promise<{
-        totalEarned: number;
+        totalEarned: any;
         totalPaid: number;
         balance: number;
     }>;
     getItems(id: string, branchId: string, page?: number, limit?: number): Promise<{
         data: {
             id: string;
-            employeeRate: number;
             status: import(".prisma/client").$Enums.ItemStatus;
-            garmentTypeName: string;
-            quantity: number;
-            completedAt: Date | null;
             order: {
                 status: import(".prisma/client").$Enums.OrderStatus;
                 orderNumber: string;
                 dueDate: Date;
             };
             orderId: string;
+            garmentTypeName: string;
+            quantity: number;
+            employeeRate: number;
+            completedAt: Date | null;
         }[];
         total: number;
     }>;
     addDocument(id: string, branchId: string, label: string, fileUrl: string, fileType: string, uploadedById: string): Promise<{
         id: string;
+        employeeId: string;
         createdAt: Date;
         deletedAt: Date | null;
-        employeeId: string;
         label: string;
         fileUrl: string;
         fileType: string;
@@ -233,9 +233,9 @@ export declare class EmployeesService {
     getMyProfile(employeeId: string, branchId: string): Promise<{
         documents: {
             id: string;
+            employeeId: string;
             createdAt: Date;
             deletedAt: Date | null;
-            employeeId: string;
             label: string;
             fileUrl: string;
             fileType: string;
@@ -243,23 +243,25 @@ export declare class EmployeesService {
         }[];
         userAccount: {
             id: string;
-            isActive: boolean;
             email: string;
+            isActive: boolean;
         } | null;
     } & {
         id: string;
+        branchId: string;
         createdAt: Date;
         updatedAt: Date;
+        deletedAt: Date | null;
         address: string | null;
         phone: string;
-        deletedAt: Date | null;
-        branchId: string;
-        employeeCode: string;
-        cnic: string | null;
         fullName: string;
+        city: string | null;
+        notes: string | null;
+        status: import(".prisma/client").$Enums.EmployeeStatus;
+        employeeCode: string;
         fatherName: string | null;
         phone2: string | null;
-        city: string | null;
+        cnic: string | null;
         dateOfBirth: Date | null;
         dateOfJoining: Date;
         designation: string | null;
@@ -268,28 +270,26 @@ export declare class EmployeesService {
         emergencyName: string | null;
         emergencyPhone: string | null;
         photoUrl: string | null;
-        status: import(".prisma/client").$Enums.EmployeeStatus;
-        notes: string | null;
     }>;
     getMyStats(employeeId: string, branchId: string): Promise<{
-        totalEarned: number;
+        totalEarned: any;
         totalPaid: number;
         balance: number;
     }>;
     getMyItems(employeeId: string, branchId: string, page?: number, limit?: number): Promise<{
         data: {
             id: string;
-            employeeRate: number;
             status: import(".prisma/client").$Enums.ItemStatus;
-            garmentTypeName: string;
-            quantity: number;
-            completedAt: Date | null;
             order: {
                 status: import(".prisma/client").$Enums.OrderStatus;
                 orderNumber: string;
                 dueDate: Date;
             };
             orderId: string;
+            garmentTypeName: string;
+            quantity: number;
+            employeeRate: number;
+            completedAt: Date | null;
         }[];
         total: number;
     }>;

@@ -91,6 +91,10 @@ let ConfigService = class ConfigService {
                     include: {
                         changedBy: { select: { name: true } }
                     }
+                },
+                rateCards: {
+                    where: { deletedAt: null, effectiveTo: null },
+                    include: { branch: { select: { name: true, code: true } } }
                 }
             }
         });

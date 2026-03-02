@@ -16,14 +16,14 @@ export declare class BranchesService {
             };
         } & {
             id: string;
+            name: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
+            deletedAt: Date | null;
             code: string;
             address: string | null;
             phone: string | null;
-            isActive: boolean;
-            deletedAt: Date | null;
         })[];
         total: number;
     }>;
@@ -37,47 +37,47 @@ export declare class BranchesService {
             orders: number;
         };
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
+        deletedAt: Date | null;
         code: string;
         address: string | null;
         phone: string | null;
-        isActive: boolean;
-        deletedAt: Date | null;
     }>;
     create(data: CreateBranchInput): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
+        deletedAt: Date | null;
         code: string;
         address: string | null;
         phone: string | null;
-        isActive: boolean;
-        deletedAt: Date | null;
     }>;
     update(id: string, data: UpdateBranchInput): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
+        deletedAt: Date | null;
         code: string;
         address: string | null;
         phone: string | null;
-        isActive: boolean;
-        deletedAt: Date | null;
     }>;
     remove(id: string): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
+        deletedAt: Date | null;
         code: string;
         address: string | null;
         phone: string | null;
-        isActive: boolean;
-        deletedAt: Date | null;
     }>;
     getStats(): Promise<{
         total: number;

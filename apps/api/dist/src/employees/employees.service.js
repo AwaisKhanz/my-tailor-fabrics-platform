@@ -175,14 +175,24 @@ let EmployeesService = class EmployeesService {
     async getStats(id, branchId) {
         await this.findOne(id, branchId);
         const completedItems = await this.prisma.orderItem.aggregate({
-            where: { employeeId: id, status: 'COMPLETED' },
+            where: { employeeId: id, status: 'COMPLETED', deletedAt: null },
             _sum: { employeeRate: true }
         });
+        const tasksWithOverride = await this.prisma.orderItemTask.aggregate({
+            where: { assignedEmployeeId: id, status: 'DONE', deletedAt: null, rateOverride: { not: null } },
+            _sum: { rateOverride: true }
+        });
+        const tasksWithoutOverride = await this.prisma.orderItemTask.aggregate({
+            where: { assignedEmployeeId: id, status: 'DONE', deletedAt: null, rateOverride: null },
+            _sum: { rateSnapshot: true }
+        });
+        const totalEarned = (completedItems._sum.employeeRate || 0) +
+            (tasksWithOverride._sum.rateOverride || 0) +
+            (tasksWithoutOverride._sum.rateSnapshot || 0);
         const totalPaidRes = await this.prisma.payment.aggregate({
-            where: { employeeId: id },
+            where: { employeeId: id, deletedAt: null },
             _sum: { amount: true }
         });
-        const totalEarned = completedItems._sum.employeeRate || 0;
         const totalPaid = totalPaidRes._sum.amount || 0;
         const balance = totalEarned - totalPaid;
         return { totalEarned, totalPaid, balance };

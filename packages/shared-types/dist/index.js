@@ -22,6 +22,7 @@ __exportStar(require("./employees"), exports);
 __exportStar(require("./customers"), exports);
 __exportStar(require("./orders"), exports);
 __exportStar(require("./users"), exports);
+__exportStar(require("./rates"), exports);
 __exportStar(require("./payments"), exports);
 __exportStar(require("./expenses"), exports);
 __exportStar(require("./attendance"), exports);

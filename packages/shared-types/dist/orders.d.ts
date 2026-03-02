@@ -92,7 +92,7 @@ export interface WorkflowStepTemplate {
     sortOrder: number;
     isRequired: boolean;
     isActive: boolean;
-    createdAt: string;
+    createdAt: Date | string;
 }
 export interface OrderItemTask {
     id: string;
@@ -107,6 +107,9 @@ export interface OrderItemTask {
         id: string;
         fullName: string;
     };
+    rateCardId?: string | null;
+    rateSnapshot?: number | null;
+    rateOverride?: number | null;
     item?: {
         garmentTypeName: string;
         order: {

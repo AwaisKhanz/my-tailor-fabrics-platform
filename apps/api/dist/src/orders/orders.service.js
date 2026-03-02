@@ -13,10 +13,13 @@ exports.OrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const shared_types_1 = require("@tbms/shared-types");
+const rates_service_1 = require("../rates/rates.service");
 let OrdersService = class OrdersService {
     prisma;
-    constructor(prisma) {
+    ratesService;
+    constructor(prisma, ratesService) {
         this.prisma = prisma;
+        this.ratesService = ratesService;
     }
     async generateOrderNumber(branchId, tx) {
         const branch = await tx.branch.findUnique({ where: { id: branchId } });
@@ -137,23 +140,7 @@ let OrdersService = class OrdersService {
             const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
             if (settings?.useTaskWorkflow) {
                 for (const item of newOrder.items) {
-                    const templates = await tx.workflowStepTemplate.findMany({
-                        where: { garmentTypeId: item.garmentTypeId, isActive: true },
-                        orderBy: { sortOrder: 'asc' }
-                    });
-                    if (templates.length > 0) {
-                        const tasksToCreate = templates.map((t) => ({
-                            orderItemId: item.id,
-                            stepTemplateId: t.id,
-                            stepKey: t.stepKey,
-                            stepName: t.stepName,
-                            sortOrder: t.sortOrder,
-                            status: 'PENDING',
-                        }));
-                        await tx.orderItemTask.createMany({
-                            data: tasksToCreate
-                        });
-                    }
+                    await this.generateTasksForItem(item.id, item.garmentTypeId, orderBranchId, tx);
                 }
             }
             const updatedOrder = await this.recalcOrderTotals(newOrder.id, tx);
@@ -492,32 +479,42 @@ let OrdersService = class OrdersService {
                 createdItems.push(orderItem);
                 const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
                 if (settings?.useTaskWorkflow) {
-                    const templates = await tx.workflowStepTemplate.findMany({
-                        where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
-                        orderBy: { sortOrder: 'asc' }
-                    });
-                    if (templates.length > 0) {
-                        const tasksToCreate = templates.map((t) => ({
-                            orderItemId: orderItem.id,
-                            stepTemplateId: t.id,
-                            stepKey: t.stepKey,
-                            stepName: t.stepName,
-                            sortOrder: t.sortOrder,
-                            status: 'PENDING',
-                        }));
-                        await tx.orderItemTask.createMany({
-                            data: tasksToCreate
-                        });
-                    }
+                    await this.generateTasksForItem(orderItem.id, orderItem.garmentTypeId, order.branchId, tx);
                 }
             }
             return this.recalcOrderTotals(orderId, tx);
+        });
+    }
+    async generateTasksForItem(orderItemId, garmentTypeId, branchId, tx) {
+        const templates = await tx.workflowStepTemplate.findMany({
+            where: { garmentTypeId, isActive: true },
+            orderBy: { sortOrder: 'asc' }
+        });
+        if (templates.length === 0)
+            return;
+        const tasksToCreate = [];
+        for (const t of templates) {
+            const rateCard = await this.ratesService.findEffectiveRate(branchId, garmentTypeId, t.stepKey);
+            tasksToCreate.push({
+                orderItemId,
+                stepTemplateId: t.id,
+                stepKey: t.stepKey,
+                stepName: t.stepName,
+                sortOrder: t.sortOrder,
+                status: 'PENDING',
+                rateCardId: rateCard?.id || null,
+                rateSnapshot: rateCard?.rate || 0,
+            });
+        }
+        await tx.orderItemTask.createMany({
+            data: tasksToCreate
         });
     }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        rates_service_1.RatesService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

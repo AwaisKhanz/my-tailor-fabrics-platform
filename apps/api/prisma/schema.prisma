@@ -8,6 +8,469 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Branch {
+  id                String             @id @default(cuid())
+  code              String             @unique
+  name              String
+  address           String?
+  phone             String?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  attendanceRecords AttendanceRecord[]
+  customers         Customer[]
+  employees         Employee[]
+  expenses          Expense[]
+  orders            Order[]
+  rateCards         RateCard[]
+  users             User[]
+}
+
+model User {
+  id                   String                         @id @default(cuid())
+  name                 String
+  email                String                         @unique
+  passwordHash         String
+  role                 Role                           @default(ENTRY_OPERATOR)
+  branchId             String?
+  employeeId           String?                        @unique
+  isActive             Boolean                        @default(true)
+  lastLoginAt          DateTime?
+  refreshToken         String?
+  createdAt            DateTime                       @default(now())
+  updatedAt            DateTime                       @updatedAt
+  deletedAt            DateTime?
+  auditLogs            AuditLog[]
+  priceLogs            GarmentPriceLog[]
+  taskAssignmentEvents OrderItemTaskAssignmentEvent[]
+  paymentsProcessed    Payment[]
+  branch               Branch?                        @relation(fields: [branchId], references: [id])
+  employee             Employee?                      @relation(fields: [employeeId], references: [id])
+
+  @@index([branchId])
+  @@index([role])
+}
+
+model Employee {
+  id                String                   @id @default(cuid())
+  employeeCode      String                   @unique
+  branchId          String
+  fullName          String
+  fatherName        String?
+  phone             String
+  phone2            String?
+  address           String?
+  city              String?
+  cnic              String?                  @unique
+  dateOfBirth       DateTime?
+  dateOfJoining     DateTime                 @default(now())
+  designation       String?
+  paymentType       PaymentType              @default(PER_PIECE)
+  accountNumber     String?
+  emergencyName     String?
+  emergencyPhone    String?
+  photoUrl          String?
+  status            EmployeeStatus           @default(ACTIVE)
+  notes             String?
+  searchVector      Unsupported("tsvector")?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  deletedAt         DateTime?
+  attendanceRecords AttendanceRecord[]
+  branch            Branch                   @relation(fields: [branchId], references: [id])
+  documents         EmployeeDocument[]
+  orderItems        OrderItem[]
+  assignedTasks     OrderItemTask[]
+  payments          Payment[]
+  userAccount       User?
+
+  @@index([branchId, status])
+  @@index([searchVector], type: Gin)
+}
+
+model EmployeeDocument {
+  id           String    @id @default(cuid())
+  employeeId   String
+  label        String
+  fileUrl      String
+  fileType     String
+  uploadedById String
+  createdAt    DateTime  @default(now())
+  deletedAt    DateTime?
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+}
+
+model Customer {
+  id            String                   @id @default(cuid())
+  branchId      String
+  sizeNumber    String                   @unique
+  fullName      String
+  phone         String
+  whatsapp      String?
+  email         String?
+  address       String?
+  city          String?
+  notes         String?
+  status        CustomerStatus           @default(ACTIVE)
+  isVip         Boolean                  @default(false)
+  lifetimeValue Int                      @default(0)
+  searchVector  Unsupported("tsvector")?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  deletedAt     DateTime?
+  branch        Branch                   @relation(fields: [branchId], references: [id])
+  measurements  CustomerMeasurement[]
+  orders        Order[]
+
+  @@index([branchId, deletedAt])
+  @@index([sizeNumber])
+  @@index([searchVector], type: Gin)
+}
+
+model MeasurementCategory {
+  id           String                @id @default(cuid())
+  name         String
+  sortOrder    Int                   @default(0)
+  isActive     Boolean               @default(true)
+  createdAt    DateTime              @default(now())
+  deletedAt    DateTime?
+  updatedAt    DateTime              @updatedAt
+  measurements CustomerMeasurement[]
+  fields       MeasurementField[]
+  garmentTypes GarmentType[]         @relation("GarmentTypeToMeasurementCategory")
+}
+
+model MeasurementField {
+  id              String              @id @default(cuid())
+  categoryId      String
+  label           String
+  fieldType       FieldType           @default(NUMBER)
+  unit            String?
+  isRequired      Boolean             @default(false)
+  sortOrder       Int                 @default(0)
+  dropdownOptions String[]
+  deletedAt       DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  category        MeasurementCategory @relation(fields: [categoryId], references: [id])
+}
+
+model CustomerMeasurement {
+  id         String              @id @default(cuid())
+  customerId String
+  categoryId String
+  values     Json
+  updatedAt  DateTime            @updatedAt
+  createdAt  DateTime            @default(now())
+  category   MeasurementCategory @relation(fields: [categoryId], references: [id])
+  customer   Customer            @relation(fields: [customerId], references: [id])
+
+  @@unique([customerId, categoryId])
+}
+
+model GarmentType {
+  id                    String                 @id @default(cuid())
+  name                  String
+  customerPrice         Int
+  employeeRate          Int
+  description           String?
+  sortOrder             Int                    @default(0)
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  deletedAt             DateTime?
+  priceLogs             GarmentPriceLog[]
+  orderItems            OrderItem[]
+  rateCards             RateCard[]
+  workflowSteps         WorkflowStepTemplate[]
+  measurementCategories MeasurementCategory[]  @relation("GarmentTypeToMeasurementCategory")
+}
+
+model Order {
+  id             String                   @id @default(cuid())
+  orderNumber    String                   @unique
+  branchId       String
+  customerId     String
+  orderDate      DateTime                 @default(now())
+  dueDate        DateTime
+  subtotal       Int
+  discountType   DiscountType?
+  discountValue  Int                      @default(0)
+  discountAmount Int                      @default(0)
+  totalAmount    Int
+  totalPaid      Int                      @default(0)
+  balanceDue     Int
+  notes          String?
+  status         OrderStatus              @default(NEW)
+  createdById    String
+  shareToken     String?                  @unique
+  sharePin       String?
+  searchVector   Unsupported("tsvector")?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  deletedAt      DateTime?
+  branch         Branch                   @relation(fields: [branchId], references: [id])
+  customer       Customer                 @relation(fields: [customerId], references: [id])
+  items          OrderItem[]
+  payments       OrderPayment[]
+  statusHistory  OrderStatusHistory[]
+
+  @@index([branchId, status])
+  @@index([customerId])
+  @@index([dueDate])
+  @@index([searchVector], type: Gin)
+}
+
+model OrderItem {
+  id              String          @id @default(cuid())
+  orderId         String
+  garmentTypeId   String
+  garmentTypeName String
+  employeeId      String?
+  quantity        Int             @default(1)
+  unitPrice       Int
+  employeeRate    Int
+  description     String?
+  dueDate         DateTime?
+  status          ItemStatus      @default(PENDING)
+  completedAt     DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  fabricSource    FabricSource    @default(SHOP)
+  pieceNo         Int             @default(1)
+  employee        Employee?       @relation(fields: [employeeId], references: [id])
+  garmentType     GarmentType     @relation(fields: [garmentTypeId], references: [id])
+  order           Order           @relation(fields: [orderId], references: [id])
+  tasks           OrderItemTask[]
+
+  @@unique([orderId, garmentTypeId, pieceNo])
+  @@index([orderId])
+  @@index([garmentTypeId])
+  @@index([employeeId, status])
+}
+
+model OrderPayment {
+  id           String    @id @default(cuid())
+  orderId      String
+  amount       Int
+  paidAt       DateTime  @default(now())
+  receivedById String
+  note         String?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  order        Order     @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id          String       @id @default(cuid())
+  orderId     String
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  changedById String?
+  actor       String       @default("USER")
+  note        String?
+  createdAt   DateTime     @default(now())
+  order       Order        @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  employeeId    String
+  amount        Int
+  paidAt        DateTime  @default(now())
+  processedById String
+  note          String?
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  employee      Employee  @relation(fields: [employeeId], references: [id])
+  processedBy   User      @relation(fields: [processedById], references: [id])
+
+  @@index([employeeId, paidAt])
+}
+
+model ExpenseCategory {
+  id        String    @id @default(cuid())
+  name      String
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expenses  Expense[]
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  branchId    String
+  categoryId  String
+  amount      Int
+  description String?
+  receiptUrl  String?
+  expenseDate DateTime
+  addedById   String
+  createdAt   DateTime        @default(now())
+  deletedAt   DateTime?
+  updatedAt   DateTime        @updatedAt
+  branch      Branch          @relation(fields: [branchId], references: [id])
+  category    ExpenseCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([branchId, expenseDate])
+}
+
+model AuditLog {
+  id        String    @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  branchId  String?
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AttendanceRecord {
+  id          String    @id @default(cuid())
+  employeeId  String
+  branchId    String
+  date        DateTime
+  clockIn     DateTime
+  clockOut    DateTime?
+  hoursWorked Float?
+  note        String?
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+  updatedAt   DateTime  @updatedAt
+  branch      Branch    @relation(fields: [branchId], references: [id])
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, date])
+  @@index([branchId, date])
+}
+
+model GarmentPriceLog {
+  id               String      @id @default(cuid())
+  garmentTypeId    String
+  changedById      String
+  oldCustomerPrice Int?
+  oldEmployeeRate  Int?
+  newCustomerPrice Int?
+  newEmployeeRate  Int?
+  action           String
+  createdAt        DateTime    @default(now())
+  changedBy        User        @relation(fields: [changedById], references: [id])
+  garmentType      GarmentType @relation(fields: [garmentTypeId], references: [id])
+
+  @@index([garmentTypeId])
+  @@index([createdAt])
+}
+
+model WorkflowStepTemplate {
+  id            String          @id @default(cuid())
+  garmentTypeId String
+  stepKey       String
+  stepName      String
+  sortOrder     Int             @default(0)
+  isRequired    Boolean         @default(true)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  deletedAt     DateTime?
+  tasks         OrderItemTask[]
+  rateCards     RateCard[]
+  garmentType   GarmentType     @relation(fields: [garmentTypeId], references: [id])
+
+  @@unique([garmentTypeId, stepKey])
+  @@index([garmentTypeId, sortOrder])
+}
+
+model RateCard {
+  id             String                @id @default(cuid())
+  branchId       String?
+  garmentTypeId  String
+  stepTemplateId String?
+  stepKey        String
+  rate           Int
+  effectiveFrom  DateTime              @default(now())
+  effectiveTo    DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  deletedAt      DateTime?
+  tasks          OrderItemTask[]
+  branch         Branch?               @relation(fields: [branchId], references: [id])
+  garmentType    GarmentType           @relation(fields: [garmentTypeId], references: [id])
+  stepTemplate   WorkflowStepTemplate? @relation(fields: [stepTemplateId], references: [id])
+
+  @@index([branchId, garmentTypeId, stepKey])
+  @@index([effectiveFrom, effectiveTo])
+}
+
+model OrderItemTask {
+  id                 String                         @id @default(cuid())
+  orderItemId        String
+  stepTemplateId     String?
+  stepKey            String
+  stepName           String
+  sortOrder          Int                            @default(0)
+  status             TaskStatus                     @default(PENDING)
+  assignedEmployeeId String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  notes              String?
+  createdAt          DateTime                       @default(now())
+  updatedAt          DateTime                       @updatedAt
+  deletedAt          DateTime?
+  rateCardId         String?
+  rateOverride       Int?
+  rateSnapshot       Int?
+  assignedEmployee   Employee?                      @relation(fields: [assignedEmployeeId], references: [id])
+  orderItem          OrderItem                      @relation(fields: [orderItemId], references: [id])
+  rateCard           RateCard?                      @relation(fields: [rateCardId], references: [id])
+  stepTemplate       WorkflowStepTemplate?          @relation(fields: [stepTemplateId], references: [id])
+  assignmentEvents   OrderItemTaskAssignmentEvent[]
+
+  @@index([orderItemId, sortOrder])
+  @@index([assignedEmployeeId, status])
+  @@index([stepKey])
+}
+
+model OrderItemTaskAssignmentEvent {
+  id             String        @id @default(cuid())
+  taskId         String
+  fromEmployeeId String?
+  toEmployeeId   String?
+  changedById    String?
+  note           String?
+  createdAt      DateTime      @default(now())
+  changedBy      User?         @relation(fields: [changedById], references: [id])
+  task           OrderItemTask @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+}
+
+model SystemSettings {
+  id              String   @id @default("default")
+  useTaskWorkflow Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 enum Role {
   SUPER_ADMIN
   ADMIN
@@ -68,464 +531,7 @@ enum DiscountType {
   PERCENTAGE
 }
 
-model Branch {
-  id                String             @id @default(cuid())
-  code              String             @unique // e.g. 'LHR', 'KHI' - used in Size Numbers
-  name              String
-  address           String?
-  phone             String?
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  deletedAt         DateTime?
-  users             User[]
-  employees         Employee[]
-  customers         Customer[]
-  orders            Order[]
-  expenses          Expense[]
-  attendanceRecords AttendanceRecord[]
-}
-
-model User {
-  id                String            @id @default(cuid())
-  name              String
-  email             String            @unique
-  passwordHash      String
-  role              Role              @default(ENTRY_OPERATOR)
-  branchId          String? // null = Super Admin (all branches)
-  branch            Branch?           @relation(fields: [branchId], references: [id])
-  employeeId        String?           @unique // only set when role = EMPLOYEE
-  employee          Employee?         @relation(fields: [employeeId], references: [id])
-  isActive          Boolean           @default(true)
-  lastLoginAt       DateTime?
-  refreshToken      String? // hashed refresh token
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  deletedAt         DateTime?
-  auditLogs         AuditLog[]
-  paymentsProcessed Payment[]
-  priceLogs         GarmentPriceLog[]
-  taskAssignmentEvents OrderItemTaskAssignmentEvent[]
-
-  @@index([branchId])
-  @@index([role])
-}
-
-model Employee {
-  id                String                   @id @default(cuid())
-  employeeCode      String                   @unique // auto-gen: EMP-LHR-0001
-  branchId          String
-  branch            Branch                   @relation(fields: [branchId], references: [id])
-  fullName          String
-  fatherName        String?
-  phone             String
-  phone2            String?
-  address           String?
-  city              String?
-  cnic              String?                  @unique
-  dateOfBirth       DateTime?
-  dateOfJoining     DateTime                 @default(now())
-  designation       String?
-  paymentType       PaymentType              @default(PER_PIECE)
-  accountNumber     String? // bank / JazzCash / EasyPaisa
-  emergencyName     String?
-  emergencyPhone    String?
-  photoUrl          String?
-  status            EmployeeStatus           @default(ACTIVE)
-  notes             String?
-  searchVector      Unsupported("tsvector")?
-  createdAt         DateTime                 @default(now())
-  updatedAt         DateTime                 @updatedAt
-  deletedAt         DateTime?
-  documents         EmployeeDocument[]
-  orderItems        OrderItem[]
-  payments          Payment[]
-  userAccount       User? // linked login account (EMPLOYEE role)
-  attendanceRecords AttendanceRecord[]
-  assignedTasks     OrderItemTask[]
-
-  @@index([branchId, status])
-  @@index([searchVector], type: Gin)
-}
-
-model EmployeeDocument {
-  id           String    @id @default(cuid())
-  employeeId   String
-  employee     Employee  @relation(fields: [employeeId], references: [id])
-  label        String // e.g. 'CNIC Front', 'Contract'
-  fileUrl      String // Cloudflare R2 signed URL key
-  fileType     String // 'image/jpeg', 'application/pdf'
-  uploadedById String
-  createdAt    DateTime  @default(now())
-  deletedAt    DateTime?
-
-  @@index([employeeId])
-}
-
-model Customer {
-  id            String                   @id @default(cuid())
-  branchId      String
-  branch        Branch                   @relation(fields: [branchId], references: [id])
-  sizeNumber    String                   @unique // C-LHR-0045 - critical fast-lookup field
-  fullName      String
-  phone         String
-  whatsapp      String?
-  email         String?
-  address       String?
-  city          String?
-  notes         String?
-  status        CustomerStatus           @default(ACTIVE)
-  isVip         Boolean                  @default(false) // loyalty flag
-  lifetimeValue Int                      @default(0) // paisas: total paid across all orders
-  searchVector  Unsupported("tsvector")?
-  createdAt     DateTime                 @default(now())
-  updatedAt     DateTime                 @updatedAt
-  deletedAt     DateTime?
-  measurements  CustomerMeasurement[]
-  orders        Order[]
-
-  @@index([branchId, deletedAt])
-  @@index([sizeNumber]) // prefix search for order entry
-  @@index([searchVector], type: Gin)
-}
-
-model MeasurementCategory {
-  id           String                @id @default(cuid())
-  name         String // 'Shalwar Kameez', 'Coat', 'Waistcoat'
-  sortOrder    Int                   @default(0)
-  isActive     Boolean               @default(true)
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
-  deletedAt    DateTime?
-  fields       MeasurementField[]
-  measurements CustomerMeasurement[]
-  garmentTypes GarmentType[]
-}
-
-model MeasurementField {
-  id              String              @id @default(cuid())
-  categoryId      String
-  category        MeasurementCategory @relation(fields: [categoryId], references: [id])
-  label           String // 'Shoulder', 'Chest', 'Collar'
-  fieldType       FieldType           @default(NUMBER)
-  unit            String? // 'inches', 'cm'
-  isRequired      Boolean             @default(false)
-  sortOrder       Int                 @default(0)
-  dropdownOptions String[] // only used when fieldType = DROPDOWN
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  deletedAt       DateTime?
-}
-
-model CustomerMeasurement {
-  id         String              @id @default(cuid())
-  customerId String
-  customer   Customer            @relation(fields: [customerId], references: [id])
-  categoryId String
-  category   MeasurementCategory @relation(fields: [categoryId], references: [id])
-  // values: { "fieldId_abc": "42", "fieldId_def": "16.5" }
-  values     Json
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-
-  @@unique([customerId, categoryId]) // one measurement set per category per customer
-}
-
-model GarmentType {
-  id                    String                @id @default(cuid())
-  name                  String // 'Shalwar Kameez', '3-Piece Suit', 'Waistcoat'
-  customerPrice         Int // paisas — global default: what shop charges customer
-  employeeRate          Int // paisas — global default: what tailor earns per piece
-  description           String?
-  sortOrder             Int                   @default(0)
-  isActive              Boolean               @default(true)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  deletedAt             DateTime?
-  orderItems            OrderItem[]
-  priceLogs             GarmentPriceLog[]
-  measurementCategories MeasurementCategory[]
-  workflowSteps         WorkflowStepTemplate[]
-}
-
-model Order {
-  id             String                   @id @default(cuid())
-  orderNumber    String                   @unique // ORD-2025-LHR-00047
-  branchId       String
-  branch         Branch                   @relation(fields: [branchId], references: [id])
-  customerId     String
-  customer       Customer                 @relation(fields: [customerId], references: [id])
-  orderDate      DateTime                 @default(now())
-  dueDate        DateTime
-  subtotal       Int // paisas: SUM(unitPrice * qty) non-cancelled items
-  discountType   DiscountType? // FIXED | PERCENTAGE | null
-  discountValue  Int                      @default(0) // paisas if FIXED, basis points if PERCENTAGE
-  discountAmount Int                      @default(0) // paisas: computed and stored
-  totalAmount    Int // paisas: subtotal - discountAmount
-  totalPaid      Int                      @default(0) // paisas: SUM of all OrderPayments
-  balanceDue     Int // paisas: totalAmount - totalPaid (denormalized)
-  notes          String?
-  status         OrderStatus              @default(NEW)
-  createdById    String
-  shareToken     String?                  @unique // public shareable token
-  sharePin       String? // 4-digit PIN for customer verification
-  searchVector   Unsupported("tsvector")?
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
-  deletedAt      DateTime?
-  items          OrderItem[]
-  payments       OrderPayment[]
-  statusHistory  OrderStatusHistory[]
-
-  @@index([branchId, status])
-  @@index([customerId])
-  @@index([dueDate]) // overdue cron query
-  @@index([searchVector], type: Gin)
-}
-
 enum FabricSource {
   SHOP
   CUSTOMER
-}
-
-model OrderItem {
-  id              String      @id @default(cuid())
-  orderId         String
-  order           Order       @relation(fields: [orderId], references: [id])
-  garmentTypeId   String
-  garmentType     GarmentType @relation(fields: [garmentTypeId], references: [id])
-  garmentTypeName String // SNAPSHOT: name at time of order
-  pieceNo         Int         @default(1)
-  employeeId      String?
-  employee        Employee?   @relation(fields: [employeeId], references: [id])
-  quantity        Int         @default(1)
-  unitPrice       Int // paisas: SNAPSHOT customer price at order time
-  employeeRate    Int // paisas: SNAPSHOT employee rate at order time
-  description     String? // fabric colour, embroidery, button type, etc.
-  fabricSource    FabricSource @default(SHOP)
-  dueDate         DateTime? // item-level due date (can differ from order)
-  status          ItemStatus  @default(PENDING)
-  completedAt     DateTime? // set when status -> COMPLETED
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  deletedAt       DateTime?
-  tasks           OrderItemTask[]
-
-  @@unique([orderId, garmentTypeId, pieceNo])
-  @@index([orderId])
-  @@index([garmentTypeId])
-  @@index([employeeId, status]) // employee earnings query
-}
-
-model OrderPayment {
-  id           String    @id @default(cuid())
-  orderId      String
-  order        Order     @relation(fields: [orderId], references: [id])
-  amount       Int // paisas received from customer
-  paidAt       DateTime  @default(now())
-  receivedById String // userId
-  note         String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-
-  @@index([orderId])
-}
-
-model OrderStatusHistory {
-  id          String       @id @default(cuid())
-  orderId     String
-  order       Order        @relation(fields: [orderId], references: [id])
-  fromStatus  OrderStatus?
-  toStatus    OrderStatus
-  changedById String? // null when actor = SYSTEM (cron job)
-  actor       String       @default("USER") // 'USER' | 'SYSTEM'
-  note        String?
-  createdAt   DateTime     @default(now())
-
-  @@index([orderId])
-}
-
-model Payment {
-  id            String    @id @default(cuid())
-  employeeId    String
-  employee      Employee  @relation(fields: [employeeId], references: [id])
-  amount        Int // paisas disbursed to employee
-  paidAt        DateTime  @default(now())
-  processedById String
-  processedBy   User      @relation(fields: [processedById], references: [id])
-  note          String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-
-  @@index([employeeId, paidAt])
-}
-
-model ExpenseCategory {
-  id        String    @id @default(cuid())
-  name      String // 'Rent', 'Electricity', 'Equipment', 'Supplies'
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  expenses  Expense[]
-}
-
-model Expense {
-  id          String          @id @default(cuid())
-  branchId    String
-  branch      Branch          @relation(fields: [branchId], references: [id])
-  categoryId  String
-  category    ExpenseCategory @relation(fields: [categoryId], references: [id])
-  amount      Int // paisas
-  description String?
-  receiptUrl  String?
-  expenseDate DateTime
-  addedById   String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  deletedAt   DateTime?
-
-  @@index([branchId, expenseDate])
-}
-
-model AuditLog {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  action    String // CREATE | UPDATE | DELETE | LOGIN | PAYMENT | STATUS_CHANGE
-  entity    String // 'Order' | 'Employee' | 'Customer' | 'Payment' ...
-  entityId  String
-  branchId  String?
-  oldValue  Json? // snapshot before mutation
-  newValue  Json? // snapshot after mutation
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime  @default(now())
-  deletedAt DateTime?
-
-  @@index([entity, entityId])
-  @@index([userId])
-  @@index([createdAt])
-}
-
-// ─── Phase 4: Attendance Tracking ─────────────────────────────────────────────
-
-model AttendanceRecord {
-  id          String    @id @default(cuid())
-  employeeId  String
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  branchId    String
-  branch      Branch    @relation(fields: [branchId], references: [id])
-  date        DateTime // date-only for daily attendance queries (midnight UTC)
-  clockIn     DateTime
-  clockOut    DateTime?
-  hoursWorked Float? // computed and stored on clock-out
-  note        String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  @@index([employeeId, date])
-  @@index([branchId, date])
-}
-
-model GarmentPriceLog {
-  id               String      @id @default(cuid())
-  garmentTypeId    String
-  garmentType      GarmentType @relation(fields: [garmentTypeId], references: [id])
-  changedById      String
-  changedBy        User        @relation(fields: [changedById], references: [id])
-  oldCustomerPrice Int?
-  oldEmployeeRate  Int?
-  newCustomerPrice Int?
-  newEmployeeRate  Int?
-  action           String // 'UPDATE'
-  createdAt        DateTime    @default(now())
-
-  @@index([garmentTypeId])
-  @@index([createdAt])
-}
-
-// ─── Phase 1: Production workflow core ────────────────────────────────────────
-
-model WorkflowStepTemplate {
-  id            String      @id @default(cuid())
-  garmentTypeId String
-  garmentType   GarmentType @relation(fields: [garmentTypeId], references: [id])
-
-  // dynamic key (NOT enum)
-  stepKey       String // e.g. "CUTTING", "STITCHING", "DESIGNING", "FINISHING", "PRESSING"
-  stepName      String
-
-  sortOrder     Int     @default(0)
-  isRequired    Boolean @default(true)
-  isActive      Boolean @default(true)
-
-  createdAt     DateTime @default(now())
-  deletedAt     DateTime?
-
-  tasks         OrderItemTask[]
-
-  @@unique([garmentTypeId, stepKey])
-  @@index([garmentTypeId, sortOrder])
-}
-
-model OrderItemTask {
-  id              String   @id @default(cuid())
-  orderItemId     String
-  orderItem       OrderItem @relation(fields: [orderItemId], references: [id])
-
-  stepTemplateId  String?
-  stepTemplate    WorkflowStepTemplate? @relation(fields: [stepTemplateId], references: [id])
-
-  stepKey         String
-  stepName        String
-  sortOrder       Int      @default(0)
-
-  status          TaskStatus @default(PENDING)
-
-  assignedEmployeeId String?
-  assignedEmployee   Employee? @relation(fields: [assignedEmployeeId], references: [id])
-
-  startedAt       DateTime?
-  completedAt     DateTime?
-
-  notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  deletedAt       DateTime?
-
-  assignmentEvents OrderItemTaskAssignmentEvent[]
-
-  @@index([orderItemId, sortOrder])
-  @@index([assignedEmployeeId, status])
-  @@index([stepKey])
-}
-
-model OrderItemTaskAssignmentEvent {
-  id             String @id @default(cuid())
-  taskId         String
-  task           OrderItemTask @relation(fields: [taskId], references: [id])
-
-  fromEmployeeId String?
-  toEmployeeId   String?
-
-  changedById    String?
-  changedBy      User? @relation(fields: [changedById], references: [id])
-
-  note           String?
-  createdAt      DateTime @default(now())
-
-  @@index([taskId])
-}
-
-// ─── Phase 0: System Configurations ───────────────────────────────────────────
-
-model SystemSettings {
-  id              String   @id @default("default") // Only one row
-  useTaskWorkflow Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 }
