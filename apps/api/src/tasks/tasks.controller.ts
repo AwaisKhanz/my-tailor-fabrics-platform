@@ -29,6 +29,16 @@ export class TasksController {
     return { success: true, data };
   }
 
+  @Patch(':id/rate')
+  async updateRate(
+    @Param('id') id: string,
+    @Body('rateOverride') rateOverride: number,
+    @Req() req: AuthenticatedRequest
+  ) {
+    const data = await this.tasksService.updateTaskRate(id, rateOverride, req.branchId as string, req.user!.role);
+    return { success: true, data };
+  }
+
   @Get('order/:orderId')
   async findByOrder(@Param('orderId') orderId: string, @Req() req: AuthenticatedRequest) {
     const data = await this.tasksService.findAllByOrder(orderId, req.branchId as string);

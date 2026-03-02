@@ -10,6 +10,7 @@ import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable, ColumnDef } from "@/components/ui/data-table";
 
 import {
   Clock,
@@ -20,6 +21,11 @@ import {
   Loader2,
   Plus,
   XCircle,
+  Scissors,
+  Check,
+  Calendar,
+  Share2,
+  Copy
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -47,6 +53,10 @@ export default function OrderDetailPage() {
 
   const [taskOpen, setTaskOpen] = useState(false);
   const [taskItem, setTaskItem] = useState<OrderItem | null>(null);
+
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareData, setShareData] = useState<{ token: string; pin: string } | null>(null);
+  const [sharing, setSharing] = useState(false);
 
   const [employees, setEmployees] = useState<Array<{ id: string; fullName: string }>>([]);
 
@@ -107,6 +117,27 @@ export default function OrderDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    if (!order) return;
+    setSharing(true);
+    try {
+      const res = await ordersApi.shareOrder(order.id);
+      if (res.success) {
+        setShareData(res.data as { token: string; pin: string });
+        setShareOpen(true);
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to generate share link", variant: "destructive" });
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied to clipboard" });
+  };
+
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-10 w-1/4" /><Skeleton className="h-64 w-full" /></div>;
   if (!order) return null;
@@ -123,59 +154,151 @@ export default function OrderDetailPage() {
 
   const historyForTimeline = order.statusHistory ?? [];
 
+  const columns: ColumnDef<OrderItem>[] = [
+    {
+      header: "Piece #",
+      cell: (item) => (
+        <span className="font-bold text-foreground">#{item.pieceNo}</span>
+      )
+    },
+    {
+      header: "Garment Type",
+      cell: (item) => (
+        <div className="flex items-center gap-2">
+          <Scissors className="h-3.5 w-3.5 text-muted-foreground opacity-50" />
+          <span className="font-bold text-foreground">{item.garmentTypeName}</span>
+        </div>
+      )
+    },
+    {
+      header: "Production Tasks",
+      cell: (item) => {
+        const empName = employees.find(e => e.id === item.employeeId)?.fullName ?? item.employeeId ?? "—";
+        const initials = empName !== "—" ? empName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "—";
+        
+        return (
+          <div className="min-w-[180px]">
+            {item.tasks && item.tasks.length > 0 ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 text-[10px] font-bold tracking-widest uppercase hover:bg-primary/5 hover:text-primary transition-all border-primary/20 bg-primary/5 text-primary"
+                onClick={() => {
+                  setTaskItem(item);
+                  setTaskOpen(true);
+                }}
+              >
+                Manage Tasks
+              </Button>
+            ) : empName !== "—" ? (
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/20">
+                  {initials}
+                </div>
+                <span className="text-sm text-muted-foreground font-bold">{empName}</span>
+              </div>
+            ) : <span className="text-muted-foreground text-xs italic">Unassigned</span>}
+          </div>
+        )
+      }
+    },
+    {
+      header: "Description",
+      cell: (item) => (
+        <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px] truncate">
+          {item.description || "—"}
+        </p>
+      )
+    },
+    {
+      header: "Fabric",
+      align: "center",
+      cell: (item) => (
+        <Badge variant="royal" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
+          {item.fabricSource}
+        </Badge>
+      )
+    },
+    {
+      header: "Unit Price",
+      align: "right",
+      cell: (item) => (
+        <span className="text-xs text-muted-foreground">Rs. {(item.unitPrice / 100).toLocaleString()}</span>
+      )
+    },
+    {
+      header: "Total",
+      align: "right",
+      cell: (item) => (
+        <span className="font-bold text-foreground">Rs. {(item.unitPrice / 100).toLocaleString()}</span>
+      )
+    }
+  ];
+
   return (
-    <div className="space-y-5 max-w-9xl mx-auto">
+    <div className="space-y-6 max-w-9xl mx-auto">
 
       {/* Breadcrumb + Page Header */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
         <span
-          className="hover:text-foreground cursor-pointer transition-colors"
+          className="hover:text-primary cursor-pointer transition-colors"
           onClick={() => router.push("/orders")}
         >
-          Orders
+          Order Index
         </span>
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-foreground font-medium">{order.orderNumber}</span>
+        <ChevronRight className="h-3 w-3" />
+        <span className="text-foreground">{order.orderNumber}</span>
       </div>
 
       {/* Header Card */}
-      <Card className="shadow-sm border-border">
-        <CardContent className="px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Card className="shadow-sm border-border overflow-hidden ring-1 ring-border/50">
+        <CardContent className="px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-muted/5">
           <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">{order.orderNumber}</h1>
-              <Badge variant={sc.variant} className="uppercase tracking-wider">
+            <div className="flex items-center gap-4 flex-wrap">
+              <h1 className="text-4xl font-black tracking-tighter text-foreground">{order.orderNumber}</h1>
+              <Badge variant={sc.variant} className="uppercase font-black text-[10px] tracking-[0.2em] px-3 py-1 ring-1 ring-border">
                 {sc.label}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Created on {formatDate(order.createdAt)} &bull; Due on {formatDate(order.dueDate)}
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-2 flex items-center gap-2">
+              <Calendar className="h-3 w-3 opacity-40" /> {formatDate(order.createdAt)} 
+              <span className="opacity-20">|</span> 
+              <Clock className="h-3 w-3 opacity-40" /> Due: {formatDate(order.dueDate)}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <Button 
-              variant="muted" 
-              size="sm" 
-              className="gap-2 font-bold text-xs" 
+              variant="outline" 
+              size="lg" 
+              className="gap-2 font-bold text-xs ring-1 ring-border shadow-sm" 
               onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/orders/${order.id}/receipt`, '_blank')}
             >
               <Printer className="h-4 w-4" /> Print Receipt
             </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="gap-2 font-bold text-xs ring-1 ring-border shadow-sm"
+              onClick={handleShare}
+              disabled={sharing}
+            >
+              <Share2 className="h-4 w-4" /> Share Status
+            </Button>
             {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.COMPLETED && (
               <Button
-                variant="outline"
-                size="sm"
-                className="h-10 gap-2 border-destructive/20 text-destructive hover:bg-destructive/10 font-bold text-xs"
+                variant="ghost"
+                size="lg"
+                className="gap-2 text-destructive hover:bg-destructive/10 font-bold text-xs"
                 onClick={() => handleStatusUpdate(OrderStatus.CANCELLED)}
                 disabled={statusLoading}
               >
-                <XCircle className="h-4 w-4" /> Cancel
+                <XCircle className="h-4 w-4" /> Cancel Order
               </Button>
             )}
             <Button
               variant="premium"
-              size="sm"
-              className="gap-2 text-xs"
+              size="lg"
+              className="gap-2 text-xs font-bold shadow-lg shadow-primary/20"
               onClick={() => router.push(`/orders/new?edit=${order.id}`)}
             >
               <Plus className="h-4 w-4" /> Edit Order
@@ -185,73 +308,70 @@ export default function OrderDetailPage() {
       </Card>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Left — Customer + Items */}
-        <div className="lg:col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-6">
 
           {/* Customer Details */}
-          <Card className="shadow-sm border-border">
-            <CardHeader className="flex flex-row items-center justify-between pb-3 px-6 pt-5">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Package className="h-3.5 w-3.5 text-primary" />
+          <Card className="shadow-sm border-border overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 px-6 pt-5 bg-muted/5 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                  <Package className="h-4 w-4 text-primary" />
                 </div>
-                <CardTitle className="text-base font-bold">Customer Details</CardTitle>
+                <CardTitle className="text-sm font-black uppercase tracking-widest">Customer Insight</CardTitle>
               </div>
-              <Button variant="ghost" size="sm" className="text-primary h-8 text-xs font-semibold hover:bg-primary/5">
-                View History
-              </Button>
             </CardHeader>
-            <CardContent className="px-6 pb-6 pt-2">
+            <CardContent className="px-6 pb-6 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 {/* Left - Basic Info */}
-                <div className="space-y-5">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 opacity-70">Name</p>
-                    <p className="font-bold text-lg text-foreground leading-none">{order.customer.fullName}</p>
+                <div className="space-y-6">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">Legal Name</p>
+                    <p className="font-black text-2xl text-foreground tracking-tight">{order.customer.fullName}</p>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 opacity-70">Phone</p>
-                    <p className="font-bold text-base text-foreground/90 leading-none">{order.customer.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 opacity-70">Size Number</p>
-                    <p className="font-bold text-sm text-primary leading-none tracking-wider">
-                      {order.customer.sizeNumber}
-                    </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">Contact info</p>
+                      <p className="font-bold text-sm text-foreground/90">{order.customer.phone}</p>
+                    </div>
+                    <div className="space-y-1 text-right">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">Global ID</p>
+                      <Badge variant="outline" className="font-black text-[10px] tracking-widest uppercase">
+                        {order.customer.sizeNumber}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
 
                 {/* Right - Measurements Summary Box */}
-                <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 sm:p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-4">Measurements Summary</p>
+                <div className="bg-muted/30 border border-border/50 rounded-2xl p-6 ring-1 ring-inset ring-white/10 shadow-inner">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">Measurements Profile</p>
+                    <Badge variant="info" className="text-[8px] font-black tracking-[0.2em] px-1.5 py-0">SYNCED</Badge>
+                  </div>
                   {(() => {
-                    // Try to find measurements for the first item's garment category
                     const customerMeasurements = order.customer.measurements || [];
-                    
-                    // Fallback to the most recent measurement if no specific category match (or just show the first one)
                     const mSet = customerMeasurements[0];
 
                     if (!mSet || !mSet.values || Object.keys(mSet.values).length === 0) {
-                      return <p className="text-xs text-muted-foreground italic">No measurements recorded.</p>;
+                      return <p className="text-xs text-muted-foreground italic text-center py-4">No bio-metric data recorded.</p>;
                     }
 
                     const fields = mSet.category?.fields || [];
                     const values = mSet.values as Record<string, string>;
-                    
-                    // Map values to labels
                     const displayItems = Object.entries(values).map(([fieldId, value]) => {
                         const field = fields.find((f) => f.id === fieldId);
                         return { label: field?.label || fieldId, value };
                     }).slice(0, 8);
 
                     return (
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-3.5">
                         {displayItems.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between group">
-                            <span className="text-xs text-muted-foreground font-medium truncate pr-2">{item.label}</span>
-                            <span className="text-xs font-black text-foreground shrink-0">{item.value}&quot;</span>
+                            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate pr-2 opacity-60 group-hover:opacity-100 transition-opacity">{item.label}</span>
+                            <span className="text-xs font-black text-foreground shrink-0 tabular-nums">{item.value}&quot;</span>
                           </div>
                         ))}
                       </div>
@@ -263,196 +383,136 @@ export default function OrderDetailPage() {
           </Card>
 
           {/* Order Items */}
-          <Card className="shadow-sm border-border">
-            <CardHeader className="flex flex-row items-center gap-2 pb-3 px-6 pt-5">
-              <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <CreditCard className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <CardTitle className="text-base font-bold">Order Items</CardTitle>
-            </CardHeader>
-            <CardContent className="px-0 pb-1">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-t border-b border-border bg-muted/50">
-                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-16">Piece #</th>
-                      <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Garment Type</th>
-                      <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assigned To</th>
-                      <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Description</th>
-                      <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Fabric</th>
-                      <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Unit Price</th>
-                      <th className="px-6 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {order.items.map((item, idx) => {
-                      const empName = employees.find(e => e.id === item.employeeId)?.fullName ?? item.employeeId ?? "—";
-                      const initials = empName !== "—" ? empName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "—";
-                      return (
-                        <tr key={idx} className="hover:bg-muted/50 transition-colors">
-                          <td className="px-6 py-5 font-bold text-foreground text-sm">#{item.pieceNo}</td>
-                          <td className="px-4 py-5 font-bold text-foreground text-sm">{item.garmentTypeName}</td>
-                          <td className="px-4 py-5 font-medium text-xs">
-                              {item.tasks && item.tasks.length > 0 ? (
-                                  <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="h-7 text-[10px] font-bold tracking-widest uppercase hover:bg-primary/5 hover:text-primary transition-colors border-primary/20"
-                                      onClick={() => {
-                                          setTaskItem(item);
-                                          setTaskOpen(true);
-                                      }}
-                                  >
-                                      Tasks (Piece #{item.pieceNo})
-                                  </Button>
-                              ) : empName !== "—" ? (
-                                <div className="flex items-center gap-2.5">
-                                  <div className="h-8 w-8 rounded-full bg-primary/10 text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/20">
-                                    {initials}
-                                  </div>
-                                  <span className="text-sm text-muted-foreground font-bold">{empName}</span>
-                                </div>
-                              ) : <span className="text-muted-foreground">Unassigned</span>}
-                          </td>
-                          <td className="px-4 py-5">
-                            <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px]">
-                              {item.description || "—"}
-                            </p>
-                          </td>
-                          <td className="px-4 py-5 text-center">
-                            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-tight">
-                              {item.fabricSource}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-5 text-right text-muted-foreground text-sm">Rs. {(item.unitPrice / 100).toLocaleString()}</td>
-                          <td className="px-6 py-5 text-right font-bold text-foreground text-sm">Rs. {(item.unitPrice / 100).toLocaleString()}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-3">
+             <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                   <h2 className="text-sm font-black uppercase tracking-widest">Hardware / Garment Pieces</h2>
+                   <Badge variant="secondary" className="font-black text-[10px] tracking-[0.2em]">{order.items.length} UNITS</Badge>
+                </div>
+             </div>
+             <Card className="shadow-sm border-border overflow-hidden">
+               <DataTable
+                 columns={columns}
+                 data={order.items}
+                 itemLabel="pieces"
+                 emptyMessage="No pieces found for this order."
+               />
+             </Card>
+          </div>
         </div>
 
         {/* Right Sidebar */}
-        <div className="space-y-5">
+        <div className="space-y-6">
 
           {/* Financial Summary */}
-          <Card className="shadow-sm border-border">
-            <CardHeader className="px-6 pt-5 pb-3 flex flex-row items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <CreditCard className="h-3.5 w-3.5 text-primary" />
+          <Card className="shadow-sm border-border overflow-hidden">
+            <CardHeader className="px-6 pt-5 pb-4 bg-muted/5 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                </div>
+                <CardTitle className="text-sm font-black uppercase tracking-widest">Financial Ledger</CardTitle>
               </div>
-              <CardTitle className="text-base font-bold">Financial Summary</CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 pt-2 space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground font-medium">Subtotal</span>
-                  <span className="font-bold text-foreground">Rs. {(order.subtotal / 100).toLocaleString()}</span>
+            <CardContent className="px-6 pb-6 pt-6 space-y-5">
+              <div className="space-y-3 bg-muted/20 p-4 rounded-xl border border-border/50">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground font-bold uppercase tracking-widest opacity-60">Base Subtotal</span>
+                  <span className="font-black text-foreground tabular-nums">Rs. {(order.subtotal / 100).toLocaleString()}</span>
                 </div>
                 {order.discountAmount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground font-medium">
-                      Discount {order.discountType === 'PERCENTAGE' ? `(${order.discountValue}%)` : ''}
+                  <div className="flex justify-between text-xs">
+                    <span className="text-success font-bold uppercase tracking-widest opacity-80">
+                      Discounts {order.discountType === 'PERCENTAGE' ? `(${order.discountValue}%)` : ''}
                     </span>
-                    <span className="text-success font-bold">- Rs. {(order.discountAmount / 100).toLocaleString()}</span>
+                    <span className="text-success font-black tabular-nums">- Rs. {(order.discountAmount / 100).toLocaleString()}</span>
                   </div>
                 )}
               </div>
 
-              <div className="pt-2">
-                <div className="flex justify-between items-end">
-                  <span className="text-sm font-bold text-foreground uppercase tracking-tight">Total Amount</span>
-                  <span className="text-xl font-bold text-primary">Rs. {(order.totalAmount / 100).toLocaleString()}</span>
+              <div className="px-1">
+                <div className="flex justify-between items-end border-b border-border/30 pb-4">
+                  <span className="text-[10px] font-black text-foreground uppercase tracking-[0.2em]">Net Invoice</span>
+                  <span className="text-3xl font-black text-primary tracking-tighter tabular-nums">Rs. {(order.totalAmount / 100).toLocaleString()}</span>
                 </div>
                 {order.totalPaid > 0 && (
-                  <div className="flex justify-between text-[11px] text-muted-foreground mt-1.5 italic font-medium">
-                    <span>Advance Paid</span>
-                    <span>Rs. {(order.totalPaid / 100).toLocaleString()}</span>
+                  <div className="flex justify-between text-[10px] text-muted-foreground mt-3 uppercase tracking-widest font-bold font-mono">
+                    <span>Deposits Received</span>
+                    <span className="text-foreground">Rs. {(order.totalPaid / 100).toLocaleString()}</span>
                   </div>
                 )}
               </div>
 
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-dashed border-border"></div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between py-4 px-5 bg-primary/5 rounded-2xl border border-primary/10">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Balance Due</span>
-                <span className="text-xl font-bold text-primary">Rs. {(order.balanceDue / 100).toLocaleString()}</span>
+              <div className="flex items-center justify-between py-5 px-6 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/20 ring-1 ring-white/20">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Balance Pending</span>
+                <span className="text-2xl font-black tabular-nums tracking-tighter">Rs. {(order.balanceDue / 100).toLocaleString()}</span>
               </div>
 
               <Button
                 variant="premium"
                 size="xl"
-                className="w-full mt-2"
+                className="w-full font-black uppercase tracking-[0.15em] text-xs h-14 shadow-lg shadow-primary/30"
                 onClick={() => setPaymentOpen(true)}
               >
-                Record Payment
+                Capture Payment
               </Button>
             </CardContent>
           </Card>
 
           {/* Order Timeline */}
-          <Card className="shadow-sm border-border">
-            <CardHeader className="px-6 pt-5 pb-3 flex flex-row items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <Clock className="h-3.5 w-3.5 text-primary" />
+          <Card className="shadow-sm border-border overflow-hidden">
+            <CardHeader className="px-6 pt-5 pb-4 bg-muted/5 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                  <Clock className="h-4 w-4 text-primary" />
+                </div>
+                <CardTitle className="text-sm font-black uppercase tracking-widest">Workflow Timeline</CardTitle>
               </div>
-              <CardTitle className="text-base font-bold">Order Timeline</CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 pt-2">
-              <div className="space-y-6">
+            <CardContent className="px-6 pb-6 pt-6">
+              <div className="space-y-8">
                 {timelineSteps.map((step, i) => {
                   const historyEntry = historyForTimeline.find(h => h.toStatus?.toLowerCase().replace("_", " ") === step.key.toLowerCase());
                   const isLast = i === timelineSteps.length - 1;
                   
-                  // Styling based on state
                   let statusColor = "bg-muted border-border text-muted-foreground";
                   let Icon = null;
                   
                   if (step.done) {
-                    statusColor = "bg-success/10 border-success text-success";
-                    Icon = <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>;
+                    statusColor = "bg-success border-success text-success-foreground shadow-sm shadow-success/20";
+                    Icon = <Check className="h-3 w-3 stroke-[4]" />;
                   } else if (step.active) {
-                    statusColor = "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20";
-                    Icon = <div className="h-2 w-2 rounded-full bg-foreground animate-pulse" />;
+                    statusColor = "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30 ring-2 ring-primary/20";
+                    Icon = <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />;
                   }
 
                   return (
-                    <div key={i} className="flex gap-4 items-start relative">
-                      {/* Vertical Line Connector */}
+                    <div key={i} className="flex gap-5 items-start relative">
                       {!isLast && (
-                        <div className={`absolute left-[13px] top-8 w-0.5 h-10 ${step.done ? "bg-success/20" : "bg-muted"}`} />
+                        <div className={`absolute left-[13px] top-8 w-[2px] h-10 ${step.done ? "bg-success/30" : "bg-border/50"}`} />
                       )}
                       
-                      {/* Status Circle */}
-                      <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 border-2 z-10 transition-colors ${statusColor}`}>
+                      <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300 z-10 ${statusColor}`}>
                         {Icon}
                       </div>
 
-                      {/* Text Content */}
                       <div className="flex-1 pt-0.5">
-                        <p className={`text-sm font-bold leading-none ${step.active ? "text-primary" : step.done ? "text-foreground" : "text-muted-foreground"}`}>
+                        <p className={`text-xs font-black uppercase tracking-widest border-b border-transparent inline-block ${step.active ? "text-primary border-primary/20 pb-0.5" : step.done ? "text-foreground" : "text-muted-foreground opacity-40"}`}>
                           {step.key}
                         </p>
                         {historyEntry ? (
-                          <div className="mt-1.5 space-y-0.5">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
-                              {new Date(historyEntry.createdAt).toLocaleDateString("en-PK", { day: "2-digit", month: "short", year: "numeric" })} • {new Date(historyEntry.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })}
+                          <div className="mt-2 space-y-0.5">
+                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.1em] opacity-60">
+                              {new Date(historyEntry.createdAt).toLocaleDateString("en-PK", { day: "2-digit", month: "short" })} @ {new Date(historyEntry.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })}
                             </p>
-                            {historyEntry.note && <p className="text-[11px] text-muted-foreground font-medium italic truncate">{historyEntry.note}</p>}
+                            {historyEntry.note && <p className="text-[10px] text-muted-foreground font-bold italic truncate opacity-80">{historyEntry.note}</p>}
                           </div>
                         ) : step.active ? (
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mt-1.5 animate-pulse">Processing Now</p>
-                        ) : (
-                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mt-1.5">Pending</p>
-                        )}
+                          <div className="mt-2 flex items-center gap-1.5">
+                             <span className="h-1 w-1 rounded-full bg-success animate-ping" />
+                             <p className="text-[9px] font-black text-success uppercase tracking-widest">Current Status</p>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   );
@@ -463,27 +523,30 @@ export default function OrderDetailPage() {
 
           {/* Process Order actions */}
           {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.COMPLETED && (
-            <Card className="shadow-sm border-border">
-              <CardContent className="px-5 py-4 space-y-2">
+            <Card className="shadow-sm border-border overflow-hidden">
+               <CardHeader className="px-5 pt-4 pb-0">
+                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 text-center">Lifecycle Advancement</CardTitle>
+               </CardHeader>
+              <CardContent className="px-5 py-5 space-y-3">
                 {order.status === OrderStatus.NEW && (
-                  <Button variant="premium" size="lg" className="w-full" onClick={() => handleStatusUpdate(OrderStatus.IN_PROGRESS)} disabled={statusLoading}>
+                  <Button variant="premium" size="xl" className="w-full shadow-lg shadow-primary/20" onClick={() => handleStatusUpdate(OrderStatus.IN_PROGRESS)} disabled={statusLoading}>
                     {statusLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <ChevronRight className="h-4 w-4 mr-2" />}
-                    Start Work
+                    Begin Production
                   </Button>
                 )}
                 {order.status === OrderStatus.IN_PROGRESS && (
-                  <Button className="w-full" variant="secondary" onClick={() => handleStatusUpdate(OrderStatus.READY)} disabled={statusLoading}>
-                    Mark Ready for Pickup
+                  <Button className="w-full bg-foreground text-background hover:bg-foreground/90 font-black h-12 uppercase tracking-widest text-[10px]" onClick={() => handleStatusUpdate(OrderStatus.READY)} disabled={statusLoading}>
+                    Mark Ready for trial
                   </Button>
                 )}
                 {order.status === OrderStatus.READY && (
-                  <Button className="w-full" variant="outline" onClick={() => handleStatusUpdate(OrderStatus.DELIVERED)} disabled={statusLoading}>
-                    Deliver &amp; Complete
+                  <Button className="w-full border-primary/20 hover:bg-primary/5 text-primary font-black h-12 uppercase tracking-widest text-[10px]" variant="outline" onClick={() => handleStatusUpdate(OrderStatus.DELIVERED)} disabled={statusLoading}>
+                    Dispatch Piece
                   </Button>
                 )}
                 {order.status === OrderStatus.DELIVERED && (
-                  <Button className="w-full" variant="outline" onClick={() => handleStatusUpdate(OrderStatus.COMPLETED)} disabled={statusLoading}>
-                    Mark Fully Completed
+                  <Button className="w-full shadow-xl font-black h-12 uppercase tracking-widest text-[10px]" variant="premium" onClick={() => handleStatusUpdate(OrderStatus.COMPLETED)} disabled={statusLoading}>
+                    Seal Order
                   </Button>
                 )}
               </CardContent>
@@ -494,29 +557,29 @@ export default function OrderDetailPage() {
 
       {/* Payment Dialog */}
       <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Payment</DialogTitle>
-            <DialogDescription>Record a payment from the customer for this order.</DialogDescription>
+            <DialogTitle>Capture Receipt</DialogTitle>
+            <DialogDescription>Input financial deposit for Order <strong>#{order.orderNumber}</strong>.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="flex justify-between items-center p-3 bg-destructive/10 rounded-lg text-destructive font-bold">
-              <span>Maximum Due:</span>
-              <span>Rs. {(order.balanceDue / 100).toLocaleString()}</span>
+          <div className="space-y-5 py-4">
+            <div className="flex justify-between items-center px-5 py-4 bg-muted border border-border/50 rounded-2xl">
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Pending amount</span>
+              <span className="text-xl font-black text-foreground tabular-nums">Rs. {(order.balanceDue / 100).toLocaleString()}</span>
             </div>
-            <div className="space-y-1.5">
-              <Label>Amount (Rs.)</Label>
-              <Input type="number" placeholder="e.g. 1000" value={amount} onChange={(e) => setAmount(e.target.value)} max={order.balanceDue / 100} />
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-wider">Deposit Amount (Rs.) <span className="text-destructive">*</span></Label>
+              <Input type="number" variant="premium" className="h-12 font-black text-lg" placeholder="e.g. 1000" value={amount} onChange={(e) => setAmount(e.target.value)} max={order.balanceDue / 100} />
             </div>
-            <div className="space-y-1.5">
-              <Label>Note (Optional)</Label>
-              <Input placeholder="e.g. Cash, Bank Transfer" value={note} onChange={(e) => setNote(e.target.value)} />
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-wider">Transaction Note</Label>
+              <Input variant="premium" className="h-12" placeholder="e.g. Received via Cash / Bank Transfer" value={note} onChange={(e) => setNote(e.target.value)} />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPaymentOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddPayment} disabled={processing || !amount}>
-              {processing ? "Saving..." : "Save Payment"}
+          <DialogFooter className="border-t pt-4">
+            <Button variant="outline" onClick={() => setPaymentOpen(false)}>Dismiss</Button>
+            <Button variant="premium" size="lg" onClick={handleAddPayment} disabled={processing || !amount}>
+              {processing ? "Syncing..." : "Post Payment"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -524,13 +587,56 @@ export default function OrderDetailPage() {
 
 
       <TaskAssignmentDialog
-        open={taskOpen}
-        onOpenChange={setTaskOpen}
         orderItem={taskItem}
         employees={employees}
         onSuccess={fetchOrder}
+        open={taskOpen}
+        onOpenChange={setTaskOpen}
       />
+
+      {/* Share Dialog */}
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Public Status Share</DialogTitle>
+            <DialogDescription>Share this link with your customer so they can track their order status.</DialogDescription>
+          </DialogHeader>
+          {shareData && (
+            <div className="space-y-6 py-6">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Public URL</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    readOnly 
+                    value={`${window.location.origin}/status/${shareData.token}`}
+                    className="flex-1 font-mono text-xs bg-muted/30"
+                  />
+                  <Button size="icon" variant="outline" onClick={() => copyToClipboard(`${window.location.origin}/status/${shareData.token}`)}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Access PIN</p>
+                   <p className="text-3xl font-black text-primary tracking-widest">{shareData.pin}</p>
+                </div>
+                <Button size="sm" variant="ghost" className="text-primary font-bold" onClick={() => copyToClipboard(shareData.pin)}>
+                  Copy PIN
+                </Button>
+              </div>
+              
+              <p className="text-[10px] text-muted-foreground font-bold italic text-center">
+                * Customers will need the 4-digit PIN to access their order details.
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" className="w-full" onClick={() => setShareOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
 const shared_types_1 = require("@tbms/shared-types");
 const rates_service_1 = require("../rates/rates.service");
 let OrdersService = class OrdersService {
@@ -126,7 +127,7 @@ let OrdersService = class OrdersService {
                             unitPrice: item.unitPrice,
                             employeeRate: item.employeeRate,
                             description: item.description,
-                            fabricSource: item.fabricSource,
+                            fabricSource: item.fabricSource ?? client_1.FabricSource.SHOP,
                             dueDate: item.dueDate,
                             garmentTypeName: item.garmentTypeName,
                             garmentType: { connect: { id: item.garmentTypeId } }
@@ -503,7 +504,7 @@ let OrdersService = class OrdersService {
                 sortOrder: t.sortOrder,
                 status: 'PENDING',
                 rateCardId: rateCard?.id || null,
-                rateSnapshot: rateCard?.rate || 0,
+                rateSnapshot: rateCard?.amount || 0,
             });
         }
         await tx.orderItemTask.createMany({

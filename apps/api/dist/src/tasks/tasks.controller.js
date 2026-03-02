@@ -30,6 +30,10 @@ let TasksController = class TasksController {
         const data = await this.tasksService.updateTaskStatus(id, status, req.branchId, req.user.userId);
         return { success: true, data };
     }
+    async updateRate(id, rateOverride, req) {
+        const data = await this.tasksService.updateTaskRate(id, rateOverride, req.branchId, req.user.role);
+        return { success: true, data };
+    }
     async findByOrder(orderId, req) {
         const data = await this.tasksService.findAllByOrder(orderId, req.branchId);
         return { success: true, data };
@@ -58,6 +62,15 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], TasksController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Patch)(':id/rate'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('rateOverride')),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Object]),
+    __metadata("design:returntype", Promise)
+], TasksController.prototype, "updateRate", null);
 __decorate([
     (0, common_1.Get)('order/:orderId'),
     __param(0, (0, common_1.Param)('orderId')),

@@ -44,7 +44,7 @@ export function CreateRateDialog({
     garmentTypeId: "",
     branchId: "GLOBAL",
     stepKey: "",
-    rate: "",
+    amount: "",
     effectiveFrom: new Date().toISOString().split('T')[0]
   });
 
@@ -55,7 +55,7 @@ export function CreateRateDialog({
       await onSubmit({
         ...formData,
         branchId: formData.branchId === "GLOBAL" ? null : formData.branchId,
-        rate: Math.round(parseFloat(formData.rate) * 100)
+        amount: Math.round(parseFloat(formData.amount) * 100)
       });
       onOpenChange(false);
     } catch (err) {
@@ -140,8 +140,8 @@ export function CreateRateDialog({
                     type="number" 
                     step="0.01" 
                     className="pl-9"
-                    value={formData.rate}
-                    onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     required
                   />
                 </div>

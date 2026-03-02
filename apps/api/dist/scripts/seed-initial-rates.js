@@ -4,6 +4,9 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Starting RateCard seeding...');
+    const adminUser = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' }, orderBy: { createdAt: 'asc' } });
+    if (!adminUser)
+        throw new Error('No SUPER_ADMIN user found. Please seed users first.');
     const garmentTypes = await prisma.garmentType.findMany({
         include: { workflowSteps: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } }
     });
@@ -49,7 +52,7 @@ async function main() {
             rates.push({
                 stepKey: step.stepKey,
                 stepName: step.stepName,
-                rate: stepRate,
+                amount: stepRate,
                 stepTemplateId: step.id
             });
         }
@@ -64,23 +67,24 @@ async function main() {
                 }
             });
             if (existing) {
-                if (existing.rate !== r.rate) {
-                    console.log(`Updating rate for ${gt.name} ${r.stepKey}: ${existing.rate} -> ${r.rate}`);
+                if (existing.amount !== r.amount) {
+                    console.log(`Updating rate for ${gt.name} ${r.stepKey}: ${existing.amount} -> ${r.amount}`);
                     await prisma.rateCard.update({
                         where: { id: existing.id },
-                        data: { rate: r.rate }
+                        data: { amount: r.amount }
                     });
                 }
             }
             else {
-                console.log(`Creating rate for ${gt.name} ${r.stepKey}: ${r.rate}`);
+                console.log(`Creating rate for ${gt.name} ${r.stepKey}: ${r.amount}`);
                 await prisma.rateCard.create({
                     data: {
                         branchId: null,
                         garmentTypeId: gt.id,
                         stepKey: r.stepKey,
-                        rate: r.rate,
+                        amount: r.amount,
                         stepTemplateId: r.stepTemplateId,
+                        createdById: adminUser.id,
                         effectiveFrom: new Date('2024-01-01')
                     }
                 });

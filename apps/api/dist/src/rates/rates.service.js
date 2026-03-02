@@ -54,7 +54,7 @@ let RatesService = class RatesService {
         return this.prisma.$transaction(async (tx) => {
             const previousRate = await tx.rateCard.findFirst({
                 where: {
-                    branchId: dto.branchId,
+                    branchId: dto.branchId ?? null,
                     garmentTypeId: dto.garmentTypeId,
                     stepKey: dto.stepKey,
                     effectiveTo: null,
@@ -74,9 +74,10 @@ let RatesService = class RatesService {
                     branchId: dto.branchId,
                     garmentTypeId: dto.garmentTypeId,
                     stepKey: dto.stepKey,
-                    rate: dto.rate,
+                    amount: dto.amount,
                     effectiveFrom: new Date(dto.effectiveFrom),
                     stepTemplateId: dto.stepTemplateId,
+                    createdById: dto.createdById,
                 },
             });
         });

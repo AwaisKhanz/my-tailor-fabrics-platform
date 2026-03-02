@@ -4,9 +4,10 @@ export interface RateCard {
     garmentTypeId: string;
     stepTemplateId?: string | null;
     stepKey: string;
-    rate: number;
+    amount: number;
     effectiveFrom: Date | string;
     effectiveTo?: Date | string | null;
+    createdById: string;
     createdAt: Date | string;
     updatedAt: Date | string;
     deletedAt?: Date | string | null;
@@ -16,6 +17,7 @@ export interface CreateRateCardInput {
     garmentTypeId: string;
     stepTemplateId?: string | null;
     stepKey: string;
-    rate: number;
+    amount: number;
     effectiveFrom: Date | string;
+    createdById?: string;
 }

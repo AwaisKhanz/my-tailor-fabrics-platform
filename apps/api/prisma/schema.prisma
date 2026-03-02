@@ -43,6 +43,7 @@ model User {
   deletedAt            DateTime?
   auditLogs            AuditLog[]
   priceLogs            GarmentPriceLog[]
+  rateCardsCreated     RateCard[]
   taskAssignmentEvents OrderItemTaskAssignmentEvent[]
   paymentsProcessed    Payment[]
   branch               Branch?                        @relation(fields: [branchId], references: [id])
@@ -403,22 +404,24 @@ model WorkflowStepTemplate {
 model RateCard {
   id             String                @id @default(cuid())
   branchId       String?
+  branch         Branch?               @relation(fields: [branchId], references: [id])
   garmentTypeId  String
+  garmentType    GarmentType           @relation(fields: [garmentTypeId], references: [id])
   stepTemplateId String?
+  stepTemplate   WorkflowStepTemplate? @relation(fields: [stepTemplateId], references: [id])
   stepKey        String
-  rate           Int
+  amount         Int
   effectiveFrom  DateTime              @default(now())
   effectiveTo    DateTime?
+  createdById    String
+  createdBy      User                  @relation(fields: [createdById], references: [id])
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
   deletedAt      DateTime?
   tasks          OrderItemTask[]
-  branch         Branch?               @relation(fields: [branchId], references: [id])
-  garmentType    GarmentType           @relation(fields: [garmentTypeId], references: [id])
-  stepTemplate   WorkflowStepTemplate? @relation(fields: [stepTemplateId], references: [id])
 
-  @@index([branchId, garmentTypeId, stepKey])
-  @@index([effectiveFrom, effectiveTo])
+  @@index([garmentTypeId, stepKey, branchId])
+  @@index([branchId])
 }
 
 model OrderItemTask {

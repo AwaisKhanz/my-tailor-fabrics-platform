@@ -42,13 +42,13 @@ export class RatesController {
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   async create(
     @Body() dto: CreateRateCardInput, 
-    @Request() req: { user: { role: Role; branchId: string } }
+    @Request() req: { user: { id: string; role: Role; branchId: string } }
   ) {
     // Ensure admins don't create rates for other branches unless super admin
     if (req.user.role !== Role.SUPER_ADMIN) {
       dto.branchId = req.user.branchId;
     }
-    return this.ratesService.create(dto);
+    return this.ratesService.create({ ...dto, createdById: req.user.id });
   }
 
   @Get('history')

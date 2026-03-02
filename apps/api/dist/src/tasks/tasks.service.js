@@ -110,6 +110,21 @@ let TasksService = class TasksService {
             }
         });
     }
+    async updateTaskRate(taskId, rateOverride, branchId, userRole) {
+        if (![shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN].includes(userRole)) {
+            throw new common_1.ForbiddenException('Only Admins can override task rates');
+        }
+        const task = await this.prisma.orderItemTask.findFirst({
+            where: { id: taskId, deletedAt: null, orderItem: { order: { branchId } } }
+        });
+        if (!task)
+            throw new common_1.NotFoundException('Task not found');
+        return this.prisma.orderItemTask.update({
+            where: { id: taskId },
+            data: { rateOverride },
+            include: { assignedEmployee: { select: { fullName: true, id: true } } }
+        });
+    }
 };
 exports.TasksService = TasksService;
 exports.TasksService = TasksService = __decorate([

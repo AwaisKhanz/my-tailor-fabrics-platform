@@ -1,7 +1,6 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
-
-import { PaymentSummary } from '@tbms/shared-types';
+import { ApiResponse, PaginatedResponse } from '@/types/common';
+import { PaymentSummary, Payment } from '@tbms/shared-types';
 
 export type { PaymentSummary };
 
@@ -16,9 +15,8 @@ export const paymentsApi = {
     return response.data;
   },
 
-  getPaymentHistory: async (employeeId: string, from?: string, to?: string) => {
-    const params = { from, to };
-    const response = await api.get<ApiResponse<unknown[]>>(`/payments/employee/${employeeId}/history`, { params });
+  getPaymentHistory: async (employeeId: string, params?: { page?: number; limit?: number; from?: string; to?: string }) => {
+    const response = await api.get<ApiResponse<PaginatedResponse<Payment>>>(`/payments/employee/${employeeId}/history`, { params });
     return response.data;
   },
 };

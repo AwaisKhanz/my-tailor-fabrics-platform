@@ -20,4 +20,5 @@ __exportStar(require("./garments"), exports);
 __exportStar(require("./measurements"), exports);
 __exportStar(require("./employees"), exports);
 __exportStar(require("./customers"), exports);
+__exportStar(require("./rates"), exports);
 //# sourceMappingURL=index.js.map

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRateCardInput } from '@tbms/shared-types';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class RatesService {
@@ -49,12 +50,12 @@ export class RatesService {
     return rateCard;
   }
 
-  async create(dto: CreateRateCardInput) {
+  async create(dto: CreateRateCardInput & { createdById: string }) {
     return this.prisma.$transaction(async (tx) => {
       // Close previous rate if it exists and has no effectiveTo
       const previousRate = await tx.rateCard.findFirst({
         where: {
-          branchId: dto.branchId,
+          branchId: dto.branchId ?? null,
           garmentTypeId: dto.garmentTypeId,
           stepKey: dto.stepKey,
           effectiveTo: null,
@@ -77,9 +78,10 @@ export class RatesService {
           branchId: dto.branchId,
           garmentTypeId: dto.garmentTypeId,
           stepKey: dto.stepKey,
-          rate: dto.rate,
+          amount: dto.amount,
           effectiveFrom: new Date(dto.effectiveFrom),
           stepTemplateId: dto.stepTemplateId,
+          createdById: dto.createdById,
         },
       });
     });
@@ -106,7 +108,7 @@ export class RatesService {
     const { branchId, search, page = 1, limit = 10 } = options;
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Prisma.RateCardWhereInput = {
       deletedAt: null,
       ...(branchId ? { branchId } : {}),
     };

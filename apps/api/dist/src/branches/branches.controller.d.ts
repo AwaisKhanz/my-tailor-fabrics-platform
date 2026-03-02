@@ -8,20 +8,20 @@ export declare class BranchesController {
         data: {
             data: ({
                 _count: {
-                    employees: number;
                     customers: number;
+                    employees: number;
                     orders: number;
                 };
             } & {
                 id: string;
-                name: string;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
-                deletedAt: Date | null;
+                name: string;
                 code: string;
                 address: string | null;
                 phone: string | null;
+                isActive: boolean;
+                deletedAt: Date | null;
             })[];
             total: number;
         };
@@ -41,47 +41,47 @@ export declare class BranchesController {
                 totalGarments: number;
             };
             _count: {
-                employees: number;
                 customers: number;
+                employees: number;
                 orders: number;
             };
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            deletedAt: Date | null;
+            name: string;
             code: string;
             address: string | null;
             phone: string | null;
+            isActive: boolean;
+            deletedAt: Date | null;
         };
     }>;
     createBranch(body: CreateBranchInput): Promise<{
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            deletedAt: Date | null;
+            name: string;
             code: string;
             address: string | null;
             phone: string | null;
+            isActive: boolean;
+            deletedAt: Date | null;
         };
     }>;
     updateBranch(id: string, body: UpdateBranchInput): Promise<{
         success: boolean;
         data: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            deletedAt: Date | null;
+            name: string;
             code: string;
             address: string | null;
             phone: string | null;
+            isActive: boolean;
+            deletedAt: Date | null;
         };
     }>;
     remove(id: string): Promise<{

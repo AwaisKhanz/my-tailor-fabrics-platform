@@ -99,7 +99,7 @@ async function main() {
   ];
 
   for (const step of stepsCoat) {
-    await prisma.workflowStepTemplate.upsert({
+    const template = await prisma.workflowStepTemplate.upsert({
       where: { garmentTypeId_stepKey: { garmentTypeId: gtCoat.id, stepKey: step.key } },
       update: {},
       create: {
@@ -110,6 +110,60 @@ async function main() {
         isRequired: step.isRequired,
       }
     });
+
+    // Initial Global Rates for Coat
+    const rates: Record<string, number> = {
+      'CUTTING': 200000,
+      'STITCHING': 400000,
+      'FINISHING': 100000,
+      'PRESSING': 100000,
+    };
+
+    if (rates[step.key]) {
+      await prisma.rateCard.upsert({
+        where: { id: `rate_coat_${step.key.toLowerCase()}` },
+        update: {},
+        create: {
+          id: `rate_coat_${step.key.toLowerCase()}`,
+          garmentTypeId: gtCoat.id,
+          stepKey: step.key,
+          stepTemplateId: template.id,
+          amount: rates[step.key],
+          createdById: admin.id,
+          effectiveFrom: new Date('2025-01-01'),
+        }
+      });
+    }
+  }
+
+  // Initial Global Rates for Shalwar Kameez
+  const ratesSK: Record<string, number> = {
+    'CUTTING': 10000,
+    'STITCHING': 25000,
+    'DESIGNING': 5000,
+    'FINISHING': 5000,
+    'PRESSING': 5000,
+  };
+
+  for (const step of stepsSK) {
+    const template = await prisma.workflowStepTemplate.findUnique({
+      where: { garmentTypeId_stepKey: { garmentTypeId: gtShalwar.id, stepKey: step.key } }
+    });
+    if (template && ratesSK[step.key]) {
+      await prisma.rateCard.upsert({
+        where: { id: `rate_sk_${step.key.toLowerCase()}` },
+        update: {},
+        create: {
+          id: `rate_sk_${step.key.toLowerCase()}`,
+          garmentTypeId: gtShalwar.id,
+          stepKey: step.key,
+          stepTemplateId: template.id,
+          amount: ratesSK[step.key],
+          createdById: admin.id,
+          effectiveFrom: new Date('2025-01-01'),
+        }
+      });
+    }
   }
 
   const catShalwar = await prisma.measurementCategory.upsert({

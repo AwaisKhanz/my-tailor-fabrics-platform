@@ -57,7 +57,7 @@ export function RatesList({ rates, showBranch = true }: RatesListProps) {
                 </TableCell>
               )}
               <TableCell className="text-right font-black text-ready">
-                Rs. {(rate.rate / 100).toLocaleString()}
+                Rs. {(rate.amount / 100).toLocaleString()}
               </TableCell>
               <TableCell className="text-right text-[10px] text-muted-foreground whitespace-nowrap">
                 <div className="flex flex-col items-end">

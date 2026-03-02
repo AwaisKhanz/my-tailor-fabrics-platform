@@ -25,6 +25,7 @@ import {
   type Branch, 
   type CreateRateCardInput 
 } from "@tbms/shared-types";
+import { STEP_KEYS, paisaToRupees } from "@tbms/shared-constants";
 import { useRouter } from "next/navigation";
 
 export default function RatesPage() {
@@ -120,7 +121,7 @@ export default function RatesPage() {
       align: "right",
       cell: (rate) => (
         <span className="font-black text-ready">
-          Rs. {(rate.rate / 100).toLocaleString()}
+          Rs. {paisaToRupees(rate.amount)}
         </span>
       )
     },
@@ -216,7 +217,7 @@ export default function RatesPage() {
         onSubmit={handleCreateRate}
         garmentTypes={garmentTypes.map(gt => ({ id: gt.id, name: gt.name }))}
         branches={branches.map(b => ({ id: b.id, name: b.name, code: b.code }))}
-        steps={["CUTTING", "STITCHING", "FINISHING", "QUALITY_CHECK", "PRESSING"]}
+        steps={Object.values(STEP_KEYS)}
       />
     </div>
   );

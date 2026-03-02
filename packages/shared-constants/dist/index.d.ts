@@ -4,3 +4,4 @@ export * from './garments';
 export * from './measurements';
 export * from './employees';
 export * from './customers';
+export * from './rates';

@@ -1,3 +1,12 @@
+export interface Payment {
+  id: string;
+  employeeId: string;
+  amount: number;
+  paidAt: string;
+  note?: string;
+  branchId: string;
+}
+
 export interface PaymentSummary {
   totalEarned: number;
   totalPaid: number;

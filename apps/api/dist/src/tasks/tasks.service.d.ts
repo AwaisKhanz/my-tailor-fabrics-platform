@@ -7,4 +7,5 @@ export declare class TasksService {
     updateTaskStatus(taskId: string, status: TaskStatus, branchId: string, updatedById: string): Promise<any>;
     findAllByOrder(orderId: string, branchId: string): Promise<any>;
     findAllByEmployee(employeeId: string, branchId: string): Promise<any>;
+    updateTaskRate(taskId: string, rateOverride: number, branchId: string, userRole: string): Promise<any>;
 }

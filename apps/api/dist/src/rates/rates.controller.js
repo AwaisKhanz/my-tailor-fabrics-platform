@@ -46,7 +46,7 @@ let RatesController = class RatesController {
         if (req.user.role !== shared_types_1.Role.SUPER_ADMIN) {
             dto.branchId = req.user.branchId;
         }
-        return this.ratesService.create(dto);
+        return this.ratesService.create({ ...dto, createdById: req.user.id });
     }
     async getHistory(garmentTypeId, stepKey, branchId) {
         return this.ratesService.getHistory(garmentTypeId, stepKey, branchId);

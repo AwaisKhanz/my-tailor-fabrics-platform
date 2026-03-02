@@ -19,26 +19,26 @@ export declare class PaymentsController {
         success: boolean;
         data: {
             id: string;
-            employeeId: string;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            employeeId: string;
             amount: number;
-            note: string | null;
             paidAt: Date;
+            note: string | null;
             processedById: string;
         };
     }>;
     getHistory(employeeId: string, page: string, limit: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
         data: {
             id: string;
-            employeeId: string;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            employeeId: string;
             amount: number;
-            note: string | null;
             paidAt: Date;
+            note: string | null;
             processedById: string;
         }[];
         meta: {

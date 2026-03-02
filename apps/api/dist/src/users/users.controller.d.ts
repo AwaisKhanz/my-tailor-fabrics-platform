@@ -8,17 +8,17 @@ export declare class UsersController {
         data: {
             data: {
                 id: string;
-                name: string;
-                email: string;
-                role: import(".prisma/client").$Enums.Role;
-                branchId: string | null;
-                isActive: boolean;
-                lastLoginAt: Date | null;
                 createdAt: Date;
+                name: string;
+                isActive: boolean;
                 branch: {
                     name: string;
                     code: string;
                 } | null;
+                email: string;
+                role: import(".prisma/client").$Enums.Role;
+                branchId: string | null;
+                lastLoginAt: Date | null;
             }[];
             total: number;
         };
@@ -35,30 +35,30 @@ export declare class UsersController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
             name: string;
+            isActive: boolean;
             email: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
-            isActive: boolean;
-            createdAt: Date;
         };
     }>;
     setActive(id: string, isActive: boolean): Promise<{
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
+            isActive: boolean;
+            deletedAt: Date | null;
             email: string;
+            employeeId: string | null;
             passwordHash: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
-            employeeId: string | null;
-            isActive: boolean;
             lastLoginAt: Date | null;
             refreshToken: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
         };
     }>;
     remove(id: string): Promise<{
@@ -68,12 +68,12 @@ export declare class UsersController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
             name: string;
+            isActive: boolean;
             email: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
-            isActive: boolean;
-            createdAt: Date;
         };
     }>;
 }

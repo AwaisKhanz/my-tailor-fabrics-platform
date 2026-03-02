@@ -5,42 +5,47 @@ export declare class RatesService {
     constructor(prisma: PrismaService);
     findEffectiveRate(branchId: string, garmentTypeId: string, stepKey: string, date?: Date): Promise<{
         id: string;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepTemplateId: string | null;
-        stepKey: string;
-        rate: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
+        branchId: string | null;
+        garmentTypeId: string;
+        stepKey: string;
+        stepTemplateId: string | null;
+        amount: number;
+        effectiveFrom: Date;
+        effectiveTo: Date | null;
+        createdById: string;
     } | null>;
-    create(dto: CreateRateCardInput): Promise<{
+    create(dto: CreateRateCardInput & {
+        createdById: string;
+    }): Promise<{
         id: string;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepTemplateId: string | null;
-        stepKey: string;
-        rate: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
+        branchId: string | null;
+        garmentTypeId: string;
+        stepKey: string;
+        stepTemplateId: string | null;
+        amount: number;
+        effectiveFrom: Date;
+        effectiveTo: Date | null;
+        createdById: string;
     }>;
     getHistory(garmentTypeId: string, stepKey: string, branchId?: string): Promise<{
         id: string;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepTemplateId: string | null;
-        stepKey: string;
-        rate: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
+        branchId: string | null;
+        garmentTypeId: string;
+        stepKey: string;
+        stepTemplateId: string | null;
+        amount: number;
+        effectiveFrom: Date;
+        effectiveTo: Date | null;
+        createdById: string;
     }[]>;
     findAll(options?: {
         branchId?: string | null;
@@ -58,16 +63,17 @@ export declare class RatesService {
             };
         } & {
             id: string;
-            branchId: string | null;
-            garmentTypeId: string;
-            stepTemplateId: string | null;
-            stepKey: string;
-            rate: number;
-            effectiveFrom: Date;
-            effectiveTo: Date | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            branchId: string | null;
+            garmentTypeId: string;
+            stepKey: string;
+            stepTemplateId: string | null;
+            amount: number;
+            effectiveFrom: Date;
+            effectiveTo: Date | null;
+            createdById: string;
         })[];
         total: number;
     }>;

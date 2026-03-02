@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, FabricSource } from '@prisma/client';
 import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
@@ -148,7 +148,7 @@ export class OrdersService {
                       unitPrice: item.unitPrice,
                       employeeRate: item.employeeRate,
                       description: item.description,
-                      fabricSource: item.fabricSource as any,
+                      fabricSource: (item.fabricSource as FabricSource) ?? FabricSource.SHOP,
                       dueDate: item.dueDate,
                       garmentTypeName: item.garmentTypeName,
                       garmentType: { connect: { id: item.garmentTypeId } }
@@ -163,7 +163,7 @@ export class OrdersService {
       // 5.1 If System Settings useTaskWorkflow is enabled, generate tasks
       const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
       if (settings?.useTaskWorkflow) {
-          for (const item of (newOrder as any).items) {
+          for (const item of newOrder.items) {
               await this.generateTasksForItem(item.id, item.garmentTypeId, orderBranchId, tx);
           }
       }
@@ -600,7 +600,16 @@ export class OrdersService {
 
     if (templates.length === 0) return;
 
-    const tasksToCreate = [];
+    const tasksToCreate: {
+      orderItemId: string;
+      stepTemplateId: string;
+      stepKey: string;
+      stepName: string;
+      sortOrder: number;
+      status: 'PENDING';
+      rateCardId: string | null;
+      rateSnapshot: number;
+    }[] = [];
     for (const t of templates) {
       const rateCard = await this.ratesService.findEffectiveRate(branchId, garmentTypeId, t.stepKey);
       
@@ -610,13 +619,13 @@ export class OrdersService {
         stepKey: t.stepKey,
         stepName: t.stepName,
         sortOrder: t.sortOrder,
-        status: 'PENDING' as any,
+        status: 'PENDING',
         rateCardId: rateCard?.id || null,
-        rateSnapshot: rateCard?.rate || 0,
+        rateSnapshot: rateCard?.amount || 0,
       });
     }
 
-    await (tx as any).orderItemTask.createMany({
+    await tx.orderItemTask.createMany({
       data: tasksToCreate
     });
   }

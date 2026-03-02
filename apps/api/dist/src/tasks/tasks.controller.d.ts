@@ -12,6 +12,10 @@ export declare class TasksController {
         success: boolean;
         data: any;
     }>;
+    updateRate(id: string, rateOverride: number, req: AuthenticatedRequest): Promise<{
+        success: boolean;
+        data: any;
+    }>;
     findByOrder(orderId: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: any;

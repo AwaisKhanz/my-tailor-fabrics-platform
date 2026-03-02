@@ -5,6 +5,10 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Starting RateCard seeding...');
 
+  // Find the admin user to use as createdById for seeded rate cards
+  const adminUser = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' }, orderBy: { createdAt: 'asc' } });
+  if (!adminUser) throw new Error('No SUPER_ADMIN user found. Please seed users first.');
+
   const garmentTypes = await prisma.garmentType.findMany({
     include: { workflowSteps: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } }
   });
@@ -17,15 +21,13 @@ async function main() {
 
     console.log(`Processing ${gt.name}...`);
 
-    // Basic split logic:
-    // If only one step, 100%
-    // If multiple, try to identify CUTTING (20%), STITCHING (60%), others (split remainder)
-    
+    // Split employee rate proportionally across workflow steps:
+    // CUTTING: 20%, STITCHING: 60%, PRESSING: 10%, others: split remainder
     const steps = gt.workflowSteps;
     const totalRate = gt.employeeRate;
-    
+
     let consumedRate = 0;
-    const rates = [];
+    const rates: { stepKey: string; stepName: string; amount: number; stepTemplateId: string }[] = [];
 
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
@@ -38,30 +40,28 @@ async function main() {
         if (key.includes('CUTTING')) {
           stepRate = Math.floor(totalRate * 0.20);
         } else if (key.includes('STITCHING')) {
-          // If it's the only stitching step, or the last stitching step
           stepRate = Math.floor(totalRate * 0.60);
         } else if (key.includes('PRESSING')) {
           stepRate = Math.floor(totalRate * 0.10);
         } else {
-          // generic step
           const remainingSteps = steps.length - 1 - i;
           const available = totalRate - consumedRate;
           stepRate = Math.floor(available / (remainingSteps + 1));
         }
       }
 
-      // Safeguard for the last step to take the remainder
+      // Safeguard: last step takes the remainder
       if (i === steps.length - 1) {
         stepRate = totalRate - consumedRate;
       }
-      
+
       if (stepRate < 0) stepRate = 0;
       consumedRate += stepRate;
 
       rates.push({
         stepKey: step.stepKey,
         stepName: step.stepName,
-        rate: stepRate,
+        amount: stepRate,
         stepTemplateId: step.id
       });
     }
@@ -79,23 +79,24 @@ async function main() {
       });
 
       if (existing) {
-        if (existing.rate !== r.rate) {
-          console.log(`Updating rate for ${gt.name} ${r.stepKey}: ${existing.rate} -> ${r.rate}`);
+        if (existing.amount !== r.amount) {
+          console.log(`Updating rate for ${gt.name} ${r.stepKey}: ${existing.amount} -> ${r.amount}`);
           await prisma.rateCard.update({
             where: { id: existing.id },
-            data: { rate: r.rate }
+            data: { amount: r.amount }
           });
         }
       } else {
-        console.log(`Creating rate for ${gt.name} ${r.stepKey}: ${r.rate}`);
+        console.log(`Creating rate for ${gt.name} ${r.stepKey}: ${r.amount}`);
         await prisma.rateCard.create({
           data: {
             branchId: null,
             garmentTypeId: gt.id,
             stepKey: r.stepKey,
-            rate: r.rate,
+            amount: r.amount,
             stepTemplateId: r.stepTemplateId,
-            effectiveFrom: new Date('2024-01-01') // arbitrary past date for initial seed
+            createdById: adminUser.id,
+            effectiveFrom: new Date('2024-01-01')
           }
         });
       }

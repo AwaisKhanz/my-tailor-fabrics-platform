@@ -21,16 +21,17 @@ export declare class RatesController {
             };
         } & {
             id: string;
-            branchId: string | null;
-            garmentTypeId: string;
-            stepTemplateId: string | null;
-            stepKey: string;
-            rate: number;
-            effectiveFrom: Date;
-            effectiveTo: Date | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            branchId: string | null;
+            garmentTypeId: string;
+            stepKey: string;
+            stepTemplateId: string | null;
+            amount: number;
+            effectiveFrom: Date;
+            effectiveTo: Date | null;
+            createdById: string;
         })[];
         meta: {
             total: number;
@@ -40,33 +41,36 @@ export declare class RatesController {
     }>;
     create(dto: CreateRateCardInput, req: {
         user: {
+            id: string;
             role: Role;
             branchId: string;
         };
     }): Promise<{
         id: string;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepTemplateId: string | null;
-        stepKey: string;
-        rate: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
+        branchId: string | null;
+        garmentTypeId: string;
+        stepKey: string;
+        stepTemplateId: string | null;
+        amount: number;
+        effectiveFrom: Date;
+        effectiveTo: Date | null;
+        createdById: string;
     }>;
     getHistory(garmentTypeId: string, stepKey: string, branchId?: string): Promise<{
         id: string;
-        branchId: string | null;
-        garmentTypeId: string;
-        stepTemplateId: string | null;
-        stepKey: string;
-        rate: number;
-        effectiveFrom: Date;
-        effectiveTo: Date | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
+        branchId: string | null;
+        garmentTypeId: string;
+        stepKey: string;
+        stepTemplateId: string | null;
+        amount: number;
+        effectiveFrom: Date;
+        effectiveTo: Date | null;
+        createdById: string;
     }[]>;
 }

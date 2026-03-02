@@ -45,6 +45,10 @@ export const ordersApi = {
     const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/status`, { status });
     return response.data;
   },
+  updateTaskRate: async (taskId: string, rateOverride: number) => {
+    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/rate`, { rateOverride });
+    return response.data;
+  },
   getTasksByEmployee: async (employeeId: string) => {
     const response = await api.get<ApiResponse<OrderItemTask[]>>(`/tasks/employee/${employeeId}`);
     return response.data;
