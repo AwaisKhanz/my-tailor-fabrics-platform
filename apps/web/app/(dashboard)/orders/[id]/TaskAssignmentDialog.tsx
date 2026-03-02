@@ -69,10 +69,10 @@ export function TaskAssignmentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Production Tasks: {orderItem.garmentTypeName}</DialogTitle>
+          <DialogTitle>Production Tasks: {orderItem.garmentTypeName} (Piece #{orderItem.pieceNo})</DialogTitle>
           <DialogDescription>
-            Manage the step-by-step assignments and status for this specific item. 
-            All tasks generated based on the active Garment Type workflow sequence.
+            Manage production steps for this specific physical piece. 
+            Assignments and status are tracked independently per piece.
           </DialogDescription>
         </DialogHeader>
 

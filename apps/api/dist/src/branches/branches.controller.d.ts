@@ -14,13 +14,13 @@ export declare class BranchesController {
                 };
             } & {
                 id: string;
-                code: string;
+                createdAt: Date;
+                updatedAt: Date;
                 name: string;
+                code: string;
                 address: string | null;
                 phone: string | null;
                 isActive: boolean;
-                createdAt: Date;
-                updatedAt: Date;
                 deletedAt: Date | null;
             })[];
             total: number;
@@ -46,13 +46,13 @@ export declare class BranchesController {
                 orders: number;
             };
             id: string;
-            code: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
+            code: string;
             address: string | null;
             phone: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             deletedAt: Date | null;
         };
     }>;
@@ -60,13 +60,13 @@ export declare class BranchesController {
         success: boolean;
         data: {
             id: string;
-            code: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
+            code: string;
             address: string | null;
             phone: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             deletedAt: Date | null;
         };
     }>;
@@ -74,13 +74,13 @@ export declare class BranchesController {
         success: boolean;
         data: {
             id: string;
-            code: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
+            code: string;
             address: string | null;
             phone: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             deletedAt: Date | null;
         };
     }>;

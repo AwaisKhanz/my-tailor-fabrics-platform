@@ -71,6 +71,14 @@ let OrdersController = class OrdersController {
         const data = await this.ordersService.updateStatus(id, req.branchId, updateStatusDto, req.user.userId);
         return { success: true, data };
     }
+    async getReceipt(id, req, res) {
+        const stream = await this.receiptService.generateOrderReceipt(id, req.branchId);
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=receipt-${id}.pdf`,
+        });
+        stream.pipe(res);
+    }
     async shareOrder(id, req) {
         const data = await this.ordersService.generateShareLink(id, req.branchId);
         return { success: true, data };
@@ -182,6 +190,16 @@ __decorate([
     __metadata("design:paramtypes", [String, update_status_dto_1.UpdateOrderStatusDto, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "updateStatus", null);
+__decorate([
+    (0, auth_decorators_1.Roles)(shared_types_1.Role.VIEWER, shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, common_1.Get)(':id/receipt'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
+    __param(2, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getReceipt", null);
 __decorate([
     (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
     (0, common_1.Post)(':id/share'),

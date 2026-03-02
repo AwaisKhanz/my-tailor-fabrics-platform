@@ -283,6 +283,11 @@ model Order {
   @@index([searchVector], type: Gin)
 }
 
+enum FabricSource {
+  SHOP
+  CUSTOMER
+}
+
 model OrderItem {
   id              String      @id @default(cuid())
   orderId         String
@@ -290,12 +295,14 @@ model OrderItem {
   garmentTypeId   String
   garmentType     GarmentType @relation(fields: [garmentTypeId], references: [id])
   garmentTypeName String // SNAPSHOT: name at time of order
+  pieceNo         Int         @default(1)
   employeeId      String?
   employee        Employee?   @relation(fields: [employeeId], references: [id])
   quantity        Int         @default(1)
   unitPrice       Int // paisas: SNAPSHOT customer price at order time
   employeeRate    Int // paisas: SNAPSHOT employee rate at order time
   description     String? // fabric colour, embroidery, button type, etc.
+  fabricSource    FabricSource @default(SHOP)
   dueDate         DateTime? // item-level due date (can differ from order)
   status          ItemStatus  @default(PENDING)
   completedAt     DateTime? // set when status -> COMPLETED
@@ -304,7 +311,9 @@ model OrderItem {
   deletedAt       DateTime?
   tasks           OrderItemTask[]
 
+  @@unique([orderId, garmentTypeId, pieceNo])
   @@index([orderId])
+  @@index([garmentTypeId])
   @@index([employeeId, status]) // employee earnings query
 }
 

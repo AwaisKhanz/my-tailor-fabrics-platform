@@ -8,27 +8,27 @@ export declare class AuthService {
     validateUser(email: string, pass: string): Promise<{
         branch: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            deletedAt: Date | null;
+            name: string;
             code: string;
             address: string | null;
             phone: string | null;
+            isActive: boolean;
+            deletedAt: Date | null;
         } | null;
         id: string;
-        name: string;
-        email: string;
-        role: import(".prisma/client").$Enums.Role;
-        branchId: string | null;
-        employeeId: string | null;
-        isActive: boolean;
-        lastLoginAt: Date | null;
-        refreshToken: string | null;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
         deletedAt: Date | null;
+        email: string;
+        employeeId: string | null;
+        role: import(".prisma/client").$Enums.Role;
+        branchId: string | null;
+        lastLoginAt: Date | null;
+        refreshToken: string | null;
     } | null>;
     login(loginDto: LoginDto): Promise<{
         accessToken: string;
@@ -44,18 +44,18 @@ export declare class AuthService {
     }>;
     logout(userId: string): Promise<{
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
+        isActive: boolean;
+        deletedAt: Date | null;
         email: string;
+        employeeId: string | null;
         passwordHash: string;
         role: import(".prisma/client").$Enums.Role;
         branchId: string | null;
-        employeeId: string | null;
-        isActive: boolean;
         lastLoginAt: Date | null;
         refreshToken: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deletedAt: Date | null;
     }>;
     refreshTokens(userId: string, refreshToken: string): Promise<{
         accessToken: string;

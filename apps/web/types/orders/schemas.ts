@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { DiscountType } from "@tbms/shared-types";
+import { DiscountType, FabricSource } from "@tbms/shared-types";
 
 export const orderItemSchema = z.object({
   garmentTypeId: z.string().min(1, "Garment type is required"),
@@ -9,6 +9,7 @@ export const orderItemSchema = z.object({
   employeeRate: z.coerce.number().optional(),
   dueDate: z.string().optional(),
   description: z.string().optional(),
+  fabricSource: z.nativeEnum(FabricSource).default(FabricSource.SHOP),
 });
 
 export const orderSchema = z.object({

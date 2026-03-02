@@ -59,4 +59,8 @@ export declare enum DiscountType {
     FIXED = "FIXED",
     PERCENTAGE = "PERCENTAGE"
 }
+export declare enum FabricSource {
+    SHOP = "SHOP",
+    CUSTOMER = "CUSTOMER"
+}
 export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'ready' | 'admin' | 'royal' | 'amber';

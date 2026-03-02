@@ -1,8 +1,9 @@
-import { DiscountType } from '@tbms/shared-types';
+import { DiscountType, FabricSource } from '@tbms/shared-types';
 export declare class OrderItemDto {
     garmentTypeId: string;
     quantity: number;
     description?: string;
+    fabricSource?: FabricSource;
     employeeId?: string;
     dueDate?: string;
 }

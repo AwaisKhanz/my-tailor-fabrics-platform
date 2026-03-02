@@ -85,7 +85,7 @@ export function CustomerTable() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusTab]);
+  }, [page, search]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -145,7 +145,7 @@ export function CustomerTable() {
       cell: (customer) => (
         <div className="flex flex-col gap-1">
           <span className="text-sm text-foreground font-medium">{customer.phone}</span>
-          {((customer as { whatsapp?: boolean }).whatsapp) ? (
+          {customer.whatsapp ? (
             <div className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-success/50 shrink-0" />
               <span className="text-xs text-muted-foreground">WhatsApp Connected</span>

@@ -16,6 +16,7 @@ export interface Customer {
   lifetimeValue: number;  // paisas: total paid across all orders
   createdAt: string;
   updatedAt: string;
+  measurements?: CustomerMeasurement[];
   stats?: {
     totalOrders: number;
     totalSpent: number;
@@ -31,5 +32,6 @@ export interface CustomerMeasurement {
   category?: {
     id: string;
     name: string;
+    fields: import('./config').MeasurementField[];
   };
 }

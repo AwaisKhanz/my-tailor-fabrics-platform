@@ -1,10 +1,11 @@
-import { OrderStatus, ItemStatus, DiscountType, TaskStatus } from './common';
+import { OrderStatus, ItemStatus, DiscountType, TaskStatus, FabricSource } from './common';
 
 export interface OrderItemInput {
   garmentTypeId: string;
   quantity: number;
   employeeId?: string | null;
   description?: string;
+  fabricSource?: FabricSource;
   dueDate?: string;
 }
 
@@ -20,17 +21,22 @@ export interface CreateOrderInput {
 
 export interface OrderItem {
   id: string;
+  orderId: string;
+  order?: {
+    orderNumber: string;
+  };
   garmentTypeId: string;
   garmentTypeName: string;
   quantity: number;
+  pieceNo: number;
   unitPrice: number;
   employeeRate: number;
   employeeId?: string | null;
   description?: string;
+  fabricSource: FabricSource;
   dueDate?: string;
   completedAt?: string | null;
   status: ItemStatus;
-  orderId: string;
   tasks?: OrderItemTask[];
   employee?: {
     id: string;
@@ -58,10 +64,7 @@ export interface Order {
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
-  customer: {
-    fullName: string;
-    phone: string;
-  };
+  customer: import('./customers').Customer;
   items: OrderItem[];
   payments: OrderPayment[];
   statusHistory: OrderStatusHistory[];
@@ -80,8 +83,9 @@ export interface OrderStatusHistory {
   orderId: string;
   fromStatus?: OrderStatus | null;
   toStatus: OrderStatus;
-  note?: string | null;
   actor: string;
+  note?: string | null;
+  order?: { orderNumber: string };
   createdAt: string;
 }
 
@@ -108,6 +112,12 @@ export interface OrderItemTask {
   assignedEmployee?: {
     id: string;
     fullName: string;
+  };
+  item?: {
+    garmentTypeName: string;
+    order: {
+      orderNumber: string;
+    };
   };
   startedAt?: string | null;
   completedAt?: string | null;

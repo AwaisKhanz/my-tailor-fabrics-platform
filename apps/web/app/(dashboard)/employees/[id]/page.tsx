@@ -54,8 +54,8 @@ export default function EmployeeDetailPage() {
   const [loading, setLoading] = useState(true);
   const [employee, setEmployee] = useState<EmployeeWithRelations | null>(null);
   const [stats, setStats] = useState({ totalEarned: 0, totalPaid: 0, balance: 0 });
-  const [items, setItems] = useState<(OrderItem & { order: { orderNumber: string } })[]>([]);
-  const [tasks, setTasks] = useState<(OrderItemTask & { item: { garmentTypeName: string; order: { orderNumber: string } } })[]>([]);
+  const [items, setItems] = useState<OrderItem[]>([]);
+  const [tasks, setTasks] = useState<OrderItemTask[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
 
@@ -82,13 +82,10 @@ export default function EmployeeDetailPage() {
       if (empRes.success) setEmployee(empRes.data);
       if (statsRes.success) setStats(statsRes.data);
       if (itemsRes.success) setItems(itemsRes.data.data);
-      if (tasksRes.success) setTasks(tasksRes.data as any);
       if (settingsRes.success) setSystemSettings(settingsRes.data);
       if (attnRes.success) setAttendance(attnRes.data.data);
       if (tasksRes.success) {
-        // Check if tasksRes.data is paginated or flat
-        const taskData = (tasksRes.data as any).data || tasksRes.data;
-        setTasks(taskData);
+        setTasks(tasksRes.data);
       }
     } catch {
       toast({ title: "Error", description: "Employee not found", variant: "destructive" });
@@ -137,10 +134,10 @@ export default function EmployeeDetailPage() {
 
   if (!employee) return null;
 
-  const historyColumns: ColumnDef<OrderItem & { order: { orderNumber: string } }>[] = [
+  const historyColumns: ColumnDef<OrderItem>[] = [
     {
       header: "Order #",
-      cell: (item) => <span className="font-bold">{item.order.orderNumber}</span>,
+      cell: (item) => <span className="font-bold">{item.order?.orderNumber || "—"}</span>,
     },
     {
       header: "Garment",
@@ -211,16 +208,16 @@ export default function EmployeeDetailPage() {
     }
   };
 
-  const taskColumns: ColumnDef<OrderItemTask & { item: { garmentTypeName: string; order: { orderNumber: string } } }>[] = [
+  const taskColumns: ColumnDef<OrderItemTask>[] = [
     {
       header: "Order #",
-      cell: (task) => <span className="font-bold">{task.item.order.orderNumber}</span>,
+      cell: (task) => <span className="font-bold">{task.item?.order.orderNumber || "—"}</span>,
     },
     {
       header: "Item/Step",
       cell: (task) => (
         <div className="flex flex-col">
-          <span className="font-medium">{task.item.garmentTypeName}</span>
+          <span className="font-medium">{task.item?.garmentTypeName || "—"}</span>
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">
             {task.stepName}
           </span>
@@ -407,7 +404,7 @@ export default function EmployeeDetailPage() {
             
             <TabsContent value="tasks" className="p-0 border-none">
               <DataTable
-                columns={taskColumns as any}
+                columns={taskColumns}
                 data={tasks}
                 loading={loading}
                 emptyMessage="No assigned tasks found."

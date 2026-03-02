@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, IsDateString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DiscountType } from '@tbms/shared-types';
+import { DiscountType, FabricSource } from '@tbms/shared-types';
 
 export class OrderItemDto {
   @IsString()
@@ -14,6 +14,10 @@ export class OrderItemDto {
   @IsString()
   @IsOptional()
   description?: string; // fabric color, embroidery etc.
+
+  @IsEnum(FabricSource)
+  @IsOptional()
+  fabricSource?: FabricSource;
 
   @IsString()
   @IsOptional()

@@ -8,9 +8,7 @@ import {
   Printer,
   History,
   Search,
-  Plus,
-  ChevronRight,
-  User
+  Plus
 } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { Order, OrderStatus } from "@/types/orders";

@@ -73,6 +73,11 @@ export enum DiscountType {
   PERCENTAGE = 'PERCENTAGE'
 }
 
+export enum FabricSource {
+  SHOP = 'SHOP',
+  CUSTOMER = 'CUSTOMER'
+}
+
 // UI Type Definitions
 export type BadgeVariant = 
   | 'default' 

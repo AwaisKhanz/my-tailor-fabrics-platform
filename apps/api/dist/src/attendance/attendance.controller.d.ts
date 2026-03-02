@@ -12,16 +12,16 @@ export declare class AttendanceController {
             };
         } & {
             id: string;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
-            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
+            note: string | null;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
         };
     }>;
     clockOut(recordId: string, req: AuthenticatedRequest): Promise<{
@@ -33,16 +33,16 @@ export declare class AttendanceController {
             };
         } & {
             id: string;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
-            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
+            note: string | null;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
         };
     }>;
     findAll(employeeId: string | undefined, page: string, limit: string, req: AuthenticatedRequest): Promise<{
@@ -56,16 +56,16 @@ export declare class AttendanceController {
                 };
             } & {
                 id: string;
-                date: Date;
-                clockIn: Date;
-                clockOut: Date | null;
-                hoursWorked: number | null;
-                note: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;
+                note: string | null;
+                date: Date;
+                clockIn: Date;
+                clockOut: Date | null;
+                hoursWorked: number | null;
             })[];
             total: number;
         };
@@ -77,29 +77,29 @@ export declare class AttendanceController {
             totalHours: number;
             currentlyIn: {
                 id: string;
-                date: Date;
-                clockIn: Date;
-                clockOut: Date | null;
-                hoursWorked: number | null;
-                note: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;
+                note: string | null;
+                date: Date;
+                clockIn: Date;
+                clockOut: Date | null;
+                hoursWorked: number | null;
             } | undefined;
             records: {
                 id: string;
-                date: Date;
-                clockIn: Date;
-                clockOut: Date | null;
-                hoursWorked: number | null;
-                note: string | null;
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
                 employeeId: string;
                 branchId: string;
+                note: string | null;
+                date: Date;
+                clockIn: Date;
+                clockOut: Date | null;
+                hoursWorked: number | null;
             }[];
         };
     }>;

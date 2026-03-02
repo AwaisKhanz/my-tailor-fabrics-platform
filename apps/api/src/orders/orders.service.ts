@@ -56,9 +56,8 @@ export class OrdersService {
       // 2. Resolve Prices and compute item subtotals
       let subtotal = 0;
       const resolvedItems = [];
+      const pieceMap: Record<string, number> = {};
 
-      // Fetch all necessary garments in one go preferably, 
-      // but loop is fine for small N items
       for (const item of createOrderDto.items) {
           const type = await tx.garmentType.findUnique({ 
               where: { id: item.garmentTypeId }
@@ -71,18 +70,26 @@ export class OrdersService {
           const customerPrice = type.customerPrice;
           const employeeRate = type.employeeRate;
 
-          subtotal += (customerPrice * item.quantity);
+          // Split quantity into individual pieces
+          for (let i = 0; i < item.quantity; i++) {
+              pieceMap[item.garmentTypeId] = (pieceMap[item.garmentTypeId] || 0) + 1;
+              const currentPieceNo = pieceMap[item.garmentTypeId];
 
-          resolvedItems.push({
-              garmentTypeId: type.id,
-              garmentTypeName: type.name, // SNAPSHOT
-              employeeId: item.employeeId || null,
-              quantity: item.quantity,
-              unitPrice: customerPrice,   // SNAPSHOT (paisas)
-              employeeRate: employeeRate, // SNAPSHOT (paisas)
-              description: item.description,
-              dueDate: item.dueDate ? new Date(item.dueDate) : null
-          });
+              subtotal += customerPrice;
+
+              resolvedItems.push({
+                  garmentTypeId: type.id,
+                  garmentTypeName: type.name,
+                  pieceNo: currentPieceNo, // SEQUENTIAL per garment type
+                  employeeId: item.employeeId || null,
+                  quantity: 1, // ALWAYS 1
+                  unitPrice: customerPrice,
+                  employeeRate: employeeRate,
+                  description: item.description,
+                  fabricSource: item.fabricSource || 'SHOP',
+                  dueDate: item.dueDate ? new Date(item.dueDate) : null
+              });
+          }
       }
 
       // 3. Compute Discount and Total
@@ -97,7 +104,7 @@ export class OrdersService {
       }
 
       if (discountAmount > subtotal) {
-          throw new BadRequestException('Discount cannot exceed subtotal'); // or allow 0 total
+          throw new BadRequestException('Discount cannot exceed subtotal'); 
       }
 
       const totalAmount = subtotal - discountAmount;
@@ -120,7 +127,7 @@ export class OrdersService {
               branchId: orderBranchId,
               customerId: customer.id,
               dueDate: new Date(createOrderDto.dueDate),
-              subtotal: 0, // Will be set by recalc
+              subtotal: 0, 
               discountType: createOrderDto.discountType || null,
               discountValue: createOrderDto.discountValue || 0,
               discountAmount: 0, 
@@ -130,7 +137,18 @@ export class OrdersService {
               notes: createOrderDto.notes,
               createdById,
               items: {
-                  create: resolvedItems
+                  create: resolvedItems.map(item => ({
+                      pieceNo: item.pieceNo,
+                      employeeId: item.employeeId,
+                      quantity: item.quantity,
+                      unitPrice: item.unitPrice,
+                      employeeRate: item.employeeRate,
+                      description: item.description,
+                      fabricSource: item.fabricSource as any,
+                      dueDate: item.dueDate,
+                      garmentTypeName: item.garmentTypeName,
+                      garmentType: { connect: { id: item.garmentTypeId } }
+                  }))
               }
           },
           include: {
@@ -141,7 +159,7 @@ export class OrdersService {
       // 5.1 If System Settings useTaskWorkflow is enabled, generate tasks
       const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
       if (settings?.useTaskWorkflow) {
-          for (const item of newOrder.items) {
+          for (const item of (newOrder as any).items) {
               const templates = await tx.workflowStepTemplate.findMany({
                   where: { garmentTypeId: item.garmentTypeId, isActive: true },
                   orderBy: { sortOrder: 'asc' }
@@ -314,16 +332,32 @@ export class OrdersService {
             ...(branchId ? { branchId } : {})
           },
           include: {
-              customer: true,
+              customer: {
+                  include: {
+                      measurements: {
+                          include: {
+                              category: {
+                                  include: {
+                                      fields: true
+                                  }
+                              }
+                          }
+                      }
+                  }
+              },
               items: {
                   where: { deletedAt: null },
+                  orderBy: { pieceNo: 'asc' },
                   include: { employee: { select: { fullName: true, id: true } } }
               },
               payments: {
                   orderBy: { paidAt: 'desc' }
               },
               statusHistory: {
-                  orderBy: { createdAt: 'desc' }
+                  orderBy: { createdAt: 'desc' },
+                  include: { 
+                    order: { select: { orderNumber: true } } 
+                  }
               }
           }
       });
@@ -533,41 +567,57 @@ export class OrdersService {
       const customerPrice = type.customerPrice;
       const employeeRate = type.employeeRate;
 
-      const orderItem = await tx.orderItem.create({
-        data: {
-          orderId,
-          garmentTypeId: type.id,
-          garmentTypeName: type.name,
-          employeeId: itemDto.employeeId || null,
-          quantity: itemDto.quantity || 1,
-          unitPrice: customerPrice,
-          employeeRate: employeeRate,
-          description: itemDto.description,
-          dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null
-        }
+      // 1. Find max pieceNo for this garment type in this order
+      const lastItem = await tx.orderItem.findFirst({
+        where: { orderId, garmentTypeId: itemDto.garmentTypeId },
+        orderBy: { pieceNo: 'desc' }
       });
+      let nextPieceNo = (lastItem?.pieceNo || 0) + 1;
 
-      const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
-      if (settings?.useTaskWorkflow) {
-          const templates = await tx.workflowStepTemplate.findMany({
-              where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
-              orderBy: { sortOrder: 'asc' }
-          });
+      const quantity = itemDto.quantity || 1;
+      const createdItems = [];
 
-          if (templates.length > 0) {
-              const tasksToCreate = templates.map((t: any) => ({
-                  orderItemId: orderItem.id,
-                  stepTemplateId: t.id,
-                  stepKey: t.stepKey,
-                  stepName: t.stepName,
-                  sortOrder: t.sortOrder,
-                  status: 'PENDING' as any,
-              }));
-
-              await (tx as any).orderItemTask.createMany({
-                  data: tasksToCreate
-              });
+      for (let i = 0; i < quantity; i++) {
+        const orderItem = await tx.orderItem.create({
+          data: {
+            orderId,
+            garmentTypeId: type.id,
+            garmentTypeName: type.name,
+            pieceNo: nextPieceNo++,
+            employeeId: itemDto.employeeId || null,
+            quantity: 1, // ALWAYS 1
+            unitPrice: customerPrice,
+            employeeRate: employeeRate,
+            description: itemDto.description,
+            fabricSource: (itemDto as any).fabricSource || 'SHOP',
+            dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null
           }
+        });
+        createdItems.push(orderItem);
+
+        // 2. Generate Tasks
+        const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
+        if (settings?.useTaskWorkflow) {
+            const templates = await tx.workflowStepTemplate.findMany({
+                where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
+                orderBy: { sortOrder: 'asc' }
+            });
+
+            if (templates.length > 0) {
+                const tasksToCreate = templates.map((t: any) => ({
+                    orderItemId: orderItem.id,
+                    stepTemplateId: t.id,
+                    stepKey: t.stepKey,
+                    stepName: t.stepName,
+                    sortOrder: t.sortOrder,
+                    status: 'PENDING' as any,
+                }));
+
+                await (tx as any).orderItemTask.createMany({
+                    data: tasksToCreate
+                });
+            }
+        }
       }
 
       return this.recalcOrderTotals(orderId, tx);

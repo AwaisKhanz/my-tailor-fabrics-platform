@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { DiscountType } from "@tbms/shared-types";
+import { DiscountType, FabricSource } from "@tbms/shared-types";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -40,7 +40,7 @@ import { GarmentType } from "@/types/config";
 import { Customer } from "@/types/customers";
 import { Employee } from "@/types/employees";
 import { useToast } from "@/hooks/use-toast";
-import { orderSchema, OrderFormValues } from "@/types/orders";
+import { orderSchema, OrderFormValues } from "@/types/orders/schemas"; // Fixed path
 import { Separator } from "@/components/ui/separator";
 
 
@@ -57,7 +57,7 @@ export default function NewOrderPage() {
     defaultValues: {
       customerId: "",
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      items: [{ garmentTypeId: "", quantity: 1, unitPrice: 0 }],
+      items: [{ garmentTypeId: "", quantity: 1, unitPrice: 0, fabricSource: FabricSource.SHOP }],
       discountType: DiscountType.FIXED,
       discountValue: 0,
       advancePayment: 0,
@@ -186,7 +186,7 @@ export default function NewOrderPage() {
               <Card variant="premium">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-lg">Order Items</CardTitle>
-                  <Button type="button" variant="outline" size="sm" onClick={() => append({ garmentTypeId: "", quantity: 1, unitPrice: 0 })}>
+                  <Button type="button" variant="outline" size="sm" onClick={() => append({ garmentTypeId: "", quantity: 1, unitPrice: 0, fabricSource: FabricSource.SHOP })}>
                     <Plus className="h-4 w-4 mr-2" /> Add Item
                   </Button>
                 </CardHeader>
@@ -263,7 +263,7 @@ export default function NewOrderPage() {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                          <FormField
                             control={form.control}
                             name={`items.${index}.employeeId`}
@@ -272,7 +272,7 @@ export default function NewOrderPage() {
                                 <FormLabel className="text-xs">Assigned Tailor (Optional)</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger variant="premium">
+                                    <SelectTrigger variant="premium" className="h-8">
                                       <SelectValue placeholder="Select Tailor" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -287,12 +287,32 @@ export default function NewOrderPage() {
                           />
                           <FormField
                             control={form.control}
+                            name={`items.${index}.fabricSource`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">Fabric Source</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger variant="premium" className="h-8">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value={FabricSource.SHOP}>Shop</SelectItem>
+                                            <SelectItem value={FabricSource.CUSTOMER}>Customer</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
                             name={`items.${index}.description`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-xs">Notes (e.g. Round Neck)</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Extra details..." {...field} />
+                                  <Input variant="premium" className="h-8" placeholder="Extra details..." {...field} />
                                 </FormControl>
                               </FormItem>
                             )}

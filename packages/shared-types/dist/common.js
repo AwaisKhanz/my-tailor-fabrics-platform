@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DiscountType = exports.TaskStatus = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
+exports.FabricSource = exports.DiscountType = exports.TaskStatus = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
 // --- Prisma Enums (Synced) ---
 var Role;
 (function (Role) {
@@ -62,3 +62,8 @@ var DiscountType;
     DiscountType["FIXED"] = "FIXED";
     DiscountType["PERCENTAGE"] = "PERCENTAGE";
 })(DiscountType || (exports.DiscountType = DiscountType = {}));
+var FabricSource;
+(function (FabricSource) {
+    FabricSource["SHOP"] = "SHOP";
+    FabricSource["CUSTOMER"] = "CUSTOMER";
+})(FabricSource || (exports.FabricSource = FabricSource = {}));

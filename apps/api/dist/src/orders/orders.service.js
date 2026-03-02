@@ -53,6 +53,7 @@ let OrdersService = class OrdersService {
             const orderBranchId = branchId || customer.branchId;
             let subtotal = 0;
             const resolvedItems = [];
+            const pieceMap = {};
             for (const item of createOrderDto.items) {
                 const type = await tx.garmentType.findUnique({
                     where: { id: item.garmentTypeId }
@@ -62,17 +63,23 @@ let OrdersService = class OrdersService {
                 }
                 const customerPrice = type.customerPrice;
                 const employeeRate = type.employeeRate;
-                subtotal += (customerPrice * item.quantity);
-                resolvedItems.push({
-                    garmentTypeId: type.id,
-                    garmentTypeName: type.name,
-                    employeeId: item.employeeId || null,
-                    quantity: item.quantity,
-                    unitPrice: customerPrice,
-                    employeeRate: employeeRate,
-                    description: item.description,
-                    dueDate: item.dueDate ? new Date(item.dueDate) : null
-                });
+                for (let i = 0; i < item.quantity; i++) {
+                    pieceMap[item.garmentTypeId] = (pieceMap[item.garmentTypeId] || 0) + 1;
+                    const currentPieceNo = pieceMap[item.garmentTypeId];
+                    subtotal += customerPrice;
+                    resolvedItems.push({
+                        garmentTypeId: type.id,
+                        garmentTypeName: type.name,
+                        pieceNo: currentPieceNo,
+                        employeeId: item.employeeId || null,
+                        quantity: 1,
+                        unitPrice: customerPrice,
+                        employeeRate: employeeRate,
+                        description: item.description,
+                        fabricSource: item.fabricSource || 'SHOP',
+                        dueDate: item.dueDate ? new Date(item.dueDate) : null
+                    });
+                }
             }
             let discountAmount = 0;
             if (createOrderDto.discountType && createOrderDto.discountValue !== undefined) {
@@ -109,7 +116,18 @@ let OrdersService = class OrdersService {
                     notes: createOrderDto.notes,
                     createdById,
                     items: {
-                        create: resolvedItems
+                        create: resolvedItems.map(item => ({
+                            pieceNo: item.pieceNo,
+                            employeeId: item.employeeId,
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice,
+                            employeeRate: item.employeeRate,
+                            description: item.description,
+                            fabricSource: item.fabricSource,
+                            dueDate: item.dueDate,
+                            garmentTypeName: item.garmentTypeName,
+                            garmentType: { connect: { id: item.garmentTypeId } }
+                        }))
                     }
                 },
                 include: {
@@ -257,16 +275,32 @@ let OrdersService = class OrdersService {
                 ...(branchId ? { branchId } : {})
             },
             include: {
-                customer: true,
+                customer: {
+                    include: {
+                        measurements: {
+                            include: {
+                                category: {
+                                    include: {
+                                        fields: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 items: {
                     where: { deletedAt: null },
+                    orderBy: { pieceNo: 'asc' },
                     include: { employee: { select: { fullName: true, id: true } } }
                 },
                 payments: {
                     orderBy: { paidAt: 'desc' }
                 },
                 statusHistory: {
-                    orderBy: { createdAt: 'desc' }
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        order: { select: { orderNumber: true } }
+                    }
                 }
             }
         });
@@ -432,37 +466,49 @@ let OrdersService = class OrdersService {
             }
             const customerPrice = type.customerPrice;
             const employeeRate = type.employeeRate;
-            const orderItem = await tx.orderItem.create({
-                data: {
-                    orderId,
-                    garmentTypeId: type.id,
-                    garmentTypeName: type.name,
-                    employeeId: itemDto.employeeId || null,
-                    quantity: itemDto.quantity || 1,
-                    unitPrice: customerPrice,
-                    employeeRate: employeeRate,
-                    description: itemDto.description,
-                    dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null
-                }
+            const lastItem = await tx.orderItem.findFirst({
+                where: { orderId, garmentTypeId: itemDto.garmentTypeId },
+                orderBy: { pieceNo: 'desc' }
             });
-            const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
-            if (settings?.useTaskWorkflow) {
-                const templates = await tx.workflowStepTemplate.findMany({
-                    where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
-                    orderBy: { sortOrder: 'asc' }
+            let nextPieceNo = (lastItem?.pieceNo || 0) + 1;
+            const quantity = itemDto.quantity || 1;
+            const createdItems = [];
+            for (let i = 0; i < quantity; i++) {
+                const orderItem = await tx.orderItem.create({
+                    data: {
+                        orderId,
+                        garmentTypeId: type.id,
+                        garmentTypeName: type.name,
+                        pieceNo: nextPieceNo++,
+                        employeeId: itemDto.employeeId || null,
+                        quantity: 1,
+                        unitPrice: customerPrice,
+                        employeeRate: employeeRate,
+                        description: itemDto.description,
+                        fabricSource: itemDto.fabricSource || 'SHOP',
+                        dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null
+                    }
                 });
-                if (templates.length > 0) {
-                    const tasksToCreate = templates.map((t) => ({
-                        orderItemId: orderItem.id,
-                        stepTemplateId: t.id,
-                        stepKey: t.stepKey,
-                        stepName: t.stepName,
-                        sortOrder: t.sortOrder,
-                        status: 'PENDING',
-                    }));
-                    await tx.orderItemTask.createMany({
-                        data: tasksToCreate
+                createdItems.push(orderItem);
+                const settings = await tx.systemSettings.findUnique({ where: { id: 'default' } });
+                if (settings?.useTaskWorkflow) {
+                    const templates = await tx.workflowStepTemplate.findMany({
+                        where: { garmentTypeId: orderItem.garmentTypeId, isActive: true },
+                        orderBy: { sortOrder: 'asc' }
                     });
+                    if (templates.length > 0) {
+                        const tasksToCreate = templates.map((t) => ({
+                            orderItemId: orderItem.id,
+                            stepTemplateId: t.id,
+                            stepKey: t.stepKey,
+                            stepName: t.stepName,
+                            sortOrder: t.sortOrder,
+                            status: 'PENDING',
+                        }));
+                        await tx.orderItemTask.createMany({
+                            data: tasksToCreate
+                        });
+                    }
                 }
             }
             return this.recalcOrderTotals(orderId, tx);

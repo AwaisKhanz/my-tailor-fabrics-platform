@@ -21,6 +21,7 @@ export interface Employee {
         role: string;
         isActive: boolean;
     } | null;
+    documents?: EmployeeDocument[];
     createdAt: string;
     updatedAt: string;
 }

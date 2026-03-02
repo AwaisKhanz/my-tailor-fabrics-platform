@@ -8,14 +8,18 @@ export declare class EmployeesController {
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            phone: string;
+            deletedAt: Date | null;
+            branchId: string;
             employeeCode: string;
+            cnic: string | null;
             fullName: string;
             fatherName: string | null;
-            phone: string;
             phone2: string | null;
-            address: string | null;
             city: string | null;
-            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -26,10 +30,6 @@ export declare class EmployeesController {
             photoUrl: string | null;
             status: import(".prisma/client").$Enums.EmployeeStatus;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
         };
     }>;
     findAll(page: string, limit: string, search: string, req: AuthenticatedRequest): Promise<{
@@ -37,14 +37,18 @@ export declare class EmployeesController {
         data: {
             data: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                address: string | null;
+                phone: string;
+                deletedAt: Date | null;
+                branchId: string;
                 employeeCode: string;
+                cnic: string | null;
                 fullName: string;
                 fatherName: string | null;
-                phone: string;
                 phone2: string | null;
-                address: string | null;
                 city: string | null;
-                cnic: string | null;
                 dateOfBirth: Date | null;
                 dateOfJoining: Date;
                 designation: string | null;
@@ -55,10 +59,6 @@ export declare class EmployeesController {
                 photoUrl: string | null;
                 status: import(".prisma/client").$Enums.EmployeeStatus;
                 notes: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                deletedAt: Date | null;
-                branchId: string;
             }[];
             meta: {
                 total: number;
@@ -69,14 +69,18 @@ export declare class EmployeesController {
         } | {
             data: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                address: string | null;
+                phone: string;
+                deletedAt: Date | null;
+                branchId: string;
                 employeeCode: string;
+                cnic: string | null;
                 fullName: string;
                 fatherName: string | null;
-                phone: string;
                 phone2: string | null;
-                address: string | null;
                 city: string | null;
-                cnic: string | null;
                 dateOfBirth: Date | null;
                 dateOfJoining: Date;
                 designation: string | null;
@@ -87,10 +91,6 @@ export declare class EmployeesController {
                 photoUrl: string | null;
                 status: import(".prisma/client").$Enums.EmployeeStatus;
                 notes: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                deletedAt: Date | null;
-                branchId: string;
             }[];
             total: number;
             meta?: undefined;
@@ -111,19 +111,23 @@ export declare class EmployeesController {
             }[];
             userAccount: {
                 id: string;
-                email: string;
                 isActive: boolean;
+                email: string;
             } | null;
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            phone: string;
+            deletedAt: Date | null;
+            branchId: string;
             employeeCode: string;
+            cnic: string | null;
             fullName: string;
             fatherName: string | null;
-            phone: string;
             phone2: string | null;
-            address: string | null;
             city: string | null;
-            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -134,24 +138,24 @@ export declare class EmployeesController {
             photoUrl: string | null;
             status: import(".prisma/client").$Enums.EmployeeStatus;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
         };
     }>;
     update(id: string, updateEmployeeDto: UpdateEmployeeDto, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            phone: string;
+            deletedAt: Date | null;
+            branchId: string;
             employeeCode: string;
+            cnic: string | null;
             fullName: string;
             fatherName: string | null;
-            phone: string;
             phone2: string | null;
-            address: string | null;
             city: string | null;
-            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -162,24 +166,24 @@ export declare class EmployeesController {
             photoUrl: string | null;
             status: import(".prisma/client").$Enums.EmployeeStatus;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
         };
     }>;
     remove(id: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            phone: string;
+            deletedAt: Date | null;
+            branchId: string;
             employeeCode: string;
+            cnic: string | null;
             fullName: string;
             fatherName: string | null;
-            phone: string;
             phone2: string | null;
-            address: string | null;
             city: string | null;
-            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -190,10 +194,6 @@ export declare class EmployeesController {
             photoUrl: string | null;
             status: import(".prisma/client").$Enums.EmployeeStatus;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
         };
     }>;
     createUserAccount(id: string, email: string, rawPass: string, req: AuthenticatedRequest): Promise<{
@@ -216,17 +216,17 @@ export declare class EmployeesController {
         data: {
             data: {
                 id: string;
+                employeeRate: number;
                 status: import(".prisma/client").$Enums.ItemStatus;
+                garmentTypeName: string;
+                quantity: number;
+                completedAt: Date | null;
                 order: {
                     status: import(".prisma/client").$Enums.OrderStatus;
-                    dueDate: Date;
                     orderNumber: string;
+                    dueDate: Date;
                 };
-                employeeRate: number;
-                quantity: number;
                 orderId: string;
-                garmentTypeName: string;
-                completedAt: Date | null;
             }[];
             total: number;
         };
@@ -259,19 +259,23 @@ export declare class EmployeesController {
             }[];
             userAccount: {
                 id: string;
-                email: string;
                 isActive: boolean;
+                email: string;
             } | null;
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            phone: string;
+            deletedAt: Date | null;
+            branchId: string;
             employeeCode: string;
+            cnic: string | null;
             fullName: string;
             fatherName: string | null;
-            phone: string;
             phone2: string | null;
-            address: string | null;
             city: string | null;
-            cnic: string | null;
             dateOfBirth: Date | null;
             dateOfJoining: Date;
             designation: string | null;
@@ -282,10 +286,6 @@ export declare class EmployeesController {
             photoUrl: string | null;
             status: import(".prisma/client").$Enums.EmployeeStatus;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            branchId: string;
         };
     }>;
     getMyStats(req: AuthenticatedRequest): Promise<{
@@ -301,17 +301,17 @@ export declare class EmployeesController {
         data: {
             data: {
                 id: string;
+                employeeRate: number;
                 status: import(".prisma/client").$Enums.ItemStatus;
+                garmentTypeName: string;
+                quantity: number;
+                completedAt: Date | null;
                 order: {
                     status: import(".prisma/client").$Enums.OrderStatus;
-                    dueDate: Date;
                     orderNumber: string;
+                    dueDate: Date;
                 };
-                employeeRate: number;
-                quantity: number;
                 orderId: string;
-                garmentTypeName: string;
-                completedAt: Date | null;
             }[];
             total: number;
         };

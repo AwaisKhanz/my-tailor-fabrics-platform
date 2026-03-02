@@ -17,6 +17,7 @@ class OrderItemDto {
     garmentTypeId;
     quantity;
     description;
+    fabricSource;
     employeeId;
     dueDate;
 }
@@ -36,6 +37,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OrderItemDto.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(shared_types_1.FabricSource),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OrderItemDto.prototype, "fabricSource", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

@@ -114,6 +114,17 @@ export class OrdersController {
     return { success: true, data };
   }
 
+  @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Get(':id/receipt')
+  async getReceipt(@Param('id') id: string, @Req() req: AuthenticatedRequest, @Res() res: any) {
+    const stream = await this.receiptService.generateOrderReceipt(id, req.branchId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=receipt-${id}.pdf`,
+    });
+    stream.pipe(res);
+  }
+
   /** Generate/regenerate a shareable public link + PIN for the customer */
   @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
   @Post(':id/share')

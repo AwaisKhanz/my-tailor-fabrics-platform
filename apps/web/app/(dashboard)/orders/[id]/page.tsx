@@ -44,8 +44,6 @@ export default function OrderDetailPage() {
   const [note, setNote] = useState("");
   const [processing, setProcessing] = useState(false);
 
-  const [shareOpen, setShareOpen] = useState(false);
-  const [shareData, setShareData] = useState<Record<string, unknown> | null>(null);
 
   const [taskOpen, setTaskOpen] = useState(false);
   const [taskItem, setTaskItem] = useState<OrderItem | null>(null);
@@ -109,16 +107,6 @@ export default function OrderDetailPage() {
     }
   };
 
-  const handleShare = async () => {
-      if (!order) return;
-      try {
-          const res = await ordersApi.shareOrder(order.id);
-          setShareData(res.data as Record<string, unknown>);
-          setShareOpen(true);
-      } catch {
-          toast({ title: "Error", description: "Failed to generate share link", variant: "destructive" });
-      }
-  };
 
   if (loading) return <div className="p-6 space-y-4"><Skeleton className="h-10 w-1/4" /><Skeleton className="h-64 w-full" /></div>;
   if (!order) return null;
@@ -165,7 +153,12 @@ export default function OrderDetailPage() {
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="outline" size="sm" className="gap-2 font-bold text-xs" onClick={handleShare}>
+            <Button 
+              variant="muted" 
+              size="sm" 
+              className="gap-2 font-bold text-xs" 
+              onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/orders/${order.id}/receipt`, '_blank')}
+            >
               <Printer className="h-4 w-4" /> Print Receipt
             </Button>
             {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.COMPLETED && (
@@ -225,37 +218,40 @@ export default function OrderDetailPage() {
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 opacity-70">Size Number</p>
                     <p className="font-bold text-sm text-primary leading-none tracking-wider">
-                      {(order.customer as { sizeNumber?: string })?.sizeNumber || "SZ-8821"}
+                      {order.customer.sizeNumber}
                     </p>
                   </div>
                 </div>
 
                 {/* Right - Measurements Summary Box */}
-                <div className="bg-muted/50 border border-border rounded-xl p-4 sm:p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-4">Measurements Summary</p>
+                <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 sm:p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-4">Measurements Summary</p>
                   {(() => {
-                    const measurements = (order.items?.[0] as { measurements?: Record<string, string | number> } | undefined)?.measurements;
-                    if (!measurements || Object.keys(measurements).length === 0) {
-                      // Fallback dummy data to match design if no measurements exist
-                      const dummy = { Length: "42.5", Chest: "44.0", Sleeve: "25.0", Shoulder: "18.0", Waist: "40.5", Collar: "16.5" };
-                      return (
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                          {Object.entries(dummy).map(([key, val]) => (
-                            <div key={key} className="flex items-center justify-between group">
-                              <span className="text-xs text-muted-foreground font-medium">{key}</span>
-                              <span className="text-xs font-black text-foreground">{val}&quot;</span>
-                            </div>
-                          ))}
-                        </div>
-                      );
+                    // Try to find measurements for the first item's garment category
+                    const customerMeasurements = order.customer.measurements || [];
+                    
+                    // Fallback to the most recent measurement if no specific category match (or just show the first one)
+                    const mSet = customerMeasurements[0];
+
+                    if (!mSet || !mSet.values || Object.keys(mSet.values).length === 0) {
+                      return <p className="text-xs text-muted-foreground italic">No measurements recorded.</p>;
                     }
-                    const entries = Object.entries(measurements).slice(0, 6);
+
+                    const fields = mSet.category?.fields || [];
+                    const values = mSet.values as Record<string, string>;
+                    
+                    // Map values to labels
+                    const displayItems = Object.entries(values).map(([fieldId, value]) => {
+                        const field = fields.find((f) => f.id === fieldId);
+                        return { label: field?.label || fieldId, value };
+                    }).slice(0, 8);
+
                     return (
                       <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                        {entries.map(([key, val]) => (
-                          <div key={key} className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground font-medium capitalize">{key}</span>
-                            <span className="text-xs font-bold text-foreground">{String(val)}&quot;</span>
+                        {displayItems.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between group">
+                            <span className="text-xs text-muted-foreground font-medium truncate pr-2">{item.label}</span>
+                            <span className="text-xs font-black text-foreground shrink-0">{item.value}&quot;</span>
                           </div>
                         ))}
                       </div>
@@ -279,10 +275,11 @@ export default function OrderDetailPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-t border-b border-border bg-muted/50">
-                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Garment Type</th>
+                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-16">Piece #</th>
+                      <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Garment Type</th>
                       <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assigned To</th>
                       <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Description</th>
-                      <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Qty</th>
+                      <th className="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Fabric</th>
                       <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Unit Price</th>
                       <th className="px-6 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</th>
                     </tr>
@@ -290,10 +287,11 @@ export default function OrderDetailPage() {
                   <tbody className="divide-y divide-slate-100">
                     {order.items.map((item, idx) => {
                       const empName = employees.find(e => e.id === item.employeeId)?.fullName ?? item.employeeId ?? "—";
-                      const initials = empName !== "—" ? empName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : "—";
+                      const initials = empName !== "—" ? empName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "—";
                       return (
                         <tr key={idx} className="hover:bg-muted/50 transition-colors">
-                          <td className="px-6 py-5 font-bold text-foreground text-sm">{item.garmentTypeName}</td>
+                          <td className="px-6 py-5 font-bold text-foreground text-sm">#{item.pieceNo}</td>
+                          <td className="px-4 py-5 font-bold text-foreground text-sm">{item.garmentTypeName}</td>
                           <td className="px-4 py-5 font-medium text-xs">
                               {item.tasks && item.tasks.length > 0 ? (
                                   <Button 
@@ -305,7 +303,7 @@ export default function OrderDetailPage() {
                                           setTaskOpen(true);
                                       }}
                                   >
-                                      Manage Tasks ({item.tasks.length})
+                                      Tasks (Piece #{item.pieceNo})
                                   </Button>
                               ) : empName !== "—" ? (
                                 <div className="flex items-center gap-2.5">
@@ -318,12 +316,16 @@ export default function OrderDetailPage() {
                           </td>
                           <td className="px-4 py-5">
                             <p className="text-muted-foreground text-xs leading-relaxed max-w-[200px]">
-                              {item.description || "Cotton, Navy Blue, Ban Collar"}
+                              {item.description || "—"}
                             </p>
                           </td>
-                          <td className="px-4 py-5 text-center font-bold text-sm text-muted-foreground">{String(item.quantity).padStart(2, "0")}</td>
-                          <td className="px-4 py-5 text-right text-muted-foreground text-sm">Rs. {(item.unitPrice).toLocaleString()}</td>
-                          <td className="px-6 py-5 text-right font-bold text-foreground text-sm">Rs. {(item.unitPrice * item.quantity).toLocaleString()}</td>
+                          <td className="px-4 py-5 text-center">
+                            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-tight">
+                              {item.fabricSource}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-5 text-right text-muted-foreground text-sm">Rs. {(item.unitPrice / 100).toLocaleString()}</td>
+                          <td className="px-6 py-5 text-right font-bold text-foreground text-sm">Rs. {(item.unitPrice / 100).toLocaleString()}</td>
                         </tr>
                       );
                     })}
@@ -349,17 +351,14 @@ export default function OrderDetailPage() {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground font-medium">Subtotal</span>
-                  <span className="font-bold text-foreground">Rs. {(order.subtotal).toLocaleString()}</span>
+                  <span className="font-bold text-foreground">Rs. {(order.subtotal / 100).toLocaleString()}</span>
                 </div>
-                {order.discountAmount > 0 ? (
+                {order.discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground font-medium">Discount ({order.discountType || "5%"})</span>
-                    <span className="text-success font-bold">- Rs. {(order.discountAmount || 575).toLocaleString()}</span>
-                  </div>
-                ) : (
-                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground font-medium">Discount (5%)</span>
-                    <span className="text-success font-bold">- Rs. 575</span>
+                    <span className="text-muted-foreground font-medium">
+                      Discount {order.discountType === 'PERCENTAGE' ? `(${order.discountValue}%)` : ''}
+                    </span>
+                    <span className="text-success font-bold">- Rs. {(order.discountAmount / 100).toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -367,12 +366,14 @@ export default function OrderDetailPage() {
               <div className="pt-2">
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-bold text-foreground uppercase tracking-tight">Total Amount</span>
-                  <span className="text-xl font-bold text-primary">Rs. {(order.totalAmount).toLocaleString()}</span>
+                  <span className="text-xl font-bold text-primary">Rs. {(order.totalAmount / 100).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-[11px] text-muted-foreground mt-1.5 italic font-medium">
-                  <span>Advance Paid</span>
-                  <span>Rs. {(order.totalPaid).toLocaleString()}</span>
-                </div>
+                {order.totalPaid > 0 && (
+                  <div className="flex justify-between text-[11px] text-muted-foreground mt-1.5 italic font-medium">
+                    <span>Advance Paid</span>
+                    <span>Rs. {(order.totalPaid / 100).toLocaleString()}</span>
+                  </div>
+                )}
               </div>
 
               <div className="relative py-4">
@@ -381,9 +382,9 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between py-4 px-5 bg-primary/10/30 rounded-2xl border border-primary/20/50">
+              <div className="flex items-center justify-between py-4 px-5 bg-primary/5 rounded-2xl border border-primary/10">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Balance Due</span>
-                <span className="text-xl font-bold text-primary">Rs. {(order.balanceDue).toLocaleString()}</span>
+                <span className="text-xl font-bold text-primary">Rs. {(order.balanceDue / 100).toLocaleString()}</span>
               </div>
 
               <Button
@@ -445,7 +446,7 @@ export default function OrderDetailPage() {
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
                               {new Date(historyEntry.createdAt).toLocaleDateString("en-PK", { day: "2-digit", month: "short", year: "numeric" })} • {new Date(historyEntry.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })}
                             </p>
-                            {historyEntry.note && <p className="text-[11px] text-muted-foreground font-medium italic">Order placed by Ahmed Khan</p>}
+                            {historyEntry.note && <p className="text-[11px] text-muted-foreground font-medium italic truncate">{historyEntry.note}</p>}
                           </div>
                         ) : step.active ? (
                           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mt-1.5 animate-pulse">Processing Now</p>
@@ -501,7 +502,7 @@ export default function OrderDetailPage() {
           <div className="space-y-4 py-2">
             <div className="flex justify-between items-center p-3 bg-destructive/10 rounded-lg text-destructive font-bold">
               <span>Maximum Due:</span>
-              <span>Rs. {(order.balanceDue).toLocaleString()}</span>
+              <span>Rs. {(order.balanceDue / 100).toLocaleString()}</span>
             </div>
             <div className="space-y-1.5">
               <Label>Amount (Rs.)</Label>
@@ -521,37 +522,6 @@ export default function OrderDetailPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Share Dialog */}
-      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Order Status Shareable Link</DialogTitle>
-            <DialogDescription>Provide this link and PIN to the customer so they can track their order status publicly.</DialogDescription>
-          </DialogHeader>
-          {shareData && (
-            <div className="space-y-6 py-4">
-              <div className="space-y-2">
-                <Label>Tracking URL</Label>
-                <div className="flex gap-2">
-                  <Input readOnly value={`${window.location.origin}/status/${String(shareData.shareToken)}`} className="bg-muted font-medium tracking-tight text-xs" />
-                  <Button size="sm" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/status/${String(shareData.shareToken)}`); toast({ title: "Copied to clipboard" }); }}>Copy</Button>
-                </div>
-              </div>
-              <div className="p-4 bg-warning/5 border border-warning/20 rounded-lg flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-warning uppercase tracking-widest">Verification PIN</p>
-                  <p className="text-3xl font-bold text-warning tracking-[0.5em]">{String(shareData.sharePin)}</p>
-                </div>
-                <Clock className="h-8 w-8 text-warning/20" />
-              </div>
-              <p className="text-xs text-muted-foreground text-center">The customer will need this 4-digit PIN to view their order details.</p>
-            </div>
-          )}
-          <DialogFooter>
-            <Button className="w-full" onClick={() => setShareOpen(false)}>Done</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <TaskAssignmentDialog
         open={taskOpen}

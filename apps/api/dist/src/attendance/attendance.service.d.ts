@@ -9,16 +9,16 @@ export declare class AttendanceService {
         };
     } & {
         id: string;
-        date: Date;
-        clockIn: Date;
-        clockOut: Date | null;
-        hoursWorked: number | null;
-        note: string | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
         employeeId: string;
         branchId: string;
+        note: string | null;
+        date: Date;
+        clockIn: Date;
+        clockOut: Date | null;
+        hoursWorked: number | null;
     }>;
     clockOut(recordId: string, branchId: string): Promise<{
         employee: {
@@ -27,16 +27,16 @@ export declare class AttendanceService {
         };
     } & {
         id: string;
-        date: Date;
-        clockIn: Date;
-        clockOut: Date | null;
-        hoursWorked: number | null;
-        note: string | null;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
         employeeId: string;
         branchId: string;
+        note: string | null;
+        date: Date;
+        clockIn: Date;
+        clockOut: Date | null;
+        hoursWorked: number | null;
     }>;
     findAll(branchId: string, employeeId?: string, page?: number, limit?: number): Promise<{
         data: ({
@@ -47,16 +47,16 @@ export declare class AttendanceService {
             };
         } & {
             id: string;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
-            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
+            note: string | null;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
         })[];
         total: number;
     }>;
@@ -65,29 +65,29 @@ export declare class AttendanceService {
         totalHours: number;
         currentlyIn: {
             id: string;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
-            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
+            note: string | null;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
         } | undefined;
         records: {
             id: string;
-            date: Date;
-            clockIn: Date;
-            clockOut: Date | null;
-            hoursWorked: number | null;
-            note: string | null;
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
             employeeId: string;
             branchId: string;
+            note: string | null;
+            date: Date;
+            clockIn: Date;
+            clockOut: Date | null;
+            hoursWorked: number | null;
         }[];
     }>;
 }
