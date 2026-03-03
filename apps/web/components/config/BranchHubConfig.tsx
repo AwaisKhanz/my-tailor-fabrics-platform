@@ -5,6 +5,7 @@ import { BranchHubBreadcrumbs } from "@/components/config/branches/hub/branch-hu
 import { BranchHubOverviewHeader } from "@/components/config/branches/hub/branch-hub-overview-header";
 import { BranchHubRelationsGrid } from "@/components/config/branches/hub/branch-hub-relations-grid";
 import { BranchHubSkeleton } from "@/components/config/branches/hub/branch-hub-skeleton";
+import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { useBranchHubConfigPage } from "@/hooks/use-branch-hub-config-page";
 
 interface BranchHubConfigProps {
@@ -19,15 +20,20 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
   }
 
   return (
-    <div className="mx-auto max-w-9xl animate-in space-y-8 pb-20 fade-in duration-500">
-      <BranchHubBreadcrumbs branchName={branch?.name} />
-
-      <div className="flex flex-col gap-6">
-        <BranchHubOverviewHeader branch={branch} />
-        <BranchHubRelationsGrid branch={branch} />
-      </div>
+    <PageShell
+      spacing="spacious"
+      inset="relaxed"
+      className="animate-in fade-in duration-500"
+    >
+      <PageSection spacing="spacious">
+        <BranchHubBreadcrumbs branchName={branch?.name} />
+        <div className="flex flex-col gap-6">
+          <BranchHubOverviewHeader branch={branch} />
+          <BranchHubRelationsGrid branch={branch} />
+        </div>
+      </PageSection>
 
       <BranchGlobalPricingCard />
-    </div>
+    </PageShell>
   );
 }

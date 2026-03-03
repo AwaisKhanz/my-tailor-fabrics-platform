@@ -17,10 +17,10 @@ export function DashboardRevenueExpensesCard({
   rows,
 }: DashboardRevenueExpensesCardProps) {
   return (
-    <Card className="border-border shadow-sm lg:col-span-2">
+    <Card className="h-full border-border/70 bg-card">
       <CardHeader variant="rowSection" className="items-center">
         <CardTitle variant="dashboard">Revenue vs. Expenses</CardTitle>
-        <div className="flex items-center gap-1 transition-colors hover:bg-muted/70">
+        <div className="flex items-center gap-1 rounded-md bg-muted/40 px-2 py-1">
           <Label variant="dashboard">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
         </div>
@@ -38,7 +38,7 @@ export function DashboardRevenueExpensesCard({
             {rows.map((row) => (
               <div
                 key={row.month}
-                className="grid grid-cols-[60px_1fr_1fr] items-center gap-3"
+                className="grid grid-cols-1 gap-2 rounded-lg border border-border/60 bg-background/50 px-3 py-2 sm:grid-cols-[60px_1fr_1fr] sm:items-center sm:gap-3"
               >
                 <span className="text-xs text-muted-foreground">{row.month}</span>
                 <div className="truncate rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">

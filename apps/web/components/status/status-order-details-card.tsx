@@ -14,7 +14,7 @@ export function StatusOrderDetailsCard({ order }: StatusOrderDetailsCardProps) {
         Details
       </Typography>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
         <div>
           <Typography as="p" variant="muted" className="text-xs">
             Customer

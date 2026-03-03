@@ -12,7 +12,7 @@ export function BranchesPageHeader({ onCreate }: BranchesPageHeaderProps) {
       title="Branch Management"
       description="Configure and oversee all physical organizational locations and their status."
       actions={
-        <Button variant="premium" size="lg" onClick={onCreate}>
+        <Button variant="premium" size="lg" onClick={onCreate} className="w-full sm:w-auto">
           <Plus className="mr-2 h-5 w-5" />
           Add New Branch
         </Button>

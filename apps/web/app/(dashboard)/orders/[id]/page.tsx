@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { AlertCircle } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
 import { useOrderDetail } from "@/hooks/use-order-detail";
@@ -19,6 +20,8 @@ import { OrderTimelineCard } from "@/components/orders/order-timeline-card";
 import { OrderLifecycleCard } from "@/components/orders/order-lifecycle-card";
 import { OrderPaymentDialog } from "@/components/orders/order-payment-dialog";
 import { OrderShareDialog } from "@/components/orders/order-share-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -88,15 +91,29 @@ export default function OrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4 p-6">
-        <Skeleton className="h-10 w-1/4" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <PageShell>
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-1/4" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </PageShell>
     );
   }
 
   if (!order) {
-    return null;
+    return (
+      <PageShell>
+        <EmptyState
+          icon={AlertCircle}
+          title="Order not found"
+          description="The requested order is unavailable or may have been removed."
+          action={{
+            label: "Back to Orders",
+            onClick: () => router.push("/orders"),
+          }}
+        />
+      </PageShell>
+    );
   }
 
   const statusConfig = ORDER_STATUS_CONFIG[order.status] ?? {
@@ -131,67 +148,73 @@ export default function OrderDetailPage() {
   };
 
   return (
-    <div className="mx-auto max-w-9xl space-y-6">
-      <OrderDetailBreadcrumb
-        orderNumber={order.orderNumber}
-        onBack={() => router.push("/orders")}
+    <PageShell>
+      <PageSection spacing="compact">
+        <OrderDetailBreadcrumb
+          orderNumber={order.orderNumber}
+          onBack={() => router.push("/orders")}
+        />
+
+        <OrderDetailHeaderCard
+          orderNumber={order.orderNumber}
+          statusLabel={statusConfig.label}
+          statusVariant={statusConfig.variant}
+          createdAtLabel={formatDate(order.createdAt)}
+          dueDateLabel={formatDate(order.dueDate)}
+          canCancel={canCancel}
+          sharing={sharing}
+          statusLoading={statusLoading}
+          onPrintReceipt={() => {
+            void handlePrintReceipt();
+          }}
+          onShareStatus={() => {
+            void handleShareStatus();
+          }}
+          onCancelOrder={() => {
+            void updateStatus(OrderStatus.CANCELLED);
+          }}
+          onEditOrder={() => router.push(`/orders/new?edit=${order.id}`)}
+        />
+      </PageSection>
+
+      <DetailSplit
+        ratio="2-1"
+        main={
+          <div className="space-y-6">
+            <OrderCustomerInsightCard customer={order.customer} />
+
+            <OrderItemsTable
+              items={order.items}
+              employees={employees}
+              onManageTasks={(item) => {
+                setTaskItem(item);
+                setTaskOpen(true);
+              }}
+            />
+          </div>
+        }
+        side={
+          <div className="space-y-6">
+            <OrderFinancialSummaryCard
+              order={order}
+              onCapturePayment={() => setPaymentOpen(true)}
+            />
+
+            <OrderTimelineCard
+              status={order.status}
+              history={order.statusHistory ?? []}
+            />
+
+            <OrderLifecycleCard
+              status={order.status}
+              statusLoading={statusLoading}
+              onAdvance={(status) => {
+                void updateStatus(status);
+              }}
+            />
+          </div>
+        }
       />
-
-      <OrderDetailHeaderCard
-        orderNumber={order.orderNumber}
-        statusLabel={statusConfig.label}
-        statusVariant={statusConfig.variant}
-        createdAtLabel={formatDate(order.createdAt)}
-        dueDateLabel={formatDate(order.dueDate)}
-        canCancel={canCancel}
-        sharing={sharing}
-        statusLoading={statusLoading}
-        onPrintReceipt={() => {
-          void handlePrintReceipt();
-        }}
-        onShareStatus={() => {
-          void handleShareStatus();
-        }}
-        onCancelOrder={() => {
-          void updateStatus(OrderStatus.CANCELLED);
-        }}
-        onEditOrder={() => router.push(`/orders/new?edit=${order.id}`)}
-      />
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <OrderCustomerInsightCard customer={order.customer} />
-
-          <OrderItemsTable
-            items={order.items}
-            employees={employees}
-            onManageTasks={(item) => {
-              setTaskItem(item);
-              setTaskOpen(true);
-            }}
-          />
-        </div>
-
-        <div className="space-y-6">
-          <OrderFinancialSummaryCard
-            order={order}
-            onCapturePayment={() => setPaymentOpen(true)}
-          />
-
-          <OrderTimelineCard
-            status={order.status}
-            history={order.statusHistory ?? []}
-          />
-
-          <OrderLifecycleCard
-            status={order.status}
-            statusLoading={statusLoading}
-            onAdvance={(status) => {
-              void updateStatus(status);
-            }}
-          />
-        </div>
-      </div>
 
       <OrderPaymentDialog
         open={paymentOpen}
@@ -227,6 +250,6 @@ export default function OrderDetailPage() {
           void copyToClipboard(value);
         }}
       />
-    </div>
+    </PageShell>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { MyOrdersTable } from "@/components/orders/my-orders-table";
 import { MyOrdersToolbar } from "@/components/orders/my-orders-toolbar";
@@ -17,7 +18,7 @@ export default function MyOrdersPage() {
   } = useMyOrdersPage();
 
   return (
-    <div className="mx-auto max-w-9xl space-y-6">
+    <PageShell>
       <PageHeader
         title="My Work Orders"
         description="Review and manage your assigned tailoring tasks."
@@ -33,6 +34,6 @@ export default function MyOrdersPage() {
         />
         <MyOrdersTable items={filteredItems} loading={loading} />
       </TableSurface>
-    </div>
+    </PageShell>
   );
 }

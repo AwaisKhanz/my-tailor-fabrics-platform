@@ -1,6 +1,7 @@
 import { type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { Typography } from "@/components/ui/typography";
 
 interface AuthStateAction {
@@ -23,25 +24,37 @@ export function AuthStateCard({
   actions,
 }: AuthStateCardProps) {
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center space-y-4 px-4 text-center">
-      <div className="rounded-full bg-destructive/10 p-6">
-        <Icon className="h-12 w-12 text-destructive" />
-      </div>
+    <PageShell
+      width="full"
+      spacing="compact"
+      inset="none"
+      className="flex min-h-screen items-center justify-center px-4"
+    >
+      <PageSection spacing="compact" className="flex max-w-xl flex-col items-center text-center">
+        <div className="rounded-full bg-destructive/10 p-6">
+          <Icon className="h-12 w-12 text-destructive" />
+        </div>
 
-      <Typography as="h1" variant="pageTitle">
-        {title}
-      </Typography>
-      <Typography as="p" variant="lead" className="max-w-[420px]">
-        {description}
-      </Typography>
+        <Typography as="h1" variant="pageTitle">
+          {title}
+        </Typography>
+        <Typography as="p" variant="lead" className="max-w-[420px]">
+          {description}
+        </Typography>
 
-      <div className="flex gap-2 pt-4">
-        {actions.map((action) => (
-          <Button key={action.href} asChild variant={action.variant ?? "default"}>
-            <Link href={action.href}>{action.label}</Link>
-          </Button>
-        ))}
-      </div>
-    </div>
+        <div className="flex w-full flex-col gap-2 pt-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center">
+          {actions.map((action) => (
+            <Button
+              key={action.href}
+              asChild
+              variant={action.variant ?? "default"}
+              className="w-full sm:w-auto"
+            >
+              <Link href={action.href}>{action.label}</Link>
+            </Button>
+          ))}
+        </div>
+      </PageSection>
+    </PageShell>
   );
 }

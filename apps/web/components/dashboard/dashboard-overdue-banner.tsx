@@ -26,9 +26,9 @@ export function DashboardOverdueBanner({
 
   if (overdueCount > 0) {
     return (
-      <Card className="border-destructive/20 bg-destructive/10">
-        <CardContent spacing="section" className="flex items-center justify-between gap-4 p-5">
-          <div className="flex items-center gap-4">
+      <Card className="border-destructive/25 bg-destructive/10">
+        <CardContent spacing="section" className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3 sm:items-center sm:gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/20">
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
@@ -45,7 +45,11 @@ export function DashboardOverdueBanner({
               </p>
             </div>
           </div>
-          <Button variant="destructive" className="shrink-0" onClick={onViewOverdue}>
+          <Button
+            variant="destructive"
+            className="w-full shrink-0 sm:w-auto"
+            onClick={onViewOverdue}
+          >
             View Overdue <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>
@@ -55,8 +59,8 @@ export function DashboardOverdueBanner({
 
   if (!error) {
     return (
-      <Card className="border-success/20 bg-success/10">
-        <CardContent spacing="section" className="flex items-center gap-4 p-5">
+      <Card className="border-success/25 bg-success/10">
+        <CardContent spacing="section" className="flex items-center gap-4 p-5 sm:p-6">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/20">
             <CheckCircle2 className="h-6 w-6 text-success" />
           </div>

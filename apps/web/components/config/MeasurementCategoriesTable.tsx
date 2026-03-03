@@ -6,6 +6,7 @@ import { MeasurementCategoriesInventoryTable } from "@/components/config/measure
 import { MeasurementCategoriesListToolbar } from "@/components/config/measurements/list/measurement-categories-list-toolbar";
 import { MeasurementCategoriesPageHeader } from "@/components/config/measurements/list/measurement-categories-page-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
 
@@ -37,7 +38,7 @@ export function MeasurementCategoriesTable() {
   } = useMeasurementCategoriesPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <MeasurementCategoriesPageHeader onAdd={openCreateDialog} />
 
       <TableSurface>
@@ -83,6 +84,6 @@ export function MeasurementCategoriesTable() {
         }}
         confirmText="Delete Category"
       />
-    </div>
+    </PageShell>
   );
 }

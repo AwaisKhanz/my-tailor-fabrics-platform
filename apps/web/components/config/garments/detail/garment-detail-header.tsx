@@ -12,7 +12,7 @@ interface GarmentDetailHeaderProps {
 
 export function GarmentDetailHeader({ garment, onBack }: GarmentDetailHeaderProps) {
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex flex-col items-start gap-3 sm:flex-row sm:gap-4">
       <Button
         variant="tableIcon"
         size="iconSm"
@@ -22,7 +22,7 @@ export function GarmentDetailHeader({ garment, onBack }: GarmentDetailHeaderProp
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      <div className="flex-1">
+      <div className="w-full flex-1">
         <PageHeader
           title={garment.name}
           description={
@@ -32,11 +32,11 @@ export function GarmentDetailHeader({ garment, onBack }: GarmentDetailHeaderProp
             </span>
           }
           actions={
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
               <Badge variant={garment.isActive ? "success" : "outline"} size="xs">
                 {garment.isActive ? "Active" : "Inactive"}
               </Badge>
-              <Button asChild variant="outline" className="gap-2">
+              <Button asChild variant="outline" className="w-full gap-2 sm:w-auto">
                 <Link href="/settings/garments">
                   <Settings className="h-4 w-4" />
                   Manage Garments

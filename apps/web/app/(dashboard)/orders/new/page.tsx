@@ -9,6 +9,7 @@ import { FormStack } from "@/components/ui/form-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 import { useOrderFormPage } from "@/hooks/use-order-form-page";
 import { OrderFormSkeleton } from "@/components/orders/order-form-skeleton";
 import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-card";
@@ -50,7 +51,7 @@ export default function NewOrderPage() {
   }
 
   return (
-    <div className="mx-auto max-w-9xl space-y-6">
+    <PageShell>
       <PageHeader
         title={isEditMode ? "Edit Order" : "Create New Order"}
         description={
@@ -59,62 +60,66 @@ export default function NewOrderPage() {
             : "Create a new customer order with piece-wise pricing, design charges, and assignment details."
         }
         actions={
-          <Button variant="ghost" onClick={() => router.push(cancelPath)}>
+          <Button variant="ghost" className="w-full sm:w-auto" onClick={() => router.push(cancelPath)}>
             Cancel
           </Button>
         }
       />
 
-      <Card variant="premium" className="border-border/70 bg-muted/10">
-        <CardContent spacing="section" className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-3">
-          <div className="space-y-1">
-            <Label variant="dashboard">Mode</Label>
-            <Badge variant="outline" size="xs" className="font-bold">
-              {isEditMode ? "EDIT EXISTING ORDER" : "CREATE NEW ORDER"}
-            </Badge>
-          </div>
-          <div className="space-y-1">
-            <Label variant="dashboard" className="inline-flex items-center gap-1">
-              <Package2 className="h-3.5 w-3.5" /> Pieces
-            </Label>
-            <p className="text-sm font-semibold text-foreground">{fields.length} configured</p>
-          </div>
-          <div className="space-y-1">
-            <Label variant="dashboard" className="inline-flex items-center gap-1">
-              <CalendarDays className="h-3.5 w-3.5" /> Due Date
-            </Label>
-            <p className="text-sm font-semibold text-foreground">{watchedDueDate || "Not set"}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <PageSection spacing="compact">
+        <Card variant="premium" className="border-border/70 bg-muted/10">
+          <CardContent spacing="section" className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label variant="dashboard">Mode</Label>
+              <Badge variant="outline" size="xs" className="font-bold">
+                {isEditMode ? "EDIT EXISTING ORDER" : "CREATE NEW ORDER"}
+              </Badge>
+            </div>
+            <div className="space-y-1">
+              <Label variant="dashboard" className="inline-flex items-center gap-1">
+                <Package2 className="h-3.5 w-3.5" /> Pieces
+              </Label>
+              <p className="text-sm font-semibold text-foreground">{fields.length} configured</p>
+            </div>
+            <div className="space-y-1">
+              <Label variant="dashboard" className="inline-flex items-center gap-1">
+                <CalendarDays className="h-3.5 w-3.5" /> Due Date
+              </Label>
+              <p className="text-sm font-semibold text-foreground">{watchedDueDate || "Not set"}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </PageSection>
 
       <Form {...form}>
         <FormStack as="form" density="relaxed" onSubmit={submitForm}>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="space-y-6 md:col-span-2">
-              <OrderFormCustomerCard
-                form={form}
-                customers={customers}
-                loading={loading}
-              />
+          <DetailSplit
+            ratio="2-1"
+            main={
+              <div className="space-y-6">
+                <OrderFormCustomerCard
+                  form={form}
+                  customers={customers}
+                  loading={loading}
+                />
 
-              <OrderFormItemsCard
-                form={form}
-                fields={fields}
-                watchedItems={watchedItems}
-                garmentTypes={garmentTypes}
-                tailors={tailors}
-                onAddItem={addItem}
-                onRemoveItem={removeItem}
-                onAddAddon={addAddon}
-                onRemoveAddon={removeAddon}
-                onSelectGarmentType={applyGarmentDefaults}
-                getDesignTypeOptions={getAvailableDesignTypes}
-                getItemLineTotal={getItemLineTotal}
-              />
-            </div>
-
-            <div>
+                <OrderFormItemsCard
+                  form={form}
+                  fields={fields}
+                  watchedItems={watchedItems}
+                  garmentTypes={garmentTypes}
+                  tailors={tailors}
+                  onAddItem={addItem}
+                  onRemoveItem={removeItem}
+                  onAddAddon={addAddon}
+                  onRemoveAddon={removeAddon}
+                  onSelectGarmentType={applyGarmentDefaults}
+                  getDesignTypeOptions={getAvailableDesignTypes}
+                  getItemLineTotal={getItemLineTotal}
+                />
+              </div>
+            }
+            side={
               <OrderFormSummaryCard
                 form={form}
                 totals={totals}
@@ -125,10 +130,10 @@ export default function NewOrderPage() {
                 submitting={submitting}
                 isEditMode={isEditMode}
               />
-            </div>
-          </div>
+            }
+          />
         </FormStack>
       </Form>
-    </div>
+    </PageShell>
   );
 }

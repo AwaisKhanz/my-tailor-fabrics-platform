@@ -9,8 +9,6 @@ export default function MeasurementDetailPage() {
   const id = params.id as string;
 
   return (
-    <div className="">
-      <MeasurementCategoryDetail id={id} />
-    </div>
+    <MeasurementCategoryDetail id={id} />
   );
 }

@@ -18,7 +18,7 @@ export function DashboardDesignPopularityCard({
   const maxCount = Math.max(...designs.map((design) => design.count), 1);
 
   return (
-    <Card className="border-border shadow-sm">
+    <Card className="border-border/70 bg-card">
       <CardHeader variant="section" density="compact">
         <CardTitle variant="dashboard">Design Popularity</CardTitle>
       </CardHeader>
@@ -54,9 +54,9 @@ export function DashboardDesignPopularityCard({
         </div>
 
         <Button
-          variant="dashboard"
+          variant="outline"
           size="sm"
-          className="mt-6 h-8 w-full"
+          className="mt-6 h-8 w-full border-primary/30 text-primary"
           onClick={onViewAnalytics}
         >
           View Full Analytics

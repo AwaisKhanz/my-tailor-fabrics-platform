@@ -21,7 +21,7 @@ export function StatusPinGateCard({
   onSubmit,
 }: StatusPinGateCardProps) {
   return (
-    <div className="w-full max-w-sm space-y-6 rounded-2xl border border-border bg-card p-8 shadow-xl">
+    <div className="w-full max-w-sm space-y-6 rounded-2xl border border-border bg-card p-6 shadow-xl sm:p-8">
       <div className="text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-border/50 bg-primary/5">
           <Image

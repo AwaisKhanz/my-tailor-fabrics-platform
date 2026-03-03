@@ -2,6 +2,7 @@
 
 import { LoginBrandPanel } from "@/components/auth/login-brand-panel";
 import { LoginFormPanel } from "@/components/auth/login-form-panel";
+import { PageShell } from "@/components/ui/page-shell";
 import { useLoginPage } from "@/hooks/use-login-page";
 
 export default function LoginPage() {
@@ -19,7 +20,12 @@ export default function LoginPage() {
   } = useLoginPage();
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background sm:items-center sm:justify-center sm:p-8">
+    <PageShell
+      width="full"
+      spacing="compact"
+      inset="none"
+      className="flex min-h-screen w-full flex-col bg-background sm:items-center sm:justify-center sm:p-8"
+    >
       <div className="flex min-h-screen w-full flex-col overflow-hidden bg-card sm:min-h-0 sm:max-w-[1024px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl md:flex-row">
         <LoginBrandPanel />
 
@@ -36,6 +42,6 @@ export default function LoginPage() {
           onSubmit={handleSubmit}
         />
       </div>
-    </div>
+    </PageShell>
   );
 }

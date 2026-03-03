@@ -130,8 +130,8 @@ function NavList({
     const hasSubItems = 'subItems' in item && item.subItems && item.subItems.length > 0;
 
     const baseClasses = cn(
-      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all cursor-pointer group",
-      isSubItem ? "ml-4 py-1.5 text-xs" : "py-2.5"
+      "group flex cursor-pointer items-center gap-3 rounded-lg px-3 text-sm font-medium transition-all",
+      isSubItem ? "ml-4 py-2 text-xs" : "py-2.5"
     );
     
     const activeClasses = isSubItem 
@@ -164,9 +164,15 @@ function NavList({
         return (
           <div key={item.href} className="space-y-1">
             {hasSubItems ? (
-              <div onClick={() => toggleExpand(item.href)}>
+              <button
+                type="button"
+                onClick={() => toggleExpand(item.href)}
+                className="block w-full text-left"
+                aria-expanded={isExpanded}
+                aria-controls={`nav-group-${item.href.replaceAll("/", "-")}`}
+              >
                 <NavItemContent item={item} />
-              </div>
+              </button>
             ) : (
               <Link href={item.href} onClick={onNavigate} className="block">
                 <NavItemContent item={item} />
@@ -174,7 +180,10 @@ function NavList({
             )}
 
             {hasSubItems && isExpanded && (
-              <div className="space-y-1 mt-1 border-l border-border ml-5">
+              <div
+                id={`nav-group-${item.href.replaceAll("/", "-")}`}
+                className="mt-1 ml-5 space-y-1 border-l border-border"
+              >
                 {item.subItems?.map((sub) => (
                   <Link
                     key={sub.href}
@@ -204,16 +213,16 @@ export function Sidebar() {
 
 
   const BrandHeader = () => (
-    <div className="flex items-center gap-3 px-6 h-20 border-b border-border/50 shrink-0 bg-background/60 backdrop-blur-md sticky top-0 z-10">
-        <Image 
-          src={siteConfig.branding.logo} 
-          alt={siteConfig.name} 
-          width={40} 
-          height={40} 
-          className="object-contain"
-        />
+    <div className="sticky top-0 z-10 flex h-20 shrink-0 items-center gap-3 border-b border-border/50 bg-background/60 px-6 backdrop-blur-md">
+      <Image
+        src={siteConfig.branding.logo}
+        alt={siteConfig.name}
+        width={40}
+        height={40}
+        className="object-contain"
+      />
       <div className="flex flex-col">
-        <Label variant="dashboard" className="opacity-100 text-foreground">{siteConfig.name}</Label>
+        <Label variant="dashboard" className="text-foreground opacity-100">{siteConfig.name}</Label>
         <div className="flex items-center gap-1.5">
           <Label variant="dashboard">{siteConfig.branding.edition}</Label>
         </div>
@@ -223,9 +232,9 @@ export function Sidebar() {
 
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-border bg-card hidden md:flex flex-col h-full">
+    <aside className="hidden h-full w-64 flex-shrink-0 flex-col border-r border-border bg-card/95 md:flex">
       <BrandHeader />
-      <div className="flex-1 px-3 py-6 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-3 py-5">
         <NavList items={items} pathname={pathname} />
       </div>
     </aside>
@@ -244,7 +253,6 @@ export function MobileSidebarTrigger() {
 
   return (
     <>
-      {/* Hamburger button */}
       <Button
         variant="ghost"
         size="icon"
@@ -255,43 +263,38 @@ export function MobileSidebarTrigger() {
         <Menu className="h-5 w-5" />
       </Button>
 
-      {/* Drawer overlay */}
       {open && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
 
-          {/* Drawer panel */}
-          <div className="relative flex flex-col w-72 bg-card border-r shadow-xl h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 h-16 border-b border-border/50 shrink-0 bg-muted/30">
+          <div className="relative flex h-full w-72 flex-col border-r bg-card shadow-xl">
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-border/50 bg-muted/30 px-6">
               <div className="flex items-center gap-2">
-                <div className="relative flex items-center justify-center w-8 h-8 rounded-lg overflow-hidden bg-background shadow-sm border border-border/50">
-                   <Image 
-                     src={siteConfig.branding.logo} 
-                     alt={siteConfig.name} 
-                     width={32} 
-                     height={32} 
-                     className="object-contain p-1"
-                   />
+                <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-background shadow-sm">
+                  <Image
+                    src={siteConfig.branding.logo}
+                    alt={siteConfig.name}
+                    width={32}
+                    height={32}
+                    className="object-contain p-1"
+                  />
                 </div>
-                <span className="font-extrabold text-sm tracking-tight text-foreground uppercase">{siteConfig.shortName}</span>
+                <span className="text-sm font-extrabold uppercase tracking-tight text-foreground">{siteConfig.shortName}</span>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="rounded-full h-8 w-8 hover:bg-muted"
+                className="h-8 w-8 rounded-full hover:bg-muted"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            {/* Nav */}
             <div className="flex-1 overflow-y-auto px-3 py-4">
               <NavList
                 items={items}
@@ -300,11 +303,9 @@ export function MobileSidebarTrigger() {
               />
             </div>
 
-            {/* Footer — theme toggle */}
-            <div className="border-t border-border/50 px-6 py-5 shrink-0 bg-muted/20 flex items-center justify-center">
-                <ThemeToggle />
+            <div className="flex shrink-0 items-center justify-center border-t border-border/50 bg-muted/20 px-6 py-5">
+              <ThemeToggle />
             </div>
-
           </div>
         </div>
       )}

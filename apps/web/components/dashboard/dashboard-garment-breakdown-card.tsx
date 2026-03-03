@@ -15,7 +15,7 @@ export function DashboardGarmentBreakdownCard({
   totalItems,
 }: DashboardGarmentBreakdownCardProps) {
   return (
-    <Card className="border-border shadow-sm">
+    <Card className="border-border/70 bg-card">
       <CardHeader variant="section" density="compact">
         <CardTitle variant="dashboard">Orders by Garment Type</CardTitle>
       </CardHeader>

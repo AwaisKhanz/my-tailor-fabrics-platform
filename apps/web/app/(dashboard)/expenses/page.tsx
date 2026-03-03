@@ -8,6 +8,7 @@ import { ExpensesTable } from "@/components/expenses/expenses-table";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { formatPKR } from "@/lib/utils";
 import { useExpensesPage } from "@/hooks/use-expenses-page";
@@ -44,23 +45,25 @@ export default function ExpensesPage() {
   } = useExpensesPage();
 
   return (
-    <div className="mx-auto max-w-9xl space-y-6">
+    <PageShell>
       <PageHeader
         title="Business Expenses"
         description="Track and manage business overheads and supplies with consistent filters and secure action flows."
         actions={
-          <Button variant="premium" size="lg" onClick={openAddDialog}>
+          <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
             <Plus className="mr-2 h-4 w-4" />
             Add Expense
           </Button>
         }
       />
 
-      <ExpensesOverviewCards
-        listedAmount={listedAmount}
-        listedCount={expenses.length}
-        totalCount={total}
-      />
+      <PageSection spacing="compact">
+        <ExpensesOverviewCards
+          listedAmount={listedAmount}
+          listedCount={expenses.length}
+          totalCount={total}
+        />
+      </PageSection>
 
       <TableSurface>
         <ExpensesFiltersCard
@@ -122,6 +125,6 @@ export default function ExpensesPage() {
         variant="destructive"
         loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
       />
-    </div>
+    </PageShell>
   );
 }

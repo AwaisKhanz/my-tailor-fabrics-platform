@@ -25,11 +25,11 @@ export function DashboardKpiCard({
   loading,
 }: DashboardKpiCardProps) {
   return (
-    <Card variant="premium" className="border-border transition-all hover:shadow-lg">
-      <CardContent spacing="section">
-        <div className="mb-6 flex items-start justify-between">
+    <Card className="border-border/70 bg-card transition-shadow hover:shadow-md">
+      <CardContent spacing="section" className="p-5">
+        <div className="mb-5 flex items-start justify-between">
           <div
-            className={`h-12 w-12 shrink-0 rounded-2xl ${iconBoxClass || "bg-muted"} flex items-center justify-center`}
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconBoxClass || "bg-muted"}`}
           >
             <Icon className={`h-6 w-6 ${iconClass || "text-muted-foreground"}`} />
           </div>
@@ -48,11 +48,11 @@ export function DashboardKpiCard({
             </>
           ) : (
             <>
-              <Label variant="dashboard" className="mb-1">
+              <Label className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {title}
               </Label>
               <div
-                className={`text-3xl font-bold tracking-tight ${badgeVariant === "destructive" ? "text-destructive" : "text-foreground"}`}
+                className={`text-2xl font-extrabold tracking-tight sm:text-3xl ${badgeVariant === "destructive" ? "text-destructive" : "text-foreground"}`}
               >
                 {value}
               </div>

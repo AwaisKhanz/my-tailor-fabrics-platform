@@ -16,7 +16,7 @@ export function MeasurementCategoryDetailHeader({
       title={`${categoryName || "Category"} Fields`}
       description="Manage specific measurement fields for this apparel category."
       actions={
-        <Button variant="premium" size="lg" onClick={onAddField}>
+        <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={onAddField}>
           <Plus className="mr-2 h-5 w-5" />
           Add New Field
         </Button>

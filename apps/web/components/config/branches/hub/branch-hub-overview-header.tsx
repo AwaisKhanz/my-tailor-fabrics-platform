@@ -12,7 +12,7 @@ export function BranchHubOverviewHeader({ branch }: BranchHubOverviewHeaderProps
     <PageHeader
       title={branch?.name || "Branch Overview"}
       description={
-        <div className="flex flex-wrap items-center gap-6 text-sm">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           {branch?.address ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary" />
@@ -28,7 +28,7 @@ export function BranchHubOverviewHeader({ branch }: BranchHubOverviewHeaderProps
         </div>
       }
       actions={
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
           <Badge variant={branch?.isActive ? "success" : "outline"} size="xs">
             {branch?.isActive ? "Active" : "Inactive"}
           </Badge>

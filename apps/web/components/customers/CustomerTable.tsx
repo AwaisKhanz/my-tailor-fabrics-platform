@@ -5,6 +5,7 @@ import { CustomerDialog } from "@/components/customers/CustomerDialog";
 import { CustomersDirectoryTable } from "@/components/customers/list/customers-directory-table";
 import { CustomersListToolbar } from "@/components/customers/list/customers-list-toolbar";
 import { CustomersPageHeader } from "@/components/customers/list/customers-page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useCustomersPage } from "@/hooks/use-customers-page";
 
@@ -33,7 +34,7 @@ export function CustomerTable() {
   } = useCustomersPage();
 
   return (
-    <div className="mx-auto max-w-9xl space-y-5">
+    <PageShell spacing="default">
       <CustomersPageHeader onAddCustomer={openCreateDialog} />
 
       <TableSurface>
@@ -69,6 +70,6 @@ export function CustomerTable() {
           void fetchCustomers();
         }}
       />
-    </div>
+    </PageShell>
   );
 }

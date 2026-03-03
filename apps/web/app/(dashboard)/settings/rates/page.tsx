@@ -5,6 +5,7 @@ import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
 import { RatesPageHeader } from "@/components/rates/rates-page-header";
 import { RatesSearchStats } from "@/components/rates/rates-search-stats";
 import { RatesTable } from "@/components/rates/rates-table";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useRatesPage } from "@/hooks/use-rates-page";
 
@@ -30,7 +31,7 @@ export default function RatesPage() {
   } = useRatesPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <RatesPageHeader onBack={() => router.back()} onCreate={() => setCreateDialogOpen(true)} />
 
       <TableSurface>
@@ -59,6 +60,6 @@ export default function RatesPage() {
         branches={branches.map((branch) => ({ id: branch.id, name: branch.name, code: branch.code }))}
         steps={stepKeys}
       />
-    </div>
+    </PageShell>
   );
 }

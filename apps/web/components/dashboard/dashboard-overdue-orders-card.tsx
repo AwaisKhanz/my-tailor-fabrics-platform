@@ -17,7 +17,7 @@ export function DashboardOverdueOrdersCard({
   onOpenOrder,
 }: DashboardOverdueOrdersCardProps) {
   return (
-    <Card className="border-border shadow-sm lg:col-span-2">
+    <Card className="h-full border-border/70 bg-card">
       <CardHeader variant="rowSection" className="items-center">
         <CardTitle variant="dashboard">Recent Overdue Orders</CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
@@ -29,28 +29,28 @@ export function DashboardOverdueOrdersCard({
           {orders.slice(0, 4).map((order) => (
             <div
               key={order.id}
-              className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-muted/30"
+              className="grid grid-cols-1 gap-3 px-4 py-4 transition-colors hover:bg-muted/30 sm:grid-cols-[1.3fr_1.4fr_1fr] sm:items-center sm:px-6"
             >
-              <div className="w-1/3">
+              <div className="min-w-0">
                 <button
                   type="button"
-                  className="font-bold text-primary hover:underline"
+                  className="truncate font-bold text-primary hover:underline"
                   onClick={() => onOpenOrder(order.id)}
                 >
                   {order.orderNumber}
                 </button>
               </div>
-              <div className="flex w-1/3 justify-start">
-                <Label variant="dashboard" className="opacity-100">
+              <div className="flex min-w-0 justify-start">
+                <Label variant="dashboard" className="truncate opacity-100">
                   {order.customer.fullName}
                 </Label>
               </div>
-              <div className="flex w-1/3 items-center justify-end gap-6">
+              <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-6">
                 <Badge variant="destructive" size="xs">
                   <Clock className="mr-1 h-3 w-3" /> Overdue
                 </Badge>
-                <Label variant="dashboard" className="cursor-pointer text-primary hover:underline">
-                  Notify
+                <Label variant="dashboard" className="text-muted-foreground">
+                  Needs attention
                 </Label>
               </div>
             </div>

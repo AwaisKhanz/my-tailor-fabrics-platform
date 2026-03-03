@@ -6,6 +6,7 @@ import { BranchesDirectoryTable } from "@/components/config/branches/branches-di
 import { BranchesListToolbar } from "@/components/config/branches/branches-list-toolbar";
 import { BranchesPageHeader } from "@/components/config/branches/branches-page-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useBranchesPage } from "@/hooks/use-branches-page";
 
@@ -39,7 +40,7 @@ export function BranchesTable() {
   } = useBranchesPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <BranchesPageHeader onCreate={openCreateDialog} />
 
       <TableSurface>
@@ -86,6 +87,6 @@ export function BranchesTable() {
         }}
         confirmText="Delete Branch"
       />
-    </div>
+    </PageShell>
   );
 }

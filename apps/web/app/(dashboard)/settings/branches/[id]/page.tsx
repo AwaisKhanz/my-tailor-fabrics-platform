@@ -9,8 +9,6 @@ export default function BranchHubPage() {
   const id = params.id as string;
 
   return (
-    <div className="">
-      <BranchHubConfig branchId={id} />
-    </div>
+    <BranchHubConfig branchId={id} />
   );
 }

@@ -14,7 +14,8 @@ export function UsersPageHeader({ onAddUser }: UsersPageHeaderProps) {
       actions={
         <Button
           variant="premium"
-          className="h-11 w-full rounded-lg px-6 font-bold sm:w-auto"
+          size="lg"
+          className="w-full sm:w-auto"
           onClick={onAddUser}
         >
           <Plus className="mr-2 h-5 w-5" />

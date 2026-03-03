@@ -4,12 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { ADMIN_ROLES } from "@tbms/shared-constants";
 import { BranchSelector } from "./BranchSelector";
 import { MobileSidebarTrigger } from "./Sidebar";
-import { 
-  Search, 
-  LogOut, 
-  User, 
-  LayoutDashboard
-} from "lucide-react";
+import { Search, LogOut, User, LayoutDashboard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -31,37 +26,34 @@ export function Topbar() {
   const canAccessSettings = role ? ADMIN_ROLES.includes(role) : false;
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b bg-card px-2 md:px-6 shadow-sm overflow-hidden">
-      
-      {/* Left - Context (Branch) */}
-      <div className="flex items-center gap-3 md:w-1/3">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between overflow-hidden border-b bg-card/95 px-3 shadow-sm backdrop-blur sm:px-4 lg:h-[72px] lg:px-6">
+      <div className="flex min-w-0 flex-1 items-center gap-2 lg:flex-[0_0_30%] lg:gap-3">
         <MobileSidebarTrigger />
-        <div className="flex items-center gap-2">
-          <div className="font-bold text-lg text-foreground truncate max-w-[200px]">
-            <BranchSelector />
-          </div>
+        <div className="min-w-0">
+          <BranchSelector />
         </div>
       </div>
 
-      {/* Middle - Global Search */}
-      <div className="hidden md:flex items-center justify-center flex-1 max-w-xl px-4">
-        <div className="relative w-full">
-          <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
+      <div className="hidden flex-1 items-center justify-center px-4 lg:flex">
+        <div className="relative w-full max-w-xl">
+          <Search className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
             variant="premium"
-            placeholder="Search orders, customers..." 
-            className="w-full pl-10"
+            placeholder="Search orders, customers..."
+            className="h-10 w-full pl-10"
           />
         </div>
       </div>
 
-      {/* Right - Actions */}
-      <div className="flex items-center justify-end gap-3 md:w-1/3">
+      <div className="flex flex-1 items-center justify-end gap-2 lg:flex-[0_0_30%] lg:gap-3">
         <ThemeToggle />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 overflow-hidden ring-1 ring-border hover:ring-primary/30 transition-all">
+            <Button
+              variant="ghost"
+              className="relative h-10 w-10 overflow-hidden rounded-full p-0 ring-1 ring-border transition-all hover:ring-primary/30"
+            >
               <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary font-bold text-sm">
                 {(user?.email || "U")[0].toUpperCase()}
               </div>
@@ -78,21 +70,21 @@ export function Topbar() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {canAccessSettings && (
-              <Link href="/settings/users">
-                <DropdownMenuItem className="cursor-pointer py-2.5 px-3">
+              <DropdownMenuItem asChild className="cursor-pointer py-2.5 px-3">
+                <Link href="/settings/users">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile Settings</span>
-                </DropdownMenuItem>
-              </Link>
+                </Link>
+              </DropdownMenuItem>
             )}
-            <Link href="/">
-              <DropdownMenuItem className="cursor-pointer py-2.5 px-3">
+            <DropdownMenuItem asChild className="cursor-pointer py-2.5 px-3">
+              <Link href="/">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <span>Personal Dashboard</span>
-              </DropdownMenuItem>
-            </Link>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="cursor-pointer py-2.5 px-3 text-destructive focus:text-destructive focus:bg-destructive/5"
               onClick={() => signOut()}
             >

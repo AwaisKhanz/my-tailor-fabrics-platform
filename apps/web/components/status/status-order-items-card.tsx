@@ -16,8 +16,8 @@ export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
 
       <div className="divide-y">
         {order.items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between py-2 text-sm">
-            <div>
+          <div key={item.id} className="flex flex-col gap-2 py-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <Typography as="p" variant="body" className="font-medium">
                 {item.garmentTypeName}
               </Typography>
@@ -28,7 +28,7 @@ export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
               ) : null}
             </div>
 
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <Typography as="p" variant="body" className="font-medium">
                 x{item.quantity}
               </Typography>

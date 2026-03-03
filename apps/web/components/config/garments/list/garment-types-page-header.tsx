@@ -12,7 +12,7 @@ export function GarmentTypesPageHeader({ onAdd }: GarmentTypesPageHeaderProps) {
       title="Garment Management"
       description="Configure garment types, inventory pricing models, and production rates."
       actions={
-        <Button variant="premium" size="lg" onClick={onAdd}>
+        <Button variant="premium" size="lg" onClick={onAdd} className="w-full sm:w-auto">
           <Plus className="mr-2 h-5 w-5" />
           Add New Garment Type
         </Button>

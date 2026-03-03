@@ -9,6 +9,7 @@ import { CustomerDetailTabs } from "@/components/customers/detail/customer-detai
 import { CustomerMeasurementDialog } from "@/components/customers/detail/customer-measurement-dialog";
 import { CustomerProfileCard } from "@/components/customers/detail/customer-profile-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DetailSplit, PageShell } from "@/components/ui/page-shell";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 
 export default function CustomerDetailPage() {
@@ -54,19 +55,18 @@ export default function CustomerDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-9xl space-y-6">
+    <PageShell>
       <CustomerDetailHeader
         customer={customer}
         onBack={() => router.push("/customers")}
         onEdit={openEditDialog}
       />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="md:col-span-1">
-          <CustomerProfileCard customer={customer} />
-        </div>
-
-        <div className="md:col-span-2">
+      <DetailSplit
+        ratio="2-1"
+        sideClassName="order-1 md:order-none"
+        mainClassName="order-2 md:order-none"
+        main={
           <CustomerDetailTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -77,8 +77,9 @@ export default function CustomerDetailPage() {
             onUpdateMeasurements={openMeasurementDialog}
             onOpenOrder={(orderId) => router.push(`/orders/${orderId}`)}
           />
-        </div>
-      </div>
+        }
+        side={<CustomerProfileCard customer={customer} />}
+      />
 
       <CustomerDialog
         open={editDialogOpen}
@@ -98,6 +99,6 @@ export default function CustomerDetailPage() {
           void fetchCustomerData();
         }}
       />
-    </div>
+    </PageShell>
   );
 }

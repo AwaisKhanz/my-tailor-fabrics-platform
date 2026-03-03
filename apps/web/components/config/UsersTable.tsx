@@ -6,6 +6,7 @@ import { UsersAccessTable } from "@/components/config/users/users-access-table";
 import { UsersListToolbar } from "@/components/config/users/users-list-toolbar";
 import { UsersPageHeader } from "@/components/config/users/users-page-header";
 import { UsersStatsGrid } from "@/components/config/users/users-stats-grid";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useUsersPage } from "@/hooks/use-users-page";
 
@@ -40,7 +41,7 @@ export function UsersTable() {
   } = useUsersPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <UsersPageHeader onAddUser={openCreateDialog} />
 
       <UsersStatsGrid stats={stats} />
@@ -88,6 +89,6 @@ export function UsersTable() {
         }}
         confirmText="Delete Account"
       />
-    </div>
+    </PageShell>
   );
 }

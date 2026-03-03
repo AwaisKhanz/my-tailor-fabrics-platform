@@ -12,6 +12,7 @@ import { EmployeeDetailTabs } from "@/components/employees/detail/employee-detai
 import { EmployeeDocumentUploadDialog } from "@/components/employees/detail/employee-document-upload-dialog";
 import { EmployeeLedgerEntryDialog } from "@/components/employees/detail/employee-ledger-entry-dialog";
 import { EmployeeDetailSkeleton } from "@/components/employees/detail/employee-detail-skeleton";
+import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
 
 export default function EmployeeDetailPage() {
@@ -76,19 +77,21 @@ export default function EmployeeDetailPage() {
 
   if (!employee) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <Typography as="h2" variant="sectionTitle">
-          Employee not found
-        </Typography>
-        <Button variant="link" onClick={() => router.push("/employees")}>
-          Back to list
-        </Button>
-      </div>
+      <PageShell>
+        <PageSection className="flex flex-col items-center justify-center py-20">
+          <Typography as="h2" variant="sectionTitle">
+            Employee not found
+          </Typography>
+          <Button variant="link" onClick={() => router.push("/employees")}>
+            Back to list
+          </Button>
+        </PageSection>
+      </PageShell>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <EmployeeDetailHeader
         employee={employee}
         onBack={() => router.push("/employees")}
@@ -98,44 +101,46 @@ export default function EmployeeDetailPage() {
 
       <EmployeeFinancialCards stats={stats} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <EmployeeProfileSidebar employee={employee} />
-
-        <EmployeeDetailTabs
-          loading={loading}
-          employee={employee}
-          systemSettings={systemSettings}
-          items={items}
-          tasks={tasks}
-          attendance={attendance}
-          ledgerEntries={ledgerEntries}
-          ledgerLoading={ledgerLoading}
-          ledgerFrom={ledgerFrom}
-          ledgerTo={ledgerTo}
-          ledgerType={ledgerType}
-          ledgerPage={ledgerPage}
-          ledgerTotal={ledgerTotal}
-          ledgerLimit={ledgerLimit}
-          setLedgerFrom={setLedgerFrom}
-          setLedgerTo={setLedgerTo}
-          setLedgerType={setLedgerType}
-          onFetchLedger={(page) => {
-            void fetchLedger(page);
-          }}
-          onTaskStatusChange={(taskId, status) => {
-            void handleTaskStatusChange(taskId, status);
-          }}
-          onDeleteLedgerEntry={(entryId) => {
-            if (confirm("Are you sure you want to delete this ledger entry? This cannot be undone.")) {
-              void deleteLedgerEntry(entryId);
-            }
-          }}
-          onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
-          onOpenDocumentDialog={() => setDocumentDialogOpen(true)}
-          onOpenAccountDialog={() => setAccountDialogOpen(true)}
-          onOpenLedgerDialog={() => setLedgerDialogOpen(true)}
-        />
-      </div>
+      <DetailSplit
+        ratio="3-1"
+        main={
+          <EmployeeDetailTabs
+            loading={loading}
+            employee={employee}
+            systemSettings={systemSettings}
+            items={items}
+            tasks={tasks}
+            attendance={attendance}
+            ledgerEntries={ledgerEntries}
+            ledgerLoading={ledgerLoading}
+            ledgerFrom={ledgerFrom}
+            ledgerTo={ledgerTo}
+            ledgerType={ledgerType}
+            ledgerPage={ledgerPage}
+            ledgerTotal={ledgerTotal}
+            ledgerLimit={ledgerLimit}
+            setLedgerFrom={setLedgerFrom}
+            setLedgerTo={setLedgerTo}
+            setLedgerType={setLedgerType}
+            onFetchLedger={(page) => {
+              void fetchLedger(page);
+            }}
+            onTaskStatusChange={(taskId, status) => {
+              void handleTaskStatusChange(taskId, status);
+            }}
+            onDeleteLedgerEntry={(entryId) => {
+              if (confirm("Are you sure you want to delete this ledger entry? This cannot be undone.")) {
+                void deleteLedgerEntry(entryId);
+              }
+            }}
+            onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
+            onOpenDocumentDialog={() => setDocumentDialogOpen(true)}
+            onOpenAccountDialog={() => setAccountDialogOpen(true)}
+            onOpenLedgerDialog={() => setLedgerDialogOpen(true)}
+          />
+        }
+        side={<EmployeeProfileSidebar employee={employee} />}
+      />
 
       <EmployeeDocumentUploadDialog
         open={documentDialogOpen}
@@ -183,6 +188,6 @@ export default function EmployeeDetailPage() {
           void submitLedgerEntry();
         }}
       />
-    </div>
+    </PageShell>
   );
 }

@@ -5,6 +5,7 @@ import { MeasurementCategoryBreadcrumbs } from "@/components/config/measurements
 import { MeasurementCategoryDetailHeader } from "@/components/config/measurements/detail/measurement-category-detail-header";
 import { MeasurementFieldsTable } from "@/components/config/measurements/detail/measurement-fields-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
 
 export function MeasurementCategoryDetail({ id }: { id: string }) {
@@ -25,17 +26,19 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
   } = useMeasurementCategoryDetailPage(id);
 
   return (
-    <div className="space-y-8">
-      <MeasurementCategoryBreadcrumbs categoryName={category?.name} />
+    <PageShell spacing="spacious">
+      <PageSection spacing="spacious">
+        <MeasurementCategoryBreadcrumbs categoryName={category?.name} />
 
-      <MeasurementCategoryDetailHeader categoryName={category?.name} onAddField={openAddFieldDialog} />
+        <MeasurementCategoryDetailHeader categoryName={category?.name} onAddField={openAddFieldDialog} />
 
-      <MeasurementFieldsTable
-        fields={category?.fields || []}
-        loading={loading}
-        onEditField={openEditFieldDialog}
-        onDeleteField={requestDeleteField}
-      />
+        <MeasurementFieldsTable
+          fields={category?.fields || []}
+          loading={loading}
+          onEditField={openEditFieldDialog}
+          onDeleteField={requestDeleteField}
+        />
+      </PageSection>
 
       <MeasurementFieldDialog
         open={isFieldDialogOpen}
@@ -59,6 +62,6 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
         }}
         confirmText="Delete Field"
       />
-    </div>
+    </PageShell>
   );
 }

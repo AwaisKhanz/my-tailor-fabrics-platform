@@ -57,25 +57,23 @@ export function BranchSelector() {
   if (user?.role !== Role.SUPER_ADMIN) return null;
 
   return (
-    <div className="flex items-center gap-2">
-      <Select 
-        value={activeBranchId || undefined} 
-        onValueChange={(val) => {
-          setActiveBranch(val);
-          router.refresh();
-        }}
-      >
-        <SelectTrigger variant="premium" className="w-[180px] h-9">
-          <SelectValue placeholder="Select Branch" />
-        </SelectTrigger>
-        <SelectContent>
-          {availableBranches.map((branch) => (
-            <SelectItem key={branch.id} value={branch.id}>
-              {branch.name} ({branch.code})
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select
+      value={activeBranchId || undefined}
+      onValueChange={(val) => {
+        setActiveBranch(val);
+        router.refresh();
+      }}
+    >
+      <SelectTrigger variant="premium" className="h-9 w-[170px] sm:w-[220px]">
+        <SelectValue placeholder="Select Branch" />
+      </SelectTrigger>
+      <SelectContent>
+        {availableBranches.map((branch) => (
+          <SelectItem key={branch.id} value={branch.id}>
+            {branch.name} ({branch.code})
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

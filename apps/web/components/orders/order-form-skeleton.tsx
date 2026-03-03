@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageShell } from "@/components/ui/page-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function OrderFormSkeleton() {
   return (
-    <div className="space-y-6">
+    <PageShell inset="none">
       <Skeleton className="h-12 w-72" />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -49,6 +50,6 @@ export function OrderFormSkeleton() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageShell>
   );
 }

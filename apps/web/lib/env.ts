@@ -13,11 +13,14 @@ function resolveEnv(name: string, value: string | undefined, devFallback: string
 }
 
 export function getWebApiBaseUrl(): string {
-  return resolveEnv(
-    'NEXT_PUBLIC_API_URL',
-    process.env.NEXT_PUBLIC_API_URL,
-    'http://localhost:8000',
-  );
+  const value = process.env.NEXT_PUBLIC_API_URL;
+  if (value && value.trim().length > 0) {
+    return value;
+  }
+
+  // Keep frontend builds resilient when env injection is missing locally.
+  // Server-only routes still enforce strict production env checks.
+  return 'http://localhost:8000';
 }
 
 export function getServerApiBaseUrl(): string {

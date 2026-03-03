@@ -13,14 +13,21 @@ export function DashboardProductivityCard({
   productivity,
 }: DashboardProductivityCardProps) {
   const maxValue = Math.max(...productivity.map((item) => item.value), 1);
+  const average = productivity.length
+    ? Math.round(productivity.reduce((sum, item) => sum + item.value, 0) / productivity.length)
+    : 0;
 
   return (
-    <Card className="border-border shadow-sm">
+    <Card className="h-full border-border/70 bg-card">
       <CardHeader variant="rowSection" className="items-start">
         <CardTitle variant="dashboard">Employee Productivity</CardTitle>
         <div className="flex flex-col items-end">
-          <span className="text-xl font-bold text-primary">84%</span>
-          <Label variant="dashboard">Avg This Month</Label>
+          {loading ? (
+            <Skeleton className="h-6 w-16" />
+          ) : (
+            <span className="text-xl font-bold text-primary">{average}</span>
+          )}
+          <Label variant="dashboard">Avg Items / Tailor</Label>
         </div>
       </CardHeader>
       <CardContent spacing="section" className="space-y-6">

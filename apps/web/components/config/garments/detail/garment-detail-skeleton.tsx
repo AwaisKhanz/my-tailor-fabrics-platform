@@ -1,8 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageShell } from "@/components/ui/page-shell";
 
 export function GarmentDetailSkeleton() {
   return (
-    <div className="space-y-6">
+    <PageShell inset="none">
       <div className="flex items-center gap-4">
         <Skeleton className="h-10 w-10" />
         <div className="space-y-2">
@@ -17,6 +18,6 @@ export function GarmentDetailSkeleton() {
       </div>
 
       <Skeleton className="h-72" />
-    </div>
+    </PageShell>
   );
 }

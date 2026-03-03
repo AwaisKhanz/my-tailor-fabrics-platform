@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerApiBaseUrl } from "@/lib/env";
 
-const API_BASE = getServerApiBaseUrl();
-
 /**
  * Public API route — no authentication required.
  * Proxies GET /status/:token?pin=XXXX to the NestJS backend.
@@ -16,6 +14,7 @@ export async function GET(
 ) {
   const { token } = params;
   const pin = request.nextUrl.searchParams.get("pin");
+  let apiBaseUrl: string;
 
   if (!pin || !/^\d{4}$/.test(pin)) {
     return NextResponse.json(
@@ -25,7 +24,16 @@ export async function GET(
   }
 
   try {
-    const res = await fetch(`${API_BASE}/status/${token}?pin=${pin}`, {
+    apiBaseUrl = getServerApiBaseUrl();
+  } catch {
+    return NextResponse.json(
+      { success: false, message: "Server configuration error. Contact support." },
+      { status: 500 },
+    );
+  }
+
+  try {
+    const res = await fetch(`${apiBaseUrl}/status/${token}?pin=${pin}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",

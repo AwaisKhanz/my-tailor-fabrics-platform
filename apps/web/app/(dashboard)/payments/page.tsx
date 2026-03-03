@@ -3,6 +3,7 @@
 import { Banknote } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { Button } from "@/components/ui/button";
 import { PaymentsDisburseDialog } from "@/components/payments/payments-disburse-dialog";
 import { PaymentsEmployeeSelectorCard } from "@/components/payments/payments-employee-selector-card";
@@ -43,13 +44,13 @@ export default function PaymentsPage() {
   } = usePaymentsPage();
 
   return (
-    <div className="mx-auto max-w-9xl space-y-6">
+    <PageShell>
       <PageHeader
         title="Employee Payments"
         description="Disburse payroll and review payout history with consistent controls and safer payout validation."
         actions={
           canDisburse ? (
-            <Button variant="premium" size="lg" onClick={openDisburseDialog}>
+            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openDisburseDialog}>
               <Banknote className="mr-2 h-4 w-4" />
               Disburse Payment
             </Button>
@@ -57,16 +58,18 @@ export default function PaymentsPage() {
         }
       />
 
-      <PaymentsEmployeeSelectorCard
-        employees={employees}
-        loading={employeesLoading}
-        selectedEmployeeId={selectedEmployeeId}
-        selectedEmployee={selectedEmployee}
-        onEmployeeChange={handleEmployeeChange}
-      />
+      <PageSection spacing="compact">
+        <PaymentsEmployeeSelectorCard
+          employees={employees}
+          loading={employeesLoading}
+          selectedEmployeeId={selectedEmployeeId}
+          selectedEmployee={selectedEmployee}
+          onEmployeeChange={handleEmployeeChange}
+        />
+      </PageSection>
 
       {selectedEmployeeId ? (
-        <>
+        <PageSection>
           <PaymentsSummaryCards
             loading={summaryLoading}
             summary={summary}
@@ -88,7 +91,7 @@ export default function PaymentsPage() {
             onToChange={setHistoryTo}
             onResetFilters={resetHistoryFilters}
           />
-        </>
+        </PageSection>
       ) : (
         <EmptyState
           icon={Banknote}
@@ -108,6 +111,6 @@ export default function PaymentsPage() {
         onNoteChange={setDisbursementNote}
         onSubmit={submitDisbursement}
       />
-    </div>
+    </PageShell>
   );
 }

@@ -5,6 +5,7 @@ import { CreateDesignTypeDialog } from "@/components/design-types/CreateDesignTy
 import { DesignTypesPageHeader } from "@/components/design-types/design-types-page-header";
 import { DesignTypesTable } from "@/components/design-types/design-types-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageShell } from "@/components/ui/page-shell";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
 
 export default function DesignTypesPage() {
@@ -29,7 +30,7 @@ export default function DesignTypesPage() {
   } = useDesignTypesPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <DesignTypesPageHeader onBack={() => router.back()} onCreate={openCreateDialog} />
 
       <DesignTypesTable
@@ -68,6 +69,6 @@ export default function DesignTypesPage() {
         variant="destructive"
         loading={deleting}
       />
-    </div>
+    </PageShell>
   );
 }

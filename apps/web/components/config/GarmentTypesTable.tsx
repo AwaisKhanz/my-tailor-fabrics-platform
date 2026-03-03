@@ -7,6 +7,7 @@ import { GarmentTypesInventoryTable } from "@/components/config/garments/list/ga
 import { GarmentTypesListToolbar } from "@/components/config/garments/list/garment-types-list-toolbar";
 import { GarmentTypesPageHeader } from "@/components/config/garments/list/garment-types-page-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
 
@@ -42,7 +43,7 @@ export function GarmentTypesTable() {
   } = useGarmentTypesPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <GarmentTypesPageHeader onAdd={openCreateDialog} />
 
       <TableSurface>
@@ -105,6 +106,6 @@ export function GarmentTypesTable() {
         }}
         confirmText="Delete Garment Type"
       />
-    </div>
+    </PageShell>
   );
 }

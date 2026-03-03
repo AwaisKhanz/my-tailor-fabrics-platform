@@ -9,7 +9,7 @@ interface RatesPageHeaderProps {
 
 export function RatesPageHeader({ onBack, onCreate }: RatesPageHeaderProps) {
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex flex-col items-start gap-3 sm:flex-row sm:gap-4">
       <Button
         variant="tableIcon"
         size="iconSm"
@@ -19,7 +19,7 @@ export function RatesPageHeader({ onBack, onCreate }: RatesPageHeaderProps) {
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      <div className="flex-1">
+      <div className="w-full flex-1">
         <PageHeader
           title="Production Rates"
           description={
@@ -29,7 +29,7 @@ export function RatesPageHeader({ onBack, onCreate }: RatesPageHeaderProps) {
             </span>
           }
           actions={
-            <Button className="gap-2 font-bold" size="sm" onClick={onCreate}>
+            <Button variant="premium" size="lg" className="w-full gap-2 sm:w-auto" onClick={onCreate}>
               <Plus className="h-4 w-4" />
               Define New Rate
             </Button>

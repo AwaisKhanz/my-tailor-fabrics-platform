@@ -10,6 +10,7 @@ import { GarmentOverviewCard } from "@/components/config/garments/detail/garment
 import { GarmentPricingLogsCard } from "@/components/config/garments/detail/garment-pricing-logs-card";
 import { GarmentPricingSidebar } from "@/components/config/garments/detail/garment-pricing-sidebar";
 import { GarmentRatesSection } from "@/components/config/garments/detail/garment-rates-section";
+import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 import { useGarmentDetailPage } from "@/hooks/use-garment-detail-page";
 
 export default function GarmentDetailPage() {
@@ -38,22 +39,22 @@ export default function GarmentDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <GarmentDetailHeader garment={garment} onBack={() => router.back()} />
 
       <GarmentAnalyticsStatsGrid garment={garment} />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="space-y-6 md:col-span-2">
-          <GarmentOverviewCard garment={garment} />
-          <GarmentMeasurementFormsCard garment={garment} />
-          <GarmentPricingLogsCard logs={garment.priceLogs || []} />
-        </div>
-
-        <div>
-          <GarmentPricingSidebar garment={garment} />
-        </div>
-      </div>
+      <DetailSplit
+        ratio="2-1"
+        main={
+          <PageSection>
+            <GarmentOverviewCard garment={garment} />
+            <GarmentMeasurementFormsCard garment={garment} />
+            <GarmentPricingLogsCard logs={garment.priceLogs || []} />
+          </PageSection>
+        }
+        side={<GarmentPricingSidebar garment={garment} />}
+      />
 
       <GarmentRatesSection
         garment={garment}
@@ -62,6 +63,6 @@ export default function GarmentDetailPage() {
         onOpenChange={setCreateRateDialogOpen}
         onCreateRate={handleCreateRate}
       />
-    </div>
+    </PageShell>
   );
 }

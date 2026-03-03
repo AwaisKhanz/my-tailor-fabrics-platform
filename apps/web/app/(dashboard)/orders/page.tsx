@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useOrdersListPage } from "@/hooks/use-orders-list-page";
 import { OrdersListToolbar } from "@/components/orders/orders-list-toolbar";
@@ -30,12 +31,17 @@ export default function OrdersPage() {
   } = useOrdersListPage();
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <PageHeader
         title="Orders"
         description="Manage customer orders and production workflow from one place."
         actions={
-          <Button variant="premium" size="lg" onClick={() => router.push("/orders/new")}>
+          <Button
+            variant="premium"
+            size="lg"
+            className="w-full sm:w-auto"
+            onClick={() => router.push("/orders/new")}
+          >
             <Plus className="mr-2 h-4 w-4" /> New Order
           </Button>
         }
@@ -65,6 +71,6 @@ export default function OrdersPage() {
           onEditOrder={(orderId) => router.push(`/orders/new?edit=${orderId}`)}
         />
       </TableSurface>
-    </div>
+    </PageShell>
   );
 }
