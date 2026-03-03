@@ -85,6 +85,7 @@ export function RatesTable({
       onPageChange={onPageChange}
       itemLabel="rate cards"
       emptyMessage="No rate cards match your search."
+      chrome="flat"
     />
   );
 }

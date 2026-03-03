@@ -23,6 +23,12 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         muted: "border border-border bg-background hover:bg-muted text-muted-foreground",
         dashboard: "border-primary/20 hover:bg-primary/5 text-primary border font-bold uppercase tracking-tight",
+        tableIcon:
+          "text-muted-foreground hover:bg-muted hover:text-foreground",
+        tableDanger:
+          "text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
+        tableReset:
+          "h-10 text-xs font-bold text-muted-foreground hover:text-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -31,6 +37,7 @@ const buttonVariants = cva(
         lg: "h-10 rounded-md px-8",
         xl: "h-11 px-8 rounded-lg",
         icon: "h-9 w-9",
+        iconSm: "h-8 w-8 rounded-lg",
       },
     },
     defaultVariants: {

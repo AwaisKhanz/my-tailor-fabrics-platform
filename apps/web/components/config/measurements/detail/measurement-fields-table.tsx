@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
+import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
 
 interface MeasurementFieldsTableProps {
   fields: MeasurementField[];
@@ -59,17 +60,15 @@ export function MeasurementFieldsTable({
         cell: (field) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={() => onEditField(field)}
             >
               <Edit2 className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              variant="tableDanger"
+              size="iconSm"
               onClick={() => onDeleteField(field)}
             >
               <Trash2 className="h-4 w-4" />
@@ -82,12 +81,16 @@ export function MeasurementFieldsTable({
   );
 
   return (
-    <DataTable
-      columns={columns}
-      data={fields}
-      loading={loading}
-      emptyMessage="No fields defined for this category."
-      itemLabel="fields"
-    />
+    <TableSurface>
+      <TableToolbar title="Measurement Fields" total={fields.length} />
+      <DataTable
+        columns={columns}
+        data={fields}
+        loading={loading}
+        emptyMessage="No fields defined for this category."
+        itemLabel="fields"
+        chrome="flat"
+      />
+    </TableSurface>
   );
 }

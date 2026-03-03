@@ -69,13 +69,12 @@ export function ExpensesTable({
         align: "right",
         cell: (expense) => (
           <Button
-            variant="ghost"
-            size="icon"
-            className="group h-8 w-8 hover:bg-destructive/10"
+            variant="tableDanger"
+            size="iconSm"
             onClick={() => onDeleteExpense(expense)}
             disabled={deletingId === expense.id}
           >
-            <Trash2 className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-destructive" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         ),
       },
@@ -94,6 +93,7 @@ export function ExpensesTable({
       onPageChange={onPageChange}
       itemLabel="expenses"
       emptyMessage="No expenses found matching your criteria."
+      chrome="flat"
     />
   );
 }

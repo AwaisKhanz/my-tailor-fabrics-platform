@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Eye, History, Pencil, Printer } from "lucide-react";
 import { Order, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
-import { API_BASE_URL } from "@/lib/api";
+import { ordersApi } from "@/lib/api/orders";
 import { formatPKR } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
@@ -38,6 +39,23 @@ export function OrdersListTable({
   onViewOrder,
   onEditOrder,
 }: OrdersListTableProps) {
+  const handlePrintReceipt = useCallback(async (orderId: string) => {
+    try {
+      const receiptBlob = await ordersApi.getReceiptPdf(orderId);
+      const receiptUrl = window.URL.createObjectURL(receiptBlob);
+      window.open(receiptUrl, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => {
+        window.URL.revokeObjectURL(receiptUrl);
+      }, 60_000);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to generate receipt",
+        variant: "destructive",
+      });
+    }
+  }, []);
+
   const columns = useMemo<ColumnDef<Order>[]>(
     () => [
       {
@@ -123,9 +141,8 @@ export function OrdersListTable({
             <div className="flex items-center justify-end gap-1">
               <Button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                variant="tableIcon"
+                size="iconSm"
                 onClick={(event) => {
                   event.stopPropagation();
                   onViewOrder(order.id);
@@ -138,9 +155,8 @@ export function OrdersListTable({
               {!isDelivered ? (
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  variant="tableIcon"
+                  size="iconSm"
                   onClick={(event) => {
                     event.stopPropagation();
                     onEditOrder(order.id);
@@ -154,12 +170,11 @@ export function OrdersListTable({
               {isReady ? (
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  variant="tableIcon"
+                  size="iconSm"
                   onClick={(event) => {
                     event.stopPropagation();
-                    window.open(`${API_BASE_URL}/orders/${order.id}/receipt`, "_blank");
+                    void handlePrintReceipt(order.id);
                   }}
                   title="Print Receipt"
                 >
@@ -170,9 +185,8 @@ export function OrdersListTable({
               {isDelivered ? (
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  variant="tableIcon"
+                  size="iconSm"
                   onClick={(event) => {
                     event.stopPropagation();
                     onViewOrder(order.id);
@@ -187,7 +201,7 @@ export function OrdersListTable({
         },
       },
     ],
-    [onEditOrder, onViewOrder],
+    [handlePrintReceipt, onEditOrder, onViewOrder],
   );
 
   return (
@@ -201,6 +215,7 @@ export function OrdersListTable({
       onPageChange={onPageChange}
       itemLabel="orders"
       emptyMessage="No orders found matching your criteria."
+      chrome="flat"
       onRowClick={(order) => onViewOrder(order.id)}
     />
   );

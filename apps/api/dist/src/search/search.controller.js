@@ -25,16 +25,14 @@ let SearchController = class SearchController {
     constructor(searchService) {
         this.searchService = searchService;
     }
-    async queryCustomers(query, req) {
-        const branchId = req.branchId;
-        const limit = Number(req.query.limit) || 10;
-        const data = await this.searchService.searchCustomers(query || '', branchId, limit);
+    async queryCustomers(query, req, limit) {
+        const branchId = req.branchId ?? null;
+        const data = await this.searchService.searchCustomers(query || '', branchId, Number(limit) || 10);
         return { success: true, data };
     }
-    async queryEmployees(query, req) {
-        const branchId = req.branchId;
-        const limit = Number(req.query.limit) || 10;
-        const data = await this.searchService.searchEmployees(query || '', branchId, limit);
+    async queryEmployees(query, req, limit) {
+        const branchId = req.branchId ?? null;
+        const data = await this.searchService.searchEmployees(query || '', branchId, Number(limit) || 10);
         return { success: true, data };
     }
 };
@@ -44,8 +42,9 @@ __decorate([
     (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     __param(0, (0, common_1.Query)('q')),
     __param(1, (0, common_1.Req)()),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, String]),
     __metadata("design:returntype", Promise)
 ], SearchController.prototype, "queryCustomers", null);
 __decorate([
@@ -53,8 +52,9 @@ __decorate([
     (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     __param(0, (0, common_1.Query)('q')),
     __param(1, (0, common_1.Req)()),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, String]),
     __metadata("design:returntype", Promise)
 ], SearchController.prototype, "queryEmployees", null);
 exports.SearchController = SearchController = __decorate([

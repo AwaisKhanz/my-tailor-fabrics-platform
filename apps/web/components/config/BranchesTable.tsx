@@ -6,6 +6,7 @@ import { BranchesDirectoryTable } from "@/components/config/branches/branches-di
 import { BranchesListToolbar } from "@/components/config/branches/branches-list-toolbar";
 import { BranchesPageHeader } from "@/components/config/branches/branches-page-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useBranchesPage } from "@/hooks/use-branches-page";
 
 export function BranchesTable() {
@@ -41,7 +42,7 @@ export function BranchesTable() {
     <div className="space-y-6">
       <BranchesPageHeader onCreate={openCreateDialog} />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <TableSurface>
         <BranchesListToolbar
           totalCount={totalCount}
           search={search}
@@ -50,20 +51,18 @@ export function BranchesTable() {
           onResetFilters={resetFilters}
         />
 
-        <div className="p-6">
-          <BranchesDirectoryTable
-            branches={branches}
-            loading={loading}
-            page={currentPage}
-            total={totalCount}
-            pageSize={itemsPerPage}
-            onPageChange={setCurrentPage}
-            onEdit={openEditDialog}
-            onDelete={requestDelete}
-            onToggleActive={toggleBranchActive}
-          />
-        </div>
-      </div>
+        <BranchesDirectoryTable
+          branches={branches}
+          loading={loading}
+          page={currentPage}
+          total={totalCount}
+          pageSize={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onEdit={openEditDialog}
+          onDelete={requestDelete}
+          onToggleActive={toggleBranchActive}
+        />
+      </TableSurface>
 
       <BranchFormDialog
         open={dialogOpen}

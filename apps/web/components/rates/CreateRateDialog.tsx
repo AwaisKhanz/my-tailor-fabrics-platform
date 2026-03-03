@@ -6,10 +6,9 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogFooter,
   DialogDescription
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -49,8 +48,7 @@ export function CreateRateDialog({
     effectiveFrom: new Date().toISOString().split('T')[0]
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     try {
       await onSubmit({
@@ -75,8 +73,15 @@ export function CreateRateDialog({
             Create a new production rate for a specific garment step.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-          <div className="grid gap-4">
+        <DialogSection>
+          <FormStack
+            as="form"
+            id="create-rate-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleSubmit();
+            }}
+          >
             <div className="space-y-2">
               <Label htmlFor="branch">Branch Scope</Label>
               <Select 
@@ -135,7 +140,7 @@ export function CreateRateDialog({
               <div className="space-y-2">
                 <Label htmlFor="rate">Rate (Rs.)</Label>
                 <div className="relative">
-                  <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input 
                     id="rate" 
                     type="number" 
@@ -150,7 +155,7 @@ export function CreateRateDialog({
               <div className="space-y-2">
                 <Label htmlFor="effectiveFrom">Effective From</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input 
                     id="effectiveFrom" 
                     type="date" 
@@ -162,13 +167,17 @@ export function CreateRateDialog({
                 </div>
               </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-              {loading ? "Creating..." : "Create Rate"}
-            </Button>
-          </DialogFooter>
-        </form>
+          </FormStack>
+        </DialogSection>
+        <DialogActionRow>
+          <DialogFormActions
+            onCancel={() => onOpenChange(false)}
+            submitText="Create Rate"
+            submittingText="Creating..."
+            submitting={loading}
+            submitFormId="create-rate-form"
+          />
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

@@ -57,7 +57,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
 
   return (
     <Card className="overflow-hidden border-border shadow-sm">
-      <CardHeader className="border-b border-border/50 bg-muted/5 px-6 pb-4 pt-5">
+      <CardHeader variant="section" density="comfortable">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
             <Clock className="h-4 w-4 text-primary" />
@@ -66,7 +66,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="px-6 pb-6 pt-6">
+      <CardContent spacing="section">
         <div className="space-y-8">
           {timelineSteps.map((step, index) => {
             const historyEntry = step.status

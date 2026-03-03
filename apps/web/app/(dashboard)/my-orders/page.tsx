@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { TableSurface } from "@/components/ui/table-layout";
 import { MyOrdersTable } from "@/components/orders/my-orders-table";
 import { MyOrdersToolbar } from "@/components/orders/my-orders-toolbar";
 import { useMyOrdersPage } from "@/hooks/use-my-orders-page";
@@ -22,15 +23,16 @@ export default function MyOrdersPage() {
         description="Review and manage your assigned tailoring tasks."
       />
 
-      <MyOrdersToolbar
-        search={search}
-        totalCount={items.length}
-        filteredCount={filteredItems.length}
-        onSearchChange={setSearchFilter}
-        onClearSearch={clearSearch}
-      />
-
-      <MyOrdersTable items={filteredItems} loading={loading} />
+      <TableSurface>
+        <MyOrdersToolbar
+          search={search}
+          totalCount={items.length}
+          filteredCount={filteredItems.length}
+          onSearchChange={setSearchFilter}
+          onClearSearch={clearSearch}
+        />
+        <MyOrdersTable items={filteredItems} loading={loading} />
+      </TableSurface>
     </div>
   );
 }

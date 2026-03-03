@@ -16,14 +16,14 @@ export function DashboardProductivityCard({
 
   return (
     <Card className="border-border shadow-sm">
-      <CardHeader className="flex flex-row items-start justify-between pb-2">
+      <CardHeader variant="rowSection" className="items-start">
         <CardTitle variant="dashboard">Employee Productivity</CardTitle>
         <div className="flex flex-col items-end">
           <span className="text-xl font-bold text-primary">84%</span>
           <Label variant="dashboard">Avg This Month</Label>
         </div>
       </CardHeader>
-      <CardContent className="mt-4 space-y-6">
+      <CardContent spacing="section" className="space-y-6">
         {loading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="space-y-2">

@@ -17,14 +17,14 @@ export class SearchController {
   async queryCustomers(
     @Query('q') query: string,
     @Req() req: AuthenticatedRequest,
+    @Query('limit') limit?: string,
   ) {
-    const branchId = req.branchId; // Set by BranchGuard
-    const limit = Number(req.query.limit) || 10;
+    const branchId = req.branchId ?? null; // Set by BranchGuard
 
     const data = await this.searchService.searchCustomers(
       query || '',
       branchId,
-      limit,
+      Number(limit) || 10,
     );
     return { success: true, data };
   }
@@ -34,14 +34,14 @@ export class SearchController {
   async queryEmployees(
     @Query('q') query: string,
     @Req() req: AuthenticatedRequest,
+    @Query('limit') limit?: string,
   ) {
-    const branchId = req.branchId; // Set by BranchGuard
-    const limit = Number(req.query.limit) || 10;
+    const branchId = req.branchId ?? null; // Set by BranchGuard
 
     const data = await this.searchService.searchEmployees(
       query || '',
       branchId,
-      limit,
+      Number(limit) || 10,
     );
     return { success: true, data };
   }

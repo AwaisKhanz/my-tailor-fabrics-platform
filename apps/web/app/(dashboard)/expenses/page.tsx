@@ -8,6 +8,7 @@ import { ExpensesTable } from "@/components/expenses/expenses-table";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageHeader } from "@/components/ui/page-header";
+import { TableSurface } from "@/components/ui/table-layout";
 import { formatPKR } from "@/lib/utils";
 import { useExpensesPage } from "@/hooks/use-expenses-page";
 
@@ -55,30 +56,25 @@ export default function ExpensesPage() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-1">
-          <ExpensesOverviewCards
-            listedAmount={listedAmount}
-            listedCount={expenses.length}
-            totalCount={total}
-          />
-        </div>
+      <ExpensesOverviewCards
+        listedAmount={listedAmount}
+        listedCount={expenses.length}
+        totalCount={total}
+      />
 
-        <div className="lg:col-span-3">
-          <ExpensesFiltersCard
-            categories={categories}
-            categoriesLoading={categoriesLoading}
-            filters={filters}
-            activeFilterCount={activeFilterCount}
-            onCategoryChange={setCategoryFilter}
-            onFromChange={setFromFilter}
-            onToChange={setToFilter}
-            onReset={resetFilters}
-          />
-        </div>
-      </div>
+      <TableSurface>
+        <ExpensesFiltersCard
+          total={total}
+          categories={categories}
+          categoriesLoading={categoriesLoading}
+          filters={filters}
+          activeFilterCount={activeFilterCount}
+          onCategoryChange={setCategoryFilter}
+          onFromChange={setFromFilter}
+          onToChange={setToFilter}
+          onReset={resetFilters}
+        />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <ExpensesTable
           expenses={expenses}
           loading={loading}
@@ -89,7 +85,7 @@ export default function ExpensesPage() {
           onPageChange={setPage}
           onDeleteExpense={requestDeleteExpense}
         />
-      </div>
+      </TableSurface>
 
       <ExpenseCreateDialog
         open={addOpen}

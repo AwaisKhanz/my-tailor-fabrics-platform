@@ -4,34 +4,42 @@ import {
   Post,
   Body,
   Query,
+  Req,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { RatesService } from './rates.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
 import { Role } from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import type { CreateRateCardInput } from '@tbms/shared-types';
+import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 
 @Controller('rates')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class RatesController {
   constructor(private readonly ratesService: RatesService) {}
 
   @Get()
   @Roles(...ADMIN_ROLES)
   async findAll(
-    @Request() req: { user: { role: Role; branchId: string } },
+    @Req() req: AuthenticatedRequest,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
   ) {
-    const branchId =
-      req.user.role === Role.SUPER_ADMIN ? null : req.user.branchId;
-    const { data, total } = await this.ratesService.findAll({
-      branchId,
+    const scopedBranchId =
+      req.user.role === Role.SUPER_ADMIN ? (req.branchId ?? null) : req.branchId;
+
+    const {
+      data,
+      total,
+      page: safePage,
+      lastPage,
+    } = await this.ratesService.findAll({
+      branchId: scopedBranchId,
       search,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
@@ -39,11 +47,11 @@ export class RatesController {
 
     return {
       success: true,
-      data,
+      data: { data, total },
       meta: {
         total,
-        page: page ? parseInt(page) : 1,
-        lastPage: Math.ceil(total / (limit ? parseInt(limit) : 10)),
+        page: safePage,
+        lastPage,
       },
     };
   }
@@ -52,24 +60,37 @@ export class RatesController {
   @Roles(...ADMIN_ROLES)
   async create(
     @Body() dto: CreateRateCardInput,
-    @Request() req: { user: { id: string; role: Role; branchId: string } },
+    @Req() req: AuthenticatedRequest,
   ) {
-    // Ensure admins don't create rates for other branches unless super admin
+    // Non super-admins are strictly scoped to their assigned branch.
     if (req.user.role !== Role.SUPER_ADMIN) {
-      dto.branchId = req.user.branchId;
+      dto.branchId = req.branchId;
+    } else if (req.branchId && !dto.branchId) {
+      // Respect active branch scope for super-admin unless explicitly overridden.
+      dto.branchId = req.branchId;
     }
-    const data = await this.ratesService.create({ ...dto, createdById: req.user.id });
+    const data = await this.ratesService.create({
+      ...dto,
+      createdById: req.user.userId,
+    });
     return { success: true, data };
   }
 
   @Get('history')
   @Roles(...ADMIN_ROLES)
   async getHistory(
+    @Req() req: AuthenticatedRequest,
     @Query('garmentTypeId') garmentTypeId: string,
     @Query('stepKey') stepKey: string,
     @Query('branchId') branchId?: string,
   ) {
-    const data = await this.ratesService.getHistory(garmentTypeId, stepKey, branchId);
+    const scopedBranchId =
+      req.user.role === Role.SUPER_ADMIN ? (branchId ?? req.branchId) : req.branchId;
+    const data = await this.ratesService.getHistory(
+      garmentTypeId,
+      stepKey,
+      scopedBranchId ?? undefined,
+    );
     return { success: true, data };
   }
 }

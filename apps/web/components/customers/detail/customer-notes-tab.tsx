@@ -9,7 +9,7 @@ export function CustomerNotesTab({ notes }: CustomerNotesTabProps) {
   return (
     <div className="pt-4">
       <Card className="border-border/50 shadow-sm">
-        <CardContent className="pt-6">
+        <CardContent spacing="section">
           <Typography as="p" variant="lead" className="whitespace-pre-wrap">
             {notes || "No special notes or preferences recorded for this customer."}
           </Typography>

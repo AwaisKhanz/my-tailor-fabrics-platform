@@ -35,7 +35,10 @@ export function OrderDetailHeaderCard({
 }: OrderDetailHeaderCardProps) {
   return (
     <Card className="overflow-hidden border-border shadow-sm ring-1 ring-border/50">
-      <CardContent className="flex flex-col justify-between gap-6 bg-muted/5 px-6 py-6 sm:flex-row sm:items-center">
+      <CardContent
+        spacing="section"
+        className="flex flex-col justify-between gap-6 bg-muted/5 sm:flex-row sm:items-center"
+      >
         <div>
           <div className="flex flex-wrap items-center gap-4">
             <Typography as="h1" variant="pageTitle" className="text-4xl">

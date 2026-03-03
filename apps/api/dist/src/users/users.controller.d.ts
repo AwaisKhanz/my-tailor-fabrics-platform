@@ -38,9 +38,14 @@ export declare class UsersController {
             createdAt: Date;
             name: string;
             isActive: boolean;
+            branch: {
+                name: string;
+                code: string;
+            } | null;
             email: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
+            lastLoginAt: Date | null;
         };
     }>;
     setActive(id: string, isActive: boolean): Promise<{
@@ -71,9 +76,14 @@ export declare class UsersController {
             createdAt: Date;
             name: string;
             isActive: boolean;
+            branch: {
+                name: string;
+                code: string;
+            } | null;
             email: string;
             role: import(".prisma/client").$Enums.Role;
             branchId: string | null;
+            lastLoginAt: Date | null;
         };
     }>;
 }

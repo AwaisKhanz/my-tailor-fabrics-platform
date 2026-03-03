@@ -21,9 +21,9 @@ export interface CreateOrderInput {
   customerId: string;
   dueDate: string;
   items: OrderItemInput[];
-  discountType: DiscountType;
-  discountValue: number;
-  advancePayment: number;
+  discountType?: DiscountType;
+  discountValue?: number;
+  advancePayment?: number;
   notes?: string;
 }
 

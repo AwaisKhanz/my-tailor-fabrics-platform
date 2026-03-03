@@ -192,12 +192,12 @@ export declare class OrdersController {
                     notes: string | null;
                     completedAt: Date | null;
                     designTypeId: string | null;
-                    assignedEmployeeId: string | null;
-                    rateOverride: number | null;
-                    rateSnapshot: number | null;
                     orderItemId: string;
+                    assignedEmployeeId: string | null;
                     startedAt: Date | null;
                     rateCardId: string | null;
+                    rateOverride: number | null;
+                    rateSnapshot: number | null;
                 })[];
                 addons: {
                     id: string;
@@ -207,9 +207,9 @@ export declare class OrdersController {
                     deletedAt: Date | null;
                     note: string | null;
                     type: import(".prisma/client").$Enums.AddonType;
+                    orderItemId: string;
                     price: number;
                     cost: number | null;
-                    orderItemId: string;
                 }[];
                 designType: {
                     id: string;

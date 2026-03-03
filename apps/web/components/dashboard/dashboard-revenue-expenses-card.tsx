@@ -18,14 +18,14 @@ export function DashboardRevenueExpensesCard({
 }: DashboardRevenueExpensesCardProps) {
   return (
     <Card className="border-border shadow-sm lg:col-span-2">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader variant="rowSection" className="items-center">
         <CardTitle variant="dashboard">Revenue vs. Expenses</CardTitle>
         <div className="flex items-center gap-1 transition-colors hover:bg-muted/70">
           <Label variant="dashboard">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent spacing="section">
         {rows.length === 0 ? (
           <div className="relative mb-4 mt-2 flex h-[250px] w-full items-center justify-center border-b border-dashed border-border">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground/40">

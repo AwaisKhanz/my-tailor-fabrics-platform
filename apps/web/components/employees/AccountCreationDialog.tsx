@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { useToast } from "@/hooks/use-toast";
 import { employeesApi } from "@/lib/api/employees";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -74,14 +74,12 @@ export function AccountCreationDialog({
   }
 
   const footerActions = (
-    <div className="flex justify-end gap-2 w-full">
-      <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-        Cancel
-      </Button>
-      <Button type="submit" form="account-creation-form" variant="premium">
-        Create Account
-      </Button>
-    </div>
+    <DialogFormActions
+      onCancel={() => onOpenChange(false)}
+      submitFormId="account-creation-form"
+      submitText="Create Account"
+      cancelVariant="outline"
+    />
   );
 
   return (
@@ -99,7 +97,12 @@ export function AccountCreationDialog({
         </div>
       </div>
       <Form {...form}>
-        <form id="account-creation-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-1 pb-2">
+        <FormStack
+          as="form"
+          id="account-creation-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="px-1 pb-2"
+        >
             <FormField
               control={form.control}
               name="email"
@@ -137,9 +140,9 @@ export function AccountCreationDialog({
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-        </form>
+                )}
+              />
+        </FormStack>
       </Form>
     </ScrollableDialog>
   );

@@ -17,8 +17,9 @@ let LedgerService = class LedgerService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async createEntry(dto) {
-        return this.prisma.employeeLedgerEntry.create({
+    async createEntry(dto, tx) {
+        const client = tx ?? this.prisma;
+        return client.employeeLedgerEntry.create({
             data: {
                 employeeId: dto.employeeId,
                 branchId: dto.branchId,

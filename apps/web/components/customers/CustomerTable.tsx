@@ -5,6 +5,7 @@ import { CustomerDialog } from "@/components/customers/CustomerDialog";
 import { CustomersDirectoryTable } from "@/components/customers/list/customers-directory-table";
 import { CustomersListToolbar } from "@/components/customers/list/customers-list-toolbar";
 import { CustomersPageHeader } from "@/components/customers/list/customers-page-header";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useCustomersPage } from "@/hooks/use-customers-page";
 
 export function CustomerTable() {
@@ -35,7 +36,7 @@ export function CustomerTable() {
     <div className="mx-auto max-w-9xl space-y-5">
       <CustomersPageHeader onAddCustomer={openCreateDialog} />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <TableSurface>
         <CustomersListToolbar
           total={total}
           search={search}
@@ -58,7 +59,7 @@ export function CustomerTable() {
           }}
           onEdit={openEditDialog}
         />
-      </div>
+      </TableSurface>
 
       <CustomerDialog
         open={isDialogOpen}

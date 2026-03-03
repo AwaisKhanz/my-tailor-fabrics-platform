@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -122,82 +123,94 @@ export function GarmentWorkflowStepsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {steps.map((step, index) => (
-            <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 border rounded-lg group">
-              <div className="flex flex-col items-center justify-center cursor-move text-muted-foreground hover:text-foreground">
-                <GripVertical className="h-4 w-4" />
-                <span className="text-[10px] font-bold">{index + 1}</span>
-              </div>
-              
-              <div className="grid grid-cols-2 flex-1 gap-3">
-                <div className="space-y-1">
-                  <Label variant="dashboard">Step Name</Label>
-                  <Input
-                    placeholder="e.g. Cutting"
-                    value={step.stepName || ""}
-                    onChange={(e) => handleChange(index, "stepName", e.target.value)}
-                    className="h-8"
-                  />
+        <DialogSection>
+          <FormStack
+            as="form"
+            id="garment-workflow-steps-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onSubmit();
+            }}
+          >
+            {steps.map((step, index) => (
+              <div key={index} className="group flex items-center gap-3 rounded-lg border bg-muted/50 p-3">
+                <div className="flex cursor-move flex-col items-center justify-center text-muted-foreground hover:text-foreground">
+                  <GripVertical className="h-4 w-4" />
+                  <span className="text-[10px] font-bold">{index + 1}</span>
                 </div>
-                <div className="space-y-1">
-                  <Label variant="dashboard">Unique Key</Label>
-                  <Input
-                    placeholder="e.g. CUTTING"
-                    value={step.stepKey || ""}
-                    onChange={(e) => handleChange(index, "stepKey", e.target.value.toUpperCase().replace(/\s+/g, "_"))}
-                    className="h-8 uppercase font-mono text-xs"
-                  />
+
+                <div className="grid flex-1 grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label variant="dashboard">Step Name</Label>
+                    <Input
+                      placeholder="e.g. Cutting"
+                      value={step.stepName || ""}
+                      onChange={(e) => handleChange(index, "stepName", e.target.value)}
+                      className="h-8"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label variant="dashboard">Unique Key</Label>
+                    <Input
+                      placeholder="e.g. CUTTING"
+                      value={step.stepKey || ""}
+                      onChange={(e) => handleChange(index, "stepKey", e.target.value.toUpperCase().replace(/\s+/g, "_"))}
+                      className="h-8 font-mono text-xs uppercase"
+                    />
+                  </div>
                 </div>
+
+                <div className="flex items-center gap-4 border-l border-r px-2">
+                   <div className="flex flex-col items-center gap-1">
+                      <Label variant="dashboard" className="text-muted-foreground">Required</Label>
+                      <Switch
+                          checked={step.isRequired}
+                          onCheckedChange={(v) => handleChange(index, "isRequired", v)}
+                      />
+                   </div>
+                   <div className="flex flex-col items-center gap-1">
+                      <Label variant="dashboard" className="text-muted-foreground">Active</Label>
+                      <Switch
+                          checked={step.isActive}
+                          onCheckedChange={(v) => handleChange(index, "isActive", v)}
+                      />
+                   </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleRemoveStep(index)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
+            ))}
 
-              <div className="flex items-center gap-4 px-2 border-l border-r">
-                 <div className="flex flex-col items-center gap-1">
-                    <Label variant="dashboard" className="text-muted-foreground">Required</Label>
-                    <Switch
-                        checked={step.isRequired}
-                        onCheckedChange={(v) => handleChange(index, "isRequired", v)}
-                    />
-                 </div>
-                 <div className="flex flex-col items-center gap-1">
-                    <Label variant="dashboard" className="text-muted-foreground">Active</Label>
-                    <Switch
-                        checked={step.isActive}
-                        onCheckedChange={(v) => handleChange(index, "isActive", v)}
-                    />
-                 </div>
+            {steps.length === 0 ? (
+              <div className="rounded-lg border-2 border-dashed py-8 text-center text-muted-foreground">
+                No steps configured. Add your first step below.
               </div>
+            ) : null}
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                onClick={() => handleRemoveStep(index)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+            <Button type="button" variant="outline" className="w-full border-dashed" onClick={handleAddStep}>
+              <Plus className="mr-2 h-4 w-4" /> Add Step
+            </Button>
+          </FormStack>
+        </DialogSection>
 
-          {steps.length === 0 && (
-            <div className="text-center py-8 border-2 border-dashed rounded-lg text-muted-foreground">
-              No steps configured. Add your first step below.
-            </div>
-          )}
-
-          <Button type="button" variant="outline" className="w-full border-dashed" onClick={handleAddStep}>
-            <Plus className="h-4 w-4 mr-2" /> Add Step
-          </Button>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
-          </Button>
-          <Button onClick={onSubmit} disabled={loading} variant="premium">
-            {loading ? "Saving..." : "Save Workflow"}
-          </Button>
-        </DialogFooter>
+        <DialogActionRow>
+          <DialogFormActions
+            onCancel={() => onOpenChange(false)}
+            submitText="Save Workflow"
+            submittingText="Saving..."
+            submitting={loading}
+            submitFormId="garment-workflow-steps-form"
+            submitVariant="premium"
+          />
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

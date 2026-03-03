@@ -16,6 +16,10 @@ exports.SearchService = void 0;
 const common_1 = require("@nestjs/common");
 const cache_manager_1 = require("@nestjs/cache-manager");
 const prisma_service_1 = require("../prisma/prisma.service");
+const MIN_QUERY_LENGTH = 2;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+const CACHE_TTL_MS = 30_000;
 let SearchService = class SearchService {
     prisma;
     cache;
@@ -23,11 +27,34 @@ let SearchService = class SearchService {
         this.prisma = prisma;
         this.cache = cache;
     }
+    normalizeLimit(limit = DEFAULT_LIMIT) {
+        if (!Number.isFinite(limit) || limit <= 0) {
+            return DEFAULT_LIMIT;
+        }
+        return Math.min(Math.trunc(limit), MAX_LIMIT);
+    }
+    normalizeQuery(query) {
+        return query.trim();
+    }
+    buildTsQuery(query) {
+        const tokens = query.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+        if (tokens.length === 0) {
+            return null;
+        }
+        return tokens.map((token) => `${token}:*`).join(' & ');
+    }
+    buildCacheKey(kind, branchId, query, limit) {
+        return `search:${kind}:${branchId ?? 'ALL'}:${query.toLowerCase()}:${limit}`;
+    }
+    async setCache(key, value) {
+        await this.cache.set(key, value, CACHE_TTL_MS);
+    }
     async searchCustomers(query, branchId, limit = 10) {
-        if (!query || query.trim().length < 2)
+        const q = this.normalizeQuery(query);
+        if (!q || q.length < MIN_QUERY_LENGTH)
             return [];
-        const q = query.trim();
-        const cacheKey = `search:cust:${branchId}:${q.toLowerCase()}`;
+        const safeLimit = this.normalizeLimit(limit);
+        const cacheKey = this.buildCacheKey('cust', branchId, q, safeLimit);
         const hit = await this.cache.get(cacheKey);
         if (hit)
             return hit;
@@ -39,45 +66,85 @@ let SearchService = class SearchService {
         WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
           AND "deletedAt" IS NULL
           AND "sizeNumber" ILIKE ${q + '%'}
-        LIMIT ${limit}
+        ORDER BY "createdAt" DESC
+        LIMIT ${safeLimit}
       `;
         }
         else {
-            const tsQuery = `${q.split(/\s+/).join(' & ')}:*`;
-            result = await this.prisma.$queryRaw `
-        SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status,
-               ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) AS rank
-        FROM "Customer"
-        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-          AND "deletedAt" IS NULL
-          AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
-        ORDER BY rank DESC, "createdAt" DESC
-        LIMIT ${limit}
-      `;
+            const tsQuery = this.buildTsQuery(q);
+            if (tsQuery) {
+                result = await this.prisma.$queryRaw `
+          SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status,
+                 ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) AS rank
+          FROM "Customer"
+          WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+            AND "deletedAt" IS NULL
+            AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
+          ORDER BY rank DESC, "createdAt" DESC
+          LIMIT ${safeLimit}
+        `;
+            }
+            if (result.length === 0) {
+                const likeQuery = `%${q}%`;
+                result = await this.prisma.$queryRaw `
+          SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status
+          FROM "Customer"
+          WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+            AND "deletedAt" IS NULL
+            AND (
+              "fullName" ILIKE ${likeQuery}
+              OR "sizeNumber" ILIKE ${likeQuery}
+              OR phone ILIKE ${likeQuery}
+            )
+          ORDER BY "createdAt" DESC
+          LIMIT ${safeLimit}
+        `;
+            }
         }
-        await this.cache.set(cacheKey, result, 30000);
+        await this.setCache(cacheKey, result);
         return result;
     }
     async searchEmployees(query, branchId, limit = 10) {
-        if (!query || query.trim().length < 2)
+        const q = this.normalizeQuery(query);
+        if (!q || q.length < MIN_QUERY_LENGTH)
             return [];
-        const q = query.trim();
-        const cacheKey = `search:emp:${branchId}:${q.toLowerCase()}`;
+        const safeLimit = this.normalizeLimit(limit);
+        const cacheKey = this.buildCacheKey('emp', branchId, q, safeLimit);
         const hit = await this.cache.get(cacheKey);
         if (hit)
             return hit;
-        const tsQuery = `${q.split(/\s+/).join(' & ')}:*`;
-        const result = await this.prisma.$queryRaw `
-      SELECT id, "branchId", "employeeCode", "fullName", designation, status
-      FROM "Employee"
-      WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-        AND "deletedAt" IS NULL 
-        AND status = 'ACTIVE'
-        AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
-      ORDER BY ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) DESC, "createdAt" DESC
-      LIMIT ${limit}
-    `;
-        await this.cache.set(cacheKey, result, 30000);
+        const tsQuery = this.buildTsQuery(q);
+        let result = [];
+        if (tsQuery) {
+            result = await this.prisma.$queryRaw `
+        SELECT id, "branchId", "employeeCode", "fullName", designation, status
+        FROM "Employee"
+        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+          AND "deletedAt" IS NULL
+          AND status = 'ACTIVE'
+          AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
+        ORDER BY ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) DESC, "createdAt" DESC
+        LIMIT ${safeLimit}
+      `;
+        }
+        if (result.length === 0) {
+            const likeQuery = `%${q}%`;
+            result = await this.prisma.$queryRaw `
+        SELECT id, "branchId", "employeeCode", "fullName", designation, status
+        FROM "Employee"
+        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+          AND "deletedAt" IS NULL
+          AND status = 'ACTIVE'
+          AND (
+            "fullName" ILIKE ${likeQuery}
+            OR "employeeCode" ILIKE ${likeQuery}
+            OR phone ILIKE ${likeQuery}
+          )
+        ORDER BY "createdAt" DESC
+        LIMIT ${safeLimit}
+      `;
+        }
+        await this.setCache(cacheKey, result);
         return result;
     }
 };

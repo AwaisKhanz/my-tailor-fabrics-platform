@@ -28,7 +28,7 @@ export function PaymentsEmployeeSelectorCard({
 }: PaymentsEmployeeSelectorCardProps) {
   return (
     <Card className="overflow-hidden border-border/50 shadow-sm">
-      <CardHeader className="border-b border-border/50 bg-muted/5 pb-4">
+      <CardHeader variant="rowSection">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle variant="dashboard">Active Selection</CardTitle>
           <Badge variant="secondary" size="xs">
@@ -37,7 +37,7 @@ export function PaymentsEmployeeSelectorCard({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-6">
+      <CardContent spacing="section">
         <div className="max-w-xl space-y-2">
           <Label variant="dashboard">Select Tailor / Staff</Label>
           <Select
@@ -45,7 +45,7 @@ export function PaymentsEmployeeSelectorCard({
             onValueChange={onEmployeeChange}
             disabled={loading}
           >
-            <SelectTrigger variant="premium" className="h-11">
+            <SelectTrigger variant="table" className="h-11">
               <SelectValue placeholder={loading ? "Loading employees..." : "Choose an employee…"} />
             </SelectTrigger>
             <SelectContent>

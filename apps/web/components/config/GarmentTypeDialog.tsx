@@ -12,10 +12,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { Switch } from "@/components/ui/switch";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { Loader2, Filter, Globe } from "lucide-react";
+import { Filter, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -124,15 +124,14 @@ export function GarmentTypeDialog({
   }
 
   const footerActions = (
-    <div className="flex justify-end gap-2 w-full">
-      <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-        Cancel
-      </Button>
-      <Button type="submit" form="garment-type-form" variant="premium" disabled={loading}>
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {initialData ? "Save Changes" : "Create Garment Type"}
-      </Button>
-    </div>
+    <DialogFormActions
+      onCancel={() => onOpenChange(false)}
+      submitFormId="garment-type-form"
+      submitText={initialData ? "Save Changes" : "Create Garment Type"}
+      submitting={loading}
+      cancelVariant="outline"
+      submittingText="Saving Garment..."
+    />
   );
 
   return (
@@ -144,7 +143,13 @@ export function GarmentTypeDialog({
       maxWidthClass="sm:max-w-[380px]"
     >
       <Form {...form}>
-        <form id="garment-type-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5 px-0.5 pb-2">
+        <FormStack
+          as="form"
+          id="garment-type-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          density="compact"
+          className="px-0.5 pb-2"
+        >
           <div className="grid grid-cols-1 gap-3.5">
             <FormField
               control={form.control}
@@ -252,7 +257,7 @@ export function GarmentTypeDialog({
               )}
             />
           </div>
-        </form>
+        </FormStack>
       </Form>
     </ScrollableDialog>
   );

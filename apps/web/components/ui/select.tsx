@@ -14,6 +14,8 @@ const selectTriggerVariants = cva(
       variant: {
         default: "border-input",
         premium: "h-11 shadow-sm border-border focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+        table:
+          "h-10 border-border bg-background shadow-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
       },
     },
     defaultVariants: {

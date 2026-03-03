@@ -45,16 +45,58 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 const bcrypt = __importStar(require("bcrypt"));
+const crypto_1 = require("crypto");
+const PASSWORD_HASH_ROUNDS = 12;
+const USER_SELECT = {
+    id: true,
+    name: true,
+    email: true,
+    role: true,
+    isActive: true,
+    branchId: true,
+    lastLoginAt: true,
+    createdAt: true,
+    branch: { select: { name: true, code: true } },
+};
 let UsersService = class UsersService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
+    normalizeEmail(email) {
+        return email.trim().toLowerCase();
+    }
+    resolveBranchId(value) {
+        if (value === undefined)
+            return undefined;
+        return value || null;
+    }
+    generateTempPassword() {
+        return (0, crypto_1.randomBytes)(12).toString('base64url').slice(0, 16);
+    }
+    async ensureEmailAvailable(email, excludingUserId) {
+        const existing = await this.prisma.user.findFirst({
+            where: {
+                email: { equals: email, mode: 'insensitive' },
+                ...(excludingUserId ? { id: { not: excludingUserId } } : {}),
+            },
+        });
+        if (!existing) {
+            return;
+        }
+        if (existing.deletedAt) {
+            throw new common_1.ConflictException('A user with this email existed and was deleted. Contact support.');
+        }
+        throw new common_1.ConflictException('A user with this email already exists');
+    }
     async findByEmail(email) {
         return this.prisma.user.findFirst({
-            where: { email, deletedAt: null },
+            where: {
+                email: { equals: this.normalizeEmail(email), mode: 'insensitive' },
+                deletedAt: null,
+            },
             include: { branch: true },
         });
     }
@@ -78,17 +120,7 @@ let UsersService = class UsersService {
         const [data, total] = await Promise.all([
             this.prisma.user.findMany({
                 where,
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    role: true,
-                    isActive: true,
-                    branchId: true,
-                    lastLoginAt: true,
-                    createdAt: true,
-                    branch: { select: { name: true, code: true } },
-                },
+                select: USER_SELECT,
                 orderBy: { createdAt: 'desc' },
             }),
             this.prisma.user.count({ where }),
@@ -96,66 +128,36 @@ let UsersService = class UsersService {
         return { data, total };
     }
     async setupInitialSuperAdmin(data) {
-        const existing = await this.prisma.user.findUnique({
-            where: { email: data.email },
-        });
-        if (existing) {
-            if (existing.deletedAt) {
-                throw new common_1.ConflictException('A user with this email existed and was deleted. Contact support.');
-            }
-            throw new common_1.ConflictException('A user with this email already exists');
-        }
-        const tempPassword = data.password || Math.random().toString(36).slice(-8);
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const normalizedEmail = this.normalizeEmail(data.email);
+        await this.ensureEmailAvailable(normalizedEmail);
+        const tempPassword = data.password || this.generateTempPassword();
+        const hashedPassword = await bcrypt.hash(tempPassword, PASSWORD_HASH_ROUNDS);
         return this.prisma.user.create({
             data: {
                 name: data.name,
-                email: data.email,
+                email: normalizedEmail,
                 passwordHash: hashedPassword,
                 role: data.role,
-                branchId: data.branchId,
+                branchId: this.resolveBranchId(data.branchId),
                 isActive: true,
             },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                isActive: true,
-                branchId: true,
-                createdAt: true,
-            },
+            select: USER_SELECT,
         });
     }
     async create(data) {
-        const existing = await this.prisma.user.findUnique({
-            where: { email: data.email },
-        });
-        if (existing) {
-            if (existing.deletedAt) {
-                throw new common_1.ConflictException('A user with this email existed and was deleted. Contact support.');
-            }
-            throw new common_1.ConflictException('A user with this email already exists');
-        }
-        const tempPassword = data.password || Math.random().toString(36).slice(-8);
-        const passwordHash = await bcrypt.hash(tempPassword, 12);
+        const normalizedEmail = this.normalizeEmail(data.email);
+        await this.ensureEmailAvailable(normalizedEmail);
+        const tempPassword = data.password || this.generateTempPassword();
+        const passwordHash = await bcrypt.hash(tempPassword, PASSWORD_HASH_ROUNDS);
         return this.prisma.user.create({
             data: {
                 name: data.name,
-                email: data.email,
+                email: normalizedEmail,
                 passwordHash,
                 role: data.role,
-                branchId: data.branchId ?? null,
+                branchId: this.resolveBranchId(data.branchId),
             },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                isActive: true,
-                branchId: true,
-                createdAt: true,
-            },
+            select: USER_SELECT,
         });
     }
     async setActive(id, isActive) {
@@ -175,29 +177,25 @@ let UsersService = class UsersService {
         const user = await this.findById(id);
         if (!user)
             throw new common_1.NotFoundException('User not found');
+        const normalizedEmail = dataParams.email !== undefined
+            ? this.normalizeEmail(dataParams.email)
+            : undefined;
+        if (normalizedEmail) {
+            await this.ensureEmailAvailable(normalizedEmail, id);
+        }
         const data = {
             name: dataParams.name,
-            email: dataParams.email,
+            email: normalizedEmail,
             role: dataParams.role,
-            branchId: dataParams.branchId === undefined
-                ? undefined
-                : (dataParams.branchId ?? null),
+            branchId: this.resolveBranchId(dataParams.branchId),
         };
         if (dataParams.password) {
-            data.passwordHash = await bcrypt.hash(dataParams.password, 12);
+            data.passwordHash = await bcrypt.hash(dataParams.password, PASSWORD_HASH_ROUNDS);
         }
         return this.prisma.user.update({
             where: { id },
             data,
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                isActive: true,
-                branchId: true,
-                createdAt: true,
-            },
+            select: USER_SELECT,
         });
     }
     async getStats() {
@@ -207,7 +205,7 @@ let UsersService = class UsersService {
             this.prisma.user.count({
                 where: {
                     deletedAt: null,
-                    role: { in: [shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN] },
+                    role: { in: [...shared_constants_1.ADMIN_ROLES] },
                 },
             }),
         ]);

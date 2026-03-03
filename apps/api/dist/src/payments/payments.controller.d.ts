@@ -34,7 +34,7 @@ export declare class PaymentsController {
             processedById: string;
         };
     }>;
-    getHistory(employeeId: string, page: string, limit: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
+    getHistory(employeeId: string, page: string, limit: string, from?: string, to?: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
         data: {
             id: string;
             createdAt: Date;

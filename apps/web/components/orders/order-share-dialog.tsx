@@ -2,11 +2,11 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { DialogActionRow, DialogSection } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Copy } from "lucide-react";
@@ -43,7 +43,7 @@ export function OrderShareDialog({
         </DialogHeader>
 
         {shareData ? (
-          <div className="space-y-6 py-6">
+          <DialogSection density="relaxed">
             <div className="space-y-2">
               <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
                 Public URL
@@ -87,14 +87,14 @@ export function OrderShareDialog({
               * Customers will need the 4-digit PIN to access their order
               details.
             </p>
-          </div>
+          </DialogSection>
         ) : null}
 
-        <DialogFooter>
+        <DialogActionRow bordered={false}>
           <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-        </DialogFooter>
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

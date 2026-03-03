@@ -3,7 +3,7 @@ import { SearchService } from './search.service';
 export declare class SearchController {
     private readonly searchService;
     constructor(searchService: SearchService);
-    queryCustomers(query: string, req: AuthenticatedRequest): Promise<{
+    queryCustomers(query: string, req: AuthenticatedRequest, limit?: string): Promise<{
         success: boolean;
         data: {
             id: string;
@@ -24,7 +24,7 @@ export declare class SearchController {
             lifetimeValue: number;
         }[];
     }>;
-    queryEmployees(query: string, req: AuthenticatedRequest): Promise<{
+    queryEmployees(query: string, req: AuthenticatedRequest, limit?: string): Promise<{
         success: boolean;
         data: {
             id: string;

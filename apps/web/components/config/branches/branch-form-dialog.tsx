@@ -1,5 +1,5 @@
 import { type Branch } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
+import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
@@ -27,19 +27,14 @@ export function BranchFormDialog({
 }: BranchFormDialogProps) {
   const isCreateMode = !editingBranch;
   const footerActions = (
-    <div className="flex w-full justify-end gap-2">
-      <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-        Cancel
-      </Button>
-      <Button
-        type="submit"
-        form="branch-form"
-        variant="premium"
-        disabled={saving || !form.name.trim() || (isCreateMode && !form.code.trim())}
-      >
-        {saving ? "Saving..." : editingBranch ? "Save Changes" : "Create Branch"}
-      </Button>
-    </div>
+    <DialogFormActions
+      onCancel={() => onOpenChange(false)}
+      submitFormId="branch-form"
+      submitText={editingBranch ? "Save Changes" : "Create Branch"}
+      submitting={saving}
+      submitDisabled={!form.name.trim() || (isCreateMode && !form.code.trim())}
+      cancelVariant="outline"
+    />
   );
 
   return (
@@ -49,9 +44,10 @@ export function BranchFormDialog({
       title={editingBranch ? "Edit Branch" : "Create Branch"}
       footerActions={footerActions}
     >
-      <form
+      <FormStack
+        as="form"
         id="branch-form"
-        className="space-y-4 py-2"
+        className="py-2"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -106,7 +102,7 @@ export function BranchFormDialog({
             onChange={(event) => onFieldChange("address", event.target.value)}
           />
         </div>
-      </form>
+      </FormStack>
     </ScrollableDialog>
   );
 }

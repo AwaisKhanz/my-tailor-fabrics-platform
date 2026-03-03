@@ -33,7 +33,7 @@ export function CustomerMeasurementsTab({
         <div className="grid grid-cols-1 gap-4">
           {measurements.map((measurement) => (
             <Card key={measurement.id} className="overflow-hidden border-border/50 shadow-sm">
-              <CardHeader className="bg-muted/30 py-3">
+              <CardHeader variant="sectionSoft" density="compact">
                 <CardTitle className="flex items-center justify-between text-sm">
                   {measurement.category?.name || "Measurement Set"}
                   <Label variant="dashboard" className="font-normal opacity-60">
@@ -42,7 +42,7 @@ export function CustomerMeasurementsTab({
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="pt-4">
+              <CardContent spacing="section" className="pt-4">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   {Object.entries(measurement.values).map(([key, value]) => (
                     <div key={key}>

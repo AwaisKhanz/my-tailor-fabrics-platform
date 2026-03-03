@@ -78,6 +78,7 @@ export function RatesList({ rates, showBranch = true }: RatesListProps) {
       data={rates}
       emptyMessage="No rates defined yet."
       itemLabel="rates"
+      chrome="flat"
     />
   );
 }

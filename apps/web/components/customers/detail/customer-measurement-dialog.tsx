@@ -1,5 +1,6 @@
 import { MeasurementForm } from "@/components/customers/MeasurementForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DialogSection } from "@/components/ui/form-layout";
 
 interface CustomerMeasurementDialogProps {
   open: boolean;
@@ -21,9 +22,9 @@ export function CustomerMeasurementDialog({
           <DialogTitle>Update Body Measurements</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-1">
+        <DialogSection className="flex-1 overflow-y-auto p-1">
           <MeasurementForm customerId={customerId} onSuccess={onSuccess} />
-        </div>
+        </DialogSection>
       </DialogContent>
     </Dialog>
   );

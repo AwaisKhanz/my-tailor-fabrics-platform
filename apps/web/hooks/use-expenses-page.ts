@@ -113,7 +113,7 @@ export function useExpensesPage() {
 
       const response = await expensesApi.getExpenses(params);
       if (response.success) {
-        setExpenses(response.data.data);
+        setExpenses(response.data.data || []);
         setTotal(response.data.total);
       }
     } catch {
@@ -260,7 +260,7 @@ export function useExpensesPage() {
     } finally {
       setDeletingId(null);
     }
-  }, [deleteTarget, expenses.length, fetchExpenses, page, toast]);
+  }, [deleteTarget, expenses?.length, fetchExpenses, page, toast]);
 
   const listedAmount = useMemo(
     () => expenses.reduce((sum, expense) => sum + expense.amount, 0),

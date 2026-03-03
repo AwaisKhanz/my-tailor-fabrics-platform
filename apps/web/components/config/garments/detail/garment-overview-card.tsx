@@ -13,7 +13,7 @@ interface GarmentOverviewCardProps {
 export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
   return (
     <Card className="overflow-hidden border-border/50 shadow-sm transition-all hover:shadow-md">
-      <CardHeader className="bg-muted/30 pb-4">
+      <CardHeader variant="sectionSoft">
         <div className="flex items-center gap-2">
           <Shirt className="h-4 w-4 text-primary" />
           <CardTitle variant="dashboard" className="text-primary">
@@ -22,7 +22,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-6">
+      <CardContent spacing="section">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
           <div className="space-y-4">
             <div>

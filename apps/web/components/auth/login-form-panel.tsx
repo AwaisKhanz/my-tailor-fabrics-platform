@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
@@ -43,7 +44,7 @@ export function LoginFormPanel({
           </Typography>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-6">
+        <FormStack as="form" density="relaxed" onSubmit={onSubmit}>
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-bold text-foreground">
@@ -121,7 +122,7 @@ export function LoginFormPanel({
           <Button type="submit" variant="premium" size="lg" className="w-full" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign In to Dashboard"}
           </Button>
-        </form>
+        </FormStack>
 
         <div className="pt-4 text-center">
           <Typography as="p" variant="muted" className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">

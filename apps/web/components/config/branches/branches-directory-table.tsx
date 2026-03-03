@@ -93,9 +93,8 @@ export function BranchesDirectoryTable({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                variant="tableIcon"
+                size="iconSm"
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
@@ -159,6 +158,7 @@ export function BranchesDirectoryTable({
       total={total}
       limit={pageSize}
       onPageChange={onPageChange}
+      chrome="flat"
     />
   );
 }

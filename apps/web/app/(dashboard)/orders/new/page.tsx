@@ -5,6 +5,7 @@ import { CalendarDays, Package2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { FormStack } from "@/components/ui/form-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +66,7 @@ export default function NewOrderPage() {
       />
 
       <Card variant="premium" className="border-border/70 bg-muted/10">
-        <CardContent className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-3">
+        <CardContent spacing="section" className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-3">
           <div className="space-y-1">
             <Label variant="dashboard">Mode</Label>
             <Badge variant="outline" size="xs" className="font-bold">
@@ -88,7 +89,7 @@ export default function NewOrderPage() {
       </Card>
 
       <Form {...form}>
-        <form onSubmit={submitForm} className="space-y-6">
+        <FormStack as="form" density="relaxed" onSubmit={submitForm}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-6 md:col-span-2">
               <OrderFormCustomerCard
@@ -126,7 +127,7 @@ export default function NewOrderPage() {
               />
             </div>
           </div>
-        </form>
+        </FormStack>
       </Form>
     </div>
   );

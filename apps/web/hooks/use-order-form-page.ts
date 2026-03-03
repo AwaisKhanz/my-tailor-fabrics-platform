@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   AddonType,
@@ -12,8 +13,10 @@ import {
   Employee,
   FabricSource,
   GarmentType,
+  Role,
   UpdateOrderInput,
 } from "@tbms/shared-types";
+import { ADMIN_ROLES } from "@tbms/shared-constants";
 import { typedZodResolver } from "@/lib/utils/form";
 import { useToast } from "@/hooks/use-toast";
 import { orderSchema, type OrderFormValues } from "@/types/orders/schemas";
@@ -41,13 +44,18 @@ const createDefaultOrderItem = (): OrderFormValues["items"][number] => ({
 const toDateInputValue = (value: Date | string) =>
   new Date(value).toISOString().split("T")[0];
 
+const isAdminRole = (role: unknown): role is (typeof ADMIN_ROLES)[number] =>
+  role === Role.ADMIN || role === Role.SUPER_ADMIN;
+
 export function useOrderFormPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const { toast } = useToast();
 
   const editOrderId = searchParams.get("edit");
   const isEditMode = Boolean(editOrderId);
+  const canManageDiscounts = isAdminRole(session?.user?.role);
 
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -300,7 +308,9 @@ export function useOrderFormPage() {
 
       try {
         const payload = {
-          ...values,
+          customerId: values.customerId,
+          dueDate: values.dueDate,
+          notes: values.notes,
           items: values.items.map((item) => ({
             ...item,
             unitPrice: Math.round(Number(item.unitPrice || 0) * 100),
@@ -312,8 +322,13 @@ export function useOrderFormPage() {
               price: Math.round(Number(addon.price || 0) * 100),
             })),
           })),
-          discountValue: Math.round(Number(values.discountValue || 0) * 100),
           advancePayment: Math.round(Number(values.advancePayment || 0) * 100),
+          ...(canManageDiscounts
+            ? {
+                discountType: values.discountType,
+                discountValue: Math.round(Number(values.discountValue || 0) * 100),
+              }
+            : {}),
         };
 
         if (editOrderId) {
@@ -346,7 +361,7 @@ export function useOrderFormPage() {
         setSubmitting(false);
       }
     },
-    [editOrderId, router, toast],
+    [canManageDiscounts, editOrderId, router, toast],
   );
 
   return {

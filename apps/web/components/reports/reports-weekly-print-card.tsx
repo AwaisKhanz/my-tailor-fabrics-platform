@@ -13,7 +13,7 @@ export function ReportsWeeklyPrintCard({
 }: ReportsWeeklyPrintCardProps) {
   return (
     <Card variant="premium">
-      <CardHeader>
+      <CardHeader variant="section">
         <CardTitle variant="dashboard" className="flex items-center justify-between">
           Production Work-Order Summary
           <Printer className="h-4 w-4 text-primary" />
@@ -23,7 +23,7 @@ export function ReportsWeeklyPrintCard({
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent spacing="section">
         <Button variant="premium" className="w-full" size="lg" onClick={onPrint} disabled={printing}>
           <FileText className="mr-2 h-4 w-4" />
           {printing ? "Generating..." : "Generate Print View"}

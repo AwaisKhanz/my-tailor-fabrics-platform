@@ -1,0 +1,56 @@
+import type { UseFormReturn } from "react-hook-form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { type CustomerFormValues } from "@/types/customers";
+
+interface CustomerDialogPrimaryFieldsProps {
+  form: UseFormReturn<CustomerFormValues>;
+}
+
+export function CustomerDialogPrimaryFields({ form }: CustomerDialogPrimaryFieldsProps) {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <FormField
+        control={form.control}
+        name="fullName"
+        render={({ field }) => (
+          <FormItem className="col-span-2">
+            <FormLabel variant="dashboard">Full Name</FormLabel>
+            <FormControl>
+              <Input variant="premium" placeholder="John Doe" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="phone"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel variant="dashboard">Phone</FormLabel>
+            <FormControl>
+              <Input variant="premium" placeholder="03XXXXXXXXX" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="whatsapp"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel variant="dashboard">WhatsApp (opt.)</FormLabel>
+            <FormControl>
+              <Input variant="premium" placeholder="03XXXXXXXXX" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+}

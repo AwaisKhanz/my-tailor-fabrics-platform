@@ -34,11 +34,11 @@ let PaymentsController = class PaymentsController {
         return { success: true, data };
     }
     async disbursePay(dto, req) {
-        const data = await this.paymentsService.disbursePay(dto.employeeId, dto.amount, req.user.userId, req.user.branchId ?? '', dto.note);
+        const data = await this.paymentsService.disbursePay(dto.employeeId, dto.amount, req.user.userId, req.branchId, dto.note);
         return { success: true, data };
     }
-    async getHistory(employeeId, page, limit, sortBy, sortOrder) {
-        const data = await this.paymentsService.getHistory(employeeId, Number(page) || 1, Number(limit) || 20, sortBy, sortOrder);
+    async getHistory(employeeId, page, limit, from, to, sortBy, sortOrder) {
+        const data = await this.paymentsService.getHistory(employeeId, Number(page) || 1, Number(limit) || 20, from, to, sortBy, sortOrder);
         return { success: true, ...data };
     }
     async getWeeklyReport() {
@@ -79,10 +79,12 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Query)('page')),
     __param(2, (0, common_1.Query)('limit')),
-    __param(3, (0, common_1.Query)('sortBy')),
-    __param(4, (0, common_1.Query)('sortOrder')),
+    __param(3, (0, common_1.Query)('from')),
+    __param(4, (0, common_1.Query)('to')),
+    __param(5, (0, common_1.Query)('sortBy')),
+    __param(6, (0, common_1.Query)('sortOrder')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "getHistory", null);
 __decorate([

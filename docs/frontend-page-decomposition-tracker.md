@@ -10,18 +10,18 @@ Legend: `DN` (decomposed to orchestrator + reusable sections/hooks), `IP` (in pr
 |---|---:|---|---|
 | `apps/web/app/(dashboard)/orders/page.tsx` | 69 | DN | Decomposed in Pass 12 using `use-orders-list-page` + reusable toolbar/table sections. |
 | `apps/web/app/(dashboard)/orders/new/page.tsx` | 133 | DN | Decomposed in Pass 11 with reusable order form sections + hook. |
-| `apps/web/app/(dashboard)/orders/[id]/page.tsx` | 215 | DN | Decomposed in Pass 10 with reusable detail sections + hook. |
+| `apps/web/app/(dashboard)/orders/[id]/page.tsx` | 215 | DN | Decomposed in Pass 10 with reusable detail sections + hook; task assignment flow was decomposed in Pass 31 (`use-task-assignment-dialog` + reusable `orders/task-assignment/*` section). |
 
 ## Customers Domain
 | File | LOC | Status | Notes |
 |---|---:|---|---|
-| `apps/web/app/(dashboard)/customers/page.tsx` | 7 | NJ | Thin wrapper delegating to `CustomerTable`; backing module was decomposed in Pass 22 (`use-customers-page` + reusable `customers/list/*` sections). |
+| `apps/web/app/(dashboard)/customers/page.tsx` | 7 | NJ | Thin wrapper delegating to `CustomerTable`; backing module was decomposed in Pass 22 (`use-customers-page` + reusable `customers/list/*` sections), and create/edit profile dialog was decomposed in Pass 29 (`use-customer-dialog` + reusable `customers/dialog/*` sections). |
 | `apps/web/app/(dashboard)/customers/[id]/page.tsx` | 103 | DN | Decomposed in Pass 15 using `use-customer-detail-page` + reusable profile/tabs/dialog sections. |
 
 ## Employees Domain
 | File | LOC | Status | Notes |
 |---|---:|---|---|
-| `apps/web/app/(dashboard)/employees/page.tsx` | 74 | DN | Decomposed in Pass 16 using `use-employees-page` + reusable list toolbar/table sections. |
+| `apps/web/app/(dashboard)/employees/page.tsx` | 74 | DN | Decomposed in Pass 16 using `use-employees-page` + reusable list toolbar/table sections; add/edit profile dialog was further decomposed in Pass 28 (`use-employee-dialog` + reusable `employees/dialog/*` sections). |
 | `apps/web/app/(dashboard)/employees/[id]/page.tsx` | 195 | DN | Decomposed in Pass 13 using `use-employee-detail-page` + reusable detail sections/tabs/dialogs. |
 
 ## Finance/Operations Domain
@@ -29,7 +29,7 @@ Legend: `DN` (decomposed to orchestrator + reusable sections/hooks), `IP` (in pr
 |---|---:|---|---|
 | `apps/web/app/(dashboard)/expenses/page.tsx` | 131 | DN | Decomposed in Pass 14 using `use-expenses-page` + reusable expenses sections/dialogs with standardized delete confirmation flow. |
 | `apps/web/app/(dashboard)/payments/page.tsx` | 113 | DN | Decomposed in Pass 14 using `use-payments-page` + reusable payments sections/dialog with date-filtered history UX. |
-| `apps/web/app/(dashboard)/reports/page.tsx` | 67 | DN | Decomposed in Pass 16 using `use-reports-page` + reusable date-range/insights/export/print sections. |
+| `apps/web/app/(dashboard)/reports/page.tsx` | 67 | DN | Decomposed in Pass 16 using `use-reports-page` + reusable date-range/insights/export/print sections; insights charts were further decomposed in Pass 33 (`DesignAnalyticsCharts` split into reusable analytics cards). |
 | `apps/web/app/(dashboard)/my-orders/page.tsx` | 36 | DN | Decomposed in Pass 17 using `use-my-orders-page` + reusable search toolbar/table sections. |
 
 ## Dashboard/Auth/Public Domain
@@ -48,9 +48,9 @@ Legend: `DN` (decomposed to orchestrator + reusable sections/hooks), `IP` (in pr
 | `apps/web/app/(dashboard)/settings/garments/[id]/page.tsx` | 67 | DN | Decomposed in Pass 15 using `use-garment-detail-page` + reusable analytics/overview/logs/sidebar/rates sections. |
 | `apps/web/app/(dashboard)/settings/branches/page.tsx` | 11 | NJ | Thin wrapper to `BranchesTable`; backing module was decomposed in Pass 21 (`use-branches-page` + reusable `config/branches/*` sections). |
 | `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx` | 16 | NJ | Thin wrapper to `BranchHubConfig`; backing module was decomposed in Pass 26 (`use-branch-hub-config-page` + reusable `config/branches/hub/*` sections). |
-| `apps/web/app/(dashboard)/settings/measurements/page.tsx` | 11 | NJ | Thin wrapper to `MeasurementCategoriesTable`; backing module was decomposed in Pass 24 (`use-measurement-categories-page` + reusable `config/measurements/list/*` sections). |
-| `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx` | 16 | NJ | Thin wrapper to `MeasurementCategoryDetail`; backing module was decomposed in Pass 25 (`use-measurement-category-detail-page` + reusable `config/measurements/detail/*` sections). |
-| `apps/web/app/(dashboard)/settings/design-types/page.tsx` | 73 | DN | Decomposed in Pass 18 using `use-design-types-page` + reusable header/table sections and confirm-delete flow. |
+| `apps/web/app/(dashboard)/settings/measurements/page.tsx` | 11 | NJ | Thin wrapper to `MeasurementCategoriesTable`; backing module was decomposed in Pass 24 (`use-measurement-categories-page` + reusable `config/measurements/list/*` sections), and category dialog was decomposed in Pass 32 (`use-measurement-category-dialog` + reusable `config/measurements/dialog/*` section). |
+| `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx` | 16 | NJ | Thin wrapper to `MeasurementCategoryDetail`; backing module was decomposed in Pass 25 (`use-measurement-category-detail-page` + reusable `config/measurements/detail/*` sections), and field dialog was decomposed in Pass 27 (`use-measurement-field-dialog` + reusable dialog sections). |
+| `apps/web/app/(dashboard)/settings/design-types/page.tsx` | 73 | DN | Decomposed in Pass 18 using `use-design-types-page` + reusable header/table sections and confirm-delete flow; create/edit dialog was decomposed in Pass 30 (`use-design-type-dialog` + reusable `design-types/dialog/*` sections). |
 | `apps/web/app/(dashboard)/settings/rates/page.tsx` | 61 | DN | Decomposed in Pass 19 using `use-rates-page` + reusable header/search-stats/table sections. |
 | `apps/web/app/(dashboard)/settings/users/page.tsx` | 11 | NJ | Thin wrapper to `UsersTable`; backing module was decomposed in Pass 20 (`use-users-page` + reusable `config/users/*` sections). |
 

@@ -12,28 +12,63 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BranchesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
 let BranchesService = class BranchesService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
+    normalizeCode(code) {
+        return code.trim().toUpperCase();
+    }
+    normalizePagination(page = DEFAULT_PAGE, limit) {
+        if (!Number.isFinite(limit) || (limit ?? 0) <= 0) {
+            return null;
+        }
+        const safePage = Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
+        const safeLimit = Math.min(Math.trunc(limit), MAX_LIMIT);
+        return {
+            page: safePage,
+            limit: safeLimit || DEFAULT_LIMIT,
+            skip: (safePage - 1) * (safeLimit || DEFAULT_LIMIT),
+        };
+    }
+    async ensureCodeAvailable(code, excludingId) {
+        const existing = await this.prisma.branch.findFirst({
+            where: {
+                code,
+                ...(excludingId ? { id: { not: excludingId } } : {}),
+            },
+        });
+        if (!existing) {
+            return;
+        }
+        if (existing.deletedAt) {
+            throw new common_1.ConflictException(`Branch with code '${code}' existed but was deleted. Contact support.`);
+        }
+        throw new common_1.ConflictException(`Branch with code '${code}' already exists`);
+    }
     async findAll({ search, page = 1, limit, } = {}) {
         const where = { deletedAt: null };
-        if (search) {
+        const normalizedSearch = search?.trim();
+        const pagination = this.normalizePagination(page, limit);
+        if (normalizedSearch) {
             where.OR = [
-                { name: { contains: search, mode: 'insensitive' } },
-                { code: { contains: search, mode: 'insensitive' } },
+                { name: { contains: normalizedSearch, mode: 'insensitive' } },
+                { code: { contains: normalizedSearch, mode: 'insensitive' } },
             ];
         }
-        if (limit && limit > 0) {
-            const skip = (page - 1) * limit;
+        if (pagination) {
+            const { skip, limit: safeLimit } = pagination;
             const [data, total] = await Promise.all([
                 this.prisma.branch.findMany({
                     where,
                     orderBy: { createdAt: 'desc' },
                     skip,
-                    take: limit,
+                    take: safeLimit,
                     include: {
                         _count: {
                             select: { employees: true, customers: true, orders: true },
@@ -73,22 +108,15 @@ let BranchesService = class BranchesService {
         };
     }
     async create(data) {
-        const existing = await this.prisma.branch.findUnique({
-            where: { code: data.code.toUpperCase() },
-        });
-        if (existing) {
-            if (existing.deletedAt) {
-                throw new common_1.ConflictException(`Branch with code '${data.code}' existed but was deleted. Contact support.`);
-            }
-            throw new common_1.ConflictException(`Branch with code '${data.code}' already exists`);
-        }
+        const normalizedCode = this.normalizeCode(data.code);
+        await this.ensureCodeAvailable(normalizedCode);
         return this.prisma.branch.create({
-            data: { ...data, code: data.code.toUpperCase() },
+            data: { ...data, code: normalizedCode },
         });
     }
     async update(id, data) {
         await this.findOne(id);
-        return this.prisma.branch.update({ where: { id }, data: data });
+        return this.prisma.branch.update({ where: { id }, data });
     }
     async remove(id) {
         const branch = await this.prisma.branch.findUniqueOrThrow({
@@ -99,12 +127,7 @@ let BranchesService = class BranchesService {
                         orders: {
                             where: {
                                 status: {
-                                    in: [
-                                        shared_types_1.OrderStatus.NEW,
-                                        shared_types_1.OrderStatus.IN_PROGRESS,
-                                        shared_types_1.OrderStatus.READY,
-                                        shared_types_1.OrderStatus.OVERDUE,
-                                    ],
+                                    in: [...shared_constants_1.OPEN_ORDER_STATUSES],
                                 },
                                 deletedAt: null,
                             },

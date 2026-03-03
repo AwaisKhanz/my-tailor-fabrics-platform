@@ -1,8 +1,8 @@
 import { ROLES } from "@tbms/shared-constants";
 import { Role, type UserAccount } from "@tbms/shared-types";
 import { type Branch } from "@/lib/api/branches";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DialogActionRow, DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,7 +47,15 @@ export function UserAccountDialog({
           <DialogTitle>{editingUser ? "Edit User Account" : "Create User Account"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <FormStack
+          as="form"
+          id="user-account-form"
+          className="py-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSave();
+          }}
+        >
           <div className="space-y-1.5">
             <Label>
               Full Name <span className="text-destructive">*</span>
@@ -130,22 +138,18 @@ export function UserAccountDialog({
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </FormStack>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSave} disabled={isSubmitDisabled}>
-            {saving
-              ? editingUser
-                ? "Updating..."
-                : "Creating..."
-              : editingUser
-                ? "Save Changes"
-                : "Create Account"}
-          </Button>
-        </DialogFooter>
+        <DialogActionRow>
+          <DialogFormActions
+            onCancel={() => onOpenChange(false)}
+            submitText={editingUser ? "Save Changes" : "Create Account"}
+            submittingText={editingUser ? "Updating..." : "Creating..."}
+            submitting={saving}
+            submitFormId="user-account-form"
+            submitDisabled={isSubmitDisabled}
+          />
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

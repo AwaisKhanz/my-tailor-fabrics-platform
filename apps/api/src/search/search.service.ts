@@ -4,6 +4,11 @@ import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { Customer, Employee } from '@prisma/client';
 
+const MIN_QUERY_LENGTH = 2;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+const CACHE_TTL_MS = 30_000;
+
 @Injectable()
 export class SearchService {
   constructor(
@@ -11,15 +16,49 @@ export class SearchService {
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
+  private normalizeLimit(limit = DEFAULT_LIMIT): number {
+    if (!Number.isFinite(limit) || limit <= 0) {
+      return DEFAULT_LIMIT;
+    }
+    return Math.min(Math.trunc(limit), MAX_LIMIT);
+  }
+
+  private normalizeQuery(query: string): string {
+    return query.trim();
+  }
+
+  private buildTsQuery(query: string): string | null {
+    const tokens = query.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+    if (tokens.length === 0) {
+      return null;
+    }
+
+    return tokens.map((token) => `${token}:*`).join(' & ');
+  }
+
+  private buildCacheKey(
+    kind: 'cust' | 'emp',
+    branchId: string | null,
+    query: string,
+    limit: number,
+  ): string {
+    return `search:${kind}:${branchId ?? 'ALL'}:${query.toLowerCase()}:${limit}`;
+  }
+
+  private async setCache<T>(key: string, value: T): Promise<void> {
+    await this.cache.set(key, value, CACHE_TTL_MS);
+  }
+
   async searchCustomers(
     query: string,
-    branchId: string,
+    branchId: string | null,
     limit = 10,
   ): Promise<Customer[]> {
-    if (!query || query.trim().length < 2) return [];
+    const q = this.normalizeQuery(query);
+    if (!q || q.length < MIN_QUERY_LENGTH) return [];
+    const safeLimit = this.normalizeLimit(limit);
 
-    const q = query.trim();
-    const cacheKey = `search:cust:${branchId}:${q.toLowerCase()}`;
+    const cacheKey = this.buildCacheKey('cust', branchId, q, safeLimit);
 
     // Attempt cache hit
     const hit = await this.cache.get<Customer[]>(cacheKey);
@@ -35,59 +74,99 @@ export class SearchService {
         WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
           AND "deletedAt" IS NULL
           AND "sizeNumber" ILIKE ${q + '%'}
-        LIMIT ${limit}
+        ORDER BY "createdAt" DESC
+        LIMIT ${safeLimit}
       `;
     } else {
       // Full-text search via GIN index + tsvector
-      const tsQuery = `${q.split(/\s+/).join(' & ')}:*`; // basic prefixing
+      const tsQuery = this.buildTsQuery(q);
 
-      result = await this.prisma.$queryRaw<Customer[]>`
-        SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status,
-               ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) AS rank
-        FROM "Customer"
-        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-          AND "deletedAt" IS NULL
-          AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
-        ORDER BY rank DESC, "createdAt" DESC
-        LIMIT ${limit}
-      `;
+      if (tsQuery) {
+        result = await this.prisma.$queryRaw<Customer[]>`
+          SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status,
+                 ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) AS rank
+          FROM "Customer"
+          WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+            AND "deletedAt" IS NULL
+            AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
+          ORDER BY rank DESC, "createdAt" DESC
+          LIMIT ${safeLimit}
+        `;
+      }
+
+      // Fallback to ILIKE-based search for terms that do not yield usable tsquery matches.
+      if (result.length === 0) {
+        const likeQuery = `%${q}%`;
+        result = await this.prisma.$queryRaw<Customer[]>`
+          SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status
+          FROM "Customer"
+          WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+            AND "deletedAt" IS NULL
+            AND (
+              "fullName" ILIKE ${likeQuery}
+              OR "sizeNumber" ILIKE ${likeQuery}
+              OR phone ILIKE ${likeQuery}
+            )
+          ORDER BY "createdAt" DESC
+          LIMIT ${safeLimit}
+        `;
+      }
     }
 
-    // Set map in Redis with 30s TTL
-    // @ts-ignore - The underlying store supports TTL in ms
-    await this.cache.set(cacheKey, result, 30000);
+    await this.setCache(cacheKey, result);
 
     return result;
   }
 
   async searchEmployees(
     query: string,
-    branchId: string,
+    branchId: string | null,
     limit = 10,
   ): Promise<Employee[]> {
-    if (!query || query.trim().length < 2) return [];
+    const q = this.normalizeQuery(query);
+    if (!q || q.length < MIN_QUERY_LENGTH) return [];
+    const safeLimit = this.normalizeLimit(limit);
 
-    const q = query.trim();
-    const cacheKey = `search:emp:${branchId}:${q.toLowerCase()}`;
+    const cacheKey = this.buildCacheKey('emp', branchId, q, safeLimit);
 
     const hit = await this.cache.get<Employee[]>(cacheKey);
     if (hit) return hit;
 
-    const tsQuery = `${q.split(/\s+/).join(' & ')}:*`;
+    const tsQuery = this.buildTsQuery(q);
+    let result: Employee[] = [];
 
-    const result = await this.prisma.$queryRaw<Employee[]>`
-      SELECT id, "branchId", "employeeCode", "fullName", designation, status
-      FROM "Employee"
-      WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-        AND "deletedAt" IS NULL 
-        AND status = 'ACTIVE'
-        AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
-      ORDER BY ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) DESC, "createdAt" DESC
-      LIMIT ${limit}
-    `;
+    if (tsQuery) {
+      result = await this.prisma.$queryRaw<Employee[]>`
+        SELECT id, "branchId", "employeeCode", "fullName", designation, status
+        FROM "Employee"
+        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+          AND "deletedAt" IS NULL
+          AND status = 'ACTIVE'
+          AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
+        ORDER BY ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) DESC, "createdAt" DESC
+        LIMIT ${safeLimit}
+      `;
+    }
 
-    // @ts-ignore
-    await this.cache.set(cacheKey, result, 30000);
+    if (result.length === 0) {
+      const likeQuery = `%${q}%`;
+      result = await this.prisma.$queryRaw<Employee[]>`
+        SELECT id, "branchId", "employeeCode", "fullName", designation, status
+        FROM "Employee"
+        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
+          AND "deletedAt" IS NULL
+          AND status = 'ACTIVE'
+          AND (
+            "fullName" ILIKE ${likeQuery}
+            OR "employeeCode" ILIKE ${likeQuery}
+            OR phone ILIKE ${likeQuery}
+          )
+        ORDER BY "createdAt" DESC
+        LIMIT ${safeLimit}
+      `;
+    }
+
+    await this.setCache(cacheKey, result);
 
     return result;
   }

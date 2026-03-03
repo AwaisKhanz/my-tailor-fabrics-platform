@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FormActionRow, FormStack } from "@/components/ui/form-layout";
 import {
   Select,
   SelectContent,
@@ -106,7 +107,7 @@ export function MeasurementForm({
   if (loading) return <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
 
   return (
-    <div className="space-y-6">
+    <FormStack density="relaxed">
       <div className="space-y-2">
         <label className="text-sm font-medium">Measurement Category</label>
         <Select onValueChange={handleCategoryChange} defaultValue={initialCategoryId}>
@@ -125,7 +126,7 @@ export function MeasurementForm({
 
       {selectedCategory && (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormStack as="form" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedCategory.fields.sort((a, b) => a.sortOrder - b.sortOrder).map((field) => (
                 <FormField
@@ -171,14 +172,14 @@ export function MeasurementForm({
                 />
               ))}
             </div>
-            <div className="flex justify-end pt-4">
+            <FormActionRow>
               <Button type="submit" disabled={submitting}>
                 {submitting ? "Saving..." : "Save Measurements"}
               </Button>
-            </div>
-          </form>
+            </FormActionRow>
+          </FormStack>
         </Form>
       )}
-    </div>
+    </FormStack>
   );
 }

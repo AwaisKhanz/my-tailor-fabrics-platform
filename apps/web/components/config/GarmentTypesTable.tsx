@@ -7,6 +7,7 @@ import { GarmentTypesInventoryTable } from "@/components/config/garments/list/ga
 import { GarmentTypesListToolbar } from "@/components/config/garments/list/garment-types-list-toolbar";
 import { GarmentTypesPageHeader } from "@/components/config/garments/list/garment-types-page-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
 
 export function GarmentTypesTable() {
@@ -44,7 +45,7 @@ export function GarmentTypesTable() {
     <div className="space-y-6">
       <GarmentTypesPageHeader onAdd={openCreateDialog} />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <TableSurface>
         <GarmentTypesListToolbar
           totalCount={totalCount}
           search={search}
@@ -53,21 +54,19 @@ export function GarmentTypesTable() {
           onReset={resetFilters}
         />
 
-        <div className="p-6">
-          <GarmentTypesInventoryTable
-            garmentTypes={garmentTypes}
-            loading={loading}
-            page={currentPage}
-            total={totalCount}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onEdit={openEditDialog}
-            onOpenHistory={openHistoryDialog}
-            onOpenWorkflow={openWorkflowDialog}
-            onDelete={requestDelete}
-          />
-        </div>
-      </div>
+        <GarmentTypesInventoryTable
+          garmentTypes={garmentTypes}
+          loading={loading}
+          page={currentPage}
+          total={totalCount}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onEdit={openEditDialog}
+          onOpenHistory={openHistoryDialog}
+          onOpenWorkflow={openWorkflowDialog}
+          onDelete={requestDelete}
+        />
+      </TableSurface>
 
       <GarmentTypeDialog
         open={isDialogOpen}

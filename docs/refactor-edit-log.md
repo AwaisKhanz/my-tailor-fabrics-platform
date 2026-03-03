@@ -1164,3 +1164,559 @@ This is the single source of truth for implementation edits and why they were ma
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 27 (Measurement field dialog decomposition)
+
+### Measurement field dialog decomposition (`apps/web/components/config/MeasurementFieldDialog.tsx`)
+- `apps/web/hooks/use-measurement-field-dialog.ts` (new)
+  - Extracted dialog orchestration for:
+    - form reset and defaulting for create/edit flows
+    - duplicate-label validation
+    - dropdown option add/remove state
+    - submit/create/update API behavior and error handling.
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-category-note.tsx` (new)
+  - Extracted reusable category context note section.
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx` (new)
+  - Extracted reusable label/type/unit form section.
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx` (new)
+  - Extracted reusable dropdown-options editor section with inline option adder.
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-required-toggle.tsx` (new)
+  - Extracted reusable required-field toggle section.
+- `apps/web/components/config/MeasurementFieldDialog.tsx`
+  - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
+
+### UX consistency updates
+- Replaced raw informational paragraph text with shared `Typography` primitives in dialog sections.
+- Preserved inline “add option” UX while moving it into reusable dialog-section composition.
+
+### Tracking + manifest updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated settings/measurements/[id] note to include Pass 27 dialog decomposition completion.
+- `docs/refactor-manifest.csv`
+  - Regenerated and marked all pass-touched measurement-field dialog files as `DN` with note `Twenty-seventh modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Twenty-seventh Implementation Pass” and refreshed Phase 5 manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 27 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 28 (Employee dialog consistency decomposition)
+
+### Employee dialog decomposition (`apps/web/components/employees/EmployeeDialog.tsx`)
+- `apps/web/hooks/use-employee-dialog.ts` (new)
+  - Extracted employee dialog orchestration for:
+    - create/edit form reset behavior
+    - payload normalization for strict backend DTO expectations
+    - submit/create/update API behavior and toast feedback.
+- `apps/web/components/employees/dialog/employee-dialog-primary-fields.tsx` (new)
+  - Extracted reusable primary identity/contact fields section.
+- `apps/web/components/employees/dialog/employee-dialog-work-fields.tsx` (new)
+  - Extracted reusable role/status/payment/joining fields section.
+- `apps/web/components/employees/dialog/employee-dialog-contact-fields.tsx` (new)
+  - Extracted reusable personal/emergency details section with shared typography heading.
+- `apps/web/components/employees/EmployeeDialog.tsx`
+  - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
+
+### Consistency improvements across app patterns
+- Standardized employee dialog form controls to shared premium variants (`Input`, `SelectTrigger`, labels) to match other recently modernized dialogs.
+- Replaced ad-hoc section heading markup with shared `Typography` primitive in dialog sections.
+
+### Tracking + manifest updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated employees page note to include Pass 28 dialog decomposition completion.
+- `docs/refactor-manifest.csv`
+  - Regenerated and marked all pass-touched employee dialog files as `DN` with note `Twenty-eighth modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Twenty-eighth Implementation Pass” and refreshed Phase 5 manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 28 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 29 (Customer dialog consistency decomposition)
+
+### Customer dialog decomposition (`apps/web/components/customers/CustomerDialog.tsx`)
+- `apps/web/hooks/use-customer-dialog.ts` (new)
+  - Extracted customer dialog orchestration for:
+    - create/edit form reset behavior
+    - create payload branch-assignment logic for super-admin context
+    - submit/create/update API behavior and toast feedback.
+- `apps/web/components/customers/dialog/customer-dialog-primary-fields.tsx` (new)
+  - Extracted reusable customer identity/contact section (name, phone, WhatsApp).
+- `apps/web/components/customers/dialog/customer-dialog-meta-fields.tsx` (new)
+  - Extracted reusable customer metadata section (email, city, status).
+- `apps/web/components/customers/dialog/customer-dialog-address-field.tsx` (new)
+  - Extracted reusable customer address section.
+- `apps/web/components/customers/CustomerDialog.tsx`
+  - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
+
+### Consistency + type-safety follow-ups in touched areas
+- `apps/web/hooks/use-order-form-page.ts`
+  - Replaced tuple `includes` cast with explicit admin-role type guard for strict typing consistency with middleware role-check pattern.
+- `apps/web/lib/api/payments.ts`
+  - Added explicit legacy-payment-history type guard and narrowed normalization return typing for consistent API client contract handling.
+
+### Tracking + manifest updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated customers page note to include Pass 29 dialog decomposition completion.
+- `docs/refactor-manifest.csv`
+  - Regenerated and marked all pass-touched customer-dialog and type-safety follow-up files as `DN` with note `Twenty-ninth modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Twenty-ninth Implementation Pass” and refreshed Phase 3/5 manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 29 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 30 (Design-type dialog consistency decomposition)
+
+### Design-type dialog decomposition (`apps/web/components/design-types/CreateDesignTypeDialog.tsx`)
+- `apps/web/hooks/use-design-type-dialog.ts` (new)
+  - Extracted design-type dialog orchestration for:
+    - create/edit form reset behavior
+    - scoped field normalization (`ALL` -> `null`) for garment/branch selectors
+    - submit lifecycle handling and post-save close behavior.
+- `apps/web/components/design-types/dialog/design-type-dialog-basic-fields.tsx` (new)
+  - Extracted reusable design name + pricing/rate fields section.
+- `apps/web/components/design-types/dialog/design-type-dialog-scope-fields.tsx` (new)
+  - Extracted reusable garment/branch scope selectors section.
+- `apps/web/components/design-types/dialog/design-type-dialog-sort-field.tsx` (new)
+  - Extracted reusable sort-order field section.
+- `apps/web/components/design-types/CreateDesignTypeDialog.tsx`
+  - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
+
+### Consistency improvements across the app
+- Migrated design-type dialog to shared `ScrollableDialog` pattern used by other modernized dialogs.
+- Standardized form controls to premium variants and shared form primitives (`FormLabel`, `SelectTrigger`, `Input`) for cross-module visual/behavior consistency.
+- Replaced ad-hoc description markup with shared `Typography` primitive.
+
+### Tracking + manifest updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated design-types page note to include Pass 30 dialog decomposition completion.
+- `docs/refactor-manifest.csv`
+  - Regenerated and marked all pass-touched design-type dialog files as `DN` with note `Thirtieth modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirtieth Implementation Pass” and refreshed Phase 5 manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 30 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 31 (Task assignment dialog consistency decomposition)
+
+### Task-assignment dialog decomposition (`apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx`)
+- `apps/web/hooks/use-task-assignment-dialog.ts` (new)
+  - Extracted task-assignment orchestration for:
+    - task sorting
+    - employee assignment updates
+    - task status updates
+    - task rate override edit/submit lifecycle.
+- `apps/web/components/orders/task-assignment/task-assignment-table.tsx` (new)
+  - Extracted reusable task-assignment table section containing step/assignee/status/rate columns and inline rate editing controls.
+- `apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx`
+  - Converted to orchestration-only composition using extracted hook + reusable task table.
+  - Standardized dialog shell to shared `ScrollableDialog` for consistent modal structure.
+
+### Shared-type consistency improvements
+- Switched `employees` prop typing from local inline shape to shared type composition: `Array<Pick<Employee, "id" | "fullName">>`.
+- Kept task/status typing fully canonical through `@tbms/shared-types` and shared status labels from `@tbms/shared-constants`.
+
+### Tracking + manifest updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated orders detail note to include Pass 31 task-assignment decomposition completion.
+- `docs/refactor-manifest.csv`
+  - Regenerated and marked all pass-touched task-assignment files as `DN` with note `Thirty-first modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-first Implementation Pass” and refreshed Phase 5 manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 31 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 32 (Measurement category dialog consistency decomposition)
+
+### Measurement category dialog decomposition (`apps/web/components/config/MeasurementCategoryDialog.tsx`)
+- `apps/web/hooks/use-measurement-category-dialog.ts` (new)
+  - Extracted dialog orchestration for:
+    - create/edit form reset behavior
+    - submit/create/update API behavior
+    - loading state and toast lifecycle.
+  - Uses canonical shared contract types (`MeasurementCategory`, `CreateMeasurementCategoryInput`, `UpdateMeasurementCategoryInput`) from `@tbms/shared-types`.
+- `apps/web/components/config/measurements/dialog/measurement-category-dialog-name-field.tsx` (new)
+  - Extracted reusable category-name form section.
+- `apps/web/components/config/MeasurementCategoryDialog.tsx`
+  - Converted to orchestration-only composition using extracted hook + reusable dialog section.
+
+### Consistency improvements across app patterns
+- Standardized measurement category dialog to the same lightweight modern dialog pattern used in recent passes:
+  - shared `ScrollableDialog` shell
+  - shared `Form` primitives
+  - premium input/label variants.
+- Kept implementation intentionally simple (single hook + single field section) to avoid over-complexity while preserving consistency.
+
+### Tracking + manifest updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated settings/measurements note to include Pass 32 category-dialog decomposition completion.
+- `docs/refactor-manifest.csv`
+  - Regenerated and marked all pass-touched measurement-category dialog files as `DN` with note `Thirty-second modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-second Implementation Pass” and refreshed Phase 5 manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 32 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 33 (Reports analytics decomposition + Phase 5 manifest closure)
+
+### Reports analytics decomposition (`apps/web/components/reports/DesignAnalyticsCharts.tsx`)
+- `apps/web/components/reports/reports-design-popularity-card.tsx` (new)
+  - Extracted reusable design popularity card section with shared `Typography`/`Label` primitives and progress-bar visualization.
+- `apps/web/components/reports/reports-addon-categories-card.tsx` (new)
+  - Extracted reusable addon categories card section with standardized empty state and explicit total addon value footer.
+- `apps/web/components/reports/reports-financial-summary-card.tsx` (new)
+  - Extracted reusable financial summary card section with consistent stat typography and badge usage.
+- `apps/web/components/reports/DesignAnalyticsCharts.tsx`
+  - Converted into a lightweight orchestrator composed from the extracted reusable analytics cards.
+  - Switched analytics type imports to canonical shared contracts from `@tbms/shared-types`.
+  - Removed hardcoded comparative claim (`+8.4% vs last period`) and replaced with neutral selected-range summary text.
+- `apps/web/components/orders/my-orders-toolbar.tsx`
+  - Applied a lint-gate consistency fix by wiring `totalCount` into `TableToolbar` (`visibleCount`) so the prop is no longer dead and toolbar count semantics stay correct when filters are active.
+
+### Phase 5 manifest completion (`docs/refactor-manifest.csv`)
+- Marked reports analytics files as `DN` with note `Thirty-third modernization pass`.
+- Marked `apps/web/components/orders/my-orders-toolbar.tsx` as `DN` with note `Thirty-third modernization pass` for the lint-driven follow-up.
+- Reviewed and marked thin wrapper pages as `NJ` with explicit reasons:
+  - `apps/web/app/(dashboard)/customers/page.tsx`
+  - `apps/web/app/(dashboard)/settings/page.tsx`
+  - `apps/web/app/(dashboard)/settings/branches/page.tsx`
+  - `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx`
+  - `apps/web/app/(dashboard)/settings/garments/page.tsx`
+  - `apps/web/app/(dashboard)/settings/measurements/page.tsx`
+  - `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx`
+  - `apps/web/app/(dashboard)/settings/users/page.tsx`
+- Reviewed and marked non-page utility/leaf items as `NJ` with explicit reasons:
+  - `apps/web/components/rates/RatesList.tsx`
+  - `apps/web/hooks/use-debounce.ts`
+  - `apps/web/hooks/use-toast.ts`
+- Result: Phase 5 manifest rows are now fully covered as `DN`/`NJ` with `NS=0`.
+
+### Tracking updates
+- `docs/frontend-page-decomposition-tracker.md`
+  - Updated reports page note to include Pass 33 insights-chart decomposition completion.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-third Implementation Pass”.
+  - Updated Phase 5 ledger status to `DN` and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 33 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 34 (Backend payroll disbursement hardening)
+
+### Payments domain hardening (`apps/api/src/payments/*`)
+- `apps/api/src/payments/payments.service.ts`
+  - Refactored `disbursePay` to enforce branch-safe behavior and atomic payroll mutation:
+    - validates target employee exists and is not soft-deleted
+    - enforces branch scope (`actorBranchId` cannot disburse across branches)
+    - executes balance check + payment create + ledger payout entry inside a single serializable transaction
+    - retries transient serialization conflicts (`P2034`) with bounded retries and returns a clear conflict error on exhaustion.
+  - Added helper utilities for safer payment-history query handling:
+    - date parsing with invalid-input guard and end-of-day handling for `YYYY-MM-DD`
+    - whitelist-based `sortBy` resolution (`paidAt`, `createdAt`, `amount`)
+    - normalized pagination guards (positive page/limit with max cap).
+- `apps/api/src/payments/payments.controller.ts`
+  - Fixed branch context source for disbursement by passing `req.branchId` (BranchGuard-scoped context) instead of `req.user.branchId`.
+
+### Ledger integration update
+- `apps/api/src/ledger/ledger.service.ts`
+  - Extended `createEntry` to accept an optional transaction client so payment + ledger writes can be committed atomically in one database transaction.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked backend hardening files as `DN` with note `Thirty-fourth modernization pass`:
+  - `apps/api/src/payments/payments.service.ts`
+  - `apps/api/src/payments/payments.controller.ts`
+  - `apps/api/src/ledger/ledger.service.ts`
+- Reviewed and marked unchanged files as `NJ` with explicit reasons:
+  - `apps/api/src/payments/dto/payment.dto.ts` (`DTO already minimal and valid; no additional hardening needed this pass`)
+  - `apps/api/src/payments/payments.module.ts` (`Module wiring remains correct after service/controller hardening`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-fourth Implementation Pass”.
+  - Updated Phase 6 note and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 34 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 35 (Backend expenses hardening)
+
+### Expenses domain hardening (`apps/api/src/expenses/expenses.service.ts`)
+- Added strict branch validation for branch-bound mutations:
+  - `create` now requires a concrete branch context and fails fast with a clear `x-branch-id` requirement error when missing.
+- Added safer query normalization in `findAll`:
+  - bounded pagination defaults/caps (`DEFAULT_PAGE`, `DEFAULT_LIMIT`, `MAX_LIMIT`)
+  - whitelist-based sorting (`expenseDate`, `amount`, `createdAt`)
+  - defensive date parsing with inclusive end-of-day behavior for `YYYY-MM-DD` `to` values.
+- Added category integrity checks:
+  - new `assertActiveCategory` guard used on create/update to prevent assigning deleted/inactive categories.
+- Improved category listing UX consistency:
+  - switched expense category listing order from ID-desc to name-asc.
+- Kept response shape backward-compatible (`{ data, meta }` for list endpoints) while making page metadata deterministic from normalized pagination inputs.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked service as `DN` with note `Thirty-fifth modernization pass`:
+  - `apps/api/src/expenses/expenses.service.ts`
+- Reviewed and marked unchanged files as `NJ` with explicit reasons:
+  - `apps/api/src/expenses/dto/expense.dto.ts` (`DTO validation is already strict and aligned with service usage`)
+  - `apps/api/src/expenses/expenses.module.ts` (`Module wiring is correct; no structural change needed for this pass`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-fifth Implementation Pass”.
+  - Updated Phase 6 notes and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 35 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 36 (Backend rates hardening)
+
+### Rates domain hardening (`apps/api/src/rates/*`)
+- `apps/api/src/rates/rates.controller.ts`
+  - Added `BranchGuard` to align rates endpoints with global branch-scoping policy.
+  - Switched request typing to `AuthenticatedRequest` and fixed actor identity source from `req.user.id` to `req.user.userId`.
+  - Enforced branch scoping consistently:
+    - non-super-admins are forced to their branch for create/history/list
+    - super-admins can use active branch scope (`x-branch-id`) and optional explicit history branch filter.
+  - Normalized list response contract to include `data: { data, total }` (frontend-compatible) while preserving `meta`.
+- `apps/api/src/rates/rates.service.ts`
+  - Added safer pagination normalization (default + cap) and trimmed search handling.
+  - Hardened `create` by validating `effectiveFrom` and rejecting non-forward-effective replacements.
+  - Fixed history query behavior so omitted `branchId` no longer incorrectly forces global-only results.
+  - Returned deterministic pagination metadata (`page`, `limit`, `lastPage`) from service.
+- `apps/api/src/rates/dto/create-rate.dto.ts`
+  - Replaced empty file with explicit shared-contract alias export (`CreateRateDto` -> `CreateRateCardInput`) for maintainable DTO intent.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked as `DN` with note `Thirty-sixth modernization pass`:
+  - `apps/api/src/rates/rates.controller.ts`
+  - `apps/api/src/rates/rates.service.ts`
+  - `apps/api/src/rates/dto/create-rate.dto.ts`
+- Marked as `NJ` with explicit reason:
+  - `apps/api/src/rates/rates.module.ts` (`Module wiring remains correct after controller/service hardening`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-sixth Implementation Pass”.
+  - Updated Phase 6 notes and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 36 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 37 (Backend search hardening)
+
+### Search domain hardening (`apps/api/src/search/*`)
+- `apps/api/src/search/search.service.ts`
+  - Added defensive query normalization helpers:
+    - minimum query-length guard
+    - capped/normalized `limit` values
+    - sanitized tokenized `to_tsquery` construction.
+  - Added resilient fallback behavior:
+    - when full-text query is not usable or yields no rows, fallback to `ILIKE` search for customers/employees.
+  - Standardized cache behavior:
+    - deterministic cache keys including branch scope + normalized limit
+    - removed `@ts-ignore` and used typed cache `set` with TTL.
+  - Preserved branch scoping behavior via SQL condition while making super-admin/global search paths explicit (`branchId` nullable).
+- `apps/api/src/search/search.controller.ts`
+  - Cleaned query parsing by using `@Query('limit')` directly (instead of `req.query.limit`).
+  - Kept branch scope source as BranchGuard-injected `req.branchId` and normalized nullable handling.
+
+### Verification-driven lint cleanup
+- `apps/web/components/employees/AccountCreationDialog.tsx`
+  - Removed unused `Button` import to satisfy lint gate.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked as `DN` with note `Thirty-seventh modernization pass`:
+  - `apps/api/src/search/search.service.ts`
+  - `apps/api/src/search/search.controller.ts`
+  - `apps/web/components/employees/AccountCreationDialog.tsx`
+- Marked as `NJ` with explicit reasons:
+  - `apps/api/src/search/search.module.ts` (`Module wiring remains correct after search hardening`)
+  - `apps/web/components/ui/form-layout.tsx` (`Shared form-layout primitive reviewed; no additional refactor required in this pass`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-seventh Implementation Pass”.
+  - Updated Phase 6 notes and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 37 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `./scripts/generate-refactor-manifest.sh` ✅
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 38 (Backend employees consistency + shared-calculation reuse)
+
+### Employees domain hardening (`apps/api/src/employees/*`)
+- `apps/api/src/employees/employees.service.ts`
+  - Reused canonical ledger calculation source instead of duplicating earning/payment math:
+    - `getStats` now delegates to `ledgerService.getBalance` and maps response to existing employee stats shape (`totalEarned`, `totalPaid`, `balance`, `currentBalance`).
+  - Added deterministic pagination normalization helper (`page`, `limit`, cap) and reused it across list/items methods.
+  - Fixed employee search/list contract consistency:
+    - search path now returns `{ data, total }` (matching non-search path and frontend expectation) instead of mixed `{ data, meta }` shape.
+  - Added stricter branch-safe access for items:
+    - `getItems` now validates scoped access via `findOne` before querying order items.
+  - Reduced repeated date-conversion logic via helper and standardized create/update date handling.
+- `apps/api/src/employees/employees.module.ts`
+  - Imported `LedgerModule` so employees service can consume shared ledger summary logic instead of maintaining a duplicate calculation path.
+
+### Shared-contract consistency rationale
+- This pass intentionally removed a second independent earnings/balance implementation and aligned employee stats to the same ledger source used by the payments domain.
+- Result: one financial source of truth for employee balance calculations across backend services.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked as `DN` with note `Thirty-eighth modernization pass`:
+  - `apps/api/src/employees/employees.service.ts`
+  - `apps/api/src/employees/employees.module.ts`
+- Marked as `NJ` with explicit reason:
+  - `apps/api/src/employees/dto/create-employee.dto.ts` (`DTO already uses shared enums and strict validation; no extra change needed`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-eighth Implementation Pass”.
+  - Updated Phase 6 notes and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 38 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 39 (Backend users shared-contract cleanup)
+
+### Users domain hardening (`apps/api/src/users/users.service.ts`)
+- Centralized repeated user-service logic into reusable private helpers:
+  - `normalizeEmail`
+  - `ensureEmailAvailable` (single conflict behavior for create/update/setup)
+  - `resolveBranchId`
+  - `generateTempPassword` (secure random source)
+- Replaced ad-hoc repeated field selections with one canonical `USER_SELECT` projection (`Prisma.UserSelect`), used across create/update/findAll/setup paths.
+- Standardized password hashing policy using one constant (`PASSWORD_HASH_ROUNDS`) across create/update/setup.
+- Replaced weak temp-password generation (`Math.random`) with cryptographic randomness (`randomBytes`).
+- Adopted shared role-group constant in stats aggregation:
+  - `ADMIN_ROLES` from `@tbms/shared-constants` now drives privileged-user counting, removing local duplicate role lists.
+
+### Verification-driven lint cleanup (web)
+- `apps/web/components/expenses/expense-create-dialog.tsx`
+  - Removed unused `Button` import.
+- `apps/web/components/payments/payments-disburse-dialog.tsx`
+  - Removed unused `Button` import.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked as `DN` with note `Thirty-ninth modernization pass`:
+  - `apps/api/src/users/users.service.ts`
+  - `apps/web/components/expenses/expense-create-dialog.tsx`
+  - `apps/web/components/payments/payments-disburse-dialog.tsx`
+- Marked as `NJ` with explicit reason:
+  - `apps/api/src/users/users.module.ts` (`Module wiring remains correct after shared-logic service refactor`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Thirty-ninth Implementation Pass”.
+  - Updated Phase 6 notes and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 39 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-03 — Pass 40 (Branches + shared order-status constant unification)
+
+### Shared constants cleanup (`packages/shared-constants/src/orders.ts`)
+- Added canonical `OPEN_ORDER_STATUSES` constant for statuses representing active pipeline work:
+  - `NEW`, `IN_PROGRESS`, `READY`, `OVERDUE`.
+- Purpose: remove repeated local active-status arrays and ensure one shared source across backend/frontend consumers.
+
+### Branches domain hardening (`apps/api/src/branches/branches.service.ts`)
+- Replaced local inline active-order status list in branch deletion guard with shared `OPEN_ORDER_STATUSES`.
+- Added normalized helper logic to reduce repeated ad-hoc handling:
+  - `normalizeCode`
+  - `normalizePagination`
+  - `ensureCodeAvailable`
+- Hardened list/search behavior:
+  - trims search input
+  - applies bounded pagination when `limit` provided
+  - preserves backward-compatible non-paginated behavior when `limit` is omitted.
+- Hardened create path:
+  - code is normalized once and validated through shared conflict helper.
+
+### Manifest updates (`docs/refactor-manifest.csv`)
+- Marked as `DN` with note `Fortieth modernization pass`:
+  - `apps/api/src/branches/branches.service.ts`
+  - `packages/shared-constants/src/orders.ts`
+- Marked as `NJ` with explicit reason:
+  - `apps/api/src/branches/branches.module.ts` (`Module wiring remains correct after service hardening`)
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fortieth Implementation Pass”.
+  - Updated Phase 3/6 notes and refreshed manifest snapshot counts.
+- `docs/refactor-edit-log.md`
+  - Appended this Pass 40 section so every edit remains centralized in one file.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run lint -w web` ✅
+- `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)

@@ -195,6 +195,7 @@ export function OrderItemsTable({
           data={items}
           itemLabel="pieces"
           emptyMessage="No pieces found for this order."
+          chrome="flat"
         />
       </Card>
     </div>

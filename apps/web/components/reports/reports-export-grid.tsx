@@ -44,14 +44,14 @@ export function ReportsExportGrid({
 
         return (
           <Card key={card.type} variant="premium">
-            <CardHeader>
+            <CardHeader variant="section" density="compact">
               <CardTitle variant="dashboard">{card.title}</CardTitle>
               <CardDescription className="text-[11px] leading-relaxed">
                 {card.description}
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex gap-2">
+            <CardContent spacing="section" className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"

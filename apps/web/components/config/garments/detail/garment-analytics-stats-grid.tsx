@@ -13,7 +13,7 @@ export function GarmentAnalyticsStatsGrid({ garment }: GarmentAnalyticsStatsGrid
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <Card className="border-border/50 bg-primary/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent className="flex items-center gap-4 p-4">
+        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
             <ClipboardList className="h-5 w-5 text-primary" />
           </div>
@@ -27,7 +27,7 @@ export function GarmentAnalyticsStatsGrid({ garment }: GarmentAnalyticsStatsGrid
       </Card>
 
       <Card className="border-border/50 bg-warning/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent className="flex items-center gap-4 p-4">
+        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-warning/20 bg-warning/10">
             <Activity className="h-5 w-5 text-warning" />
           </div>
@@ -41,7 +41,7 @@ export function GarmentAnalyticsStatsGrid({ garment }: GarmentAnalyticsStatsGrid
       </Card>
 
       <Card className="border-border/50 bg-success/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent className="flex items-center gap-4 p-4">
+        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-success/20 bg-success/10">
             <Banknote className="h-5 w-5 text-success" />
           </div>
@@ -55,7 +55,7 @@ export function GarmentAnalyticsStatsGrid({ garment }: GarmentAnalyticsStatsGrid
       </Card>
 
       <Card className="border-border/50 bg-ready/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent className="flex items-center gap-4 p-4">
+        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-ready/20 bg-ready/10">
             <Target className="h-5 w-5 text-ready" />
           </div>

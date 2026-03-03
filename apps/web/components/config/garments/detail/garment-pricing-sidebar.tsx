@@ -14,7 +14,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
   return (
     <div className="space-y-6">
       <Card className="border-border/50 bg-primary/[0.02] shadow-sm">
-        <CardHeader className="pb-2">
+        <CardHeader variant="section" density="compact">
           <div className="flex items-center gap-2">
             <Banknote className="h-4 w-4 text-primary" />
             <CardTitle variant="dashboard" className="text-primary">
@@ -24,7 +24,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
           <Label variant="dashboard">Base Shop Rates</Label>
         </CardHeader>
 
-        <CardContent className="space-y-4 pt-4">
+        <CardContent spacing="section" className="space-y-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">Customer Price</span>
@@ -68,8 +68,8 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-border/50 pt-4 shadow-sm">
-        <CardHeader className="pb-3 pt-0">
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader variant="section" density="compact">
           <div className="flex items-center gap-2">
             <Banknote className="h-4 w-4 text-primary" />
             <CardTitle variant="dashboard" className="text-primary">
@@ -81,7 +81,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
           </Label>
         </CardHeader>
 
-        <CardContent className="space-y-3">
+        <CardContent spacing="section" className="space-y-3">
           {garment.analytics.topTailors.length > 0 ? (
             garment.analytics.topTailors.map((tailor, index) => (
               <div key={`${tailor.name}-${index}`} className="flex items-center justify-between">

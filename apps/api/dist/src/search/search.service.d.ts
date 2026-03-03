@@ -5,6 +5,11 @@ export declare class SearchService {
     private readonly prisma;
     private readonly cache;
     constructor(prisma: PrismaService, cache: Cache);
-    searchCustomers(query: string, branchId: string, limit?: number): Promise<Customer[]>;
-    searchEmployees(query: string, branchId: string, limit?: number): Promise<Employee[]>;
+    private normalizeLimit;
+    private normalizeQuery;
+    private buildTsQuery;
+    private buildCacheKey;
+    private setCache;
+    searchCustomers(query: string, branchId: string | null, limit?: number): Promise<Customer[]>;
+    searchEmployees(query: string, branchId: string | null, limit?: number): Promise<Employee[]>;
 }

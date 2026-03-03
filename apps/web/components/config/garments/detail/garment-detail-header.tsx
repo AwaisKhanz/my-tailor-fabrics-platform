@@ -14,8 +14,8 @@ export function GarmentDetailHeader({ garment, onBack }: GarmentDetailHeaderProp
   return (
     <div className="flex items-start gap-4">
       <Button
-        variant="ghost"
-        size="icon"
+        variant="tableIcon"
+        size="iconSm"
         className="h-10 w-10 shrink-0 rounded-full"
         onClick={onBack}
       >

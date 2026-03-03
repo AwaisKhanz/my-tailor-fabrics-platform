@@ -18,7 +18,7 @@ export function ReportsDateRangeCard({
 }: ReportsDateRangeCardProps) {
   return (
     <Card variant="premium">
-      <CardHeader className="pb-4">
+      <CardHeader variant="section">
         <CardTitle variant="dashboard" className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-primary" />
           Reports Timeframe
@@ -28,7 +28,7 @@ export function ReportsDateRangeCard({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-6 sm:flex-row">
+      <CardContent spacing="section" className="flex flex-col gap-6 sm:flex-row">
         <div className="flex-1 space-y-2">
           <Label variant="dashboard">Start Date</Label>
           <Input

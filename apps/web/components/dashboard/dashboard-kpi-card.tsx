@@ -26,7 +26,7 @@ export function DashboardKpiCard({
 }: DashboardKpiCardProps) {
   return (
     <Card variant="premium" className="border-border transition-all hover:shadow-lg">
-      <CardContent className="p-6">
+      <CardContent spacing="section">
         <div className="mb-6 flex items-start justify-between">
           <div
             className={`h-12 w-12 shrink-0 rounded-2xl ${iconBoxClass || "bg-muted"} flex items-center justify-center`}

@@ -11,6 +11,12 @@ export const ordersApi = {
     const response = await api.get<ApiResponse<Order>>(`/orders/${id}`);
     return response.data;
   },
+  getReceiptPdf: async (id: string) => {
+    const response = await api.get(`/orders/${id}/receipt`, {
+      responseType: "blob",
+    });
+    return response.data as Blob;
+  },
   createOrder: async (data: CreateOrderInput) => {
     const response = await api.post<ApiResponse<Order>>('/orders', data);
     return response.data;

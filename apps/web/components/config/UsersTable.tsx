@@ -6,6 +6,7 @@ import { UsersAccessTable } from "@/components/config/users/users-access-table";
 import { UsersListToolbar } from "@/components/config/users/users-list-toolbar";
 import { UsersPageHeader } from "@/components/config/users/users-page-header";
 import { UsersStatsGrid } from "@/components/config/users/users-stats-grid";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useUsersPage } from "@/hooks/use-users-page";
 
 export function UsersTable() {
@@ -14,7 +15,6 @@ export function UsersTable() {
     saving,
     stats,
     users,
-    totalUsers,
     filteredUsersCount,
     search,
     roleFilter,
@@ -45,24 +45,25 @@ export function UsersTable() {
 
       <UsersStatsGrid stats={stats} />
 
-      <UsersListToolbar
-        search={search}
-        roleFilter={roleFilter}
-        totalUsers={totalUsers}
-        filteredUsersCount={filteredUsersCount}
-        hasActiveFilters={hasActiveFilters}
-        onSearchChange={setSearchFilter}
-        onRoleFilterChange={setRoleFilterValue}
-        onResetFilters={resetFilters}
-      />
+      <TableSurface>
+        <UsersListToolbar
+          search={search}
+          roleFilter={roleFilter}
+          filteredUsersCount={filteredUsersCount}
+          hasActiveFilters={hasActiveFilters}
+          onSearchChange={setSearchFilter}
+          onRoleFilterChange={setRoleFilterValue}
+          onResetFilters={resetFilters}
+        />
 
-      <UsersAccessTable
-        users={users}
-        loading={loading}
-        onEdit={openEditDialog}
-        onDelete={requestDelete}
-        onToggleActive={toggleUserActive}
-      />
+        <UsersAccessTable
+          users={users}
+          loading={loading}
+          onEdit={openEditDialog}
+          onDelete={requestDelete}
+          onToggleActive={toggleUserActive}
+        />
+      </TableSurface>
 
       <UserAccountDialog
         open={dialogOpen}

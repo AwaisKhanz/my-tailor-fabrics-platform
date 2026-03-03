@@ -6,6 +6,7 @@ import { MeasurementCategoriesInventoryTable } from "@/components/config/measure
 import { MeasurementCategoriesListToolbar } from "@/components/config/measurements/list/measurement-categories-list-toolbar";
 import { MeasurementCategoriesPageHeader } from "@/components/config/measurements/list/measurement-categories-page-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
 
 export function MeasurementCategoriesTable() {
@@ -39,7 +40,7 @@ export function MeasurementCategoriesTable() {
     <div className="space-y-6">
       <MeasurementCategoriesPageHeader onAdd={openCreateDialog} />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <TableSurface>
         <MeasurementCategoriesListToolbar
           total={total}
           search={search}
@@ -48,22 +49,20 @@ export function MeasurementCategoriesTable() {
           onReset={resetFilters}
         />
 
-        <div className="p-6">
-          <MeasurementCategoriesInventoryTable
-            categories={categories}
-            loading={loading}
-            page={page}
-            total={total}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onView={(category) => {
-              router.push(`/settings/measurements/${category.id}`);
-            }}
-            onEdit={openEditDialog}
-            onDelete={requestDelete}
-          />
-        </div>
-      </div>
+        <MeasurementCategoriesInventoryTable
+          categories={categories}
+          loading={loading}
+          page={page}
+          total={total}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onView={(category) => {
+            router.push(`/settings/measurements/${category.id}`);
+          }}
+          onEdit={openEditDialog}
+          onDelete={requestDelete}
+        />
+      </TableSurface>
 
       <MeasurementCategoryDialog
         open={isDialogOpen}

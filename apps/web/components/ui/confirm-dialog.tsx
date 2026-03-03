@@ -5,11 +5,11 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { DialogActionRow } from "@/components/ui/form-layout";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logDevError } from "@/lib/logger";
@@ -83,7 +83,7 @@ export function ConfirmDialog({
             </div>
           </DialogHeader>
 
-          <DialogFooter className="mt-8 gap-3 sm:space-x-0">
+          <DialogActionRow className="mt-8 gap-3 sm:space-x-0" bordered={false}>
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
@@ -103,7 +103,7 @@ export function ConfirmDialog({
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {confirmText}
             </Button>
-          </DialogFooter>
+          </DialogActionRow>
         </div>
       </DialogContent>
     </Dialog>

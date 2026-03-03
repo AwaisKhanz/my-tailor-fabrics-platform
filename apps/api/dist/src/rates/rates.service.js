@@ -12,6 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RatesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
 let RatesService = class RatesService {
     prisma;
     constructor(prisma) {
@@ -45,6 +48,10 @@ let RatesService = class RatesService {
         return rateCard;
     }
     async create(dto) {
+        const effectiveFrom = new Date(dto.effectiveFrom);
+        if (Number.isNaN(effectiveFrom.getTime())) {
+            throw new common_1.BadRequestException('Invalid effectiveFrom date');
+        }
         return this.prisma.$transaction(async (tx) => {
             const previousRate = await tx.rateCard.findFirst({
                 where: {
@@ -57,7 +64,9 @@ let RatesService = class RatesService {
                 orderBy: { effectiveFrom: 'desc' },
             });
             if (previousRate) {
-                const effectiveFrom = new Date(dto.effectiveFrom);
+                if (effectiveFrom <= previousRate.effectiveFrom) {
+                    throw new common_1.BadRequestException('effectiveFrom must be after the current active rate start date');
+                }
                 await tx.rateCard.update({
                     where: { id: previousRate.id },
                     data: { effectiveTo: effectiveFrom },
@@ -69,7 +78,7 @@ let RatesService = class RatesService {
                     garmentTypeId: dto.garmentTypeId,
                     stepKey: dto.stepKey,
                     amount: dto.amount,
-                    effectiveFrom: new Date(dto.effectiveFrom),
+                    effectiveFrom,
                     stepTemplateId: dto.stepTemplateId,
                     createdById: dto.createdById,
                 },
@@ -81,23 +90,34 @@ let RatesService = class RatesService {
             where: {
                 garmentTypeId,
                 stepKey,
-                branchId: branchId || null,
+                ...(branchId === undefined ? {} : { branchId: branchId || null }),
                 deletedAt: null,
             },
             orderBy: { effectiveFrom: 'desc' },
         });
     }
     async findAll(options = {}) {
-        const { branchId, search, page = 1, limit = 10 } = options;
+        const { branchId, search } = options;
+        const page = Number.isFinite(options.page) && (options.page ?? 0) > 0
+            ? Math.trunc(options.page)
+            : DEFAULT_PAGE;
+        const limit = Number.isFinite(options.limit) && (options.limit ?? 0) > 0
+            ? Math.min(Math.trunc(options.limit), MAX_LIMIT)
+            : DEFAULT_LIMIT;
         const skip = (page - 1) * limit;
+        const searchTerm = search?.trim();
         const where = {
             deletedAt: null,
             ...(branchId ? { branchId } : {}),
         };
-        if (search) {
+        if (searchTerm) {
             where.OR = [
-                { stepKey: { contains: search, mode: 'insensitive' } },
-                { garmentType: { name: { contains: search, mode: 'insensitive' } } },
+                { stepKey: { contains: searchTerm, mode: 'insensitive' } },
+                {
+                    garmentType: {
+                        name: { contains: searchTerm, mode: 'insensitive' },
+                    },
+                },
             ];
         }
         const [total, data] = await Promise.all([
@@ -117,7 +137,7 @@ let RatesService = class RatesService {
                 take: limit,
             }),
         ]);
-        return { data, total };
+        return { data, total, page, limit, lastPage: Math.ceil(total / limit) };
     }
 };
 exports.RatesService = RatesService;

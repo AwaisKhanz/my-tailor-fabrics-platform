@@ -79,18 +79,16 @@ export function GarmentTypesInventoryTable({
         cell: (item) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={() => onEdit(item)}
             >
               <Edit2 className="h-4 w-4" />
             </Button>
 
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-primary/5 hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={() => onOpenHistory(item)}
               title="View Price History"
             >
@@ -98,9 +96,8 @@ export function GarmentTypesInventoryTable({
             </Button>
 
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-primary/5 hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={() => onOpenWorkflow(item)}
               title="Configure Production Workflow"
             >
@@ -108,9 +105,8 @@ export function GarmentTypesInventoryTable({
             </Button>
 
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              variant="tableDanger"
+              size="iconSm"
               onClick={() => onDelete(item)}
             >
               <Trash2 className="h-4 w-4" />
@@ -133,6 +129,7 @@ export function GarmentTypesInventoryTable({
       total={total}
       limit={pageSize}
       onPageChange={onPageChange}
+      chrome="flat"
     />
   );
 }

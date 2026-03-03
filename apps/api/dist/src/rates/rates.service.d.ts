@@ -76,5 +76,8 @@ export declare class RatesService {
             createdById: string;
         })[];
         total: number;
+        page: number;
+        limit: number;
+        lastPage: number;
     }>;
 }

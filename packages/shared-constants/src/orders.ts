@@ -13,6 +13,14 @@ export const ORDER_STATUS_CONFIG: Record<
   [OrderStatus.CANCELLED]: { label: "CANCELLED", variant: "outline" },
 };
 
+// Statuses that represent active work still in the production/delivery pipeline.
+export const OPEN_ORDER_STATUSES = [
+  OrderStatus.NEW,
+  OrderStatus.IN_PROGRESS,
+  OrderStatus.READY,
+  OrderStatus.OVERDUE,
+] as const;
+
 export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
   [ItemStatus.PENDING]: 'Pending',
   [ItemStatus.IN_PROGRESS]: 'In Progress',

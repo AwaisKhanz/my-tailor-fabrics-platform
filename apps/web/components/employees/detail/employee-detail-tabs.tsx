@@ -119,7 +119,7 @@ export function EmployeeDetailTabs({
       header: "",
       align: "right",
       cell: (item) => (
-        <Button variant="ghost" size="icon" onClick={() => onViewOrder(item.orderId)}>
+        <Button variant="tableIcon" size="iconSm" onClick={() => onViewOrder(item.orderId)}>
           <ChevronRight className="h-4 w-4" />
         </Button>
       ),
@@ -268,8 +268,8 @@ export function EmployeeDetailTabs({
       align: "right",
       cell: (entry) => (
         <Button
-          variant="ghost"
-          size="icon"
+          variant="tableDanger"
+          size="iconSm"
           className="h-7 w-7 text-muted-foreground hover:text-destructive"
           onClick={() => onDeleteLedgerEntry(entry.id)}
         >
@@ -309,29 +309,43 @@ export function EmployeeDetailTabs({
         </TabsList>
 
         <TabsContent value="tasks" className="border-none p-0">
-          <DataTable columns={taskColumns} data={tasks} loading={loading} emptyMessage="No assigned tasks found." />
+          <DataTable
+            columns={taskColumns}
+            data={tasks}
+            loading={loading}
+            emptyMessage="No assigned tasks found."
+            chrome="flat"
+          />
         </TabsContent>
 
         <TabsContent value="history" className="border-none p-0">
-          <DataTable columns={historyColumns} data={items} loading={loading} emptyMessage="No work items found." />
+          <DataTable
+            columns={historyColumns}
+            data={items}
+            loading={loading}
+            emptyMessage="No work items found."
+            chrome="flat"
+          />
         </TabsContent>
 
         <TabsContent value="ledger" className="space-y-4 border-none p-4">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <Input
               type="date"
+              variant="table"
               className="h-8 w-36 px-2 text-xs"
               value={ledgerFrom}
               onChange={(event) => setLedgerFrom(event.target.value)}
             />
             <Input
               type="date"
+              variant="table"
               className="h-8 w-36 px-2 text-xs"
               value={ledgerTo}
               onChange={(event) => setLedgerTo(event.target.value)}
             />
             <Select value={ledgerType} onValueChange={setLedgerType}>
-              <SelectTrigger className="h-8 w-[140px] text-xs">
+              <SelectTrigger variant="table" className="h-8 w-[140px] text-xs">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -359,6 +373,7 @@ export function EmployeeDetailTabs({
             data={ledgerEntries}
             loading={ledgerLoading}
             emptyMessage="No ledger entries found."
+            chrome="flat"
           />
 
           {ledgerTotal > ledgerLimit ? (
@@ -397,6 +412,7 @@ export function EmployeeDetailTabs({
             data={attendance}
             loading={loading}
             emptyMessage="No attendance records found."
+            chrome="flat"
           />
         </TabsContent>
 
@@ -427,7 +443,7 @@ export function EmployeeDetailTabs({
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="tableIcon" size="iconSm" asChild>
                   <a href={document.fileUrl} target="_blank" rel="noreferrer">
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -447,13 +463,13 @@ export function EmployeeDetailTabs({
         <TabsContent value="account" className="p-6">
           {employee.userAccount ? (
             <Card className="border-success/20 bg-success/10 shadow-none">
-              <CardHeader>
+              <CardHeader variant="sectionSoft" density="compact">
                 <CardTitle className="flex items-center gap-2 text-sm">
                   <ShieldCheck className="h-5 w-5 text-success" /> System Access Enabled
                 </CardTitle>
                 <CardDescription>This employee has an active portal account.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent spacing="section" className="space-y-4">
                 <div className="flex items-center justify-between border-b py-2 text-sm">
                   <span className="text-muted-foreground">Login Email</span>
                   <span className="font-bold tracking-tight">{employee.userAccount.email}</span>

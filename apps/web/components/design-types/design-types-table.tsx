@@ -4,6 +4,7 @@ import { type Branch, type DesignType, type GarmentType } from "@tbms/shared-typ
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { formatPKR } from "@/lib/utils";
 
 interface DesignTypesTableProps {
@@ -82,13 +83,12 @@ export function DesignTypesTable({
         align: "right",
         cell: (designType) => (
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(designType)}>
+            <Button variant="tableIcon" size="iconSm" onClick={() => onEdit(designType)}>
               <Edit2 className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive"
+              variant="tableDanger"
+              size="iconSm"
               onClick={() => onDelete(designType)}
             >
               <Trash2 className="h-4 w-4" />
@@ -101,12 +101,16 @@ export function DesignTypesTable({
   );
 
   return (
-    <DataTable
-      columns={columns}
-      data={designTypes}
-      loading={loading}
-      itemLabel="design types"
-      emptyMessage="No design types have been defined yet."
-    />
+    <TableSurface>
+      <TableToolbar title="Design Type Directory" total={designTypes.length} />
+      <DataTable
+        columns={columns}
+        data={designTypes}
+        loading={loading}
+        itemLabel="design types"
+        emptyMessage="No design types have been defined yet."
+        chrome="flat"
+      />
+    </TableSurface>
   );
 }

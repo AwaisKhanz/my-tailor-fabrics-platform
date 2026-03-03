@@ -76,6 +76,7 @@ export function MyOrdersTable({ items, loading }: MyOrdersTableProps) {
       loading={loading}
       itemLabel="items"
       emptyMessage="You don't have any orders assigned to you at the moment."
+      chrome="flat"
     />
   );
 }

@@ -1,8 +1,6 @@
 import { Filter, RotateCcw } from "lucide-react";
 import { type ExpenseCategory } from "@/lib/api/expenses";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,9 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TableToolbar } from "@/components/ui/table-layout";
 import { type ExpensesFilters } from "@/hooks/use-expenses-page";
 
 interface ExpensesFiltersCardProps {
+  total: number;
   categories: ExpenseCategory[];
   categoriesLoading: boolean;
   filters: ExpensesFilters;
@@ -26,6 +26,7 @@ interface ExpensesFiltersCardProps {
 }
 
 export function ExpensesFiltersCard({
+  total,
   categories,
   categoriesLoading,
   filters,
@@ -38,31 +39,25 @@ export function ExpensesFiltersCard({
   const hasFilters = activeFilterCount > 0;
 
   return (
-    <Card className="overflow-hidden border-border/50 shadow-sm">
-      <CardHeader className="border-b border-border/50 bg-muted/5 pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <CardTitle variant="dashboard">Quick Filters</CardTitle>
-          </div>
-          {hasFilters ? (
-            <Badge variant="outline" size="xs" className="font-bold">
-              {activeFilterCount} active filter{activeFilterCount > 1 ? "s" : ""}
-            </Badge>
-          ) : null}
-        </div>
-      </CardHeader>
-
-      <CardContent className="pt-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="space-y-2">
-            <Label variant="dashboard">Category</Label>
+    <TableToolbar
+      title="Expense Ledger"
+      total={total}
+      activeFilterCount={activeFilterCount}
+      controls={
+        <>
+          <div className="w-full md:w-[220px]">
+            <Label variant="dashboard" className="mb-2 block">
+              <span className="inline-flex items-center gap-1.5">
+                <Filter className="h-3.5 w-3.5" />
+                Category
+              </span>
+            </Label>
             <Select
               value={filters.categoryId}
               onValueChange={onCategoryChange}
               disabled={categoriesLoading}
             >
-              <SelectTrigger variant="premium" className="h-10">
+              <SelectTrigger variant="table">
                 <SelectValue
                   placeholder={categoriesLoading ? "Loading categories..." : "All Categories"}
                 />
@@ -78,42 +73,42 @@ export function ExpensesFiltersCard({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label variant="dashboard">Date Range (From)</Label>
+          <div className="w-full md:w-[180px]">
+            <Label variant="dashboard" className="mb-2 block">
+              Date Range (From)
+            </Label>
             <Input
-              variant="premium"
+              variant="table"
               type="date"
-              className="h-10"
               value={filters.from}
               onChange={(event) => onFromChange(event.target.value)}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label variant="dashboard">Date Range (To)</Label>
+          <div className="w-full md:w-[180px]">
+            <Label variant="dashboard" className="mb-2 block">
+              Date Range (To)
+            </Label>
             <Input
-              variant="premium"
+              variant="table"
               type="date"
-              className="h-10"
               value={filters.to}
               onChange={(event) => onToChange(event.target.value)}
             />
           </div>
 
-          <div className="flex items-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-10 w-full text-xs font-bold text-muted-foreground hover:text-foreground"
-              onClick={onReset}
-              disabled={!hasFilters}
-            >
-              <RotateCcw className="mr-2 h-3.5 w-3.5" />
-              Reset Filters
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+          <Button
+            variant="tableReset"
+            size="sm"
+            className="md:ml-auto md:self-end"
+            onClick={onReset}
+            disabled={!hasFilters}
+          >
+            <RotateCcw className="mr-2 h-3.5 w-3.5" />
+            Reset Filters
+          </Button>
+        </>
+      }
+    />
   );
 }

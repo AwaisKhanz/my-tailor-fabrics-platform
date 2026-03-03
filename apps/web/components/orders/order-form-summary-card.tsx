@@ -52,7 +52,7 @@ export function OrderFormSummaryCard({
 }: OrderFormSummaryCardProps) {
   return (
     <Card variant="premium" className="sticky top-6">
-      <CardHeader className="border-b border-border/50 bg-muted/10 pb-4">
+      <CardHeader variant="section">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -66,7 +66,7 @@ export function OrderFormSummaryCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-5 pt-6">
+      <CardContent spacing="section" className="space-y-5">
         <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-3">
           <div className="flex items-center justify-between text-xs">
             <span className="inline-flex items-center gap-1 text-muted-foreground">
@@ -199,7 +199,7 @@ export function OrderFormSummaryCard({
         />
       </CardContent>
 
-      <CardFooter className="pt-0">
+      <CardFooter spacing="compact">
         <Button
           variant="premium"
           size="lg"

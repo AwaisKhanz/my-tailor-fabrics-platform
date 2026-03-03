@@ -60,12 +60,8 @@ export declare class EmployeesController {
                 status: import(".prisma/client").$Enums.EmployeeStatus;
                 notes: string | null;
             }[];
-            meta: {
-                total: number;
-                page: number;
-                lastPage: number;
-            };
-            total?: undefined;
+            total: number;
+            page?: undefined;
         } | {
             data: {
                 id: string;
@@ -93,7 +89,7 @@ export declare class EmployeesController {
                 notes: string | null;
             }[];
             total: number;
-            meta?: undefined;
+            page: number;
         };
     }>;
     findOne(id: string, req: AuthenticatedRequest): Promise<{
@@ -209,6 +205,7 @@ export declare class EmployeesController {
             totalEarned: number;
             totalPaid: number;
             balance: number;
+            currentBalance: number;
         };
     }>;
     getItems(id: string, page: string, limit: string, req: AuthenticatedRequest): Promise<{
@@ -294,6 +291,7 @@ export declare class EmployeesController {
             totalEarned: number;
             totalPaid: number;
             balance: number;
+            currentBalance: number;
         };
     }>;
     getMyItems(page: string, limit: string, req: AuthenticatedRequest): Promise<{

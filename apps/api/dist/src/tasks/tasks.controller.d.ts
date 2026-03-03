@@ -19,12 +19,12 @@ export declare class TasksController {
             notes: string | null;
             completedAt: Date | null;
             designTypeId: string | null;
-            assignedEmployeeId: string | null;
-            rateOverride: number | null;
-            rateSnapshot: number | null;
             orderItemId: string;
+            assignedEmployeeId: string | null;
             startedAt: Date | null;
             rateCardId: string | null;
+            rateOverride: number | null;
+            rateSnapshot: number | null;
         };
     }>;
     updateStatus(id: string, status: TaskStatus, req: AuthenticatedRequest): Promise<{
@@ -42,12 +42,12 @@ export declare class TasksController {
             notes: string | null;
             completedAt: Date | null;
             designTypeId: string | null;
-            assignedEmployeeId: string | null;
-            rateOverride: number | null;
-            rateSnapshot: number | null;
             orderItemId: string;
+            assignedEmployeeId: string | null;
             startedAt: Date | null;
             rateCardId: string | null;
+            rateOverride: number | null;
+            rateSnapshot: number | null;
         };
     }>;
     updateRate(id: string, rateOverride: number, req: AuthenticatedRequest): Promise<{
@@ -70,12 +70,12 @@ export declare class TasksController {
             notes: string | null;
             completedAt: Date | null;
             designTypeId: string | null;
-            assignedEmployeeId: string | null;
-            rateOverride: number | null;
-            rateSnapshot: number | null;
             orderItemId: string;
+            assignedEmployeeId: string | null;
             startedAt: Date | null;
             rateCardId: string | null;
+            rateOverride: number | null;
+            rateSnapshot: number | null;
         };
     }>;
     findByOrder(orderId: string, req: AuthenticatedRequest): Promise<{
@@ -102,12 +102,12 @@ export declare class TasksController {
             notes: string | null;
             completedAt: Date | null;
             designTypeId: string | null;
-            assignedEmployeeId: string | null;
-            rateOverride: number | null;
-            rateSnapshot: number | null;
             orderItemId: string;
+            assignedEmployeeId: string | null;
             startedAt: Date | null;
             rateCardId: string | null;
+            rateOverride: number | null;
+            rateSnapshot: number | null;
         })[];
     }>;
     findByEmployee(employeeId: string, req: AuthenticatedRequest): Promise<{
@@ -133,12 +133,12 @@ export declare class TasksController {
             notes: string | null;
             completedAt: Date | null;
             designTypeId: string | null;
-            assignedEmployeeId: string | null;
-            rateOverride: number | null;
-            rateSnapshot: number | null;
             orderItemId: string;
+            assignedEmployeeId: string | null;
             startedAt: Date | null;
             rateCardId: string | null;
+            rateOverride: number | null;
+            rateSnapshot: number | null;
         })[];
     }>;
 }

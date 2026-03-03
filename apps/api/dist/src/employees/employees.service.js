@@ -46,14 +46,35 @@ exports.EmployeesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const search_service_1 = require("../search/search.service");
+const ledger_service_1 = require("../ledger/ledger.service");
 const bcrypt = __importStar(require("bcrypt"));
 const client_1 = require("@prisma/client");
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+const MIN_SEARCH_QUERY_LENGTH = 2;
 let EmployeesService = class EmployeesService {
     prisma;
     searchService;
-    constructor(prisma, searchService) {
+    ledgerService;
+    constructor(prisma, searchService, ledgerService) {
         this.prisma = prisma;
         this.searchService = searchService;
+        this.ledgerService = ledgerService;
+    }
+    normalizePagination(page = DEFAULT_PAGE, limit = DEFAULT_LIMIT) {
+        const safePage = Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
+        const safeLimit = Number.isFinite(limit) && limit > 0
+            ? Math.min(Math.trunc(limit), MAX_LIMIT)
+            : DEFAULT_LIMIT;
+        return { page: safePage, limit: safeLimit, skip: (safePage - 1) * safeLimit };
+    }
+    parseOptionalDate(value) {
+        if (value === undefined)
+            return undefined;
+        if (!value)
+            return null;
+        return new Date(value);
     }
     async generateEmployeeCode(branchId) {
         const branch = await this.prisma.branch.findUnique({
@@ -81,26 +102,20 @@ let EmployeesService = class EmployeesService {
         return this.prisma.employee.create({
             data: {
                 ...createEmployeeDto,
-                dateOfBirth: createEmployeeDto.dateOfBirth
-                    ? new Date(createEmployeeDto.dateOfBirth)
-                    : null,
-                dateOfJoining: createEmployeeDto.dateOfJoining
-                    ? new Date(createEmployeeDto.dateOfJoining)
-                    : new Date(),
+                dateOfBirth: this.parseOptionalDate(createEmployeeDto.dateOfBirth),
+                dateOfJoining: this.parseOptionalDate(createEmployeeDto.dateOfJoining) ?? new Date(),
                 employeeCode,
                 branchId,
             },
         });
     }
     async findAll(branchId, page = 1, limit = 20, search) {
-        if (search && search.trim().length >= 2) {
-            const results = await this.searchService.searchEmployees(search, branchId, limit);
-            return {
-                data: results,
-                meta: { total: results.length, page: 1, lastPage: 1 },
-            };
+        const { page: safePage, limit: safeLimit, skip } = this.normalizePagination(page, limit);
+        const query = search?.trim();
+        if (query && query.length >= MIN_SEARCH_QUERY_LENGTH) {
+            const results = await this.searchService.searchEmployees(query, branchId, safeLimit);
+            return { data: results, total: results.length };
         }
-        const skip = (page - 1) * limit;
         const [data, total] = await Promise.all([
             this.prisma.employee.findMany({
                 where: {
@@ -109,7 +124,7 @@ let EmployeesService = class EmployeesService {
                     ...(branchId ? { branchId } : {}),
                 },
                 skip,
-                take: limit,
+                take: safeLimit,
                 orderBy: { createdAt: 'desc' },
             }),
             this.prisma.employee.count({
@@ -120,7 +135,7 @@ let EmployeesService = class EmployeesService {
                 },
             }),
         ]);
-        return { data, total };
+        return { data, total, page: safePage };
     }
     async findOne(id, branchId) {
         const employee = await this.prisma.employee.findFirst({
@@ -143,10 +158,12 @@ let EmployeesService = class EmployeesService {
     async update(id, branchId, updateEmployeeDto) {
         await this.findOne(id, branchId);
         const data = { ...updateEmployeeDto };
-        if (data.dateOfBirth)
-            data.dateOfBirth = new Date(data.dateOfBirth);
-        if (data.dateOfJoining)
-            data.dateOfJoining = new Date(data.dateOfJoining);
+        if (updateEmployeeDto.dateOfBirth !== undefined) {
+            data.dateOfBirth = this.parseOptionalDate(updateEmployeeDto.dateOfBirth);
+        }
+        if (updateEmployeeDto.dateOfJoining !== undefined) {
+            data.dateOfJoining = new Date(updateEmployeeDto.dateOfJoining);
+        }
         return this.prisma.employee.update({
             where: { id },
             data,
@@ -183,44 +200,20 @@ let EmployeesService = class EmployeesService {
     }
     async getStats(id, branchId) {
         await this.findOne(id, branchId);
-        const completedItems = await this.prisma.orderItem.aggregate({
-            where: { employeeId: id, status: 'COMPLETED', deletedAt: null },
-            _sum: { employeeRate: true },
-        });
-        const tasksWithOverride = await this.prisma.orderItemTask.aggregate({
-            where: {
-                assignedEmployeeId: id,
-                status: 'DONE',
-                deletedAt: null,
-                rateOverride: { not: null },
-            },
-            _sum: { rateOverride: true },
-        });
-        const tasksWithoutOverride = await this.prisma.orderItemTask.aggregate({
-            where: {
-                assignedEmployeeId: id,
-                status: 'DONE',
-                deletedAt: null,
-                rateOverride: null,
-            },
-            _sum: { rateSnapshot: true },
-        });
-        const totalEarned = (completedItems._sum.employeeRate || 0) +
-            (tasksWithOverride._sum.rateOverride || 0) +
-            (tasksWithoutOverride._sum.rateSnapshot || 0);
-        const totalPaidRes = await this.prisma.payment.aggregate({
-            where: { employeeId: id, deletedAt: null },
-            _sum: { amount: true },
-        });
-        const totalPaid = totalPaidRes._sum.amount || 0;
-        const balance = totalEarned - totalPaid;
-        return { totalEarned, totalPaid, balance };
+        const summary = await this.ledgerService.getBalance(id);
+        return {
+            totalEarned: summary.totalEarned,
+            totalPaid: summary.totalDeducted,
+            balance: summary.currentBalance,
+            currentBalance: summary.currentBalance,
+        };
     }
     async getItems(id, branchId, page = 1, limit = 20) {
-        const skip = (page - 1) * limit;
+        await this.findOne(id, branchId);
+        const { limit: safeLimit, skip } = this.normalizePagination(page, limit);
         const [data, total] = await Promise.all([
             this.prisma.orderItem.findMany({
-                where: { employeeId: id },
+                where: { employeeId: id, deletedAt: null },
                 select: {
                     id: true,
                     orderId: true,
@@ -232,10 +225,10 @@ let EmployeesService = class EmployeesService {
                     order: { select: { orderNumber: true, status: true, dueDate: true } },
                 },
                 skip,
-                take: limit,
+                take: safeLimit,
                 orderBy: { completedAt: 'desc' },
             }),
-            this.prisma.orderItem.count({ where: { employeeId: id } }),
+            this.prisma.orderItem.count({ where: { employeeId: id, deletedAt: null } }),
         ]);
         return { data, total };
     }
@@ -259,6 +252,7 @@ exports.EmployeesService = EmployeesService;
 exports.EmployeesService = EmployeesService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        search_service_1.SearchService])
+        search_service_1.SearchService,
+        ledger_service_1.LedgerService])
 ], EmployeesService);
 //# sourceMappingURL=employees.service.js.map

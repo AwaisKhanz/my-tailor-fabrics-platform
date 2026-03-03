@@ -16,10 +16,10 @@ export function DashboardGarmentBreakdownCard({
 }: DashboardGarmentBreakdownCardProps) {
   return (
     <Card className="border-border shadow-sm">
-      <CardHeader className="pb-2">
+      <CardHeader variant="section" density="compact">
         <CardTitle variant="dashboard">Orders by Garment Type</CardTitle>
       </CardHeader>
-      <CardContent className="mt-2 flex flex-col items-center justify-center">
+      <CardContent spacing="section" className="flex flex-col items-center justify-center">
         <div className="relative mb-6 mt-4 h-48 w-48">
           <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
             <circle

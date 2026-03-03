@@ -7,9 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -58,28 +57,39 @@ export function ConfirmPasswordDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="password">Administrator Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={isLoading}
-              onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm} disabled={isLoading} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-            {isLoading ? "Verifying..." : "Confirm Action"}
-          </Button>
-        </DialogFooter>
+        <DialogSection>
+          <FormStack
+            as="form"
+            id="confirm-password-form"
+            density="compact"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleConfirm();
+            }}
+          >
+            <div className="grid gap-2">
+              <Label htmlFor="password">Administrator Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="••••••••"
+                disabled={isLoading}
+              />
+            </div>
+          </FormStack>
+        </DialogSection>
+        <DialogActionRow bordered={false}>
+          <DialogFormActions
+            onCancel={() => onOpenChange(false)}
+            submitText="Confirm Action"
+            submittingText="Verifying..."
+            submitting={isLoading}
+            submitFormId="confirm-password-form"
+            submitVariant="destructive"
+          />
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

@@ -1,10 +1,14 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dto/create-employee.dto';
 import { SearchService } from '../search/search.service';
+import { LedgerService } from '../ledger/ledger.service';
 export declare class EmployeesService {
     private prisma;
     private searchService;
-    constructor(prisma: PrismaService, searchService: SearchService);
+    private ledgerService;
+    constructor(prisma: PrismaService, searchService: SearchService, ledgerService: LedgerService);
+    private normalizePagination;
+    private parseOptionalDate;
     private generateEmployeeCode;
     create(createEmployeeDto: CreateEmployeeDto, branchId: string): Promise<{
         id: string;
@@ -57,12 +61,8 @@ export declare class EmployeesService {
             status: import(".prisma/client").$Enums.EmployeeStatus;
             notes: string | null;
         }[];
-        meta: {
-            total: number;
-            page: number;
-            lastPage: number;
-        };
-        total?: undefined;
+        total: number;
+        page?: undefined;
     } | {
         data: {
             id: string;
@@ -90,7 +90,7 @@ export declare class EmployeesService {
             notes: string | null;
         }[];
         total: number;
-        meta?: undefined;
+        page: number;
     }>;
     findOne(id: string, branchId: string): Promise<{
         documents: {
@@ -202,6 +202,7 @@ export declare class EmployeesService {
         totalEarned: number;
         totalPaid: number;
         balance: number;
+        currentBalance: number;
     }>;
     getItems(id: string, branchId: string, page?: number, limit?: number): Promise<{
         data: {
@@ -275,6 +276,7 @@ export declare class EmployeesService {
         totalEarned: number;
         totalPaid: number;
         balance: number;
+        currentBalance: number;
     }>;
     getMyItems(employeeId: string, branchId: string, page?: number, limit?: number): Promise<{
         data: {

@@ -16,7 +16,7 @@ export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Card className="group border-border bg-card shadow-sm transition-colors hover:border-primary/50">
-        <CardContent className="pt-6">
+        <CardContent spacing="section">
           <div className="flex items-center justify-between">
             <div>
               <Label variant="dashboard">Lifetime Earned</Label>
@@ -32,7 +32,7 @@ export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
       </Card>
 
       <Card className="group border-border bg-card shadow-sm transition-colors hover:border-success/50">
-        <CardContent className="pt-6">
+        <CardContent spacing="section">
           <div className="flex items-center justify-between">
             <div>
               <Label variant="dashboard">Total Paid Out</Label>
@@ -48,7 +48,7 @@ export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
       </Card>
 
       <Card className="group border-border bg-card shadow-sm transition-colors hover:border-warning/50">
-        <CardContent className="pt-6">
+        <CardContent spacing="section">
           <div className="flex items-center justify-between">
             <div>
               <Label variant="dashboard">Current Balance</Label>

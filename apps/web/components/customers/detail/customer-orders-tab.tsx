@@ -5,6 +5,7 @@ import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { TableSurface } from "@/components/ui/table-layout";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 
@@ -75,13 +76,16 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
 
   return (
     <div className="pt-4">
-      <DataTable
-        columns={columns}
-        data={orders}
-        itemLabel="orders"
-        emptyMessage="No orders found."
-        onRowClick={(order) => onOpenOrder(order.id)}
-      />
+      <TableSurface>
+        <DataTable
+          columns={columns}
+          data={orders}
+          itemLabel="orders"
+          emptyMessage="No orders found."
+          onRowClick={(order) => onOpenOrder(order.id)}
+          chrome="flat"
+        />
+      </TableSurface>
     </div>
   );
 }

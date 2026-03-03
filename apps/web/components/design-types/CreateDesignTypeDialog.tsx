@@ -1,32 +1,15 @@
 "use client";
 
-import React from "react";
-import { useForm } from "react-hook-form";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter,
-  DialogDescription
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { DesignType } from "@tbms/shared-types";
 import { Banknote } from "lucide-react";
-
-interface DesignTypeFormValues extends Omit<Partial<DesignType>, 'garmentTypeId' | 'branchId'> {
-  garmentTypeId: string | 'ALL';
-  branchId: string | 'ALL';
-}
+import { type DesignType } from "@tbms/shared-types";
+import { Form } from "@/components/ui/form";
+import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { Typography } from "@/components/ui/typography";
+import { DesignTypeDialogBasicFields } from "@/components/design-types/dialog/design-type-dialog-basic-fields";
+import { DesignTypeDialogScopeFields } from "@/components/design-types/dialog/design-type-dialog-scope-fields";
+import { DesignTypeDialogSortField } from "@/components/design-types/dialog/design-type-dialog-sort-field";
+import { useDesignTypeDialog } from "@/hooks/use-design-type-dialog";
 
 interface CreateDesignTypeDialogProps {
   open: boolean;
@@ -37,158 +20,54 @@ interface CreateDesignTypeDialogProps {
   branches: { id: string; name: string; code: string }[];
 }
 
-export function CreateDesignTypeDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit, 
+export function CreateDesignTypeDialog({
+  open,
+  onOpenChange,
+  onSubmit,
   initialData,
   garmentTypes,
-  branches
+  branches,
 }: CreateDesignTypeDialogProps) {
-  const { register, handleSubmit, reset, setValue, watch } = useForm<DesignTypeFormValues>({
-    defaultValues: {
-      name: "",
-      defaultPrice: 0,
-      defaultRate: 0,
-      garmentTypeId: "ALL",
-      branchId: "ALL",
-      sortOrder: 0,
-      isActive: true
-    }
+  const { form, submitting, submitForm } = useDesignTypeDialog({
+    open,
+    initialData,
+    onOpenChange,
+    onSubmit,
   });
 
-  React.useEffect(() => {
-    if (open) {
-      if (initialData) {
-        reset({
-          ...initialData,
-          garmentTypeId: initialData.garmentTypeId || "ALL",
-          branchId: initialData.branchId || "ALL"
-        });
-      } else {
-        reset({
-          name: "",
-          defaultPrice: 0,
-          defaultRate: 0,
-          garmentTypeId: "ALL",
-          branchId: "ALL",
-          sortOrder: 0,
-          isActive: true
-        });
-      }
-    }
-  }, [open, initialData, reset]);
-
-  const onFormSubmit = async (data: DesignTypeFormValues) => {
-    const formattedData: Partial<DesignType> = {
-      ...data,
-      garmentTypeId: data.garmentTypeId === "ALL" ? null : data.garmentTypeId,
-      branchId: data.branchId === "ALL" ? null : data.branchId,
-      defaultPrice: Number(data.defaultPrice),
-      defaultRate: Number(data.defaultRate),
-      sortOrder: Number(data.sortOrder)
-    };
-    await onSubmit(formattedData);
-    onOpenChange(false);
-  };
+  const footerActions = (
+    <DialogFormActions
+      onCancel={() => onOpenChange(false)}
+      submitFormId="design-type-form"
+      submitting={submitting}
+      submitText={initialData ? "Update Design" : "Create Design"}
+      cancelVariant="outline"
+      submitClassName="font-bold"
+    />
+  );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Banknote className="h-5 w-5 text-primary" />
-            {initialData ? "Edit Design Type" : "Define Design Type"}
-          </DialogTitle>
-          <DialogDescription>
-            Set standardized customer pricing and employee labor rates for a specific design.
-          </DialogDescription>
-        </DialogHeader>
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={initialData ? "Edit Design Type" : "Define Design Type"}
+      footerActions={footerActions}
+      maxWidthClass="sm:max-w-md"
+    >
+      <div className="-mt-1 mb-4 flex items-start gap-2">
+        <Banknote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        <Typography as="p" variant="lead">
+          Set standardized customer pricing and employee labor rates for a specific design.
+        </Typography>
+      </div>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Design Name</Label>
-            <Input 
-              id="name" 
-              placeholder="e.g. Simple, Heavy, Embroidery" 
-              {...register("name", { required: true })} 
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="defaultPrice">Customer Price (Rs)</Label>
-              <Input 
-                id="defaultPrice" 
-                type="number" 
-                {...register("defaultPrice", { required: true, min: 0 })} 
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="defaultRate">Employee Rate (Rs)</Label>
-              <Input 
-                id="defaultRate" 
-                type="number" 
-                {...register("defaultRate", { required: true, min: 0 })} 
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Applicable Garment</Label>
-            <Select 
-              value={watch("garmentTypeId") || "ALL"} 
-              onValueChange={(v) => setValue("garmentTypeId", v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Garments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Garments</SelectItem>
-                {garmentTypes.map(gt => (
-                  <SelectItem key={gt.id} value={gt.id}>{gt.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Branch Scoping</Label>
-            <Select 
-              value={watch("branchId") || "ALL"} 
-              onValueChange={(v) => setValue("branchId", v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Global (All Branches)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Global (All Branches)</SelectItem>
-                {branches.map(b => (
-                  <SelectItem key={b.id} value={b.id}>{b.name} ({b.code})</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="sortOrder">Sort Order</Label>
-            <Input 
-              id="sortOrder" 
-              type="number" 
-              {...register("sortOrder")} 
-            />
-          </div>
-
-          <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="font-bold">
-              {initialData ? "Update Design" : "Create Design"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <Form {...form}>
+        <FormStack as="form" id="design-type-form" onSubmit={submitForm} className="py-1">
+          <DesignTypeDialogBasicFields form={form} />
+          <DesignTypeDialogScopeFields form={form} garmentTypes={garmentTypes} branches={branches} />
+          <DesignTypeDialogSortField form={form} />
+        </FormStack>
+      </Form>
+    </ScrollableDialog>
   );
 }

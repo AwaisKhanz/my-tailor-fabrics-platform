@@ -20,13 +20,13 @@ export function OrderLifecycleCard({
 
   return (
     <Card className="overflow-hidden border-border shadow-sm">
-      <CardHeader className="px-5 pb-0 pt-4">
+      <CardHeader variant="section" density="compact" className="items-center pb-2">
         <CardTitle className="text-center text-[10px] font-bold uppercase tracking-tight text-muted-foreground opacity-50">
           Lifecycle Advancement
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-3 px-5 py-5">
+      <CardContent spacing="compact" className="space-y-3 pt-3">
         {status === OrderStatus.NEW ? (
           <Button
             variant="premium"

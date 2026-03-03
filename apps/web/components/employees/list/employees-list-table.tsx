@@ -83,9 +83,8 @@ export function EmployeesListTable({
         cell: (employee) => (
           <div className="flex justify-end pr-2">
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+              variant="tableIcon"
+              size="iconSm"
               onClick={(event) => {
                 event.stopPropagation();
                 onViewEmployee(employee);
@@ -111,6 +110,7 @@ export function EmployeesListTable({
       onPageChange={onPageChange}
       itemLabel="employees"
       emptyMessage="No employees found matching your criteria."
+      chrome="flat"
       onRowClick={onViewEmployee}
     />
   );

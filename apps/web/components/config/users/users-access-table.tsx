@@ -95,17 +95,15 @@ export function UsersAccessTable({
         cell: (user) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={() => onEdit(user)}
             >
               <Pencil className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              variant="tableDanger"
+              size="iconSm"
               onClick={() => onDelete(user)}
             >
               <Trash2 className="h-4 w-4" />
@@ -124,6 +122,7 @@ export function UsersAccessTable({
       loading={loading}
       itemLabel="accounts"
       emptyMessage="No staff accounts found. Create your first user to manage access."
+      chrome="flat"
     />
   );
 }

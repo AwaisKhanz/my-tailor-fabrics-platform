@@ -23,7 +23,7 @@ export function GarmentRatesSection({
   return (
     <>
       <Card className="mt-6 border-border/50 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardHeader variant="rowSection" className="items-start sm:items-center">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               <Banknote className="h-4 w-4 text-primary" />
@@ -46,7 +46,7 @@ export function GarmentRatesSection({
           </Button>
         </CardHeader>
 
-        <CardContent>
+        <CardContent spacing="section">
           <RatesList rates={garment.rateCards || []} />
         </CardContent>
       </Card>

@@ -1,0 +1,78 @@
+import * as React from "react";
+import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Typography } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
+
+export type TableSurfaceProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
+export type TableToolbarProps = {
+  title: string;
+  total: number;
+  totalLabel?: string;
+  activeFilterCount?: number;
+  controls?: React.ReactNode;
+  className?: string;
+};
+
+export type TableSearchProps = React.ComponentProps<typeof Input> & {
+  icon?: React.ReactNode;
+};
+
+export function TableSurface({ children, className }: TableSurfaceProps) {
+  return (
+    <div className={cn("overflow-hidden rounded-xl border border-border bg-card shadow-sm", className)}>
+      {children}
+    </div>
+  );
+}
+
+export function TableToolbar({
+  title,
+  total,
+  totalLabel = "results",
+  activeFilterCount,
+  controls,
+  className,
+}: TableToolbarProps) {
+  const hasActiveFilters = Boolean(activeFilterCount && activeFilterCount > 0);
+
+  return (
+    <div className={cn("border-b border-border/50 bg-muted/5 px-6 py-5", className)}>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <Typography as="h2" variant="sectionTitle">
+            {title}
+          </Typography>
+          <Badge variant="secondary" size="xs" className="ring-1 ring-border">
+            {total} {totalLabel}
+          </Badge>
+          {hasActiveFilters ? (
+            <Badge variant="outline" size="xs" className="font-bold">
+              {activeFilterCount} active filter{activeFilterCount && activeFilterCount > 1 ? "s" : ""}
+            </Badge>
+          ) : null}
+        </div>
+
+        {controls ? (
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">{controls}</div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export function TableSearch({ icon, className, variant = "table", ...props }: TableSearchProps) {
+  return (
+    <div className="group relative w-full md:min-w-[280px] md:flex-1">
+      <Input variant={variant} className={cn("pl-9", className)} {...props} />
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-hover:text-primary">
+        {icon ?? <Search className="h-4 w-4" />}
+      </span>
+    </div>
+  );
+}

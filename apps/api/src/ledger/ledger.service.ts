@@ -17,8 +17,12 @@ export class LedgerService {
    * Positive amount = EARNING / SALARY / ADJUSTMENT.
    * Negative amount = PAYOUT / ADVANCE / DEDUCTION.
    */
-  async createEntry(dto: CreateLedgerEntryInput) {
-    return this.prisma.employeeLedgerEntry.create({
+  async createEntry(
+    dto: CreateLedgerEntryInput,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
+    return client.employeeLedgerEntry.create({
       data: {
         employeeId: dto.employeeId,
         branchId: dto.branchId,

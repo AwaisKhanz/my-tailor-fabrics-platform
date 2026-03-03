@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/ui/typography";
 import { siteConfig } from "@/lib/config";
@@ -40,7 +41,7 @@ export function StatusPinGateCard({
         </Typography>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4">
+      <FormStack as="form" onSubmit={onSubmit}>
         <div>
           <Input
             type="text"
@@ -64,7 +65,7 @@ export function StatusPinGateCard({
         <Button type="submit" variant="premium" className="h-12 w-full" disabled={loading}>
           {loading ? "Verifying..." : "View Order Status"}
         </Button>
-      </form>
+      </FormStack>
 
       <Typography as="p" variant="muted" className="text-center text-xs">
         This link was shared by the tailor shop. It expires when the order is completed.

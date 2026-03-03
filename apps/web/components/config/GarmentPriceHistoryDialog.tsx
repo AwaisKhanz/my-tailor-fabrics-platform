@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DialogSection } from "@/components/ui/form-layout";
 import { configApi } from "@/lib/api/config";
 import { GarmentPriceLog } from "@tbms/shared-types";
 import { format } from "date-fns";
@@ -74,7 +75,7 @@ export function GarmentPriceHistoryDialog({
           </div>
         </DialogHeader>
 
-        <div className="p-8">
+        <DialogSection className="p-8">
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -159,7 +160,7 @@ export function GarmentPriceHistoryDialog({
               </div>
             </ScrollArea>
           )}
-        </div>
+        </DialogSection>
       </DialogContent>
     </Dialog>
   );

@@ -15,10 +15,10 @@ export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps
   return (
     <div className="space-y-6 lg:col-span-1">
       <Card>
-        <CardHeader className="border-b pb-3">
+        <CardHeader variant="section" density="compact">
           <CardTitle variant="dashboard">Personal Info</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 pt-4">
+        <CardContent spacing="section" className="space-y-4">
           <div className="flex items-center gap-3 text-sm">
             <Phone className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">{employee.phone}</span>
@@ -39,10 +39,10 @@ export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps
       </Card>
 
       <Card>
-        <CardHeader className="border-b pb-3">
+        <CardHeader variant="section" density="compact">
           <CardTitle variant="dashboard">Employment</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 pt-4">
+        <CardContent spacing="section" className="space-y-4">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Join Date</span>
             <span className="font-medium">{formatDate(employee.dateOfJoining)}</span>

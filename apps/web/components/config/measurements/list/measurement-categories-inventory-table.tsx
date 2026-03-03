@@ -66,9 +66,8 @@ export function MeasurementCategoriesInventoryTable({
         cell: (category) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={(event) => {
                 event.stopPropagation();
                 onView(category);
@@ -77,9 +76,8 @@ export function MeasurementCategoriesInventoryTable({
               <Eye className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              variant="tableIcon"
+              size="iconSm"
               onClick={(event) => {
                 event.stopPropagation();
                 onEdit(category);
@@ -88,9 +86,8 @@ export function MeasurementCategoriesInventoryTable({
               <Edit2 className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              variant="tableDanger"
+              size="iconSm"
               onClick={(event) => {
                 event.stopPropagation();
                 onDelete(category);
@@ -116,6 +113,7 @@ export function MeasurementCategoriesInventoryTable({
       total={total}
       limit={pageSize}
       onPageChange={onPageChange}
+      chrome="flat"
       onRowClick={onView}
     />
   );

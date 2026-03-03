@@ -7,6 +7,7 @@ import { EmployeesListTable } from "@/components/employees/list/employees-list-t
 import { EmployeesListToolbar } from "@/components/employees/list/employees-list-toolbar";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useEmployeesPage } from "@/hooks/use-employees-page";
 
 export default function EmployeesPage() {
@@ -42,7 +43,7 @@ export default function EmployeesPage() {
         }
       />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <TableSurface>
         <EmployeesListToolbar
           total={total}
           search={search}
@@ -60,7 +61,7 @@ export default function EmployeesPage() {
           onPageChange={setPage}
           onViewEmployee={(employee) => router.push(`/employees/${employee.id}`)}
         />
-      </div>
+      </TableSurface>
 
       <EmployeeDialog
         open={addDialogOpen}

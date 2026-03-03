@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRateCardInput } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
 
 @Injectable()
 export class RatesService {
@@ -45,6 +49,11 @@ export class RatesService {
   }
 
   async create(dto: CreateRateCardInput & { createdById: string }) {
+    const effectiveFrom = new Date(dto.effectiveFrom);
+    if (Number.isNaN(effectiveFrom.getTime())) {
+      throw new BadRequestException('Invalid effectiveFrom date');
+    }
+
     return this.prisma.$transaction(async (tx) => {
       // Close previous rate if it exists and has no effectiveTo
       const previousRate = await tx.rateCard.findFirst({
@@ -59,7 +68,11 @@ export class RatesService {
       });
 
       if (previousRate) {
-        const effectiveFrom = new Date(dto.effectiveFrom);
+        if (effectiveFrom <= previousRate.effectiveFrom) {
+          throw new BadRequestException(
+            'effectiveFrom must be after the current active rate start date',
+          );
+        }
         // Set previous rate's effectiveTo to the new rate's effectiveFrom
         await tx.rateCard.update({
           where: { id: previousRate.id },
@@ -73,7 +86,7 @@ export class RatesService {
           garmentTypeId: dto.garmentTypeId,
           stepKey: dto.stepKey,
           amount: dto.amount,
-          effectiveFrom: new Date(dto.effectiveFrom),
+          effectiveFrom,
           stepTemplateId: dto.stepTemplateId,
           createdById: dto.createdById,
         },
@@ -86,7 +99,7 @@ export class RatesService {
       where: {
         garmentTypeId,
         stepKey,
-        branchId: branchId || null,
+        ...(branchId === undefined ? {} : { branchId: branchId || null }),
         deletedAt: null,
       },
       orderBy: { effectiveFrom: 'desc' },
@@ -101,18 +114,31 @@ export class RatesService {
       limit?: number;
     } = {},
   ) {
-    const { branchId, search, page = 1, limit = 10 } = options;
+    const { branchId, search } = options;
+    const page =
+      Number.isFinite(options.page) && (options.page ?? 0) > 0
+        ? Math.trunc(options.page as number)
+        : DEFAULT_PAGE;
+    const limit =
+      Number.isFinite(options.limit) && (options.limit ?? 0) > 0
+        ? Math.min(Math.trunc(options.limit as number), MAX_LIMIT)
+        : DEFAULT_LIMIT;
     const skip = (page - 1) * limit;
+    const searchTerm = search?.trim();
 
     const where: Prisma.RateCardWhereInput = {
       deletedAt: null,
       ...(branchId ? { branchId } : {}),
     };
 
-    if (search) {
+    if (searchTerm) {
       where.OR = [
-        { stepKey: { contains: search, mode: 'insensitive' } },
-        { garmentType: { name: { contains: search, mode: 'insensitive' } } },
+        { stepKey: { contains: searchTerm, mode: 'insensitive' } },
+        {
+          garmentType: {
+            name: { contains: searchTerm, mode: 'insensitive' },
+          },
+        },
       ];
     }
 
@@ -134,6 +160,6 @@ export class RatesService {
       }),
     ]);
 
-    return { data, total };
+    return { data, total, page, limit, lastPage: Math.ceil(total / limit) };
   }
 }

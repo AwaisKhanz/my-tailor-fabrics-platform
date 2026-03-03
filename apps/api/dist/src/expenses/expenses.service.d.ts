@@ -3,6 +3,9 @@ import { CreateExpenseDto, UpdateExpenseDto } from './dto/expense.dto';
 export declare class ExpensesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    private requireBranchId;
+    private parseDateBoundary;
+    private resolveOrderBy;
     findAllCategories(): Promise<{
         id: string;
         createdAt: Date;
@@ -11,7 +14,8 @@ export declare class ExpensesService {
         isActive: boolean;
         deletedAt: Date | null;
     }[]>;
-    create(branchId: string, addedById: string, dto: CreateExpenseDto): Promise<{
+    private assertActiveCategory;
+    create(branchId: string | null, addedById: string, dto: CreateExpenseDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -24,7 +28,7 @@ export declare class ExpensesService {
         expenseDate: Date;
         addedById: string;
     }>;
-    findAll(branchId: string, page?: number, limit?: number, categoryId?: string, from?: string, to?: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
+    findAll(branchId: string | null, page?: number, limit?: number, categoryId?: string, from?: string, to?: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
         data: ({
             category: {
                 id: string;
@@ -53,7 +57,7 @@ export declare class ExpensesService {
             lastPage: number;
         };
     }>;
-    findOne(id: string, branchId: string): Promise<{
+    findOne(id: string, branchId: string | null): Promise<{
         category: {
             id: string;
             createdAt: Date;
@@ -75,7 +79,7 @@ export declare class ExpensesService {
         expenseDate: Date;
         addedById: string;
     }>;
-    update(id: string, branchId: string, dto: UpdateExpenseDto): Promise<{
+    update(id: string, branchId: string | null, dto: UpdateExpenseDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -88,7 +92,7 @@ export declare class ExpensesService {
         expenseDate: Date;
         addedById: string;
     }>;
-    remove(id: string, branchId: string): Promise<{
+    remove(id: string, branchId: string | null): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;

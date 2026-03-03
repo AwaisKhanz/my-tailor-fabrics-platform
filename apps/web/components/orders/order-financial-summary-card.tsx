@@ -16,7 +16,7 @@ export function OrderFinancialSummaryCard({
 }: OrderFinancialSummaryCardProps) {
   return (
     <Card className="overflow-hidden border-border shadow-sm">
-      <CardHeader className="border-b border-border/50 bg-muted/5 px-6 pb-4 pt-5">
+      <CardHeader variant="section" density="comfortable">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
             <CreditCard className="h-4 w-4 text-primary" />
@@ -25,7 +25,7 @@ export function OrderFinancialSummaryCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-5 px-6 pb-6 pt-6">
+      <CardContent spacing="section" className="space-y-5">
         <div className="space-y-3 rounded-xl border border-border/50 bg-muted/20 p-4">
           <div className="flex justify-between text-xs">
             <Label variant="dashboard" className="opacity-60">

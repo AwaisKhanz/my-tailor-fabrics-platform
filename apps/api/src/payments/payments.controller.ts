@@ -46,7 +46,7 @@ export class PaymentsController {
       dto.employeeId,
       dto.amount,
       req.user.userId,
-      req.user.branchId ?? '',
+      req.branchId,
       dto.note,
     );
     return { success: true, data };
@@ -58,6 +58,8 @@ export class PaymentsController {
     @Param('id') employeeId: string,
     @Query('page') page: string,
     @Query('limit') limit: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
@@ -65,6 +67,8 @@ export class PaymentsController {
       employeeId,
       Number(page) || 1,
       Number(limit) || 20,
+      from,
+      to,
       sortBy,
       sortOrder,
     );

@@ -18,13 +18,13 @@ export function DashboardOverdueOrdersCard({
 }: DashboardOverdueOrdersCardProps) {
   return (
     <Card className="border-border shadow-sm lg:col-span-2">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader variant="rowSection" className="items-center">
         <CardTitle variant="dashboard">Recent Overdue Orders</CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
           View all
         </Button>
       </CardHeader>
-      <CardContent className="mt-4 overflow-hidden rounded-b-xl p-0">
+      <CardContent spacing="section" className="overflow-hidden rounded-b-xl p-0">
         <div className="divide-y border-t border-border">
           {orders.slice(0, 4).map((order) => (
             <div

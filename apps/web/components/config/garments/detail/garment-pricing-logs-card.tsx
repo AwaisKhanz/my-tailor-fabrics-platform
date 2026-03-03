@@ -12,7 +12,7 @@ interface GarmentPricingLogsCardProps {
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
     <Card className="border-border/50 shadow-sm">
-      <CardHeader className="border-b border-border/50 pb-3">
+      <CardHeader variant="section" density="compact">
         <div className="flex items-center gap-2">
           <History className="h-4 w-4 text-primary" />
           <CardTitle variant="dashboard" className="text-primary">
@@ -21,7 +21,7 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-4">
+      <CardContent spacing="section" className="pt-4">
         {logs.length > 0 ? (
           <div className="relative space-y-6 before:absolute before:bottom-2 before:left-2.5 before:top-2 before:w-px before:bg-border">
             {logs.map((log) => (

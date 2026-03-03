@@ -2,11 +2,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import {
+  DialogActionRow,
+  DialogFormActions,
+  DialogSection,
+  FormStack,
+} from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -41,33 +45,44 @@ export function EmployeeDocumentUploadDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          <div className="space-y-1.5">
-            <Label>Document Label</Label>
-            <Input
-              placeholder="e.g. CNIC Front"
-              value={label}
-              onChange={(event) => onLabelChange(event.target.value)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>File URL</Label>
-            <Input
-              placeholder="https://..."
-              value={url}
-              onChange={(event) => onUrlChange(event.target.value)}
-            />
-          </div>
-        </div>
+        <DialogSection density="compact">
+          <FormStack
+            as="form"
+            id="employee-document-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSubmit();
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label>Document Label</Label>
+              <Input
+                placeholder="e.g. CNIC Front"
+                value={label}
+                onChange={(event) => onLabelChange(event.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>File URL</Label>
+              <Input
+                placeholder="https://..."
+                value={url}
+                onChange={(event) => onUrlChange(event.target.value)}
+              />
+            </div>
+          </FormStack>
+        </DialogSection>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSubmit} disabled={uploading || !label || !url}>
-            {uploading ? "Saving..." : "Add Document"}
-          </Button>
-        </DialogFooter>
+        <DialogActionRow bordered={false}>
+          <DialogFormActions
+            onCancel={() => onOpenChange(false)}
+            submitText="Add Document"
+            submittingText="Saving..."
+            submitting={uploading}
+            submitFormId="employee-document-form"
+            submitDisabled={!label || !url}
+          />
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

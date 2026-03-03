@@ -1,9 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateLedgerEntryInput, LedgerStatementParams, LedgerSummary } from '@tbms/shared-types';
+import { Prisma } from '@prisma/client';
 export declare class LedgerService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    createEntry(dto: CreateLedgerEntryInput): Promise<{
+    createEntry(dto: CreateLedgerEntryInput, tx?: Prisma.TransactionClient): Promise<{
         id: string;
         createdAt: Date;
         deletedAt: Date | null;

@@ -3,6 +3,10 @@ import { CreateUserInput, UpdateUserInput } from '@tbms/shared-types';
 export declare class UsersService {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    private normalizeEmail;
+    private resolveBranchId;
+    private generateTempPassword;
+    private ensureEmailAvailable;
     findByEmail(email: string): Promise<({
         branch: {
             id: string;
@@ -94,18 +98,28 @@ export declare class UsersService {
         createdAt: Date;
         name: string;
         isActive: boolean;
+        branch: {
+            name: string;
+            code: string;
+        } | null;
         email: string;
         role: import(".prisma/client").$Enums.Role;
         branchId: string | null;
+        lastLoginAt: Date | null;
     }>;
     create(data: CreateUserInput): Promise<{
         id: string;
         createdAt: Date;
         name: string;
         isActive: boolean;
+        branch: {
+            name: string;
+            code: string;
+        } | null;
         email: string;
         role: import(".prisma/client").$Enums.Role;
         branchId: string | null;
+        lastLoginAt: Date | null;
     }>;
     setActive(id: string, isActive: boolean): Promise<{
         id: string;
@@ -142,9 +156,14 @@ export declare class UsersService {
         createdAt: Date;
         name: string;
         isActive: boolean;
+        branch: {
+            name: string;
+            code: string;
+        } | null;
         email: string;
         role: import(".prisma/client").$Enums.Role;
         branchId: string | null;
+        lastLoginAt: Date | null;
     }>;
     getStats(): Promise<{
         total: number;

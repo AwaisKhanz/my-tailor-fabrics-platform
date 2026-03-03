@@ -17,7 +17,7 @@ export function GarmentMeasurementFormsCard({
 
   return (
     <Card className="border-border/50 shadow-sm">
-      <CardHeader>
+      <CardHeader variant="section">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-primary" />
@@ -34,7 +34,7 @@ export function GarmentMeasurementFormsCard({
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent spacing="section">
         {categories.length > 0 ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {categories.map((category) => (

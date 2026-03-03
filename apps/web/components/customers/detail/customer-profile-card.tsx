@@ -16,11 +16,11 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
   return (
     <Card className="overflow-hidden border-border/50 shadow-sm">
-      <CardHeader className="border-b border-border/50 bg-muted/20">
+      <CardHeader variant="sectionSoft">
         <CardTitle variant="dashboard">Customer Details</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4 pt-5">
+      <CardContent spacing="section" className="space-y-4">
         <div className="flex items-center gap-3 text-sm">
           <Phone className="h-4 w-4 text-muted-foreground" />
           <span>{customer.phone}</span>

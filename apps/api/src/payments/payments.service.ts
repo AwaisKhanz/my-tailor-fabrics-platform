@@ -1,8 +1,22 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { LedgerService } from '../ledger/ledger.service';
 import { LedgerEntryType } from '@tbms/shared-types';
+
+const MAX_TRANSACTION_RETRIES = 3;
+const DEFAULT_HISTORY_PAGE = 1;
+const DEFAULT_HISTORY_LIMIT = 20;
+const MAX_HISTORY_LIMIT = 100;
+
+const PAYMENT_HISTORY_SORT_FIELDS: ReadonlyArray<keyof Prisma.PaymentOrderByWithRelationInput> =
+  ['paidAt', 'createdAt', 'amount'];
 
 @Injectable()
 export class PaymentsService {
@@ -42,65 +56,172 @@ export class PaymentsService {
     employeeId: string,
     amount: number,
     processedById: string,
-    branchId: string,
+    actorBranchId?: string | null,
     note?: string,
   ) {
-    const summary = await this.getEmployeeBalanceSummary(employeeId);
+    const employee = await this.prisma.employee.findFirst({
+      where: { id: employeeId, deletedAt: null },
+      select: { id: true, branchId: true },
+    });
 
-    if (amount > summary.currentBalance) {
-      throw new UnprocessableEntityException({
-        code: 'PAYMENT_EXCEEDS_BALANCE',
-        message: `Cannot disburse ${amount / 100}. Balance is ${summary.currentBalance / 100}`,
-      });
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
     }
 
-    const payment = await this.prisma.payment.create({
-      data: { employeeId, amount, processedById, note },
-    });
+    if (actorBranchId && employee.branchId !== actorBranchId) {
+      throw new ForbiddenException('Cannot disburse pay across branches');
+    }
 
-    // Auto-create PAYOUT ledger entry (negative amount) linked to the payment
-    await this.ledgerService.createEntry({
-      employeeId,
-      branchId,
-      type: LedgerEntryType.PAYOUT,
-      amount: -amount,
-      paymentId: payment.id,
-      createdById: processedById,
-      note: note || 'Salary payment',
-    });
+    for (let attempt = 1; attempt <= MAX_TRANSACTION_RETRIES; attempt += 1) {
+      try {
+        return await this.prisma.$transaction(
+          async (tx) => {
+            const aggregate = await tx.employeeLedgerEntry.aggregate({
+              where: { employeeId, deletedAt: null },
+              _sum: { amount: true },
+            });
 
-    return payment;
+            const currentBalance = aggregate._sum.amount ?? 0;
+            if (amount > currentBalance) {
+              throw new UnprocessableEntityException({
+                code: 'PAYMENT_EXCEEDS_BALANCE',
+                message: `Cannot disburse ${amount / 100}. Balance is ${currentBalance / 100}`,
+              });
+            }
+
+            const payment = await tx.payment.create({
+              data: { employeeId, amount, processedById, note },
+            });
+
+            // Keep payment + payout-ledger mutation atomic.
+            await this.ledgerService.createEntry(
+              {
+                employeeId,
+                branchId: employee.branchId,
+                type: LedgerEntryType.PAYOUT,
+                amount: -amount,
+                paymentId: payment.id,
+                createdById: processedById,
+                note: note || 'Salary payment',
+              },
+              tx,
+            );
+
+            return payment;
+          },
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        );
+      } catch (error) {
+        if (
+          this.isSerializationConflict(error) &&
+          attempt < MAX_TRANSACTION_RETRIES
+        ) {
+          continue;
+        }
+        if (this.isSerializationConflict(error)) {
+          throw new ConflictException(
+            'Concurrent payroll update detected. Please retry.',
+          );
+        }
+        throw error;
+      }
+    }
+
+    throw new ConflictException('Unable to process payment at this time');
+  }
+
+  private parseDateBoundary(value?: string, endOfDay = false): Date | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return undefined;
+    }
+
+    if (endOfDay && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      date.setUTCHours(23, 59, 59, 999);
+    }
+
+    return date;
+  }
+
+  private isSerializationConflict(error: unknown): error is { code: string } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code?: string }).code === 'P2034'
+    );
+  }
+
+  private resolveOrderBy(
+    sortBy?: string,
+    sortOrder?: 'asc' | 'desc',
+  ): Prisma.PaymentOrderByWithRelationInput {
+    const field = PAYMENT_HISTORY_SORT_FIELDS.includes(
+      sortBy as keyof Prisma.PaymentOrderByWithRelationInput,
+    )
+      ? (sortBy as keyof Prisma.PaymentOrderByWithRelationInput)
+      : 'paidAt';
+    const direction: Prisma.SortOrder = sortOrder === 'asc' ? 'asc' : 'desc';
+    return { [field]: direction };
   }
 
   async getHistory(
     employeeId: string,
     page = 1,
     limit = 20,
+    from?: string,
+    to?: string,
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
   ) {
-    const skip = (page - 1) * limit;
+    const safePage =
+      Number.isFinite(page) && page > 0
+        ? Math.trunc(page)
+        : DEFAULT_HISTORY_PAGE;
+    const safeLimit =
+      Number.isFinite(limit) && limit > 0
+        ? Math.min(Math.trunc(limit), MAX_HISTORY_LIMIT)
+        : DEFAULT_HISTORY_LIMIT;
+    const skip = (safePage - 1) * safeLimit;
 
-    const orderBy: Prisma.PaymentOrderByWithRelationInput = {};
-    if (sortBy) {
-      (orderBy as Record<string, 'asc' | 'desc'>)[sortBy] = sortOrder || 'desc';
-    } else {
-      orderBy.paidAt = 'desc';
-    }
+    const fromDate = this.parseDateBoundary(from);
+    const toDate = this.parseDateBoundary(to, true);
+    const orderBy = this.resolveOrderBy(sortBy, sortOrder);
+
+    const where: Prisma.PaymentWhereInput = {
+      employeeId,
+      deletedAt: null,
+      ...(fromDate || toDate
+        ? {
+            paidAt: {
+              ...(fromDate ? { gte: fromDate } : {}),
+              ...(toDate ? { lte: toDate } : {}),
+            },
+          }
+        : {}),
+    };
 
     const [data, total] = await Promise.all([
       this.prisma.payment.findMany({
-        where: { employeeId, deletedAt: null },
+        where,
         skip,
-        take: limit,
+        take: safeLimit,
         orderBy,
       }),
-      this.prisma.payment.count({ where: { employeeId, deletedAt: null } }),
+      this.prisma.payment.count({ where }),
     ]);
 
     return {
       data,
-      meta: { total, page, lastPage: Math.ceil(total / limit) },
+      meta: {
+        total,
+        page: safePage,
+        lastPage: Math.ceil(total / safeLimit),
+      },
     };
   }
 

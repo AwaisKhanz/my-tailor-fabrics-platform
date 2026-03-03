@@ -27,7 +27,7 @@ export function DashboardOverdueBanner({
   if (overdueCount > 0) {
     return (
       <Card className="border-destructive/20 bg-destructive/10">
-        <CardContent className="flex items-center justify-between gap-4 p-5">
+        <CardContent spacing="section" className="flex items-center justify-between gap-4 p-5">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/20">
               <AlertTriangle className="h-6 w-6 text-destructive" />
@@ -56,7 +56,7 @@ export function DashboardOverdueBanner({
   if (!error) {
     return (
       <Card className="border-success/20 bg-success/10">
-        <CardContent className="flex items-center gap-4 p-5">
+        <CardContent spacing="section" className="flex items-center gap-4 p-5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/20">
             <CheckCircle2 className="h-6 w-6 text-success" />
           </div>

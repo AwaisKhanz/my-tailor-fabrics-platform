@@ -4,7 +4,6 @@ export interface Payment {
   amount: number;
   paidAt: string;
   note?: string;
-  branchId: string;
 }
 
 export interface PaymentSummary {
@@ -13,7 +12,7 @@ export interface PaymentSummary {
   currentBalance: number;
   weekly: {
     week_start: string;
-    week_end: string;
+    week_end?: string;
     earned: number;
     paid: number;
     closing_balance: number;

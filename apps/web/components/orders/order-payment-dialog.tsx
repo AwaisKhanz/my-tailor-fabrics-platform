@@ -2,11 +2,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import {
+  DialogActionRow,
+  DialogFormActions,
+  DialogSection,
+  FormStack,
+} from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
@@ -46,58 +50,67 @@ export function OrderPaymentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-4">
-          <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-muted px-5 py-4">
-            <span className="text-[10px] font-bold uppercase tracking-tight opacity-50">
-              Pending amount
-            </span>
-            <span className="text-xl font-bold tabular-nums text-foreground">
-              {formatPKR(balanceDue)}
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-tight">
-              Deposit Amount (Rs.) <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              type="number"
-              variant="premium"
-              className="h-12 text-lg font-bold"
-              placeholder="e.g. 1000"
-              value={amount}
-              onChange={(event) => onAmountChange(event.target.value)}
-              max={balanceDue / 100}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-tight">
-              Transaction Note
-            </Label>
-            <Input
-              variant="premium"
-              className="h-12"
-              placeholder="e.g. Received via Cash / Bank Transfer"
-              value={note}
-              onChange={(event) => onNoteChange(event.target.value)}
-            />
-          </div>
-        </div>
-
-        <DialogFooter className="border-t pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Dismiss
-          </Button>
-          <Button
-            variant="premium"
-            size="lg"
-            onClick={onSubmit}
-            disabled={processing || !amount}
+        <DialogSection>
+          <FormStack
+            as="form"
+            id="order-payment-form"
+            density="relaxed"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSubmit();
+            }}
           >
-            {processing ? "Syncing..." : "Post Payment"}
-          </Button>
-        </DialogFooter>
+            <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-muted px-5 py-4">
+              <span className="text-[10px] font-bold uppercase tracking-tight opacity-50">
+                Pending amount
+              </span>
+              <span className="text-xl font-bold tabular-nums text-foreground">
+                {formatPKR(balanceDue)}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-tight">
+                Deposit Amount (Rs.) <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="number"
+                variant="premium"
+                className="h-12 text-lg font-bold"
+                placeholder="e.g. 1000"
+                value={amount}
+                onChange={(event) => onAmountChange(event.target.value)}
+                max={balanceDue / 100}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-tight">
+                Transaction Note
+              </Label>
+              <Input
+                variant="premium"
+                className="h-12"
+                placeholder="e.g. Received via Cash / Bank Transfer"
+                value={note}
+                onChange={(event) => onNoteChange(event.target.value)}
+              />
+            </div>
+          </FormStack>
+        </DialogSection>
+
+        <DialogActionRow>
+          <DialogFormActions
+            onCancel={() => onOpenChange(false)}
+            cancelText="Dismiss"
+            submitText="Post Payment"
+            submittingText="Syncing..."
+            submitting={processing}
+            submitFormId="order-payment-form"
+            submitDisabled={!amount}
+            submitSize="lg"
+          />
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   );

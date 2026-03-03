@@ -40,7 +40,7 @@ export function OrderCustomerInsightCard({
 
   return (
     <Card className="overflow-hidden border-border shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-border/50 bg-muted/5 px-6 pb-4 pt-5">
+      <CardHeader variant="rowSection" density="comfortable">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
             <Package className="h-4 w-4 text-primary" />
@@ -49,7 +49,7 @@ export function OrderCustomerInsightCard({
         </div>
       </CardHeader>
 
-      <CardContent className="px-6 pb-6 pt-6">
+      <CardContent spacing="section">
         <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
           <div className="space-y-6">
             <div className="space-y-1">

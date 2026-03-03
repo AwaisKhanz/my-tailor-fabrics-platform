@@ -21,7 +21,7 @@ export declare class PaymentsService {
         paid: number;
         closing_balance: number;
     }[]>;
-    disbursePay(employeeId: string, amount: number, processedById: string, branchId: string, note?: string): Promise<{
+    disbursePay(employeeId: string, amount: number, processedById: string, actorBranchId?: string | null, note?: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -32,7 +32,10 @@ export declare class PaymentsService {
         note: string | null;
         processedById: string;
     }>;
-    getHistory(employeeId: string, page?: number, limit?: number, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
+    private parseDateBoundary;
+    private isSerializationConflict;
+    private resolveOrderBy;
+    getHistory(employeeId: string, page?: number, limit?: number, from?: string, to?: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<{
         data: {
             id: string;
             createdAt: Date;

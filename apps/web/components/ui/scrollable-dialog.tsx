@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog"
+import { DialogActionRow } from "@/components/ui/form-layout"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface ScrollableDialogProps {
@@ -49,9 +49,9 @@ export function ScrollableDialog({
           </div>
         </ScrollArea>
         
-        <DialogFooter className="p-6 pt-4 border-t shrink-0 bg-muted/50">
+        <DialogActionRow className="shrink-0 bg-muted/50 px-6 pb-6">
           {footerActions}
-        </DialogFooter>
+        </DialogActionRow>
       </DialogContent>
     </Dialog>
   )

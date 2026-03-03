@@ -16,12 +16,12 @@ export declare class TasksService {
         notes: string | null;
         completedAt: Date | null;
         designTypeId: string | null;
-        assignedEmployeeId: string | null;
-        rateOverride: number | null;
-        rateSnapshot: number | null;
         orderItemId: string;
+        assignedEmployeeId: string | null;
         startedAt: Date | null;
         rateCardId: string | null;
+        rateOverride: number | null;
+        rateSnapshot: number | null;
     }>;
     updateTaskStatus(taskId: string, status: TaskStatus, branchId: string, updatedById: string, userRole: string, requesterEmployeeId: string | null): Promise<{
         id: string;
@@ -36,12 +36,12 @@ export declare class TasksService {
         notes: string | null;
         completedAt: Date | null;
         designTypeId: string | null;
-        assignedEmployeeId: string | null;
-        rateOverride: number | null;
-        rateSnapshot: number | null;
         orderItemId: string;
+        assignedEmployeeId: string | null;
         startedAt: Date | null;
         rateCardId: string | null;
+        rateOverride: number | null;
+        rateSnapshot: number | null;
     }>;
     findAllByOrder(orderId: string, branchId: string): Promise<({
         orderItem: {
@@ -65,12 +65,12 @@ export declare class TasksService {
         notes: string | null;
         completedAt: Date | null;
         designTypeId: string | null;
-        assignedEmployeeId: string | null;
-        rateOverride: number | null;
-        rateSnapshot: number | null;
         orderItemId: string;
+        assignedEmployeeId: string | null;
         startedAt: Date | null;
         rateCardId: string | null;
+        rateOverride: number | null;
+        rateSnapshot: number | null;
     })[]>;
     findAllByEmployee(employeeId: string, branchId: string, userRole: string, requesterEmployeeId: string | null): Promise<({
         orderItem: {
@@ -93,12 +93,12 @@ export declare class TasksService {
         notes: string | null;
         completedAt: Date | null;
         designTypeId: string | null;
-        assignedEmployeeId: string | null;
-        rateOverride: number | null;
-        rateSnapshot: number | null;
         orderItemId: string;
+        assignedEmployeeId: string | null;
         startedAt: Date | null;
         rateCardId: string | null;
+        rateOverride: number | null;
+        rateSnapshot: number | null;
     })[]>;
     updateTaskRate(taskId: string, rateOverride: number, branchId: string, userRole: string): Promise<{
         assignedEmployee: {
@@ -118,11 +118,11 @@ export declare class TasksService {
         notes: string | null;
         completedAt: Date | null;
         designTypeId: string | null;
-        assignedEmployeeId: string | null;
-        rateOverride: number | null;
-        rateSnapshot: number | null;
         orderItemId: string;
+        assignedEmployeeId: string | null;
         startedAt: Date | null;
         rateCardId: string | null;
+        rateOverride: number | null;
+        rateSnapshot: number | null;
     }>;
 }

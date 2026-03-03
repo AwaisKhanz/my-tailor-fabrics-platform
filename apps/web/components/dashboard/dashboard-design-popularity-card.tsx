@@ -19,10 +19,10 @@ export function DashboardDesignPopularityCard({
 
   return (
     <Card className="border-border shadow-sm">
-      <CardHeader className="pb-2">
+      <CardHeader variant="section" density="compact">
         <CardTitle variant="dashboard">Design Popularity</CardTitle>
       </CardHeader>
-      <CardContent className="pt-2">
+      <CardContent spacing="section" className="space-y-4 pt-4">
         <div className="space-y-4">
           {loading ? (
             Array.from({ length: 3 }).map((_, index) => (

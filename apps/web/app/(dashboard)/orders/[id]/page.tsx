@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { API_BASE_URL } from "@/lib/api";
+import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
 import { useOrderDetail } from "@/hooks/use-order-detail";
 import { OrderItem, OrderStatus } from "@tbms/shared-types";
@@ -113,6 +113,23 @@ export default function OrderDetailPage() {
       ? `${window.location.origin}/status/${shareData.token}`
       : "";
 
+  const handlePrintReceipt = async () => {
+    try {
+      const receiptBlob = await ordersApi.getReceiptPdf(order.id);
+      const receiptUrl = window.URL.createObjectURL(receiptBlob);
+      window.open(receiptUrl, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => {
+        window.URL.revokeObjectURL(receiptUrl);
+      }, 60_000);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to generate receipt",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="mx-auto max-w-9xl space-y-6">
       <OrderDetailBreadcrumb
@@ -129,9 +146,9 @@ export default function OrderDetailPage() {
         canCancel={canCancel}
         sharing={sharing}
         statusLoading={statusLoading}
-        onPrintReceipt={() =>
-          window.open(`${API_BASE_URL}/orders/${order.id}/receipt`, "_blank")
-        }
+        onPrintReceipt={() => {
+          void handlePrintReceipt();
+        }}
         onShareStatus={() => {
           void handleShareStatus();
         }}

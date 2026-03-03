@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
+import { TableSurface } from "@/components/ui/table-layout";
 import { useOrdersListPage } from "@/hooks/use-orders-list-page";
 import { OrdersListToolbar } from "@/components/orders/orders-list-toolbar";
 import { OrdersListTable } from "@/components/orders/orders-list-table";
@@ -40,7 +41,7 @@ export default function OrdersPage() {
         }
       />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <TableSurface>
         <OrdersListToolbar
           total={total}
           search={search}
@@ -63,7 +64,7 @@ export default function OrdersPage() {
           onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
           onEditOrder={(orderId) => router.push(`/orders/new?edit=${orderId}`)}
         />
-      </div>
+      </TableSurface>
     </div>
   );
 }

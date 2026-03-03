@@ -37,6 +37,8 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   // Metadata
   itemLabel?: string;
+  // Layout
+  chrome?: "framed" | "flat";
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -50,6 +52,7 @@ export function DataTable<T extends { id: string | number }>({
   onPageChange,
   emptyMessage = "No results found.",
   itemLabel = "items",
+  chrome = "framed",
 }: DataTableProps<T>) {
   const totalPages = total ? Math.ceil(total / limit) : 0;
   const from = total === 0 ? 0 : page && limit ? (page - 1) * limit + 1 : 0;
@@ -71,11 +74,11 @@ export function DataTable<T extends { id: string | number }>({
   };
 
   if (loading) {
-    return <TableSkeleton rows={limit} cols={columns.length} />;
+    return <TableSkeleton rows={limit} cols={columns.length} chrome={chrome} />;
   }
 
-  return (
-    <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+  const tableContent = (
+    <>
       <div className="overflow-x-auto">
         <Table className="text-sm">
           <TableHeader>
@@ -201,6 +204,12 @@ export function DataTable<T extends { id: string | number }>({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
+
+  if (chrome === "flat") {
+    return tableContent;
+  }
+
+  return <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">{tableContent}</div>;
 }
