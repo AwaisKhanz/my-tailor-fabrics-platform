@@ -1,0 +1,99 @@
+import { useMemo } from "react";
+import { Calendar, Tag, Trash2 } from "lucide-react";
+import { type Expense } from "@/lib/api/expenses";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { formatDate, formatPKR } from "@/lib/utils";
+
+interface ExpensesTableProps {
+  expenses: Expense[];
+  loading: boolean;
+  page: number;
+  total: number;
+  pageSize: number;
+  deletingId: string | null;
+  onPageChange: (page: number) => void;
+  onDeleteExpense: (expense: Expense) => void;
+}
+
+export function ExpensesTable({
+  expenses,
+  loading,
+  page,
+  total,
+  pageSize,
+  deletingId,
+  onPageChange,
+  onDeleteExpense,
+}: ExpensesTableProps) {
+  const columns = useMemo<ColumnDef<Expense>[]>(
+    () => [
+      {
+        header: "Date",
+        cell: (expense) => (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium">{formatDate(expense.expenseDate)}</span>
+          </div>
+        ),
+      },
+      {
+        header: "Category",
+        cell: (expense) => (
+          <div className="flex items-center gap-2">
+            <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+            <Badge variant="outline" size="xs" className="bg-muted/30">
+              {expense.category.name}
+            </Badge>
+          </div>
+        ),
+      },
+      {
+        header: "Description",
+        cell: (expense) => (
+          <span className="block max-w-[340px] truncate text-xs text-muted-foreground">
+            {expense.description || "—"}
+          </span>
+        ),
+      },
+      {
+        header: "Amount",
+        align: "right",
+        cell: (expense) => (
+          <span className="font-bold text-destructive">{formatPKR(expense.amount)}</span>
+        ),
+      },
+      {
+        header: "Actions",
+        align: "right",
+        cell: (expense) => (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="group h-8 w-8 hover:bg-destructive/10"
+            onClick={() => onDeleteExpense(expense)}
+            disabled={deletingId === expense.id}
+          >
+            <Trash2 className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-destructive" />
+          </Button>
+        ),
+      },
+    ],
+    [deletingId, onDeleteExpense],
+  );
+
+  return (
+    <DataTable
+      columns={columns}
+      data={expenses}
+      loading={loading}
+      page={page}
+      total={total}
+      limit={pageSize}
+      onPageChange={onPageChange}
+      itemLabel="expenses"
+      emptyMessage="No expenses found matching your criteria."
+    />
+  );
+}

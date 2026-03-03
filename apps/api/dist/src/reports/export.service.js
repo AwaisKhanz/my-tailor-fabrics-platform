@@ -182,9 +182,6 @@ let ExportService = class ExportService {
         return this.exportToStream(workbook);
     }
     async exportEmployeeSummaries(branchId) {
-        const employeeCondition = branchId
-            ? `WHERE "branchId" = '${branchId}'`
-            : '';
         const employees = await this.prisma.employee.findMany({
             where: branchId ? { branchId } : {},
             include: { branch: true },
@@ -200,11 +197,11 @@ let ExportService = class ExportService {
             { header: 'Current Balance (Rs)', key: 'balance', width: 20 },
         ];
         for (const emp of employees) {
-            const raw = await this.prisma.$queryRawUnsafe(`
-                SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS earned
-                FROM "OrderItem"
-                WHERE "employeeId" = '${emp.id}' AND status IN ('COMPLETED', 'DELIVERED')
-            `);
+            const raw = await this.prisma.$queryRaw `
+        SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS earned
+        FROM "OrderItem"
+        WHERE "employeeId" = ${emp.id} AND status IN ('COMPLETED', 'DELIVERED')
+      `;
             const paid = await this.prisma.payment.aggregate({
                 where: { employeeId: emp.id },
                 _sum: { amount: true },

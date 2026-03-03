@@ -59,7 +59,7 @@ export function AccountCreationDialog({
     try {
       await employeesApi.createUserAccount(employee.id, {
         email: data.email,
-        passwordHash: data.password, // Backend handles hashing if not already done, but named as such for clarity
+        password: data.password,
       });
       toast({ title: "Account Created", description: "Login credentials successfully provisioned." });
       onSuccess();

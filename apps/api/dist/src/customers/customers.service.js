@@ -45,7 +45,7 @@ let CustomersService = class CustomersService {
             data: { ...createCustomerDto, sizeNumber, branchId },
         });
     }
-    async findAll(branchId, page = 1, limit = 20, search, isVip) {
+    async findAll(branchId, page = 1, limit = 20, search, isVip, status) {
         if (search && search.trim().length >= 2) {
             const results = await this.searchService.searchCustomers(search, branchId, limit);
             return {
@@ -58,6 +58,7 @@ let CustomersService = class CustomersService {
             deletedAt: null,
             ...(branchId ? { branchId } : {}),
             ...(typeof isVip === 'boolean' ? { isVip } : {}),
+            ...(status ? { status } : {}),
         };
         const [data, total] = await Promise.all([
             this.prisma.customer.findMany({

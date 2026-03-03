@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
+const shared_constants_1 = require("@tbms/shared-constants");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seed starting...');
@@ -79,22 +80,20 @@ async function main() {
             employeeRate: 50000,
         },
     });
-    const stepsSK = [
-        { key: 'CUTTING', name: 'Cutting', order: 10, isRequired: true },
-        { key: 'STITCHING', name: 'Stitching', order: 20, isRequired: true },
-        { key: 'DESIGNING', name: 'Designing', order: 25, isRequired: false },
-        { key: 'FINISHING', name: 'Finishing & Kajj/Button', order: 30, isRequired: true },
-        { key: 'PRESSING', name: 'Pressing & Packing', order: 40, isRequired: true },
-    ];
-    for (const step of stepsSK) {
+    for (const step of shared_constants_1.SHALWAR_KAMEEZ_WORKFLOW_STEP_PRESETS) {
         await prisma.workflowStepTemplate.upsert({
-            where: { garmentTypeId_stepKey: { garmentTypeId: gtShalwar.id, stepKey: step.key } },
+            where: {
+                garmentTypeId_stepKey: {
+                    garmentTypeId: gtShalwar.id,
+                    stepKey: step.stepKey,
+                },
+            },
             update: {},
             create: {
                 garmentTypeId: gtShalwar.id,
-                stepKey: step.key,
-                stepName: step.name,
-                sortOrder: step.order,
+                stepKey: step.stepKey,
+                stepName: step.stepName,
+                sortOrder: step.sortOrder,
                 isRequired: step.isRequired,
             }
         });
@@ -109,67 +108,57 @@ async function main() {
             employeeRate: 800000,
         },
     });
-    const stepsCoat = [
-        { key: 'CUTTING', name: 'Cutting', order: 10, isRequired: true },
-        { key: 'STITCHING', name: 'Stitching', order: 20, isRequired: true },
-        { key: 'FINISHING', name: 'Finishing', order: 30, isRequired: true },
-        { key: 'PRESSING', name: 'Pressing', order: 40, isRequired: true },
-    ];
-    for (const step of stepsCoat) {
+    for (const step of shared_constants_1.COAT_WORKFLOW_STEP_PRESETS) {
         const template = await prisma.workflowStepTemplate.upsert({
-            where: { garmentTypeId_stepKey: { garmentTypeId: gtCoat.id, stepKey: step.key } },
+            where: {
+                garmentTypeId_stepKey: { garmentTypeId: gtCoat.id, stepKey: step.stepKey },
+            },
             update: {},
             create: {
                 garmentTypeId: gtCoat.id,
-                stepKey: step.key,
-                stepName: step.name,
-                sortOrder: step.order,
+                stepKey: step.stepKey,
+                stepName: step.stepName,
+                sortOrder: step.sortOrder,
                 isRequired: step.isRequired,
             }
         });
-        const rates = {
-            'CUTTING': 200000,
-            'STITCHING': 400000,
-            'FINISHING': 100000,
-            'PRESSING': 100000,
-        };
-        if (rates[step.key]) {
+        const seededRateAmount = shared_constants_1.COAT_INITIAL_RATES[step.stepKey];
+        if (typeof seededRateAmount === 'number') {
             await prisma.rateCard.upsert({
-                where: { id: `rate_coat_${step.key.toLowerCase()}` },
+                where: { id: `rate_coat_${step.stepKey.toLowerCase()}` },
                 update: {},
                 create: {
-                    id: `rate_coat_${step.key.toLowerCase()}`,
+                    id: `rate_coat_${step.stepKey.toLowerCase()}`,
                     garmentTypeId: gtCoat.id,
-                    stepKey: step.key,
+                    stepKey: step.stepKey,
                     stepTemplateId: template.id,
-                    amount: rates[step.key],
+                    amount: seededRateAmount,
                     createdById: admin.id,
                     effectiveFrom: new Date('2025-01-01'),
                 }
             });
         }
     }
-    const ratesSK = {
-        'CUTTING': 10000,
-        'STITCHING': 25000,
-        'DESIGNING': 5000,
-        'FINISHING': 5000,
-        'PRESSING': 5000,
-    };
-    for (const step of stepsSK) {
+    for (const step of shared_constants_1.SHALWAR_KAMEEZ_WORKFLOW_STEP_PRESETS) {
         const template = await prisma.workflowStepTemplate.findUnique({
-            where: { garmentTypeId_stepKey: { garmentTypeId: gtShalwar.id, stepKey: step.key } }
+            where: {
+                garmentTypeId_stepKey: {
+                    garmentTypeId: gtShalwar.id,
+                    stepKey: step.stepKey,
+                },
+            },
         });
-        if (template && ratesSK[step.key]) {
+        const seededRateAmount = shared_constants_1.SHALWAR_KAMEEZ_INITIAL_RATES[step.stepKey];
+        if (template && typeof seededRateAmount === 'number') {
             await prisma.rateCard.upsert({
-                where: { id: `rate_sk_${step.key.toLowerCase()}` },
+                where: { id: `rate_sk_${step.stepKey.toLowerCase()}` },
                 update: {},
                 create: {
-                    id: `rate_sk_${step.key.toLowerCase()}`,
+                    id: `rate_sk_${step.stepKey.toLowerCase()}`,
                     garmentTypeId: gtShalwar.id,
-                    stepKey: step.key,
+                    stepKey: step.stepKey,
                     stepTemplateId: template.id,
-                    amount: ratesSK[step.key],
+                    amount: seededRateAmount,
                     createdById: admin.id,
                     effectiveFrom: new Date('2025-01-01'),
                 }

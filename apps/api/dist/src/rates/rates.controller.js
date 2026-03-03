@@ -19,6 +19,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
 const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let RatesController = class RatesController {
     ratesService;
     constructor(ratesService) {
@@ -57,7 +58,7 @@ let RatesController = class RatesController {
 exports.RatesController = RatesController;
 __decorate([
     (0, common_1.Get)(),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Query)('page')),
     __param(2, (0, common_1.Query)('limit')),
@@ -68,7 +69,7 @@ __decorate([
 ], RatesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -77,7 +78,7 @@ __decorate([
 ], RatesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('history'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Query)('garmentTypeId')),
     __param(1, (0, common_1.Query)('stepKey')),
     __param(2, (0, common_1.Query)('branchId')),

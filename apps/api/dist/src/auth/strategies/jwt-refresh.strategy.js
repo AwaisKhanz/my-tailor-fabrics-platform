@@ -14,6 +14,7 @@ const passport_jwt_1 = require("passport-jwt");
 const passport_1 = require("@nestjs/passport");
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../../users/users.service");
+const env_1 = require("../../common/env");
 let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, 'jwt-refresh') {
     usersService;
     constructor(usersService) {
@@ -23,7 +24,7 @@ let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.Passpor
                     return request?.cookies?.['Refresh-Token'];
                 },
             ]),
-            secretOrKey: process.env.JWT_REFRESH_SECRET || 'different-super-secret-refresh-key',
+            secretOrKey: (0, env_1.getJwtRefreshSecret)(),
             passReqToCallback: true,
         });
         this.usersService = usersService;

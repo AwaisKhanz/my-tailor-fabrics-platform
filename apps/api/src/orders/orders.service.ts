@@ -18,6 +18,7 @@ import {
   Role,
 } from '@tbms/shared-types';
 import { RatesService } from '../rates/rates.service';
+import { calculateDiscountAmount, calculateOrderTotals } from './money';
 
 @Injectable()
 export class OrdersService {
@@ -140,25 +141,24 @@ export class OrdersService {
       }
 
       // 3. Compute Discount and Total
-      let discountAmount = 0;
       if (
         createOrderDto.discountType &&
         createOrderDto.discountValue !== undefined
       ) {
-        if (createOrderDto.discountType === DiscountType.FIXED) {
-          discountAmount = createOrderDto.discountValue;
-        } else if (createOrderDto.discountType === DiscountType.PERCENTAGE) {
-          // value is basis points. e.g. 1000 = 10%
-          discountAmount = Math.floor(
-            subtotal * (createOrderDto.discountValue / 10000),
-          );
+        const rawDiscountAmount =
+          createOrderDto.discountType === DiscountType.FIXED
+            ? createOrderDto.discountValue
+            : Math.floor(subtotal * (createOrderDto.discountValue / 10000));
+        if (rawDiscountAmount > subtotal) {
+          throw new BadRequestException('Discount cannot exceed subtotal');
         }
       }
 
-      if (discountAmount > subtotal) {
-        throw new BadRequestException('Discount cannot exceed subtotal');
-      }
-
+      const discountAmount = calculateDiscountAmount(
+        subtotal,
+        createOrderDto.discountType,
+        createOrderDto.discountValue ?? 0,
+      );
       const totalAmount = subtotal - discountAmount;
 
       // Advance Payments handling
@@ -301,19 +301,12 @@ export class OrdersService {
     if (!order)
       throw new NotFoundException('Order not found for recalculation');
 
-    // 3. Compute Discount
-    let discountAmount = 0;
-    if (order.discountType === DiscountType.FIXED) {
-      discountAmount = order.discountValue;
-    } else if (order.discountType === DiscountType.PERCENTAGE) {
-      // value is basis points. e.g. 1000 = 10%
-      discountAmount = Math.floor(subtotal * (order.discountValue / 10000));
-    }
-
-    if (discountAmount > subtotal) discountAmount = subtotal;
-
-    const totalAmount = subtotal - discountAmount;
-    const balanceDue = Math.max(0, totalAmount - order.totalPaid);
+    const { discountAmount, totalAmount, balanceDue } = calculateOrderTotals(
+      subtotal,
+      order.totalPaid,
+      order.discountType,
+      order.discountValue,
+    );
 
     // 4. Update Order
     return db.order.update({
@@ -579,6 +572,50 @@ export class OrdersService {
     });
 
     return updated;
+  }
+
+  async getPublicOrderStatus(token: string, pin: string) {
+    const order = await this.prisma.order.findFirst({
+      where: {
+        shareToken: token,
+        sharePin: pin,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        orderNumber: true,
+        dueDate: true,
+        totalAmount: true,
+        balanceDue: true,
+        status: true,
+        customer: {
+          select: {
+            fullName: true,
+          },
+        },
+        items: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            pieceNo: 'asc',
+          },
+          select: {
+            id: true,
+            garmentTypeName: true,
+            quantity: true,
+            unitPrice: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Invalid tracking link or PIN');
+    }
+
+    return order;
   }
 
   async update(

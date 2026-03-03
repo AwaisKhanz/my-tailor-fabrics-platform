@@ -16,12 +16,19 @@ exports.MailController = void 0;
 const common_1 = require("@nestjs/common");
 const mail_service_1 = require("./mail.service");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
+const env_1 = require("../common/env");
 let MailController = class MailController {
     mailService;
     constructor(mailService) {
         this.mailService = mailService;
     }
+    assertPublicAccessEnabled() {
+        if (!(0, env_1.isPublicMailEndpointsEnabled)()) {
+            throw new common_1.ForbiddenException('Public mail endpoints are disabled in this environment');
+        }
+    }
     getAuthUrl() {
+        this.assertPublicAccessEnabled();
         try {
             const url = this.mailService.getAuthUrl();
             return {
@@ -35,6 +42,7 @@ let MailController = class MailController {
         }
     }
     async sendTestMail(dto) {
+        this.assertPublicAccessEnabled();
         if (!dto.to) {
             throw new common_1.BadRequestException('Please provide a "to" email address.');
         }

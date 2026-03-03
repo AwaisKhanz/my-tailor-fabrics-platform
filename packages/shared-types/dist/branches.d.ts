@@ -30,3 +30,8 @@ export interface UpdateBranchInput {
     taxRate?: number;
     taxInclusive?: boolean;
 }
+export interface BranchStatsSummary {
+    total: number;
+    active: number;
+    inactive: number;
+}

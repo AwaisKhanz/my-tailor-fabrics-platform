@@ -1,7 +1,12 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 
-import { Branch } from '@tbms/shared-types';
+import type {
+  Branch,
+  BranchStatsSummary,
+  CreateBranchInput,
+  UpdateBranchInput,
+} from '@tbms/shared-types';
 
 export type { Branch };
 
@@ -16,12 +21,12 @@ export const branchesApi = {
     return response.data;
   },
 
-  createBranch: async (data: { code: string; name: string; address?: string; phone?: string }) => {
+  createBranch: async (data: CreateBranchInput) => {
     const response = await api.post<ApiResponse<Branch>>('/branches', data);
     return response.data;
   },
 
-  updateBranch: async (id: string, data: Partial<Branch>) => {
+  updateBranch: async (id: string, data: UpdateBranchInput) => {
     const response = await api.put<ApiResponse<Branch>>(`/branches/${id}`, data);
     return response.data;
   },
@@ -32,7 +37,7 @@ export const branchesApi = {
   },
 
   getStats: async () => {
-    const response = await api.get<ApiResponse<{ total: number; active: number; inactive: number }>>('/branches/stats');
+    const response = await api.get<ApiResponse<BranchStatsSummary>>('/branches/stats');
     return response.data;
   },
 };

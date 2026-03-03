@@ -23,7 +23,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let ConfigController = class ConfigController {
     configService;
     constructor(configService) {
@@ -108,7 +108,7 @@ let ConfigController = class ConfigController {
 };
 exports.ConfigController = ConfigController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Get)('branches'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -121,7 +121,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getSystemSettings", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Put)('settings'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -145,14 +145,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGarmentType", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Get)('garment-stats'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGarmentStats", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)('garment-types'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -160,7 +160,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "createGarmentType", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Put)('garment-types/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -170,7 +170,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "updateGarmentType", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Get)('garment-types/:id/history'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -178,7 +178,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getGarmentPriceHistory", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Put)('garment-types/:id/steps'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -196,7 +196,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "getMeasurementCategories", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)('measurement-categories'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -204,7 +204,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "createMeasurementCategory", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Put)('measurement-categories/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -213,7 +213,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "updateMeasurementCategory", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)('measurement-categories/:id/fields'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -222,7 +222,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "addMeasurementField", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Put)('measurement-fields/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -231,7 +231,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "updateMeasurementField", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Delete)('measurement-fields/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -239,7 +239,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ConfigController.prototype, "deleteMeasurementField", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Delete)('measurement-categories/:id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

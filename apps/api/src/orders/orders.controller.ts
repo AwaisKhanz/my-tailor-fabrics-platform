@@ -23,7 +23,11 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import {
+  ADMIN_ROLES,
+  DASHBOARD_READ_ROLES,
+  OPERATOR_ROLES,
+} from '@tbms/shared-constants';
 
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('orders')
@@ -33,7 +37,7 @@ export class OrdersController {
     private readonly receiptService: ReceiptService,
   ) {}
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Post()
   async create(
     @Body() createOrderDto: CreateOrderDto,
@@ -48,7 +52,7 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get()
   async findAll(
     @Query('page') page: string,
@@ -71,14 +75,14 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.findOne(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -93,7 +97,7 @@ export class OrdersController {
     );
     return { success: true, data };
   }
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete(':id')
   async cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.cancelOrder(
@@ -104,7 +108,7 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Post(':id/items')
   async addItem(
     @Param('id') id: string,
@@ -115,7 +119,7 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Patch(':id/items/:itemId')
   async updateItem(
     @Param('id') id: string,
@@ -132,7 +136,7 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete(':id/items/:itemId')
   async removeItem(
     @Param('id') id: string,
@@ -143,7 +147,7 @@ export class OrdersController {
     return { success: true };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Post(':id/payment')
   async addPayment(
     @Param('id') id: string,
@@ -159,7 +163,7 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
@@ -175,7 +179,7 @@ export class OrdersController {
     return { success: true, data };
   }
 
-  @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get(':id/receipt')
   async getReceipt(
     @Param('id') id: string,
@@ -194,7 +198,7 @@ export class OrdersController {
   }
 
   /** Generate/regenerate a shareable public link + PIN for the customer */
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Post(':id/share')
   async shareOrder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.generateShareLink(id, req.branchId);

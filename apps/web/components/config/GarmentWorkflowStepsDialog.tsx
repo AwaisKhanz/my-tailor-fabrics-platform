@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
 import { WorkflowStepTemplate } from "@tbms/shared-types";
+import { DEFAULT_WORKFLOW_STEP_PRESETS } from "@tbms/shared-constants";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 
 interface GarmentWorkflowStepsDialogProps {
@@ -37,12 +38,7 @@ export function GarmentWorkflowStepsDialog({
       setSteps(
         initialSteps.length > 0 
         ? [...initialSteps].sort((a, b) => a.sortOrder - b.sortOrder)
-        : [
-            { stepKey: "CUTTING", stepName: "Cutting", sortOrder: 1, isRequired: true, isActive: true },
-            { stepKey: "STITCHING", stepName: "Stitching", sortOrder: 2, isRequired: true, isActive: true },
-            { stepKey: "FINISHING", stepName: "Finishing", sortOrder: 3, isRequired: true, isActive: true },
-            { stepKey: "PRESSING", stepName: "Pressing", sortOrder: 4, isRequired: true, isActive: true },
-          ]
+        : DEFAULT_WORKFLOW_STEP_PRESETS.map((step) => ({ ...step }))
       );
     }
   }, [open, initialSteps]);

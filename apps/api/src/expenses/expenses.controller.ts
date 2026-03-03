@@ -17,14 +17,14 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 @Controller('expenses')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post()
   async create(
     @Body() dto: CreateExpenseDto,
@@ -38,7 +38,7 @@ export class ExpensesController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get()
   async findAll(
     @Req() req: AuthenticatedRequest,
@@ -63,21 +63,21 @@ export class ExpensesController {
     return { success: true, ...data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('categories')
   async findAllCategories() {
     const data = await this.expensesService.findAllCategories();
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.expensesService.findOne(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -88,7 +88,7 @@ export class ExpensesController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     await this.expensesService.remove(id, req.branchId);

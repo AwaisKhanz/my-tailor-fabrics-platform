@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
 import { SearchService } from '../search/search.service';
+import { CustomerStatus } from '@tbms/shared-types';
 export declare class CustomersService {
     private prisma;
     private searchService;
@@ -26,7 +27,7 @@ export declare class CustomersService {
         isVip: boolean;
         lifetimeValue: number;
     }>;
-    findAll(branchId: string, page?: number, limit?: number, search?: string, isVip?: boolean): Promise<{
+    findAll(branchId: string, page?: number, limit?: number, search?: string, isVip?: boolean, status?: CustomerStatus): Promise<{
         data: {
             id: string;
             createdAt: Date;

@@ -12,6 +12,11 @@ export interface UserAccount {
         code: string;
     } | null;
 }
+export interface UserStatsSummary {
+    total: number;
+    active: number;
+    privileged: number;
+}
 import { Role } from './common';
 export interface CreateUserInput {
     name: string;

@@ -19,7 +19,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let SearchController = class SearchController {
     searchService;
     constructor(searchService) {
@@ -41,7 +41,7 @@ let SearchController = class SearchController {
 exports.SearchController = SearchController;
 __decorate([
     (0, common_1.Get)('customers'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     __param(0, (0, common_1.Query)('q')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -50,7 +50,7 @@ __decorate([
 ], SearchController.prototype, "queryCustomers", null);
 __decorate([
     (0, common_1.Get)('employees'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     __param(0, (0, common_1.Query)('q')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),

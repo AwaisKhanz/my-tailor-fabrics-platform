@@ -69,7 +69,9 @@ export class AuthController {
         data: { accessToken: result.accessToken },
       });
     } catch (error) {
-      console.error('Refresh Error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Refresh Error:', error);
+      }
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ success: false, error: 'Unauthorized' });

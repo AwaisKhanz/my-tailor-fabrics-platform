@@ -1,0 +1,129 @@
+import { useMemo } from "react";
+import { Pencil, Trash2, Users } from "lucide-react";
+import { ROLE_BADGE, ROLES } from "@tbms/shared-constants";
+import { Role, type UserAccount } from "@tbms/shared-types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+
+interface UsersAccessTableProps {
+  users: UserAccount[];
+  loading: boolean;
+  onEdit: (user: UserAccount) => void;
+  onDelete: (user: UserAccount) => void;
+  onToggleActive: (user: UserAccount, isActive: boolean) => void;
+}
+
+export function UsersAccessTable({
+  users,
+  loading,
+  onEdit,
+  onDelete,
+  onToggleActive,
+}: UsersAccessTableProps) {
+  const roleLabels = useMemo(() => {
+    return new Map(ROLES.map((role) => [role.value, role.label]));
+  }, []);
+
+  const columns = useMemo<ColumnDef<UserAccount>[]>(
+    () => [
+      {
+        header: "Staff Member",
+        cell: (user) => (
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
+              <Users className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold leading-tight text-foreground">{user.name}</span>
+              <Label variant="dashboard" className="mt-0.5">
+                ID: STAFF-{user.id ? user.id.slice(0, 3).toUpperCase() : "001"}
+              </Label>
+            </div>
+          </div>
+        ),
+      },
+      {
+        header: "Email",
+        cell: (user) => <span className="text-sm font-bold text-foreground/60">{user.email}</span>,
+      },
+      {
+        header: "Role",
+        cell: (user) => (
+          <Badge variant={ROLE_BADGE[user.role as Role] ?? "outline"} size="xs">
+            {roleLabels.get(user.role as Role) ?? user.role.replaceAll("_", " ")}
+          </Badge>
+        ),
+      },
+      {
+        header: "Branch Access",
+        cell: (user) => (
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-foreground">
+              {user.branch ? user.branch.name : "All Branches"}
+            </span>
+            <Label variant="dashboard">{user.branch ? user.branch.code : "Master Access"}</Label>
+          </div>
+        ),
+      },
+      {
+        header: "Last Activity",
+        cell: (user) => (
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-foreground">
+              {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString("en-PK") : "Never"}
+            </span>
+            <Label variant="dashboard">System Log</Label>
+          </div>
+        ),
+      },
+      {
+        header: "Access",
+        cell: (user) => (
+          <Switch
+            variant="premium"
+            checked={user.isActive}
+            onCheckedChange={(nextChecked) => onToggleActive(user, nextChecked)}
+          />
+        ),
+      },
+      {
+        header: "Actions",
+        align: "right",
+        cell: (user) => (
+          <div className="flex items-center justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              onClick={() => onEdit(user)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => onDelete(user)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [onDelete, onEdit, onToggleActive, roleLabels],
+  );
+
+  return (
+    <DataTable
+      columns={columns}
+      data={users}
+      loading={loading}
+      itemLabel="accounts"
+      emptyMessage="No staff accounts found. Create your first user to manage access."
+    />
+  );
+}

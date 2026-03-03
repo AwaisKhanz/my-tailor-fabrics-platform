@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import type { LucideIcon } from "lucide-react";
 
 interface EmptyStateProps {
@@ -26,9 +27,13 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
       <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
         <Icon className="h-6 w-6 text-muted-foreground" />
       </div>
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <Typography as="h3" variant="sectionTitle" className="text-sm">
+        {title}
+      </Typography>
       {description && (
-        <p className="text-sm text-muted-foreground mt-1 max-w-xs">{description}</p>
+        <Typography as="p" variant="lead" className="mt-1 max-w-xs">
+          {description}
+        </Typography>
       )}
       {action && (
         <Button

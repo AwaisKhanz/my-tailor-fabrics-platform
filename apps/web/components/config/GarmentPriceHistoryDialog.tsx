@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPKR } from "@/lib/utils";
+import { logDevError } from "@/lib/logger";
 
 
 interface GarmentPriceHistoryDialogProps {
@@ -41,7 +42,7 @@ export function GarmentPriceHistoryDialog({
         setLogs(res.data);
       }
     } catch (error) {
-      console.error("Failed to fetch history:", error);
+      logDevError("Failed to fetch history:", error);
     } finally {
       setLoading(false);
     }

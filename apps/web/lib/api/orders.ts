@@ -59,26 +59,7 @@ export const ordersApi = {
   },
 
   getDashboardStats: async (): Promise<DashboardStats> => {
-    // Fetch overdue and recent orders in parallel, then derive stats
-    const [overdueRes, recentRes] = await Promise.all([
-      api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params: { status: OrderStatus.OVERDUE, limit: 100 } }),
-      api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params: { limit: 5 } }),
-    ]);
-    const overdueOrders = overdueRes.data.data?.data ?? [];
-    const recentOrders = recentRes.data.data?.data ?? [];
-
-    return {
-      revenue: 0,
-      expenses: 0,
-      outstandingBalances: 0,
-      overdueOrders: overdueOrders.length,
-      overdueCount: overdueOrders.length,
-      recentOrders,
-      totalOrders: 0,
-      newToday: 0,
-      totalOutstandingBalance: overdueOrders.reduce((sum, o) => sum + (o.balanceDue ?? 0), 0),
-      totalCustomers: 0,
-      activeEmployees: 0,
-    };
+    const response = await api.get<ApiResponse<DashboardStats>>('/reports/dashboard');
+    return response.data.data;
   },
 };

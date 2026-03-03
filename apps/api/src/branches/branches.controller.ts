@@ -14,20 +14,18 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
 import type { CreateBranchInput, UpdateBranchInput } from '@tbms/shared-types';
-import { Role } from '@tbms/shared-types';
+import {
+  ADMIN_ROLES,
+  ALL_ROLES,
+  SUPER_ADMIN_ONLY_ROLES,
+} from '@tbms/shared-constants';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('branches')
 export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
-  @Roles(
-    Role.SUPER_ADMIN,
-    Role.ADMIN,
-    Role.ENTRY_OPERATOR,
-    Role.VIEWER,
-    Role.EMPLOYEE,
-  )
+  @Roles(...ALL_ROLES)
   @Get()
   async findAll(
     @Query('page') page?: string,
@@ -42,35 +40,35 @@ export class BranchesController {
     return { success: true, data };
   }
 
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('stats')
   async getStats() {
     const data = await this.branchesService.getStats();
     return { success: true, data };
   }
 
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.branchesService.findOne(id);
     return { success: true, data };
   }
 
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Post()
   async createBranch(@Body() body: CreateBranchInput) {
     const data = await this.branchesService.create(body);
     return { success: true, data };
   }
 
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Put(':id')
   async updateBranch(@Param('id') id: string, @Body() body: UpdateBranchInput) {
     const data = await this.branchesService.update(id, body);
     return { success: true, data };
   }
 
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.branchesService.remove(id);

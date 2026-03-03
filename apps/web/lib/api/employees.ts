@@ -1,20 +1,24 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import { Employee, EmployeeDocument } from '@/types/employees';
-import { OrderItem } from '@tbms/shared-types';
+import type {
+  Employee,
+  EmployeeStatsSummary,
+  EmployeeWithRelations,
+  OrderItem,
+} from '@tbms/shared-types';
 
-interface UserAccount {
-  id: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-}
+export type { EmployeeWithRelations };
 
-export interface EmployeeWithRelations extends Employee {
-  userAccount?: UserAccount | null;
-  documents: EmployeeDocument[];
-}
+const normalizeEmployeeStats = (
+  stats: EmployeeStatsSummary & { currentBalance?: number },
+): EmployeeStatsSummary => {
+  const balance = stats.balance ?? stats.currentBalance ?? 0;
+  return {
+    ...stats,
+    balance,
+    currentBalance: stats.currentBalance ?? balance,
+  };
+};
 
 export const employeesApi = {
   getEmployees: async (params: { page?: number; limit?: number; search?: string }) => {
@@ -46,11 +50,13 @@ export const employeesApi = {
     return response.data;
   },
   getMyStats: async () => {
-    const response = await api.get<ApiResponse<{ totalEarned: number; totalPaid: number; currentBalance: number }>>('/employees/my/stats');
+    const response = await api.get<ApiResponse<EmployeeStatsSummary>>('/employees/my/stats');
+    response.data.data = normalizeEmployeeStats(response.data.data);
     return response.data;
   },
   getStats: async (id: string) => {
-    const response = await api.get<ApiResponse<{ totalEarned: number; totalPaid: number; currentBalance: number }>>(`/employees/${id}/stats`);
+    const response = await api.get<ApiResponse<EmployeeStatsSummary>>(`/employees/${id}/stats`);
+    response.data.data = normalizeEmployeeStats(response.data.data);
     return response.data;
   },
   getItems: async (id: string, params: { page?: number; limit?: number } = {}) => {
@@ -61,10 +67,7 @@ export const employeesApi = {
     const response = await api.post<ApiResponse<unknown>>(`/employees/${id}/documents`, data);
     return response.data;
   },
-  createUserAccount: async (id: string, data: { email: string; passwordHash: string }) => {
-    // Note: The backend expects 'password' not 'passwordHash' in some places, 
-    // but looking at the controller it's @Body('password').
-    // Let's use 'password' to be safe or check the component usage.
+  createUserAccount: async (id: string, data: { email: string; password: string }) => {
     const response = await api.post<ApiResponse<unknown>>(`/employees/${id}/user-account`, data);
     return response.data;
   },

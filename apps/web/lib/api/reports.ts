@@ -1,44 +1,23 @@
 import { api } from "../api";
-import { ApiResponse, DashboardStats } from "@tbms/shared-types";
+import type {
+  AddonAnalytics,
+  ApiResponse,
+  DashboardStats,
+  DesignAnalytics,
+  EmployeeProductivity,
+  GarmentRevenue,
+  ReportSummary,
+  RevenueVsExpenses,
+} from "@tbms/shared-types";
 
-export interface DesignAnalytics {
-  name: string;
-  count: number;
-  revenue: number;
-  payout: number;
-}
-
-export interface AddonAnalytics {
-  type: string;
-  count: number;
-  total: number;
-}
-
-export interface ReportSummary {
-  revenue: number;
-  expenses: number;
-  outstandingBalances: number;
-  overdueOrders: number;
-  totalDesignRevenue: number;
-  totalAddonRevenue: number;
-  designs: DesignAnalytics[];
-  addons: AddonAnalytics[];
-}
-
-export interface RevenueVsExpenses {
-  revenue: { month: string; total: number }[];
-  expenses: { month: string; total: number }[];
-}
-
-export interface GarmentRevenue {
-  label: string;
-  value: number;
-}
-
-export interface EmployeeProductivity {
-  label: string;
-  value: number;
-}
+export type {
+  DesignAnalytics,
+  AddonAnalytics,
+  ReportSummary,
+  RevenueVsExpenses,
+  GarmentRevenue,
+  EmployeeProductivity,
+};
 
 export const reportsApi = {
   getDashboardStats: (branchId?: string) =>

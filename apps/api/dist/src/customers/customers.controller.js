@@ -21,7 +21,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let CustomersController = class CustomersController {
     customersService;
     constructor(customersService) {
@@ -31,8 +31,8 @@ let CustomersController = class CustomersController {
         const data = await this.customersService.create(createCustomerDto, req.branchId);
         return { success: true, data };
     }
-    async findAll(page, limit, search, isVip, req) {
-        const data = await this.customersService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, search, isVip === 'true' ? true : undefined);
+    async findAll(page, limit, search, isVip, status, req) {
+        const data = await this.customersService.findAll(req.branchId, Number(page) || 1, Number(limit) || 20, search, isVip === 'true' ? true : undefined, status);
         return { success: true, data };
     }
     async findOne(id, req) {
@@ -62,7 +62,7 @@ let CustomersController = class CustomersController {
 };
 exports.CustomersController = CustomersController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
@@ -71,19 +71,20 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "create", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('search')),
     __param(3, (0, common_1.Query)('isVip')),
-    __param(4, (0, common_1.Req)()),
+    __param(4, (0, common_1.Query)('status')),
+    __param(5, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, Object]),
+    __metadata("design:paramtypes", [String, String, String, String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "findAll", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -92,7 +93,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "findOne", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Put)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -102,7 +103,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "update", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -111,7 +112,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "remove", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(':id/orders'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Query)('page')),
@@ -122,7 +123,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "getOrders", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Post)(':id/measurements'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -132,7 +133,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "upsertMeasurement", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.ENTRY_OPERATOR),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Patch)(':id/vip'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('isVip')),

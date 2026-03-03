@@ -1,5 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { OrderStatus, ItemStatus } from '@tbms/shared-types';
+import {
+  AddonAnalytics,
+  DesignAnalytics,
+  EmployeeProductivity,
+  GarmentRevenue,
+  OrderStatus,
+  RevenueVsExpenses,
+} from '@tbms/shared-types';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -29,27 +37,35 @@ export class ReportsService {
 
     // 3. Outstanding Employee Balances
     // Total Earned (Items + Tasks)
-    const earnedConditionItem = branchId
-      ? `AND o."branchId" = '${branchId}'`
-      : '';
-    const earnedConditionTask = branchId
-      ? `AND o."branchId" = '${branchId}'`
-      : '';
+    const earnedBranchCondition = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
 
-    const totalEarnedQuery = await this.prisma.$queryRawUnsafe<
-      [{ total: bigint }]
-    >(`
-            SELECT (
-                (SELECT COALESCE(SUM(oi."employeeRate" * oi.quantity), 0) FROM "OrderItem" oi JOIN "Order" o ON o.id = oi."orderId" WHERE oi.status IN ('COMPLETED') AND o."deletedAt" IS NULL ${earnedConditionItem})
-                +
-                (SELECT COALESCE(SUM(COALESCE(oit."rateOverride", dt."defaultRate", oit."rateSnapshot", 0)), 0) 
-                 FROM "OrderItemTask" oit 
-                 JOIN "OrderItem" oi ON oi.id = oit."orderItemId" 
-                 JOIN "Order" o ON o.id = oi."orderId" 
-                 LEFT JOIN "DesignType" dt ON dt.id = oit."designTypeId"
-                 WHERE oit.status = 'DONE' AND o."deletedAt" IS NULL ${earnedConditionTask})
-            ) AS total
-        `);
+    const totalEarnedQuery = await this.prisma.$queryRaw<[{ total: bigint }]>(
+      Prisma.sql`
+        SELECT (
+          (
+            SELECT COALESCE(SUM(oi."employeeRate" * oi.quantity), 0)
+            FROM "OrderItem" oi
+            JOIN "Order" o ON o.id = oi."orderId"
+            WHERE oi.status IN ('COMPLETED')
+              AND o."deletedAt" IS NULL
+              ${earnedBranchCondition}
+          )
+          +
+          (
+            SELECT COALESCE(SUM(COALESCE(oit."rateOverride", dt."defaultRate", oit."rateSnapshot", 0)), 0)
+            FROM "OrderItemTask" oit
+            JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
+            JOIN "Order" o ON o.id = oi."orderId"
+            LEFT JOIN "DesignType" dt ON dt.id = oit."designTypeId"
+            WHERE oit.status = 'DONE'
+              AND o."deletedAt" IS NULL
+              ${earnedBranchCondition}
+          )
+        ) AS total
+      `,
+    );
 
     // Total Disbursed (Wait, payments aren't strictly scoped to branch unless restricted via employees. Since employees belong to a branch, we can scope it)
     const employeeCondition = branchId
@@ -124,43 +140,47 @@ export class ReportsService {
       totalOutstandingBalance: outstandingBalances, // Redundant but satisfying interface
       totalCustomers,
       activeEmployees,
-      recentOrders: recentOrders as any, // Cast to any because the frontend expects shared Order type which matches Prisma model generally
+      recentOrders,
     };
   }
 
-  async getRevenueVsExpenses(branchId?: string, months: number = 6) {
+  async getRevenueVsExpenses(
+    branchId?: string,
+    months: number = 6,
+  ): Promise<RevenueVsExpenses> {
+    const safeMonths = Number.isFinite(months) && months > 0 ? months : 6;
     const branchConditionOrder = branchId
-      ? `AND o."branchId" = '${branchId}'`
-      : '';
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
     const branchConditionExpense = branchId
-      ? `AND e."branchId" = '${branchId}'`
-      : '';
+      ? Prisma.sql`AND e."branchId" = ${branchId}`
+      : Prisma.empty;
 
     // Generate series of months (using Postgres generate_series or basic date_trunc)
-    const revenueRaw = await this.prisma.$queryRawUnsafe<
-      { month: Date; total: bigint }[]
-    >(`
-            SELECT date_trunc('month', op."paidAt") as month, SUM(op.amount) as total
-            FROM "OrderPayment" op
-            JOIN "Order" o ON o.id = op."orderId"
-            WHERE op."paidAt" >= NOW() - INTERVAL '${months} months'
-            AND o."deletedAt" IS NULL
-            ${branchConditionOrder}
-            GROUP BY month
-            ORDER BY month ASC
-        `);
+    const revenueRaw = await this.prisma.$queryRaw<{ month: Date; total: bigint }[]>(
+      Prisma.sql`
+        SELECT date_trunc('month', op."paidAt") as month, SUM(op.amount) as total
+        FROM "OrderPayment" op
+        JOIN "Order" o ON o.id = op."orderId"
+        WHERE op."paidAt" >= NOW() - (${safeMonths} * INTERVAL '1 month')
+          AND o."deletedAt" IS NULL
+          ${branchConditionOrder}
+        GROUP BY month
+        ORDER BY month ASC
+      `,
+    );
 
-    const expenseRaw = await this.prisma.$queryRawUnsafe<
-      { month: Date; total: bigint }[]
-    >(`
-            SELECT date_trunc('month', e."expenseDate") as month, SUM(e.amount) as total
-            FROM "Expense" e
-            WHERE e."expenseDate" >= NOW() - INTERVAL '${months} months'
-            AND e."deletedAt" IS NULL
-            ${branchConditionExpense}
-            GROUP BY month
-            ORDER BY month ASC
-        `);
+    const expenseRaw = await this.prisma.$queryRaw<{ month: Date; total: bigint }[]>(
+      Prisma.sql`
+        SELECT date_trunc('month', e."expenseDate") as month, SUM(e.amount) as total
+        FROM "Expense" e
+        WHERE e."expenseDate" >= NOW() - (${safeMonths} * INTERVAL '1 month')
+          AND e."deletedAt" IS NULL
+          ${branchConditionExpense}
+        GROUP BY month
+        ORDER BY month ASC
+      `,
+    );
 
     // Format to a clean combined array (Skipping exhaustive date padding for simplicity, typically done on frontend or via generate_series)
     return {
@@ -175,106 +195,115 @@ export class ReportsService {
     };
   }
 
-  async getGarmentTypesRevenue(branchId?: string) {
-    const branchCondition = branchId ? `AND o."branchId" = '${branchId}'` : '';
+  async getGarmentTypesRevenue(branchId?: string): Promise<GarmentRevenue[]> {
+    const branchCondition = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
 
-    const result = await this.prisma.$queryRawUnsafe<
-      { label: string; value: bigint }[]
-    >(`
-            SELECT oi."garmentTypeName" as label, SUM(oi."unitPrice" * oi.quantity) as value
-            FROM "OrderItem" oi
-            JOIN "Order" o ON o.id = oi."orderId"
-            WHERE oi.status NOT IN ('CANCELLED')
+    const result = await this.prisma.$queryRaw<{ label: string; value: bigint }[]>(
+      Prisma.sql`
+        SELECT oi."garmentTypeName" as label, SUM(oi."unitPrice" * oi.quantity) as value
+        FROM "OrderItem" oi
+        JOIN "Order" o ON o.id = oi."orderId"
+        WHERE oi.status NOT IN ('CANCELLED')
+          AND o."deletedAt" IS NULL
+          ${branchCondition}
+        GROUP BY oi."garmentTypeName"
+        ORDER BY value DESC
+      `,
+    );
+
+    return result.map((r) => ({ label: r.label, value: Number(r.value) }));
+  }
+
+  async getEmployeeProductivity(
+    branchId?: string,
+  ): Promise<EmployeeProductivity[]> {
+    const branchCondition = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
+
+    const result = await this.prisma.$queryRaw<{ label: string; value: bigint }[]>(
+      Prisma.sql`
+        WITH item_prod AS (
+          SELECT emp.id, emp."fullName" as label, SUM(oi.quantity) as value
+          FROM "OrderItem" oi
+          JOIN "Order" o ON o.id = oi."orderId"
+          JOIN "Employee" emp ON emp.id = oi."employeeId"
+          WHERE oi.status IN ('COMPLETED')
             AND o."deletedAt" IS NULL
+            AND emp."deletedAt" IS NULL
             ${branchCondition}
-            GROUP BY oi."garmentTypeName"
-            ORDER BY value DESC
-        `);
+          GROUP BY emp.id, emp."fullName"
+        ),
+        task_prod AS (
+          SELECT emp.id, emp."fullName" as label, COUNT(oit.id) as value
+          FROM "OrderItemTask" oit
+          JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
+          JOIN "Order" o ON o.id = oi."orderId"
+          JOIN "Employee" emp ON emp.id = oit."assignedEmployeeId"
+          WHERE oit.status = 'DONE'
+            AND o."deletedAt" IS NULL
+            AND emp."deletedAt" IS NULL
+            ${branchCondition}
+          GROUP BY emp.id, emp."fullName"
+        ),
+        combined_prod AS (
+          SELECT label, SUM(value) as value
+          FROM (
+            SELECT label, value FROM item_prod
+            UNION ALL
+            SELECT label, value FROM task_prod
+          ) s
+          GROUP BY label
+        )
+        SELECT label, value
+        FROM combined_prod
+        ORDER BY value DESC
+        LIMIT 10
+      `,
+    );
 
     return result.map((r) => ({ label: r.label, value: Number(r.value) }));
   }
 
-  async getEmployeeProductivity(branchId?: string) {
-    const branchConditionItem = branchId
-      ? `AND o."branchId" = '${branchId}'`
-      : '';
-    const branchConditionTask = branchId
-      ? `AND o."branchId" = '${branchId}'`
-      : '';
-
-    const result = await this.prisma.$queryRawUnsafe<
-      { label: string; value: bigint }[]
-    >(`
-            WITH item_prod AS (
-                SELECT emp.id, emp."fullName" as label, SUM(oi.quantity) as value
-                FROM "OrderItem" oi
-                JOIN "Order" o ON o.id = oi."orderId"
-                JOIN "Employee" emp ON emp.id = oi."employeeId"
-                WHERE oi.status IN ('COMPLETED')
-                AND o."deletedAt" IS NULL
-                AND emp."deletedAt" IS NULL
-                ${branchConditionItem}
-                GROUP BY emp.id, emp."fullName"
-            ),
-            task_prod AS (
-                SELECT emp.id, emp."fullName" as label, COUNT(oit.id) as value
-                FROM "OrderItemTask" oit
-                JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
-                JOIN "Order" o ON o.id = oi."orderId"
-                JOIN "Employee" emp ON emp.id = oit."assignedEmployeeId"
-                WHERE oit.status = 'DONE'
-                AND o."deletedAt" IS NULL
-                AND emp."deletedAt" IS NULL
-                ${branchConditionTask}
-                GROUP BY emp.id, emp."fullName"
-            ),
-            combined_prod AS (
-                SELECT label, SUM(value) as value
-                FROM (
-                    SELECT label, value FROM item_prod
-                    UNION ALL
-                    SELECT label, value FROM task_prod
-                ) s
-                GROUP BY label
-            )
-            SELECT label, value
-            FROM combined_prod
-            ORDER BY value DESC
-            LIMIT 10
-        `);
-
-    return result.map((r) => ({ label: r.label, value: Number(r.value) }));
-  }
-
-  async getDesignAnalytics(branchId?: string, from?: string, to?: string) {
-    const branchCondition = branchId ? `AND o."branchId" = '${branchId}'` : '';
+  async getDesignAnalytics(
+    branchId?: string,
+    from?: string,
+    to?: string,
+  ): Promise<DesignAnalytics[]> {
+    const branchCondition = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
     const dateCondition =
       from && to
-        ? `AND o."createdAt" BETWEEN '${from}' AND '${to}'`
+        ? Prisma.sql`AND o."createdAt" BETWEEN ${new Date(from)} AND ${new Date(to)}`
         : from
-          ? `AND o."createdAt" >= '${from}'`
+          ? Prisma.sql`AND o."createdAt" >= ${new Date(from)}`
           : to
-            ? `AND o."createdAt" <= '${to}'`
-            : '';
+            ? Prisma.sql`AND o."createdAt" <= ${new Date(to)}`
+            : Prisma.empty;
 
-    const result = await this.prisma.$queryRawUnsafe<
+    const result = await this.prisma.$queryRaw<
       { name: string; count: bigint; revenue: bigint; payout: bigint }[]
-    >(`
-            SELECT 
-                dt.name, 
-                COUNT(oi.id) as count, 
-                SUM(dt."defaultPrice") as revenue,
-                SUM(dt."defaultRate") as payout
-            FROM "OrderItem" oi
-            JOIN "DesignType" dt ON dt.id = oi."designTypeId"
-            JOIN "Order" o ON o.id = oi."orderId"
-            WHERE o."deletedAt" IS NULL
-            AND oi.status NOT IN ('CANCELLED')
-            ${branchCondition}
-            ${dateCondition}
-            GROUP BY dt.name
-            ORDER BY count DESC
-        `);
+    >(
+      Prisma.sql`
+        SELECT
+          dt.name,
+          COUNT(oi.id) as count,
+          SUM(dt."defaultPrice") as revenue,
+          SUM(dt."defaultRate") as payout
+        FROM "OrderItem" oi
+        JOIN "DesignType" dt ON dt.id = oi."designTypeId"
+        JOIN "Order" o ON o.id = oi."orderId"
+        WHERE o."deletedAt" IS NULL
+          AND oi.status NOT IN ('CANCELLED')
+          ${branchCondition}
+          ${dateCondition}
+        GROUP BY dt.name
+        ORDER BY count DESC
+      `,
+    );
 
     return result.map((r) => ({
       name: r.name,
@@ -284,35 +313,43 @@ export class ReportsService {
     }));
   }
 
-  async getAddonAnalytics(branchId?: string, from?: string, to?: string) {
-    const branchCondition = branchId ? `AND o."branchId" = '${branchId}'` : '';
+  async getAddonAnalytics(
+    branchId?: string,
+    from?: string,
+    to?: string,
+  ): Promise<AddonAnalytics[]> {
+    const branchCondition = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
     const dateCondition =
       from && to
-        ? `AND o."createdAt" BETWEEN '${from}' AND '${to}'`
+        ? Prisma.sql`AND o."createdAt" BETWEEN ${new Date(from)} AND ${new Date(to)}`
         : from
-          ? `AND o."createdAt" >= '${from}'`
+          ? Prisma.sql`AND o."createdAt" >= ${new Date(from)}`
           : to
-            ? `AND o."createdAt" <= '${to}'`
-            : '';
+            ? Prisma.sql`AND o."createdAt" <= ${new Date(to)}`
+            : Prisma.empty;
 
-    const result = await this.prisma.$queryRawUnsafe<
+    const result = await this.prisma.$queryRaw<
       { type: string; count: bigint; total: bigint }[]
-    >(`
-            SELECT 
-                a.type, 
-                COUNT(a.id) as count, 
-                SUM(a.price) as total
-            FROM "OrderItemAddon" a
-            JOIN "OrderItem" oi ON oi.id = a."orderItemId"
-            JOIN "Order" o ON o.id = oi."orderId"
-            WHERE o."deletedAt" IS NULL
-            AND a."deletedAt" IS NULL
-            AND oi.status NOT IN ('CANCELLED')
-            ${branchCondition}
-            ${dateCondition}
-            GROUP BY a.type
-            ORDER BY total DESC
-        `);
+    >(
+      Prisma.sql`
+        SELECT
+          a.type,
+          COUNT(a.id) as count,
+          SUM(a.price) as total
+        FROM "OrderItemAddon" a
+        JOIN "OrderItem" oi ON oi.id = a."orderItemId"
+        JOIN "Order" o ON o.id = oi."orderId"
+        WHERE o."deletedAt" IS NULL
+          AND a."deletedAt" IS NULL
+          AND oi.status NOT IN ('CANCELLED')
+          ${branchCondition}
+          ${dateCondition}
+        GROUP BY a.type
+        ORDER BY total DESC
+      `,
+    );
 
     return result.map((r) => ({
       type: r.type,
@@ -321,8 +358,11 @@ export class ReportsService {
     }));
   }
 
-  async getSummary(branchId?: string, from?: string, to?: string) {
-    const filters = { branchId, from, to };
+  async getSummary(
+    branchId?: string,
+    from?: string,
+    to?: string,
+  ) {
     const [designs, addons, dashboard] = await Promise.all([
       this.getDesignAnalytics(branchId, from, to),
       this.getAddonAnalytics(branchId, from, to),

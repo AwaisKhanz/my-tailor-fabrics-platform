@@ -1,8 +1,10 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
+import { getNextAuthSecret, getServerApiBaseUrl } from "@/lib/env";
 
 const JWT_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // must match JWT_EXPIRES_IN in .env
+const API_BASE_URL = getServerApiBaseUrl();
 
 const handler = NextAuth({
   providers: [
@@ -16,7 +18,7 @@ const handler = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
+          const res = await axios.post(`${API_BASE_URL}/auth/login`, {
             email: credentials.email,
             password: credentials.password,
           });
@@ -65,7 +67,7 @@ const handler = NextAuth({
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 days — matches JWT_EXPIRES_IN
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-dev-only",
+  secret: getNextAuthSecret(),
 });
 
 export { handler as GET, handler as POST };

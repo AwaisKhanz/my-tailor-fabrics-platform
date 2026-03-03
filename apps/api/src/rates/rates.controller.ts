@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
 import { Role } from '@tbms/shared-types';
+import { ADMIN_ROLES } from '@tbms/shared-constants';
 import type { CreateRateCardInput } from '@tbms/shared-types';
 
 @Controller('rates')
@@ -20,7 +21,7 @@ export class RatesController {
   constructor(private readonly ratesService: RatesService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async findAll(
     @Request() req: { user: { role: Role; branchId: string } },
     @Query('page') page?: string,
@@ -48,7 +49,7 @@ export class RatesController {
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async create(
     @Body() dto: CreateRateCardInput,
     @Request() req: { user: { id: string; role: Role; branchId: string } },
@@ -62,7 +63,7 @@ export class RatesController {
   }
 
   @Get('history')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async getHistory(
     @Query('garmentTypeId') garmentTypeId: string,
     @Query('stepKey') stepKey: string,

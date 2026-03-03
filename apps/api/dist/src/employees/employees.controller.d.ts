@@ -196,7 +196,7 @@ export declare class EmployeesController {
             notes: string | null;
         };
     }>;
-    createUserAccount(id: string, email: string, rawPass: string, req: AuthenticatedRequest): Promise<{
+    createUserAccount(id: string, email: string, password: string | undefined, passwordHash: string | undefined, req: AuthenticatedRequest): Promise<{
         success: boolean;
         user: {
             id: string;

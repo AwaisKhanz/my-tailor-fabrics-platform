@@ -7,6 +7,7 @@ import {
 } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
 import { SearchService } from '../search/search.service';
+import { CustomerStatus } from '@tbms/shared-types';
 
 @Injectable()
 export class CustomersService {
@@ -49,6 +50,7 @@ export class CustomersService {
     limit = 20,
     search?: string,
     isVip?: boolean,
+    status?: CustomerStatus,
   ) {
     if (search && search.trim().length >= 2) {
       const results = await this.searchService.searchCustomers(
@@ -67,6 +69,7 @@ export class CustomersService {
       deletedAt: null,
       ...(branchId ? { branchId } : {}),
       ...(typeof isVip === 'boolean' ? { isVip } : {}),
+      ...(status ? { status } : {}),
     };
 
     const [data, total] = await Promise.all([

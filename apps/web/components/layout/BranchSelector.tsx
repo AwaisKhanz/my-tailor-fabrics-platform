@@ -2,9 +2,11 @@
 
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Role } from "@tbms/shared-types";
 import { useBranchStore } from "@/store/useBranchStore";
 import { api } from "@/lib/api";
+import { logDevError } from "@/lib/logger";
 import {
   Select,
   SelectContent,
@@ -15,6 +17,7 @@ import {
 import Cookies from "js-cookie";
 
 export function BranchSelector() {
+  const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
   const { 
@@ -44,7 +47,7 @@ export function BranchSelector() {
             }
           }
         } catch (error) {
-          console.error("Failed to fetch branches:", error);
+          logDevError("Failed to fetch branches:", error);
         }
       };
       fetchBranches();
@@ -59,10 +62,7 @@ export function BranchSelector() {
         value={activeBranchId || undefined} 
         onValueChange={(val) => {
           setActiveBranch(val);
-          // Stripe-style global application reset on account/branch change
-          if (typeof window !== 'undefined') {
-            window.location.reload();
-          }
+          router.refresh();
         }}
       >
         <SelectTrigger variant="premium" className="w-[180px] h-9">

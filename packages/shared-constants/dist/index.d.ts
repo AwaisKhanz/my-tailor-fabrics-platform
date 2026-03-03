@@ -6,3 +6,4 @@ export * from './employees';
 export * from './customers';
 export * from './rates';
 export * from './ledger';
+export * from './rbac';

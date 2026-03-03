@@ -1,4 +1,11 @@
 import { EmployeeStatus, PaymentType } from './common';
+export interface EmployeeLinkedUserAccount {
+    id: string;
+    email: string;
+    isActive: boolean;
+    role?: string;
+    createdAt?: string;
+}
 export interface Employee {
     id: string;
     branchId: string;
@@ -15,12 +22,7 @@ export interface Employee {
     dateOfBirth?: string | null;
     emergencyName?: string | null;
     emergencyPhone?: string | null;
-    userAccount?: {
-        id: string;
-        email: string;
-        role: string;
-        isActive: boolean;
-    } | null;
+    userAccount?: EmployeeLinkedUserAccount | null;
     documents?: EmployeeDocument[];
     createdAt: string;
     updatedAt: string;
@@ -32,4 +34,15 @@ export interface EmployeeDocument {
     fileUrl: string;
     fileType: string;
     createdAt: string;
+}
+export interface EmployeeWithRelations extends Employee {
+    userAccount?: EmployeeLinkedUserAccount | null;
+    documents: EmployeeDocument[];
+}
+export interface EmployeeStatsSummary {
+    totalEarned: number;
+    totalPaid: number;
+    balance: number;
+    /** @deprecated Use `balance` */
+    currentBalance?: number;
 }

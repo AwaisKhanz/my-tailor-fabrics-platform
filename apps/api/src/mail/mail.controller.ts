@@ -4,18 +4,29 @@ import {
   Post,
   Body,
   BadRequestException,
+  ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { Public } from '../common/decorators/auth.decorators';
+import { isPublicMailEndpointsEnabled } from '../common/env';
 
 @Controller('mail')
 export class MailController {
   constructor(private readonly mailService: MailService) {}
 
+  private assertPublicAccessEnabled() {
+    if (!isPublicMailEndpointsEnabled()) {
+      throw new ForbiddenException(
+        'Public mail endpoints are disabled in this environment',
+      );
+    }
+  }
+
   @Public()
   @Get('auth-url')
   getAuthUrl() {
+    this.assertPublicAccessEnabled();
     try {
       const url = this.mailService.getAuthUrl();
       return {
@@ -32,6 +43,7 @@ export class MailController {
   @Public()
   @Post('test')
   async sendTestMail(@Body() dto: { to: string }) {
+    this.assertPublicAccessEnabled();
     if (!dto.to) {
       throw new BadRequestException('Please provide a "to" email address.');
     }

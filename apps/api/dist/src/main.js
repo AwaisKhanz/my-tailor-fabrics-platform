@@ -10,12 +10,13 @@ const helmet_1 = __importDefault(require("helmet"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const core_2 = require("@nestjs/core");
 const all_exceptions_filter_1 = require("./common/filters/all-exceptions.filter");
+const env_1 = require("./common/env");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.use((0, helmet_1.default)());
     app.use((0, cookie_parser_1.default)());
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: (0, env_1.getFrontendUrl)(),
         credentials: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
@@ -27,5 +28,5 @@ async function bootstrap() {
     app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter(httpAdapterHost));
     await app.listen(process.env.PORT ?? 5000);
 }
-bootstrap();
+void bootstrap();
 //# sourceMappingURL=main.js.map

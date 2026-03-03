@@ -18,7 +18,7 @@ const users_service_1 = require("./users.service");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -51,7 +51,7 @@ let UsersController = class UsersController {
 };
 exports.UsersController = UsersController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('branchId')),
     __metadata("design:type", Function),
@@ -59,14 +59,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findAll", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Get)('stats'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getStats", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -74,7 +74,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Patch)(':id/status'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('isActive')),
@@ -83,7 +83,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "setActive", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -91,7 +91,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "remove", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.SUPER_ADMIN_ONLY_ROLES),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),

@@ -28,14 +28,14 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import { ADMIN_ROLES, SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
 
 @Controller('config')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class ConfigController {
   constructor(private readonly configService: ConfigService) {}
 
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Get('branches')
   async getBranches() {
     const data = await this.configService.getBranches();
@@ -49,7 +49,7 @@ export class ConfigController {
     return { success: true, data };
   }
 
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put('settings')
   async updateSystemSettings(@Body() dto: UpdateSystemSettingsDto) {
     const data = await this.configService.updateSystemSettings(dto);
@@ -78,21 +78,21 @@ export class ConfigController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('garment-stats')
   async getGarmentStats() {
     const data = await this.configService.getGarmentStats();
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post('garment-types')
   async createGarmentType(@Body() dto: CreateGarmentTypeDto) {
     const data = await this.configService.createGarmentType(dto);
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put('garment-types/:id')
   async updateGarmentType(
     @Param('id') id: string,
@@ -107,14 +107,14 @@ export class ConfigController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('garment-types/:id/history')
   async getGarmentPriceHistory(@Param('id') garmentTypeId: string) {
     const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put('garment-types/:id/steps')
   async updateGarmentWorkflowSteps(
     @Param('id') garmentTypeId: string,
@@ -142,14 +142,14 @@ export class ConfigController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post('measurement-categories')
   async createMeasurementCategory(@Body() dto: CreateMeasurementCategoryDto) {
     const data = await this.configService.createMeasurementCategory(dto);
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put('measurement-categories/:id')
   async updateMeasurementCategory(
     @Param('id') id: string,
@@ -160,7 +160,7 @@ export class ConfigController {
   }
 
   // --- Measurement Fields ---
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post('measurement-categories/:id/fields')
   async addMeasurementField(
     @Param('id') categoryId: string,
@@ -170,7 +170,7 @@ export class ConfigController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put('measurement-fields/:id')
   async updateMeasurementField(
     @Param('id') id: string,
@@ -182,14 +182,14 @@ export class ConfigController {
 
   // Soft delete requested in PRD, but schema does not have deletedAt for measurement field,
   // Using pure delete per PRD section "Soft delete field", maybe actually DELETE if schema lacks soft-delete?
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete('measurement-fields/:id')
   async deleteMeasurementField(@Param('id') id: string) {
     await this.configService.deleteMeasurementField(id);
     return { success: true };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete('measurement-categories/:id')
   async deleteMeasurementCategory(@Param('id') id: string) {
     await this.configService.deleteMeasurementCategory(id);

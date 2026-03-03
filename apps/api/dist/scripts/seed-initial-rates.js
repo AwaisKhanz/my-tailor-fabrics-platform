@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
+const shared_constants_1 = require("@tbms/shared-constants");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Starting RateCard seeding...');
@@ -28,14 +29,9 @@ async function main() {
             }
             else {
                 const key = step.stepKey.toUpperCase();
-                if (key.includes('CUTTING')) {
-                    stepRate = Math.floor(totalRate * 0.20);
-                }
-                else if (key.includes('STITCHING')) {
-                    stepRate = Math.floor(totalRate * 0.60);
-                }
-                else if (key.includes('PRESSING')) {
-                    stepRate = Math.floor(totalRate * 0.10);
+                const rateHint = shared_constants_1.RATE_SPLIT_HINTS[key];
+                if (typeof rateHint === 'number') {
+                    stepRate = Math.floor(totalRate * rateHint);
                 }
                 else {
                     const remainingSteps = steps.length - 1 - i;

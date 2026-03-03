@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { logDevError } from "@/lib/logger";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -44,7 +45,7 @@ export function ConfirmDialog({
       await onConfirm();
       onOpenChange(false);
     } catch (error) {
-      console.error("Confirmation error:", error);
+      logDevError("Confirmation error:", error);
     } finally {
       setIsPending(false);
     }

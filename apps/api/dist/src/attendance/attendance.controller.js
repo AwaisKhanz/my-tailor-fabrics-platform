@@ -19,7 +19,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let AttendanceController = class AttendanceController {
     attendanceService;
     constructor(attendanceService) {
@@ -44,7 +44,7 @@ let AttendanceController = class AttendanceController {
 };
 exports.AttendanceController = AttendanceController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.EMPLOYEE),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.EMPLOYEE_AND_OPERATOR_ROLES),
     (0, common_1.Post)('clock-in'),
     __param(0, (0, common_1.Body)('employeeId')),
     __param(1, (0, common_1.Body)('note')),
@@ -54,7 +54,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AttendanceController.prototype, "clockIn", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.EMPLOYEE),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.EMPLOYEE_AND_OPERATOR_ROLES),
     (0, common_1.Post)('clock-out/:recordId'),
     __param(0, (0, common_1.Param)('recordId')),
     __param(1, (0, common_1.Req)()),
@@ -63,7 +63,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AttendanceController.prototype, "clockOut", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.VIEWER, shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('employeeId')),
     __param(1, (0, common_1.Query)('page')),
@@ -74,7 +74,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AttendanceController.prototype, "findAll", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.VIEWER, shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('employee/:employeeId/summary'),
     __param(0, (0, common_1.Param)('employeeId')),
     __param(1, (0, common_1.Req)()),

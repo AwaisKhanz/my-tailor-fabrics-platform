@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import { OPERATOR_ROLES } from '@tbms/shared-constants';
 
 @Controller('search')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
@@ -13,7 +13,7 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
   @Get('customers')
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   async queryCustomers(
     @Query('q') query: string,
     @Req() req: AuthenticatedRequest,
@@ -30,7 +30,7 @@ export class SearchController {
   }
 
   @Get('employees')
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   async queryEmployees(
     @Query('q') query: string,
     @Req() req: AuthenticatedRequest,

@@ -156,10 +156,6 @@ export class ExportService {
   }
 
   async exportEmployeeSummaries(branchId?: string) {
-    const employeeCondition = branchId
-      ? `WHERE "branchId" = '${branchId}'`
-      : '';
-
     // Let's use Prisma to pull all employees, and calculate totals in TS to prevent crazy string manipulation natively here
     const employees = await this.prisma.employee.findMany({
       where: branchId ? { branchId } : {},
@@ -179,11 +175,11 @@ export class ExportService {
     ];
 
     for (const emp of employees) {
-      const raw = await this.prisma.$queryRawUnsafe<[{ earned: bigint }]>(`
-                SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS earned
-                FROM "OrderItem"
-                WHERE "employeeId" = '${emp.id}' AND status IN ('COMPLETED', 'DELIVERED')
-            `);
+      const raw = await this.prisma.$queryRaw<[{ earned: bigint }]>`
+        SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS earned
+        FROM "OrderItem"
+        WHERE "employeeId" = ${emp.id} AND status IN ('COMPLETED', 'DELIVERED')
+      `;
 
       const paid = await this.prisma.payment.aggregate({
         where: { employeeId: emp.id },

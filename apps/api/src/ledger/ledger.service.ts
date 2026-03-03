@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerEntryType } from '@tbms/shared-types';
-import type { CreateLedgerEntryInput, LedgerSummary } from '@tbms/shared-types';
+import type {
+  CreateLedgerEntryInput,
+  LedgerStatementParams,
+  LedgerSummary,
+} from '@tbms/shared-types';
 import { Prisma, LedgerEntryType as PrismaLedgerEntryType } from '@prisma/client';
 
 @Injectable()
@@ -58,13 +62,7 @@ export class LedgerService {
    */
   async getStatement(
     employeeId: string,
-    options: {
-      from?: string;
-      to?: string;
-      type?: LedgerEntryType;
-      page?: number;
-      limit?: number;
-    } = {},
+    options: LedgerStatementParams = {},
   ) {
     const { from, to, type, page = 1, limit = 20 } = options;
     const skip = (page - 1) * limit;

@@ -17,7 +17,7 @@ import {
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import { ADMIN_ROLES, SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
 
 @Controller('design-types')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -25,7 +25,7 @@ export class DesignTypesController {
   constructor(private readonly designTypesService: DesignTypesService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async create(@Body() createDesignTypeDto: CreateDesignTypeDto) {
     const data = await this.designTypesService.create(createDesignTypeDto);
     return { success: true, data };
@@ -41,7 +41,7 @@ export class DesignTypesController {
   }
 
   @Post('seed')
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   async seed() {
     await this.designTypesService.seedDefaults();
     return { success: true };
@@ -54,7 +54,7 @@ export class DesignTypesController {
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async update(
     @Param('id') id: string,
     @Body() updateDesignTypeDto: UpdateDesignTypeDto,
@@ -64,7 +64,7 @@ export class DesignTypesController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async remove(@Param('id') id: string) {
     await this.designTypesService.remove(id);
     return { success: true };

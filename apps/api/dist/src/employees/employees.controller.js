@@ -20,7 +20,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let EmployeesController = class EmployeesController {
     employeesService;
     constructor(employeesService) {
@@ -46,7 +46,11 @@ let EmployeesController = class EmployeesController {
         const data = await this.employeesService.remove(id, req.branchId);
         return { success: true, data };
     }
-    async createUserAccount(id, email, rawPass, req) {
+    async createUserAccount(id, email, password, passwordHash, req) {
+        const rawPass = password ?? passwordHash;
+        if (!rawPass) {
+            throw new common_1.BadRequestException('password is required');
+        }
         const data = await this.employeesService.createUserAccount(id, req.branchId, email, rawPass);
         return { success: true, user: { id: data.id, email: data.email } };
     }
@@ -77,7 +81,7 @@ let EmployeesController = class EmployeesController {
 };
 exports.EmployeesController = EmployeesController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
@@ -86,7 +90,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "create", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
@@ -97,7 +101,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "findAll", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -106,7 +110,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "findOne", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Put)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -116,7 +120,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "update", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -125,18 +129,19 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "remove", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)(':id/user-account'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('email')),
     __param(2, (0, common_1.Body)('password')),
-    __param(3, (0, common_1.Req)()),
+    __param(3, (0, common_1.Body)('passwordHash')),
+    __param(4, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, Object]),
+    __metadata("design:paramtypes", [String, String, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "createUserAccount", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(':id/stats'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -145,7 +150,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "getStats", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Get)(':id/items'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Query)('page')),
@@ -156,7 +161,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "getItems", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)(':id/documents'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('label')),
@@ -168,7 +173,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "addDocument", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.EMPLOYEE),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.EMPLOYEE_SELF_ROLES),
     (0, common_1.Get)('my/profile'),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -176,7 +181,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "getMyProfile", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.EMPLOYEE),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.EMPLOYEE_SELF_ROLES),
     (0, common_1.Get)('my/stats'),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -184,7 +189,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EmployeesController.prototype, "getMyStats", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.EMPLOYEE),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.EMPLOYEE_SELF_ROLES),
     (0, common_1.Get)('my/items'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),

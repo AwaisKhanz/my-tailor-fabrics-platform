@@ -1,21 +1,13 @@
 import { api } from '../api';
 import { ApiResponse } from '@/types/common';
-import type { EmployeeLedgerEntry, LedgerSummary, EarningsByPeriod, CreateLedgerEntryInput } from '@tbms/shared-types';
-import type { LedgerEntryType } from '@tbms/shared-types';
-
-interface StatementParams {
-  from?: string;
-  to?: string;
-  type?: LedgerEntryType | string;
-  page?: number;
-  limit?: number;
-}
-
-interface LedgerStatementResponse {
-  entries: EmployeeLedgerEntry[];
-  summary: LedgerSummary;
-  meta: { total: number; page: number; lastPage: number };
-}
+import type {
+  EmployeeLedgerEntry,
+  LedgerSummary,
+  EarningsByPeriod,
+  CreateLedgerEntryInput,
+  LedgerStatement,
+  LedgerStatementParams,
+} from '@tbms/shared-types';
 
 export const ledgerApi = {
   /** Get the current balance summary for an employee. */
@@ -27,8 +19,11 @@ export const ledgerApi = {
   },
 
   /** Get a paginated ledger statement with optional date range and type filters. */
-  getStatement: async (employeeId: string, params: StatementParams = {}) => {
-    const response = await api.get<ApiResponse<LedgerStatementResponse>>(
+  getStatement: async (
+    employeeId: string,
+    params: LedgerStatementParams = {},
+  ) => {
+    const response = await api.get<ApiResponse<LedgerStatement>>(
       `/ledger/${employeeId}/statement`,
       { params }
     );

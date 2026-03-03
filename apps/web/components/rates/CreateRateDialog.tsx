@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Banknote, Calendar } from "lucide-react";
 import type { CreateRateCardInput } from "@tbms/shared-types";
+import { logDevError } from "@/lib/logger";
 
 interface CreateRateDialogProps {
   open: boolean;
@@ -59,7 +60,7 @@ export function CreateRateDialog({
       });
       onOpenChange(false);
     } catch (err) {
-      console.error(err);
+      logDevError("Failed to create rate card:", err);
     } finally {
       setLoading(false);
     }

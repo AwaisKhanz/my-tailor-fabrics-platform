@@ -15,6 +15,7 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
 const shared_types_1 = require("@tbms/shared-types");
 const rates_service_1 = require("../rates/rates.service");
+const money_1 = require("./money");
 let OrdersService = class OrdersService {
     prisma;
     ratesService;
@@ -97,19 +98,16 @@ let OrdersService = class OrdersService {
                     });
                 }
             }
-            let discountAmount = 0;
             if (createOrderDto.discountType &&
                 createOrderDto.discountValue !== undefined) {
-                if (createOrderDto.discountType === shared_types_1.DiscountType.FIXED) {
-                    discountAmount = createOrderDto.discountValue;
-                }
-                else if (createOrderDto.discountType === shared_types_1.DiscountType.PERCENTAGE) {
-                    discountAmount = Math.floor(subtotal * (createOrderDto.discountValue / 10000));
+                const rawDiscountAmount = createOrderDto.discountType === shared_types_1.DiscountType.FIXED
+                    ? createOrderDto.discountValue
+                    : Math.floor(subtotal * (createOrderDto.discountValue / 10000));
+                if (rawDiscountAmount > subtotal) {
+                    throw new common_1.BadRequestException('Discount cannot exceed subtotal');
                 }
             }
-            if (discountAmount > subtotal) {
-                throw new common_1.BadRequestException('Discount cannot exceed subtotal');
-            }
+            const discountAmount = (0, money_1.calculateDiscountAmount)(subtotal, createOrderDto.discountType, createOrderDto.discountValue ?? 0);
             const totalAmount = subtotal - discountAmount;
             const initialPayment = createOrderDto.advancePayment || 0;
             if (initialPayment > totalAmount) {
@@ -216,17 +214,7 @@ let OrdersService = class OrdersService {
         });
         if (!order)
             throw new common_1.NotFoundException('Order not found for recalculation');
-        let discountAmount = 0;
-        if (order.discountType === shared_types_1.DiscountType.FIXED) {
-            discountAmount = order.discountValue;
-        }
-        else if (order.discountType === shared_types_1.DiscountType.PERCENTAGE) {
-            discountAmount = Math.floor(subtotal * (order.discountValue / 10000));
-        }
-        if (discountAmount > subtotal)
-            discountAmount = subtotal;
-        const totalAmount = subtotal - discountAmount;
-        const balanceDue = Math.max(0, totalAmount - order.totalPaid);
+        const { discountAmount, totalAmount, balanceDue } = (0, money_1.calculateOrderTotals)(subtotal, order.totalPaid, order.discountType, order.discountValue);
         return db.order.update({
             where: { id: orderId },
             data: {
@@ -432,6 +420,47 @@ let OrdersService = class OrdersService {
             select: { id: true, orderNumber: true, shareToken: true, sharePin: true },
         });
         return updated;
+    }
+    async getPublicOrderStatus(token, pin) {
+        const order = await this.prisma.order.findFirst({
+            where: {
+                shareToken: token,
+                sharePin: pin,
+                deletedAt: null,
+            },
+            select: {
+                id: true,
+                orderNumber: true,
+                dueDate: true,
+                totalAmount: true,
+                balanceDue: true,
+                status: true,
+                customer: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+                items: {
+                    where: {
+                        deletedAt: null,
+                    },
+                    orderBy: {
+                        pieceNo: 'asc',
+                    },
+                    select: {
+                        id: true,
+                        garmentTypeName: true,
+                        quantity: true,
+                        unitPrice: true,
+                        description: true,
+                    },
+                },
+            },
+        });
+        if (!order) {
+            throw new common_1.NotFoundException('Invalid tracking link or PIN');
+        }
+        return order;
     }
     async update(id, branchId, dto, userRole) {
         return await this.prisma.$transaction(async (tx) => {

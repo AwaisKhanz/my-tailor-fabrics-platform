@@ -20,7 +20,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 const weekly_pdf_service_1 = require("./weekly-pdf.service");
 let PaymentsController = class PaymentsController {
     paymentsService;
@@ -57,7 +57,7 @@ let PaymentsController = class PaymentsController {
 };
 exports.PaymentsController = PaymentsController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Get)('employee/:id/summary'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -65,7 +65,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "getSummary", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
@@ -74,7 +74,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "disbursePay", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Get)('employee/:id/history'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Query)('page')),
@@ -86,14 +86,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "getHistory", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Get)('weekly-report'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "getWeeklyReport", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Get)('weekly-report/pdf'),
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),

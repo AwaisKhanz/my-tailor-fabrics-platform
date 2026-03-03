@@ -22,6 +22,7 @@ const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
 const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let ReportsController = class ReportsController {
     reportsService;
     exportService;
@@ -145,7 +146,7 @@ let ReportsController = class ReportsController {
 };
 exports.ReportsController = ReportsController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('dashboard'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -154,7 +155,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getDashboard", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('designs'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -165,7 +166,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getDesigns", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('addons'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -176,7 +177,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getAddons", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('summary'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -187,7 +188,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getSummary", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('revenue-vs-expenses'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -197,7 +198,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getRevenueVsExpenses", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('garments'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -206,7 +207,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getGarmentRevenue", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('productivity'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('branchId')),
@@ -215,7 +216,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getEmployeeProductivity", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('export/orders'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
@@ -228,7 +229,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "exportOrders", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('export/payments'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
@@ -241,7 +242,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "exportPayments", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('export/expenses'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
@@ -254,7 +255,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "exportExpenses", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN, shared_types_1.Role.VIEWER),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)('export/employees'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),

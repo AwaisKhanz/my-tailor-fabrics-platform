@@ -58,7 +58,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const branch_guard_1 = require("../common/guards/branch.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
-const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let OrdersController = class OrdersController {
     ordersService;
     receiptService;
@@ -121,7 +121,7 @@ let OrdersController = class OrdersController {
 };
 exports.OrdersController = OrdersController;
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
@@ -130,7 +130,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "create", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.VIEWER, shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
@@ -147,7 +147,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "findAll", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.VIEWER, shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -156,7 +156,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "findOne", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -166,7 +166,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "update", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -175,7 +175,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "cancel", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Post)(':id/items'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -185,7 +185,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "addItem", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Patch)(':id/items/:itemId'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Param)('itemId')),
@@ -196,7 +196,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "updateItem", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     (0, common_1.Delete)(':id/items/:itemId'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Param)('itemId')),
@@ -206,7 +206,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "removeItem", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Post)(':id/payment'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -216,7 +216,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "addPayment", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Patch)(':id/status'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -226,7 +226,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "updateStatus", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.VIEWER, shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.DASHBOARD_READ_ROLES),
     (0, common_1.Get)(':id/receipt'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -236,7 +236,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "getReceipt", null);
 __decorate([
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ENTRY_OPERATOR, shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.OPERATOR_ROLES),
     (0, common_1.Post)(':id/share'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),

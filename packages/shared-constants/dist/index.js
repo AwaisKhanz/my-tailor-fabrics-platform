@@ -22,4 +22,5 @@ __exportStar(require("./employees"), exports);
 __exportStar(require("./customers"), exports);
 __exportStar(require("./rates"), exports);
 __exportStar(require("./ledger"), exports);
+__exportStar(require("./rbac"), exports);
 //# sourceMappingURL=index.js.map

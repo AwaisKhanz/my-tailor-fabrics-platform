@@ -1,12 +1,17 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 import { Customer, CustomerMeasurement } from '@/types/customers';
-import { MeasurementCategory } from '@/types/config';
+import { CustomerStatus, Order } from '@tbms/shared-types';
 
 export const customerApi = {
-  getCustomers: async (page = 1, limit = 20, search?: string) => {
+  getCustomers: async (
+    page = 1,
+    limit = 20,
+    search?: string,
+    status?: CustomerStatus,
+  ) => {
     const response = await api.get<ApiResponse<PaginatedResponse<Customer>>>('/customers', {
-      params: { page, limit, search },
+      params: { page, limit, search, status },
     });
     return response.data;
   },
@@ -17,7 +22,7 @@ export const customerApi = {
   },
 
   getOrders: async (id: string, params?: { page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<any>>>(`/customers/${id}/orders`, { params });
+    const response = await api.get<ApiResponse<PaginatedResponse<Order>>>(`/customers/${id}/orders`, { params });
     return response.data;
   },
 

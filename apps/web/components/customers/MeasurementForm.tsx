@@ -26,6 +26,7 @@ import { configApi } from "@/lib/api/config";
 import { MeasurementCategory } from "@/types/config";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { logDevError } from "@/lib/logger";
 
 interface MeasurementFormProps {
   customerId: string;
@@ -63,7 +64,7 @@ export function MeasurementForm({
           }
         }
       } catch (error) {
-        console.error("Failed to load categories:", error);
+        logDevError("Failed to load measurement categories:", error);
       } finally {
         setLoading(false);
       }
@@ -91,7 +92,7 @@ export function MeasurementForm({
       toast({ title: "Measurements saved successfully" });
       onSuccess();
     } catch (error) {
-      console.error("Failed to save measurements:", error);
+      logDevError("Failed to save measurements:", error);
       toast({
         title: "Error",
         description: "Failed to save measurements.",

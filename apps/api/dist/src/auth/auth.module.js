@@ -15,6 +15,7 @@ const auth_controller_1 = require("./auth.controller");
 const users_module_1 = require("../users/users.module");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
 const jwt_refresh_strategy_1 = require("./strategies/jwt-refresh.strategy");
+const env_1 = require("../common/env");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -24,9 +25,9 @@ exports.AuthModule = AuthModule = __decorate([
             users_module_1.UsersModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
+                secret: (0, env_1.getJwtSecret)(),
                 signOptions: {
-                    expiresIn: (process.env.JWT_EXPIRES_IN || '7d'),
+                    expiresIn: (0, env_1.getJwtExpiresIn)(),
                 },
             }),
         ],

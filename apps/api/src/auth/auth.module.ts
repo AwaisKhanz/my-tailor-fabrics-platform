@@ -6,16 +6,19 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import {
+  getJwtExpiresIn,
+  getJwtSecret,
+} from '../common/env';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret:
-        process.env.JWT_SECRET || 'super-secret-jwt-key-for-development-only',
+      secret: getJwtSecret(),
       signOptions: {
-        expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any, // Cast to any to satisfy the complex StringValue | number union from ms package
+        expiresIn: getJwtExpiresIn(),
       },
     }),
   ],

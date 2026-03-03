@@ -21,6 +21,7 @@ import { configApi } from "@/lib/api/config";
 import { typedZodResolver } from "@/lib/utils/form";
 import { garmentTypeSchema, GarmentTypeFormValues } from "@/types/config/schemas";
 import type { GarmentType, MeasurementCategory } from "@tbms/shared-types";
+import { logDevError } from "@/lib/logger";
 
 interface GarmentTypeDialogProps {
   open: boolean;
@@ -47,7 +48,7 @@ export function GarmentTypeDialog({
           setCategories(resp.data.data);
         }
       } catch (err) {
-        console.error("Failed to fetch categories", err);
+        logDevError("Failed to fetch categories:", err);
       }
     };
     if (open) fetchCategories();
@@ -111,7 +112,7 @@ export function GarmentTypeDialog({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error(error);
+      logDevError("Failed to save garment type:", error);
       toast({
         title: "Error",
         description: "Failed to save garment type",

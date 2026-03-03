@@ -1,7 +1,12 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 
-import { UserAccount } from '@tbms/shared-types';
+import type {
+  CreateUserInput,
+  UpdateUserInput,
+  UserAccount,
+  UserStatsSummary,
+} from '@tbms/shared-types';
 
 export type { UserAccount };
 
@@ -12,24 +17,12 @@ export const usersApi = {
     return response.data;
   },
 
-  createUser: async (data: {
-    name: string;
-    email: string;
-    password?: string;
-    role: string;
-    branchId?: string;
-  }) => {
+  createUser: async (data: CreateUserInput) => {
     const response = await api.post<ApiResponse<UserAccount>>('/users', data);
     return response.data;
   },
 
-  updateUser: async (id: string, data: {
-    name?: string;
-    email?: string;
-    password?: string;
-    role?: string;
-    branchId?: string;
-  }) => {
+  updateUser: async (id: string, data: UpdateUserInput) => {
     const response = await api.patch<ApiResponse<UserAccount>>(`/users/${id}`, data);
     return response.data;
   },
@@ -45,7 +38,7 @@ export const usersApi = {
   },
 
   getStats: async () => {
-    const response = await api.get<ApiResponse<{ total: number; active: number; privileged: number }>>('/users/stats');
+    const response = await api.get<ApiResponse<UserStatsSummary>>('/users/stats');
     return response.data;
   },
 };

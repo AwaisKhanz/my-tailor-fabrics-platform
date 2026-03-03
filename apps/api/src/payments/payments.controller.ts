@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 import { WeeklyPdfService } from './weekly-pdf.service';
 
@@ -28,7 +28,7 @@ export class PaymentsController {
     private readonly weeklyPdfService: WeeklyPdfService,
   ) {}
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('employee/:id/summary')
   async getSummary(@Param('id') employeeId: string) {
     const data =
@@ -36,7 +36,7 @@ export class PaymentsController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post()
   async disbursePay(
     @Body() dto: DisbursePaymentDto,
@@ -52,7 +52,7 @@ export class PaymentsController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('employee/:id/history')
   async getHistory(
     @Param('id') employeeId: string,
@@ -71,14 +71,14 @@ export class PaymentsController {
     return { success: true, ...data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('weekly-report')
   async getWeeklyReport() {
     const data = await this.paymentsService.getWeeklyReport();
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Get('weekly-report/pdf')
   async getWeeklyReportPdf(@Res() res: import('express').Response) {
     const data = await this.paymentsService.getWeeklyReport();

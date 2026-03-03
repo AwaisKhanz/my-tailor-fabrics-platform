@@ -1,11 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskStatus } from '@tbms/shared-types';
-import { LedgerService } from '../ledger/ledger.service';
 export declare class TasksService {
     private readonly prisma;
-    private readonly ledgerService;
-    constructor(prisma: PrismaService, ledgerService: LedgerService);
-    assignTask(taskId: string, employeeId: string, branchId: string, assignedById: string, userRole: string): Promise<{
+    constructor(prisma: PrismaService);
+    assignTask(taskId: string, employeeId: string, branchId: string, userRole: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -25,7 +23,7 @@ export declare class TasksService {
         startedAt: Date | null;
         rateCardId: string | null;
     }>;
-    updateTaskStatus(taskId: string, status: TaskStatus, branchId: string, updatedById: string): Promise<{
+    updateTaskStatus(taskId: string, status: TaskStatus, branchId: string, updatedById: string, userRole: string, requesterEmployeeId: string | null): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -74,7 +72,7 @@ export declare class TasksService {
         startedAt: Date | null;
         rateCardId: string | null;
     })[]>;
-    findAllByEmployee(employeeId: string, branchId: string): Promise<({
+    findAllByEmployee(employeeId: string, branchId: string, userRole: string, requesterEmployeeId: string | null): Promise<({
         orderItem: {
             garmentTypeName: string;
             order: {

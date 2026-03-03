@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Role } from "@tbms/shared-types";
+import { FRONTEND_ROUTE_ROLES } from "@tbms/shared-constants";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
 import Image from "next/image";
@@ -35,7 +36,7 @@ interface NavItem {
   title: string;
   href: string;
   icon: React.ElementType;
-  roles: string[];
+  roles: Role[];
   subItems?: { title: string; href: string; icon?: React.ElementType }[];
 }
 
@@ -44,55 +45,55 @@ const NAV_ITEMS: NavItem[] = [
     title: "Dashboard",
     href: "/",
     icon: PieChart,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, Role.VIEWER],
+    roles: FRONTEND_ROUTE_ROLES["/"],
   },
   {
     title: "My Orders",
     href: "/my-orders",
     icon: LayoutDashboard,
-    roles: [Role.EMPLOYEE],
+    roles: FRONTEND_ROUTE_ROLES["/my-orders"],
   },
   {
     title: "Orders",
     href: "/orders",
     icon: ShoppingBag,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, Role.ENTRY_OPERATOR, Role.VIEWER],
+    roles: FRONTEND_ROUTE_ROLES["/orders"],
   },
   {
     title: "Customers",
     href: "/customers",
     icon: Users,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, "ENTRY_OPERATOR", "VIEWER"],
+    roles: FRONTEND_ROUTE_ROLES["/customers"],
   },
   {
     title: "Employees",
     href: "/employees",
     icon: Briefcase,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, "VIEWER"],
+    roles: FRONTEND_ROUTE_ROLES["/employees"],
   },
   {
     title: "Payments",
     href: "/payments",
     icon: Banknote,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, "VIEWER"],
+    roles: FRONTEND_ROUTE_ROLES["/payments"],
   },
   {
     title: "Expenses",
     href: "/expenses",
     icon: Banknote,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, "VIEWER"],
+    roles: FRONTEND_ROUTE_ROLES["/expenses"],
   },
   {
     title: "Reports",
     href: "/reports",
     icon: BarChart,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN, "VIEWER"],
+    roles: FRONTEND_ROUTE_ROLES["/reports"],
   },
   {
     title: "Settings",
     href: "/settings",
     icon: SettingsIcon,
-    roles: [Role.SUPER_ADMIN, Role.ADMIN],
+    roles: FRONTEND_ROUTE_ROLES["/settings"],
     subItems: [
       { title: 'Branches', href: '/settings/branches', icon: Building2 },
       { title: 'Garments', href: '/settings/garments', icon: Shirt },
@@ -199,7 +200,7 @@ export function Sidebar() {
   const user = session?.user;
   const role = user?.role;
 
-  const items = NAV_ITEMS.filter((item) => role && item.roles.includes(role));
+  const items = NAV_ITEMS.filter((item) => role && item.roles.includes(role as Role));
 
 
   const BrandHeader = () => (

@@ -44,6 +44,12 @@
     --pending-foreground: 210 40% 98%;
     --ready: 262 83% 58%;
     --ready-foreground: 262 100% 95%;
+    --brand-dark: 215 28% 24%;
+    --chart-1: 180 100% 25%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 215 16% 47%;
   }
   .dark {
     --background: 0 0% 3%; /* Rich Neutral Charcoal #080808 */
@@ -75,6 +81,12 @@
     --info-foreground: 180 100% 95%;
     --ready: 262 83% 58%;
     --ready-foreground: 262 100% 95%;
+    --brand-dark: 215 30% 14%;
+    --chart-1: 180 100% 40%;
+    --chart-2: 142 70% 45%;
+    --chart-3: 48 96% 53%;
+    --chart-4: 262 83% 68%;
+    --chart-5: 210 40% 70%;
   }
 }
 

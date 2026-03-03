@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Body,
+  BadRequestException,
   Put,
   Param,
   Delete,
@@ -20,14 +21,18 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import {
+  ADMIN_ROLES,
+  EMPLOYEE_SELF_ROLES,
+  OPERATOR_ROLES,
+} from '@tbms/shared-constants';
 
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('employees')
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post()
   async create(
     @Body() createEmployeeDto: CreateEmployeeDto,
@@ -40,7 +45,7 @@ export class EmployeesController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get()
   async findAll(
     @Query('page') page: string,
@@ -57,14 +62,14 @@ export class EmployeesController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.findOne(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -79,21 +84,26 @@ export class EmployeesController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.remove(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post(':id/user-account')
   async createUserAccount(
     @Param('id') id: string,
     @Body('email') email: string,
-    @Body('password') rawPass: string,
+    @Body('password') password: string | undefined,
+    @Body('passwordHash') passwordHash: string | undefined,
     @Req() req: AuthenticatedRequest,
   ) {
+    const rawPass = password ?? passwordHash;
+    if (!rawPass) {
+      throw new BadRequestException('password is required');
+    }
     const data = await this.employeesService.createUserAccount(
       id,
       req.branchId,
@@ -103,14 +113,14 @@ export class EmployeesController {
     return { success: true, user: { id: data.id, email: data.email } };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get(':id/stats')
   async getStats(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getStats(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get(':id/items')
   async getItems(
     @Param('id') id: string,
@@ -127,7 +137,7 @@ export class EmployeesController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Post(':id/documents')
   async addDocument(
     @Param('id') id: string,
@@ -148,7 +158,7 @@ export class EmployeesController {
   }
 
   // Employee Portal Endpoints
-  @Roles(Role.EMPLOYEE)
+  @Roles(...EMPLOYEE_SELF_ROLES)
   @Get('my/profile')
   async getMyProfile(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyProfile(
@@ -158,7 +168,7 @@ export class EmployeesController {
     return { success: true, data };
   }
 
-  @Roles(Role.EMPLOYEE)
+  @Roles(...EMPLOYEE_SELF_ROLES)
   @Get('my/stats')
   async getMyStats(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyStats(
@@ -168,7 +178,7 @@ export class EmployeesController {
     return { success: true, data };
   }
 
-  @Roles(Role.EMPLOYEE)
+  @Roles(...EMPLOYEE_SELF_ROLES)
   @Get('my/items')
   async getMyItems(
     @Query('page') page: string,

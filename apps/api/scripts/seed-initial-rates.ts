@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { RATE_SPLIT_HINTS } from '@tbms/shared-constants';
+import type { StepKey } from '@tbms/shared-constants';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +23,7 @@ async function main() {
 
     console.log(`Processing ${gt.name}...`);
 
-    // Split employee rate proportionally across workflow steps:
+    // Split employee rate proportionally using shared hints:
     // CUTTING: 20%, STITCHING: 60%, PRESSING: 10%, others: split remainder
     const steps = gt.workflowSteps;
     const totalRate = gt.employeeRate;
@@ -36,13 +38,10 @@ async function main() {
       if (steps.length === 1) {
         stepRate = totalRate;
       } else {
-        const key = step.stepKey.toUpperCase();
-        if (key.includes('CUTTING')) {
-          stepRate = Math.floor(totalRate * 0.20);
-        } else if (key.includes('STITCHING')) {
-          stepRate = Math.floor(totalRate * 0.60);
-        } else if (key.includes('PRESSING')) {
-          stepRate = Math.floor(totalRate * 0.10);
+        const key = step.stepKey.toUpperCase() as StepKey;
+        const rateHint = RATE_SPLIT_HINTS[key];
+        if (typeof rateHint === 'number') {
+          stepRate = Math.floor(totalRate * rateHint);
         } else {
           const remainingSteps = steps.length - 1 - i;
           const available = totalRate - consumedRate;

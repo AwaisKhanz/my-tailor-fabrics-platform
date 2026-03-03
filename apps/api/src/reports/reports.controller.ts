@@ -8,6 +8,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
 import { Role } from '@tbms/shared-types';
+import { DASHBOARD_READ_ROLES } from '@tbms/shared-constants';
 
 @Controller('reports')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
@@ -18,7 +19,7 @@ export class ReportsController {
     private readonly pdfExportService: PdfExportService,
   ) {}
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('dashboard')
   async getDashboard(
     @Req() req: AuthenticatedRequest,
@@ -35,7 +36,7 @@ export class ReportsController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('designs')
   async getDesigns(
     @Req() req: AuthenticatedRequest,
@@ -48,7 +49,7 @@ export class ReportsController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('addons')
   async getAddons(
     @Req() req: AuthenticatedRequest,
@@ -61,7 +62,7 @@ export class ReportsController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('summary')
   async getSummary(
     @Req() req: AuthenticatedRequest,
@@ -74,7 +75,7 @@ export class ReportsController {
     return { success: true, data };
   }
  
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('revenue-vs-expenses')
   async getRevenueVsExpenses(
     @Req() req: AuthenticatedRequest,
@@ -89,7 +90,7 @@ export class ReportsController {
     return { success: true, data };
   }
  
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('garments')
   async getGarmentRevenue(
     @Req() req: AuthenticatedRequest,
@@ -100,7 +101,7 @@ export class ReportsController {
     return { success: true, data };
   }
  
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('productivity')
   async getEmployeeProductivity(
     @Req() req: AuthenticatedRequest,
@@ -119,7 +120,7 @@ export class ReportsController {
     return resolved;
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('export/orders')
   async exportOrders(
     @Req() req: AuthenticatedRequest,
@@ -149,7 +150,7 @@ export class ReportsController {
     }
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('export/payments')
   async exportPayments(
     @Req() req: AuthenticatedRequest,
@@ -179,7 +180,7 @@ export class ReportsController {
     }
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('export/expenses')
   async exportExpenses(
     @Req() req: AuthenticatedRequest,
@@ -209,7 +210,7 @@ export class ReportsController {
     }
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('export/employees')
   async exportEmployees(
     @Req() req: AuthenticatedRequest,

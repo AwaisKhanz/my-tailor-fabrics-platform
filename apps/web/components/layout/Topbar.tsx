@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
+import { ADMIN_ROLES } from "@tbms/shared-constants";
 import { BranchSelector } from "./BranchSelector";
 import { MobileSidebarTrigger } from "./Sidebar";
 import { 
@@ -27,6 +28,7 @@ export function Topbar() {
   const { data: session } = useSession();
   const user = session?.user;
   const role = user?.role;
+  const canAccessSettings = role ? ADMIN_ROLES.includes(role) : false;
 
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b bg-card px-2 md:px-6 shadow-sm overflow-hidden">
@@ -75,12 +77,14 @@ export function Topbar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Link href="/settings/users">
-              <DropdownMenuItem className="cursor-pointer py-2.5 px-3">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile Settings</span>
-              </DropdownMenuItem>
-            </Link>
+            {canAccessSettings && (
+              <Link href="/settings/users">
+                <DropdownMenuItem className="cursor-pointer py-2.5 px-3">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile Settings</span>
+                </DropdownMenuItem>
+              </Link>
+            )}
             <Link href="/">
               <DropdownMenuItem className="cursor-pointer py-2.5 px-3">
                 <LayoutDashboard className="mr-2 h-4 w-4" />

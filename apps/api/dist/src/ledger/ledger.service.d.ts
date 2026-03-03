@@ -1,6 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { LedgerEntryType } from '@tbms/shared-types';
-import type { CreateLedgerEntryInput, LedgerSummary } from '@tbms/shared-types';
+import type { CreateLedgerEntryInput, LedgerStatementParams, LedgerSummary } from '@tbms/shared-types';
 export declare class LedgerService {
     private readonly prisma;
     constructor(prisma: PrismaService);
@@ -18,13 +17,7 @@ export declare class LedgerService {
         paymentId: string | null;
     }>;
     getBalance(employeeId: string): Promise<LedgerSummary>;
-    getStatement(employeeId: string, options?: {
-        from?: string;
-        to?: string;
-        type?: LedgerEntryType;
-        page?: number;
-        limit?: number;
-    }): Promise<{
+    getStatement(employeeId: string, options?: LedgerStatementParams): Promise<{
         entries: ({
             branch: {
                 id: string;

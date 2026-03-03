@@ -2,6 +2,7 @@ import { MailService } from './mail.service';
 export declare class MailController {
     private readonly mailService;
     constructor(mailService: MailService);
+    private assertPublicAccessEnabled;
     getAuthUrl(): {
         success: boolean;
         message: string;

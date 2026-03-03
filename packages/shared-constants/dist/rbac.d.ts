@@ -1,0 +1,14 @@
+import { Role } from '@tbms/shared-types';
+export declare const APP_PROTECTED_PREFIXES: readonly ["/", "/orders", "/customers", "/employees", "/payments", "/expenses", "/reports", "/settings", "/my-orders"];
+export declare const ADMIN_ONLY_PREFIXES: readonly ["/settings", "/employees/new"];
+export declare const ENTRY_OPERATOR_BLOCKED_PREFIXES: readonly ["/settings"];
+export declare const EMPLOYEE_ALLOWED_PREFIXES: readonly ["/my-orders", "/profile", "/unauthorized"];
+export declare const ADMIN_ROLES: readonly [Role.ADMIN, Role.SUPER_ADMIN];
+export declare const SUPER_ADMIN_ONLY_ROLES: readonly [Role.SUPER_ADMIN];
+export declare const OPERATOR_ROLES: readonly [Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN];
+export declare const DASHBOARD_READ_ROLES: readonly [Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN];
+export declare const EMPLOYEE_SELF_ROLES: readonly [Role.EMPLOYEE];
+export declare const EMPLOYEE_AND_OPERATOR_ROLES: readonly [Role.EMPLOYEE, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN];
+export declare const ALL_ROLES: readonly [Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN, Role.EMPLOYEE];
+export declare const DEFAULT_HOME_BY_ROLE: Record<Role, string>;
+export declare const FRONTEND_ROUTE_ROLES: Record<string, Role[]>;

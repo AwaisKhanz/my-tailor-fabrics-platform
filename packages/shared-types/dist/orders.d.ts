@@ -185,10 +185,13 @@ export interface DashboardStats {
     revenue: number;
     expenses: number;
     outstandingBalances: number;
+    /** @deprecated Use `overdueCount` */
     overdueOrders: number;
     totalOrders: number;
+    /** Canonical overdue orders count */
     overdueCount: number;
     newToday: number;
+    /** @deprecated Use `outstandingBalances` */
     totalOutstandingBalance: number;
     totalCustomers: number;
     activeEmployees: number;

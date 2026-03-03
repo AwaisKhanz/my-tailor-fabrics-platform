@@ -65,6 +65,13 @@ export interface LedgerStatement {
         lastPage: number;
     };
 }
+export interface LedgerStatementParams {
+    from?: string;
+    to?: string;
+    type?: LedgerEntryType | string;
+    page?: number;
+    limit?: number;
+}
 export interface EarningsByPeriod {
     period: string;
     earned: number;

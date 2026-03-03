@@ -19,6 +19,7 @@ const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const auth_decorators_1 = require("../common/decorators/auth.decorators");
 const shared_types_1 = require("@tbms/shared-types");
+const shared_constants_1 = require("@tbms/shared-constants");
 let LedgerController = class LedgerController {
     ledgerService;
     constructor(ledgerService) {
@@ -58,7 +59,7 @@ let LedgerController = class LedgerController {
 exports.LedgerController = LedgerController;
 __decorate([
     (0, common_1.Post)(),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -67,7 +68,7 @@ __decorate([
 ], LedgerController.prototype, "createManualEntry", null);
 __decorate([
     (0, common_1.Get)(':employeeId/balance'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Param)('employeeId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -75,7 +76,7 @@ __decorate([
 ], LedgerController.prototype, "getBalance", null);
 __decorate([
     (0, common_1.Get)(':employeeId/statement'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Param)('employeeId')),
     __param(1, (0, common_1.Query)('from')),
     __param(2, (0, common_1.Query)('to')),
@@ -88,7 +89,7 @@ __decorate([
 ], LedgerController.prototype, "getStatement", null);
 __decorate([
     (0, common_1.Get)(':employeeId/earnings'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Param)('employeeId')),
     __param(1, (0, common_1.Query)('weeksBack')),
     __metadata("design:type", Function),
@@ -97,7 +98,7 @@ __decorate([
 ], LedgerController.prototype, "getEarnings", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, auth_decorators_1.Roles)(shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN),
+    (0, auth_decorators_1.Roles)(...shared_constants_1.ADMIN_ROLES),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),

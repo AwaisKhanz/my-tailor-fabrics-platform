@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { getSession } from 'next-auth/react';
+import { getWebApiBaseUrl } from './env';
+import { logDevError } from './logger';
 
-// Use environment variable for API URL or fallback to localhost
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = getWebApiBaseUrl();
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -49,9 +50,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Log detailed error info for debugging connection issues
+    // Log connection diagnostics only in development.
     if (!error.response) {
-      console.error('Network/Connection Error:', {
+      logDevError('Network/Connection Error:', {
         message: error.message,
         code: error.code,
         config: error.config?.url

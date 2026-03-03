@@ -14,7 +14,10 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import {
+  DASHBOARD_READ_ROLES,
+  EMPLOYEE_AND_OPERATOR_ROLES,
+} from '@tbms/shared-constants';
 
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('attendance')
@@ -22,7 +25,7 @@ export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
   /** Clock in — can be done by any authenticated user on behalf of an employee */
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN, Role.EMPLOYEE)
+  @Roles(...EMPLOYEE_AND_OPERATOR_ROLES)
   @Post('clock-in')
   async clockIn(
     @Body('employeeId') employeeId: string,
@@ -38,7 +41,7 @@ export class AttendanceController {
   }
 
   /** Clock out for a specific attendance record */
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN, Role.EMPLOYEE)
+  @Roles(...EMPLOYEE_AND_OPERATOR_ROLES)
   @Post('clock-out/:recordId')
   async clockOut(
     @Param('recordId') recordId: string,
@@ -49,7 +52,7 @@ export class AttendanceController {
   }
 
   /** Get paginated attendance records, optionally filtered by employee */
-  @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get()
   async findAll(
     @Query('employeeId') employeeId: string | undefined,
@@ -67,7 +70,7 @@ export class AttendanceController {
   }
 
   /** Get attendance summary for a specific employee */
-  @Roles(Role.VIEWER, Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get('employee/:employeeId/summary')
   async getEmployeeSummary(
     @Param('employeeId') employeeId: string,

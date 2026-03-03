@@ -13,15 +13,12 @@ exports.TasksService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const shared_types_1 = require("@tbms/shared-types");
-const ledger_service_1 = require("../ledger/ledger.service");
 let TasksService = class TasksService {
     prisma;
-    ledgerService;
-    constructor(prisma, ledgerService) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.ledgerService = ledgerService;
     }
-    async assignTask(taskId, employeeId, branchId, assignedById, userRole) {
+    async assignTask(taskId, employeeId, branchId, userRole) {
         if (![shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN].includes(userRole)) {
             throw new common_1.ForbiddenException('Only Admins can assign tasks');
         }
@@ -40,52 +37,75 @@ let TasksService = class TasksService {
             },
         });
     }
-    async updateTaskStatus(taskId, status, branchId, updatedById) {
-        const task = await this.prisma.orderItemTask.findFirst({
-            where: {
-                id: taskId,
-                orderItem: { order: { branchId } },
-            },
-            include: {
-                orderItem: {
-                    include: {
-                        order: true,
-                    },
+    async updateTaskStatus(taskId, status, branchId, updatedById, userRole, requesterEmployeeId) {
+        return this.prisma.$transaction(async (tx) => {
+            const task = await tx.orderItemTask.findFirst({
+                where: {
+                    id: taskId,
+                    orderItem: { order: { branchId } },
                 },
-                designType: true,
-            },
-        });
-        if (!task)
-            throw new common_1.NotFoundException('Task not found');
-        const data = { status };
-        if (status === shared_types_1.TaskStatus.IN_PROGRESS && !task.startedAt) {
-            data.startedAt = new Date();
-        }
-        if (status === shared_types_1.TaskStatus.DONE && !task.completedAt) {
-            data.completedAt = new Date();
-        }
-        const updatedTask = await this.prisma.orderItemTask.update({
-            where: { id: taskId },
-            data,
-        });
-        if (status === shared_types_1.TaskStatus.DONE && task.assignedEmployeeId) {
-            const earningAmount = task.rateOverride ??
-                task.designType?.defaultRate ??
-                task.rateSnapshot ??
-                0;
-            if (earningAmount > 0) {
-                await this.ledgerService.createEntry({
-                    employeeId: task.assignedEmployeeId,
-                    branchId: task.orderItem.order.branchId,
-                    type: shared_types_1.LedgerEntryType.EARNING,
-                    amount: earningAmount,
-                    orderItemTaskId: taskId,
-                    createdById: updatedById,
-                    note: `Earned for ${task.stepName} task`,
-                });
+                include: {
+                    orderItem: {
+                        include: {
+                            order: true,
+                        },
+                    },
+                    designType: true,
+                },
+            });
+            if (!task)
+                throw new common_1.NotFoundException('Task not found');
+            if (userRole === shared_types_1.Role.EMPLOYEE) {
+                if (!requesterEmployeeId) {
+                    throw new common_1.ForbiddenException('Employee identity is missing');
+                }
+                if (task.assignedEmployeeId !== requesterEmployeeId) {
+                    throw new common_1.ForbiddenException('Employees can only update their own assigned tasks');
+                }
             }
-        }
-        return updatedTask;
+            const data = { status };
+            if (status === shared_types_1.TaskStatus.IN_PROGRESS && !task.startedAt) {
+                data.startedAt = new Date();
+            }
+            if (status === shared_types_1.TaskStatus.DONE && !task.completedAt) {
+                data.completedAt = new Date();
+            }
+            const updatedTask = await tx.orderItemTask.update({
+                where: { id: taskId },
+                data,
+            });
+            const becameDone = status === shared_types_1.TaskStatus.DONE && !task.completedAt;
+            if (becameDone && task.assignedEmployeeId) {
+                const existingEntry = await tx.employeeLedgerEntry.findFirst({
+                    where: {
+                        orderItemTaskId: taskId,
+                        type: shared_types_1.LedgerEntryType.EARNING,
+                        deletedAt: null,
+                    },
+                    select: { id: true },
+                });
+                if (!existingEntry) {
+                    const earningAmount = task.rateOverride ??
+                        task.designType?.defaultRate ??
+                        task.rateSnapshot ??
+                        0;
+                    if (earningAmount > 0) {
+                        await tx.employeeLedgerEntry.create({
+                            data: {
+                                employeeId: task.assignedEmployeeId,
+                                branchId: task.orderItem.order.branchId,
+                                type: shared_types_1.LedgerEntryType.EARNING,
+                                amount: earningAmount,
+                                orderItemTaskId: taskId,
+                                createdById: updatedById,
+                                note: `Earned for ${task.stepName} task`,
+                            },
+                        });
+                    }
+                }
+            }
+            return updatedTask;
+        });
     }
     async findAllByOrder(orderId, branchId) {
         return this.prisma.orderItemTask.findMany({
@@ -100,7 +120,12 @@ let TasksService = class TasksService {
             },
         });
     }
-    async findAllByEmployee(employeeId, branchId) {
+    async findAllByEmployee(employeeId, branchId, userRole, requesterEmployeeId) {
+        if (userRole === shared_types_1.Role.EMPLOYEE &&
+            requesterEmployeeId &&
+            requesterEmployeeId !== employeeId) {
+            throw new common_1.ForbiddenException('Employees can only view their own assigned tasks');
+        }
         return this.prisma.orderItemTask.findMany({
             where: {
                 assignedEmployeeId: employeeId,
@@ -141,7 +166,6 @@ let TasksService = class TasksService {
 exports.TasksService = TasksService;
 exports.TasksService = TasksService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        ledger_service_1.LedgerService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], TasksService);
 //# sourceMappingURL=tasks.service.js.map

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { cn } from "@/lib/utils";
+import { Typography } from "@/components/ui/typography";
 
 export interface ColumnDef<T> {
   header: string;
@@ -78,7 +79,7 @@ export function DataTable<T extends { id: string | number }>({
       <div className="overflow-x-auto">
         <Table className="text-sm">
           <TableHeader>
-            <tr className="border-b border-border bg-muted/20">
+            <TableRow className="border-b border-border bg-muted/20">
               {columns.map((column, idx) => (
                 <TableHead
                   key={idx}
@@ -92,16 +93,18 @@ export function DataTable<T extends { id: string | number }>({
                   {column.header}
                 </TableHead>
               ))}
-            </tr>
+            </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-border">
             {data.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="px-5 py-16 text-center text-sm text-muted-foreground"
+                  className="px-5 py-16 text-center"
                 >
-                  {emptyMessage}
+                  <Typography as="p" variant="lead">
+                    {emptyMessage}
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
@@ -141,11 +144,11 @@ export function DataTable<T extends { id: string | number }>({
       {/* Pagination Footer */}
       {totalPages > 0 && onPageChange && page && (
         <div className="flex items-center justify-between px-5 py-3.5 border-t border-border bg-muted/10">
-          <p className="text-xs text-muted-foreground">
+          <Typography as="p" variant="muted">
             Showing <span className="font-bold text-foreground">{from}</span> to{" "}
             <span className="font-bold text-foreground">{to}</span> of{" "}
             <span className="font-bold text-foreground">{total}</span> {itemLabel}
-          </p>
+          </Typography>
 
           <div className="flex items-center gap-1">
             <Button
@@ -160,12 +163,14 @@ export function DataTable<T extends { id: string | number }>({
 
             {getPaginationPages().map((p, i) =>
               p === "..." ? (
-                <span
+                <Typography
+                  as="span"
+                  variant="body"
                   key={`ellipsis-${i}`}
                   className="h-8 w-8 flex items-center justify-center text-muted-foreground text-sm"
                 >
                   ...
-                </span>
+                </Typography>
               ) : (
                 <Button
                   key={p}

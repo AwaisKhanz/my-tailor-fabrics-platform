@@ -22,14 +22,15 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
+import { CustomerStatus } from '@tbms/shared-types';
+import { ADMIN_ROLES, OPERATOR_ROLES } from '@tbms/shared-constants';
 
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Post()
   async create(
     @Body() createCustomerDto: CreateCustomerDto,
@@ -42,13 +43,14 @@ export class CustomersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get()
   async findAll(
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('search') search: string,
     @Query('isVip') isVip: string,
+    @Query('status') status: CustomerStatus | undefined,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.customersService.findAll(
@@ -57,18 +59,19 @@ export class CustomersController {
       Number(limit) || 20,
       search,
       isVip === 'true' ? true : undefined,
+      status,
     );
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.findOne(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -83,14 +86,14 @@ export class CustomersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.remove(id, req.branchId);
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Get(':id/orders')
   async getOrders(
     @Param('id') id: string,
@@ -107,7 +110,7 @@ export class CustomersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ENTRY_OPERATOR, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...OPERATOR_ROLES)
   @Post(':id/measurements')
   async upsertMeasurement(
     @Param('id') id: string,
@@ -122,7 +125,7 @@ export class CustomersController {
     return { success: true, data };
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.ENTRY_OPERATOR)
+  @Roles(...OPERATOR_ROLES)
   @Patch(':id/vip')
   async toggleVip(
     @Param('id') id: string,

@@ -2,6 +2,7 @@ import type { AuthenticatedRequest } from '../common/interfaces/request.interfac
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
+import { CustomerStatus } from '@tbms/shared-types';
 export declare class CustomersController {
     private readonly customersService;
     constructor(customersService: CustomersService);
@@ -26,7 +27,7 @@ export declare class CustomersController {
             lifetimeValue: number;
         };
     }>;
-    findAll(page: string, limit: string, search: string, isVip: string, req: AuthenticatedRequest): Promise<{
+    findAll(page: string, limit: string, search: string, isVip: string, status: CustomerStatus | undefined, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: {
             data: {

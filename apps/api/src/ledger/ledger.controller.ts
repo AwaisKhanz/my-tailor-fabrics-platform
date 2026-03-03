@@ -13,7 +13,8 @@ import { LedgerService } from './ledger.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role, LedgerEntryType } from '@tbms/shared-types';
+import { LedgerEntryType } from '@tbms/shared-types';
+import { ADMIN_ROLES } from '@tbms/shared-constants';
 import type { CreateLedgerEntryInput } from '@tbms/shared-types';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 
@@ -25,9 +26,9 @@ export class LedgerController {
   /**
    * GET /ledger/:employeeId/balance
    * Returns the current balance summary for an employee.
-   */
+  */
   @Post()
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async createManualEntry(
     @Body() dto: CreateLedgerEntryInput,
     @Req() req: AuthenticatedRequest,
@@ -42,14 +43,14 @@ export class LedgerController {
   }
 
   @Get(':employeeId/balance')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async getBalance(@Param('employeeId') employeeId: string) {
     const summary = await this.ledgerService.getBalance(employeeId);
     return { success: true, data: summary };
   }
 
   @Get(':employeeId/statement')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async getStatement(
     @Param('employeeId') employeeId: string,
     @Query('from') from?: string,
@@ -71,9 +72,9 @@ export class LedgerController {
   /**
    * GET /ledger/:employeeId/earnings?weeksBack=
    * Returns earnings grouped by week for the last N weeks.
-   */
+  */
   @Get(':employeeId/earnings')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async getEarnings(
     @Param('employeeId') employeeId: string,
     @Query('weeksBack') weeksBack?: string,
@@ -86,7 +87,7 @@ export class LedgerController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(...ADMIN_ROLES)
   async deleteEntry(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ledgerService.remove(id, req.branchId);
     return { success: true, data };

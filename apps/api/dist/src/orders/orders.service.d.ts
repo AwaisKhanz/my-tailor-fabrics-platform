@@ -398,6 +398,24 @@ export declare class OrdersService {
         shareToken: string | null;
         sharePin: string | null;
     }>;
+    getPublicOrderStatus(token: string, pin: string): Promise<{
+        id: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        customer: {
+            fullName: string;
+        };
+        orderNumber: string;
+        dueDate: Date;
+        totalAmount: number;
+        balanceDue: number;
+        items: {
+            id: string;
+            description: string | null;
+            garmentTypeName: string;
+            quantity: number;
+            unitPrice: number;
+        }[];
+    }>;
     update(id: string, branchId: string, dto: UpdateOrderDto, userRole: string): Promise<{
         items: {
             id: string;
