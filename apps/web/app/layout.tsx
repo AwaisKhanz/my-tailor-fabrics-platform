@@ -3,6 +3,7 @@ import { Schibsted_Grotesk } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemePresetProvider } from "@/components/ThemePresetProvider";
 import { Toaster } from "@/components/ui/toaster";
 
 const schibsted = Schibsted_Grotesk({ 
@@ -34,12 +35,14 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
+            enableSystem={false}
             disableTransitionOnChange
           >
-            {children}
-            <Toaster />
+            <ThemePresetProvider>
+              {children}
+              <Toaster />
+            </ThemePresetProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

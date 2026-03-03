@@ -5,14 +5,14 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/85",
         premium:
-          "bg-primary text-primary-foreground shadow-lg shadow-primary/15 hover:bg-primary/90 font-bold uppercase tracking-tight",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/85 font-semibold",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -22,13 +22,13 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         muted: "border border-border bg-background hover:bg-muted text-muted-foreground",
-        dashboard: "border-primary/20 hover:bg-primary/5 text-primary border font-bold uppercase tracking-tight",
+        dashboard: "border border-primary/30 bg-transparent text-primary hover:bg-primary/10 font-semibold",
         tableIcon:
-          "text-muted-foreground hover:bg-muted hover:text-foreground",
+          "border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70 hover:text-foreground",
         tableDanger:
-          "text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
+          "border border-transparent text-muted-foreground hover:border-destructive/25 hover:bg-destructive/10 hover:text-destructive",
         tableReset:
-          "h-10 text-xs font-bold text-muted-foreground hover:text-foreground",
+          "h-10 border border-transparent text-xs font-semibold text-muted-foreground hover:border-border/70 hover:text-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",

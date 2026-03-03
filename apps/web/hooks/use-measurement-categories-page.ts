@@ -1,13 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type MeasurementCategory } from "@tbms/shared-types";
+import { type MeasurementCategory, type MeasurementStats } from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 
 const PAGE_SIZE = 10;
+const EMPTY_MEASUREMENT_STATS: MeasurementStats = {
+  totalCategories: 0,
+  activeCategories: 0,
+  totalFields: 0,
+  requiredFields: 0,
+};
 
 export function useMeasurementCategoriesPage() {
   const { toast } = useToast();
@@ -15,6 +21,7 @@ export function useMeasurementCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<MeasurementCategory[]>([]);
   const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<MeasurementStats>(EMPTY_MEASUREMENT_STATS);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -29,15 +36,22 @@ export function useMeasurementCategoriesPage() {
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await configApi.getMeasurementCategories({
-        search: debouncedSearch.trim() || undefined,
-        page,
-        limit: PAGE_SIZE,
-      });
+      const [listResponse, statsResponse] = await Promise.all([
+        configApi.getMeasurementCategories({
+          search: debouncedSearch.trim() || undefined,
+          page,
+          limit: PAGE_SIZE,
+        }),
+        configApi.getMeasurementStats(),
+      ]);
 
-      if (response.success) {
-        setCategories(response.data.data);
-        setTotal(response.data.total);
+      if (listResponse.success) {
+        setCategories(listResponse.data.data);
+        setTotal(listResponse.data.total);
+      }
+
+      if (statsResponse.success) {
+        setStats(statsResponse.data);
       }
     } catch (error) {
       logDevError("Failed to fetch measurement categories:", error);
@@ -115,6 +129,7 @@ export function useMeasurementCategoriesPage() {
     loading,
     categories,
     total,
+    stats,
     search,
     page,
     pageSize: PAGE_SIZE,

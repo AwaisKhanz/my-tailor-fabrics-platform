@@ -410,6 +410,56 @@ export class ConfigService {
     return { data, total };
   }
 
+  async getMeasurementCategory(id: string) {
+    const category = await this.prisma.measurementCategory.findUnique({
+      where: { id },
+      include: {
+        fields: {
+          where: { deletedAt: null },
+          orderBy: { sortOrder: 'asc' },
+        },
+      },
+    });
+
+    if (!category || category.deletedAt) {
+      throw new NotFoundException('Measurement category not found');
+    }
+
+    return category;
+  }
+
+  async getMeasurementStats() {
+    const [totalCategories, activeCategories, totalFields, requiredFields] =
+      await Promise.all([
+        this.prisma.measurementCategory.count({
+          where: { deletedAt: null },
+        }),
+        this.prisma.measurementCategory.count({
+          where: { deletedAt: null, isActive: true },
+        }),
+        this.prisma.measurementField.count({
+          where: {
+            deletedAt: null,
+            category: { deletedAt: null },
+          },
+        }),
+        this.prisma.measurementField.count({
+          where: {
+            deletedAt: null,
+            isRequired: true,
+            category: { deletedAt: null },
+          },
+        }),
+      ]);
+
+    return {
+      totalCategories,
+      activeCategories,
+      totalFields,
+      requiredFields,
+    };
+  }
+
   async createMeasurementCategory(dto: CreateMeasurementCategoryDto) {
     const { fields, ...data } = dto;
 

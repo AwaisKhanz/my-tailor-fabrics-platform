@@ -28,6 +28,13 @@ export interface MeasurementCategory {
     isActive: boolean;
     fields: MeasurementField[];
     createdAt: Date | string;
+    updatedAt?: Date | string;
+}
+export interface MeasurementStats {
+    totalCategories: number;
+    activeCategories: number;
+    totalFields: number;
+    requiredFields: number;
 }
 export interface GarmentType {
     id: string;

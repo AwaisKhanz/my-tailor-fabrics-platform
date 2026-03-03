@@ -55,7 +55,7 @@ export function EmployeesListTable({
       {
         header: "Designation",
         cell: (employee) => (
-          <Badge variant="info" size="xs">
+          <Badge variant="info" size="xs" className="font-semibold">
             {employee.designation || "Staff"}
           </Badge>
         ),
@@ -63,7 +63,7 @@ export function EmployeesListTable({
       {
         header: "Contact",
         cell: (employee) => (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+          <div className="flex items-center gap-1.5 text-xs font-semibold tabular-nums text-foreground">
             <Phone className="h-3 w-3 text-muted-foreground" />
             {employee.phone}
           </div>
@@ -72,7 +72,7 @@ export function EmployeesListTable({
       {
         header: "Status",
         cell: (employee) => (
-          <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs">
+          <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs" className="font-semibold">
             {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
           </Badge>
         ),
@@ -89,6 +89,7 @@ export function EmployeesListTable({
                 event.stopPropagation();
                 onViewEmployee(employee);
               }}
+              aria-label={`Open ${employee.fullName}`}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

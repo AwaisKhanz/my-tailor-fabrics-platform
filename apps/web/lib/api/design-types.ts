@@ -2,7 +2,7 @@ import { api } from '../api';
 import { DesignType, ApiResponse } from '@tbms/shared-types';
 
 export const designTypesApi = {
-  findAll: async (params?: { branchId?: string; garmentTypeId?: string }) => {
+  findAll: async (params?: { branchId?: string; garmentTypeId?: string; search?: string }) => {
     const response = await api.get<ApiResponse<DesignType[]>>('/design-types', { params });
     return response.data;
   },

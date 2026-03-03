@@ -10,10 +10,10 @@ export function BranchesPageHeader({ onCreate }: BranchesPageHeaderProps) {
   return (
     <PageHeader
       title="Branch Management"
-      description="Configure and oversee all physical organizational locations and their status."
+      description="Configure operational locations, ownership details, and branch visibility in one place."
       actions={
         <Button variant="premium" size="lg" onClick={onCreate} className="w-full sm:w-auto">
-          <Plus className="mr-2 h-5 w-5" />
+          <Plus className="h-4 w-4" />
           Add New Branch
         </Button>
       }

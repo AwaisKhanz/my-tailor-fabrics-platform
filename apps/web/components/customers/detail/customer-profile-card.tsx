@@ -1,4 +1,4 @@
-import { MapPin, Phone, ShoppingBag, Banknote } from "lucide-react";
+import { Banknote, MapPin, Phone, ShoppingBag, UserSquare2 } from "lucide-react";
 import { type Customer } from "@tbms/shared-types";
 import { CUSTOMER_STATUS_BADGE, CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
@@ -15,12 +15,25 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
   const addressLine = [customer.address, customer.city].filter(Boolean).join(", ");
 
   return (
-    <Card className="overflow-hidden border-border/50 shadow-sm">
-      <CardHeader variant="sectionSoft">
-        <CardTitle variant="dashboard">Customer Details</CardTitle>
+    <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+      <CardHeader variant="rowSection" className="items-start sm:items-center">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            <UserSquare2 className="h-4 w-4" />
+          </div>
+          <CardTitle className="text-base font-semibold tracking-tight">Customer Profile</CardTitle>
+        </div>
+        <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} size="xs">
+          {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
+        </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4">
+      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+        <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5">
+          <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+          <p className="mt-1 text-sm font-semibold text-foreground">{customer.sizeNumber}</p>
+        </div>
+
         <div className="flex items-center gap-3 text-sm">
           <Phone className="h-4 w-4 text-muted-foreground" />
           <span>{customer.phone}</span>
@@ -66,10 +79,10 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
         <div className="border-t pt-4">
           <Label variant="dashboard" className="mb-1">
-            Status
+            Account Type
           </Label>
-          <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} size="xs">
-            {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
+          <Badge variant={customer.isVip ? "warning" : "secondary"} size="xs">
+            {customer.isVip ? "VIP" : "Standard"}
           </Badge>
         </div>
       </CardContent>

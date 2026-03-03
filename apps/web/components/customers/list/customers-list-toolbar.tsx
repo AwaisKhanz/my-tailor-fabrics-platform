@@ -38,11 +38,16 @@ export function CustomersListToolbar({
   onStatusChange,
   onReset,
 }: CustomersListToolbarProps) {
+  const activeFilterCount =
+    (search.trim().length > 0 ? 1 : 0) +
+    (statusTab !== CustomerStatus.ACTIVE ? 1 : 0);
+
   return (
     <TableToolbar
       title="Client Directory"
       total={total}
-      activeFilterCount={hasActiveFilters ? 1 : 0}
+      totalLabel="customers"
+      activeFilterCount={activeFilterCount}
       controls={
         <>
           <TableSearch
@@ -51,14 +56,14 @@ export function CustomersListToolbar({
             onChange={(event) => onSearchChange(event.target.value)}
           />
 
-          <div className="w-full md:w-44">
+          <div className="w-full md:w-52">
             <Select value={statusTab} onValueChange={(value) => onStatusChange(value as CustomerStatusTab)}>
-              <SelectTrigger variant="table" className="text-xs font-bold">
+              <SelectTrigger variant="table" className="text-sm font-semibold">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
                 {STATUS_TABS.map((tab) => (
-                  <SelectItem key={tab.key} value={tab.key} className="text-xs font-medium">
+                  <SelectItem key={tab.key} value={tab.key} className="text-sm font-medium">
                     {tab.label}
                   </SelectItem>
                 ))}
@@ -69,7 +74,7 @@ export function CustomersListToolbar({
           <Button
             variant="tableReset"
             size="sm"
-            className="md:ml-auto"
+            className="w-full justify-center md:ml-auto md:w-auto md:justify-start"
             onClick={onReset}
             disabled={!hasActiveFilters}
           >

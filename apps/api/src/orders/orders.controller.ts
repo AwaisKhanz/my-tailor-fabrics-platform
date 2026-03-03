@@ -76,6 +76,26 @@ export class OrdersController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @Get('summary')
+  async getSummary(
+    @Query('status') status: string,
+    @Query('from') from: string,
+    @Query('to') to: string,
+    @Query('employeeId') employeeId: string,
+    @Query('search') search: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ordersService.getSummary(req.branchId, {
+      status,
+      from,
+      to,
+      employeeId,
+      search,
+    });
+    return { success: true, data };
+  }
+
+  @Roles(...DASHBOARD_READ_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.findOne(id, req.branchId);

@@ -3,6 +3,7 @@ import { ApiResponse, PaginatedResponse } from '@/types/common';
 
 import type {
   Branch,
+  BranchDetail,
   BranchStatsSummary,
   CreateBranchInput,
   UpdateBranchInput,
@@ -17,7 +18,7 @@ export const branchesApi = {
   },
   
   getBranch: async (id: string) => {
-    const response = await api.get<ApiResponse<Branch>>(`/branches/${id}`);
+    const response = await api.get<ApiResponse<BranchDetail>>(`/branches/${id}`);
     return response.data;
   },
 

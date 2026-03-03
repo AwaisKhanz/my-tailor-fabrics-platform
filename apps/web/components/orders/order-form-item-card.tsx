@@ -61,9 +61,9 @@ export function OrderFormItemCard({
   const selectedGarment = garmentTypes.find((garment) => garment.id === garmentTypeId);
 
   return (
-    <div className="space-y-4 rounded-xl border border-border/60 bg-muted/20 p-4">
+    <div className="space-y-5 rounded-xl border border-border/70 bg-background/70 p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <Badge variant="outline" size="xs">
               PIECE {index + 1}
@@ -74,25 +74,32 @@ export function OrderFormItemCard({
               </Badge>
             ) : null}
           </div>
-          <Label variant="dashboard" className="text-muted-foreground">
-            Live piece total: {formatPKR(Math.round(lineTotal * 100))}
-          </Label>
+          <p className="text-xs text-muted-foreground">
+            Configure garment, quantity, pricing, and production details.
+          </p>
         </div>
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="text-destructive hover:bg-destructive/10"
-          onClick={() => onRemoveItem(index)}
-          disabled={!canRemove}
-        >
-          <Trash2 className="h-4 w-4" /> Remove
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-1.5 text-right">
+            <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Piece Total</p>
+            <p className="text-sm font-semibold text-foreground">{formatPKR(Math.round(lineTotal * 100))}</p>
+          </div>
+          <Button
+            type="button"
+            variant="tableDanger"
+            size="iconSm"
+            onClick={() => onRemoveItem(index)}
+            disabled={!canRemove}
+            aria-label={`Remove piece ${index + 1}`}
+            title="Remove piece"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+        <div className="md:col-span-5">
           <FormField
             control={form.control}
             name={`items.${index}.garmentTypeId`}
@@ -122,39 +129,43 @@ export function OrderFormItemCard({
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name={`items.${index}.quantity`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel variant="dashboard">Quantity</FormLabel>
-              <FormControl>
-                <Input type="number" min={1} variant="premium" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="md:col-span-2">
+          <FormField
+            control={form.control}
+            name={`items.${index}.quantity`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel variant="dashboard">Quantity</FormLabel>
+                <FormControl>
+                  <Input type="number" min={1} variant="premium" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <FormField
-          control={form.control}
-          name={`items.${index}.unitPrice`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel variant="dashboard">Unit Price (Rs)</FormLabel>
-              <FormControl>
-                <Input type="number" min={0} variant="premium" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="md:col-span-3">
+          <FormField
+            control={form.control}
+            name={`items.${index}.unitPrice`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel variant="dashboard">Unit Price (Rs)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} variant="premium" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
           name={`items.${index}.designTypeId`}
           render={({ field }) => (
-            <FormItem className="md:col-span-2">
+            <FormItem className="md:col-span-6">
               <FormLabel variant="dashboard">Design Type</FormLabel>
               <Select
                 onValueChange={(value) => {
@@ -185,7 +196,7 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.employeeId`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="md:col-span-4">
               <FormLabel variant="dashboard">Assigned Tailor</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(value === "UNASSIGNED" ? undefined : value)}
@@ -214,7 +225,7 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.fabricSource`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="md:col-span-2">
               <FormLabel variant="dashboard">Fabric Source</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -236,7 +247,7 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.description`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="md:col-span-6">
               <FormLabel variant="dashboard">Notes</FormLabel>
               <FormControl>
                 <Input
@@ -251,14 +262,14 @@ export function OrderFormItemCard({
         />
       </div>
 
-      <div className="space-y-2 rounded-lg border border-dashed border-border/70 bg-background/60 p-3">
-        <div className="flex items-center justify-between">
+      <div className="space-y-3 rounded-lg border border-dashed border-border/70 bg-muted/10 p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Label variant="dashboard">Addons & Custom Charges</Label>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-7 gap-1 text-[10px]"
+            className="h-7 gap-1 text-[10px] font-semibold"
             onClick={() => onAddAddon(index)}
           >
             <PlusCircle className="h-3.5 w-3.5" /> Add Charge
@@ -272,10 +283,7 @@ export function OrderFormItemCard({
         ) : (
           <div className="space-y-2">
             {watchedAddons.map((addon, addonIndex) => (
-              <div
-                key={`${index}-${addonIndex}`}
-                className="grid grid-cols-1 items-end gap-2 rounded-md border border-border/60 bg-background p-2 md:grid-cols-12"
-              >
+              <div key={`${index}-${addonIndex}`} className="grid grid-cols-1 items-end gap-2 rounded-md border border-border/60 bg-background p-2 md:grid-cols-12">
                 <div className="md:col-span-3">
                   <Select
                     value={addon.type || AddonType.EXTRA}
@@ -324,10 +332,10 @@ export function OrderFormItemCard({
                 <div className="flex md:col-span-1 md:justify-end">
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    variant="tableDanger"
+                    size="iconSm"
                     onClick={() => onRemoveAddon(index, addonIndex)}
+                    aria-label={`Remove addon ${addonIndex + 1}`}
                   >
                     <XCircle className="h-4 w-4" />
                   </Button>

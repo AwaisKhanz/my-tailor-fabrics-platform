@@ -63,7 +63,7 @@ export function CustomersDirectoryTable({
         header: "Size Number",
         cell: (customer) => (
           <span
-            className="cursor-pointer text-sm font-bold text-primary hover:underline"
+            className="cursor-pointer text-sm font-semibold text-primary hover:underline"
             onClick={(event) => {
               event.stopPropagation();
               onView(customer);
@@ -81,7 +81,7 @@ export function CustomersDirectoryTable({
           return (
             <div className="flex items-center gap-3">
               <div
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${avatarClassName}`}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${avatarClassName}`}
               >
                 {initials}
               </div>
@@ -103,7 +103,7 @@ export function CustomersDirectoryTable({
         header: "Contact Info",
         cell: (customer) => (
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-foreground">{customer.phone}</span>
+            <span className="text-sm font-semibold tabular-nums text-foreground">{customer.phone}</span>
             {customer.whatsapp ? (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-success/50" />
@@ -127,7 +127,9 @@ export function CustomersDirectoryTable({
       {
         header: "Lifetime Value",
         cell: (customer) => (
-          <span className="text-sm font-bold text-foreground">{formatPKR(customer.lifetimeValue)}</span>
+          <span className="text-sm font-semibold tabular-nums text-foreground">
+            {formatPKR(customer.lifetimeValue)}
+          </span>
         ),
       },
       {
@@ -142,7 +144,7 @@ export function CustomersDirectoryTable({
         header: "Actions",
         align: "right",
         cell: (customer) => (
-          <div className="flex items-center justify-end gap-1">
+          <div className="flex items-center justify-end gap-1.5">
             <Button
               variant="tableIcon"
               size="iconSm"
@@ -151,6 +153,7 @@ export function CustomersDirectoryTable({
                 onView(customer);
               }}
               title="View"
+              aria-label={`View ${customer.fullName}`}
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -162,6 +165,7 @@ export function CustomersDirectoryTable({
                 onEdit(customer);
               }}
               title="Edit"
+              aria-label={`Edit ${customer.fullName}`}
             >
               <Pencil className="h-4 w-4" />
             </Button>

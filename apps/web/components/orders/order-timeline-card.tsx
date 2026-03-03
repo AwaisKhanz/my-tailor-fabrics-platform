@@ -1,7 +1,8 @@
+import { Check, Clock3, Dot } from "lucide-react";
 import { type ReactNode } from "react";
-import { Check, Clock } from "lucide-react";
 import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 interface TimelineStep {
   key: string;
@@ -44,7 +45,7 @@ function buildTimeline(status: OrderStatus): TimelineStep[] {
       active: status === OrderStatus.READY,
     },
     {
-      key: "Completed & Delivered",
+      key: "Delivered",
       status: OrderStatus.DELIVERED,
       done: status === OrderStatus.COMPLETED,
       active: status === OrderStatus.DELIVERED,
@@ -52,93 +53,88 @@ function buildTimeline(status: OrderStatus): TimelineStep[] {
   ];
 }
 
+function formatHistoryTime(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
   const timelineSteps = buildTimeline(status);
 
   return (
-    <Card className="overflow-hidden border-border shadow-sm">
-      <CardHeader variant="section" density="comfortable">
+    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-            <Clock className="h-4 w-4 text-primary" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+            <Clock3 className="h-4 w-4 text-primary" />
           </div>
-          <CardTitle variant="dashboard">Workflow Timeline</CardTitle>
+          <div>
+            <CardTitle variant="dashboard">Order Timeline</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">Current progression and status events.</p>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section">
-        <div className="space-y-8">
+      <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
+        <div className="space-y-3">
           {timelineSteps.map((step, index) => {
-            const historyEntry = step.status
-              ? history.find((item) => item.toStatus === step.status)
-              : undefined;
             const isLast = index === timelineSteps.length - 1;
-
-            let statusColor = "bg-muted border-border text-muted-foreground";
-            let icon: ReactNode = null;
+            let markerClass = "border-border bg-muted text-muted-foreground";
+            let markerIcon: ReactNode = <Dot className="h-4 w-4" />;
 
             if (step.done) {
-              statusColor =
-                "bg-success border-success text-success-foreground shadow-sm shadow-success/20";
-              icon = <Check className="h-3 w-3 stroke-[4]" />;
+              markerClass = "border-success bg-success text-success-foreground";
+              markerIcon = <Check className="h-3.5 w-3.5" />;
             } else if (step.active) {
-              statusColor =
-                "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30 ring-2 ring-primary/20";
-              icon = <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />;
+              markerClass = "border-primary bg-primary text-primary-foreground";
+              markerIcon = <Dot className="h-4 w-4 animate-pulse" />;
             }
 
             return (
-              <div key={step.key} className="relative flex items-start gap-5">
+              <div key={step.key} className="relative flex gap-3">
                 {!isLast ? (
-                  <div
-                    className={`absolute left-[13px] top-8 h-10 w-[2px] ${step.done ? "bg-success/30" : "bg-border/50"}`}
+                  <span
+                    className={`absolute left-[11px] top-6 h-6 w-px ${step.done ? "bg-success/50" : "bg-border"}`}
                   />
                 ) : null}
 
-                <div
-                  className={`z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-all duration-300 ${statusColor}`}
-                >
-                  {icon}
+                <div className={`z-10 flex h-6 w-6 items-center justify-center rounded-full border ${markerClass}`}>
+                  {markerIcon}
                 </div>
 
-                <div className="flex-1 pt-0.5">
-                  <p
-                    className={`inline-block border-b border-transparent text-xs font-bold uppercase tracking-tight ${step.active ? "border-primary/20 pb-0.5 text-primary" : step.done ? "text-foreground" : "text-muted-foreground opacity-40"}`}
-                  >
+                <div className="pt-0.5">
+                  <p className={`text-xs font-semibold ${step.active ? "text-primary" : "text-foreground"}`}>
                     {step.key}
                   </p>
-
-                  {historyEntry ? (
-                    <div className="mt-2 space-y-0.5">
-                      <p className="text-[9px] font-bold uppercase tracking-tight text-muted-foreground opacity-60">
-                        {new Date(historyEntry.createdAt).toLocaleDateString("en-PK", {
-                          day: "2-digit",
-                          month: "short",
-                        })}{" "}
-                        @{" "}
-                        {new Date(historyEntry.createdAt).toLocaleTimeString("en-PK", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                      {historyEntry.note ? (
-                        <p className="truncate text-[10px] font-bold text-muted-foreground opacity-80">
-                          {historyEntry.note}
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : step.active ? (
-                    <div className="mt-2 flex items-center gap-1.5">
-                      <span className="h-1 w-1 animate-ping rounded-full bg-success" />
-                      <p className="text-[9px] font-bold uppercase tracking-tight text-success">
-                        Current Status
-                      </p>
-                    </div>
+                  {step.active ? (
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">Current stage</p>
                   ) : null}
                 </div>
               </div>
             );
           })}
+        </div>
+
+        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+          <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Recent Events</Label>
+          <div className="mt-2 space-y-2">
+            {history.slice(0, 4).map((entry) => (
+              <div key={entry.id} className="rounded-md border border-border/60 bg-background/60 px-2.5 py-2">
+                <p className="text-xs font-semibold text-foreground">
+                  {entry.toStatus.replace("_", " ")}
+                </p>
+                <p className="text-[11px] text-muted-foreground">{formatHistoryTime(entry.createdAt)}</p>
+              </div>
+            ))}
+
+            {history.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No status history found.</p>
+            ) : null}
+          </div>
         </div>
       </CardContent>
     </Card>

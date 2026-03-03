@@ -61,78 +61,79 @@ export default function DashboardPage() {
           </span>
         }
         actions={
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
-            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={() => router.push("/orders/new")}>
+          <>
+            <Button
+              variant="premium"
+              size="lg"
+              className="w-full sm:w-auto"
+              onClick={() => router.push("/orders/new")}
+            >
               <Plus className="h-4 w-4" />
               New Order
             </Button>
             <Button
               variant="outline"
-              className="w-full border-primary/30 bg-primary/5 font-bold text-primary sm:w-auto"
+              size="lg"
+              className="w-full border-primary/30 bg-primary/5 font-semibold text-primary sm:w-auto"
               onClick={() => router.push("/reports")}
             >
               Open Reports
             </Button>
-          </div>
+          </>
         }
       />
 
-      <PageSection spacing="none" className="flex items-center justify-between">
-        <div>
-          <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
-            Today Overview
-          </Typography>
-          <Typography as="p" variant="muted" className="mt-1 text-xs">
-            Key numbers for revenue, expenses, and pending follow-ups.
-          </Typography>
-        </div>
+      <PageSection spacing="none" className="space-y-1">
+        <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
+          Today Overview
+        </Typography>
+        <Typography as="p" variant="muted" className="text-xs sm:text-sm">
+          Key numbers for revenue, expenses, balances, and new orders.
+        </Typography>
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <DashboardKpiCard
-          title="Total Revenue"
-          loading={loading}
-          value={formatPKR(stats?.revenue ?? 0)}
-          icon={Banknote}
-          iconBoxClass="bg-success/15"
-          iconClass="text-success"
-          badgeText="LIVE"
-          badgeVariant="success"
-        />
+      <PageSection spacing="compact">
+        <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardKpiCard
+            title="Total Revenue"
+            loading={loading}
+            value={formatPKR(stats?.revenue ?? 0)}
+            icon={Banknote}
+            badgeText="LIVE"
+            badgeVariant="success"
+            helperText="Confirmed inflow"
+          />
 
-        <DashboardKpiCard
-          title="Expenses"
-          loading={loading}
-          value={formatPKR(stats?.expenses ?? 0)}
-          icon={Wallet}
-          iconBoxClass="bg-warning/15"
-          iconClass="text-warning"
-        />
+          <DashboardKpiCard
+            title="Expenses"
+            loading={loading}
+            value={formatPKR(stats?.expenses ?? 0)}
+            icon={Wallet}
+            badgeText="TRACKED"
+            badgeVariant="info"
+            helperText="Operational spend"
+          />
 
-        <DashboardKpiCard
-          title="Outstanding Balance"
-          loading={loading}
-          value={formatPKR(stats?.outstandingBalances ?? 0)}
-          icon={ReceiptText}
-          iconBoxClass="bg-destructive/15"
-          iconClass="text-destructive"
-          badgeText="FOLLOW-UP"
-          badgeVariant="destructive"
-        />
+          <DashboardKpiCard
+            title="Outstanding Balance"
+            loading={loading}
+            value={formatPKR(stats?.outstandingBalances ?? 0)}
+            icon={ReceiptText}
+            badgeText="FOLLOW-UP"
+            badgeVariant="destructive"
+            helperText="Pending receivables"
+          />
 
-        <DashboardKpiCard
-          title="New Today"
-          loading={loading}
-          value={stats?.newToday ?? 0}
-          icon={ShoppingBag}
-          iconBoxClass="bg-primary/15"
-          iconClass="text-primary"
-          badgeText="Orders"
-          badgeVariant="info"
-        />
+          <DashboardKpiCard
+            title="New Today"
+            loading={loading}
+            value={stats?.newToday ?? 0}
+            icon={ShoppingBag}
+            badgeText="ORDERS"
+            badgeVariant="info"
+            helperText="Orders opened today"
+          />
+        </div>
       </PageSection>
 
       <PageSection spacing="compact">
@@ -146,41 +147,44 @@ export default function DashboardPage() {
 
       <PageSection spacing="none" className="pt-1">
         <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
-          Performance Insights
+          Financial Insights
         </Typography>
       </PageSection>
 
-      <PageSection className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-        <div className="xl:col-span-8">
+      <PageSection className="grid grid-cols-1 space-y-0 gap-6 xl:grid-cols-12">
+        <div className="xl:col-span-8 h-full">
           <DashboardRevenueExpensesCard rows={revenueExpenseRows} />
         </div>
-        <div className="xl:col-span-4 space-y-6">
+        <div className="xl:col-span-4">
           <DashboardGarmentBreakdownCard garments={garments} totalItems={totalGarmentItems} />
+        </div>
+      </PageSection>
+
+      <PageSection className="grid grid-cols-1 space-y-0 gap-6 xl:grid-cols-12">
+        <div className="xl:col-span-4 h-full">
           <DashboardDesignPopularityCard
             loading={loading}
             designs={designs}
             onViewAnalytics={() => router.push("/reports")}
           />
         </div>
+        <div className="xl:col-span-8 h-full">
+          <DashboardProductivityCard loading={loading} productivity={productivity} />
+        </div>
       </PageSection>
 
-      <PageSection spacing="none" className="pt-1">
+      <PageSection spacing="none">
         <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
           Operational Attention
         </Typography>
       </PageSection>
 
-      <PageSection className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-        <div className="xl:col-span-8">
-          <DashboardOverdueOrdersCard
-            orders={stats?.recentOrders ?? []}
-            onViewOverdueOrders={() => router.push(OVERDUE_ORDERS_QUERY)}
-            onOpenOrder={(orderId) => router.push(`/orders/${orderId}`)}
-          />
-        </div>
-        <div className="xl:col-span-4">
-          <DashboardProductivityCard loading={loading} productivity={productivity} />
-        </div>
+      <PageSection>
+        <DashboardOverdueOrdersCard
+          orders={stats?.recentOrders ?? []}
+          onViewOverdueOrders={() => router.push(OVERDUE_ORDERS_QUERY)}
+          onOpenOrder={(orderId) => router.push(`/orders/${orderId}`)}
+        />
       </PageSection>
     </PageShell>
   );

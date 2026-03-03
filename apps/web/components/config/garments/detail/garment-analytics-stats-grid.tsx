@@ -1,8 +1,6 @@
-import { Activity, Banknote, ClipboardList, Target } from "lucide-react";
+import { Activity, Banknote, ClipboardList, HandCoins } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Typography } from "@/components/ui/typography";
+import { StatCard } from "@/components/ui/stat-card";
 import { formatPKR } from "@/lib/utils";
 
 interface GarmentAnalyticsStatsGridProps {
@@ -11,62 +9,38 @@ interface GarmentAnalyticsStatsGridProps {
 
 export function GarmentAnalyticsStatsGrid({ garment }: GarmentAnalyticsStatsGridProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Card className="border-border/50 bg-primary/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
-            <ClipboardList className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <Label variant="dashboard">Total Orders</Label>
-            <Typography as="p" variant="sectionTitle" className="text-xl">
-              {garment.analytics.totalOrders.toLocaleString()}
-            </Typography>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <StatCard
+        title="Total Orders"
+        subtitle="Lifecycle volume"
+        value={garment.analytics.totalOrders.toLocaleString()}
+        tone="primary"
+        icon={<ClipboardList className="h-4 w-4" />}
+      />
 
-      <Card className="border-border/50 bg-warning/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-warning/20 bg-warning/10">
-            <Activity className="h-5 w-5 text-warning" />
-          </div>
-          <div>
-            <Label variant="dashboard">Active Items</Label>
-            <Typography as="p" variant="sectionTitle" className="text-xl">
-              {garment.analytics.activeOrders.toLocaleString()}
-            </Typography>
-          </div>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Active Items"
+        subtitle="Current production"
+        value={garment.analytics.activeOrders.toLocaleString()}
+        tone="warning"
+        icon={<Activity className="h-4 w-4" />}
+      />
 
-      <Card className="border-border/50 bg-success/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-success/20 bg-success/10">
-            <Banknote className="h-5 w-5 text-success" />
-          </div>
-          <div>
-            <Label variant="dashboard">Total Revenue</Label>
-            <Typography as="p" variant="sectionTitle" className="text-xl">
-              {formatPKR(garment.analytics.totalRevenue)}
-            </Typography>
-          </div>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Total Revenue"
+        subtitle="Historical performance"
+        value={formatPKR(garment.analytics.totalRevenue)}
+        tone="success"
+        icon={<Banknote className="h-4 w-4" />}
+      />
 
-      <Card className="border-border/50 bg-ready/[0.01] shadow-sm transition-all hover:shadow-md">
-        <CardContent spacing="compact" className="flex items-center gap-4 pt-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-ready/20 bg-ready/10">
-            <Target className="h-5 w-5 text-ready" />
-          </div>
-          <div>
-            <Label variant="dashboard">Avg Actual Price</Label>
-            <Typography as="p" variant="sectionTitle" className="text-xl">
-              {formatPKR(garment.analytics.avgActualPrice)}
-            </Typography>
-          </div>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Total Payout"
+        subtitle="Tailor compensation"
+        value={formatPKR(garment.analytics.totalPayout)}
+        tone="info"
+        icon={<HandCoins className="h-4 w-4" />}
+      />
     </div>
   );
 }

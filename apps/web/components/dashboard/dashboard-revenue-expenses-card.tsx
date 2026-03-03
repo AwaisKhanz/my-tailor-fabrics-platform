@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BarChart, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -13,42 +14,248 @@ interface DashboardRevenueExpensesCardProps {
   rows: RevenueExpensesRow[];
 }
 
+interface ChartPoint extends RevenueExpensesRow {
+  x: number;
+  revenueY: number;
+  expensesY: number;
+  netY: number;
+  net: number;
+}
+
+function pointsToPath(points: Array<{ x: number; y: number }>): string {
+  if (points.length === 0) {
+    return "";
+  }
+
+  return points
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
+    .join(" ");
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
 export function DashboardRevenueExpensesCard({
   rows,
 }: DashboardRevenueExpensesCardProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const totalRevenue = rows.reduce((sum, row) => sum + row.revenue, 0);
+  const totalExpenses = rows.reduce((sum, row) => sum + row.expenses, 0);
+  const net = totalRevenue - totalExpenses;
+
+  const width = 820;
+  const height = 214;
+  const padLeft = 38;
+  const padRight = 20;
+  const padTop = 18;
+  const padBottom = 34;
+  const plotWidth = width - padLeft - padRight;
+  const plotHeight = height - padTop - padBottom;
+
+  const allValues = rows.flatMap((row) => [row.revenue, row.expenses, row.revenue - row.expenses]);
+  const minValue = Math.min(0, ...allValues);
+  let maxValue = Math.max(0, ...allValues, 1);
+  if (maxValue === minValue) {
+    maxValue += 1;
+  }
+
+  const valueRange = maxValue - minValue;
+  const mapY = (value: number) => padTop + ((maxValue - value) / valueRange) * plotHeight;
+  const zeroY = mapY(0);
+
+  const points: ChartPoint[] = rows.map((row, index) => {
+    const denominator = Math.max(1, rows.length - 1);
+    const x = rows.length === 1
+      ? padLeft + plotWidth / 2
+      : padLeft + (index / denominator) * plotWidth;
+    const netValue = row.revenue - row.expenses;
+
+    return {
+      ...row,
+      x,
+      revenueY: mapY(row.revenue),
+      expensesY: mapY(row.expenses),
+      netY: mapY(netValue),
+      net: netValue,
+    };
+  });
+
+  const revenuePath = pointsToPath(points.map((point) => ({ x: point.x, y: point.revenueY })));
+  const expensesPath = pointsToPath(points.map((point) => ({ x: point.x, y: point.expensesY })));
+  const netPath = pointsToPath(points.map((point) => ({ x: point.x, y: point.netY })));
+  const areaPath =
+    points.length > 1
+      ? `${revenuePath} L ${points[points.length - 1]?.x} ${zeroY} L ${points[0]?.x} ${zeroY} Z`
+      : "";
+
+  const hitAreas = points.map((point, index) => {
+    const previousX = points[index - 1]?.x ?? padLeft;
+    const nextX = points[index + 1]?.x ?? width - padRight;
+    const leftBoundary = index === 0 ? padLeft : (previousX + point.x) / 2;
+    const rightBoundary = index === points.length - 1 ? width - padRight : (point.x + nextX) / 2;
+
+    return {
+      leftBoundary,
+      width: Math.max(1, rightBoundary - leftBoundary),
+    };
+  });
+
+  const activePoint = hoveredIndex !== null ? points[hoveredIndex] : null;
+  const tooltipWidth = 190;
+  const tooltipHeight = 66;
+  const tooltipX = activePoint
+    ? clamp(activePoint.x - tooltipWidth / 2, padLeft, width - padRight - tooltipWidth)
+    : 0;
+  const tooltipY = padTop + 10;
+
   return (
-    <Card className="h-full border-border/70 bg-card">
-      <CardHeader variant="rowSection" className="items-center">
-        <CardTitle variant="dashboard">Revenue vs. Expenses</CardTitle>
-        <div className="flex items-center gap-1 rounded-md bg-muted/40 px-2 py-1">
+    <Card className="border-border/70 bg-card h-full">
+      <CardHeader variant="rowSection" className="items-start">
+        <div className="space-y-1">
+          <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+            Revenue vs. Expenses
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Monthly trend powered by backend report totals.
+          </p>
+        </div>
+        <div className="flex items-center gap-1 rounded-md border border-border/60 bg-muted/25 px-2 py-1">
           <Label variant="dashboard">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
         </div>
       </CardHeader>
-      <CardContent spacing="section">
-        {rows.length === 0 ? (
-          <div className="relative mb-4 mt-2 flex h-[250px] w-full items-center justify-center border-b border-dashed border-border">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground/40">
+      <CardContent spacing="section" className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+                Revenue
+              </Label>
+            </div>
+            <p className="mt-1 text-lg font-bold text-primary">{formatPKR(totalRevenue)}</p>
+          </div>
+          <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+                Expenses
+              </Label>
+            </div>
+            <p className="mt-1 text-lg font-bold text-warning">{formatPKR(totalExpenses)}</p>
+          </div>
+          <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-info" />
+              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+                Net
+              </Label>
+            </div>
+            <p className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-foreground"}`}>
+              {formatPKR(net)}
+            </p>
+          </div>
+        </div>
+
+        {rows.length < 2 ? (
+          <div className="relative flex h-[220px] w-full items-center justify-center rounded-lg border border-dashed border-border bg-background/20">
+            <div className="flex max-w-md items-center gap-3 text-sm font-medium text-muted-foreground/70">
               <BarChart className="h-10 w-10 opacity-20" />
-              <span className="opacity-50">No revenue/expense data available</span>
+              <span>
+                {rows.length === 0
+                  ? "No revenue and expense data available yet."
+                  : "Need at least 2 periods to render a trend chart."}
+              </span>
             </div>
           </div>
         ) : (
-          <div className="mt-2 space-y-2">
-            {rows.map((row) => (
-              <div
-                key={row.month}
-                className="grid grid-cols-1 gap-2 rounded-lg border border-border/60 bg-background/50 px-3 py-2 sm:grid-cols-[60px_1fr_1fr] sm:items-center sm:gap-3"
-              >
-                <span className="text-xs text-muted-foreground">{row.month}</span>
-                <div className="truncate rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
-                  {formatPKR(row.revenue)}
-                </div>
-                <div className="truncate rounded-md bg-chart-2/10 px-2 py-1 text-xs font-semibold text-chart-2">
-                  {formatPKR(row.expenses)}
-                </div>
-              </div>
-            ))}
+          <div className="overflow-hidden rounded-lg border border-border/70 bg-background/20 px-2 py-3">
+            <svg
+              viewBox={`0 0 ${width} ${height}`}
+              className="h-[200px] w-full sm:h-[214px]"
+              role="img"
+              aria-label="Dashboard revenue and expenses trend"
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {[0, 0.25, 0.5, 0.75, 1].map((step) => {
+                const y = padTop + step * plotHeight;
+                return (
+                  <line
+                    key={step}
+                    x1={padLeft}
+                    y1={y}
+                    x2={width - padRight}
+                    y2={y}
+                    className="stroke-border/40"
+                    strokeDasharray="3 4"
+                  />
+                );
+              })}
+
+              <line x1={padLeft} y1={zeroY} x2={width - padRight} y2={zeroY} className="stroke-border" />
+
+              {areaPath ? <path d={areaPath} className="fill-primary/15" /> : null}
+
+              <path d={revenuePath} className="stroke-primary" strokeWidth="3" fill="none" strokeLinecap="round" />
+              <path d={expensesPath} className="stroke-warning" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d={netPath} className="stroke-info" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
+
+              {activePoint ? (
+                <line
+                  x1={activePoint.x}
+                  y1={padTop}
+                  x2={activePoint.x}
+                  y2={height - padBottom}
+                  className="stroke-primary/40"
+                  strokeDasharray="4 4"
+                />
+              ) : null}
+
+              {points.map((point) => (
+                <g key={point.month}>
+                  <circle cx={point.x} cy={point.revenueY} r="2.8" className="fill-primary" />
+                  <circle cx={point.x} cy={point.expensesY} r="2.4" className="fill-warning" />
+                  <circle cx={point.x} cy={point.netY} r="2.1" className="fill-info" />
+                  <text x={point.x} y={height - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">
+                    {point.month}
+                  </text>
+                </g>
+              ))}
+
+              {hitAreas.map((area, index) => (
+                <rect
+                  key={index}
+                  x={area.leftBoundary}
+                  y={padTop}
+                  width={area.width}
+                  height={plotHeight}
+                  fill="transparent"
+                  className="cursor-crosshair"
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseMove={() => setHoveredIndex(index)}
+                />
+              ))}
+
+              {activePoint ? (
+                <g transform={`translate(${tooltipX}, ${tooltipY})`}>
+                  <rect x="0" y="0" width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-card stroke-border/80" strokeWidth="1" />
+                  <text x="10" y="17" className="fill-foreground text-[11px] font-semibold">
+                    {activePoint.month}
+                  </text>
+                  <text x="10" y="33" className="fill-primary text-[10px]">
+                    Revenue: {formatPKR(activePoint.revenue)}
+                  </text>
+                  <text x="10" y="47" className="fill-warning text-[10px]">
+                    Expenses: {formatPKR(activePoint.expenses)}
+                  </text>
+                  <text x="10" y="61" className="fill-info text-[10px]">
+                    Net: {formatPKR(activePoint.net)}
+                  </text>
+                </g>
+              ) : null}
+            </svg>
           </div>
         )}
       </CardContent>

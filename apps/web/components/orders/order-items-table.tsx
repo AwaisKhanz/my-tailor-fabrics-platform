@@ -1,10 +1,11 @@
 import { useMemo } from "react";
-import { Scissors } from "lucide-react";
-import { OrderItem } from "@tbms/shared-types";
+import { CalendarDays, Scissors } from "lucide-react";
+import { ItemStatus, OrderItem } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 
 interface EmployeeOption {
@@ -18,6 +19,13 @@ interface OrderItemsTableProps {
   onManageTasks: (item: OrderItem) => void;
 }
 
+function formatShortDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function OrderItemsTable({
   items,
   employees,
@@ -28,128 +36,87 @@ export function OrderItemsTable({
     [employees],
   );
 
+  const summary = useMemo(() => {
+    const completed = items.filter((item) => item.status === ItemStatus.COMPLETED).length;
+    const inProgress = items.filter((item) => item.status === ItemStatus.IN_PROGRESS).length;
+    return {
+      total: items.length,
+      completed,
+      inProgress,
+    };
+  }, [items]);
+
   const columns: ColumnDef<OrderItem>[] = [
     {
-      header: "Piece #",
-      cell: (item) => (
-        <span className="font-bold text-foreground">#{item.pieceNo}</span>
-      ),
+      header: "Piece",
+      cell: (item) => <span className="font-semibold text-foreground">#{item.pieceNo}</span>,
     },
     {
-      header: "Garment Type",
+      header: "Item",
       cell: (item) => (
-        <div className="flex items-center gap-2">
-          <Scissors className="h-3.5 w-3.5 text-muted-foreground opacity-50" />
-          <div className="flex flex-col">
-            <span className="font-bold text-foreground">{item.garmentTypeName}</span>
+        <div className="flex min-w-[180px] items-start gap-2">
+          <Scissors className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-foreground">{item.garmentTypeName}</p>
             {item.designType ? (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+              <Label variant="dashboard" className="mt-0.5 text-primary">
                 {item.designType.name}
-              </span>
+              </Label>
             ) : null}
           </div>
         </div>
       ),
     },
     {
-      header: "Production Tasks",
+      header: "Assignment",
       cell: (item) => {
-        const employeeName = item.employeeId
-          ? employeeMap.get(item.employeeId) ?? item.employeeId
-          : "—";
-        const initials =
-          employeeName !== "—"
-            ? employeeName
-                .split(" ")
-                .map((part) => part[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)
-            : "—";
-
         if (item.tasks && item.tasks.length > 0) {
           return (
-            <div className="min-w-[180px]">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary/5 hover:text-primary"
-                onClick={() => onManageTasks(item)}
-              >
-                Manage Tasks
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 border-primary/20 bg-primary/5 text-[11px] font-semibold text-primary"
+              onClick={() => onManageTasks(item)}
+            >
+              Manage Tasks
+            </Button>
           );
         }
 
-        if (employeeName === "—") {
-          return (
-            <div className="min-w-[180px]">
-              <span className="text-xs text-muted-foreground">Unassigned</span>
-            </div>
-          );
-        }
+        const employeeName = item.employeeId
+          ? employeeMap.get(item.employeeId) ?? "Assigned"
+          : "Unassigned";
 
-        return (
-          <div className="min-w-[180px]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-[10px] font-bold text-primary">
-                {initials}
-              </div>
-              <span className="text-sm font-bold text-muted-foreground">
-                {employeeName}
-              </span>
-            </div>
-          </div>
-        );
+        return <span className="text-xs font-medium text-muted-foreground">{employeeName}</span>;
       },
     },
     {
-      header: "Description",
+      header: "Due",
       cell: (item) => (
-        <div className="space-y-1">
-          <p className="max-w-[200px] truncate text-xs leading-relaxed text-muted-foreground">
-            {item.description || "—"}
-          </p>
-          {item.addons && item.addons.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {item.addons.map((addon, index) => (
-                <Badge
-                  key={`${addon.name}-${index}`}
-                  variant="outline"
-                  className="h-4 border-dashed px-1 text-[8px]"
-                >
-                  {addon.name}: +{formatPKR(addon.price)}
-                </Badge>
-              ))}
-            </div>
-          ) : null}
+        <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <CalendarDays className="h-3 w-3" />
+          {item.dueDate ? formatShortDate(item.dueDate) : "-"}
         </div>
       ),
     },
     {
-      header: "Fabric",
-      align: "center",
-      cell: (item) => (
-        <Badge
-          variant="royal"
-          className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-tight"
-        >
-          {item.fabricSource}
-        </Badge>
-      ),
+      header: "Status",
+      cell: (item) => {
+        const statusVariant =
+          item.status === ItemStatus.COMPLETED
+            ? "success"
+            : item.status === ItemStatus.IN_PROGRESS
+              ? "info"
+              : "outline";
+        return (
+          <Badge variant={statusVariant} size="xs" className="uppercase tracking-[0.08em]">
+            {item.status.replace("_", " ")}
+          </Badge>
+        );
+      },
     },
     {
-      header: "Unit Price",
-      align: "right",
-      cell: (item) => (
-        <span className="text-xs text-muted-foreground">
-          {formatPKR(item.unitPrice)}
-        </span>
-      ),
-    },
-    {
-      header: "Total",
+      header: "Amount",
       align: "right",
       cell: (item) => {
         const addonsTotal = (item.addons || []).reduce(
@@ -163,15 +130,12 @@ export function OrderItemsTable({
           addonsTotal;
 
         return (
-          <div className="flex flex-col items-end">
-            <span className="font-bold text-foreground">{formatPKR(total)}</span>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-foreground">{formatPKR(total)}</p>
             {addonsTotal > 0 || designPrice > 0 ? (
-              <span className="text-[9px] text-muted-foreground">
-                {designPrice > 0 ? `Incl. ${formatPKR(designPrice)} design` : ""}
-                {addonsTotal > 0
-                  ? `${designPrice > 0 ? " & " : "Incl. "}${formatPKR(addonsTotal)} addons`
-                  : ""}
-              </span>
+              <p className="text-[10px] text-muted-foreground">
+                +{formatPKR(addonsTotal + designPrice)} extras
+              </p>
             ) : null}
           </div>
         );
@@ -180,16 +144,29 @@ export function OrderItemsTable({
   ];
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <CardTitle variant="dashboard">Hardware / Garment Pieces</CardTitle>
-          <Badge variant="secondary" size="xs">
-            {items.length} UNITS
+    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
+        <div>
+          <CardTitle variant="dashboard">Order Items</CardTitle>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Piece breakdown, assignments, and task controls.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary" size="xs" className="font-bold uppercase tracking-[0.08em]">
+            {summary.total} pieces
+          </Badge>
+          <Badge variant="info" size="xs" className="font-bold uppercase tracking-[0.08em]">
+            {summary.inProgress} in progress
+          </Badge>
+          <Badge variant="success" size="xs" className="font-bold uppercase tracking-[0.08em]">
+            {summary.completed} completed
           </Badge>
         </div>
-      </div>
-      <Card className="overflow-hidden border-border shadow-sm">
+      </CardHeader>
+
+      <CardContent spacing="section" className="p-0">
         <DataTable
           columns={columns}
           data={items}
@@ -197,7 +174,7 @@ export function OrderItemsTable({
           emptyMessage="No pieces found for this order."
           chrome="flat"
         />
-      </Card>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

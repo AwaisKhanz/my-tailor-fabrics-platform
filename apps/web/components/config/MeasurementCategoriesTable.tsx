@@ -5,8 +5,9 @@ import { MeasurementCategoryDialog } from "@/components/config/MeasurementCatego
 import { MeasurementCategoriesInventoryTable } from "@/components/config/measurements/list/measurement-categories-inventory-table";
 import { MeasurementCategoriesListToolbar } from "@/components/config/measurements/list/measurement-categories-list-toolbar";
 import { MeasurementCategoriesPageHeader } from "@/components/config/measurements/list/measurement-categories-page-header";
+import { MeasurementCategoriesStatsGrid } from "@/components/config/measurements/list/measurement-categories-stats-grid";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageShell } from "@/components/ui/page-shell";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
 
@@ -17,6 +18,7 @@ export function MeasurementCategoriesTable() {
     loading,
     categories,
     total,
+    stats,
     search,
     page,
     pageSize,
@@ -39,31 +41,43 @@ export function MeasurementCategoriesTable() {
 
   return (
     <PageShell>
-      <MeasurementCategoriesPageHeader onAdd={openCreateDialog} />
+      <PageSection spacing="compact">
+        <MeasurementCategoriesPageHeader onAdd={openCreateDialog} />
+      </PageSection>
 
-      <TableSurface>
-        <MeasurementCategoriesListToolbar
-          total={total}
-          search={search}
+      <PageSection spacing="compact">
+        <MeasurementCategoriesStatsGrid
+          stats={stats}
+          visibleOnPage={categories.length}
           hasActiveFilters={hasActiveFilters}
-          onSearchChange={setSearchFilter}
-          onReset={resetFilters}
         />
+      </PageSection>
 
-        <MeasurementCategoriesInventoryTable
-          categories={categories}
-          loading={loading}
-          page={page}
-          total={total}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onView={(category) => {
-            router.push(`/settings/measurements/${category.id}`);
-          }}
-          onEdit={openEditDialog}
-          onDelete={requestDelete}
-        />
-      </TableSurface>
+      <PageSection spacing="compact">
+        <TableSurface>
+          <MeasurementCategoriesListToolbar
+            total={total}
+            search={search}
+            hasActiveFilters={hasActiveFilters}
+            onSearchChange={setSearchFilter}
+            onReset={resetFilters}
+          />
+
+          <MeasurementCategoriesInventoryTable
+            categories={categories}
+            loading={loading}
+            page={page}
+            total={total}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onView={(category) => {
+              router.push(`/settings/measurements/${category.id}`);
+            }}
+            onEdit={openEditDialog}
+            onDelete={requestDelete}
+          />
+        </TableSurface>
+      </PageSection>
 
       <MeasurementCategoryDialog
         open={isDialogOpen}

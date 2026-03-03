@@ -12,15 +12,19 @@ export function ReportsWeeklyPrintCard({
   onPrint,
 }: ReportsWeeklyPrintCardProps) {
   return (
-    <Card variant="premium">
-      <CardHeader variant="section">
-        <CardTitle variant="dashboard" className="flex items-center justify-between">
-          Production Work-Order Summary
-          <Printer className="h-4 w-4 text-primary" />
-        </CardTitle>
-        <CardDescription className="text-xs">
-          Optimized for physical printing - used for shift-based task management.
-        </CardDescription>
+    <Card className="overflow-hidden border-border/70 bg-card/95">
+      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+        <div>
+          <CardTitle className="text-base font-semibold tracking-tight">
+            Production Work-Order Summary
+          </CardTitle>
+          <CardDescription className="mt-1 text-xs">
+            Optimized for physical printing and shift-based task management.
+          </CardDescription>
+        </div>
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+          <Printer className="h-4 w-4" />
+        </div>
       </CardHeader>
 
       <CardContent spacing="section">

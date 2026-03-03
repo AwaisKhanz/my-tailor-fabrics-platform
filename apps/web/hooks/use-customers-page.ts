@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Customer, CustomerStatus } from "@tbms/shared-types";
+import { Customer, CustomersListSummary, CustomerStatus } from "@tbms/shared-types";
 import { customerApi } from "@/lib/api/customers";
 import { logDevError } from "@/lib/logger";
 
@@ -14,6 +14,11 @@ export function useCustomersPage() {
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [total, setTotal] = useState(0);
+  const [summary, setSummary] = useState<CustomersListSummary>({
+    totalCustomers: 0,
+    whatsappConnectedCount: 0,
+    vipCustomersCount: 0,
+  });
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [statusTab, setStatusTab] = useState<CustomerStatusTab>(DEFAULT_STATUS_TAB);
@@ -24,16 +29,28 @@ export function useCustomersPage() {
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await customerApi.getCustomers(
-        page,
-        PAGE_SIZE,
-        search.trim() || undefined,
-        statusTab === "ALL" ? undefined : statusTab,
-      );
+      const filters = {
+        search: search.trim() || undefined,
+        status: statusTab === "ALL" ? undefined : statusTab,
+      };
 
-      if (response.success) {
-        setCustomers(response.data.data);
-        setTotal(response.data.total);
+      const [listResponse, summaryResponse] = await Promise.all([
+        customerApi.getCustomers(
+          page,
+          PAGE_SIZE,
+          filters.search,
+          filters.status,
+        ),
+        customerApi.getCustomersSummary(filters),
+      ]);
+
+      if (listResponse.success) {
+        setCustomers(listResponse.data.data);
+        setTotal(listResponse.data.total);
+      }
+
+      if (summaryResponse.success) {
+        setSummary(summaryResponse.data);
       }
     } catch (error) {
       logDevError("Failed to fetch customers:", error);
@@ -94,6 +111,7 @@ export function useCustomersPage() {
     loading,
     customers,
     total,
+    summary,
     search,
     page,
     pageSize: PAGE_SIZE,

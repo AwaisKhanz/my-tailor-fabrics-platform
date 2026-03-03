@@ -6,6 +6,7 @@ import { designTypesApi } from "@/lib/api/design-types";
 import { configApi } from "@/lib/api/config";
 import { branchesApi } from "@/lib/api/branches";
 import { useToast } from "@/hooks/use-toast";
+import { useDebounce } from "@/hooks/use-debounce";
 import { logDevError } from "@/lib/logger";
 
 export function useDesignTypesPage() {
@@ -15,6 +16,8 @@ export function useDesignTypesPage() {
   const [designTypes, setDesignTypes] = useState<DesignType[]>([]);
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 350);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState<DesignType | null>(null);
@@ -26,7 +29,7 @@ export function useDesignTypesPage() {
     setLoading(true);
     try {
       const [designTypesResponse, garmentsResponse, branchesResponse] = await Promise.all([
-        designTypesApi.findAll(),
+        designTypesApi.findAll({ search: debouncedSearch.trim() || undefined }),
         configApi.getGarmentTypes({ limit: 100 }),
         branchesApi.getBranches({ page: 1, limit: 100 }),
       ]);
@@ -52,7 +55,7 @@ export function useDesignTypesPage() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [debouncedSearch, toast]);
 
   useEffect(() => {
     void fetchData();
@@ -70,6 +73,14 @@ export function useDesignTypesPage() {
 
   const closeCreateDialog = useCallback((open: boolean) => {
     setCreateDialogOpen(open);
+  }, []);
+
+  const setSearchFilter = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setSearch("");
   }, []);
 
   const saveDesignType = useCallback(
@@ -143,6 +154,8 @@ export function useDesignTypesPage() {
     designTypes,
     garmentTypes,
     branches,
+    search,
+    hasActiveFilters: Boolean(search.trim()),
     createDialogOpen,
     selectedDesign,
     deleteTarget,
@@ -150,6 +163,8 @@ export function useDesignTypesPage() {
     openCreateDialog,
     openEditDialog,
     closeCreateDialog,
+    setSearchFilter,
+    resetFilters,
     saveDesignType,
     requestDeleteDesignType,
     closeDeleteDialog,

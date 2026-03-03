@@ -21,3 +21,8 @@ export interface CreateRateCardInput {
     effectiveFrom: Date | string;
     createdById?: string;
 }
+export interface RateStatsSummary {
+    total: number;
+    global: number;
+    branchScoped: number;
+}

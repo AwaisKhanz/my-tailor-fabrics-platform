@@ -21,6 +21,7 @@ export function MeasurementCategoriesListToolbar({
     <TableToolbar
       title="Categories Inventory"
       total={total}
+      totalLabel="categories"
       activeFilterCount={hasActiveFilters ? 1 : 0}
       controls={
         <>

@@ -35,3 +35,9 @@ export interface CustomerMeasurement {
     fields: import('./config').MeasurementField[];
   };
 }
+
+export interface CustomersListSummary {
+  totalCustomers: number;
+  whatsappConnectedCount: number;
+  vipCustomersCount: number;
+}

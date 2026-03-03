@@ -3,14 +3,17 @@ import { PageShell } from "@/components/ui/page-shell";
 
 export function EmployeeDetailSkeleton() {
   return (
-    <PageShell inset="none">
-      <Skeleton className="h-24 w-full" />
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-32 w-full" />
+    <PageShell>
+      <Skeleton className="h-28 w-full" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-28 w-full sm:col-span-2 xl:col-span-1" />
       </div>
-      <Skeleton className="h-64 w-full" />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <Skeleton className="h-[720px] lg:col-span-3" />
+        <Skeleton className="h-[720px] lg:col-span-2" />
+      </div>
     </PageShell>
   );
 }

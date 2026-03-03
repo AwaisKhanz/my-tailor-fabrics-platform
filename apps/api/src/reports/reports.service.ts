@@ -2,41 +2,233 @@ import { Injectable } from '@nestjs/common';
 import {
   AddonAnalytics,
   DesignAnalytics,
+  DistributionPoint,
   EmployeeProductivity,
+  FinancialTrend,
   GarmentRevenue,
   OrderStatus,
+  ProductivityPoint,
+  ReportDistributions,
   RevenueVsExpenses,
+  TrendGranularity,
 } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+interface ResolvedDateRange {
+  fromDate: Date;
+  toDate: Date;
+}
 
 @Injectable()
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getDashboardStats(branchId?: string) {
-    // Build base filters if branch scoping is required
-    const baseOrderWhere = branchId
-      ? { branchId, deletedAt: null }
-      : { deletedAt: null };
-    const baseExpenseWhere = branchId
-      ? { branchId, deletedAt: null }
-      : { deletedAt: null };
+  private resolveOptionalDateRange(
+    from?: string,
+    to?: string,
+  ): ResolvedDateRange | null {
+    if (!from && !to) {
+      return null;
+    }
 
-    // 1. Revenue (Sum of all order payments)
-    const revenue = await this.prisma.orderPayment.aggregate({
-      _sum: { amount: true },
-      where: { order: baseOrderWhere },
-    });
+    const now = new Date();
 
-    // 2. Expenses (Sum of all expenses)
-    const expenses = await this.prisma.expense.aggregate({
-      _sum: { amount: true },
-      where: baseExpenseWhere,
-    });
+    const fromDate = from ? new Date(from) : new Date(now);
+    const toDate = to ? new Date(to) : new Date(now);
 
-    // 3. Outstanding Employee Balances
-    // Total Earned (Items + Tasks)
+    if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+      return null;
+    }
+
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(23, 59, 59, 999);
+
+    if (fromDate.getTime() > toDate.getTime()) {
+      const normalizedFromDate = new Date(toDate);
+      normalizedFromDate.setHours(0, 0, 0, 0);
+
+      const normalizedToDate = new Date(fromDate);
+      normalizedToDate.setHours(23, 59, 59, 999);
+
+      return { fromDate: normalizedFromDate, toDate: normalizedToDate };
+    }
+
+    return { fromDate, toDate };
+  }
+
+  private resolveDateRange(
+    from?: string,
+    to?: string,
+    fallbackDays = 30,
+  ): ResolvedDateRange {
+    const explicitRange = this.resolveOptionalDateRange(from, to);
+    if (explicitRange) {
+      return explicitRange;
+    }
+
+    const toDate = new Date();
+    toDate.setHours(23, 59, 59, 999);
+
+    const fromDate = new Date(toDate);
+    fromDate.setDate(fromDate.getDate() - (fallbackDays - 1));
+    fromDate.setHours(0, 0, 0, 0);
+
+    return { fromDate, toDate };
+  }
+
+  private resolvePreviousRange(currentRange: ResolvedDateRange): ResolvedDateRange {
+    const spanMs = currentRange.toDate.getTime() - currentRange.fromDate.getTime() + 1;
+    const previousToDate = new Date(currentRange.fromDate.getTime() - 1);
+    const previousFromDate = new Date(previousToDate.getTime() - spanMs + 1);
+
+    previousFromDate.setHours(0, 0, 0, 0);
+    previousToDate.setHours(23, 59, 59, 999);
+
+    return { fromDate: previousFromDate, toDate: previousToDate };
+  }
+
+  private getSqlDateCondition(
+    columnName: string,
+    range: ResolvedDateRange | null,
+  ): Prisma.Sql {
+    if (!range) {
+      return Prisma.empty;
+    }
+
+    return Prisma.sql`AND ${Prisma.raw(columnName)} BETWEEN ${range.fromDate} AND ${range.toDate}`;
+  }
+
+  private toDistributionPoints(
+    rows: Array<{ key: string; label: string; value: number }>,
+  ): DistributionPoint[] {
+    const total = rows.reduce((sum, row) => sum + row.value, 0);
+
+    return rows.map((row) => ({
+      ...row,
+      share:
+        total > 0
+          ? Number(((row.value / total) * 100).toFixed(2))
+          : 0,
+    }));
+  }
+
+  private toTrendGranularity(value?: string): TrendGranularity {
+    if (value === 'day' || value === 'week' || value === 'month') {
+      return value;
+    }
+
+    return 'week';
+  }
+
+  private getTrendSql(granularity: TrendGranularity): {
+    truncateUnitSql: Prisma.Sql;
+    stepSql: Prisma.Sql;
+  } {
+    if (granularity === 'day') {
+      return {
+        truncateUnitSql: Prisma.raw(`'day'`),
+        stepSql: Prisma.raw(`INTERVAL '1 day'`),
+      };
+    }
+
+    if (granularity === 'month') {
+      return {
+        truncateUnitSql: Prisma.raw(`'month'`),
+        stepSql: Prisma.raw(`INTERVAL '1 month'`),
+      };
+    }
+
+    return {
+      truncateUnitSql: Prisma.raw(`'week'`),
+      stepSql: Prisma.raw(`INTERVAL '1 week'`),
+    };
+  }
+
+  private formatTrendLabel(date: Date, granularity: TrendGranularity): string {
+    if (granularity === 'day') {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    if (granularity === 'month') {
+      return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    }
+
+    return `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  }
+
+  private async getFinancialTotals(
+    branchId?: string,
+    range: ResolvedDateRange | null = null,
+  ): Promise<{ revenue: number; expenses: number }> {
+    const orderWhere: Prisma.OrderPaymentWhereInput = {
+      order: {
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
+      },
+      ...(range
+        ? {
+            paidAt: {
+              gte: range.fromDate,
+              lte: range.toDate,
+            },
+          }
+        : {}),
+    };
+
+    const expenseWhere: Prisma.ExpenseWhereInput = {
+      deletedAt: null,
+      ...(branchId ? { branchId } : {}),
+      ...(range
+        ? {
+            expenseDate: {
+              gte: range.fromDate,
+              lte: range.toDate,
+            },
+          }
+        : {}),
+    };
+
+    const [revenueResult, expensesResult] = await Promise.all([
+      this.prisma.orderPayment.aggregate({
+        _sum: { amount: true },
+        where: orderWhere,
+      }),
+      this.prisma.expense.aggregate({
+        _sum: { amount: true },
+        where: expenseWhere,
+      }),
+    ]);
+
+    return {
+      revenue: revenueResult._sum.amount ?? 0,
+      expenses: expensesResult._sum.amount ?? 0,
+    };
+  }
+
+  async getDashboardStats(
+    branchId?: string,
+    from?: string,
+    to?: string,
+  ) {
+    const range = this.resolveOptionalDateRange(from, to);
+
+    const baseOrderWhere: Prisma.OrderWhereInput = {
+      deletedAt: null,
+      ...(branchId ? { branchId } : {}),
+      ...(range
+        ? {
+            createdAt: {
+              gte: range.fromDate,
+              lte: range.toDate,
+            },
+          }
+        : {}),
+    };
+
+    const { revenue, expenses } = await this.getFinancialTotals(branchId, range);
+
+    // Outstanding balances are operationally current and intentionally not date-windowed.
     const earnedBranchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
@@ -67,20 +259,17 @@ export class ReportsService {
       `,
     );
 
-    // Total Disbursed (Wait, payments aren't strictly scoped to branch unless restricted via employees. Since employees belong to a branch, we can scope it)
-    const employeeCondition = branchId
-      ? { employee: { branchId, deletedAt: null } }
-      : { employee: { deletedAt: null } };
     const totalPaid = await this.prisma.payment.aggregate({
       _sum: { amount: true },
-      where: employeeCondition,
+      where: branchId
+        ? { employee: { branchId, deletedAt: null } }
+        : { employee: { deletedAt: null } },
     });
 
     const totalEarned = Number(totalEarnedQuery[0]?.total ?? 0);
     const paidOut = totalPaid._sum.amount ?? 0;
     const outstandingBalances = totalEarned - paidOut;
 
-    // 4. Overdue Orders count
     const overdueCount = await this.prisma.order.count({
       where: {
         ...baseOrderWhere,
@@ -88,56 +277,53 @@ export class ReportsService {
       },
     });
 
-    // 5. Total Orders
     const totalOrders = await this.prisma.order.count({
       where: baseOrderWhere,
     });
 
-    // 6. New Today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     const newToday = await this.prisma.order.count({
       where: {
-        ...baseOrderWhere,
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
         createdAt: { gte: today },
       },
     });
 
-    // 7. Total Customers
-    const totalCustomers = await this.prisma.customer.count({
-      where: branchId ? { branchId, deletedAt: null } : { deletedAt: null },
-    });
-
-    // 8. Active Employees
-    const activeEmployees = await this.prisma.employee.count({
-      where: branchId
-        ? { branchId, status: 'ACTIVE', deletedAt: null }
-        : { status: 'ACTIVE', deletedAt: null },
-    });
-
-    // 9. Recent Overdue Orders (e.g. last 5)
-    const recentOrders = await this.prisma.order.findMany({
-      where: {
-        ...baseOrderWhere,
-        status: OrderStatus.OVERDUE,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        customer: true,
-        items: true,
-      },
-    });
+    const [totalCustomers, activeEmployees, recentOrders] = await Promise.all([
+      this.prisma.customer.count({
+        where: branchId ? { branchId, deletedAt: null } : { deletedAt: null },
+      }),
+      this.prisma.employee.count({
+        where: branchId
+          ? { branchId, status: 'ACTIVE', deletedAt: null }
+          : { status: 'ACTIVE', deletedAt: null },
+      }),
+      this.prisma.order.findMany({
+        where: {
+          ...baseOrderWhere,
+          status: OrderStatus.OVERDUE,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: {
+          customer: true,
+          items: true,
+        },
+      }),
+    ]);
 
     return {
-      revenue: revenue._sum.amount ?? 0,
-      expenses: expenses._sum.amount ?? 0,
+      revenue,
+      expenses,
       outstandingBalances,
-      overdueOrders: overdueCount, // Map to both for compatibility
+      overdueOrders: overdueCount,
       overdueCount,
       totalOrders,
       newToday,
-      totalOutstandingBalance: outstandingBalances, // Redundant but satisfying interface
+      totalOutstandingBalance: outstandingBalances,
       totalCustomers,
       activeEmployees,
       recentOrders,
@@ -156,7 +342,6 @@ export class ReportsService {
       ? Prisma.sql`AND e."branchId" = ${branchId}`
       : Prisma.empty;
 
-    // Generate series of months (using Postgres generate_series or basic date_trunc)
     const revenueRaw = await this.prisma.$queryRaw<{ month: Date; total: bigint }[]>(
       Prisma.sql`
         SELECT date_trunc('month', op."paidAt") as month, SUM(op.amount) as total
@@ -182,7 +367,6 @@ export class ReportsService {
       `,
     );
 
-    // Format to a clean combined array (Skipping exhaustive date padding for simplicity, typically done on frontend or via generate_series)
     return {
       revenue: revenueRaw.map((r) => ({
         month: r.month,
@@ -195,10 +379,100 @@ export class ReportsService {
     };
   }
 
-  async getGarmentTypesRevenue(branchId?: string): Promise<GarmentRevenue[]> {
+  async getFinancialTrend(
+    branchId?: string,
+    from?: string,
+    to?: string,
+    granularity?: string,
+  ): Promise<FinancialTrend> {
+    const range = this.resolveDateRange(from, to, 30);
+    const resolvedGranularity = this.toTrendGranularity(granularity);
+    const { truncateUnitSql, stepSql } = this.getTrendSql(resolvedGranularity);
+
+    const branchConditionOrder = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
+    const branchConditionExpense = branchId
+      ? Prisma.sql`AND e."branchId" = ${branchId}`
+      : Prisma.empty;
+
+    const rows = await this.prisma.$queryRaw<
+      { periodStart: Date; revenue: number; expenses: number; net: number }[]
+    >(
+      Prisma.sql`
+        WITH period_series AS (
+          SELECT generate_series(
+            date_trunc(${truncateUnitSql}, ${range.fromDate}),
+            date_trunc(${truncateUnitSql}, ${range.toDate}),
+            ${stepSql}
+          ) AS "periodStart"
+        ),
+        revenue_series AS (
+          SELECT
+            date_trunc(${truncateUnitSql}, op."paidAt") AS "periodStart",
+            COALESCE(SUM(op.amount), 0)::double precision AS revenue
+          FROM "OrderPayment" op
+          JOIN "Order" o ON o.id = op."orderId"
+          WHERE o."deletedAt" IS NULL
+            ${this.getSqlDateCondition('op."paidAt"', range)}
+            ${branchConditionOrder}
+          GROUP BY 1
+        ),
+        expense_series AS (
+          SELECT
+            date_trunc(${truncateUnitSql}, e."expenseDate") AS "periodStart",
+            COALESCE(SUM(e.amount), 0)::double precision AS expenses
+          FROM "Expense" e
+          WHERE e."deletedAt" IS NULL
+            ${this.getSqlDateCondition('e."expenseDate"', range)}
+            ${branchConditionExpense}
+          GROUP BY 1
+        )
+        SELECT
+          s."periodStart",
+          COALESCE(r.revenue, 0)::double precision AS revenue,
+          COALESCE(ex.expenses, 0)::double precision AS expenses,
+          (COALESCE(r.revenue, 0) - COALESCE(ex.expenses, 0))::double precision AS net
+        FROM period_series s
+        LEFT JOIN revenue_series r ON r."periodStart" = s."periodStart"
+        LEFT JOIN expense_series ex ON ex."periodStart" = s."periodStart"
+        ORDER BY s."periodStart" ASC
+      `,
+    );
+
+    const points = rows.map((row) => ({
+      periodStart: row.periodStart.toISOString(),
+      label: this.formatTrendLabel(new Date(row.periodStart), resolvedGranularity),
+      revenue: Number(row.revenue ?? 0),
+      expenses: Number(row.expenses ?? 0),
+      net: Number(row.net ?? 0),
+    }));
+
+    const totals = points.reduce(
+      (accumulator, point) => ({
+        revenue: accumulator.revenue + point.revenue,
+        expenses: accumulator.expenses + point.expenses,
+        net: accumulator.net + point.net,
+      }),
+      { revenue: 0, expenses: 0, net: 0 },
+    );
+
+    return {
+      granularity: resolvedGranularity,
+      points,
+      totals,
+    };
+  }
+
+  async getGarmentTypesRevenue(
+    branchId?: string,
+    from?: string,
+    to?: string,
+  ): Promise<GarmentRevenue[]> {
     const branchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
+    const range = this.resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<{ label: string; value: bigint }[]>(
       Prisma.sql`
@@ -208,6 +482,7 @@ export class ReportsService {
         WHERE oi.status NOT IN ('CANCELLED')
           AND o."deletedAt" IS NULL
           ${branchCondition}
+          ${this.getSqlDateCondition('o."createdAt"', range)}
         GROUP BY oi."garmentTypeName"
         ORDER BY value DESC
       `,
@@ -216,17 +491,119 @@ export class ReportsService {
     return result.map((r) => ({ label: r.label, value: Number(r.value) }));
   }
 
-  async getEmployeeProductivity(
+  async getDistributions(
     branchId?: string,
-  ): Promise<EmployeeProductivity[]> {
+    from?: string,
+    to?: string,
+  ): Promise<ReportDistributions> {
+    const range = this.resolveDateRange(from, to, 30);
     const branchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
 
-    const result = await this.prisma.$queryRaw<{ label: string; value: bigint }[]>(
+    const [designRows, addonRows, garmentRows] = await Promise.all([
+      this.prisma.$queryRaw<{ key: string; label: string; value: number }[]>(
+        Prisma.sql`
+          SELECT
+            COALESCE(dt.id::text, dt.name) AS key,
+            COALESCE(dt.name, 'Unassigned') AS label,
+            COALESCE(SUM(oi."unitPrice" * oi.quantity), 0)::double precision AS value
+          FROM "OrderItem" oi
+          JOIN "Order" o ON o.id = oi."orderId"
+          LEFT JOIN "DesignType" dt ON dt.id = oi."designTypeId"
+          WHERE o."deletedAt" IS NULL
+            AND oi.status NOT IN ('CANCELLED')
+            AND oi."designTypeId" IS NOT NULL
+            ${branchCondition}
+            ${this.getSqlDateCondition('o."createdAt"', range)}
+          GROUP BY dt.id, dt.name
+          ORDER BY value DESC
+        `,
+      ),
+      this.prisma.$queryRaw<{ key: string; label: string; value: number }[]>(
+        Prisma.sql`
+          SELECT
+            LOWER(REPLACE(a.type::text, '_', '-')) AS key,
+            INITCAP(REPLACE(a.type::text, '_', ' ')) AS label,
+            COALESCE(SUM(a.price), 0)::double precision AS value
+          FROM "OrderItemAddon" a
+          JOIN "OrderItem" oi ON oi.id = a."orderItemId"
+          JOIN "Order" o ON o.id = oi."orderId"
+          WHERE o."deletedAt" IS NULL
+            AND a."deletedAt" IS NULL
+            AND oi.status NOT IN ('CANCELLED')
+            ${branchCondition}
+            ${this.getSqlDateCondition('o."createdAt"', range)}
+          GROUP BY a.type
+          ORDER BY value DESC
+        `,
+      ),
+      this.prisma.$queryRaw<{ key: string; label: string; value: number }[]>(
+        Prisma.sql`
+          SELECT
+            LOWER(REPLACE(oi."garmentTypeName", ' ', '-')) AS key,
+            oi."garmentTypeName" AS label,
+            COALESCE(SUM(oi."unitPrice" * oi.quantity), 0)::double precision AS value
+          FROM "OrderItem" oi
+          JOIN "Order" o ON o.id = oi."orderId"
+          WHERE o."deletedAt" IS NULL
+            AND oi.status NOT IN ('CANCELLED')
+            ${branchCondition}
+            ${this.getSqlDateCondition('o."createdAt"', range)}
+          GROUP BY oi."garmentTypeName"
+          ORDER BY value DESC
+        `,
+      ),
+    ]);
+
+    return {
+      designs: this.toDistributionPoints(designRows),
+      addons: this.toDistributionPoints(addonRows),
+      garments: this.toDistributionPoints(garmentRows),
+    };
+  }
+
+  async getProductivityPoints(
+    branchId?: string,
+    from?: string,
+    to?: string,
+    limit?: number,
+  ): Promise<ProductivityPoint[]> {
+    const range = this.resolveOptionalDateRange(from, to);
+    const safeLimit =
+      Number.isFinite(limit) && (limit as number) > 0
+        ? Math.min(Number(limit), 50)
+        : 10;
+
+    const branchCondition = branchId
+      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      : Prisma.empty;
+
+    const itemDateCondition = range
+      ? Prisma.sql`AND oi."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`
+      : Prisma.empty;
+
+    const taskDateCondition = range
+      ? Prisma.sql`AND oit."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`
+      : Prisma.empty;
+
+    const result = await this.prisma.$queryRaw<
+      {
+        employeeId: string;
+        employeeName: string;
+        completedItems: number;
+        completedTasks: number;
+        payout: number;
+      }[]
+    >(
       Prisma.sql`
         WITH item_prod AS (
-          SELECT emp.id, emp."fullName" as label, SUM(oi.quantity) as value
+          SELECT
+            emp.id::text AS "employeeId",
+            emp."fullName" AS "employeeName",
+            COALESCE(SUM(oi.quantity), 0)::double precision AS "completedItems",
+            0::double precision AS "completedTasks",
+            COALESCE(SUM(oi."employeeRate" * oi.quantity), 0)::double precision AS payout
           FROM "OrderItem" oi
           JOIN "Order" o ON o.id = oi."orderId"
           JOIN "Employee" emp ON emp.id = oi."employeeId"
@@ -234,37 +611,81 @@ export class ReportsService {
             AND o."deletedAt" IS NULL
             AND emp."deletedAt" IS NULL
             ${branchCondition}
+            ${itemDateCondition}
           GROUP BY emp.id, emp."fullName"
         ),
         task_prod AS (
-          SELECT emp.id, emp."fullName" as label, COUNT(oit.id) as value
+          SELECT
+            emp.id::text AS "employeeId",
+            emp."fullName" AS "employeeName",
+            0::double precision AS "completedItems",
+            COUNT(oit.id)::double precision AS "completedTasks",
+            COALESCE(SUM(COALESCE(oit."rateOverride", dt."defaultRate", oit."rateSnapshot", 0)), 0)::double precision AS payout
           FROM "OrderItemTask" oit
           JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
           JOIN "Order" o ON o.id = oi."orderId"
           JOIN "Employee" emp ON emp.id = oit."assignedEmployeeId"
+          LEFT JOIN "DesignType" dt ON dt.id = oit."designTypeId"
           WHERE oit.status = 'DONE'
             AND o."deletedAt" IS NULL
             AND emp."deletedAt" IS NULL
             ${branchCondition}
+            ${taskDateCondition}
           GROUP BY emp.id, emp."fullName"
         ),
         combined_prod AS (
-          SELECT label, SUM(value) as value
+          SELECT
+            "employeeId",
+            "employeeName",
+            SUM("completedItems") AS "completedItems",
+            SUM("completedTasks") AS "completedTasks",
+            SUM(payout) AS payout
           FROM (
-            SELECT label, value FROM item_prod
+            SELECT * FROM item_prod
             UNION ALL
-            SELECT label, value FROM task_prod
-          ) s
-          GROUP BY label
+            SELECT * FROM task_prod
+          ) source
+          GROUP BY "employeeId", "employeeName"
         )
-        SELECT label, value
+        SELECT
+          "employeeId",
+          "employeeName",
+          COALESCE("completedItems", 0)::double precision AS "completedItems",
+          COALESCE("completedTasks", 0)::double precision AS "completedTasks",
+          COALESCE(payout, 0)::double precision AS payout
         FROM combined_prod
-        ORDER BY value DESC
-        LIMIT 10
+        ORDER BY ("completedItems" + "completedTasks") DESC
+        LIMIT ${safeLimit}
       `,
     );
 
-    return result.map((r) => ({ label: r.label, value: Number(r.value) }));
+    return result.map((row) => {
+      const completedItems = Number(row.completedItems ?? 0);
+      const completedTasks = Number(row.completedTasks ?? 0);
+
+      return {
+        employeeId: row.employeeId,
+        employeeName: row.employeeName,
+        completedItems,
+        completedTasks,
+        totalCompleted: completedItems + completedTasks,
+        payout: Number(row.payout ?? 0),
+      };
+    });
+  }
+
+  async getEmployeeProductivity(
+    branchId?: string,
+    from?: string,
+    to?: string,
+    limit?: number,
+  ): Promise<EmployeeProductivity[]> {
+    const rows = await this.getProductivityPoints(branchId, from, to, limit);
+
+    return rows.map((row) => ({
+      label: row.employeeName,
+      value: row.totalCompleted,
+    }));
   }
 
   async getDesignAnalytics(
@@ -275,14 +696,8 @@ export class ReportsService {
     const branchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
-    const dateCondition =
-      from && to
-        ? Prisma.sql`AND o."createdAt" BETWEEN ${new Date(from)} AND ${new Date(to)}`
-        : from
-          ? Prisma.sql`AND o."createdAt" >= ${new Date(from)}`
-          : to
-            ? Prisma.sql`AND o."createdAt" <= ${new Date(to)}`
-            : Prisma.empty;
+
+    const range = this.resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<
       { name: string; count: bigint; revenue: bigint; payout: bigint }[]
@@ -299,7 +714,7 @@ export class ReportsService {
         WHERE o."deletedAt" IS NULL
           AND oi.status NOT IN ('CANCELLED')
           ${branchCondition}
-          ${dateCondition}
+          ${this.getSqlDateCondition('o."createdAt"', range)}
         GROUP BY dt.name
         ORDER BY count DESC
       `,
@@ -321,14 +736,8 @@ export class ReportsService {
     const branchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
-    const dateCondition =
-      from && to
-        ? Prisma.sql`AND o."createdAt" BETWEEN ${new Date(from)} AND ${new Date(to)}`
-        : from
-          ? Prisma.sql`AND o."createdAt" >= ${new Date(from)}`
-          : to
-            ? Prisma.sql`AND o."createdAt" <= ${new Date(to)}`
-            : Prisma.empty;
+
+    const range = this.resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<
       { type: string; count: bigint; total: bigint }[]
@@ -345,7 +754,7 @@ export class ReportsService {
           AND a."deletedAt" IS NULL
           AND oi.status NOT IN ('CANCELLED')
           ${branchCondition}
-          ${dateCondition}
+          ${this.getSqlDateCondition('o."createdAt"', range)}
         GROUP BY a.type
         ORDER BY total DESC
       `,
@@ -363,19 +772,41 @@ export class ReportsService {
     from?: string,
     to?: string,
   ) {
-    const [designs, addons, dashboard] = await Promise.all([
+    const currentRange = this.resolveDateRange(from, to, 30);
+    const previousRange = this.resolvePreviousRange(currentRange);
+
+    const [designs, addons, dashboard, previousTotals] = await Promise.all([
       this.getDesignAnalytics(branchId, from, to),
       this.getAddonAnalytics(branchId, from, to),
-      this.getDashboardStats(branchId),
+      this.getDashboardStats(
+        branchId,
+        currentRange.fromDate.toISOString(),
+        currentRange.toDate.toISOString(),
+      ),
+      this.getFinancialTotals(branchId, {
+        fromDate: previousRange.fromDate,
+        toDate: previousRange.toDate,
+      }),
     ]);
 
-    const totalDesignRevenue = designs.reduce((sum, d) => sum + d.revenue, 0);
-    const totalAddonRevenue = addons.reduce((sum, a) => sum + a.total, 0);
+    const totalDesignRevenue = designs.reduce((sum, design) => sum + design.revenue, 0);
+    const totalAddonRevenue = addons.reduce((sum, addon) => sum + addon.total, 0);
+    const net = dashboard.revenue - dashboard.expenses;
+    const revenueDelta = dashboard.revenue - previousTotals.revenue;
+    const expensesDelta = dashboard.expenses - previousTotals.expenses;
+    const netDelta = net - (previousTotals.revenue - previousTotals.expenses);
 
     return {
       ...dashboard,
       totalDesignRevenue,
       totalAddonRevenue,
+      net,
+      previousPeriodRevenue: previousTotals.revenue,
+      previousPeriodExpenses: previousTotals.expenses,
+      previousPeriodNet: previousTotals.revenue - previousTotals.expenses,
+      revenueDelta,
+      expensesDelta,
+      netDelta,
       designs,
       addons,
     };

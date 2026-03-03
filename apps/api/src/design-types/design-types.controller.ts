@@ -35,8 +35,13 @@ export class DesignTypesController {
   async findAll(
     @Query('branchId') branchId?: string,
     @Query('garmentTypeId') garmentTypeId?: string,
+    @Query('search') search?: string,
   ) {
-    const data = await this.designTypesService.findAll(branchId, garmentTypeId);
+    const data = await this.designTypesService.findAll(
+      branchId,
+      garmentTypeId,
+      search,
+    );
     return { success: true, data };
   }
 

@@ -1,29 +1,25 @@
-import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { Label } from "@/components/ui/label";
 
 interface BranchHubBreadcrumbsProps {
-  branchName?: string;
+  branchCode?: string;
+  onBack: () => void;
 }
 
-export function BranchHubBreadcrumbs({ branchName }: BranchHubBreadcrumbsProps) {
+export function BranchHubBreadcrumbs({
+  branchCode,
+  onBack,
+}: BranchHubBreadcrumbsProps) {
   return (
-    <nav className="flex items-center gap-2">
-      <Link href="/" className="transition-colors hover:text-primary">
-        <Label variant="dashboard" className="cursor-pointer">
-          Home
-        </Label>
-      </Link>
+    <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-muted-foreground">
+      <button
+        type="button"
+        className="rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        onClick={onBack}
+      >
+        Branches
+      </button>
       <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
-      <Link href="/settings/branches" className="transition-colors hover:text-primary">
-        <Label variant="dashboard" className="cursor-pointer">
-          Branches
-        </Label>
-      </Link>
-      <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
-      <Label variant="dashboard" className="text-foreground opacity-100">
-        {branchName || "Branch"} Overview
-      </Label>
-    </nav>
+      <span className="font-medium text-foreground">{(branchCode || "Branch").toUpperCase()}</span>
+    </div>
   );
 }

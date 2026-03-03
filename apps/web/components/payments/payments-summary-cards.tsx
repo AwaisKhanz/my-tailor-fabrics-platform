@@ -1,10 +1,8 @@
-import { Banknote } from "lucide-react";
+import { Banknote, CircleDollarSign, WalletCards } from "lucide-react";
 import { type PaymentSummary } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Typography } from "@/components/ui/typography";
+import { StatCard } from "@/components/ui/stat-card";
 import { formatPKR } from "@/lib/utils";
 
 interface PaymentsSummaryCardsProps {
@@ -24,9 +22,9 @@ export function PaymentsSummaryCards({
 }: PaymentsSummaryCardsProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-32 rounded-xl" />
+          <Skeleton key={item} className="h-28 rounded-xl" />
         ))}
       </div>
     );
@@ -37,67 +35,43 @@ export function PaymentsSummaryCards({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-      <Card className="overflow-hidden border-border/50 border-l-4 border-l-success shadow-sm">
-        <CardHeader variant="rowSection" density="compact">
-          <CardTitle variant="dashboard">Total Earned</CardTitle>
-          <Banknote className="h-4 w-4 text-success" />
-        </CardHeader>
-        <CardContent spacing="section">
-          <Typography as="p" variant="statValue" className="text-success">
-            {formatPKR(summary.totalEarned)}
-          </Typography>
-          <Label variant="dashboard" className="mt-1">
-            All lifecycle steps
-          </Label>
-        </CardContent>
-      </Card>
+    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3">
+      <StatCard
+        title="Total Earned"
+        subtitle="All lifecycle steps"
+        value={formatPKR(summary.totalEarned)}
+        tone="success"
+        icon={<CircleDollarSign className="h-4 w-4" />}
+      />
 
-      <Card className="overflow-hidden border-border/50 border-l-4 border-l-primary shadow-sm">
-        <CardHeader variant="rowSection" density="compact">
-          <CardTitle variant="dashboard">Total Paid</CardTitle>
-          <Banknote className="h-4 w-4 text-primary" />
-        </CardHeader>
-        <CardContent spacing="section">
-          <Typography as="p" variant="statValue" className="text-primary">
-            {formatPKR(summary.totalPaid)}
-          </Typography>
-          <Label variant="dashboard" className="mt-1">
-            Settled disbursements
-          </Label>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Total Paid"
+        subtitle="Settled disbursements"
+        value={formatPKR(summary.totalPaid)}
+        tone="primary"
+        icon={<WalletCards className="h-4 w-4" />}
+      />
 
-      <Card
-        className={`overflow-hidden border-border/50 border-l-4 shadow-sm ${
-          currentBalance > 0 ? "border-l-warning bg-warning/5" : "border-l-muted"
-        }`}
-      >
-        <CardHeader variant="rowSection" density="compact">
-          <CardTitle variant="dashboard">Outstanding Balance</CardTitle>
-          <Banknote className="h-4 w-4 text-warning" />
-        </CardHeader>
-        <CardContent spacing="section">
-          <div className="flex items-center justify-between gap-3">
-            <Typography
-              as="p"
-              variant="statValue"
-              className={currentBalance > 0 ? "text-warning" : "text-muted-foreground opacity-40"}
-            >
-              {formatPKR(currentBalance)}
-            </Typography>
-
-            {canDisburse ? (
-              <Button variant="premium" size="xs" className="h-8" onClick={onDisburse}>
-                Disburse
-              </Button>
-            ) : null}
-          </div>
-          <Label variant="dashboard" className="mt-1">
-            Payable amount
-          </Label>
-        </CardContent>
-      </Card>
+      <StatCard
+        title="Outstanding Balance"
+        subtitle="Payable amount"
+        value={formatPKR(currentBalance)}
+        tone="warning"
+        icon={<Banknote className="h-4 w-4" />}
+        badgeText={currentBalance > 0 ? "DUE" : "CLEAR"}
+        valueClassName={currentBalance > 0 ? "" : "text-muted-foreground"}
+        action={
+          <Button
+            variant={canDisburse ? "premium" : "outline"}
+            size="sm"
+            className="w-full sm:w-auto"
+            onClick={onDisburse}
+            disabled={!canDisburse}
+          >
+            Disburse Payment
+          </Button>
+        }
+      />
     </div>
   );
 }

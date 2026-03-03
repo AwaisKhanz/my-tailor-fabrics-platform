@@ -1,12 +1,9 @@
 import { type CustomerMeasurement, type Order } from "@tbms/shared-types";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerMeasurementsTab } from "@/components/customers/detail/customer-measurements-tab";
 import { CustomerOrdersTab } from "@/components/customers/detail/customer-orders-tab";
 import { CustomerNotesTab } from "@/components/customers/detail/customer-notes-tab";
 
 interface CustomerDetailTabsProps {
-  activeTab: string;
-  onTabChange: (value: string) => void;
   measurements: CustomerMeasurement[];
   orders: Order[];
   notes?: string | null;
@@ -16,8 +13,6 @@ interface CustomerDetailTabsProps {
 }
 
 export function CustomerDetailTabs({
-  activeTab,
-  onTabChange,
   measurements,
   orders,
   notes,
@@ -26,34 +21,22 @@ export function CustomerDetailTabs({
   onOpenOrder,
 }: CustomerDetailTabsProps) {
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange}>
-      <TabsList variant="premium">
-        <TabsTrigger variant="premium" value="measurements">
-          Measurements
-        </TabsTrigger>
-        <TabsTrigger variant="premium" value="orders">
-          Order History
-        </TabsTrigger>
-        <TabsTrigger variant="premium" value="notes">
-          Notes
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="measurements">
+    <div className="space-y-6">
+      <section>
         <CustomerMeasurementsTab
           measurements={measurements}
           getMeasurementLabel={getMeasurementLabel}
           onUpdateMeasurements={onUpdateMeasurements}
         />
-      </TabsContent>
+      </section>
 
-      <TabsContent value="orders">
+      <section>
         <CustomerOrdersTab orders={orders} onOpenOrder={onOpenOrder} />
-      </TabsContent>
+      </section>
 
-      <TabsContent value="notes">
+      <section>
         <CustomerNotesTab notes={notes} />
-      </TabsContent>
-    </Tabs>
+      </section>
+    </div>
   );
 }

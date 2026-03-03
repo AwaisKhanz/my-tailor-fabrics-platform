@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { CustomerStatus, EmployeeStatus, OrderStatus, Prisma } from '@prisma/client';
 import {
   CreateBranchInput,
   UpdateBranchInput,
@@ -85,7 +85,11 @@ export class BranchesService {
           take: safeLimit,
           include: {
             _count: {
-              select: { employees: true, customers: true, orders: true },
+              select: {
+                employees: { where: { deletedAt: null } },
+                customers: { where: { deletedAt: null } },
+                orders: { where: { deletedAt: null } },
+              },
             },
           },
         }),
@@ -98,7 +102,13 @@ export class BranchesService {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        _count: { select: { employees: true, customers: true, orders: true } },
+        _count: {
+          select: {
+            employees: { where: { deletedAt: null } },
+            customers: { where: { deletedAt: null } },
+            orders: { where: { deletedAt: null } },
+          },
+        },
       },
     });
 
@@ -109,20 +119,68 @@ export class BranchesService {
     const branch = await this.prisma.branch.findFirst({
       where: { id, deletedAt: null },
       include: {
-        _count: { select: { employees: true, customers: true, orders: true } },
+        _count: {
+          select: {
+            employees: { where: { deletedAt: null } },
+            customers: { where: { deletedAt: null } },
+            orders: { where: { deletedAt: null } },
+          },
+        },
       },
     });
     if (!branch) throw new NotFoundException('Branch not found');
 
-    // Get total garment types
-    const totalGarmentTypes = await this.prisma.garmentType.count({
-      where: { isActive: true },
-    });
+    const [
+      totalGarmentTypes,
+      activeEmployees,
+      activeCustomers,
+      openOrders,
+      completedOrders,
+      branchRateCards,
+      globalRateCards,
+    ] = await Promise.all([
+      this.prisma.garmentType.count({
+        where: { isActive: true, deletedAt: null },
+      }),
+      this.prisma.employee.count({
+        where: { branchId: id, deletedAt: null, status: EmployeeStatus.ACTIVE },
+      }),
+      this.prisma.customer.count({
+        where: { branchId: id, deletedAt: null, status: CustomerStatus.ACTIVE },
+      }),
+      this.prisma.order.count({
+        where: {
+          branchId: id,
+          deletedAt: null,
+          status: { in: [...OPEN_ORDER_STATUSES] },
+        },
+      }),
+      this.prisma.order.count({
+        where: {
+          branchId: id,
+          deletedAt: null,
+          status: { in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED] },
+        },
+      }),
+      this.prisma.rateCard.count({
+        where: { branchId: id, deletedAt: null },
+      }),
+      this.prisma.rateCard.count({
+        where: { branchId: null, deletedAt: null },
+      }),
+    ]);
 
     return {
       ...branch,
       stats: {
         totalGarments: totalGarmentTypes,
+        activeEmployees,
+        activeCustomers,
+        openOrders,
+        completedOrders,
+        branchRateCards,
+        globalRateCards,
+        hasBranchRateOverrides: branchRateCards > 0,
       },
     };
   }

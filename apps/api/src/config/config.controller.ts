@@ -142,6 +142,18 @@ export class ConfigController {
     return { success: true, data };
   }
 
+  @Get('measurement-categories/:id')
+  async getMeasurementCategory(@Param('id') id: string) {
+    const data = await this.configService.getMeasurementCategory(id);
+    return { success: true, data };
+  }
+
+  @Get('measurement-stats')
+  async getMeasurementStats() {
+    const data = await this.configService.getMeasurementStats();
+    return { success: true, data };
+  }
+
   @Roles(...ADMIN_ROLES)
   @Post('measurement-categories')
   async createMeasurementCategory(@Body() dto: CreateMeasurementCategoryDto) {

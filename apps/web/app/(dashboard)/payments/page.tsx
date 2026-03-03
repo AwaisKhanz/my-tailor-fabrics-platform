@@ -45,18 +45,25 @@ export default function PaymentsPage() {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Employee Payments"
-        description="Disburse payroll and review payout history with consistent controls and safer payout validation."
-        actions={
-          canDisburse ? (
-            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openDisburseDialog}>
-              <Banknote className="mr-2 h-4 w-4" />
-              Disburse Payment
-            </Button>
-          ) : null
-        }
-      />
+      <PageSection spacing="compact">
+        <PageHeader
+          title="Employee Payments"
+          description={
+            selectedEmployee
+              ? `Manage payouts and settlement history for ${selectedEmployee.fullName}.`
+              : "Select an employee to review outstanding balances and disbursement history."
+          }
+          density="compact"
+          actions={
+            canDisburse ? (
+              <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openDisburseDialog}>
+                <Banknote className="h-4 w-4" />
+                Disburse Payment
+              </Button>
+            ) : null
+          }
+        />
+      </PageSection>
 
       <PageSection spacing="compact">
         <PaymentsEmployeeSelectorCard
@@ -69,7 +76,7 @@ export default function PaymentsPage() {
       </PageSection>
 
       {selectedEmployeeId ? (
-        <PageSection>
+        <PageSection spacing="compact">
           <PaymentsSummaryCards
             loading={summaryLoading}
             summary={summary}
@@ -93,11 +100,13 @@ export default function PaymentsPage() {
           />
         </PageSection>
       ) : (
-        <EmptyState
-          icon={Banknote}
-          title="No Employee Selected"
-          description="Choose an employee above to view their outstanding balance and payment ledger."
-        />
+        <PageSection spacing="compact">
+          <EmptyState
+            icon={Banknote}
+            title="No Employee Selected"
+            description="Choose an employee above to view their outstanding balance and payment ledger."
+          />
+        </PageSection>
       )}
 
       <PaymentsDisburseDialog

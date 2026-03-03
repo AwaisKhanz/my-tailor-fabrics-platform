@@ -82,7 +82,7 @@ export function MeasurementFieldsTable({
 
   return (
     <TableSurface>
-      <TableToolbar title="Measurement Fields" total={fields.length} />
+      <TableToolbar title="Measurement Fields" total={fields.length} totalLabel="fields" />
       <DataTable
         columns={columns}
         data={fields}

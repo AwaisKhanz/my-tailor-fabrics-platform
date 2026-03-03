@@ -6,7 +6,12 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, FabricSource, AddonType as PrismaAddonType } from '@prisma/client';
+import {
+  Prisma,
+  FabricSource,
+  AddonType as PrismaAddonType,
+  OrderStatus as PrismaOrderStatus,
+} from '@prisma/client';
 import { CreateOrderDto, OrderItemDto, OrderItemAddonDto } from './dto/create-order.dto';
 import { UpdateOrderDto, UpdateOrderItemAddonDto } from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
@@ -16,9 +21,20 @@ import {
   ItemStatus,
   DiscountType,
   Role,
+  OrdersListSummary,
 } from '@tbms/shared-types';
 import { RatesService } from '../rates/rates.service';
 import { calculateDiscountAmount, calculateOrderTotals } from './money';
+
+type OrdersFindFilters = {
+  status?: string;
+  from?: string;
+  to?: string;
+  employeeId?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+};
 
 @Injectable()
 export class OrdersService {
@@ -321,54 +337,14 @@ export class OrdersService {
     });
   }
 
-  async findAll(
+  private buildOrdersWhereClause(
     branchId: string,
-    page = 1,
-    limit = 20,
-    filters: {
-      status?: string;
-      from?: string;
-      to?: string;
-      employeeId?: string;
-      search?: string;
-      sortBy?: string;
-      sortOrder?: 'asc' | 'desc';
-    } = {},
-  ) {
-    const skip = (page - 1) * limit;
+    filters: OrdersFindFilters = {},
+  ): Prisma.OrderWhereInput {
     const whereClause: Prisma.OrderWhereInput = { deletedAt: null };
+
     if (branchId) {
       whereClause.branchId = branchId;
-    }
-
-    // Sort logic
-    const orderBy: Prisma.OrderOrderByWithRelationInput = {};
-    if (filters.sortBy) {
-      const sortOrder = filters.sortOrder || 'desc';
-      switch (filters.sortBy) {
-        case 'orderNumber':
-          orderBy.orderNumber = sortOrder;
-          break;
-        case 'orderDate':
-          orderBy.orderDate = sortOrder;
-          break;
-        case 'dueDate':
-          orderBy.dueDate = sortOrder;
-          break;
-        case 'totalAmount':
-          orderBy.totalAmount = sortOrder;
-          break;
-        case 'status':
-          orderBy.status = sortOrder;
-          break;
-        case 'customer':
-          orderBy.customer = { fullName: sortOrder };
-          break;
-        default:
-          orderBy.orderDate = 'desc';
-      }
-    } else {
-      orderBy.orderDate = 'desc';
     }
 
     if (
@@ -397,6 +373,55 @@ export class OrdersService {
       ];
     }
 
+    return whereClause;
+  }
+
+  private buildOrdersOrderBy(
+    filters: OrdersFindFilters = {},
+  ): Prisma.OrderOrderByWithRelationInput {
+    const orderBy: Prisma.OrderOrderByWithRelationInput = {};
+    const sortOrder = filters.sortOrder || 'desc';
+
+    if (filters.sortBy) {
+      switch (filters.sortBy) {
+        case 'orderNumber':
+          orderBy.orderNumber = sortOrder;
+          break;
+        case 'orderDate':
+          orderBy.orderDate = sortOrder;
+          break;
+        case 'dueDate':
+          orderBy.dueDate = sortOrder;
+          break;
+        case 'totalAmount':
+          orderBy.totalAmount = sortOrder;
+          break;
+        case 'status':
+          orderBy.status = sortOrder;
+          break;
+        case 'customer':
+          orderBy.customer = { fullName: sortOrder };
+          break;
+        default:
+          orderBy.orderDate = 'desc';
+      }
+    } else {
+      orderBy.orderDate = 'desc';
+    }
+
+    return orderBy;
+  }
+
+  async findAll(
+    branchId: string,
+    page = 1,
+    limit = 20,
+    filters: OrdersFindFilters = {},
+  ) {
+    const skip = (page - 1) * limit;
+    const whereClause = this.buildOrdersWhereClause(branchId, filters);
+    const orderBy = this.buildOrdersOrderBy(filters);
+
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
         where: whereClause,
@@ -411,6 +436,69 @@ export class OrdersService {
     ]);
 
     return { data, total };
+  }
+
+  async getSummary(
+    branchId: string,
+    filters: OrdersFindFilters = {},
+  ): Promise<OrdersListSummary> {
+    const whereClause = this.buildOrdersWhereClause(branchId, filters);
+
+    const now = new Date();
+    const weekAhead = new Date(now);
+    weekAhead.setDate(now.getDate() + 7);
+
+    const [totals, dueSoonCount, overdueCount, completedCount] =
+      await Promise.all([
+        this.prisma.order.aggregate({
+          where: whereClause,
+          _sum: { totalAmount: true },
+        }),
+        this.prisma.order.count({
+          where: {
+            AND: [
+              whereClause,
+              {
+                status: {
+                  in: [
+                    PrismaOrderStatus.NEW,
+                    PrismaOrderStatus.IN_PROGRESS,
+                    PrismaOrderStatus.READY,
+                  ],
+                },
+                dueDate: {
+                  gte: now,
+                  lte: weekAhead,
+                },
+              },
+            ],
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            AND: [whereClause, { status: PrismaOrderStatus.OVERDUE }],
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            AND: [
+              whereClause,
+              {
+                status: {
+                  in: [PrismaOrderStatus.DELIVERED, PrismaOrderStatus.COMPLETED],
+                },
+              },
+            ],
+          },
+        }),
+      ]);
+
+    return {
+      totalValue: totals._sum.totalAmount ?? 0,
+      dueSoonCount,
+      overdueCount,
+      completedCount,
+    };
   }
 
   async findOne(id: string, branchId: string) {

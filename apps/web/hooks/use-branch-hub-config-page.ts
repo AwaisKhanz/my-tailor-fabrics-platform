@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type Branch } from "@tbms/shared-types";
+import { type BranchDetail } from "@tbms/shared-types";
 import { branchesApi } from "@/lib/api/branches";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
@@ -10,7 +10,7 @@ export function useBranchHubConfigPage(branchId: string) {
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
-  const [branch, setBranch] = useState<Branch | null>(null);
+  const [branch, setBranch] = useState<BranchDetail | null>(null);
 
   const fetchBranch = useCallback(async () => {
     setLoading(true);

@@ -21,6 +21,7 @@ export function RatesSearchStats({
     <TableToolbar
       title="Rate Card Directory"
       total={total}
+      totalLabel="rates"
       controls={
         <>
           <TableSearch
@@ -37,7 +38,7 @@ export function RatesSearchStats({
             disabled={!hasSearch}
           >
             <RotateCcw className="mr-2 h-3.5 w-3.5" />
-            Reset Search
+            Reset
           </Button>
         </>
       }

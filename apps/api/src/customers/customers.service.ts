@@ -7,7 +7,13 @@ import {
 } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
 import { SearchService } from '../search/search.service';
-import { CustomerStatus } from '@tbms/shared-types';
+import { CustomerStatus, CustomersListSummary } from '@tbms/shared-types';
+
+interface CustomersListFilters {
+  search?: string;
+  isVip?: boolean;
+  status?: CustomerStatus;
+}
 
 @Injectable()
 export class CustomersService {
@@ -15,6 +21,32 @@ export class CustomersService {
     private prisma: PrismaService,
     private searchService: SearchService,
   ) {}
+
+  private buildCustomersWhereClause(
+    branchId: string,
+    filters: CustomersListFilters = {},
+    includeSearch = false,
+  ): Prisma.CustomerWhereInput {
+    const { search, isVip, status } = filters;
+    const normalizedSearch = search?.trim();
+
+    const where: Prisma.CustomerWhereInput = {
+      deletedAt: null,
+      ...(branchId ? { branchId } : {}),
+      ...(typeof isVip === 'boolean' ? { isVip } : {}),
+      ...(status ? { status } : {}),
+    };
+
+    if (includeSearch && normalizedSearch && normalizedSearch.length >= 2) {
+      where.OR = [
+        { fullName: { contains: normalizedSearch, mode: 'insensitive' } },
+        { sizeNumber: { contains: normalizedSearch, mode: 'insensitive' } },
+        { phone: { contains: normalizedSearch, mode: 'insensitive' } },
+      ];
+    }
+
+    return where;
+  }
 
   private async generateSizeNumber(branchId: string): Promise<string> {
     const branch = await this.prisma.branch.findUnique({
@@ -65,12 +97,14 @@ export class CustomersService {
     }
 
     const skip = (page - 1) * limit;
-    const where: Prisma.CustomerWhereInput = {
-      deletedAt: null,
-      ...(branchId ? { branchId } : {}),
-      ...(typeof isVip === 'boolean' ? { isVip } : {}),
-      ...(status ? { status } : {}),
-    };
+    const where = this.buildCustomersWhereClause(
+      branchId,
+      {
+        isVip,
+        status,
+      },
+      false,
+    );
 
     const [data, total] = await Promise.all([
       this.prisma.customer.findMany({
@@ -83,6 +117,34 @@ export class CustomersService {
     ]);
 
     return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+  }
+
+  async getSummary(
+    branchId: string,
+    filters: CustomersListFilters = {},
+  ): Promise<CustomersListSummary> {
+    const where = this.buildCustomersWhereClause(branchId, filters, true);
+
+    const [totalCustomers, whatsappConnectedCount, vipCustomersCount] =
+      await Promise.all([
+        this.prisma.customer.count({ where }),
+        this.prisma.customer.count({
+          where: {
+            AND: [where, { whatsapp: { not: null } }, { whatsapp: { not: '' } }],
+          },
+        }),
+        this.prisma.customer.count({
+          where: {
+            AND: [where, { isVip: true }],
+          },
+        }),
+      ]);
+
+    return {
+      totalCustomers,
+      whatsappConnectedCount,
+      vipCustomersCount,
+    };
   }
 
   async findOne(id: string, branchId: string) {

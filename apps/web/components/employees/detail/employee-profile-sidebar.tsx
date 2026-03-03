@@ -1,4 +1,4 @@
-import { MapPin, Phone } from "lucide-react";
+import { BriefcaseBusiness, MapPin, Phone, UserSquare2 } from "lucide-react";
 import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { EMPLOYEE_STATUS_BADGE, EMPLOYEE_STATUS_LABELS, PAYMENT_TYPE_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +13,20 @@ interface EmployeeProfileSidebarProps {
 
 export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps) {
   return (
-    <div className="space-y-6 lg:col-span-1">
-      <Card>
-        <CardHeader variant="section" density="compact">
-          <CardTitle variant="dashboard">Personal Info</CardTitle>
+    <div className="space-y-6">
+      <Card className="border-border/70 bg-card/95">
+        <CardHeader variant="rowSection" density="compact" className="items-start sm:items-center">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+              <UserSquare2 className="h-4 w-4" />
+            </div>
+            <CardTitle className="text-base font-semibold tracking-tight">Personal Info</CardTitle>
+          </div>
+          <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs">
+            {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
+          </Badge>
         </CardHeader>
-        <CardContent spacing="section" className="space-y-4">
+        <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
           <div className="flex items-center gap-3 text-sm">
             <Phone className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">{employee.phone}</span>
@@ -38,11 +46,16 @@ export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader variant="section" density="compact">
-          <CardTitle variant="dashboard">Employment</CardTitle>
+      <Card className="border-border/70 bg-card/95">
+        <CardHeader variant="rowSection" density="compact" className="items-start sm:items-center">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10 text-info ring-1 ring-info/20">
+              <BriefcaseBusiness className="h-4 w-4" />
+            </div>
+            <CardTitle className="text-base font-semibold tracking-tight">Employment</CardTitle>
+          </div>
         </CardHeader>
-        <CardContent spacing="section" className="space-y-4">
+        <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Join Date</span>
             <span className="font-medium">{formatDate(employee.dateOfJoining)}</span>
@@ -54,10 +67,8 @@ export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps
             </Badge>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Status</span>
-            <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs">
-              {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
-            </Badge>
+            <span className="text-muted-foreground">Designation</span>
+            <span className="font-medium">{employee.designation || "Staff"}</span>
           </div>
         </CardContent>
       </Card>

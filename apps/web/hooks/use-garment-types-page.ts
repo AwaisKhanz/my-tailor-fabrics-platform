@@ -13,12 +13,25 @@ export type GarmentTypeWithWorkflow = GarmentType & {
   workflowSteps?: WorkflowStepTemplate[];
 };
 
+export interface GarmentTypesStats {
+  totalCount: number;
+  avgRetailPrice: number;
+  activeProduction: number;
+}
+
+const EMPTY_GARMENT_STATS: GarmentTypesStats = {
+  totalCount: 0,
+  avgRetailPrice: 0,
+  activeProduction: 0,
+};
+
 export function useGarmentTypesPage() {
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
   const [garmentTypes, setGarmentTypes] = useState<GarmentTypeWithWorkflow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [stats, setStats] = useState<GarmentTypesStats>(EMPTY_GARMENT_STATS);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -35,15 +48,22 @@ export function useGarmentTypesPage() {
   const fetchGarmentTypes = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await configApi.getGarmentTypes({
-        search: debouncedSearch.trim() || undefined,
-        page: currentPage,
-        limit: PAGE_SIZE,
-      });
+      const [listResponse, statsResponse] = await Promise.all([
+        configApi.getGarmentTypes({
+          search: debouncedSearch.trim() || undefined,
+          page: currentPage,
+          limit: PAGE_SIZE,
+        }),
+        configApi.getGarmentStats(),
+      ]);
 
-      if (response.success) {
-        setGarmentTypes(response.data.data as GarmentTypeWithWorkflow[]);
-        setTotalCount(response.data.total);
+      if (listResponse.success) {
+        setGarmentTypes(listResponse.data.data as GarmentTypeWithWorkflow[]);
+        setTotalCount(listResponse.data.total);
+      }
+
+      if (statsResponse.success) {
+        setStats(statsResponse.data);
       }
     } catch (error) {
       logDevError("Failed to fetch garment types:", error);
@@ -148,6 +168,7 @@ export function useGarmentTypesPage() {
     loading,
     garmentTypes,
     totalCount,
+    stats,
     search,
     currentPage,
     pageSize: PAGE_SIZE,

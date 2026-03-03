@@ -1,7 +1,7 @@
 import { FileDown, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { type ReportExportType } from "@/hooks/use-reports-page";
+import { type ReportExportType } from "@/hooks/use-reports-workspace";
 
 interface ExportCardConfig {
   type: ReportExportType;
@@ -37,21 +37,23 @@ export function ReportsExportGrid({
   onExport,
 }: ReportsExportGridProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
       {EXPORT_CARDS.map((card) => {
         const excelKey = `${card.type}:excel`;
         const pdfKey = `${card.type}:pdf`;
 
         return (
-          <Card key={card.type} variant="premium">
-            <CardHeader variant="section" density="compact">
-              <CardTitle variant="dashboard">{card.title}</CardTitle>
-              <CardDescription className="text-[11px] leading-relaxed">
-                {card.description}
-              </CardDescription>
+          <Card key={card.type} className="overflow-hidden border-border/70 bg-card/95">
+            <CardHeader variant="rowSection" density="compact" className="items-start gap-4 sm:items-center">
+              <div>
+                <CardTitle className="text-base font-semibold tracking-tight">{card.title}</CardTitle>
+                <CardDescription className="mt-1 text-[11px] leading-relaxed">
+                  {card.description}
+                </CardDescription>
+              </div>
             </CardHeader>
 
-            <CardContent spacing="section" className="flex gap-2">
+            <CardContent spacing="section" className="flex flex-col gap-2 sm:flex-row">
               <Button
                 variant="outline"
                 size="sm"

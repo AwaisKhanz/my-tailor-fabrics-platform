@@ -17,11 +17,14 @@ export function EmployeesListToolbar({
   onSearchChange,
   onReset,
 }: EmployeesListToolbarProps) {
+  const activeFilterCount = search.trim().length > 0 ? 1 : 0;
+
   return (
     <TableToolbar
       title="Staff Directory"
       total={total}
-      activeFilterCount={hasActiveFilters ? 1 : 0}
+      totalLabel="employees"
+      activeFilterCount={activeFilterCount}
       controls={
         <>
           <TableSearch
@@ -33,7 +36,7 @@ export function EmployeesListToolbar({
           <Button
             variant="tableReset"
             size="sm"
-            className="md:ml-auto"
+            className="w-full justify-center md:ml-auto md:w-auto md:justify-start"
             onClick={onReset}
             disabled={!hasActiveFilters}
           >

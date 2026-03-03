@@ -1,69 +1,127 @@
 "use client";
 
-import { FileText } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageShell, PageSection } from "@/components/ui/page-shell";
-import { Typography } from "@/components/ui/typography";
-import { ReportsDateRangeCard } from "@/components/reports/reports-date-range-card";
-import { ReportsExportGrid } from "@/components/reports/reports-export-grid";
-import { ReportsInsightsSection } from "@/components/reports/reports-insights-section";
-import { ReportsWeeklyPrintCard } from "@/components/reports/reports-weekly-print-card";
-import { useReportsPage } from "@/hooks/use-reports-page";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ReportsExportsTab } from "@/components/reports/reports-exports-tab";
+import { ReportsFinancialTab } from "@/components/reports/reports-financial-tab";
+import { ReportsOperationsTab } from "@/components/reports/reports-operations-tab";
+import { ReportsOverviewTab } from "@/components/reports/reports-overview-tab";
+import { ReportsWorkspaceFilters } from "@/components/reports/reports-workspace-filters";
+import { useReportsWorkspace } from "@/hooks/use-reports-workspace";
+
+const REPORT_TABS = [
+  { key: "overview", label: "Overview" },
+  { key: "financial", label: "Financial" },
+  { key: "operations", label: "Operations" },
+  { key: "exports", label: "Exports" },
+] as const;
 
 export default function ReportsPage() {
   const {
+    activeTab,
+    setActiveTab,
+    preset,
+    applyPreset,
+    dateRange,
+    setDateRangeValue,
+    granularity,
+    setGranularity,
+    datePresetOptions,
     loading,
     summary,
-    dateRange,
+    financialTrend,
+    distributions,
+    productivity,
     exportingKey,
     printingWeekly,
-    setDateRangeValue,
     refreshAnalytics,
     exportReport,
     printWeeklySummary,
-  } = useReportsPage();
+  } = useReportsWorkspace();
 
   return (
-    <PageShell spacing="spacious">
-      <PageHeader
-        title="Analytics & Intelligence"
-        description="Global business performance and design popularity insights."
-        actions={
-          <Button
-            variant="outline"
-            className="w-full border-primary/20 font-bold text-primary hover:bg-primary/5 sm:w-auto"
-            onClick={refreshAnalytics}
-            disabled={loading}
-          >
-            {loading ? "Refreshing..." : "Refresh Feed"}
-          </Button>
-        }
-      />
-
+    <PageShell spacing="default">
       <PageSection spacing="compact">
-        <ReportsDateRangeCard
-          from={dateRange.from}
-          to={dateRange.to}
-          onFromChange={(value) => setDateRangeValue("from", value)}
-          onToChange={(value) => setDateRangeValue("to", value)}
+        <PageHeader
+          title="Analytics & Intelligence"
+          description="Review performance by period with focused financial and operations views."
+          actions={
+            <Button
+              variant="outline"
+              className="w-full border-primary/20 font-bold text-primary hover:bg-primary/5 sm:w-auto"
+              onClick={refreshAnalytics}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              {loading ? "Refreshing..." : "Refresh Feed"}
+            </Button>
+          }
         />
       </PageSection>
 
-      <ReportsInsightsSection loading={loading} summary={summary} />
+      <PageSection spacing="compact">
+        <ReportsWorkspaceFilters
+          preset={preset}
+          presetOptions={datePresetOptions}
+          dateRange={dateRange}
+          granularity={granularity}
+          loading={loading}
+          onPresetChange={applyPreset}
+          onDateChange={setDateRangeValue}
+          onGranularityChange={setGranularity}
+        />
+      </PageSection>
 
-      <PageSection spacing="spacious" className="pt-4">
-        <div className="flex items-center gap-3 px-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-muted">
-            <FileText className="h-4 w-4 text-muted-foreground" />
+      <PageSection spacing="compact">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+          <div className="overflow-x-auto pb-1">
+            <TabsList className="h-auto min-w-max justify-start gap-1 rounded-xl border border-border/70 bg-card p-1">
+              {REPORT_TABS.map((tab) => (
+                <TabsTrigger
+                  key={tab.key}
+                  value={tab.key}
+                  className="h-9 px-4 text-xs font-semibold uppercase tracking-[0.08em] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
           </div>
-          <Typography as="h2" variant="sectionTitle">
-            Document Exports
-          </Typography>
-        </div>
 
-        <ReportsExportGrid exportingKey={exportingKey} onExport={exportReport} />
-        <ReportsWeeklyPrintCard printing={printingWeekly} onPrint={printWeeklySummary} />
+          <TabsContent value="overview" className="mt-4">
+            <ReportsOverviewTab
+              loading={loading}
+              summary={summary}
+              financialTrend={financialTrend}
+              distributions={distributions}
+              productivity={productivity}
+            />
+          </TabsContent>
+
+          <TabsContent value="financial" className="mt-4">
+            <ReportsFinancialTab loading={loading} trend={financialTrend} />
+          </TabsContent>
+
+          <TabsContent value="operations" className="mt-4">
+            <ReportsOperationsTab
+              loading={loading}
+              distributions={distributions}
+              productivity={productivity}
+            />
+          </TabsContent>
+
+          <TabsContent value="exports" className="mt-4">
+            <ReportsExportsTab
+              exportingKey={exportingKey}
+              printingWeekly={printingWeekly}
+              onExport={exportReport}
+              onPrint={printWeeklySummary}
+            />
+          </TabsContent>
+        </Tabs>
       </PageSection>
     </PageShell>
   );

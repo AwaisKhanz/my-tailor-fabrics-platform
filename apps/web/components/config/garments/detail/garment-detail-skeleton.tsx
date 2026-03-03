@@ -1,23 +1,41 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageShell } from "@/components/ui/page-shell";
+import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 
 export function GarmentDetailSkeleton() {
   return (
-    <PageShell inset="none">
-      <div className="flex items-center gap-4">
-        <Skeleton className="h-10 w-10" />
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-4 w-32" />
+    <PageShell>
+      <PageSection spacing="compact">
+        <Skeleton className="h-4 w-52" />
+        <Skeleton className="h-44 w-full rounded-xl" />
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-32 w-full rounded-xl" />
         </div>
-      </div>
+      </PageSection>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Skeleton className="h-64 md:col-span-2" />
-        <Skeleton className="h-64" />
-      </div>
-
-      <Skeleton className="h-72" />
+      <DetailSplit
+        ratio="3-2"
+        gap="spacious"
+        main={
+          <PageSection spacing="compact">
+            <Skeleton className="h-52 w-full rounded-xl" />
+            <Skeleton className="h-56 w-full rounded-xl" />
+            <Skeleton className="h-72 w-full rounded-xl" />
+            <Skeleton className="h-72 w-full rounded-xl" />
+          </PageSection>
+        }
+        side={
+          <PageSection spacing="compact">
+            <Skeleton className="h-72 w-full rounded-xl" />
+            <Skeleton className="h-56 w-full rounded-xl" />
+          </PageSection>
+        }
+      />
     </PageShell>
   );
 }

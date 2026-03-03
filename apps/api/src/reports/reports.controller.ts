@@ -74,6 +74,38 @@ export class ReportsController {
     const data = await this.reportsService.getSummary(branchId, from, to);
     return { success: true, data };
   }
+
+  @Roles(...DASHBOARD_READ_ROLES)
+  @Get('financial-trend')
+  async getFinancialTrend(
+    @Req() req: AuthenticatedRequest,
+    @Query('branchId') targetBranchId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('granularity') granularity?: string,
+  ) {
+    const branchId = this.resolveBranch(req, targetBranchId);
+    const data = await this.reportsService.getFinancialTrend(
+      branchId,
+      from,
+      to,
+      granularity,
+    );
+    return { success: true, data };
+  }
+
+  @Roles(...DASHBOARD_READ_ROLES)
+  @Get('distributions')
+  async getDistributions(
+    @Req() req: AuthenticatedRequest,
+    @Query('branchId') targetBranchId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    const branchId = this.resolveBranch(req, targetBranchId);
+    const data = await this.reportsService.getDistributions(branchId, from, to);
+    return { success: true, data };
+  }
  
   @Roles(...DASHBOARD_READ_ROLES)
   @Get('revenue-vs-expenses')
@@ -95,9 +127,11 @@ export class ReportsController {
   async getGarmentRevenue(
     @Req() req: AuthenticatedRequest,
     @Query('branchId') targetBranchId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
   ) {
     const branchId = this.resolveBranch(req, targetBranchId);
-    const data = await this.reportsService.getGarmentTypesRevenue(branchId);
+    const data = await this.reportsService.getGarmentTypesRevenue(branchId, from, to);
     return { success: true, data };
   }
  
@@ -106,9 +140,18 @@ export class ReportsController {
   async getEmployeeProductivity(
     @Req() req: AuthenticatedRequest,
     @Query('branchId') targetBranchId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('limit') limit?: string,
   ) {
     const branchId = this.resolveBranch(req, targetBranchId);
-    const data = await this.reportsService.getEmployeeProductivity(branchId);
+    const parsedLimit = limit ? Number(limit) : undefined;
+    const data = await this.reportsService.getProductivityPoints(
+      branchId,
+      from,
+      to,
+      parsedLimit,
+    );
     return { success: true, data };
   }
 

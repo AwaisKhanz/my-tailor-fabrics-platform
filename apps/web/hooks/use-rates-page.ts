@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type Branch, type CreateRateCardInput, type GarmentType, type RateCard } from "@tbms/shared-types";
+import {
+  type Branch,
+  type CreateRateCardInput,
+  type GarmentType,
+  type RateCard,
+  type RateStatsSummary,
+} from "@tbms/shared-types";
 import { STEP_KEYS } from "@tbms/shared-constants";
 import { branchesApi } from "@/lib/api/branches";
 import { configApi } from "@/lib/api/config";
@@ -10,6 +16,11 @@ import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 
 const PAGE_SIZE = 10;
+const EMPTY_RATE_STATS: RateStatsSummary = {
+  total: 0,
+  global: 0,
+  branchScoped: 0,
+};
 
 export type RateWithIncludes = RateCard & {
   garmentType?: { name: string };
@@ -22,6 +33,7 @@ export function useRatesPage() {
   const [loading, setLoading] = useState(true);
   const [rates, setRates] = useState<RateWithIncludes[]>([]);
   const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<RateStatsSummary>(EMPTY_RATE_STATS);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
@@ -32,10 +44,11 @@ export function useRatesPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [ratesResponse, garmentsResponse, branchesResponse] = await Promise.all([
+      const [ratesResponse, garmentsResponse, branchesResponse, statsResponse] = await Promise.all([
         ratesApi.findAll({ search: search.trim() || undefined, page, limit: PAGE_SIZE }),
         configApi.getGarmentTypes({ limit: 100 }),
         branchesApi.getBranches({ page: 1, limit: 100 }),
+        ratesApi.getStats({ search: search.trim() || undefined }),
       ]);
 
       if (ratesResponse.success) {
@@ -49,6 +62,10 @@ export function useRatesPage() {
 
       if (branchesResponse.success && branchesResponse.data) {
         setBranches(branchesResponse.data.data);
+      }
+
+      if (statsResponse.success) {
+        setStats(statsResponse.data);
       }
     } catch (error) {
       logDevError("Failed to fetch rates data:", error);
@@ -99,9 +116,11 @@ export function useRatesPage() {
     loading,
     rates,
     total,
+    stats,
     page,
     pageSize: PAGE_SIZE,
     search,
+    hasActiveFilters: Boolean(search.trim()),
     garmentTypes,
     branches,
     createDialogOpen,

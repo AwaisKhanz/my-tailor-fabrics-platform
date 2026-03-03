@@ -1,5 +1,6 @@
 import { ArrowUpRight, History, Users } from "lucide-react";
 import { type GarmentPriceLog } from "@tbms/shared-types";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
@@ -11,17 +12,22 @@ interface GarmentPricingLogsCardProps {
 
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
-    <Card className="border-border/50 shadow-sm">
-      <CardHeader variant="section" density="compact">
+    <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+      <CardHeader variant="rowSection" className="items-start sm:items-center">
         <div className="flex items-center gap-2">
-          <History className="h-4 w-4 text-primary" />
-          <CardTitle variant="dashboard" className="text-primary">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            <History className="h-4 w-4" />
+          </div>
+          <CardTitle className="text-base font-semibold tracking-tight">
             Recent Pricing Logs
           </CardTitle>
         </div>
+        <Badge variant="secondary" size="xs">
+          {logs.length} entries
+        </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="pt-4">
+      <CardContent spacing="section" className="p-5 pt-5 sm:p-6">
         {logs.length > 0 ? (
           <div className="relative space-y-6 before:absolute before:bottom-2 before:left-2.5 before:top-2 before:w-px before:bg-border">
             {logs.map((log) => (
@@ -47,7 +53,7 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                     </Label>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
                     <div>
                       <Label variant="dashboard">Customer Price</Label>
                       <div className="flex items-center gap-2">

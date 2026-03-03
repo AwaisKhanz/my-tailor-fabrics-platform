@@ -38,26 +38,33 @@ export function OrderFormItemsCard({
   getItemLineTotal,
 }: OrderFormItemsCardProps) {
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" className="items-start sm:items-center">
-        <div className="space-y-1">
+    <Card variant="premium" className="border-border/70">
+      <CardHeader variant="rowSection" density="comfortable" className="items-start gap-4 sm:items-center">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <CardTitle variant="dashboard">Order Items</CardTitle>
-            <Badge variant="secondary" size="xs">
+            <CardTitle className="text-base font-semibold tracking-tight">Order Items</CardTitle>
+            <Badge variant="secondary" size="xs" className="font-semibold">
               {fields.length} PIECES
             </Badge>
           </div>
-          <Label variant="dashboard" className="text-muted-foreground">
+          <Label variant="dashboard" className="text-muted-foreground/90">
             Configure garment, pricing, design, and assignment per piece.
           </Label>
         </div>
 
-        <Button type="button" variant="outline" size="sm" onClick={onAddItem}>
-          <Plus className="mr-2 h-4 w-4" /> Add Piece
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full sm:w-auto"
+          onClick={onAddItem}
+        >
+          <Plus className="h-4 w-4" />
+          Add Piece
         </Button>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4">
+      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
         {fields.map((field, index) => {
           const currentItem = watchedItems[index] || {
             garmentTypeId: "",

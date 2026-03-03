@@ -209,3 +209,10 @@ export interface DashboardStats {
   activeEmployees: number;
   recentOrders: Order[];
 }
+
+export interface OrdersListSummary {
+  totalValue: number;
+  dueSoonCount: number;
+  overdueCount: number;
+  completedCount: number;
+}

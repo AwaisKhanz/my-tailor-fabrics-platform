@@ -1,46 +1,72 @@
-import { ArrowLeft, Edit2 } from "lucide-react";
+import { CalendarDays, Edit2, MapPin, Phone } from "lucide-react";
 import { type Customer } from "@tbms/shared-types";
+import { CUSTOMER_STATUS_BADGE, CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 interface CustomerDetailHeaderProps {
   customer: Customer;
-  onBack: () => void;
   onEdit: () => void;
 }
 
 export function CustomerDetailHeader({
   customer,
-  onBack,
   onEdit,
 }: CustomerDetailHeaderProps) {
-  return (
-    <div className="flex flex-col items-start gap-3 sm:flex-row sm:gap-4">
-      <Button variant="tableIcon" size="iconSm" onClick={onBack} className="shrink-0">
-        <ArrowLeft className="h-4 w-4" />
-      </Button>
+  const createdAtLabel = new Date(customer.createdAt).toLocaleDateString();
 
-      <div className="w-full flex-1">
-        <PageHeader
-          title={customer.fullName}
-          description={
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <Badge variant="outline" className="font-bold tracking-tight">
+  return (
+    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+      <CardContent spacing="section" className="space-y-6 p-5 sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-3">
+            <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Customer Command
+            </Label>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                {customer.fullName}
+              </h1>
+              <Badge
+                variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
+                className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]"
+              >
+                {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
+              </Badge>
+              <Badge variant="outline" size="xs" className="font-semibold">
                 {customer.sizeNumber}
               </Badge>
-              <span className="hidden sm:inline">•</span>
-              <span>{customer.phone}</span>
             </div>
-          }
-          actions={
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={onEdit}>
-              <Edit2 className="mr-2 h-4 w-4" />
+
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
+              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+                <Phone className="h-3.5 w-3.5" />
+                <span>{customer.phone}</span>
+              </div>
+              {customer.city ? (
+                <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span>{customer.city}</span>
+                </div>
+              ) : null}
+              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+                <CalendarDays className="h-3.5 w-3.5" />
+                <span>Customer since {createdAtLabel}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full justify-start lg:w-auto lg:justify-end">
+            <Button variant="premium" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[180px]" onClick={onEdit}>
+              <Edit2 className="h-4 w-4" />
               Edit Profile
             </Button>
-          }
-        />
-      </div>
-    </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

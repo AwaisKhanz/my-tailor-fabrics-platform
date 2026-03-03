@@ -46,49 +46,59 @@ export default function ExpensesPage() {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Business Expenses"
-        description="Track and manage business overheads and supplies with consistent filters and secure action flows."
-        actions={
-          <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Expense
-          </Button>
-        }
-      />
+      <PageSection spacing="compact">
+        <PageHeader
+          title="Business Expenses"
+          description={
+            total > 0
+              ? `Track spending with ${total} recorded expenses. Current page amount: ${formatPKR(listedAmount)}.`
+              : "Track and manage business overheads and supplies with consistent filters and secure action flows."
+          }
+          density="compact"
+          actions={
+            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
+              <Plus className="h-4 w-4" />
+              Add Expense
+            </Button>
+          }
+        />
+      </PageSection>
 
       <PageSection spacing="compact">
         <ExpensesOverviewCards
           listedAmount={listedAmount}
           listedCount={expenses.length}
           totalCount={total}
+          activeFilterCount={activeFilterCount}
         />
       </PageSection>
 
-      <TableSurface>
-        <ExpensesFiltersCard
-          total={total}
-          categories={categories}
-          categoriesLoading={categoriesLoading}
-          filters={filters}
-          activeFilterCount={activeFilterCount}
-          onCategoryChange={setCategoryFilter}
-          onFromChange={setFromFilter}
-          onToChange={setToFilter}
-          onReset={resetFilters}
-        />
+      <PageSection spacing="compact">
+        <TableSurface>
+          <ExpensesFiltersCard
+            total={total}
+            categories={categories}
+            categoriesLoading={categoriesLoading}
+            filters={filters}
+            activeFilterCount={activeFilterCount}
+            onCategoryChange={setCategoryFilter}
+            onFromChange={setFromFilter}
+            onToChange={setToFilter}
+            onReset={resetFilters}
+          />
 
-        <ExpensesTable
-          expenses={expenses}
-          loading={loading}
-          page={page}
-          total={total}
-          pageSize={pageSize}
-          deletingId={deletingId}
-          onPageChange={setPage}
-          onDeleteExpense={requestDeleteExpense}
-        />
-      </TableSurface>
+          <ExpensesTable
+            expenses={expenses}
+            loading={loading}
+            page={page}
+            total={total}
+            pageSize={pageSize}
+            deletingId={deletingId}
+            onPageChange={setPage}
+            onDeleteExpense={requestDeleteExpense}
+          />
+        </TableSurface>
+      </PageSection>
 
       <ExpenseCreateDialog
         open={addOpen}

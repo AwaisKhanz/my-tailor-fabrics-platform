@@ -42,10 +42,11 @@ export function ExpensesFiltersCard({
     <TableToolbar
       title="Expense Ledger"
       total={total}
+      totalLabel="expenses"
       activeFilterCount={activeFilterCount}
       controls={
         <>
-          <div className="w-full md:w-[220px]">
+          <div className="w-full sm:w-[220px]">
             <Label variant="dashboard" className="mb-2 block">
               <span className="inline-flex items-center gap-1.5">
                 <Filter className="h-3.5 w-3.5" />
@@ -73,9 +74,9 @@ export function ExpensesFiltersCard({
             </Select>
           </div>
 
-          <div className="w-full md:w-[180px]">
+          <div className="w-full sm:w-[180px]">
             <Label variant="dashboard" className="mb-2 block">
-              Date Range (From)
+              Date From
             </Label>
             <Input
               variant="table"
@@ -85,9 +86,9 @@ export function ExpensesFiltersCard({
             />
           </div>
 
-          <div className="w-full md:w-[180px]">
+          <div className="w-full sm:w-[180px]">
             <Label variant="dashboard" className="mb-2 block">
-              Date Range (To)
+              Date To
             </Label>
             <Input
               variant="table"
@@ -100,7 +101,7 @@ export function ExpensesFiltersCard({
           <Button
             variant="tableReset"
             size="sm"
-            className="md:ml-auto md:self-end"
+            className="w-full justify-center sm:ml-auto sm:w-auto sm:self-end"
             onClick={onReset}
             disabled={!hasFilters}
           >

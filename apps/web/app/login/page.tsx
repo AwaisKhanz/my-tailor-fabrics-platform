@@ -24,23 +24,26 @@ export default function LoginPage() {
       width="full"
       spacing="compact"
       inset="none"
-      className="flex min-h-screen w-full flex-col bg-background sm:items-center sm:justify-center sm:p-8"
+      className="relative flex min-h-screen w-full items-center justify-center bg-background px-4 py-6 sm:px-6 sm:py-10"
     >
-      <div className="flex min-h-screen w-full flex-col overflow-hidden bg-card sm:min-h-0 sm:max-w-[1024px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl md:flex-row">
-        <LoginBrandPanel />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,255,255,0.06),transparent_55%)]" />
+      <div className="relative w-full max-w-6xl overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-2xl shadow-black/35">
+        <div className="grid min-h-[640px] grid-cols-1 md:grid-cols-[1.05fr_0.95fr]">
+          <LoginBrandPanel />
 
-        <LoginFormPanel
-          email={email}
-          password={password}
-          showPassword={showPassword}
-          staySignedIn={staySignedIn}
-          isLoading={isLoading}
-          onEmailChange={setEmail}
-          onPasswordChange={setPassword}
-          onTogglePassword={togglePasswordVisibility}
-          onStaySignedInChange={setStaySignedIn}
-          onSubmit={handleSubmit}
-        />
+          <LoginFormPanel
+            email={email}
+            password={password}
+            showPassword={showPassword}
+            staySignedIn={staySignedIn}
+            isLoading={isLoading}
+            onEmailChange={setEmail}
+            onPasswordChange={setPassword}
+            onTogglePassword={togglePasswordVisibility}
+            onStaySignedInChange={setStaySignedIn}
+            onSubmit={handleSubmit}
+          />
+        </div>
       </div>
     </PageShell>
   );

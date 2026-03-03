@@ -17,9 +17,11 @@ export function DashboardOverdueOrdersCard({
   onOpenOrder,
 }: DashboardOverdueOrdersCardProps) {
   return (
-    <Card className="h-full border-border/70 bg-card">
+    <Card className="border-border/70 bg-card">
       <CardHeader variant="rowSection" className="items-center">
-        <CardTitle variant="dashboard">Recent Overdue Orders</CardTitle>
+        <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+          Recent Overdue Orders
+        </CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
           View all
         </Button>
@@ -57,7 +59,7 @@ export function DashboardOverdueOrdersCard({
           ))}
 
           {orders.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
+            <div className="p-6 text-center text-sm text-muted-foreground">
               No recent overdue orders found.
             </div>
           ) : null}

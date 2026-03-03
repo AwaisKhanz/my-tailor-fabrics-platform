@@ -56,6 +56,23 @@ export class RatesController {
     };
   }
 
+  @Get('stats')
+  @Roles(...ADMIN_ROLES)
+  async getStats(
+    @Req() req: AuthenticatedRequest,
+    @Query('search') search?: string,
+  ) {
+    const scopedBranchId =
+      req.user.role === Role.SUPER_ADMIN ? (req.branchId ?? null) : req.branchId;
+
+    const data = await this.ratesService.getStats({
+      branchId: scopedBranchId,
+      search,
+    });
+
+    return { success: true, data };
+  }
+
   @Post()
   @Roles(...ADMIN_ROLES)
   async create(

@@ -10,16 +10,16 @@ export function OrderDetailBreadcrumb({
   onBack,
 }: OrderDetailBreadcrumbProps) {
   return (
-    <div className="mb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+    <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-muted-foreground">
       <button
         type="button"
-        className="transition-colors hover:text-primary"
+        className="rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         onClick={onBack}
       >
-        Order Index
+        Orders
       </button>
       <ChevronRight className="h-3 w-3" />
-      <span className="text-foreground">{orderNumber}</span>
+      <span className="font-medium text-foreground">{orderNumber}</span>
     </div>
   );
 }

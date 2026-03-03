@@ -14,6 +14,19 @@ export interface Branch {
         orders: number;
     };
 }
+export interface BranchDetailStats {
+    totalGarments: number;
+    activeEmployees: number;
+    activeCustomers: number;
+    openOrders: number;
+    completedOrders: number;
+    branchRateCards: number;
+    globalRateCards: number;
+    hasBranchRateOverrides: boolean;
+}
+export interface BranchDetail extends Branch {
+    stats: BranchDetailStats;
+}
 export interface CreateBranchInput {
     name: string;
     code: string;
@@ -25,10 +38,6 @@ export interface UpdateBranchInput {
     address?: string;
     phone?: string;
     isActive?: boolean;
-    pickupDiscount?: number;
-    rushCapability?: boolean;
-    taxRate?: number;
-    taxInclusive?: boolean;
 }
 export interface BranchStatsSummary {
     total: number;

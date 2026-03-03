@@ -1,21 +1,26 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { GarmentPriceHistoryDialog } from "@/components/config/GarmentPriceHistoryDialog";
 import { GarmentTypeDialog } from "@/components/config/GarmentTypeDialog";
 import { GarmentWorkflowStepsDialog } from "@/components/config/GarmentWorkflowStepsDialog";
 import { GarmentTypesInventoryTable } from "@/components/config/garments/list/garment-types-inventory-table";
 import { GarmentTypesListToolbar } from "@/components/config/garments/list/garment-types-list-toolbar";
 import { GarmentTypesPageHeader } from "@/components/config/garments/list/garment-types-page-header";
+import { GarmentTypesStatsGrid } from "@/components/config/garments/list/garment-types-stats-grid";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageShell } from "@/components/ui/page-shell";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
 
 export function GarmentTypesTable() {
+  const router = useRouter();
+
   const {
     loading,
     garmentTypes,
     totalCount,
+    stats,
     search,
     currentPage,
     pageSize,
@@ -44,30 +49,43 @@ export function GarmentTypesTable() {
 
   return (
     <PageShell>
-      <GarmentTypesPageHeader onAdd={openCreateDialog} />
+      <PageSection spacing="compact">
+        <GarmentTypesPageHeader onAdd={openCreateDialog} />
+      </PageSection>
 
-      <TableSurface>
-        <GarmentTypesListToolbar
-          totalCount={totalCount}
-          search={search}
+      <PageSection spacing="compact">
+        <GarmentTypesStatsGrid
+          stats={stats}
+          visibleCount={garmentTypes.length}
           hasActiveFilters={hasActiveFilters}
-          onSearchChange={setSearchFilter}
-          onReset={resetFilters}
         />
+      </PageSection>
 
-        <GarmentTypesInventoryTable
-          garmentTypes={garmentTypes}
-          loading={loading}
-          page={currentPage}
-          total={totalCount}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onEdit={openEditDialog}
-          onOpenHistory={openHistoryDialog}
-          onOpenWorkflow={openWorkflowDialog}
-          onDelete={requestDelete}
-        />
-      </TableSurface>
+      <PageSection spacing="compact">
+        <TableSurface>
+          <GarmentTypesListToolbar
+            totalCount={totalCount}
+            search={search}
+            hasActiveFilters={hasActiveFilters}
+            onSearchChange={setSearchFilter}
+            onReset={resetFilters}
+          />
+
+          <GarmentTypesInventoryTable
+            garmentTypes={garmentTypes}
+            loading={loading}
+            page={currentPage}
+            total={totalCount}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onOpen={(garment) => router.push(`/settings/garments/${garment.id}`)}
+            onEdit={openEditDialog}
+            onOpenHistory={openHistoryDialog}
+            onOpenWorkflow={openWorkflowDialog}
+            onDelete={requestDelete}
+          />
+        </TableSurface>
+      </PageSection>
 
       <GarmentTypeDialog
         open={isDialogOpen}

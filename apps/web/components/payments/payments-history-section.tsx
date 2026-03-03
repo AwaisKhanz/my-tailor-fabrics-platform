@@ -69,13 +69,13 @@ export function PaymentsHistorySection({
   return (
     <TableSurface>
       <TableToolbar
-        title="Payment History"
+        title="Payment Ledger"
         total={total}
-        totalLabel="records"
+        totalLabel="payments"
         activeFilterCount={activeFilterCount}
         controls={
           <>
-            <div className="w-full md:w-[180px]">
+            <div className="w-full sm:w-[180px]">
               <Label variant="dashboard" className="mb-2 block">
                 Paid From
               </Label>
@@ -87,7 +87,7 @@ export function PaymentsHistorySection({
               />
             </div>
 
-            <div className="w-full md:w-[180px]">
+            <div className="w-full sm:w-[180px]">
               <Label variant="dashboard" className="mb-2 block">
                 Paid To
               </Label>
@@ -102,7 +102,7 @@ export function PaymentsHistorySection({
             <Button
               variant="tableReset"
               size="sm"
-              className="md:ml-auto md:self-end"
+              className="w-full justify-center sm:ml-auto sm:w-auto sm:self-end"
               onClick={onResetFilters}
               disabled={!hasActiveFilters}
             >

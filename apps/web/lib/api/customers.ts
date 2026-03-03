@@ -1,7 +1,7 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 import { Customer, CustomerMeasurement } from '@/types/customers';
-import { CustomerStatus, Order } from '@tbms/shared-types';
+import { CustomersListSummary, CustomerStatus, Order } from '@tbms/shared-types';
 
 export const customerApi = {
   getCustomers: async (
@@ -12,6 +12,17 @@ export const customerApi = {
   ) => {
     const response = await api.get<ApiResponse<PaginatedResponse<Customer>>>('/customers', {
       params: { page, limit, search, status },
+    });
+    return response.data;
+  },
+
+  getCustomersSummary: async (params?: {
+    search?: string;
+    status?: CustomerStatus;
+    isVip?: boolean;
+  }) => {
+    const response = await api.get<ApiResponse<CustomersListSummary>>('/customers/summary', {
+      params,
     });
     return response.data;
   },

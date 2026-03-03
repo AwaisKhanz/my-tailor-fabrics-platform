@@ -15,7 +15,9 @@ export class DesignTypesService {
     });
   }
 
-  async findAll(branchId?: string, garmentTypeId?: string) {
+  async findAll(branchId?: string, garmentTypeId?: string, search?: string) {
+    const searchTerm = search?.trim();
+
     return this.prisma.designType.findMany({
       where: {
         AND: [
@@ -23,6 +25,18 @@ export class DesignTypesService {
           branchId ? { OR: [{ branchId }, { branchId: null }] } : {},
           garmentTypeId
             ? { OR: [{ garmentTypeId }, { garmentTypeId: null }] }
+            : {},
+          searchTerm
+            ? {
+                OR: [
+                  { name: { contains: searchTerm, mode: 'insensitive' } },
+                  {
+                    garmentType: {
+                      name: { contains: searchTerm, mode: 'insensitive' },
+                    },
+                  },
+                ],
+              }
             : {},
         ],
       },

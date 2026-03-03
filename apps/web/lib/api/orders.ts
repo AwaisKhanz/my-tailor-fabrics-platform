@@ -1,10 +1,23 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import { Order, OrderStatus, DashboardStats, CreateOrderInput, UpdateOrderInput, OrderItemTask, TaskStatus } from '@tbms/shared-types';
+import {
+  Order,
+  OrderStatus,
+  DashboardStats,
+  CreateOrderInput,
+  UpdateOrderInput,
+  OrderItemTask,
+  OrdersListSummary,
+  TaskStatus,
+} from '@tbms/shared-types';
 
 export const ordersApi = {
   getOrders: async (params: { page?: number; limit?: number; status?: string; search?: string; from?: string; to?: string }) => {
     const response = await api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params });
+    return response.data;
+  },
+  getOrdersSummary: async (params: { status?: string; search?: string; from?: string; to?: string }) => {
+    const response = await api.get<ApiResponse<OrdersListSummary>>('/orders/summary', { params });
     return response.data;
   },
   getOrder: async (id: string) => {

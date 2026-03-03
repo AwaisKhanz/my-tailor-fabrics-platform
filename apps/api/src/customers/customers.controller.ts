@@ -65,6 +65,25 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
+  @Get('summary')
+  async getSummary(
+    @Query('search') search: string,
+    @Query('isVip') isVip: string,
+    @Query('status') status: CustomerStatus | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const vipFilter =
+      isVip === 'true' ? true : isVip === 'false' ? false : undefined;
+
+    const data = await this.customersService.getSummary(req.branchId, {
+      search,
+      isVip: vipFilter,
+      status,
+    });
+    return { success: true, data };
+  }
+
+  @Roles(...OPERATOR_ROLES)
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.findOne(id, req.branchId);

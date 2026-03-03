@@ -3,9 +3,9 @@ import { Clock3, History } from "lucide-react";
 import { type Order, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { TableSurface } from "@/components/ui/table-layout";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 
@@ -62,30 +62,42 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
     [],
   );
 
-  if (orders.length === 0) {
-    return (
-      <div className="pt-4">
-        <EmptyState
-          icon={History}
-          title="No order history"
-          description="This customer has not placed any orders yet."
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="pt-4">
-      <TableSurface>
-        <DataTable
-          columns={columns}
-          data={orders}
-          itemLabel="orders"
-          emptyMessage="No orders found."
-          onRowClick={(order) => onOpenOrder(order.id)}
-          chrome="flat"
-        />
-      </TableSurface>
-    </div>
+    <Card className="overflow-hidden border-border/70 bg-card/95">
+      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base font-semibold tracking-tight">Order History</CardTitle>
+            <Badge variant="secondary" size="xs" className="font-semibold">
+              {orders.length} ORDERS
+            </Badge>
+          </div>
+          <Typography as="p" variant="muted">
+            Review all customer orders with current status and amount details.
+          </Typography>
+        </div>
+      </CardHeader>
+
+      <CardContent spacing="section" className="p-0">
+        {orders.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              icon={History}
+              title="No order history"
+              description="This customer has not placed any orders yet."
+            />
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={orders}
+            itemLabel="orders"
+            emptyMessage="No orders found."
+            onRowClick={(order) => onOpenOrder(order.id)}
+            chrome="flat"
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 }

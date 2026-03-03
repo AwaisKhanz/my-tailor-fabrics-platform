@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Typography } from "@/components/ui/typography";
-import { Calendar, Clock, Plus, Printer, Share2, XCircle } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { CalendarDays, Clock3, Pencil, Printer, Share2, XCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface OrderDetailHeaderCardProps {
   orderNumber: string;
@@ -34,70 +35,88 @@ export function OrderDetailHeaderCard({
   onEditOrder,
 }: OrderDetailHeaderCardProps) {
   return (
-    <Card className="overflow-hidden border-border shadow-sm ring-1 ring-border/50">
-      <CardContent
-        spacing="section"
-        className="flex flex-col justify-between gap-6 bg-muted/5 sm:flex-row sm:items-center"
-      >
-        <div>
-          <div className="flex flex-wrap items-center gap-4">
-            <Typography as="h1" variant="pageTitle" className="text-4xl">
-              {orderNumber}
-            </Typography>
-            <Badge
-              variant={statusVariant}
-              size="xs"
-              className="uppercase font-bold ring-1 ring-border"
-            >
-              {statusLabel}
-            </Badge>
+    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+      <CardContent spacing="section" className="space-y-6 p-5 sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-3">
+            <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Order Command
+            </Label>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                {orderNumber}
+              </h1>
+              <Badge
+                variant={statusVariant}
+                className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]"
+              >
+                {statusLabel}
+              </Badge>
+            </div>
+
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
+              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+                <CalendarDays className="h-3.5 w-3.5" />
+                <span>Created {createdAtLabel}</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+                <Clock3 className="h-3.5 w-3.5" />
+                <span>Due {dueDateLabel}</span>
+              </div>
+            </div>
           </div>
-          <p className="mt-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            <Calendar className="h-3 w-3 opacity-40" /> {createdAtLabel}
-            <span className="opacity-20">|</span>
-            <Clock className="h-3 w-3 opacity-40" /> Due: {dueDateLabel}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            variant="outline"
-            size="lg"
-            className="gap-2 text-xs font-bold shadow-sm ring-1 ring-border"
-            onClick={onPrintReceipt}
-          >
-            <Printer className="h-4 w-4" /> Print Receipt
-          </Button>
 
-          <Button
-            variant="outline"
-            size="lg"
-            className="gap-2 text-xs font-bold shadow-sm ring-1 ring-border"
-            onClick={onShareStatus}
-            disabled={sharing}
+          <div
+            className={cn(
+              "flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end",
+              canCancel ? "lg:max-w-[760px]" : "lg:max-w-[640px]",
+            )}
           >
-            <Share2 className="h-4 w-4" /> Share Status
-          </Button>
-
-          {canCancel ? (
             <Button
-              variant="ghost"
+              variant="premium"
               size="lg"
-              className="gap-2 text-xs font-bold text-destructive hover:bg-destructive/10"
-              onClick={onCancelOrder}
-              disabled={statusLoading}
+              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+              onClick={onEditOrder}
             >
-              <XCircle className="h-4 w-4" /> Cancel Order
+              <Pencil className="h-4 w-4" />
+              Edit Order
             </Button>
-          ) : null}
 
-          <Button
-            variant="premium"
-            size="lg"
-            className="gap-2 text-xs font-bold shadow-lg shadow-primary/20"
-            onClick={onEditOrder}
-          >
-            <Plus className="h-4 w-4" /> Edit Order
-          </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+              onClick={onPrintReceipt}
+            >
+              <Printer className="h-4 w-4" />
+              Print Receipt
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+              onClick={onShareStatus}
+              disabled={sharing}
+            >
+              <Share2 className="h-4 w-4" />
+              Share Status
+            </Button>
+
+            {canCancel ? (
+              <Button
+                variant="destructive"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                onClick={onCancelOrder}
+                disabled={statusLoading}
+              >
+                <XCircle className="h-4 w-4" />
+                Cancel Order
+              </Button>
+            ) : null}
+          </div>
         </div>
       </CardContent>
     </Card>

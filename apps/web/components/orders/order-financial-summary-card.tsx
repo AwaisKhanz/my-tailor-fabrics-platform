@@ -15,73 +15,59 @@ export function OrderFinancialSummaryCard({
   onCapturePayment,
 }: OrderFinancialSummaryCardProps) {
   return (
-    <Card className="overflow-hidden border-border shadow-sm">
-      <CardHeader variant="section" density="comfortable">
+    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
             <CreditCard className="h-4 w-4 text-primary" />
           </div>
-          <CardTitle variant="dashboard">Financial Ledger</CardTitle>
+          <div>
+            <CardTitle variant="dashboard">Financial Summary</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">Invoice, received payments, and pending balance.</p>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5">
-        <div className="space-y-3 rounded-xl border border-border/50 bg-muted/20 p-4">
-          <div className="flex justify-between text-xs">
-            <Label variant="dashboard" className="opacity-60">
-              Base Subtotal
+      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+        <div className="space-y-3 rounded-lg border border-border/70 bg-background/50 p-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              Subtotal
             </Label>
-            <span className="font-bold tabular-nums text-foreground">
-              {formatPKR(order.subtotal)}
-            </span>
+            <span className="text-sm font-semibold text-foreground">{formatPKR(order.subtotal)}</span>
           </div>
 
           {order.discountAmount > 0 ? (
-            <div className="flex justify-between text-xs">
-              <span className="font-bold uppercase tracking-widest text-success opacity-80">
-                Discounts
-                {order.discountType === "PERCENTAGE"
-                  ? ` (${order.discountValue}%)`
-                  : ""}
-              </span>
-              <span className="font-bold tabular-nums text-success">
-                - {formatPKR(order.discountAmount)}
-              </span>
+            <div className="flex items-center justify-between">
+              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+                Discount {order.discountType === "PERCENTAGE" ? `(${order.discountValue}%)` : ""}
+              </Label>
+              <span className="text-sm font-semibold text-success">- {formatPKR(order.discountAmount)}</span>
             </div>
           ) : null}
-        </div>
 
-        <div className="px-1">
-          <div className="flex items-end justify-between border-b border-border/30 pb-4">
-            <span className="text-[10px] font-bold uppercase tracking-tight text-foreground">
+          <div className="flex items-center justify-between border-t border-border/70 pt-3">
+            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
               Net Invoice
-            </span>
-            <span className="text-3xl font-bold tracking-tight tabular-nums text-primary">
-              {formatPKR(order.totalAmount)}
-            </span>
+            </Label>
+            <span className="text-lg font-bold text-foreground">{formatPKR(order.totalAmount)}</span>
           </div>
-
-          {order.totalPaid > 0 ? (
-            <div className="mt-3 flex justify-between font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              <span>Deposits Received</span>
-              <span className="text-foreground">{formatPKR(order.totalPaid)}</span>
-            </div>
-          ) : null}
         </div>
 
-        <div className="flex items-center justify-between rounded-md bg-primary px-6 py-4 text-primary-foreground shadow-xl shadow-primary/20 ring-1 ring-white/20">
-          <span className="text-[10px] font-bold uppercase tracking-tight">
-            Balance Pending
-          </span>
-          <span className="text-2xl font-bold tracking-tight tabular-nums">
-            {formatPKR(order.balanceDue)}
-          </span>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2.5">
+            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Paid</Label>
+            <p className="mt-1 text-lg font-bold text-success">{formatPKR(order.totalPaid)}</p>
+          </div>
+          <div className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2.5">
+            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Balance</Label>
+            <p className="mt-1 text-lg font-bold text-destructive">{formatPKR(order.balanceDue)}</p>
+          </div>
         </div>
 
         <Button
           variant="premium"
-          size="lg"
-          className="h-14 w-full text-xs font-bold uppercase tracking-tight shadow-lg shadow-primary/30"
+          className="h-11 w-full"
           onClick={onCapturePayment}
         >
           Capture Payment

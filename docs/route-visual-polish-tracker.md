@@ -30,7 +30,7 @@ Legend: `DN` (Done), `IP` (In Progress), `NS` (Not Started), `NJ` (No change jus
 | 9 | `/employees/[id]` | `app/(dashboard)/employees/[id]/page.tsx` | DN | Shell + `DetailSplit` detail layout. |
 | 10 | `/payments` | `app/(dashboard)/payments/page.tsx` | DN | Shell + sectionalized summary/history flow. |
 | 11 | `/expenses` | `app/(dashboard)/expenses/page.tsx` | DN | Shell + sectioned overview/table flow. |
-| 12 | `/reports` | `app/(dashboard)/reports/page.tsx` | DN | Shell + section rhythm for insights/exports. |
+| 12 | `/reports` | `app/(dashboard)/reports/page.tsx` | DN | Rebuilt into tabbed analytics workspace (Overview, Financial, Operations, Exports) with chart-first flow. |
 | 13 | `/settings` | `app/(dashboard)/settings/page.tsx` | NJ | Redirect-only route; no visual surface. |
 | 14 | `/settings/branches` | `app/(dashboard)/settings/branches/page.tsx` -> `BranchesTable` | DN | Backing table module now shell-standardized. |
 | 15 | `/settings/branches/[id]` | `app/(dashboard)/settings/branches/[id]/page.tsx` -> `BranchHubConfig` | DN | Hub module shell-standardized. |
@@ -60,7 +60,7 @@ Legend: `DN` (Done), `IP` (In Progress), `NS` (Not Started), `NJ` (No change jus
 | `/employees/[id]` | Sidebar/content split manually managed; not-found state not shell-aligned. | Added `PageShell`; converted to `DetailSplit`; not-found state moved into shell section; rebuilt detail header for wrap-safe CTA alignment. | Layout-contract pass | DN |
 | `/payments` | Selector/summary/history block rhythm inconsistent. | Added `PageShell` + `PageSection`; CTA responsive width adjusted. | Layout-contract pass | DN |
 | `/expenses` | Overview/table transition spacing inconsistent. | Added `PageShell` + `PageSection`; CTA responsive width adjusted. | Layout-contract pass | DN |
-| `/reports` | Insights/export sections had manual spacing drift. | Added `PageShell` + `PageSection` for date range, insights, export cluster; refresh action now full-width on mobile. | Layout-contract pass | DN |
+| `/reports` | Long stacked card layout made analytics scanning difficult. | Rebuilt into tabbed chart workspace with unified filters, backend-driven trend/distribution/productivity data, and dedicated export tab. | Layout-contract pass | DN |
 | `/settings` | Redirect route only. | No visual surface; behavior unchanged. | Redirect-only | NJ |
 | `/settings/branches` | Wrapper-only route relied on local spacing. | Backing `BranchesTable` moved to `PageShell`; header CTA width normalized. | Layout-contract pass | DN |
 | `/settings/branches/[id]` | Branch hub used independent container conventions. | Backing `BranchHubConfig` migrated to `PageShell` + `PageSection`; overview/header and global-pricing CTA now wrap cleanly on mobile. | Layout-contract pass | DN |
@@ -231,6 +231,656 @@ Legend: `DN` (Done), `IP` (In Progress), `NS` (Not Started), `NJ` (No change jus
 - Changes made:
   - Tightened header spacing and made action cluster width-aware on mobile.
   - Made global pricing card padding responsive and CTA full-width on mobile.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/orders` (layout refresh)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/orders/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/orders-list-toolbar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/orders-list-table.tsx`
+- Before issues:
+  - Orders page relied on a single table block with weak visual hierarchy.
+  - Toolbar controls and reset action alignment were less predictable across mobile and desktop.
+  - Table rows were readable but visually flat for customer/due-date scanning.
+- Changes made:
+  - Added a four-card snapshot band (filtered value, due soon, overdue, completed) above the table.
+  - Refined toolbar layout: grouped search and filters, right-aligned reset action, explicit `orders` result label.
+  - Improved row readability with customer initials avatar, enhanced due-date sub-status, and more consistent action-cell spacing.
+  - Kept all existing handlers/behavior unchanged (search, filters, paging, row actions, routing).
+- Responsive checks:
+  - 360px: pass (cards stack and controls wrap without clipping)
+  - 768px: pass (2-column snapshot + stable toolbar grouping)
+  - 1280px: pass (4-column snapshot + right-balanced toolbar and table actions)
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/orders/[id]` (detail redesign pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/orders/[id]/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-detail-breadcrumb.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-detail-header-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-customer-insight-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-items-table.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-financial-summary-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-timeline-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-lifecycle-card.tsx`
+- Before issues:
+  - Header actions and metadata felt dense and visually flat.
+  - Customer/items/finance/timeline cards used mixed visual rhythm and weak separation.
+  - Detail page lacked a concise top-level snapshot for quick decision-making.
+- Changes made:
+  - Rebuilt header command card with stronger action hierarchy and cleaner metadata pills.
+  - Added top snapshot cards for pieces, assigned tailors, active tasks, and balance due.
+  - Refined detail split to `3-2` and reordered side rail for better operational flow.
+  - Redesigned customer profile, order items, financial summary, timeline, and lifecycle cards for consistent spacing/typography.
+  - Preserved all existing business behavior (status updates, payment capture, task dialogs, sharing, print).
+- Responsive checks:
+  - 360px: pass (actions and metric cards stack cleanly)
+  - 768px: pass (balanced two-column behavior and card spacing)
+  - 1280px: pass (stable 3/2 detail split and side rail hierarchy)
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/orders/new` (form experience refresh)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/orders/new/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-customer-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-items-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-item-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-summary-card.tsx`
+- Before issues:
+  - Top-level context for mode/customer/pieces/due date was weak.
+  - Piece card controls and addon actions felt misaligned and visually inconsistent.
+  - Summary rail fields were dense on mobile and lacked clear grouping.
+- Changes made:
+  - Added a consistent four-card operations strip under the page header (workflow, customer, pieces, due date).
+  - Wired `selectedCustomer` into the customer card and surfaced customer preview details.
+  - Reworked item cards for stronger control alignment, clearer piece totals, and consistent destructive icon-button behavior.
+  - Refined summary rail grouping (customer/due, subtotal+discount, totals+balance) and improved mobile stacking.
+- Responsive checks:
+  - 360px: pass (cards stack, action buttons remain full-width where needed)
+  - 768px: pass (balanced card grid and stable form grouping)
+  - 1280px: pass (clean `DetailSplit` with persistent summary rail)
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/customers` (list-page polish refresh)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/CustomerTable.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/list/customers-page-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/list/customers-list-toolbar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/list/customers-directory-table.tsx`
+- Before issues:
+  - Page opened directly into the table with limited top-level context.
+  - Toolbar filter count and mobile reset alignment were less explicit.
+  - Minor inconsistency in table density and action-cell polish.
+- Changes made:
+  - Added a compact insight strip (total, WhatsApp connected in current view, active segment) before the directory table.
+  - Updated page header copy/CTA wording and improved visual hierarchy.
+  - Tightened toolbar behavior with explicit `customers` result labeling, accurate active-filter count, and mobile-safe reset placement.
+  - Polished customer rows (avatar sizing, tabular number treatment, action-button semantics).
+- Responsive checks:
+  - 360px: pass (insight cards stack and toolbar controls wrap cleanly)
+  - 768px: pass (two-column insight rhythm + stable toolbar)
+  - 1280px: pass (three-card insight row + balanced table surface)
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/customers/[id]` (no-tabs detail redesign)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/customers/[id]/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-customer-detail-page.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-detail-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-profile-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-detail-tabs.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-measurements-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-orders-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-notes-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/detail/customer-detail-skeleton.tsx`
+- Before issues:
+  - Detail view relied on tab switching, which hid context and slowed scanning on mobile.
+  - Header/profile content was visually flatter and less aligned with current route polish system.
+  - Measurements/orders/notes sections had mixed spacing rhythm.
+- Changes made:
+  - Removed tab-based navigation from detail surface and converted to persistent stacked sections (Measurements, Order History, Notes).
+  - Added a top KPI strip (orders, spent, lifetime value, measurement sets) for immediate context.
+  - Rebuilt detail header action hierarchy and metadata badges for cleaner mobile/desktop alignment.
+  - Refined profile card styling and section cards for consistent dark-theme spacing and readability.
+- Responsive checks:
+  - 360px: pass (no hidden tab content, section flow remains readable)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/employees` (list-page visual refresh)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/employees/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/list/employees-list-toolbar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/list/employees-list-table.tsx`
+- Before issues:
+  - Page entered directly into table with minimal operational context.
+  - Toolbar reset control and result labeling were less consistent with other polished list routes.
+  - Minor typography/action inconsistencies in list rows.
+- Changes made:
+  - Added a consistent insight strip (total employees, rows on page, filter state) above the table.
+  - Updated page header copy/CTA phrasing and wrapped table in standardized sectioned shell.
+  - Aligned toolbar behavior with shared contract (`employees` result label, mobile-safe reset alignment).
+  - Polished table row density, tabular contact display, and action semantics.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/employees/[id]` (complete detail redesign pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/employees/[id]/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-detail-breadcrumb.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-detail-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-financial-cards.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-profile-sidebar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-detail-tabs.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-detail-skeleton.tsx`
+- Before issues:
+  - Detail header structure differed from the standardized order/customer detail command headers.
+  - Missing breadcrumb hierarchy and weaker visual rhythm between header, KPIs, and content split.
+  - Tab rail and ledger controls were less responsive on narrow screens.
+- Changes made:
+  - Added detail breadcrumb (`Employees > {employeeCode}`) and converted header to command-card pattern with aligned metadata/action clusters.
+  - Refined KPI cards and sidebar cards to shared spacing, border, and typographic standards.
+  - Rebalanced detail layout via `DetailSplit` and improved mobile order.
+  - Improved tabs responsiveness (horizontal scroll-safe trigger rail) and ledger filter/action control wrapping for mobile.
+  - Updated skeleton layout to match final page structure.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/employees/[id]` (no-tabs interaction upgrade)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-detail-tabs.tsx`
+- Before issues:
+  - Detail content still depended on tabs, which hid key sections and reduced scanability.
+  - Mobile interaction required repeated tab switching for core actions (ledger/documents/account).
+- Changes made:
+  - Replaced tabbed layout with stacked, collapsible section cards (Production Tasks, Work History, Ledger, Attendance, Documents, Account).
+  - Added quick-jump section links at top for faster navigation across long detail surfaces.
+  - Preserved all existing behavior and handlers (task status, ledger filters/delete/paging, document upload, account provisioning).
+  - Moved ledger initial fetch to first section open for predictable lazy loading without tab events.
+- Responsive checks:
+  - 360px: pass (collapsible sections reduce scrolling fatigue and avoid hidden tab rails)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/orders/new` (form layout polish pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/orders/new/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-summary-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-items-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/orders/order-form-item-card.tsx`
+- Before issues:
+  - Entry experience lacked a clear workflow frame and section hierarchy.
+  - Summary rail sticky behavior could feel cramped on smaller viewports.
+  - Item cards repeated piece-total context and had slightly noisy action hierarchy.
+- Changes made:
+  - Added an explicit `Order Workflow` guidance card with three clear steps above the form.
+  - Refined top snapshot grid into a cleaner three-card operational strip (customer, pieces, due date).
+  - Wrapped form area in explicit `PageSection` rhythm and moved sticky behavior to split-side container on desktop.
+  - Updated summary card header/body/footer hierarchy for clearer review/submit flow.
+  - Simplified item card header copy, reduced duplicate total messaging, and normalized addon action button styling.
+- Responsive checks:
+  - 360px: pass (actions full-width, cards stack cleanly, no overflow)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/payments` (visual polish pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/payments/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/payments/payments-employee-selector-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/payments/payments-summary-cards.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/payments/payments-history-section.tsx`
+- Before issues:
+  - Header context and section rhythm were lighter than other polished Core Ops routes.
+  - Employee selector lacked clear contextual metadata once a staff member was selected.
+  - KPI cards used mixed visual treatment and less consistent action hierarchy.
+  - History toolbar reset behavior felt tighter on mobile.
+- Changes made:
+  - Wrapped page header in standard section rhythm and made description context-aware based on selected employee.
+  - Redesigned employee selector into command-style card with icon, clearer helper copy, and selected employee metadata chips.
+  - Reworked payment summary cards into consistent neutral card system with stronger hierarchy and explicit outstanding status badge.
+  - Updated history block title/result labeling and improved mobile filter-reset behavior (full-width reset on small screens).
+- Responsive checks:
+  - 360px: pass (selector and reset controls stack cleanly)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/expenses` (visual polish pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/expenses/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/expenses/expenses-overview-cards.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/expenses/expenses-filters-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/expenses/expenses-table.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/expenses/expense-create-dialog.tsx`
+- Before issues:
+  - Page sections were functionally correct but flatter than updated Core Ops visual hierarchy.
+  - Overview area had only two cards and weaker filter-state visibility.
+  - Toolbar filter controls/reset alignment was less consistent on mobile.
+  - Expense create dialog lacked context block and had slightly denser spacing.
+- Changes made:
+  - Standardized page-header section rhythm and made description context-aware with current totals.
+  - Upgraded overview strip to three cards (page spend, record count, active filters) with consistent icon/header treatment.
+  - Improved toolbar labeling and made reset action full-width on mobile and right-aligned on larger screens.
+  - Tuned table row typography and description readability while preserving behavior.
+  - Added a compact context panel and relaxed vertical rhythm in create-expense dialog.
+- Responsive checks:
+  - 360px: pass (cards stack, filter controls wrap cleanly, reset remains accessible)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Cross-Route: Shared Stat Card System
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/ui/stat-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/orders/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/orders/new/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/customers/CustomerTable.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/customers/[id]/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/employees/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/employees/detail/employee-financial-cards.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/payments/payments-summary-cards.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/expenses/expenses-overview-cards.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/users/users-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-analytics-stats-grid.tsx`
+- Before issues:
+  - Multiple routes used custom one-off stat card markup with different spacing, icon framing, and value hierarchy.
+  - Design drift made KPI strips feel inconsistent between Core Ops and Settings views.
+- Changes made:
+  - Introduced reusable `StatCard` primitive with unified header/body structure, tone variants, badge support, helper text, and optional action slot.
+  - Migrated core KPI strips and settings stat grids to use the shared primitive while preserving route data and behavior.
+  - Standardized icon container, title/subtitle rhythm, value styling, and card shell across migrated pages.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - Continue migrating remaining specialized analytics cards (dashboard/reports) to `StatCard` where appropriate.
+
+### Route: `/reports` (tabbed analytics workspace)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/reports/reports.controller.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/reports/reports.service.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/packages/shared-types/src/reports.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/lib/api/reports.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/lib/reports-date.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-reports-workspace.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/reports/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/ui/chart-shell.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/ui/chart-empty-state.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/ui/chart-loading-state.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-workspace-filters.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-overview-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-financial-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-operations-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-exports-tab.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-financial-trend-chart.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-distribution-chart.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-productivity-chart.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-chart-legend.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/reports/reports-export-grid.tsx`
+- Before issues:
+  - Analytics content was stacked vertically with high scanning cost and weak content hierarchy.
+  - Graph surfaces were mostly card-like summaries without dedicated trend/distribution work areas.
+  - Date/filter controls were isolated from chart context and did not support preset-driven flow.
+- Changes made:
+  - Rebuilt `/reports` into a tabbed workspace: `Overview`, `Financial`, `Operations`, `Exports`.
+  - Added unified filter bar with date presets (`7D/30D/90D/MTD/QTD/YTD/Custom`) and granularity control.
+  - Added backend-driven report endpoints for financial trend, distributions, and ranged productivity.
+  - Extended summary payload with previous-period metrics for trend comparison badges.
+  - Implemented reusable chart UI primitives (`ChartShell`, empty/loading states) and dedicated chart components.
+  - Kept export/print flows unchanged while moving them into a dedicated tab.
+  - Removed obsolete pre-tab reports components to reduce UI drift and duplication.
+- Responsive checks:
+  - 360px: pass (filter chips/tabs scroll-wrap safely, charts stack cleanly)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - Recharts dependency install is currently blocked in this environment (no npm registry network access), so charts are implemented with robust native SVG for this pass.
+
+### Route: `/settings/garments` (list consistency + stats pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/GarmentTypesTable.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/list/garment-types-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/list/garment-types-list-toolbar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/list/garment-types-inventory-table.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-garment-types-page.ts`
+- Before issues:
+  - Route lacked backend-driven KPI strip and relied mostly on table-only presentation.
+  - Row-click behavior was less consistent with other core/settings tables.
+  - Toolbar search affordance and results language were less clear.
+- Changes made:
+  - Added backend-driven garment KPI strip using shared `StatCard` component (total types, active types, avg retail price, visible results).
+  - Updated hook to fetch table data + garment stats in parallel from existing backend APIs.
+  - Added table row click navigation to garment detail for consistency with other tables.
+  - Isolated action buttons with `stopPropagation` to prevent accidental row navigation.
+  - Refined toolbar copy/icon (`Search`, `types`) for clearer filter intent.
+- Responsive checks:
+  - 360px: pass (stats stack and toolbar wraps without clipping)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/settings/garments/[id]` (complete detail redesign)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/settings/garments/[id]/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-detail-breadcrumb.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-detail-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-analytics-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-overview-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-measurement-forms-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-pricing-sidebar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-rates-section.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-detail-skeleton.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/garments/detail/garment-detail-not-found.tsx`
+- Before issues:
+  - Detail page header and navigation pattern were inconsistent with other command-style detail routes.
+  - Content hierarchy felt fragmented (rates detached from main detail flow and weaker section rhythm).
+  - Skeleton/not-found states did not match the standardized route shell contract.
+- Changes made:
+  - Added garment breadcrumb and rebuilt header as a command card with aligned metadata/action hierarchy.
+  - Upgraded KPI strip to include payout-focused financial context.
+  - Rebalanced layout into `DetailSplit` (`3-2`) with stronger main/side information grouping.
+  - Redesigned overview, measurement forms, pricing sidebar, pricing logs, and rates section with consistent card primitives and responsive action rows.
+  - Standardized loading and not-found states using shared shell/section patterns.
+- Responsive checks:
+  - 360px: pass (header actions stack cleanly, no clipped controls)
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/settings/rates` (labor rates consistency pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/settings/rates/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/rates/rates-page-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/rates/rates-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/rates/rates-search-stats.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-rates-page.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/lib/api/rates.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/rates/rates.controller.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/rates/rates.service.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/packages/shared-types/src/rates.ts`
+- Before issues:
+  - Header/back pattern drifted from other settings list pages.
+  - No standardized KPI strip above table for quick rate coverage visibility.
+  - Page lacked a dedicated backend stats contract.
+- Changes made:
+  - Converted header to shared list-page pattern with consistent CTA hierarchy.
+  - Added backend-driven rates stats endpoint and stat-card strip (total/global/branch-scoped/visible rows).
+  - Kept existing search/pagination behavior while aligning toolbar labels and reset action.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/settings/design-types` (table + filter consistency pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/(dashboard)/settings/design-types/page.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/design-types/design-types-page-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/design-types/design-types-table.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/design-types/design-types-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-design-types-page.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/lib/api/design-types.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/design-types/design-types.controller.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/design-types/design-types.service.ts`
+- Before issues:
+  - No search/reset toolbar controls despite table-heavy workflow.
+  - Header pattern drifted with back-button treatment unlike other settings list routes.
+  - No unified KPI strip for scope and activation visibility.
+- Changes made:
+  - Added backend search support for design types and wired it through page hook + toolbar.
+  - Added shared stat-card strip (total/global/branch-scoped/active).
+  - Enabled row click edit interaction and isolated action buttons with stopPropagation for predictable behavior.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/settings/measurements` (list analytics + shell consistency pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/MeasurementCategoriesTable.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/measurements/list/measurement-categories-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/measurements/list/measurement-categories-list-toolbar.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-measurement-categories-page.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/lib/api/config.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/config/config.controller.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/config/config.service.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/packages/shared-types/src/config.ts`
+- Before issues:
+  - Page had table-only presentation with no high-level measurement coverage indicators.
+  - Measurement stats were not available through a dedicated backend contract.
+- Changes made:
+  - Added backend `measurement-stats` endpoint and connected it to the page hook.
+  - Added shared KPI strip (categories/active/total fields/visible rows).
+  - Kept existing table filtering and pagination while aligning toolbar label contract.
+- Responsive checks:
+  - 360px: pass
+  - 768px: pass
+  - 1280px: pass
+- Interaction regression checks:
+  - Header actions: pass
+  - Filters/forms/dialogs: pass
+  - Navigation/buttons: pass
+- Accessibility quick pass:
+  - Heading order: pass
+  - Focus visibility: pass
+  - Touch target size: pass
+- Follow-ups:
+  - None
+
+### Route: `/settings/measurements/[id]` (detail reliability + visual redesign pass)
+- Status: DN
+- Files changed:
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/MeasurementCategoryDetail.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/measurements/detail/measurement-category-breadcrumbs.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/measurements/detail/measurement-fields-stats-grid.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/components/config/measurements/detail/measurement-fields-table.tsx`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/hooks/use-measurement-category-detail-page.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/lib/api/config.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/config/config.controller.ts`
+  - `/Users/muhammadawais/Documents/My Tailors/tbms/apps/api/src/config/config.service.ts`
+- Before issues:
+  - Detail page loaded category by fetching up to 100 categories and filtering client-side.
+  - Header/breadcrumb pattern differed from other modernized detail pages.
+  - No dedicated field-level KPI context in detail view.
+- Changes made:
+  - Added backend single-category endpoint and switched detail hook to direct fetch by id (correct/reliable).
+  - Rebuilt breadcrumb + command header to match detail-page contract.
+  - Added field stats strip (total/required/optional/dropdown) and improved not-found handling.
 - Responsive checks:
   - 360px: pass
   - 768px: pass

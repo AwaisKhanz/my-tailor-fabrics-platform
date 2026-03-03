@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
-import { Order, OrderStatus } from "@tbms/shared-types";
+import { Order, OrdersListSummary, OrderStatus } from "@tbms/shared-types";
 
 const PAGE_SIZE = 10;
 
@@ -33,21 +33,37 @@ export function useOrdersListPage() {
     useState<OrdersStatusFilter>("ALL");
   const [dateRange, setDateRange] = useState<OrdersDateRange>("30");
   const [search, setSearch] = useState("");
+  const [summary, setSummary] = useState<OrdersListSummary>({
+    totalValue: 0,
+    dueSoonCount: 0,
+    overdueCount: 0,
+    completedCount: 0,
+  });
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await ordersApi.getOrders({
+      const baseFilters = {
         status: statusFilter === "ALL" ? undefined : statusFilter,
         search: search.trim() || undefined,
         from: getFromIsoByRange(dateRange),
+      };
+
+      const [listResponse, summaryResponse] = await Promise.all([
+        ordersApi.getOrders({
+          ...baseFilters,
         page,
         limit: PAGE_SIZE,
-      });
+        }),
+        ordersApi.getOrdersSummary(baseFilters),
+      ]);
 
-      if (response.success) {
-        setOrders(response.data.data);
-        setTotal(response.data.total);
+      if (listResponse.success) {
+        setOrders(listResponse.data.data);
+        setTotal(listResponse.data.total);
+      }
+      if (summaryResponse.success) {
+        setSummary(summaryResponse.data);
       }
     } catch {
       toast({
@@ -112,6 +128,7 @@ export function useOrdersListPage() {
     search,
     statusFilter,
     dateRange,
+    summary,
     activeFilterCount,
     setPage,
     setSearchFilter,

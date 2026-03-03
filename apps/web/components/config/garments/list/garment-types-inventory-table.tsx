@@ -16,6 +16,7 @@ interface GarmentTypesInventoryTableProps {
   total: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  onOpen: (type: GarmentTypeWithWorkflow) => void;
   onEdit: (type: GarmentTypeWithWorkflow) => void;
   onOpenHistory: (type: GarmentTypeWithWorkflow) => void;
   onOpenWorkflow: (type: GarmentTypeWithWorkflow) => void;
@@ -29,6 +30,7 @@ export function GarmentTypesInventoryTable({
   total,
   pageSize,
   onPageChange,
+  onOpen,
   onEdit,
   onOpenHistory,
   onOpenWorkflow,
@@ -81,7 +83,10 @@ export function GarmentTypesInventoryTable({
             <Button
               variant="tableIcon"
               size="iconSm"
-              onClick={() => onEdit(item)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(item);
+              }}
             >
               <Edit2 className="h-4 w-4" />
             </Button>
@@ -89,7 +94,10 @@ export function GarmentTypesInventoryTable({
             <Button
               variant="tableIcon"
               size="iconSm"
-              onClick={() => onOpenHistory(item)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpenHistory(item);
+              }}
               title="View Price History"
             >
               <Clock className="h-4 w-4" />
@@ -98,7 +106,10 @@ export function GarmentTypesInventoryTable({
             <Button
               variant="tableIcon"
               size="iconSm"
-              onClick={() => onOpenWorkflow(item)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpenWorkflow(item);
+              }}
               title="Configure Production Workflow"
             >
               <Shirt className="h-4 w-4" />
@@ -107,7 +118,10 @@ export function GarmentTypesInventoryTable({
             <Button
               variant="tableDanger"
               size="iconSm"
-              onClick={() => onDelete(item)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(item);
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -129,6 +143,7 @@ export function GarmentTypesInventoryTable({
       total={total}
       limit={pageSize}
       onPageChange={onPageChange}
+      onRowClick={onOpen}
       chrome="flat"
     />
   );

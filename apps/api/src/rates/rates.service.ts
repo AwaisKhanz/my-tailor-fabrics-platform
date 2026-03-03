@@ -11,6 +11,22 @@ const MAX_LIMIT = 100;
 export class RatesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private buildSearchOr(search?: string): Prisma.RateCardWhereInput['OR'] {
+    const searchTerm = search?.trim();
+    if (!searchTerm) {
+      return undefined;
+    }
+
+    return [
+      { stepKey: { contains: searchTerm, mode: 'insensitive' } },
+      {
+        garmentType: {
+          name: { contains: searchTerm, mode: 'insensitive' },
+        },
+      },
+    ];
+  }
+
   async findEffectiveRate(
     branchId: string,
     garmentTypeId: string,
@@ -124,23 +140,11 @@ export class RatesService {
         ? Math.min(Math.trunc(options.limit as number), MAX_LIMIT)
         : DEFAULT_LIMIT;
     const skip = (page - 1) * limit;
-    const searchTerm = search?.trim();
-
     const where: Prisma.RateCardWhereInput = {
       deletedAt: null,
       ...(branchId ? { branchId } : {}),
+      OR: this.buildSearchOr(search),
     };
-
-    if (searchTerm) {
-      where.OR = [
-        { stepKey: { contains: searchTerm, mode: 'insensitive' } },
-        {
-          garmentType: {
-            name: { contains: searchTerm, mode: 'insensitive' },
-          },
-        },
-      ];
-    }
 
     const [total, data] = await Promise.all([
       this.prisma.rateCard.count({ where }),
@@ -161,5 +165,44 @@ export class RatesService {
     ]);
 
     return { data, total, page, limit, lastPage: Math.ceil(total / limit) };
+  }
+
+  async getStats(options: { branchId?: string | null; search?: string } = {}) {
+    const searchOr = this.buildSearchOr(options.search);
+
+    const scopedWhere: Prisma.RateCardWhereInput = {
+      deletedAt: null,
+      ...(options.branchId ? { branchId: options.branchId } : {}),
+      OR: searchOr,
+    };
+
+    const total = await this.prisma.rateCard.count({ where: scopedWhere });
+
+    if (options.branchId) {
+      return {
+        total,
+        global: 0,
+        branchScoped: total,
+      };
+    }
+
+    const [global, branchScoped] = await Promise.all([
+      this.prisma.rateCard.count({
+        where: {
+          deletedAt: null,
+          branchId: null,
+          OR: searchOr,
+        },
+      }),
+      this.prisma.rateCard.count({
+        where: {
+          deletedAt: null,
+          NOT: { branchId: null },
+          OR: searchOr,
+        },
+      }),
+    ]);
+
+    return { total, global, branchScoped };
   }
 }

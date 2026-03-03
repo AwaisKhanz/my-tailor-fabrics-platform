@@ -1,24 +1,24 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
 import { RatesPageHeader } from "@/components/rates/rates-page-header";
 import { RatesSearchStats } from "@/components/rates/rates-search-stats";
+import { RatesStatsGrid } from "@/components/rates/rates-stats-grid";
 import { RatesTable } from "@/components/rates/rates-table";
-import { PageShell } from "@/components/ui/page-shell";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useRatesPage } from "@/hooks/use-rates-page";
 
 export default function RatesPage() {
-  const router = useRouter();
-
   const {
     loading,
     rates,
     total,
+    stats,
     page,
     pageSize,
     search,
+    hasActiveFilters,
     garmentTypes,
     branches,
     createDialogOpen,
@@ -32,25 +32,37 @@ export default function RatesPage() {
 
   return (
     <PageShell>
-      <RatesPageHeader onBack={() => router.back()} onCreate={() => setCreateDialogOpen(true)} />
+      <PageSection spacing="compact">
+        <RatesPageHeader onCreate={() => setCreateDialogOpen(true)} />
+      </PageSection>
 
-      <TableSurface>
-        <RatesSearchStats
-          search={search}
-          total={total}
-          onSearchChange={setSearchFilter}
-          onClearSearch={clearSearch}
+      <PageSection spacing="compact">
+        <RatesStatsGrid
+          stats={stats}
+          visibleOnPage={rates.length}
+          hasActiveFilters={hasActiveFilters}
         />
+      </PageSection>
 
-        <RatesTable
-          rates={rates}
-          loading={loading}
-          page={page}
-          total={total}
-          pageSize={pageSize}
-          onPageChange={setPage}
-        />
-      </TableSurface>
+      <PageSection spacing="compact">
+        <TableSurface>
+          <RatesSearchStats
+            search={search}
+            total={total}
+            onSearchChange={setSearchFilter}
+            onClearSearch={clearSearch}
+          />
+
+          <RatesTable
+            rates={rates}
+            loading={loading}
+            page={page}
+            total={total}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
+        </TableSurface>
+      </PageSection>
 
       <CreateRateDialog
         open={createDialogOpen}

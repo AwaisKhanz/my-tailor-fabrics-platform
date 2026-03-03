@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface OrdersListTableProps {
   orders: Order[];
@@ -27,6 +28,17 @@ function formatShortDate(value: string) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+function getInitials(value: string) {
+  const parts = value.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) {
+    return "CU";
+  }
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
 export function OrdersListTable({
@@ -76,13 +88,20 @@ export function OrdersListTable({
       {
         header: "Customer",
         cell: (order) => (
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold leading-tight text-foreground">
-              {order.customer.fullName}
-            </span>
-            <Label variant="dashboard" className="mt-0.5">
-              {order.customer.phone}
-            </Label>
+          <div className="flex items-center gap-2.5">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary/15 text-[11px] font-bold text-primary">
+                {getInitials(order.customer.fullName)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-semibold leading-tight text-foreground">
+                {order.customer.fullName}
+              </span>
+              <Label variant="dashboard" className="mt-0.5">
+                {order.customer.phone}
+              </Label>
+            </div>
           </div>
         ),
       },
@@ -98,12 +117,29 @@ export function OrdersListTable({
         header: "Due Date",
         cell: (order) => {
           const isOverdue = order.status === OrderStatus.OVERDUE;
+          const isCompleted =
+            order.status === OrderStatus.DELIVERED ||
+            order.status === OrderStatus.COMPLETED;
           return (
-            <span
-              className={`whitespace-nowrap text-sm font-medium ${isOverdue ? "font-bold text-destructive" : "text-muted-foreground"}`}
-            >
-              {formatShortDate(order.dueDate)}
-            </span>
+            <div className="flex flex-col items-start gap-0.5">
+              <span
+                className={`whitespace-nowrap text-sm font-medium ${isOverdue ? "font-bold text-destructive" : "text-muted-foreground"}`}
+              >
+                {formatShortDate(order.dueDate)}
+              </span>
+              <Label
+                variant="dashboard"
+                className={
+                  isOverdue
+                    ? "text-destructive"
+                    : isCompleted
+                      ? "text-success"
+                      : "text-muted-foreground"
+                }
+              >
+                {isOverdue ? "Overdue" : isCompleted ? "Closed" : "Scheduled"}
+              </Label>
+            </div>
           );
         },
       },
@@ -131,6 +167,8 @@ export function OrdersListTable({
       {
         header: "Actions",
         align: "right",
+        className: "w-[180px]",
+        headerClassName: "w-[180px]",
         cell: (order) => {
           const isReady = order.status === OrderStatus.READY;
           const isDelivered =
@@ -138,7 +176,7 @@ export function OrdersListTable({
             order.status === OrderStatus.COMPLETED;
 
           return (
-            <div className="flex items-center justify-end gap-1">
+            <div className="flex items-center justify-end gap-1.5">
               <Button
                 type="button"
                 variant="tableIcon"

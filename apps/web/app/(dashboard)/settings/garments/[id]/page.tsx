@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { GarmentAnalyticsStatsGrid } from "@/components/config/garments/detail/garment-analytics-stats-grid";
+import { GarmentDetailBreadcrumb } from "@/components/config/garments/detail/garment-detail-breadcrumb";
 import { GarmentDetailHeader } from "@/components/config/garments/detail/garment-detail-header";
 import { GarmentDetailNotFound } from "@/components/config/garments/detail/garment-detail-not-found";
 import { GarmentDetailSkeleton } from "@/components/config/garments/detail/garment-detail-skeleton";
@@ -40,28 +41,39 @@ export default function GarmentDetailPage() {
 
   return (
     <PageShell>
-      <GarmentDetailHeader garment={garment} onBack={() => router.back()} />
+      <PageSection spacing="compact">
+        <GarmentDetailBreadcrumb
+          garmentName={garment.name}
+          onBack={() => router.push("/settings/garments")}
+        />
+        <GarmentDetailHeader
+          garment={garment}
+          onOpenRates={() => setCreateRateDialogOpen(true)}
+        />
+      </PageSection>
 
-      <GarmentAnalyticsStatsGrid garment={garment} />
+      <PageSection spacing="compact">
+        <GarmentAnalyticsStatsGrid garment={garment} />
+      </PageSection>
 
       <DetailSplit
-        ratio="2-1"
+        ratio="3-2"
+        gap="spacious"
         main={
-          <PageSection>
+          <PageSection spacing="compact">
             <GarmentOverviewCard garment={garment} />
             <GarmentMeasurementFormsCard garment={garment} />
+            <GarmentRatesSection
+              garment={garment}
+              branches={branches}
+              open={createRateDialogOpen}
+              onOpenChange={setCreateRateDialogOpen}
+              onCreateRate={handleCreateRate}
+            />
             <GarmentPricingLogsCard logs={garment.priceLogs || []} />
           </PageSection>
         }
         side={<GarmentPricingSidebar garment={garment} />}
-      />
-
-      <GarmentRatesSection
-        garment={garment}
-        branches={branches}
-        open={createRateDialogOpen}
-        onOpenChange={setCreateRateDialogOpen}
-        onCreateRate={handleCreateRate}
       />
     </PageShell>
   );

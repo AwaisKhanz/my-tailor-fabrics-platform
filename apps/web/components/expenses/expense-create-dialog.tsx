@@ -1,4 +1,5 @@
 import { type ExpenseCategory } from "@/lib/api/expenses";
+import { ReceiptText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Typography } from "@/components/ui/typography";
 import {
   Select,
   SelectContent,
@@ -66,11 +68,22 @@ export function ExpenseCreateDialog({
           <FormStack
             as="form"
             id="expense-create-form"
+            density="relaxed"
             onSubmit={(event) => {
               event.preventDefault();
               onSubmit();
             }}
           >
+            <div className="rounded-xl border border-border/50 bg-muted/30 p-4">
+              <Label variant="dashboard" className="mb-1 block">
+                Entry Scope
+              </Label>
+              <Typography as="p" variant="body" className="inline-flex items-center gap-2 font-semibold">
+                <ReceiptText className="h-4 w-4 text-primary" />
+                Branch expense record
+              </Typography>
+            </div>
+
             <div className="space-y-2">
               <Label variant="dashboard">
                 Category <span className="text-destructive">*</span>

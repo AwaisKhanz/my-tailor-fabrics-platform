@@ -1,21 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { CreateDesignTypeDialog } from "@/components/design-types/CreateDesignTypeDialog";
 import { DesignTypesPageHeader } from "@/components/design-types/design-types-page-header";
+import { DesignTypesStatsGrid } from "@/components/design-types/design-types-stats-grid";
 import { DesignTypesTable } from "@/components/design-types/design-types-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageShell } from "@/components/ui/page-shell";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
 
 export default function DesignTypesPage() {
-  const router = useRouter();
-
   const {
     loading,
     designTypes,
     garmentTypes,
     branches,
+    search,
+    hasActiveFilters,
     createDialogOpen,
     selectedDesign,
     deleteTarget,
@@ -23,6 +23,8 @@ export default function DesignTypesPage() {
     openCreateDialog,
     openEditDialog,
     closeCreateDialog,
+    setSearchFilter,
+    resetFilters,
     saveDesignType,
     requestDeleteDesignType,
     closeDeleteDialog,
@@ -31,16 +33,31 @@ export default function DesignTypesPage() {
 
   return (
     <PageShell>
-      <DesignTypesPageHeader onBack={() => router.back()} onCreate={openCreateDialog} />
+      <PageSection spacing="compact">
+        <DesignTypesPageHeader onCreate={openCreateDialog} />
+      </PageSection>
 
-      <DesignTypesTable
-        loading={loading}
-        designTypes={designTypes}
-        garmentTypes={garmentTypes}
-        branches={branches}
-        onEdit={openEditDialog}
-        onDelete={requestDeleteDesignType}
-      />
+      <PageSection spacing="compact">
+        <DesignTypesStatsGrid
+          designTypes={designTypes}
+          hasActiveFilters={hasActiveFilters}
+        />
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <DesignTypesTable
+          loading={loading}
+          designTypes={designTypes}
+          garmentTypes={garmentTypes}
+          branches={branches}
+          search={search}
+          hasActiveFilters={hasActiveFilters}
+          onSearchChange={setSearchFilter}
+          onResetFilters={resetFilters}
+          onEdit={openEditDialog}
+          onDelete={requestDeleteDesignType}
+        />
+      </PageSection>
 
       <CreateDesignTypeDialog
         open={createDialogOpen}

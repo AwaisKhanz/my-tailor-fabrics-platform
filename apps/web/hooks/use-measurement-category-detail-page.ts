@@ -11,6 +11,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
 
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<MeasurementCategory | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<MeasurementField | null>(null);
@@ -21,17 +22,30 @@ export function useMeasurementCategoryDetailPage(id: string) {
   const fetchCategory = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await configApi.getMeasurementCategories({ limit: 100 });
+      const response = await configApi.getMeasurementCategory(id);
       if (response.success) {
-        const currentCategory = response.data.data.find((entry) => entry.id === id) ?? null;
-        setCategory(currentCategory);
+        setCategory(response.data);
+        setNotFound(false);
       }
     } catch (error) {
       logDevError("Failed to fetch category details:", error);
+      const statusCode =
+        (error as { response?: { status?: number } })?.response?.status ?? 0;
+      if (statusCode === 404) {
+        setCategory(null);
+        setNotFound(true);
+      } else {
+        setNotFound(false);
+        toast({
+          title: "Error",
+          description: "Failed to load category details",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, toast]);
 
   useEffect(() => {
     void fetchCategory();
@@ -89,6 +103,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
   return {
     loading,
     category,
+    notFound,
     isFieldDialogOpen,
     selectedField,
     isConfirmOpen,

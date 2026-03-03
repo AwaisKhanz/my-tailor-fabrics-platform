@@ -26,7 +26,7 @@ export function BranchesListToolbar({
         <>
           <TableSearch
             icon={<Search className="h-4 w-4" />}
-            placeholder="Search branches..."
+            placeholder="Search by branch name, code, phone, or address..."
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
@@ -38,7 +38,7 @@ export function BranchesListToolbar({
             onClick={onResetFilters}
             disabled={!hasActiveFilters}
           >
-            <RotateCcw className="mr-2 h-3.5 w-3.5" />
+            <RotateCcw className="h-3.5 w-3.5" />
             Reset
           </Button>
         </>

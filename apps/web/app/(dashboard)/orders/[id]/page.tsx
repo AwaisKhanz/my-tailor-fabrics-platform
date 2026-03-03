@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CircleDollarSign, Package, TimerReset, UserCog } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
 import { useOrderDetail } from "@/hooks/use-order-detail";
 import { OrderItem, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskAssignmentDialog } from "./TaskAssignmentDialog";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatPKR } from "@/lib/utils";
 import { OrderDetailBreadcrumb } from "@/components/orders/order-detail-breadcrumb";
 import { OrderDetailHeaderCard } from "@/components/orders/order-detail-header-card";
 import { OrderCustomerInsightCard } from "@/components/orders/order-customer-insight-card";
@@ -130,6 +132,18 @@ export default function OrderDetailPage() {
       ? `${window.location.origin}/status/${shareData.token}`
       : "";
 
+  const totalPieces = order.items.reduce(
+    (sum, item) => sum + Math.max(item.quantity ?? 1, 1),
+    0,
+  );
+  const assignedTailorsCount = new Set(
+    order.items.map((item) => item.employeeId).filter(Boolean),
+  ).size;
+  const totalTaskCount = order.items.reduce(
+    (sum, item) => sum + (item.tasks?.length ?? 0),
+    0,
+  );
+
   const handlePrintReceipt = async () => {
     try {
       const receiptBlob = await ordersApi.getReceiptPdf(order.id);
@@ -177,44 +191,107 @@ export default function OrderDetailPage() {
         />
       </PageSection>
 
-      <DetailSplit
-        ratio="2-1"
-        main={
-          <div className="space-y-6">
-            <OrderCustomerInsightCard customer={order.customer} />
+      <PageSection
+        spacing="compact"
+        className="grid auto-rows-fr space-y-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <Card className="border-border/70 bg-card/95">
+          <CardContent spacing="section" className="p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Pieces</Label>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{totalPieces}</p>
+              </div>
+              <div className="rounded-lg bg-primary/15 p-2">
+                <Package className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            <OrderItemsTable
-              items={order.items}
-              employees={employees}
-              onManageTasks={(item) => {
-                setTaskItem(item);
-                setTaskOpen(true);
-              }}
-            />
-          </div>
-        }
-        side={
-          <div className="space-y-6">
-            <OrderFinancialSummaryCard
-              order={order}
-              onCapturePayment={() => setPaymentOpen(true)}
-            />
+        <Card className="border-border/70 bg-card/95">
+          <CardContent spacing="section" className="p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Assigned Tailors</Label>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{assignedTailorsCount}</p>
+              </div>
+              <div className="rounded-lg bg-info/15 p-2">
+                <UserCog className="h-4 w-4 text-info" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            <OrderTimelineCard
-              status={order.status}
-              history={order.statusHistory ?? []}
-            />
+        <Card className="border-border/70 bg-card/95">
+          <CardContent spacing="section" className="p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Active Tasks</Label>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{totalTaskCount}</p>
+              </div>
+              <div className="rounded-lg bg-warning/15 p-2">
+                <TimerReset className="h-4 w-4 text-warning" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            <OrderLifecycleCard
-              status={order.status}
-              statusLoading={statusLoading}
-              onAdvance={(status) => {
-                void updateStatus(status);
-              }}
-            />
-          </div>
-        }
-      />
+        <Card className="border-border/70 bg-card/95">
+          <CardContent spacing="section" className="p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Balance Due</Label>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-destructive">{formatPKR(order.balanceDue)}</p>
+              </div>
+              <div className="rounded-lg bg-destructive/15 p-2">
+                <CircleDollarSign className="h-4 w-4 text-destructive" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <DetailSplit
+          ratio="3-2"
+          main={
+            <div className="space-y-6">
+              <OrderCustomerInsightCard customer={order.customer} />
+
+              <OrderItemsTable
+                items={order.items}
+                employees={employees}
+                onManageTasks={(item) => {
+                  setTaskItem(item);
+                  setTaskOpen(true);
+                }}
+              />
+            </div>
+          }
+          side={
+            <div className="space-y-6">
+              <OrderFinancialSummaryCard
+                order={order}
+                onCapturePayment={() => setPaymentOpen(true)}
+              />
+
+              <OrderLifecycleCard
+                status={order.status}
+                statusLoading={statusLoading}
+                onAdvance={(status) => {
+                  void updateStatus(status);
+                }}
+              />
+
+              <OrderTimelineCard
+                status={order.status}
+                history={order.statusHistory ?? []}
+              />
+            </div>
+          }
+        />
+      </PageSection>
 
       <OrderPaymentDialog
         open={paymentOpen}

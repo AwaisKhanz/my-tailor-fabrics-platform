@@ -9,8 +9,8 @@ interface CustomersPageHeaderProps {
 export function CustomersPageHeader({ onAddCustomer }: CustomersPageHeaderProps) {
   return (
     <PageHeader
-      title="Customer Management"
-      description="Manage and track your tailoring clients and their measurement history."
+      title="Customers"
+      description="Manage client records, sizing history, and communication status from one directory."
       actions={
         <Button
           onClick={onAddCustomer}
@@ -19,7 +19,7 @@ export function CustomersPageHeader({ onAddCustomer }: CustomersPageHeaderProps)
           className="w-full gap-2 sm:w-auto"
         >
           <UserPlus className="h-4 w-4" />
-          Add New Customer
+          New Customer
         </Button>
       }
     />

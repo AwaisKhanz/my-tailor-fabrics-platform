@@ -23,8 +23,6 @@ export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParam
   const [customer, setCustomer] = useState<CustomerWithMeasurements | null>(null);
   const [categories, setCategories] = useState<MeasurementCategory[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-
-  const [activeTab, setActiveTab] = useState("measurements");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [measurementDialogOpen, setMeasurementDialogOpen] = useState(false);
 
@@ -113,10 +111,8 @@ export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParam
     customer,
     categories,
     orders,
-    activeTab,
     editDialogOpen,
     measurementDialogOpen,
-    setActiveTab,
     getMeasurementLabel,
     openEditDialog,
     closeEditDialog,

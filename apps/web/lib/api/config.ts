@@ -3,6 +3,7 @@ import { ApiResponse } from '@/types/common';
 import { 
   GarmentType, 
   MeasurementCategory, 
+  MeasurementStats,
   MeasurementField, 
   CreateMeasurementCategoryInput, 
   UpdateMeasurementCategoryInput,
@@ -62,6 +63,14 @@ export const configApi = {
     if (params.limit) query.append('limit', params.limit.toString());
     
     const response = await api.get<ApiResponse<{ data: MeasurementCategory[]; total: number }>>(`/config/measurement-categories?${query.toString()}`);
+    return response.data;
+  },
+  getMeasurementCategory: async (id: string) => {
+    const response = await api.get<ApiResponse<MeasurementCategory>>(`/config/measurement-categories/${id}`);
+    return response.data;
+  },
+  getMeasurementStats: async () => {
+    const response = await api.get<ApiResponse<MeasurementStats>>('/config/measurement-stats');
     return response.data;
   },
   createMeasurementCategory: async (data: CreateMeasurementCategoryInput) => {

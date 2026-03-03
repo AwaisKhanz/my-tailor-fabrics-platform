@@ -1,4 +1,4 @@
-import { Filter, RotateCcw } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 
@@ -21,12 +21,13 @@ export function GarmentTypesListToolbar({
     <TableToolbar
       title="Garment Type Inventory"
       total={totalCount}
+      totalLabel="types"
       activeFilterCount={hasActiveFilters ? 1 : 0}
       controls={
         <>
           <TableSearch
-            icon={<Filter className="h-4 w-4" />}
-            placeholder="Search garments..."
+            icon={<Search className="h-4 w-4" />}
+            placeholder="Search garment name..."
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />

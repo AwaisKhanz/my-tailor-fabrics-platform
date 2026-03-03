@@ -1,6 +1,11 @@
 import { api } from '../api';
 import { ApiResponse } from '@/types/common';
-import { RateCard, CreateRateCardInput, PaginatedResponse } from '@tbms/shared-types';
+import {
+  RateCard,
+  CreateRateCardInput,
+  PaginatedResponse,
+  RateStatsSummary,
+} from '@tbms/shared-types';
 
 export const ratesApi = {
   findAll: async (params: { search?: string; page?: number; limit?: number } = {}) => {
@@ -19,6 +24,13 @@ export const ratesApi = {
     if (branchId) query.append('branchId', branchId);
     
     const response = await api.get<ApiResponse<RateCard[]>>(`/rates/history?${query.toString()}`);
+    return response.data;
+  },
+  getStats: async (params: { search?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+
+    const response = await api.get<ApiResponse<RateStatsSummary>>(`/rates/stats?${query.toString()}`);
     return response.data;
   },
   create: async (data: CreateRateCardInput) => {

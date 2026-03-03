@@ -1,5 +1,6 @@
 import { OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
+import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -50,68 +51,74 @@ export function OrdersListToolbar({
     <TableToolbar
       title="Order Book"
       total={total}
+      totalLabel="orders"
       activeFilterCount={activeFilterCount}
       controls={
-        <>
+        <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
           <TableSearch
             placeholder="Search order # or customer..."
             value={search}
+            className="lg:max-w-2xl"
             onChange={(event) => onSearchChange(event.target.value)}
           />
 
-          <div className="w-full md:w-40">
-            <Select
-              value={statusFilter}
-              onValueChange={(value) => onStatusChange(value as OrdersStatusFilter)}
-            >
-              <SelectTrigger variant="table" className="text-xs font-bold">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL" className="text-xs font-medium">
-                  All Statuses
-                </SelectItem>
-                {(Object.keys(ORDER_STATUS_CONFIG) as OrderStatus[]).map((status) => (
-                  <SelectItem key={status} value={status} className="text-xs font-medium">
-                    {ORDER_STATUS_CONFIG[status].label}
+          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+            <div className="w-full sm:w-44">
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => onStatusChange(value as OrdersStatusFilter)}
+              >
+                <SelectTrigger variant="table" className="text-xs font-bold">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-xs font-medium">
+                    All Statuses
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  {(Object.keys(ORDER_STATUS_CONFIG) as OrderStatus[]).map((status) => (
+                    <SelectItem key={status} value={status} className="text-xs font-medium">
+                      {ORDER_STATUS_CONFIG[status].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="w-full sm:w-44">
+              <Select
+                value={dateRange}
+                onValueChange={(value) => onDateRangeChange(value as OrdersDateRange)}
+              >
+                <SelectTrigger variant="table" className="text-xs font-bold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DATE_RANGE_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-xs font-medium"
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="w-full md:w-40">
-            <Select
-              value={dateRange}
-              onValueChange={(value) => onDateRangeChange(value as OrdersDateRange)}
+          <div className="flex w-full justify-end lg:ml-auto lg:w-auto">
+            <Button
+              variant="tableReset"
+              size="sm"
+              onClick={onReset}
+              disabled={!hasActiveFilters}
             >
-              <SelectTrigger variant="table" className="text-xs font-bold">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {DATE_RANGE_OPTIONS.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    className="text-xs font-medium"
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <RotateCcw className="h-3.5 w-3.5" />
+              Reset
+            </Button>
           </div>
-
-          <Button
-            variant="tableReset"
-            size="sm"
-            className="md:ml-auto"
-            onClick={onReset}
-            disabled={!hasActiveFilters}
-          >
-            Reset
-          </Button>
-        </>
+        </div>
       }
     />
   );
