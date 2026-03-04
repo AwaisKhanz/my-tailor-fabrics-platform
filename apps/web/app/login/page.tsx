@@ -26,8 +26,8 @@ export default function LoginPage() {
       inset="none"
       className="relative flex min-h-screen w-full items-center justify-center bg-background px-4 py-6 sm:px-6 sm:py-10"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,255,255,0.06),transparent_55%)]" />
-      <div className="relative w-full max-w-6xl overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-2xl shadow-black/35">
+      <div className="pointer-events-none absolute inset-0 bg-theme-radial-top" />
+      <div className="relative w-full max-w-6xl overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-theme-elevated">
         <div className="grid min-h-[640px] grid-cols-1 md:grid-cols-[1.05fr_0.95fr]">
           <LoginBrandPanel />
 

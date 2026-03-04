@@ -56,7 +56,7 @@ export function ExpenseCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Add Business Expense</DialogTitle>
           <DialogDescription>

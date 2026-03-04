@@ -1,7 +1,9 @@
 "use client";
 
 import { Banknote } from "lucide-react";
-import { type DesignType } from "@tbms/shared-types";
+import {
+  type DesignType,
+} from "@tbms/shared-types";
 import { Form } from "@/components/ui/form";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
@@ -9,12 +11,15 @@ import { Typography } from "@/components/ui/typography";
 import { DesignTypeDialogBasicFields } from "@/components/design-types/dialog/design-type-dialog-basic-fields";
 import { DesignTypeDialogScopeFields } from "@/components/design-types/dialog/design-type-dialog-scope-fields";
 import { DesignTypeDialogSortField } from "@/components/design-types/dialog/design-type-dialog-sort-field";
-import { useDesignTypeDialog } from "@/hooks/use-design-type-dialog";
+import {
+  type DesignTypeSubmitPayload,
+  useDesignTypeDialog,
+} from "@/hooks/use-design-type-dialog";
 
 interface CreateDesignTypeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: Partial<DesignType>) => Promise<void>;
+  onSubmit: (payload: DesignTypeSubmitPayload) => Promise<void>;
   initialData?: DesignType | null;
   garmentTypes: { id: string; name: string }[];
   branches: { id: string; name: string; code: string }[];

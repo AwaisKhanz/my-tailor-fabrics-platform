@@ -33,7 +33,11 @@ export class EmployeesService {
       Number.isFinite(limit) && limit > 0
         ? Math.min(Math.trunc(limit), MAX_LIMIT)
         : DEFAULT_LIMIT;
-    return { page: safePage, limit: safeLimit, skip: (safePage - 1) * safeLimit };
+    return {
+      page: safePage,
+      limit: safeLimit,
+      skip: (safePage - 1) * safeLimit,
+    };
   }
 
   private parseOptionalDate(value?: string): Date | null | undefined {
@@ -81,11 +85,17 @@ export class EmployeesService {
     });
   }
 
-  async findAll(branchId: string, page = 1, limit = 20, search?: string) {
-    const { page: safePage, limit: safeLimit, skip } = this.normalizePagination(
-      page,
-      limit,
-    );
+  async findAll(
+    branchId: string | null,
+    page = 1,
+    limit = 20,
+    search?: string,
+  ) {
+    const {
+      page: safePage,
+      limit: safeLimit,
+      skip,
+    } = this.normalizePagination(page, limit);
     const query = search?.trim();
 
     if (query && query.length >= MIN_SEARCH_QUERY_LENGTH) {
@@ -122,7 +132,7 @@ export class EmployeesService {
     return { data, total, page: safePage };
   }
 
-  async findOne(id: string, branchId: string) {
+  async findOne(id: string, branchId: string | null) {
     const employee = await this.prisma.employee.findFirst({
       where: {
         id,
@@ -205,7 +215,7 @@ export class EmployeesService {
     });
   }
 
-  async getStats(id: string, branchId: string) {
+  async getStats(id: string, branchId: string | null) {
     await this.findOne(id, branchId);
     const summary = await this.ledgerService.getBalance(id);
     return {
@@ -216,7 +226,12 @@ export class EmployeesService {
     };
   }
 
-  async getItems(id: string, branchId: string, page = 1, limit = 20) {
+  async getItems(
+    id: string,
+    branchId: string | null,
+    page = 1,
+    limit = 20,
+  ) {
     await this.findOne(id, branchId);
 
     const { limit: safeLimit, skip } = this.normalizePagination(page, limit);
@@ -237,7 +252,9 @@ export class EmployeesService {
         take: safeLimit,
         orderBy: { completedAt: 'desc' },
       }),
-      this.prisma.orderItem.count({ where: { employeeId: id, deletedAt: null } }),
+      this.prisma.orderItem.count({
+        where: { employeeId: id, deletedAt: null },
+      }),
     ]);
 
     return { data, total };
@@ -258,15 +275,20 @@ export class EmployeesService {
   }
 
   // Employee Portal Methods
-  async getMyProfile(employeeId: string, branchId: string) {
+  async getMyProfile(employeeId: string, branchId: string | null) {
     return this.findOne(employeeId, branchId);
   }
 
-  async getMyStats(employeeId: string, branchId: string) {
+  async getMyStats(employeeId: string, branchId: string | null) {
     return this.getStats(employeeId, branchId);
   }
 
-  async getMyItems(employeeId: string, branchId: string, page = 1, limit = 20) {
+  async getMyItems(
+    employeeId: string,
+    branchId: string | null,
+    page = 1,
+    limit = 20,
+  ) {
     return this.getItems(employeeId, branchId, page, limit);
   }
 }

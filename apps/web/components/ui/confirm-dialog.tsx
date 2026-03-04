@@ -55,7 +55,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] overflow-hidden p-0 border-none shadow-2xl">
+      <DialogContent size="md" variant="flush">
         <div className={cn(
           "h-2 w-full",
           variant === "destructive" ? "bg-destructive" : "bg-primary"
@@ -89,7 +89,7 @@ export function ConfirmDialog({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
               size="lg"
-              className="flex-1 font-semibold border-border/50 hover:bg-muted/50 transition-colors"
+              className="flex-1"
             >
               {cancelText}
             </Button>
@@ -98,7 +98,7 @@ export function ConfirmDialog({
               onClick={handleConfirm}
               disabled={isLoading}
               size="lg"
-              className="flex-1 font-semibold shadow-sm transition-all active:scale-95"
+              className="flex-1"
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {confirmText}

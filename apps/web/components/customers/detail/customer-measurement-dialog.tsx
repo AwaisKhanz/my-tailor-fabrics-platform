@@ -1,6 +1,5 @@
 import { MeasurementForm } from "@/components/customers/MeasurementForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DialogSection } from "@/components/ui/form-layout";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 
 interface CustomerMeasurementDialogProps {
   open: boolean;
@@ -16,16 +15,15 @@ export function CustomerMeasurementDialog({
   onSuccess,
 }: CustomerMeasurementDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Update Body Measurements</DialogTitle>
-        </DialogHeader>
-
-        <DialogSection className="flex-1 overflow-y-auto p-1">
-          <MeasurementForm customerId={customerId} onSuccess={onSuccess} />
-        </DialogSection>
-      </DialogContent>
-    </Dialog>
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Update Body Measurements"
+      contentSize="2xl"
+      maxWidthClass="sm:max-w-[700px]"
+      maxHeightClass="max-h-[90vh]"
+    >
+      <MeasurementForm customerId={customerId} onSuccess={onSuccess} />
+    </ScrollableDialog>
   );
 }

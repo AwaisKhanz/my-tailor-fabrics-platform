@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 import { WeeklyPdfService } from './weekly-pdf.service';
@@ -30,9 +31,14 @@ export class PaymentsController {
 
   @Roles(...ADMIN_ROLES)
   @Get('employee/:id/summary')
-  async getSummary(@Param('id') employeeId: string) {
-    const data =
-      await this.paymentsService.getEmployeeBalanceSummary(employeeId);
+  async getSummary(
+    @Param('id') employeeId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.paymentsService.getEmployeeBalanceSummary(
+      employeeId,
+      req.branchId,
+    );
     return { success: true, data };
   }
 
@@ -46,7 +52,7 @@ export class PaymentsController {
       dto.employeeId,
       dto.amount,
       req.user.userId,
-      req.branchId,
+      requireBranchScope(req),
       dto.note,
     );
     return { success: true, data };
@@ -56,6 +62,7 @@ export class PaymentsController {
   @Get('employee/:id/history')
   async getHistory(
     @Param('id') employeeId: string,
+    @Req() req: AuthenticatedRequest,
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('from') from?: string,
@@ -71,28 +78,26 @@ export class PaymentsController {
       to,
       sortBy,
       sortOrder,
+      req.branchId,
     );
     return { success: true, ...data };
   }
 
   @Roles(...ADMIN_ROLES)
   @Get('weekly-report')
-  async getWeeklyReport() {
-    const data = await this.paymentsService.getWeeklyReport();
+  async getWeeklyReport(@Req() req: AuthenticatedRequest) {
+    const data = await this.paymentsService.getWeeklyReport(req.branchId);
     return { success: true, data };
   }
 
   @Roles(...ADMIN_ROLES)
   @Get('weekly-report/pdf')
-  async getWeeklyReportPdf(@Res() res: import('express').Response) {
-    const data = await this.paymentsService.getWeeklyReport();
-    const pdfStream = await this.weeklyPdfService.generatePdfStream(
-      data as {
-        employeeCode: string;
-        employeeName: string;
-        paidThisWeek: number | string;
-      }[],
-    );
+  async getWeeklyReportPdf(
+    @Req() req: AuthenticatedRequest,
+    @Res() res: import('express').Response,
+  ) {
+    const data = await this.paymentsService.getWeeklyReport(req.branchId);
+    const pdfStream = await this.weeklyPdfService.generatePdfStream(data);
 
     res.set({
       'Content-Type': 'application/pdf',

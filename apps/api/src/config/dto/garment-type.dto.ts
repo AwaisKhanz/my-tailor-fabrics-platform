@@ -1,13 +1,24 @@
-import { IsString, IsInt, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateGarmentTypeDto {
   @IsString()
+  @IsNotEmpty()
   name!: string;
 
   @IsInt()
+  @Min(0)
   customerPrice!: number;
 
   @IsInt()
+  @Min(0)
   employeeRate!: number;
 
   @IsString()
@@ -20,23 +31,28 @@ export class CreateGarmentTypeDto {
 
   @IsInt()
   @IsOptional()
+  @Min(0)
   sortOrder?: number;
 
   @IsString({ each: true })
+  @IsArray()
   @IsOptional()
   measurementCategoryIds?: string[];
 }
 
 export class UpdateGarmentTypeDto {
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   name?: string;
 
   @IsInt()
+  @Min(0)
   @IsOptional()
   customerPrice?: number;
 
   @IsInt()
+  @Min(0)
   @IsOptional()
   employeeRate?: number;
 
@@ -50,9 +66,11 @@ export class UpdateGarmentTypeDto {
 
   @IsInt()
   @IsOptional()
+  @Min(0)
   sortOrder?: number;
 
   @IsString({ each: true })
+  @IsArray()
   @IsOptional()
   measurementCategoryIds?: string[];
 }

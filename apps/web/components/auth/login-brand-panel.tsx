@@ -7,10 +7,10 @@ export function LoginBrandPanel() {
   return (
     <aside className="relative flex h-full flex-col overflow-hidden border-b border-border/70 bg-brand-dark px-6 py-8 text-primary-foreground sm:px-8 lg:px-10 lg:py-12 md:border-b-0 md:border-r">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/35 via-background/70 to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_45%)]" />
+      <div className="absolute inset-0 bg-theme-radial-top-right" />
 
-      <div className="relative z-10 mb-8 flex w-fit items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
-        <div className="relative h-5 w-5 overflow-hidden rounded bg-white/20">
+      <div className="relative z-10 mb-8 flex w-fit items-center gap-2 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1.5 backdrop-blur-sm">
+        <div className="relative h-5 w-5 overflow-hidden rounded bg-primary-foreground/20">
           <Image
             src={siteConfig.branding.logo}
             alt={siteConfig.name}
@@ -32,7 +32,7 @@ export function LoginBrandPanel() {
         </Typography>
       </div>
 
-      <div className="relative z-10 mt-10 hidden space-y-4 border-t border-white/15 pt-6 md:block">
+      <div className="relative z-10 mt-10 hidden space-y-4 border-t border-primary-foreground/15 pt-6 md:block">
         <div className="flex items-center gap-2 text-sm text-primary-foreground/80">
           <ShieldCheck className="h-4 w-4 text-primary-foreground" />
           Enterprise-grade access control

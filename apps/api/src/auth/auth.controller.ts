@@ -16,7 +16,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { Public } from '../common/decorators/auth.decorators';
+import { Public, Roles } from '../common/decorators/auth.decorators';
+import { ALL_ROLES } from '@tbms/shared-constants';
 
 @Controller('auth')
 export class AuthController {
@@ -79,6 +80,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_ROLES)
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   async logout(@Req() req: AuthenticatedRequest, @Res() res: Response) {
@@ -91,6 +93,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_ROLES)
   @Get('me')
   getProfile(@Req() req: AuthenticatedRequest) {
     return {

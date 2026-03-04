@@ -33,6 +33,25 @@ export interface CustomerMeasurement {
         fields: import('./config').MeasurementField[];
     };
 }
+export interface CreateCustomerInput {
+    fullName: string;
+    phone: string;
+    whatsapp?: string;
+    email?: string;
+    address?: string;
+    city?: string;
+    notes?: string;
+}
+export interface UpdateCustomerInput extends Partial<CreateCustomerInput> {
+    status?: CustomerStatus;
+}
+export interface ToggleCustomerVipInput {
+    isVip: boolean;
+}
+export interface UpsertCustomerMeasurementInput {
+    categoryId: string;
+    values: Record<string, unknown>;
+}
 export interface CustomersListSummary {
     totalCustomers: number;
     whatsappConnectedCount: number;

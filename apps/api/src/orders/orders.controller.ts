@@ -23,6 +23,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { requireBranchScope } from '../common/utils/branch-scope.util';
 import {
   ADMIN_ROLES,
   DASHBOARD_READ_ROLES,
@@ -45,7 +46,7 @@ export class OrdersController {
   ) {
     const data = await this.ordersService.create(
       createOrderDto,
-      req.branchId,
+      requireBranchScope(req),
       req.user.userId,
       req.user.role,
     );
@@ -111,7 +112,7 @@ export class OrdersController {
   ) {
     const data = await this.ordersService.update(
       id,
-      req.branchId,
+      requireBranchScope(req),
       dto,
       req.user.role,
     );
@@ -122,7 +123,7 @@ export class OrdersController {
   async cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.cancelOrder(
       id,
-      req.branchId,
+      requireBranchScope(req),
       req.user.userId,
     );
     return { success: true, data };
@@ -135,7 +136,11 @@ export class OrdersController {
     @Body() dto: OrderItemDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.ordersService.addItem(id, req.branchId, dto);
+    const data = await this.ordersService.addItem(
+      id,
+      requireBranchScope(req),
+      dto,
+    );
     return { success: true, data };
   }
 
@@ -150,7 +155,7 @@ export class OrdersController {
     const data = await this.ordersService.updateItem(
       id,
       itemId,
-      req.branchId,
+      requireBranchScope(req),
       dto,
     );
     return { success: true, data };
@@ -163,7 +168,11 @@ export class OrdersController {
     @Param('itemId') itemId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    await this.ordersService.removeItem(id, itemId, req.branchId);
+    await this.ordersService.removeItem(
+      id,
+      itemId,
+      requireBranchScope(req),
+    );
     return { success: true };
   }
 
@@ -176,7 +185,7 @@ export class OrdersController {
   ) {
     const data = await this.ordersService.addPayment(
       id,
-      req.branchId,
+      requireBranchScope(req),
       addPaymentDto,
       req.user.userId,
     );
@@ -192,7 +201,7 @@ export class OrdersController {
   ) {
     const data = await this.ordersService.updateStatus(
       id,
-      req.branchId,
+      requireBranchScope(req),
       updateStatusDto,
       req.user.userId,
     );
@@ -221,7 +230,10 @@ export class OrdersController {
   @Roles(...OPERATOR_ROLES)
   @Post(':id/share')
   async shareOrder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.ordersService.generateShareLink(id, req.branchId);
+    const data = await this.ordersService.generateShareLink(
+      id,
+      requireBranchScope(req),
+    );
     return { success: true, data };
   }
 }

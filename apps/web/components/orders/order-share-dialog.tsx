@@ -33,7 +33,7 @@ export function OrderShareDialog({
 }: OrderShareDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Public Status Share</DialogTitle>
           <DialogDescription>

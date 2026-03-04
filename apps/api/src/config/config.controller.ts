@@ -28,7 +28,11 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { ADMIN_ROLES, SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
+import {
+  ADMIN_ROLES,
+  OPERATOR_ROLES,
+  SUPER_ADMIN_ONLY_ROLES,
+} from '@tbms/shared-constants';
 
 @Controller('config')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
@@ -43,6 +47,7 @@ export class ConfigController {
   }
 
   // --- System Settings ---
+  @Roles(...OPERATOR_ROLES)
   @Get('settings')
   async getSystemSettings() {
     const data = await this.configService.getSystemSettings();
@@ -57,7 +62,8 @@ export class ConfigController {
   }
 
   // --- Garment Types ---
-  // Any authenticated user can read garment types, but it resolves prices based on their active branch via header
+  // Operators and above can read garment types; pricing remains branch-scoped via BranchGuard.
+  @Roles(...OPERATOR_ROLES)
   @Get('garment-types')
   async getGarmentTypes(
     @Query('search') search?: string,
@@ -72,6 +78,7 @@ export class ConfigController {
     return { success: true, data };
   }
 
+  @Roles(...OPERATOR_ROLES)
   @Get('garment-types/:id')
   async getGarmentType(@Param('id') id: string) {
     const data = await this.configService.getGarmentType(id);
@@ -127,7 +134,15 @@ export class ConfigController {
     return { success: true, data };
   }
 
+  @Roles(...ADMIN_ROLES)
+  @Delete('garment-types/:id')
+  async deleteGarmentType(@Param('id') id: string) {
+    await this.configService.deleteGarmentType(id);
+    return { success: true };
+  }
+
   // --- Measurement Categories ---
+  @Roles(...OPERATOR_ROLES)
   @Get('measurement-categories')
   async getMeasurementCategories(
     @Query('search') search?: string,
@@ -142,12 +157,14 @@ export class ConfigController {
     return { success: true, data };
   }
 
+  @Roles(...OPERATOR_ROLES)
   @Get('measurement-categories/:id')
   async getMeasurementCategory(@Param('id') id: string) {
     const data = await this.configService.getMeasurementCategory(id);
     return { success: true, data };
   }
 
+  @Roles(...ADMIN_ROLES)
   @Get('measurement-stats')
   async getMeasurementStats() {
     const data = await this.configService.getMeasurementStats();

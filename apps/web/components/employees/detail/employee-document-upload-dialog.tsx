@@ -37,7 +37,7 @@ export function EmployeeDocumentUploadDialog({
 }: EmployeeDocumentUploadDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent size="sm">
         <DialogHeader>
           <DialogTitle>Add Document</DialogTitle>
           <DialogDescription>

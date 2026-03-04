@@ -130,30 +130,30 @@ export function DashboardRevenueExpensesCard({
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
             <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+              <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
               <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
                 Revenue
               </Label>
             </div>
-            <p className="mt-1 text-lg font-bold text-primary">{formatPKR(totalRevenue)}</p>
+            <p className="mt-1 text-lg font-bold text-chart-1">{formatPKR(totalRevenue)}</p>
           </div>
           <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
             <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+              <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
               <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
                 Expenses
               </Label>
             </div>
-            <p className="mt-1 text-lg font-bold text-warning">{formatPKR(totalExpenses)}</p>
+            <p className="mt-1 text-lg font-bold text-chart-2">{formatPKR(totalExpenses)}</p>
           </div>
           <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
             <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-info" />
+              <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
               <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
                 Net
               </Label>
             </div>
-            <p className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-foreground"}`}>
+            <p className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-chart-3"}`}>
               {formatPKR(net)}
             </p>
           </div>
@@ -196,11 +196,11 @@ export function DashboardRevenueExpensesCard({
 
               <line x1={padLeft} y1={zeroY} x2={width - padRight} y2={zeroY} className="stroke-border" />
 
-              {areaPath ? <path d={areaPath} className="fill-primary/15" /> : null}
+              {areaPath ? <path d={areaPath} className="fill-chart-1/15" /> : null}
 
-              <path d={revenuePath} className="stroke-primary" strokeWidth="3" fill="none" strokeLinecap="round" />
-              <path d={expensesPath} className="stroke-warning" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d={netPath} className="stroke-info" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
+              <path d={revenuePath} className="stroke-chart-1" strokeWidth="3" fill="none" strokeLinecap="round" />
+              <path d={expensesPath} className="stroke-chart-2" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d={netPath} className="stroke-chart-3" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
 
               {activePoint ? (
                 <line
@@ -208,16 +208,16 @@ export function DashboardRevenueExpensesCard({
                   y1={padTop}
                   x2={activePoint.x}
                   y2={height - padBottom}
-                  className="stroke-primary/40"
+                  className="stroke-chart-1/40"
                   strokeDasharray="4 4"
                 />
               ) : null}
 
               {points.map((point) => (
                 <g key={point.month}>
-                  <circle cx={point.x} cy={point.revenueY} r="2.8" className="fill-primary" />
-                  <circle cx={point.x} cy={point.expensesY} r="2.4" className="fill-warning" />
-                  <circle cx={point.x} cy={point.netY} r="2.1" className="fill-info" />
+                  <circle cx={point.x} cy={point.revenueY} r="2.8" className="fill-chart-1" />
+                  <circle cx={point.x} cy={point.expensesY} r="2.4" className="fill-chart-2" />
+                  <circle cx={point.x} cy={point.netY} r="2.1" className="fill-chart-3" />
                   <text x={point.x} y={height - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">
                     {point.month}
                   </text>
@@ -244,13 +244,13 @@ export function DashboardRevenueExpensesCard({
                   <text x="10" y="17" className="fill-foreground text-[11px] font-semibold">
                     {activePoint.month}
                   </text>
-                  <text x="10" y="33" className="fill-primary text-[10px]">
+                  <text x="10" y="33" className="fill-chart-1 text-[10px]">
                     Revenue: {formatPKR(activePoint.revenue)}
                   </text>
-                  <text x="10" y="47" className="fill-warning text-[10px]">
+                  <text x="10" y="47" className="fill-chart-2 text-[10px]">
                     Expenses: {formatPKR(activePoint.expenses)}
                   </text>
-                  <text x="10" y="61" className="fill-info text-[10px]">
+                  <text x="10" y="61" className="fill-chart-3 text-[10px]">
                     Net: {formatPKR(activePoint.net)}
                   </text>
                 </g>

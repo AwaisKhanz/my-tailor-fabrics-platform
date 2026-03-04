@@ -6,10 +6,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import {
-  getJwtExpiresIn,
-  getJwtSecret,
-} from '../common/env';
+import { getJwtExpiresIn, getJwtSecret } from '../common/env';
 
 @Module({
   imports: [

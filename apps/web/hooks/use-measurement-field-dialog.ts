@@ -2,13 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+  FieldType,
+  type MeasurementField,
+  type CreateMeasurementFieldInput,
+  type UpdateMeasurementFieldInput,
+} from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
-import { type MeasurementField } from "@/types/config";
 
 export interface FieldFormValues {
   label: string;
-  fieldType: string;
+  fieldType: FieldType;
   unit: string;
   isRequired: boolean;
   dropdownOptions: string[];
@@ -18,7 +23,7 @@ export interface FieldFormValues {
 interface UseMeasurementFieldDialogParams {
   open: boolean;
   categoryId: string;
-  initialData?: Partial<MeasurementField> | null;
+  initialData?: MeasurementField | null;
   existingFields: MeasurementField[];
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -26,7 +31,7 @@ interface UseMeasurementFieldDialogParams {
 
 const DEFAULT_FORM_VALUES: FieldFormValues = {
   label: "",
-  fieldType: "NUMBER",
+  fieldType: FieldType.NUMBER,
   unit: "",
   isRequired: false,
   dropdownOptions: [],
@@ -69,7 +74,7 @@ export function useMeasurementFieldDialog({
     if (initialData) {
       form.reset({
         label: initialData.label ?? "",
-        fieldType: initialData.fieldType ?? "NUMBER",
+        fieldType: initialData.fieldType ?? FieldType.NUMBER,
         unit: initialData.unit ?? "",
         isRequired: initialData.isRequired ?? false,
         dropdownOptions: initialData.dropdownOptions ?? [],
@@ -125,7 +130,10 @@ export function useMeasurementFieldDialog({
         return;
       }
 
-      if (values.fieldType === "DROPDOWN" && values.dropdownOptions.length === 0) {
+      if (
+        values.fieldType === FieldType.DROPDOWN &&
+        values.dropdownOptions.length === 0
+      ) {
         toast({
           title: "Validation Error",
           description: "Please add at least one dropdown option.",
@@ -136,17 +144,21 @@ export function useMeasurementFieldDialog({
 
       setLoading(true);
       try {
-        const payload = {
+        const basePayload = {
           ...values,
-          fieldType: values.fieldType as "NUMBER" | "TEXT" | "DROPDOWN",
           unit: values.unit || undefined,
-          dropdownOptions: values.fieldType === "DROPDOWN" ? values.dropdownOptions : undefined,
-        } as Partial<MeasurementField>;
+          dropdownOptions:
+            values.fieldType === FieldType.DROPDOWN
+              ? values.dropdownOptions
+              : undefined,
+        };
 
         if (initialData?.id) {
+          const payload: UpdateMeasurementFieldInput = basePayload;
           await configApi.updateMeasurementField(initialData.id, payload);
           toast({ title: "Field updated successfully" });
         } else {
+          const payload: CreateMeasurementFieldInput = basePayload;
           await configApi.addMeasurementField(categoryId, payload);
           toast({ title: "Field added successfully" });
         }

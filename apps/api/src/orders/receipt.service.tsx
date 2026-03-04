@@ -138,9 +138,12 @@ const ReceiptDocument = ({ order }: { order: ReceiptOrder }) => (
 export class ReceiptService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async generateOrderReceipt(orderId: string, branchId: string): Promise<NodeJS.ReadableStream> {
-    const order = await this.prisma.order.findUnique({
-      where: { id: orderId, branchId },
+  async generateOrderReceipt(
+    orderId: string,
+    branchId: string | null,
+  ): Promise<NodeJS.ReadableStream> {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, ...(branchId ? { branchId } : {}) },
       include: {
         customer: true,
         branch: true,

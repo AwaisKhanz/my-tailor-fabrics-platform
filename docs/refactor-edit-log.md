@@ -1482,6 +1482,261 @@ This is the single source of truth for implementation edits and why they were ma
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
 
+## 2026-03-04 — Pass 41 (Backend RBAC explicitness and secure endpoint hardening)
+
+### Explicit role coverage and guard hardening
+- `apps/api/src/common/guards/roles.guard.ts`
+  - Changed non-public default from allow to deny when no `@Roles(...)` metadata exists.
+  - Result: every protected handler must now declare explicit role policy.
+- `apps/api/src/app.controller.ts`
+  - Marked root `GET /` endpoint as `@Public()` to keep health/basic root access explicit under deny-by-default role guard.
+- `apps/api/src/auth/auth.controller.ts`
+  - Added `@Roles(...ALL_ROLES)` to authenticated identity endpoints (`POST /auth/logout`, `GET /auth/me`) so policy is explicit instead of implied by guard-only protection.
+
+### Controller policy completion for previously implicit endpoints
+- `apps/api/src/config/config.controller.ts`
+  - Added explicit role decorators to previously implicit reads:
+    - `GET /config/settings` -> `OPERATOR_ROLES`
+    - `GET /config/garment-types` -> `OPERATOR_ROLES`
+    - `GET /config/garment-types/:id` -> `OPERATOR_ROLES`
+    - `GET /config/measurement-categories` -> `OPERATOR_ROLES`
+    - `GET /config/measurement-categories/:id` -> `OPERATOR_ROLES`
+    - `GET /config/measurement-stats` -> `ADMIN_ROLES`
+- `apps/api/src/design-types/design-types.controller.ts`
+  - Added explicit read-policy decorators:
+    - `GET /design-types` -> `OPERATOR_ROLES`
+    - `GET /design-types/:id` -> `OPERATOR_ROLES`
+
+### Mail endpoint security tightening
+- `apps/api/src/mail/mail.controller.ts`
+  - Removed public access for mail integration endpoints by replacing `@Public()` with `@Roles(...SUPER_ADMIN_ONLY_ROLES)`:
+    - `GET /mail/auth-url`
+    - `POST /mail/test`
+  - Existing env gate (`isPublicMailEndpointsEnabled`) remains as a second control, now behind authenticated super-admin authorization.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Regenerated manifest to include newly added tracked files and restore full file-coverage verification.
+  - Marked touched files as `DN` with note `Forty-first modernization pass`:
+    - `apps/api/src/app.controller.ts`
+    - `apps/api/src/auth/auth.controller.ts`
+    - `apps/api/src/common/guards/roles.guard.ts`
+    - `apps/api/src/config/config.controller.ts`
+    - `apps/api/src/design-types/design-types.controller.ts`
+    - `apps/api/src/mail/mail.controller.ts`
+
+### Verification run after edits
+- Explicit RBAC scan script (`controller handlers must have @Roles/@Public`) ✅
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 42 (RBAC escalation fix in role evaluation)
+
+### Authorization correctness hardening
+- `apps/api/src/common/guards/roles.guard.ts`
+  - Replaced role-hierarchy comparison with strict explicit role-membership check (`requiredRoles.includes(user.role)`).
+  - Security impact: prevents implicit privilege crossover into disjoint role scopes (for example, `EMPLOYEE_SELF_ROLES` no longer allows admin/operator/viewer access).
+  - Maintains current policy model because controller decorators already use shared role-group constants (`ADMIN_ROLES`, `OPERATOR_ROLES`, `DASHBOARD_READ_ROLES`, etc.) to include intended elevated roles explicitly.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Updated touched guard file tracking note to `Forty-second modernization pass`:
+    - `apps/api/src/common/guards/roles.guard.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- Explicit RBAC scan script (`controller handlers must have @Roles/@Public`) ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 43 (Branch-scope enforcement for financial endpoints)
+
+### Branch guard normalization
+- `apps/api/src/common/guards/branch.guard.ts`
+  - Normalized `x-branch-id` header parsing for super-admin (`string | string[]` safe handling + trim).
+  - Prevents malformed/array header values from leaking downstream as invalid branch scope.
+
+### Ledger endpoint branch protection completion
+- `apps/api/src/ledger/ledger.controller.ts`
+  - Added `BranchGuard` so ledger endpoints now receive enforced branch scope.
+  - Scoped read endpoints by active/request branch context:
+    - `GET /ledger/:employeeId/balance`
+    - `GET /ledger/:employeeId/statement`
+    - `GET /ledger/:employeeId/earnings`
+- `apps/api/src/ledger/ledger.service.ts`
+  - Added employee-scope assertion helper for branch-constrained access.
+  - Enforced scope checks in:
+    - `createEntry`
+    - `getBalance`
+    - `getStatement`
+    - `getEarningsByPeriod`
+  - Hardened `remove` to scope by branch when provided and return deterministic `NotFoundException` when out-of-scope.
+
+### Payments endpoint branch protection completion
+- `apps/api/src/payments/payments.controller.ts`
+  - Passed active/request branch scope into branch-sensitive reads:
+    - `GET /payments/employee/:id/summary`
+    - `GET /payments/employee/:id/history`
+    - `GET /payments/weekly-report`
+    - `GET /payments/weekly-report/pdf`
+- `apps/api/src/payments/payments.service.ts`
+  - Added employee-scope assertion helper to prevent cross-branch access by non-super-admin users.
+  - Applied scope checks to:
+    - `getEmployeeBalanceSummary`
+    - `getHistory`
+    - `disbursePay`
+  - Weekly report now supports branch-scoped filtering and excludes soft-deleted payments/employees.
+  - Updated ledger calls to pass branch scope context consistently.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Marked touched files as `DN` with note `Forty-third modernization pass`:
+    - `apps/api/src/common/guards/branch.guard.ts`
+    - `apps/api/src/ledger/ledger.controller.ts`
+    - `apps/api/src/ledger/ledger.service.ts`
+    - `apps/api/src/payments/payments.controller.ts`
+    - `apps/api/src/payments/payments.service.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 44 (Design-types branch-scope hardening + compile guardrail fix)
+
+### Design-types branch policy completion
+- `apps/api/src/design-types/design-types.controller.ts`
+  - Added `BranchGuard` to design-types routes to enforce active branch context.
+  - Scoped `findAll` branch resolution:
+    - non-super-admin -> forced to assigned branch context
+    - super-admin -> optional explicit query branch override, otherwise active branch header scope
+  - Hardened write paths to avoid cross-branch mutation by non-super-admin users:
+    - `create` now forces branch assignment for non-super-admin
+    - `update`/`remove` now pass branch scope to service-level guards
+  - Scoped `findOne` to active branch/global defaults when branch scope is active.
+- `apps/api/src/design-types/design-types.service.ts`
+  - Added scope-aware `findOne` behavior (`branchId` or global default).
+  - Added branch-scoped mutation checks before `update`/`remove` to prevent modifying records outside current branch scope.
+  - Preserved super-admin global behavior when no branch scope is selected.
+
+### Compile guardrail fix discovered during hardening
+- `apps/api/src/customers/customers.controller.ts`
+  - Fixed method signatures causing TS1016 (`required parameter cannot follow optional parameter`) by replacing optional decorator params with explicit union type (`string | undefined`) in customer list/summary filters.
+  - No runtime behavior change; this was a type-level ordering fix to keep API compile gate green.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Marked touched files as `DN` with note `Forty-fourth modernization pass`:
+    - `apps/api/src/design-types/design-types.controller.ts`
+    - `apps/api/src/design-types/design-types.service.ts`
+    - `apps/api/src/customers/customers.controller.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 45 (Branch-required mutation policy for core branch domains)
+
+### Explicit branch-scope requirement for mutation endpoints
+- `apps/api/src/customers/customers.controller.ts`
+  - Added controller-level `requireBranchScope` helper to fail fast when branch context is missing.
+  - Applied branch-required guardrail to mutation endpoints:
+    - `POST /customers`
+    - `PUT /customers/:id`
+    - `DELETE /customers/:id`
+    - `POST /customers/:id/measurements`
+    - `PATCH /customers/:id/vip`
+- `apps/api/src/employees/employees.controller.ts`
+  - Added controller-level `requireBranchScope` helper.
+  - Applied branch-required guardrail to mutation endpoints:
+    - `POST /employees`
+    - `PUT /employees/:id`
+    - `DELETE /employees/:id`
+    - `POST /employees/:id/user-account`
+    - `POST /employees/:id/documents`
+- `apps/api/src/orders/orders.controller.ts`
+  - Added controller-level `requireBranchScope` helper.
+  - Applied branch-required guardrail to branch-bound mutation endpoints:
+    - `POST /orders`
+    - `PATCH /orders/:id`
+    - `DELETE /orders/:id`
+    - `POST /orders/:id/items`
+    - `PATCH /orders/:id/items/:itemId`
+    - `DELETE /orders/:id/items/:itemId`
+    - `POST /orders/:id/payment`
+    - `PATCH /orders/:id/status`
+    - `POST /orders/:id/share`
+  - Behavior change: super-admin calls without `x-branch-id` now receive explicit `400` for these branch-bound mutations instead of implicit cross-branch mutation capability.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Marked touched files as `DN` with note `Forty-fifth modernization pass`:
+    - `apps/api/src/customers/customers.controller.ts`
+    - `apps/api/src/employees/employees.controller.ts`
+    - `apps/api/src/orders/orders.controller.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 46 (Branch-required mutation policy extension)
+
+### Extended branch-required mutation enforcement
+- `apps/api/src/expenses/expenses.controller.ts`
+  - Added controller-level `requireBranchScope` helper for explicit branch context validation.
+  - Applied branch-required guardrail to mutation endpoints:
+    - `POST /expenses`
+    - `PUT /expenses/:id`
+    - `DELETE /expenses/:id`
+- `apps/api/src/tasks/tasks.controller.ts`
+  - Added controller-level `requireBranchScope` helper.
+  - Applied branch-required guardrail to mutation endpoints:
+    - `PATCH /tasks/:id/assign`
+    - `PATCH /tasks/:id/status`
+    - `PATCH /tasks/:id/rate`
+- `apps/api/src/payments/payments.controller.ts`
+  - Added controller-level `requireBranchScope` helper.
+  - Applied branch-required guardrail to mutation endpoint:
+    - `POST /payments` (salary disbursement)
+
+### Security outcome
+- Super-admin mutation calls on these branch-bound APIs now require explicit `x-branch-id` and fail with a clear `400` error when missing, instead of relying on implicit/null branch behavior.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Marked touched files as `DN` with note `Forty-sixth modernization pass`:
+    - `apps/api/src/expenses/expenses.controller.ts`
+    - `apps/api/src/tasks/tasks.controller.ts`
+    - `apps/api/src/payments/payments.controller.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 47 (Attendance mutation branch-scope enforcement)
+
+### Attendance mutation hardening
+- `apps/api/src/attendance/attendance.controller.ts`
+  - Added controller-level `requireBranchScope` helper for explicit branch context validation.
+  - Applied branch-required guardrail to mutation endpoints:
+    - `POST /attendance/clock-in`
+    - `POST /attendance/clock-out/:recordId`
+  - Security outcome: super-admin mutation calls now require `x-branch-id` instead of implicitly deriving attendance branch from employee context.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Marked touched file as `DN` with note `Forty-seventh modernization pass`:
+    - `apps/api/src/attendance/attendance.controller.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
 ## 2026-03-03 — Pass 35 (Backend expenses hardening)
 
 ### Expenses domain hardening (`apps/api/src/expenses/expenses.service.ts`)
@@ -1719,4 +1974,116 @@ This is the single source of truth for implementation edits and why they were ma
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 48 (Backend branch-scope helper deduplication)
+
+### Shared branch-scope utility extraction
+- Added `apps/api/src/common/utils/branch-scope.util.ts` as the single reusable source for branch-required mutation validation:
+  - `requireBranchScope(req)`
+  - canonical error message constant `BRANCH_SCOPE_REQUIRED_MESSAGE`
+- Purpose: remove repeated controller-local implementations and keep branch-scope failure semantics identical everywhere.
+
+### Controller cleanup (duplicate helper removal)
+- Replaced local `private requireBranchScope(...)` methods with shared utility usage in:
+  - `apps/api/src/customers/customers.controller.ts`
+  - `apps/api/src/employees/employees.controller.ts`
+  - `apps/api/src/orders/orders.controller.ts`
+  - `apps/api/src/expenses/expenses.controller.ts`
+  - `apps/api/src/tasks/tasks.controller.ts`
+  - `apps/api/src/payments/payments.controller.ts`
+  - `apps/api/src/attendance/attendance.controller.ts`
+- Result: one policy implementation, no repeated helper logic, and cleaner controller classes.
+
+### Nullable branch-scope typing alignment
+- Updated `apps/api/src/common/interfaces/request.interface.ts`:
+  - `AuthenticatedRequest.branchId` now correctly reflects guard behavior as `string | null`.
+- Updated read-path services/controllers to handle nullable branch context explicitly (instead of relying on implicit runtime behavior):
+  - `apps/api/src/attendance/attendance.service.ts`
+  - `apps/api/src/customers/customers.service.ts`
+  - `apps/api/src/employees/employees.service.ts`
+  - `apps/api/src/orders/orders.service.ts`
+  - `apps/api/src/orders/receipt.service.tsx`
+  - `apps/api/src/tasks/tasks.service.ts`
+  - `apps/api/src/reports/reports.controller.ts`
+  - `apps/api/src/design-types/design-types.controller.ts`
+- Safety outcome:
+  - Branch filters on read paths are now conditionally applied when branch scope is present.
+  - Super-admin no-branch context is handled explicitly and type-safely.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Added new tracked file:
+    - `apps/api/src/common/utils/branch-scope.util.ts` (`DN`, `Forty-eighth modernization pass`)
+  - Updated touched files to `Forty-eighth modernization pass`:
+    - `apps/api/src/common/interfaces/request.interface.ts`
+    - `apps/api/src/customers/customers.controller.ts`
+    - `apps/api/src/customers/customers.service.ts`
+    - `apps/api/src/employees/employees.controller.ts`
+    - `apps/api/src/employees/employees.service.ts`
+    - `apps/api/src/orders/orders.controller.ts`
+    - `apps/api/src/orders/orders.service.ts`
+    - `apps/api/src/orders/receipt.service.tsx`
+    - `apps/api/src/expenses/expenses.controller.ts`
+    - `apps/api/src/tasks/tasks.controller.ts`
+    - `apps/api/src/tasks/tasks.service.ts`
+    - `apps/api/src/payments/payments.controller.ts`
+    - `apps/api/src/attendance/attendance.controller.ts`
+    - `apps/api/src/attendance/attendance.service.ts`
+    - `apps/api/src/reports/reports.controller.ts`
+    - `apps/api/src/design-types/design-types.controller.ts`
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Forty-eighth Implementation Pass”.
+  - Updated Phase 2 note and manifest snapshot counts.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 49 (Backend branch-resolution logic centralization)
+
+### Shared branch-resolution utility
+- Added `apps/api/src/common/utils/branch-resolution.util.ts` with reusable branch-scope helpers:
+  - `resolveBranchScopeForRead`
+  - `resolveBranchScopeForReadOrNull`
+  - `resolveBranchScopeForMutation`
+- Purpose: remove repeated super-admin/non-super-admin branch resolution logic and standardize handling of `all` and active branch context.
+
+### Controller consistency refactor
+- `apps/api/src/reports/reports.controller.ts`
+  - Replaced local `resolveBranch` method and inline branch-scoping logic with shared utility calls.
+  - Preserved existing `branchId=all` behavior for super-admin reads/exports through centralized option handling.
+- `apps/api/src/rates/rates.controller.ts`
+  - Replaced duplicated branch resolution in list/stats/history with shared utility usage.
+  - Replaced inline create-branch assignment logic with `resolveBranchScopeForMutation`.
+- `apps/api/src/design-types/design-types.controller.ts`
+  - Replaced local create/findAll branch-scoping logic with shared branch-resolution helpers.
+  - Added super-admin `branchId=all` consistency for design-type list filtering.
+- `apps/api/src/search/search.controller.ts`
+  - Replaced direct `req.branchId ?? null` usage with shared nullable read-scope helper.
+
+### Consistency outcome
+- One canonical implementation now governs:
+  - active branch fallback
+  - super-admin request-branch override
+  - `all` token handling for global reads
+  - mutation branch assignment defaults
+- This removes duplicated branching rules and reduces drift risk across controllers.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Added new tracked utility file:
+    - `apps/api/src/common/utils/branch-resolution.util.ts` (`DN`, `Forty-ninth modernization pass`)
+  - Updated touched file notes to `Forty-ninth modernization pass`:
+    - `apps/api/src/reports/reports.controller.ts`
+    - `apps/api/src/rates/rates.controller.ts`
+    - `apps/api/src/design-types/design-types.controller.ts`
+    - `apps/api/src/search/search.controller.ts`
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)

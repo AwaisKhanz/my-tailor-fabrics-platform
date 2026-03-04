@@ -36,7 +36,7 @@ export function ThemeToggle() {
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuLabel>Color Mode</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => setTheme("light")}
@@ -55,19 +55,21 @@ export function ThemeToggle() {
 
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Theme Preset</DropdownMenuLabel>
-        {THEME_PRESETS.map((themePreset) => (
-          <DropdownMenuItem
-            key={themePreset.id}
-            onClick={() => setPreset(themePreset.id)}
-            className={cn(
-              "justify-between",
-              preset === themePreset.id && "text-primary",
-            )}
-          >
-            <span>{themePreset.label}</span>
-            {preset === themePreset.id ? <Check className="h-4 w-4" /> : null}
-          </DropdownMenuItem>
-        ))}
+        <div className="max-h-72 overflow-y-auto pr-1">
+          {THEME_PRESETS.map((themePreset) => (
+            <DropdownMenuItem
+              key={themePreset.id}
+              onClick={() => setPreset(themePreset.id)}
+              className={cn(
+                "justify-between",
+                preset === themePreset.id && "text-primary",
+              )}
+            >
+              <span>{themePreset.label}</span>
+              {preset === themePreset.id ? <Check className="h-4 w-4" /> : null}
+            </DropdownMenuItem>
+          ))}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

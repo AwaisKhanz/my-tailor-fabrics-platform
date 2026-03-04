@@ -12,8 +12,15 @@ import {
   AddonType as PrismaAddonType,
   OrderStatus as PrismaOrderStatus,
 } from '@prisma/client';
-import { CreateOrderDto, OrderItemDto, OrderItemAddonDto } from './dto/create-order.dto';
-import { UpdateOrderDto, UpdateOrderItemAddonDto } from './dto/update-order.dto';
+import {
+  CreateOrderDto,
+  OrderItemDto,
+  OrderItemAddonDto,
+} from './dto/create-order.dto';
+import {
+  UpdateOrderDto,
+  UpdateOrderItemAddonDto,
+} from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
@@ -117,8 +124,14 @@ export class OrdersService {
           );
         }
 
-        const customerPrice = item.unitPrice !== undefined && item.unitPrice !== 0 ? item.unitPrice : type.customerPrice;
-        const employeeRate = item.employeeRate !== undefined && item.employeeRate !== 0 ? item.employeeRate : type.employeeRate;
+        const customerPrice =
+          item.unitPrice !== undefined && item.unitPrice !== 0
+            ? item.unitPrice
+            : type.customerPrice;
+        const employeeRate =
+          item.employeeRate !== undefined && item.employeeRate !== 0
+            ? item.employeeRate
+            : type.employeeRate;
 
         // Split quantity into individual pieces
         for (let i = 0; i < item.quantity; i++) {
@@ -137,7 +150,8 @@ export class OrdersService {
             0,
           );
 
-          subtotal += customerPrice + (designType?.defaultPrice || 0) + addonsPrice;
+          subtotal +=
+            customerPrice + (designType?.defaultPrice || 0) + addonsPrice;
 
           resolvedItems.push({
             garmentTypeId: type.id,
@@ -338,7 +352,7 @@ export class OrdersService {
   }
 
   private buildOrdersWhereClause(
-    branchId: string,
+    branchId: string | null,
     filters: OrdersFindFilters = {},
   ): Prisma.OrderWhereInput {
     const whereClause: Prisma.OrderWhereInput = { deletedAt: null };
@@ -413,7 +427,7 @@ export class OrdersService {
   }
 
   async findAll(
-    branchId: string,
+    branchId: string | null,
     page = 1,
     limit = 20,
     filters: OrdersFindFilters = {},
@@ -439,7 +453,7 @@ export class OrdersService {
   }
 
   async getSummary(
-    branchId: string,
+    branchId: string | null,
     filters: OrdersFindFilters = {},
   ): Promise<OrdersListSummary> {
     const whereClause = this.buildOrdersWhereClause(branchId, filters);
@@ -485,7 +499,10 @@ export class OrdersService {
               whereClause,
               {
                 status: {
-                  in: [PrismaOrderStatus.DELIVERED, PrismaOrderStatus.COMPLETED],
+                  in: [
+                    PrismaOrderStatus.DELIVERED,
+                    PrismaOrderStatus.COMPLETED,
+                  ],
                 },
               },
             ],
@@ -501,7 +518,7 @@ export class OrdersService {
     };
   }
 
-  async findOne(id: string, branchId: string) {
+  async findOne(id: string, branchId: string | null) {
     const order = await this.prisma.order.findFirst({
       where: {
         id,
@@ -725,10 +742,14 @@ export class OrdersService {
 
       if (dto.discountType !== undefined || dto.discountValue !== undefined) {
         if (![Role.ADMIN, Role.SUPER_ADMIN].includes(userRole as Role)) {
-          throw new ForbiddenException('Only admins can change financial details');
+          throw new ForbiddenException(
+            'Only admins can change financial details',
+          );
         }
-        if (dto.discountType !== undefined) data.discountType = dto.discountType;
-        if (dto.discountValue !== undefined) data.discountValue = dto.discountValue;
+        if (dto.discountType !== undefined)
+          data.discountType = dto.discountType;
+        if (dto.discountValue !== undefined)
+          data.discountValue = dto.discountValue;
       }
 
       await tx.order.update({
@@ -750,16 +771,20 @@ export class OrdersService {
                 designTypeId: itemDto.designTypeId || null,
                 description: itemDto.description,
                 employeeRate: itemDto.employeeRate,
-                addons: itemDto.addons ? {
-                  deleteMany: {},
-                  create: itemDto.addons.map((a: UpdateOrderItemAddonDto) => ({
-                    type: a.type as PrismaAddonType,
-                    name: a.name as string,
-                    price: a.price as number,
-                    cost: a.cost
-                  }))
-                } : undefined
-              }
+                addons: itemDto.addons
+                  ? {
+                      deleteMany: {},
+                      create: itemDto.addons.map(
+                        (a: UpdateOrderItemAddonDto) => ({
+                          type: a.type as PrismaAddonType,
+                          name: a.name,
+                          price: a.price,
+                          cost: a.cost,
+                        }),
+                      ),
+                    }
+                  : undefined,
+              },
             });
           }
         }
@@ -878,8 +903,14 @@ export class OrdersService {
         throw new BadRequestException('Garment type not found or inactive');
       }
 
-      const customerPrice = itemDto.unitPrice !== undefined && itemDto.unitPrice !== 0 ? itemDto.unitPrice : type.customerPrice;
-      const employeeRate = itemDto.employeeRate !== undefined && itemDto.employeeRate !== 0 ? itemDto.employeeRate : type.employeeRate;
+      const customerPrice =
+        itemDto.unitPrice !== undefined && itemDto.unitPrice !== 0
+          ? itemDto.unitPrice
+          : type.customerPrice;
+      const employeeRate =
+        itemDto.employeeRate !== undefined && itemDto.employeeRate !== 0
+          ? itemDto.employeeRate
+          : type.employeeRate;
 
       // 1. Find max pieceNo for this garment type in this order
       const lastItem = await tx.orderItem.findFirst({

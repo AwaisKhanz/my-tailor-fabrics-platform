@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { EmployeeStatus, PaymentType, type Employee } from "@tbms/shared-types";
+import {
+  CreateEmployeeInput,
+  EmployeeStatus,
+  PaymentType,
+  UpdateEmployeeInput,
+  type Employee,
+} from "@tbms/shared-types";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -22,6 +28,24 @@ const DEFAULT_VALUES: EmployeeFormValues = {
   emergencyName: "",
   emergencyPhone: "",
 };
+
+function toEmployeeInput(values: EmployeeFormValues): CreateEmployeeInput {
+  const payload: CreateEmployeeInput = {
+    fullName: values.fullName,
+    phone: values.phone,
+    phone2: values.phone2 || undefined,
+    address: values.address || undefined,
+    city: values.city || undefined,
+    designation: values.designation || undefined,
+    paymentType: values.paymentType,
+    dateOfBirth: values.dateOfBirth || undefined,
+    dateOfJoining: values.dateOfJoining || undefined,
+    emergencyName: values.emergencyName || undefined,
+    emergencyPhone: values.emergencyPhone || undefined,
+  };
+
+  return payload;
+}
 
 function toDateString(value: string | null | undefined): string {
   if (!value) {
@@ -84,28 +108,14 @@ export function useEmployeeDialog({
     async (values: EmployeeFormValues) => {
       try {
         if (initialData) {
-          const updatePayload = { ...values } as Partial<EmployeeFormValues> & Record<string, unknown>;
-          if (!updatePayload.dateOfBirth) {
-            delete updatePayload.dateOfBirth;
-          }
-          if (!updatePayload.dateOfJoining) {
-            delete updatePayload.dateOfJoining;
-          }
-          delete updatePayload.branchId;
-
+          const updatePayload: UpdateEmployeeInput = {
+            ...toEmployeeInput(values),
+            status: values.status,
+          };
           await employeesApi.updateEmployee(initialData.id, updatePayload);
           toast({ title: "Employee updated successfully" });
         } else {
-          const createPayload = { ...values } as Partial<EmployeeFormValues> & Record<string, unknown>;
-          if (!createPayload.dateOfBirth) {
-            delete createPayload.dateOfBirth;
-          }
-          if (!createPayload.dateOfJoining) {
-            delete createPayload.dateOfJoining;
-          }
-          delete createPayload.status;
-          delete createPayload.branchId;
-
+          const createPayload: CreateEmployeeInput = toEmployeeInput(values);
           await employeesApi.createEmployee(createPayload);
           toast({ title: "Employee created successfully" });
         }

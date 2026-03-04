@@ -2,7 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as React from 'react';
 import { Document, Page, Text, View, StyleSheet, renderToStream } from '@react-pdf/renderer';
-import type { Order, Customer, Branch, Payment, Employee, User, Expense } from '@prisma/client';
+import type {
+  Branch,
+  Customer,
+  Employee,
+  Expense,
+  Order,
+  Payment,
+  Prisma,
+  User,
+} from '@prisma/client';
+
+type OrdersPdfRow = Order & { customer: Customer; branch: Branch };
+type PaymentsPdfRow = Payment & { employee: Employee; processedBy: User };
+type ExpensesPdfRow = Expense;
 
 const styles = StyleSheet.create({
   page: { flexDirection: 'column', backgroundColor: '#FFFFFF', padding: 30 },
@@ -20,7 +33,13 @@ const styles = StyleSheet.create({
 // ----------------------------------------------------------------------
 // Orders PDF Template
 // ----------------------------------------------------------------------
-const OrdersDocument = ({ orders, title }: { orders: any[], title: string }) => (
+const OrdersDocument = ({
+  orders,
+  title,
+}: {
+  orders: OrdersPdfRow[];
+  title: string;
+}) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
       <Text style={styles.header}>{title}</Text>
@@ -52,7 +71,13 @@ const OrdersDocument = ({ orders, title }: { orders: any[], title: string }) => 
 // ----------------------------------------------------------------------
 // Payments PDF Template
 // ----------------------------------------------------------------------
-const PaymentsDocument = ({ payments, title }: { payments: any[], title: string }) => (
+const PaymentsDocument = ({
+  payments,
+  title,
+}: {
+  payments: PaymentsPdfRow[];
+  title: string;
+}) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <Text style={styles.header}>{title}</Text>
@@ -80,7 +105,13 @@ const PaymentsDocument = ({ payments, title }: { payments: any[], title: string 
 // ----------------------------------------------------------------------
 // Expenses PDF Template
 // ----------------------------------------------------------------------
-const ExpensesDocument = ({ expenses, title }: { expenses: any[], title: string }) => (
+const ExpensesDocument = ({
+  expenses,
+  title,
+}: {
+  expenses: ExpensesPdfRow[];
+  title: string;
+}) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <Text style={styles.header}>{title}</Text>
@@ -108,7 +139,10 @@ export class PdfExportService {
   constructor(private readonly prisma: PrismaService) {}
 
   async exportOrdersPdf(branchId?: string, from?: string, to?: string): Promise<NodeJS.ReadableStream> {
-    const where: import('@prisma/client').Prisma.OrderWhereInput = branchId ? { branchId } : {};
+    const where: Prisma.OrderWhereInput = {
+      deletedAt: null,
+      ...(branchId ? { branchId } : {}),
+    };
     if (from && to) where.orderDate = { gte: new Date(from), lte: new Date(to) };
     else if (from) where.orderDate = { gte: new Date(from) };
     else if (to) where.orderDate = { lte: new Date(to) };
@@ -119,15 +153,18 @@ export class PdfExportService {
       orderBy: { orderDate: 'desc' },
     });
 
-    const element = React.createElement(OrdersDocument, { orders: orders as any, title: 'Order Report Ledger' });
+    const element = React.createElement(OrdersDocument, {
+      orders,
+      title: 'Order Report Ledger',
+    });
     return renderToStream(element as never);
   }
 
   async exportPaymentsPdf(branchId?: string, from?: string, to?: string): Promise<NodeJS.ReadableStream> {
-    const where: import('@prisma/client').Prisma.PaymentWhereInput = {};
+    const where: Prisma.PaymentWhereInput = { deletedAt: null };
     if (branchId) where.employee = { branchId };
 
-    let dateFilter: import('@prisma/client').Prisma.DateTimeFilter | undefined;
+    let dateFilter: Prisma.DateTimeFilter | undefined;
     if (from && to) dateFilter = { gte: new Date(from), lte: new Date(to) };
     else if (from) dateFilter = { gte: new Date(from) };
     else if (to) dateFilter = { lte: new Date(to) };
@@ -139,14 +176,20 @@ export class PdfExportService {
       orderBy: { paidAt: 'desc' },
     });
 
-    const element = React.createElement(PaymentsDocument, { payments: payments as any, title: 'Employee Payroll Report' });
+    const element = React.createElement(PaymentsDocument, {
+      payments,
+      title: 'Employee Payroll Report',
+    });
     return renderToStream(element as never);
   }
 
   async exportExpensesPdf(branchId?: string, from?: string, to?: string): Promise<NodeJS.ReadableStream> {
-    const where: import('@prisma/client').Prisma.ExpenseWhereInput = branchId ? { branchId } : {};
+    const where: Prisma.ExpenseWhereInput = {
+      deletedAt: null,
+      ...(branchId ? { branchId } : {}),
+    };
 
-    let dateFilter: import('@prisma/client').Prisma.DateTimeFilter | undefined;
+    let dateFilter: Prisma.DateTimeFilter | undefined;
     if (from && to) dateFilter = { gte: new Date(from), lte: new Date(to) };
     else if (from) dateFilter = { gte: new Date(from) };
     else if (to) dateFilter = { lte: new Date(to) };
@@ -157,7 +200,10 @@ export class PdfExportService {
       orderBy: { expenseDate: 'desc' },
     });
 
-    const element = React.createElement(ExpensesDocument, { expenses: expenses as any, title: 'Expense Audit Log' });
+    const element = React.createElement(ExpensesDocument, {
+      expenses,
+      title: 'Expense Audit Log',
+    });
     return renderToStream(element as never);
   }
 }

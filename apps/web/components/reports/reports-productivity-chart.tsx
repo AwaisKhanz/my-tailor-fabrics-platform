@@ -35,8 +35,8 @@ export function ReportsProductivityChart({
       legend={
         <ReportsChartLegend
           items={[
-            { label: "Items", toneClassName: "bg-primary" },
-            { label: "Tasks", toneClassName: "bg-info" },
+            { label: "Items", toneClassName: "bg-chart-1" },
+            { label: "Tasks", toneClassName: "bg-chart-2" },
           ]}
         />
       }
@@ -85,8 +85,8 @@ export function ReportsProductivityChart({
                 </div>
 
                 <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="bg-primary" style={{ width: `${itemsWidth}%` }} />
-                  <div className="bg-info" style={{ width: `${tasksWidth}%` }} />
+                  <div className="bg-chart-1" style={{ width: `${itemsWidth}%` }} />
+                  <div className="bg-chart-2" style={{ width: `${tasksWidth}%` }} />
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">

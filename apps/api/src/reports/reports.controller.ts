@@ -7,8 +7,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
 import { DASHBOARD_READ_ROLES } from '@tbms/shared-constants';
+import { resolveBranchScopeForRead } from '../common/utils/branch-resolution.util';
 
 @Controller('reports')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
@@ -25,14 +25,10 @@ export class ReportsController {
     @Req() req: AuthenticatedRequest,
     @Query('branchId') targetBranchId?: string,
   ) {
-    // Only SUPER_ADMIN can request dashboard data for branches they don't explicitly belong to or globally (if branchId is not provided)
-    let resolvedBranchId: string | undefined = req.branchId; // from BranchGuard
-
-    if (req.user.role === Role.SUPER_ADMIN && targetBranchId !== undefined) {
-      resolvedBranchId = targetBranchId === 'all' ? undefined : targetBranchId;
-    }
-
-    const data = await this.reportsService.getDashboardStats(resolvedBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
+    const data = await this.reportsService.getDashboardStats(branchId);
     return { success: true, data };
   }
 
@@ -44,8 +40,14 @@ export class ReportsController {
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
-    const data = await this.reportsService.getDesignAnalytics(branchId, from, to);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
+    const data = await this.reportsService.getDesignAnalytics(
+      branchId,
+      from,
+      to,
+    );
     return { success: true, data };
   }
 
@@ -57,8 +59,14 @@ export class ReportsController {
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
-    const data = await this.reportsService.getAddonAnalytics(branchId, from, to);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
+    const data = await this.reportsService.getAddonAnalytics(
+      branchId,
+      from,
+      to,
+    );
     return { success: true, data };
   }
 
@@ -70,7 +78,9 @@ export class ReportsController {
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
     const data = await this.reportsService.getSummary(branchId, from, to);
     return { success: true, data };
   }
@@ -84,7 +94,9 @@ export class ReportsController {
     @Query('to') to?: string,
     @Query('granularity') granularity?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
     const data = await this.reportsService.getFinancialTrend(
       branchId,
       from,
@@ -102,26 +114,31 @@ export class ReportsController {
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
     const data = await this.reportsService.getDistributions(branchId, from, to);
     return { success: true, data };
   }
- 
+
   @Roles(...DASHBOARD_READ_ROLES)
   @Get('revenue-vs-expenses')
   async getRevenueVsExpenses(
     @Req() req: AuthenticatedRequest,
     @Query('branchId') targetBranchId?: string,
-    @Query('months') months?: number,
+    @Query('months') months?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
+    const parsedMonths = months ? Number(months) : undefined;
     const data = await this.reportsService.getRevenueVsExpenses(
       branchId,
-      months,
+      parsedMonths,
     );
     return { success: true, data };
   }
- 
+
   @Roles(...DASHBOARD_READ_ROLES)
   @Get('garments')
   async getGarmentRevenue(
@@ -130,11 +147,17 @@ export class ReportsController {
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
-    const data = await this.reportsService.getGarmentTypesRevenue(branchId, from, to);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
+    const data = await this.reportsService.getGarmentTypesRevenue(
+      branchId,
+      from,
+      to,
+    );
     return { success: true, data };
   }
- 
+
   @Roles(...DASHBOARD_READ_ROLES)
   @Get('productivity')
   async getEmployeeProductivity(
@@ -144,7 +167,9 @@ export class ReportsController {
     @Query('to') to?: string,
     @Query('limit') limit?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
     const parsedLimit = limit ? Number(limit) : undefined;
     const data = await this.reportsService.getProductivityPoints(
       branchId,
@@ -153,14 +178,6 @@ export class ReportsController {
       parsedLimit,
     );
     return { success: true, data };
-  }
-
-  private resolveBranch(req: AuthenticatedRequest, targetBranchId?: string) {
-    let resolved: string | undefined = req.branchId;
-    if (req.user.role === Role.SUPER_ADMIN && targetBranchId !== undefined) {
-      resolved = targetBranchId === 'all' ? undefined : targetBranchId;
-    }
-    return resolved;
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -173,10 +190,16 @@ export class ReportsController {
     @Query('to') to?: string,
     @Query('format') format?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
 
     if (format === 'pdf') {
-      const stream = await this.pdfExportService.exportOrdersPdf(branchId, from, to);
+      const stream = await this.pdfExportService.exportOrdersPdf(
+        branchId,
+        from,
+        to,
+      );
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="orders.pdf"',
@@ -203,17 +226,27 @@ export class ReportsController {
     @Query('to') to?: string,
     @Query('format') format?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
 
     if (format === 'pdf') {
-      const stream = await this.pdfExportService.exportPaymentsPdf(branchId, from, to);
+      const stream = await this.pdfExportService.exportPaymentsPdf(
+        branchId,
+        from,
+        to,
+      );
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="payments.pdf"',
       });
       stream.pipe(res);
     } else {
-      const stream = await this.exportService.exportPayments(branchId, from, to);
+      const stream = await this.exportService.exportPayments(
+        branchId,
+        from,
+        to,
+      );
       res.set({
         'Content-Type':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -233,17 +266,27 @@ export class ReportsController {
     @Query('to') to?: string,
     @Query('format') format?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
 
     if (format === 'pdf') {
-      const stream = await this.pdfExportService.exportExpensesPdf(branchId, from, to);
+      const stream = await this.pdfExportService.exportExpensesPdf(
+        branchId,
+        from,
+        to,
+      );
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="expenses.pdf"',
       });
       stream.pipe(res);
     } else {
-      const stream = await this.exportService.exportExpenses(branchId, from, to);
+      const stream = await this.exportService.exportExpenses(
+        branchId,
+        from,
+        to,
+      );
       res.set({
         'Content-Type':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -260,7 +303,9 @@ export class ReportsController {
     @Res() res: import('express').Response,
     @Query('branchId') targetBranchId?: string,
   ) {
-    const branchId = this.resolveBranch(req, targetBranchId);
+    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+      allowAllForSuperAdmin: true,
+    });
     const stream = await this.exportService.exportEmployeeSummaries(branchId);
     res.set({
       'Content-Type':

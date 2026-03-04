@@ -4,13 +4,19 @@ import {
   GarmentType, 
   MeasurementCategory, 
   MeasurementStats,
-  MeasurementField, 
+  MeasurementField,
   CreateMeasurementCategoryInput, 
   UpdateMeasurementCategoryInput,
+  CreateMeasurementFieldInput,
+  UpdateMeasurementFieldInput,
+  CreateGarmentTypeInput,
+  UpdateGarmentTypeInput,
   GarmentPriceLog,
   GarmentTypeWithAnalytics,
   WorkflowStepTemplate,
-  SystemSettings
+  UpdateGarmentWorkflowStepsInput,
+  SystemSettings,
+  UpdateSystemSettingsInput,
 } from '@tbms/shared-types';
 
 export const configApi = {
@@ -28,11 +34,11 @@ export const configApi = {
     const response = await api.get<ApiResponse<GarmentTypeWithAnalytics>>(`/config/garment-types/${id}`);
     return response.data;
   },
-  createGarmentType: async (data: Partial<GarmentType> & { measurementCategoryIds?: string[] }) => {
+  createGarmentType: async (data: CreateGarmentTypeInput) => {
     const response = await api.post<ApiResponse<GarmentType>>('/config/garment-types', data);
     return response.data;
   },
-  updateGarmentType: async (id: string, data: Partial<GarmentType> & { measurementCategoryIds?: string[] }) => {
+  updateGarmentType: async (id: string, data: UpdateGarmentTypeInput) => {
     const response = await api.put<ApiResponse<GarmentType>>(`/config/garment-types/${id}`, data);
     return response.data;
   },
@@ -44,8 +50,14 @@ export const configApi = {
     const response = await api.get<ApiResponse<{ totalCount: number; avgRetailPrice: number; activeProduction: number }>>('/config/garment-stats');
     return response.data;
   },
-  updateGarmentWorkflowSteps: async (id: string, steps: Partial<WorkflowStepTemplate>[]) => {
-    const response = await api.put<ApiResponse<WorkflowStepTemplate[]>>(`/config/garment-types/${id}/steps`, { steps });
+  updateGarmentWorkflowSteps: async (
+    id: string,
+    steps: UpdateGarmentWorkflowStepsInput["steps"],
+  ) => {
+    const response = await api.put<ApiResponse<WorkflowStepTemplate[]>>(
+      `/config/garment-types/${id}/steps`,
+      { steps },
+    );
     return response.data;
   },
 
@@ -81,12 +93,24 @@ export const configApi = {
     const response = await api.put<ApiResponse<MeasurementCategory>>(`/config/measurement-categories/${id}`, data);
     return response.data;
   },
-  addMeasurementField: async (categoryId: string, data: Partial<MeasurementField>) => {
-    const response = await api.post<ApiResponse<MeasurementField>>(`/config/measurement-categories/${categoryId}/fields`, data);
+  addMeasurementField: async (
+    categoryId: string,
+    data: CreateMeasurementFieldInput,
+  ) => {
+    const response = await api.post<ApiResponse<MeasurementField>>(
+      `/config/measurement-categories/${categoryId}/fields`,
+      data,
+    );
     return response.data;
   },
-  updateMeasurementField: async (fieldId: string, data: Partial<MeasurementField>) => {
-    const response = await api.put<ApiResponse<MeasurementField>>(`/config/measurement-fields/${fieldId}`, data);
+  updateMeasurementField: async (
+    fieldId: string,
+    data: UpdateMeasurementFieldInput,
+  ) => {
+    const response = await api.put<ApiResponse<MeasurementField>>(
+      `/config/measurement-fields/${fieldId}`,
+      data,
+    );
     return response.data;
   },
   deleteMeasurementField: async (fieldId: string) => {
@@ -103,7 +127,7 @@ export const configApi = {
     const response = await api.get<ApiResponse<SystemSettings>>('/config/settings');
     return response.data;
   },
-  updateSystemSettings: async (data: Partial<SystemSettings>) => {
+  updateSystemSettings: async (data: UpdateSystemSettingsInput) => {
     const response = await api.put<ApiResponse<SystemSettings>>('/config/settings', data);
     return response.data;
   },

@@ -5,7 +5,6 @@ import { useTheme } from "next-themes";
 import { useThemePreset } from "@/components/ThemePresetProvider";
 import {
   THEME_PRESETS,
-  type ThemePalette,
   type ThemePreset,
   type ThemePresetId,
 } from "@/lib/theme-presets";
@@ -22,50 +21,26 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 
-const paletteKeys: Array<keyof ThemePalette> = [
-  "primary",
-  "secondary",
-  "accent",
-  "background",
-  "surface",
-  "textPrimary",
-  "textSecondary",
-  "success",
-  "warning",
-  "error",
-  "border",
-];
-
-function PaletteGrid({
-  title,
-  palette,
+function ThemeSwatchRow({
+  label,
+  colors,
 }: {
-  title: string;
-  palette: ThemePalette;
+  label: string;
+  colors: string[];
 }) {
   return (
-    <div className="space-y-2">
-      <h4 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-        {title}
-      </h4>
-      <div className="grid grid-cols-1 gap-2">
-        {paletteKeys.map((key) => (
-          <div
-            key={key}
-            className="flex items-center justify-between rounded-md border border-border/70 bg-background/60 p-2"
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="h-4 w-4 rounded-sm border border-border/70"
-                style={{ backgroundColor: palette[key] }}
-                aria-label={`${key} swatch`}
-              />
-              <span className="text-xs font-medium capitalize text-foreground">
-                {key}
-              </span>
-            </div>
-            <span className="text-[11px] text-muted-foreground">{palette[key]}</span>
-          </div>
+    <div className="space-y-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="grid grid-cols-5 gap-1.5">
+        {colors.map((color, index) => (
+          <span
+            key={`${label}-${index}`}
+            className="h-4 rounded-sm border border-border/70"
+            style={{ backgroundColor: color }}
+            aria-label={`${label} swatch ${index + 1}`}
+          />
         ))}
       </div>
     </div>
@@ -81,24 +56,40 @@ function PresetCard({
   active: boolean;
   onApply: (preset: ThemePresetId) => void;
 }) {
+  const lightPreview = [
+    preset.palette.light.primary,
+    preset.palette.light.secondary,
+    preset.palette.light.accent,
+    preset.palette.light.background,
+    preset.palette.light.surface,
+  ];
+
+  const darkPreview = [
+    preset.palette.dark.primary,
+    preset.palette.dark.secondary,
+    preset.palette.dark.accent,
+    preset.palette.dark.background,
+    preset.palette.dark.surface,
+  ];
+
   return (
     <Card
       className={cn(
-        "border-border/70 bg-card/95 transition-colors",
-        active && "border-primary/40",
+        "border-border/70 bg-card/95 transition-all",
+        active && "border-primary/40 ring-1 ring-primary/20",
       )}
     >
-      <CardHeader variant="section" className="space-y-1">
+      <CardHeader variant="section" className="space-y-1.5">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="text-base font-semibold">{preset.label}</CardTitle>
           {active ? <Badge variant="info">Active</Badge> : null}
         </div>
-        <CardDescription>{preset.description}</CardDescription>
+        <CardDescription className="text-xs leading-relaxed">{preset.description}</CardDescription>
       </CardHeader>
       <CardContent spacing="section" className="space-y-4 p-5">
-        <div className="grid gap-4 xl:grid-cols-2">
-          <PaletteGrid title="Light Palette" palette={preset.palette.light} />
-          <PaletteGrid title="Dark Palette" palette={preset.palette.dark} />
+        <div className="space-y-3">
+          <ThemeSwatchRow label="Light" colors={lightPreview} />
+          <ThemeSwatchRow label="Dark" colors={darkPreview} />
         </div>
 
         <Button
@@ -122,20 +113,22 @@ export function AppearanceSettingsPage() {
   return (
     <PageShell>
       <PageHeader
-        title="Appearance Settings"
-        description="Choose theme mode and color preset. Your preference is saved on this browser."
+        title="Appearance"
+        description="Choose workspace mode and theme preset. Settings are saved on this browser."
       />
 
-      <PageSection className="grid gap-4 md:grid-cols-2">
-        <Card className="border-border/70 bg-card/95">
+      <PageSection className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+        <Card className="border-border/70 bg-card/95 lg:sticky lg:top-20">
           <CardHeader variant="section" className="space-y-1">
             <CardTitle className="flex items-center gap-2 text-base font-semibold">
               <Palette className="h-4 w-4 text-primary" />
-              Color Mode
+              Mode
             </CardTitle>
-            <CardDescription>Switch between light and dark workspace mode.</CardDescription>
+            <CardDescription>
+              Switch between light and dark workspace rendering.
+            </CardDescription>
           </CardHeader>
-          <CardContent spacing="section" className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-2">
+          <CardContent spacing="section" className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-2 lg:grid-cols-1">
             <Button
               type="button"
               variant={!isDark ? "default" : "outline"}
@@ -156,19 +149,19 @@ export function AppearanceSettingsPage() {
             </Button>
           </CardContent>
         </Card>
-      </PageSection>
 
-      <PageSection className="space-y-3">
-        <h2 className="text-base font-semibold">Theme Presets</h2>
-        <div className="grid gap-4">
-          {THEME_PRESETS.map((themePreset) => (
-            <PresetCard
-              key={themePreset.id}
-              preset={themePreset}
-              active={preset === themePreset.id}
-              onApply={setPreset}
-            />
-          ))}
+        <div className="space-y-3">
+          <h2 className="text-base font-semibold">Theme Presets</h2>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {THEME_PRESETS.map((themePreset) => (
+              <PresetCard
+                key={themePreset.id}
+                preset={themePreset}
+                active={preset === themePreset.id}
+                onApply={setPreset}
+              />
+            ))}
+          </div>
         </div>
       </PageSection>
     </PageShell>

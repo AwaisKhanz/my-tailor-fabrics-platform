@@ -4,11 +4,13 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CustomerStatus, EmployeeStatus, OrderStatus, Prisma } from '@prisma/client';
 import {
-  CreateBranchInput,
-  UpdateBranchInput,
-} from '@tbms/shared-types';
+  CustomerStatus,
+  EmployeeStatus,
+  OrderStatus,
+  Prisma,
+} from '@prisma/client';
+import { CreateBranchInput, UpdateBranchInput } from '@tbms/shared-types';
 import { OPEN_ORDER_STATUSES } from '@tbms/shared-constants';
 
 const DEFAULT_PAGE = 1;

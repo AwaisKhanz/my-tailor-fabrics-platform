@@ -51,6 +51,15 @@ export interface CreateLedgerEntryInput {
     createdById?: string | null;
     note?: string | null;
 }
+export interface CreateManualLedgerEntryInput {
+    employeeId: string;
+    type: LedgerEntryType;
+    amount: number;
+    branchId?: string;
+    orderItemTaskId?: string | null;
+    paymentId?: string | null;
+    note?: string | null;
+}
 export interface LedgerSummary {
     totalEarned: number;
     totalDeducted: number;

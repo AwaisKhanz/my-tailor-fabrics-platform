@@ -13,8 +13,8 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import type { CreateUserInput, UpdateUserInput } from '@tbms/shared-types';
 import { SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
+import { CreateUserDto, SetUserActiveDto, UpdateUserDto } from './dto/user.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
@@ -37,18 +37,15 @@ export class UsersController {
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Post()
-  async create(@Body() body: CreateUserInput) {
+  async create(@Body() body: CreateUserDto) {
     const data = await this.usersService.create(body);
     return { success: true, data };
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Patch(':id/status')
-  async setActive(
-    @Param('id') id: string,
-    @Body('isActive') isActive: boolean,
-  ) {
-    const data = await this.usersService.setActive(id, isActive);
+  async setActive(@Param('id') id: string, @Body() body: SetUserActiveDto) {
+    const data = await this.usersService.setActive(id, body.isActive);
     return { success: true, data };
   }
 
@@ -61,7 +58,7 @@ export class UsersController {
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() body: UpdateUserInput) {
+  async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
     const data = await this.usersService.update(id, body);
     return { success: true, data };
   }

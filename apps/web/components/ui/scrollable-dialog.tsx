@@ -16,7 +16,8 @@ interface ScrollableDialogProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  footerActions: React.ReactNode;
+  footerActions?: React.ReactNode;
+  contentSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
   maxWidthClass?: string;
   maxHeightClass?: string;
 }
@@ -32,12 +33,17 @@ export function ScrollableDialog({
   description,
   children,
   footerActions,
+  contentSize = "md",
   maxWidthClass = "sm:max-w-md",
   maxHeightClass = "max-h-[90vh]",
 }: ScrollableDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn(maxWidthClass, maxHeightClass, "flex flex-col p-0 overflow-hidden")}>
+      <DialogContent
+        size={contentSize}
+        variant="flush"
+        className={cn(maxWidthClass, maxHeightClass, "flex flex-col")}
+      >
         <DialogHeader className="p-6 pb-4 border-b shrink-0">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
@@ -49,9 +55,11 @@ export function ScrollableDialog({
           </div>
         </ScrollArea>
         
-        <DialogActionRow className="shrink-0 bg-muted/50 px-6 pb-6">
-          {footerActions}
-        </DialogActionRow>
+        {footerActions ? (
+          <DialogActionRow className="shrink-0 bg-muted/50 px-6 pb-6">
+            {footerActions}
+          </DialogActionRow>
+        ) : null}
       </DialogContent>
     </Dialog>
   )

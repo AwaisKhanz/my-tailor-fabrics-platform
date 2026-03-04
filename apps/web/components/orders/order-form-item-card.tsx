@@ -290,7 +290,7 @@ export function OrderFormItemCard({
                     onValueChange={(value) => {
                       form.setValue(
                         `items.${index}.addons.${addonIndex}.type`,
-                        value,
+                        value as AddonType,
                         { shouldDirty: true },
                       );
                     }}
@@ -299,7 +299,8 @@ export function OrderFormItemCard({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(ADDON_TYPE_LABELS).map(([key, label]) => (
+                      {(Object.entries(ADDON_TYPE_LABELS) as [AddonType, string][]).map(
+                        ([key, label]) => (
                         <SelectItem key={key} value={key}>
                           {label}
                         </SelectItem>

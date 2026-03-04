@@ -23,7 +23,7 @@ export class CustomersService {
   ) {}
 
   private buildCustomersWhereClause(
-    branchId: string,
+    branchId: string | null,
     filters: CustomersListFilters = {},
     includeSearch = false,
   ): Prisma.CustomerWhereInput {
@@ -77,7 +77,7 @@ export class CustomersService {
   }
 
   async findAll(
-    branchId: string,
+    branchId: string | null,
     page = 1,
     limit = 20,
     search?: string,
@@ -120,7 +120,7 @@ export class CustomersService {
   }
 
   async getSummary(
-    branchId: string,
+    branchId: string | null,
     filters: CustomersListFilters = {},
   ): Promise<CustomersListSummary> {
     const where = this.buildCustomersWhereClause(branchId, filters, true);
@@ -130,7 +130,11 @@ export class CustomersService {
         this.prisma.customer.count({ where }),
         this.prisma.customer.count({
           where: {
-            AND: [where, { whatsapp: { not: null } }, { whatsapp: { not: '' } }],
+            AND: [
+              where,
+              { whatsapp: { not: null } },
+              { whatsapp: { not: '' } },
+            ],
           },
         }),
         this.prisma.customer.count({
@@ -147,7 +151,7 @@ export class CustomersService {
     };
   }
 
-  async findOne(id: string, branchId: string) {
+  async findOne(id: string, branchId: string | null) {
     const customer = await this.prisma.customer.findFirst({
       where: {
         id,
@@ -206,7 +210,7 @@ export class CustomersService {
     });
   }
 
-  async getOrders(id: string, branchId: string, page = 1, limit = 20) {
+  async getOrders(id: string, branchId: string | null, page = 1, limit = 20) {
     await this.findOne(id, branchId);
     const skip = (page - 1) * limit;
 

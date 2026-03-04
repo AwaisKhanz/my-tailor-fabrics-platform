@@ -107,7 +107,10 @@ export class UsersService {
     await this.ensureEmailAvailable(normalizedEmail);
 
     const tempPassword = data.password || this.generateTempPassword();
-    const hashedPassword = await bcrypt.hash(tempPassword, PASSWORD_HASH_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      tempPassword,
+      PASSWORD_HASH_ROUNDS,
+    );
 
     return this.prisma.user.create({
       data: {

@@ -65,9 +65,9 @@ export function ReportsFinancialTrendChart({
       legend={
         <ReportsChartLegend
           items={[
-            { label: "Revenue", toneClassName: "bg-primary" },
-            { label: "Expenses", toneClassName: "bg-warning" },
-            { label: "Net", toneClassName: "bg-info" },
+            { label: "Revenue", toneClassName: "bg-chart-1" },
+            { label: "Expenses", toneClassName: "bg-chart-2" },
+            { label: "Net", toneClassName: "bg-chart-3" },
           ]}
         />
       }
@@ -196,11 +196,11 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
           </g>
         ))}
 
-        {areaPath ? <path d={areaPath} className="fill-primary/15" /> : null}
+        {areaPath ? <path d={areaPath} className="fill-chart-1/15" /> : null}
 
-        <path d={revenuePath} className="stroke-primary" strokeWidth="3" fill="none" strokeLinecap="round" />
-        <path d={expensesPath} className="stroke-warning" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        <path d={netPath} className="stroke-info" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
+        <path d={revenuePath} className="stroke-chart-1" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d={expensesPath} className="stroke-chart-2" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d={netPath} className="stroke-chart-3" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
 
         {activePoint ? (
           <line
@@ -208,7 +208,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
             x2={activePoint.x}
             y1={padTop}
             y2={height - padBottom}
-            className="stroke-primary/40"
+            className="stroke-chart-1/40"
             strokeDasharray="4 4"
           />
         ) : null}
@@ -219,19 +219,19 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               cx={point.x}
               cy={point.revenueY}
               r={hoveredIndex === index ? "4.2" : "2.8"}
-              className="fill-primary"
+              className="fill-chart-1"
             />
             <circle
               cx={point.x}
               cy={point.expensesY}
               r={hoveredIndex === index ? "3.8" : "2.4"}
-              className="fill-warning"
+              className="fill-chart-2"
             />
             <circle
               cx={point.x}
               cy={point.netY}
               r={hoveredIndex === index ? "3.6" : "2.2"}
-              className="fill-info"
+              className="fill-chart-3"
             />
             {index % labelStep === 0 || index === dataPoints.length - 1 ? (
               <text x={point.x} y={height - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">
@@ -269,13 +269,13 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
             <text x="12" y="18" className="fill-foreground text-[11px] font-semibold">
               {activePoint.label}
             </text>
-            <text x="12" y="35" className="fill-primary text-[10px]">
+            <text x="12" y="35" className="fill-chart-1 text-[10px]">
               Revenue: {formatPKR(activePoint.revenue)}
             </text>
-            <text x="12" y="49" className="fill-warning text-[10px]">
+            <text x="12" y="49" className="fill-chart-2 text-[10px]">
               Expenses: {formatPKR(activePoint.expenses)}
             </text>
-            <text x="12" y="63" className="fill-info text-[10px]">
+            <text x="12" y="63" className="fill-chart-3 text-[10px]">
               Net: {formatPKR(activePoint.net)}
             </text>
           </g>

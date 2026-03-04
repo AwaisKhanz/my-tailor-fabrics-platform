@@ -1,6 +1,5 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -8,15 +7,16 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { LedgerService } from '../ledger/ledger.service';
-import { LedgerEntryType } from '@tbms/shared-types';
+import { LedgerEntryType, WeeklyPaymentReportRow } from '@tbms/shared-types';
 
 const MAX_TRANSACTION_RETRIES = 3;
 const DEFAULT_HISTORY_PAGE = 1;
 const DEFAULT_HISTORY_LIMIT = 20;
 const MAX_HISTORY_LIMIT = 100;
 
-const PAYMENT_HISTORY_SORT_FIELDS: ReadonlyArray<keyof Prisma.PaymentOrderByWithRelationInput> =
-  ['paidAt', 'createdAt', 'amount'];
+const PAYMENT_HISTORY_SORT_FIELDS: ReadonlyArray<
+  keyof Prisma.PaymentOrderByWithRelationInput
+> = ['paidAt', 'createdAt', 'amount'];
 
 @Injectable()
 export class PaymentsService {
@@ -25,10 +25,35 @@ export class PaymentsService {
     private readonly ledgerService: LedgerService,
   ) {}
 
-  async getEmployeeBalanceSummary(employeeId: string) {
+  private async assertEmployeeScope(
+    employeeId: string,
+    actorBranchId?: string | null,
+  ) {
+    const employee = await this.prisma.employee.findFirst({
+      where: {
+        id: employeeId,
+        deletedAt: null,
+        ...(actorBranchId ? { branchId: actorBranchId } : {}),
+      },
+      select: { id: true, branchId: true },
+    });
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    return employee;
+  }
+
+  async getEmployeeBalanceSummary(
+    employeeId: string,
+    actorBranchId?: string | null,
+  ) {
+    await this.assertEmployeeScope(employeeId, actorBranchId);
+
     // Use ledger as single source of truth for balance
-    const balance = await this.ledgerService.getBalance(employeeId);
-    const weekly = await this.getWeeklyBreakdown(employeeId);
+    const balance = await this.ledgerService.getBalance(employeeId, actorBranchId);
+    const weekly = await this.getWeeklyBreakdown(employeeId, 8, actorBranchId);
     return {
       totalEarned: balance.totalEarned,
       totalPaid: balance.totalDeducted,
@@ -37,10 +62,15 @@ export class PaymentsService {
     };
   }
 
-  async getWeeklyBreakdown(employeeId: string, weeksBack = 8) {
+  async getWeeklyBreakdown(
+    employeeId: string,
+    weeksBack = 8,
+    actorBranchId?: string | null,
+  ) {
     const earnings = await this.ledgerService.getEarningsByPeriod(
       employeeId,
       weeksBack,
+      actorBranchId,
     );
     // Map Ledger earnings to the format expected by the legacy weekly breakdown if needed,
     // or just return the ledger results.
@@ -59,18 +89,7 @@ export class PaymentsService {
     actorBranchId?: string | null,
     note?: string,
   ) {
-    const employee = await this.prisma.employee.findFirst({
-      where: { id: employeeId, deletedAt: null },
-      select: { id: true, branchId: true },
-    });
-
-    if (!employee) {
-      throw new NotFoundException('Employee not found');
-    }
-
-    if (actorBranchId && employee.branchId !== actorBranchId) {
-      throw new ForbiddenException('Cannot disburse pay across branches');
-    }
+    const employee = await this.assertEmployeeScope(employeeId, actorBranchId);
 
     for (let attempt = 1; attempt <= MAX_TRANSACTION_RETRIES; attempt += 1) {
       try {
@@ -130,7 +149,10 @@ export class PaymentsService {
     throw new ConflictException('Unable to process payment at this time');
   }
 
-  private parseDateBoundary(value?: string, endOfDay = false): Date | undefined {
+  private parseDateBoundary(
+    value?: string,
+    endOfDay = false,
+  ): Date | undefined {
     if (!value) {
       return undefined;
     }
@@ -177,7 +199,10 @@ export class PaymentsService {
     to?: string,
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
+    actorBranchId?: string | null,
   ) {
+    await this.assertEmployeeScope(employeeId, actorBranchId);
+
     const safePage =
       Number.isFinite(page) && page > 0
         ? Math.trunc(page)
@@ -225,8 +250,21 @@ export class PaymentsService {
     };
   }
 
-  async getWeeklyReport() {
-    return this.prisma.$queryRaw`
+  async getWeeklyReport(
+    actorBranchId?: string | null,
+  ): Promise<WeeklyPaymentReportRow[]> {
+    const branchFilter = actorBranchId
+      ? Prisma.sql`AND e."branchId" = ${actorBranchId}`
+      : Prisma.empty;
+
+    const rows = await this.prisma.$queryRaw<
+      {
+        employeeId: string;
+        employeeName: string;
+        employeeCode: string;
+        paidThisWeek: bigint | number | null;
+      }[]
+    >`
             SELECT
                 e.id as "employeeId",
                 e."fullName" as "employeeName",
@@ -235,8 +273,18 @@ export class PaymentsService {
             FROM "Payment" p
             JOIN "Employee" e ON e.id = p."employeeId"
             WHERE p."paidAt" >= date_trunc('week', NOW() AT TIME ZONE 'Asia/Karachi')
+              AND p."deletedAt" IS NULL
+              AND e."deletedAt" IS NULL
+              ${branchFilter}
             GROUP BY e.id, e."fullName", e."employeeCode"
             ORDER BY "paidThisWeek" DESC
         `;
+
+    return rows.map((row) => ({
+      employeeId: row.employeeId,
+      employeeName: row.employeeName,
+      employeeCode: row.employeeCode,
+      paidThisWeek: Number(row.paidThisWeek ?? 0),
+    }));
   }
 }

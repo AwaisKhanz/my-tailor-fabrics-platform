@@ -1,6 +1,10 @@
 const isProduction = process.env.NODE_ENV === 'production';
 
-function resolveEnv(name: string, value: string | undefined, devFallback: string): string {
+function resolveEnv(
+  name: string,
+  value: string | undefined,
+  devFallback: string,
+): string {
   if (value && value.trim().length > 0) {
     return value;
   }
@@ -13,7 +17,11 @@ function resolveEnv(name: string, value: string | undefined, devFallback: string
 }
 
 export function getJwtSecret(): string {
-  return resolveEnv('JWT_SECRET', process.env.JWT_SECRET, 'dev-only-jwt-secret-change-me');
+  return resolveEnv(
+    'JWT_SECRET',
+    process.env.JWT_SECRET,
+    'dev-only-jwt-secret-change-me',
+  );
 }
 
 export function getJwtRefreshSecret(): string {
@@ -33,7 +41,11 @@ export function getJwtExpiresIn(): number | StringValue {
 }
 
 export function getFrontendUrl(): string {
-  return resolveEnv('FRONTEND_URL', process.env.FRONTEND_URL, 'http://localhost:3000');
+  return resolveEnv(
+    'FRONTEND_URL',
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+  );
 }
 
 export function isPublicMailEndpointsEnabled(): boolean {

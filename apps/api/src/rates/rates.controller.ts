@@ -12,10 +12,14 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import { Role } from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
-import type { CreateRateCardInput } from '@tbms/shared-types';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import { CreateRateDto } from './dto/create-rate.dto';
+import {
+  resolveBranchScopeForMutation,
+  resolveBranchScopeForRead,
+  resolveBranchScopeForReadOrNull,
+} from '../common/utils/branch-resolution.util';
 
 @Controller('rates')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
@@ -30,16 +34,13 @@ export class RatesController {
     @Query('limit') limit?: string,
     @Query('search') search?: string,
   ) {
-    const scopedBranchId =
-      req.user.role === Role.SUPER_ADMIN ? (req.branchId ?? null) : req.branchId;
-
     const {
       data,
       total,
       page: safePage,
       lastPage,
     } = await this.ratesService.findAll({
-      branchId: scopedBranchId,
+      branchId: resolveBranchScopeForReadOrNull(req),
       search,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
@@ -62,11 +63,8 @@ export class RatesController {
     @Req() req: AuthenticatedRequest,
     @Query('search') search?: string,
   ) {
-    const scopedBranchId =
-      req.user.role === Role.SUPER_ADMIN ? (req.branchId ?? null) : req.branchId;
-
     const data = await this.ratesService.getStats({
-      branchId: scopedBranchId,
+      branchId: resolveBranchScopeForReadOrNull(req),
       search,
     });
 
@@ -75,19 +73,10 @@ export class RatesController {
 
   @Post()
   @Roles(...ADMIN_ROLES)
-  async create(
-    @Body() dto: CreateRateCardInput,
-    @Req() req: AuthenticatedRequest,
-  ) {
-    // Non super-admins are strictly scoped to their assigned branch.
-    if (req.user.role !== Role.SUPER_ADMIN) {
-      dto.branchId = req.branchId;
-    } else if (req.branchId && !dto.branchId) {
-      // Respect active branch scope for super-admin unless explicitly overridden.
-      dto.branchId = req.branchId;
-    }
+  async create(@Body() dto: CreateRateDto, @Req() req: AuthenticatedRequest) {
     const data = await this.ratesService.create({
       ...dto,
+      branchId: resolveBranchScopeForMutation(req, dto.branchId),
       createdById: req.user.userId,
     });
     return { success: true, data };
@@ -101,8 +90,9 @@ export class RatesController {
     @Query('stepKey') stepKey: string,
     @Query('branchId') branchId?: string,
   ) {
-    const scopedBranchId =
-      req.user.role === Role.SUPER_ADMIN ? (branchId ?? req.branchId) : req.branchId;
+    const scopedBranchId = resolveBranchScopeForRead(req, branchId, {
+      allowAllForSuperAdmin: true,
+    });
     const data = await this.ratesService.getHistory(
       garmentTypeId,
       stepKey,

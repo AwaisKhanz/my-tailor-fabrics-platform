@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -12,31 +13,38 @@ import {
 import { LedgerService } from './ledger.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
 import { LedgerEntryType } from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
-import type { CreateLedgerEntryInput } from '@tbms/shared-types';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import { CreateLedgerEntryDto } from './dto/create-ledger-entry.dto';
 
 @Controller('ledger')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class LedgerController {
   constructor(private readonly ledgerService: LedgerService) {}
 
   /**
    * GET /ledger/:employeeId/balance
    * Returns the current balance summary for an employee.
-  */
+   */
   @Post()
   @Roles(...ADMIN_ROLES)
   async createManualEntry(
-    @Body() dto: CreateLedgerEntryInput,
+    @Body() dto: CreateLedgerEntryDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    // Force branchId from token to ensure data integrity
+    const branchId = req.branchId ?? dto.branchId;
+    if (!branchId) {
+      throw new BadRequestException(
+        'Branch scope is required to create a ledger entry',
+      );
+    }
+
     const data = await this.ledgerService.createEntry({
       ...dto,
-      branchId: req.branchId,
+      branchId,
       createdById: req.user.userId,
     });
     return { success: true, data };
@@ -44,8 +52,11 @@ export class LedgerController {
 
   @Get(':employeeId/balance')
   @Roles(...ADMIN_ROLES)
-  async getBalance(@Param('employeeId') employeeId: string) {
-    const summary = await this.ledgerService.getBalance(employeeId);
+  async getBalance(
+    @Param('employeeId') employeeId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const summary = await this.ledgerService.getBalance(employeeId, req.branchId);
     return { success: true, data: summary };
   }
 
@@ -53,6 +64,7 @@ export class LedgerController {
   @Roles(...ADMIN_ROLES)
   async getStatement(
     @Param('employeeId') employeeId: string,
+    @Req() req: AuthenticatedRequest,
     @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('type') type?: LedgerEntryType,
@@ -65,23 +77,25 @@ export class LedgerController {
       type,
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 20,
-    });
+    }, req.branchId);
     return { success: true, data: result };
   }
 
   /**
    * GET /ledger/:employeeId/earnings?weeksBack=
    * Returns earnings grouped by week for the last N weeks.
-  */
+   */
   @Get(':employeeId/earnings')
   @Roles(...ADMIN_ROLES)
   async getEarnings(
     @Param('employeeId') employeeId: string,
+    @Req() req: AuthenticatedRequest,
     @Query('weeksBack') weeksBack?: string,
   ) {
     const data = await this.ledgerService.getEarningsByPeriod(
       employeeId,
       weeksBack ? parseInt(weeksBack) : 12,
+      req.branchId,
     );
     return { success: true, data };
   }

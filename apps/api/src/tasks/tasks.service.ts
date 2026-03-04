@@ -127,10 +127,13 @@ export class TasksService {
     });
   }
 
-  async findAllByOrder(orderId: string, branchId: string) {
+  async findAllByOrder(orderId: string, branchId: string | null) {
     return this.prisma.orderItemTask.findMany({
       where: {
-        orderItem: { orderId, order: { branchId } },
+        orderItem: {
+          orderId,
+          ...(branchId ? { order: { branchId } } : {}),
+        },
         deletedAt: null,
       },
       orderBy: [{ orderItemId: 'asc' }, { sortOrder: 'asc' }],
@@ -143,7 +146,7 @@ export class TasksService {
 
   async findAllByEmployee(
     employeeId: string,
-    branchId: string,
+    branchId: string | null,
     userRole: string,
     requesterEmployeeId: string | null,
   ) {
@@ -160,7 +163,9 @@ export class TasksService {
     return this.prisma.orderItemTask.findMany({
       where: {
         assignedEmployeeId: employeeId,
-        orderItem: { order: { branchId } },
+        orderItem: {
+          ...(branchId ? { order: { branchId } } : {}),
+        },
         deletedAt: null,
       },
       orderBy: { createdAt: 'desc' },

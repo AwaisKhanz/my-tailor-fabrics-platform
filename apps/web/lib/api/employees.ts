@@ -1,8 +1,14 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 import type {
+  AddEmployeeDocumentInput,
+  CreateEmployeeInput,
+  CreateEmployeeUserAccountInput,
+  CreateEmployeeUserAccountResult,
   Employee,
+  EmployeeDocument,
   EmployeeStatsSummary,
+  UpdateEmployeeInput,
   EmployeeWithRelations,
   OrderItem,
 } from '@tbms/shared-types';
@@ -29,11 +35,11 @@ export const employeesApi = {
     const response = await api.get<ApiResponse<EmployeeWithRelations>>(`/employees/${id}`);
     return response.data;
   },
-  createEmployee: async (data: Partial<Employee>) => {
+  createEmployee: async (data: CreateEmployeeInput) => {
     const response = await api.post<ApiResponse<Employee>>('/employees', data);
     return response.data;
   },
-  updateEmployee: async (id: string, data: Partial<Employee>) => {
+  updateEmployee: async (id: string, data: UpdateEmployeeInput) => {
     const response = await api.put<ApiResponse<Employee>>(`/employees/${id}`, data);
     return response.data;
   },
@@ -63,12 +69,12 @@ export const employeesApi = {
     const response = await api.get<ApiResponse<PaginatedResponse<OrderItem & { order: { orderNumber: string } }>>>(`/employees/${id}/items`, { params });
     return response.data;
   },
-  uploadDocument: async (id: string, data: { label: string; fileUrl: string; fileType: string }) => {
-    const response = await api.post<ApiResponse<unknown>>(`/employees/${id}/documents`, data);
+  uploadDocument: async (id: string, data: AddEmployeeDocumentInput) => {
+    const response = await api.post<ApiResponse<EmployeeDocument>>(`/employees/${id}/documents`, data);
     return response.data;
   },
-  createUserAccount: async (id: string, data: { email: string; password: string }) => {
-    const response = await api.post<ApiResponse<unknown>>(`/employees/${id}/user-account`, data);
+  createUserAccount: async (id: string, data: CreateEmployeeUserAccountInput) => {
+    const response = await api.post<ApiResponse<CreateEmployeeUserAccountResult>>(`/employees/${id}/user-account`, data);
     return response.data;
   },
 };

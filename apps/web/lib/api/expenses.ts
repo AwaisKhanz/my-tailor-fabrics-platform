@@ -1,7 +1,12 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 
-import { Expense, ExpenseCategory } from '@tbms/shared-types';
+import {
+  CreateExpenseInput,
+  Expense,
+  ExpenseCategory,
+  UpdateExpenseInput,
+} from '@tbms/shared-types';
 
 export type { Expense, ExpenseCategory };
 
@@ -17,19 +22,12 @@ export const expensesApi = {
     return response.data;
   },
 
-  createExpense: async (data: {
-    categoryId: string;
-    amount: number;
-    description?: string;
-    expenseDate: string;
-    receiptUrl?: string;
-    branchId?: string;
-  }) => {
+  createExpense: async (data: CreateExpenseInput) => {
     const response = await api.post<ApiResponse<Expense>>('/expenses', data);
     return response.data;
   },
 
-  updateExpense: async (id: string, data: Partial<Expense>) => {
+  updateExpense: async (id: string, data: UpdateExpenseInput) => {
     const response = await api.put<ApiResponse<Expense>>(`/expenses/${id}`, data);
     return response.data;
   },

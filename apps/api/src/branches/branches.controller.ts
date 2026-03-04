@@ -13,12 +13,12 @@ import { BranchesService } from './branches.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
-import type { CreateBranchInput, UpdateBranchInput } from '@tbms/shared-types';
 import {
   ADMIN_ROLES,
   ALL_ROLES,
   SUPER_ADMIN_ONLY_ROLES,
 } from '@tbms/shared-constants';
+import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('branches')
@@ -56,14 +56,14 @@ export class BranchesController {
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Post()
-  async createBranch(@Body() body: CreateBranchInput) {
+  async createBranch(@Body() body: CreateBranchDto) {
     const data = await this.branchesService.create(body);
     return { success: true, data };
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Put(':id')
-  async updateBranch(@Param('id') id: string, @Body() body: UpdateBranchInput) {
+  async updateBranch(@Param('id') id: string, @Body() body: UpdateBranchDto) {
     const data = await this.branchesService.update(id, body);
     return { success: true, data };
   }

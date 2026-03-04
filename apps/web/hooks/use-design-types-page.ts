@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type Branch, type DesignType, type GarmentType } from "@tbms/shared-types";
+import {
+  type Branch,
+  type DesignType,
+  type GarmentType,
+} from "@tbms/shared-types";
 import { designTypesApi } from "@/lib/api/design-types";
 import { configApi } from "@/lib/api/config";
 import { branchesApi } from "@/lib/api/branches";
+import { type DesignTypeSubmitPayload } from "@/hooks/use-design-type-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import { logDevError } from "@/lib/logger";
@@ -84,20 +89,22 @@ export function useDesignTypesPage() {
   }, []);
 
   const saveDesignType = useCallback(
-    async (data: Partial<DesignType>) => {
+    async (payload: DesignTypeSubmitPayload) => {
       try {
-        if (selectedDesign) {
-          await designTypesApi.update(selectedDesign.id, data);
+        if (payload.mode === "update" && selectedDesign) {
+          await designTypesApi.update(selectedDesign.id, payload.data);
           toast({
             title: "Updated",
             description: "Design type updated successfully",
           });
-        } else {
-          await designTypesApi.create(data);
+        } else if (payload.mode === "create") {
+          await designTypesApi.create(payload.data);
           toast({
             title: "Created",
             description: "Design type created successfully",
           });
+        } else {
+          return;
         }
 
         await fetchData();

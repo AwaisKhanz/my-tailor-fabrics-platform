@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DiscountType, FabricSource } from '@tbms/shared-types';
+import { AddonType, DiscountType, FabricSource } from '@tbms/shared-types';
 
 export class OrderItemDto {
   @IsString()
@@ -33,7 +33,7 @@ export class OrderItemDto {
   @IsOptional()
   employeeId?: string; // Optional tailor assignment at creation
 
-  @IsString()
+  @IsDateString()
   @IsOptional()
   dueDate?: string; // Optional item-specific due date
 
@@ -48,18 +48,20 @@ export class OrderItemDto {
   addons?: OrderItemAddonDto[];
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
   unitPrice?: number;
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
   employeeRate?: number;
 }
 
 export class OrderItemAddonDto {
-  @IsString()
+  @IsEnum(AddonType)
   @IsNotEmpty()
-  type!: string; // AddonType enum string
+  type!: AddonType;
 
   @IsString()
   @IsNotEmpty()

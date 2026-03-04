@@ -1,17 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
+import { DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
-import { WorkflowStepTemplate } from "@tbms/shared-types";
+import {
+  type WorkflowStepTemplate,
+  type WorkflowStepTemplateInput,
+} from "@tbms/shared-types";
 import { DEFAULT_WORKFLOW_STEP_PRESETS } from "@tbms/shared-constants";
 import { Plus, Trash2, GripVertical } from "lucide-react";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 
 interface GarmentWorkflowStepsDialogProps {
   open: boolean;
@@ -30,16 +33,25 @@ export function GarmentWorkflowStepsDialog({
   initialSteps,
   onSuccess,
 }: GarmentWorkflowStepsDialogProps) {
-  const [steps, setSteps] = useState<Partial<WorkflowStepTemplate>[]>([]);
+  const [steps, setSteps] = useState<WorkflowStepTemplateInput[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
       setSteps(
-        initialSteps.length > 0 
-        ? [...initialSteps].sort((a, b) => a.sortOrder - b.sortOrder)
-        : DEFAULT_WORKFLOW_STEP_PRESETS.map((step) => ({ ...step }))
+        initialSteps.length > 0
+          ? [...initialSteps]
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((step) => ({
+                id: step.id,
+                stepKey: step.stepKey,
+                stepName: step.stepName,
+                sortOrder: step.sortOrder,
+                isRequired: step.isRequired,
+                isActive: step.isActive,
+              }))
+          : DEFAULT_WORKFLOW_STEP_PRESETS.map((step) => ({ ...step }))
       );
     }
   }, [open, initialSteps]);
@@ -61,18 +73,26 @@ export function GarmentWorkflowStepsDialog({
     setSteps(steps.filter((_, i) => i !== index));
   };
 
-  const handleChange = (index: number, field: keyof WorkflowStepTemplate, value: string | number | boolean) => {
+  const handleChange = <K extends keyof WorkflowStepTemplateInput>(
+    index: number,
+    field: K,
+    value: WorkflowStepTemplateInput[K],
+  ) => {
     const newSteps = [...steps];
     
     // Auto-generate stepKey from stepName if stepKey is empty and user is typing stepName
-    if (field === "stepName" && typeof value === "string" && !newSteps[index].stepKey) {
+    if (
+      field === "stepName" &&
+      typeof value === "string" &&
+      !newSteps[index].stepKey
+    ) {
         newSteps[index] = { 
             ...newSteps[index], 
             stepName: value,
             stepKey: value.toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_]/g, "")
         };
     } else {
-        newSteps[index] = { ...newSteps[index], [field]: value as never };
+        newSteps[index] = { ...newSteps[index], [field]: value };
     }
     setSteps(newSteps);
   };
@@ -85,7 +105,7 @@ export function GarmentWorkflowStepsDialog({
     }
     
     // Check duplicate keys
-    const keys = steps.map(s => s.stepKey);
+    const keys = steps.map((step) => step.stepKey);
     if (new Set(keys).size !== keys.length) {
         toast({ title: "Validation Error", description: "Step Keys must be unique.", variant: "destructive" });
         return;
@@ -95,9 +115,9 @@ export function GarmentWorkflowStepsDialog({
       setLoading(true);
       
       // Ensure correct sort order based on array position
-      const payload = steps.map((s, index) => ({
-          ...s,
-          sortOrder: index + 1
+      const payload: WorkflowStepTemplateInput[] = steps.map((step, index) => ({
+          ...step,
+          sortOrder: index + 1,
       }));
 
       await configApi.updateGarmentWorkflowSteps(garmentId, payload);
@@ -113,17 +133,26 @@ export function GarmentWorkflowStepsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Production Workflow Steps</DialogTitle>
-          <DialogDescription>
-            Configure the production steps required for <strong>{garmentName}</strong>. 
-            Tasks will be generated in this order when a new item is added to an order.
-          </DialogDescription>
-        </DialogHeader>
-
-        <DialogSection>
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Production Workflow Steps"
+      description={`Configure the production steps required for ${garmentName}. Tasks are generated in this order when a new order item is added.`}
+      contentSize="2xl"
+      maxWidthClass="sm:max-w-[700px]"
+      maxHeightClass="max-h-[90vh]"
+      footerActions={
+        <DialogFormActions
+          onCancel={() => onOpenChange(false)}
+          submitText="Save Workflow"
+          submittingText="Saving..."
+          submitting={loading}
+          submitFormId="garment-workflow-steps-form"
+          submitVariant="premium"
+        />
+      }
+    >
+        <DialogSection className="pt-0">
           <FormStack
             as="form"
             id="garment-workflow-steps-form"
@@ -200,18 +229,6 @@ export function GarmentWorkflowStepsDialog({
             </Button>
           </FormStack>
         </DialogSection>
-
-        <DialogActionRow>
-          <DialogFormActions
-            onCancel={() => onOpenChange(false)}
-            submitText="Save Workflow"
-            submittingText="Saving..."
-            submitting={loading}
-            submitFormId="garment-workflow-steps-form"
-            submitVariant="premium"
-          />
-        </DialogActionRow>
-      </DialogContent>
-    </Dialog>
+    </ScrollableDialog>
   );
 }

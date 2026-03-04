@@ -1,15 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
-import { Role } from "@tbms/shared-types";
 import {
   expensesApi,
   type Expense,
   type ExpenseCategory,
 } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
-import { useBranchStore } from "@/store/useBranchStore";
 
 const PAGE_SIZE = 10;
 
@@ -55,10 +52,6 @@ function getDefaultFormState(): ExpenseFormState {
 
 export function useExpensesPage() {
   const { toast } = useToast();
-  const { data: session } = useSession();
-  const { activeBranchId } = useBranchStore();
-
-  const user = session?.user;
 
   const [loading, setLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -198,10 +191,6 @@ export function useExpensesPage() {
         expenseDate: new Date(form.expenseDate).toISOString(),
       };
 
-      if (user?.role === Role.SUPER_ADMIN && activeBranchId) {
-        payload.branchId = activeBranchId;
-      }
-
       await expensesApi.createExpense(payload);
       toast({ title: "Expense added successfully" });
 
@@ -222,7 +211,7 @@ export function useExpensesPage() {
     } finally {
       setSaving(false);
     }
-  }, [activeBranchId, fetchExpenses, form, page, resetCreateForm, toast, user?.role]);
+  }, [fetchExpenses, form, page, resetCreateForm, toast]);
 
   const requestDeleteExpense = useCallback((expense: Expense) => {
     setDeleteTarget(expense);

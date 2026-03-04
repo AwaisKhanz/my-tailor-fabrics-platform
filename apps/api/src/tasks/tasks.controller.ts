@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { TaskStatus } from '@tbms/shared-types';
 import {
   ADMIN_ROLES,
@@ -35,7 +36,7 @@ export class TasksController {
     const data = await this.tasksService.assignTask(
       id,
       employeeId,
-      req.branchId,
+      requireBranchScope(req),
       req.user.role,
     );
     return { success: true, data };
@@ -51,7 +52,7 @@ export class TasksController {
     const data = await this.tasksService.updateTaskStatus(
       id,
       status,
-      req.branchId,
+      requireBranchScope(req),
       req.user.userId,
       req.user.role,
       req.user.employeeId ?? null,
@@ -69,7 +70,7 @@ export class TasksController {
     const data = await this.tasksService.updateTaskRate(
       id,
       rateOverride,
-      req.branchId,
+      requireBranchScope(req),
       req.user.role,
     );
     return { success: true, data };

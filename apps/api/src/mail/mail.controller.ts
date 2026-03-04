@@ -8,8 +8,9 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { Public } from '../common/decorators/auth.decorators';
+import { Roles } from '../common/decorators/auth.decorators';
 import { isPublicMailEndpointsEnabled } from '../common/env';
+import { SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
 
 @Controller('mail')
 export class MailController {
@@ -23,7 +24,7 @@ export class MailController {
     }
   }
 
-  @Public()
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Get('auth-url')
   getAuthUrl() {
     this.assertPublicAccessEnabled();
@@ -40,7 +41,7 @@ export class MailController {
     }
   }
 
-  @Public()
+  @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @Post('test')
   async sendTestMail(@Body() dto: { to: string }) {
     this.assertPublicAccessEnabled();

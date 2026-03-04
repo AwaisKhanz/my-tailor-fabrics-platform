@@ -3,7 +3,7 @@
 import { Form } from "@/components/ui/form";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { type MeasurementField } from "@/types/config";
+import { type MeasurementField } from "@tbms/shared-types";
 import { useMeasurementFieldDialog } from "@/hooks/use-measurement-field-dialog";
 import { MeasurementFieldDialogCategoryNote } from "@/components/config/measurements/detail/measurement-field-dialog-category-note";
 import { MeasurementFieldDialogBasicFields } from "@/components/config/measurements/detail/measurement-field-dialog-basic-fields";
@@ -15,7 +15,7 @@ interface MeasurementFieldDialogProps {
   onOpenChange: (open: boolean) => void;
   categoryId: string;
   categoryName?: string;
-  initialData?: Partial<MeasurementField> | null;
+  initialData?: MeasurementField | null;
   existingFields?: MeasurementField[];
   onSuccess: () => void;
 }

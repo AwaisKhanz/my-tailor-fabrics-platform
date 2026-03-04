@@ -4,6 +4,8 @@ import { PieChart } from "lucide-react";
 import { ChartEmptyState } from "@/components/ui/chart-empty-state";
 import { ChartLoadingState } from "@/components/ui/chart-loading-state";
 import { ChartShell } from "@/components/ui/chart-shell";
+import { getChartBgClass, getChartStrokeClass, getChartTextClass } from "@/lib/chart-theme";
+import { cn } from "@/lib/utils";
 
 interface ReportsDistributionChartProps {
   loading: boolean;
@@ -13,17 +15,6 @@ interface ReportsDistributionChartProps {
   mode?: "bar" | "donut";
   valueFormatter?: (value: number) => string;
 }
-
-const CHART_COLORS = [
-  "#1fe9df",
-  "#25c2ff",
-  "#6ba4ff",
-  "#4de38b",
-  "#f4bf3f",
-  "#ff8a65",
-  "#ff6f91",
-  "#a78bfa",
-] as const;
 
 export function ReportsDistributionChart({
   loading,
@@ -95,8 +86,8 @@ function DistributionBars({
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full"
-                style={{ width: `${percentOfMax}%`, backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                className={cn("h-full rounded-full", getChartBgClass(index))}
+                style={{ width: `${percentOfMax}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground">{valueFormatter(point.value)}</p>
@@ -143,12 +134,12 @@ function DistributionDonut({
                 cy="60"
                 r={radius}
                 fill="transparent"
-                stroke={CHART_COLORS[index % CHART_COLORS.length]}
+                stroke="currentColor"
                 strokeWidth={index === activeIndex ? "15" : "12"}
                 strokeLinecap="butt"
                 strokeDasharray={`${slice} ${circumference}`}
                 strokeDashoffset={-offset}
-                className="cursor-pointer transition-all"
+                className={cn("cursor-pointer transition-all", getChartStrokeClass(index))}
                 onMouseEnter={() => setHoveredIndex(index)}
               />
             );
@@ -160,7 +151,9 @@ function DistributionDonut({
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
               <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Selected</p>
               <p className="mt-1 text-sm font-semibold text-foreground">{activePoint.label}</p>
-              <p className="text-lg font-bold text-primary">{activePoint.share.toFixed(1)}%</p>
+              <p className={cn("text-lg font-bold", getChartTextClass(activeIndex))}>
+                {activePoint.share.toFixed(1)}%
+              </p>
               <p className="text-[11px] text-muted-foreground">{valueFormatter(activePoint.value)}</p>
             </div>
           ) : null}
@@ -176,8 +169,7 @@ function DistributionDonut({
           >
             <div className="flex items-center gap-2">
               <span
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                className={cn("h-2.5 w-2.5 rounded-full", getChartBgClass(index))}
               />
               <span className="text-sm text-foreground">{point.label}</span>
             </div>

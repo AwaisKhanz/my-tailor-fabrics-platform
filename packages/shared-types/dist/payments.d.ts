@@ -17,3 +17,14 @@ export interface PaymentSummary {
         closing_balance: number;
     }[];
 }
+export interface DisbursePaymentInput {
+    employeeId: string;
+    amount: number;
+    note?: string;
+}
+export interface WeeklyPaymentReportRow {
+    employeeId: string;
+    employeeName: string;
+    employeeCode: string;
+    paidThisWeek: number;
+}

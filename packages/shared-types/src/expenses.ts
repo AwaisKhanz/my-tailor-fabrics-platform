@@ -15,3 +15,13 @@ export interface ExpenseCategory {
   name: string;
   isActive: boolean;
 }
+
+export interface CreateExpenseInput {
+  categoryId: string;
+  amount: number;
+  description?: string;
+  receiptUrl?: string;
+  expenseDate: string;
+}
+
+export interface UpdateExpenseInput extends Partial<CreateExpenseInput> {}

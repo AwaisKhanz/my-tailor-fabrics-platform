@@ -307,32 +307,33 @@ export function useOrderFormPage() {
       setSubmitting(true);
 
       try {
-        const payload = {
-          customerId: values.customerId,
-          dueDate: values.dueDate,
-          notes: values.notes,
-          items: values.items.map((item) => ({
-            ...item,
-            unitPrice: Math.round(Number(item.unitPrice || 0) * 100),
-            employeeRate: item.employeeRate
-              ? Math.round(Number(item.employeeRate) * 100)
-              : undefined,
-            addons: item.addons?.map((addon) => ({
-              ...addon,
-              price: Math.round(Number(addon.price || 0) * 100),
-            })),
+        const mappedItems = values.items.map((item) => ({
+          ...item,
+          unitPrice: Math.round(Number(item.unitPrice || 0) * 100),
+          employeeRate: item.employeeRate
+            ? Math.round(Number(item.employeeRate) * 100)
+            : undefined,
+          addons: item.addons?.map((addon) => ({
+            ...addon,
+            price: Math.round(Number(addon.price || 0) * 100),
           })),
-          advancePayment: Math.round(Number(values.advancePayment || 0) * 100),
-          ...(canManageDiscounts
-            ? {
-                discountType: values.discountType,
-                discountValue: Math.round(Number(values.discountValue || 0) * 100),
-              }
-            : {}),
-        };
+        }));
+
+        const discountPayload = canManageDiscounts
+          ? {
+              discountType: values.discountType,
+              discountValue: Math.round(Number(values.discountValue || 0) * 100),
+            }
+          : {};
 
         if (editOrderId) {
-          const response = await ordersApi.updateOrder(editOrderId, payload as UpdateOrderInput);
+          const payload: UpdateOrderInput = {
+            dueDate: values.dueDate,
+            notes: values.notes,
+            items: mappedItems,
+            ...discountPayload,
+          };
+          const response = await ordersApi.updateOrder(editOrderId, payload);
           if (response.success) {
             toast({
               title: "Order Updated",
@@ -343,7 +344,16 @@ export function useOrderFormPage() {
           return;
         }
 
-        const response = await ordersApi.createOrder(payload as CreateOrderInput);
+        const payload: CreateOrderInput = {
+          customerId: values.customerId,
+          dueDate: values.dueDate,
+          notes: values.notes,
+          items: mappedItems,
+          advancePayment: Math.round(Number(values.advancePayment || 0) * 100),
+          ...discountPayload,
+        };
+
+        const response = await ordersApi.createOrder(payload);
         if (response.success) {
           toast({
             title: "Order Created",

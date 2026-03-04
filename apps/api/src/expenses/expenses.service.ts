@@ -28,7 +28,10 @@ export class ExpensesService {
     return branchId;
   }
 
-  private parseDateBoundary(value?: string, endOfDay = false): Date | undefined {
+  private parseDateBoundary(
+    value?: string,
+    endOfDay = false,
+  ): Date | undefined {
     if (!value) {
       return undefined;
     }
@@ -75,7 +78,11 @@ export class ExpensesService {
     }
   }
 
-  async create(branchId: string | null, addedById: string, dto: CreateExpenseDto) {
+  async create(
+    branchId: string | null,
+    addedById: string,
+    dto: CreateExpenseDto,
+  ) {
     const scopedBranchId = this.requireBranchId(branchId);
     await this.assertActiveCategory(dto.categoryId);
 

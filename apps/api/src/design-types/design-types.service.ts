@@ -44,24 +44,58 @@ export class DesignTypesService {
     });
   }
 
-  async findOne(id: string) {
-    const dt = await this.prisma.designType.findUnique({
-      where: { id, deletedAt: null },
+  async findOne(id: string, scopeBranchId?: string) {
+    const dt = await this.prisma.designType.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        ...(scopeBranchId
+          ? {
+              OR: [{ branchId: scopeBranchId }, { branchId: null }],
+            }
+          : {}),
+      },
     });
     if (!dt) throw new NotFoundException('Design Type not found');
     return dt;
   }
 
-  async update(id: string, dto: UpdateDesignTypeDto) {
+  async update(id: string, dto: UpdateDesignTypeDto, scopeBranchId?: string) {
+    const existing = await this.prisma.designType.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        ...(scopeBranchId ? { branchId: scopeBranchId } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('Design Type not found');
+    }
+
     return this.prisma.designType.update({
-      where: { id },
+      where: { id: existing.id },
       data: dto,
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, scopeBranchId?: string) {
+    const existing = await this.prisma.designType.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        ...(scopeBranchId ? { branchId: scopeBranchId } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('Design Type not found');
+    }
+
     return this.prisma.designType.update({
-      where: { id },
+      where: { id: existing.id },
       data: { deletedAt: new Date() },
     });
   }

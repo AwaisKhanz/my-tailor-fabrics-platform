@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "theme:audit": "node ./scripts/theme-audit.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -25,6 +26,7 @@
     "@radix-ui/react-toast": "^1.2.15",
     "@tbms/shared-types": "*",
     "@tbms/shared-constants": "*",
+    "@tbms/shared-theme": "*",
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

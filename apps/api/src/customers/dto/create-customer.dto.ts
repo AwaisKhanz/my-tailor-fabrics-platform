@@ -1,13 +1,12 @@
 import {
-  IsString,
-  IsOptional,
+  IsBoolean,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
-  ValidateNested,
-  IsArray,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 import { CustomerStatus } from '@tbms/shared-types';
-import { Type } from 'class-transformer';
 
 export class CreateCustomerDto {
   @IsString()
@@ -22,7 +21,7 @@ export class CreateCustomerDto {
   @IsOptional()
   whatsapp?: string;
 
-  @IsString()
+  @IsEmail()
   @IsOptional()
   email?: string;
 
@@ -39,8 +38,41 @@ export class CreateCustomerDto {
   notes?: string;
 }
 
-export class UpdateCustomerDto extends CreateCustomerDto {
+export class UpdateCustomerDto {
+  @IsString()
+  @IsOptional()
+  fullName?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  whatsapp?: string;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @IsString()
+  @IsOptional()
+  city?: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+
   @IsEnum(CustomerStatus)
   @IsOptional()
   status?: CustomerStatus;
+}
+
+export class ToggleVipDto {
+  @IsBoolean()
+  isVip!: boolean;
 }

@@ -44,6 +44,44 @@ export interface EmployeeWithRelations extends Employee {
   documents: EmployeeDocument[];
 }
 
+export interface CreateEmployeeInput {
+  fullName: string;
+  phone: string;
+  fatherName?: string;
+  phone2?: string;
+  address?: string;
+  city?: string;
+  cnic?: string;
+  dateOfBirth?: string;
+  dateOfJoining?: string;
+  designation?: string;
+  paymentType?: PaymentType;
+  accountNumber?: string;
+  emergencyName?: string;
+  emergencyPhone?: string;
+  notes?: string;
+}
+
+export interface UpdateEmployeeInput extends Partial<CreateEmployeeInput> {
+  status?: EmployeeStatus;
+}
+
+export interface CreateEmployeeUserAccountInput {
+  email: string;
+  password: string;
+}
+
+export interface CreateEmployeeUserAccountResult {
+  id: string;
+  email: string;
+}
+
+export interface AddEmployeeDocumentInput {
+  label: string;
+  fileUrl: string;
+  fileType: string;
+}
+
 export interface EmployeeStatsSummary {
   totalEarned: number;
   totalPaid: number;

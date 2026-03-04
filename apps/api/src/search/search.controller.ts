@@ -6,6 +6,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
 import { OPERATOR_ROLES } from '@tbms/shared-constants';
+import { resolveBranchScopeForReadOrNull } from '../common/utils/branch-resolution.util';
 
 @Controller('search')
 @UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
@@ -19,7 +20,7 @@ export class SearchController {
     @Req() req: AuthenticatedRequest,
     @Query('limit') limit?: string,
   ) {
-    const branchId = req.branchId ?? null; // Set by BranchGuard
+    const branchId = resolveBranchScopeForReadOrNull(req);
 
     const data = await this.searchService.searchCustomers(
       query || '',
@@ -36,7 +37,7 @@ export class SearchController {
     @Req() req: AuthenticatedRequest,
     @Query('limit') limit?: string,
   ) {
-    const branchId = req.branchId ?? null; // Set by BranchGuard
+    const branchId = resolveBranchScopeForReadOrNull(req);
 
     const data = await this.searchService.searchEmployees(
       query || '',

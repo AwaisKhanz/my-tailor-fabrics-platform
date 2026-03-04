@@ -9,5 +9,5 @@ export interface AuthenticatedRequest extends Request {
     branchId?: string | null;
     employeeId?: string | null;
   };
-  branchId: string;
+  branchId: string | null;
 }

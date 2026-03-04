@@ -15,6 +15,7 @@ import {
 import { CustomersService } from './customers.service';
 import {
   CreateCustomerDto,
+  ToggleVipDto,
   UpdateCustomerDto,
 } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
@@ -22,6 +23,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { CustomerStatus } from '@tbms/shared-types';
 import { ADMIN_ROLES, OPERATOR_ROLES } from '@tbms/shared-constants';
 
@@ -29,6 +31,18 @@ import { ADMIN_ROLES, OPERATOR_ROLES } from '@tbms/shared-constants';
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
+
+  private parseStatus(
+    value?: string,
+  ): CustomerStatus | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    return Object.values(CustomerStatus).includes(value as CustomerStatus)
+      ? (value as CustomerStatus)
+      : undefined;
+  }
 
   @Roles(...OPERATOR_ROLES)
   @Post()
@@ -38,7 +52,7 @@ export class CustomersController {
   ) {
     const data = await this.customersService.create(
       createCustomerDto,
-      req.branchId,
+      requireBranchScope(req),
     );
     return { success: true, data };
   }
@@ -50,16 +64,17 @@ export class CustomersController {
     @Query('limit') limit: string,
     @Query('search') search: string,
     @Query('isVip') isVip: string,
-    @Query('status') status: CustomerStatus | undefined,
+    @Query('status') status: string | undefined,
     @Req() req: AuthenticatedRequest,
   ) {
+    const parsedStatus = this.parseStatus(status);
     const data = await this.customersService.findAll(
       req.branchId,
       Number(page) || 1,
       Number(limit) || 20,
       search,
       isVip === 'true' ? true : undefined,
-      status,
+      parsedStatus,
     );
     return { success: true, data };
   }
@@ -69,16 +84,17 @@ export class CustomersController {
   async getSummary(
     @Query('search') search: string,
     @Query('isVip') isVip: string,
-    @Query('status') status: CustomerStatus | undefined,
+    @Query('status') status: string | undefined,
     @Req() req: AuthenticatedRequest,
   ) {
     const vipFilter =
       isVip === 'true' ? true : isVip === 'false' ? false : undefined;
+    const parsedStatus = this.parseStatus(status);
 
     const data = await this.customersService.getSummary(req.branchId, {
       search,
       isVip: vipFilter,
-      status,
+      status: parsedStatus,
     });
     return { success: true, data };
   }
@@ -99,7 +115,7 @@ export class CustomersController {
   ) {
     const data = await this.customersService.update(
       id,
-      req.branchId,
+      requireBranchScope(req),
       updateCustomerDto,
     );
     return { success: true, data };
@@ -108,7 +124,10 @@ export class CustomersController {
   @Roles(...ADMIN_ROLES)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.customersService.remove(id, req.branchId);
+    const data = await this.customersService.remove(
+      id,
+      requireBranchScope(req),
+    );
     return { success: true, data };
   }
 
@@ -138,7 +157,7 @@ export class CustomersController {
   ) {
     const data = await this.customersService.upsertMeasurement(
       id,
-      req.branchId,
+      requireBranchScope(req),
       dto,
     );
     return { success: true, data };
@@ -148,10 +167,14 @@ export class CustomersController {
   @Patch(':id/vip')
   async toggleVip(
     @Param('id') id: string,
-    @Body('isVip') isVip: boolean,
+    @Body() body: ToggleVipDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.customersService.toggleVip(id, req.branchId, isVip);
+    const data = await this.customersService.toggleVip(
+      id,
+      requireBranchScope(req),
+      body.isVip,
+    );
     return { success: true, data };
   }
 }

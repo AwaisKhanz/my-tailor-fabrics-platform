@@ -8,6 +8,15 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 
+function getUnknownErrorMessage(exception: unknown): string | null {
+  if (!exception || typeof exception !== 'object') {
+    return null;
+  }
+
+  const maybeMessage = (exception as { message?: unknown }).message;
+  return typeof maybeMessage === 'string' ? maybeMessage : null;
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger('AllExceptionsFilter');
@@ -33,7 +42,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message:
         exception instanceof Error
           ? exception.message
-          : (exception as any)?.message || 'Internal server error',
+          : getUnknownErrorMessage(exception) || 'Internal server error',
     };
 
     // LOG THE CRASH/ERROR WITH STACK TRACE

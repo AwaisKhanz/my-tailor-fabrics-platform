@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 @Controller('expenses')
@@ -31,7 +32,7 @@ export class ExpensesController {
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.expensesService.create(
-      req.branchId,
+      requireBranchScope(req),
       req.user.userId,
       dto,
     );
@@ -84,14 +85,18 @@ export class ExpensesController {
     @Body() dto: UpdateExpenseDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.expensesService.update(id, req.branchId, dto);
+    const data = await this.expensesService.update(
+      id,
+      requireBranchScope(req),
+      dto,
+    );
     return { success: true, data };
   }
 
   @Roles(...ADMIN_ROLES)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    await this.expensesService.remove(id, req.branchId);
+    await this.expensesService.remove(id, requireBranchScope(req));
     return { success: true };
   }
 }

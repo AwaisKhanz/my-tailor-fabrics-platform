@@ -33,8 +33,9 @@ export class BranchGuard implements CanActivate {
     // If no header is provided and they need one, it will naturally fail at the service level,
     // but the guard passes them.
     if (user.role === Role.SUPER_ADMIN) {
-      const targetBranch = request.headers['x-branch-id'];
-      request.branchId = targetBranch || null; // Injected for downstream use
+      const rawHeader = request.headers['x-branch-id'];
+      const targetBranch = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
+      request.branchId = targetBranch?.trim() || null; // Injected for downstream use
       return true;
     }
 

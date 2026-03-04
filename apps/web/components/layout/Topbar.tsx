@@ -4,11 +4,11 @@ import { useSession, signOut } from "next-auth/react";
 import { ADMIN_ROLES } from "@tbms/shared-constants";
 import { BranchSelector } from "./BranchSelector";
 import { MobileSidebarTrigger } from "./Sidebar";
-import { Search, LogOut, User, LayoutDashboard } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { LogOut, User, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "./ThemeToggle";
+import { GlobalSearchCommand } from "./GlobalSearchCommand";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,13 +34,8 @@ export function Topbar() {
         </div>
 
         <div className="hidden flex-1 items-center justify-center lg:flex">
-          <div className="relative w-full max-w-2xl">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              variant="table"
-              placeholder="Search orders, customers, and staff..."
-              className="h-9 w-full border-border/70 bg-background/90 pl-10"
-            />
+          <div className="w-full max-w-2xl">
+            <GlobalSearchCommand />
           </div>
         </div>
 
@@ -96,14 +91,7 @@ export function Topbar() {
         </div>
       </div>
       <div className="border-t border-border/60 px-3 py-2 lg:hidden">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            variant="table"
-            placeholder="Search orders, customers..."
-            className="h-9 w-full border-border/70 bg-background/90 pl-10"
-          />
-        </div>
+        <GlobalSearchCommand compact enableHotkeys={false} />
       </div>
     </header>
   );

@@ -3,20 +3,13 @@ import { PieChart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import type { GarmentRevenue } from "@/lib/api/reports";
-import { formatPKR } from "@/lib/utils";
+import { getChartBgClass, getChartStrokeClass, getChartTextClass } from "@/lib/chart-theme";
+import { cn, formatPKR } from "@/lib/utils";
 
 interface DashboardGarmentBreakdownCardProps {
   garments: GarmentRevenue[];
   totalItems: number;
 }
-
-const DONUT_COLORS = [
-  "#20d5d2",
-  "#3b82f6",
-  "#22c55e",
-  "#f59e0b",
-  "#a78bfa",
-] as const;
 
 export function DashboardGarmentBreakdownCard({
   garments,
@@ -91,12 +84,15 @@ export function DashboardGarmentBreakdownCard({
                         cy="60"
                         r={radius}
                         fill="transparent"
-                        stroke={DONUT_COLORS[index % DONUT_COLORS.length]}
+                        stroke="currentColor"
                         strokeWidth={isHovered ? "17" : "13"}
                         strokeLinecap="butt"
                         strokeDasharray={`${slice} ${circumference}`}
                         strokeDashoffset={-offset}
-                        className="cursor-pointer transition-all duration-200"
+                        className={cn(
+                          "cursor-pointer transition-all duration-200",
+                          getChartStrokeClass(index),
+                        )}
                         onMouseEnter={() => setHoveredIndex(index)}
                       />
                     );
@@ -112,7 +108,7 @@ export function DashboardGarmentBreakdownCard({
                     <p className="mt-1 max-w-[88px] truncate text-xs font-semibold leading-tight text-foreground">
                       {activeGarment.label}
                     </p>
-                    <p className="text-lg font-bold text-primary">
+                    <p className={cn("text-lg font-bold", getChartTextClass(activeIndex))}>
                       {totalItems > 0 ? ((activeGarment.value / totalItems) * 100).toFixed(1) : "0.0"}%
                     </p>
                     <p className="text-[11px] text-muted-foreground">{formatPKR(activeGarment.value)}</p>
@@ -134,10 +130,7 @@ export function DashboardGarmentBreakdownCard({
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
                     <div className="flex min-w-0 items-center gap-2">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: DONUT_COLORS[index % DONUT_COLORS.length] }}
-                      />
+                      <span className={cn("h-2.5 w-2.5 rounded-full", getChartBgClass(index))} />
                       <span className="truncate text-sm text-foreground">{garment.label}</span>
                     </div>
 

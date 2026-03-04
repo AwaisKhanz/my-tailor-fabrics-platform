@@ -20,7 +20,12 @@ import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
 import { typedZodResolver } from "@/lib/utils/form";
 import { garmentTypeSchema, GarmentTypeFormValues } from "@/types/config/schemas";
-import type { GarmentType, MeasurementCategory } from "@tbms/shared-types";
+import type {
+  CreateGarmentTypeInput,
+  GarmentType,
+  MeasurementCategory,
+  UpdateGarmentTypeInput,
+} from "@tbms/shared-types";
 import { logDevError } from "@/lib/logger";
 
 interface GarmentTypeDialogProps {
@@ -93,15 +98,17 @@ export function GarmentTypeDialog({
   async function onSubmit(data: GarmentTypeFormValues) {
     setLoading(true);
     try {
-      const payload: Partial<GarmentTypeFormValues> = {
+      const normalizedPayload = {
         ...data,
         customerPrice: Math.round(data.customerPrice * 100),
         employeeRate: Math.round(data.employeeRate * 100),
       };
 
       if (initialData) {
+        const payload: UpdateGarmentTypeInput = normalizedPayload;
         await configApi.updateGarmentType(initialData.id, payload);
       } else {
+        const payload: CreateGarmentTypeInput = normalizedPayload;
         await configApi.createGarmentType(payload);
       }
 

@@ -62,8 +62,8 @@ export function GarmentPriceHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl border-none shadow-2xl overflow-hidden p-0 bg-background">
-        <DialogHeader className="p-8 pb-0">
+      <DialogContent size="2xl" variant="flush">
+        <DialogHeader className="border-b px-6 pb-4 pt-6">
           <div className="flex items-center gap-3 mb-2">
              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <History className="h-5 w-5 text-primary" />
@@ -75,7 +75,7 @@ export function GarmentPriceHistoryDialog({
           </div>
         </DialogHeader>
 
-        <DialogSection className="p-8">
+        <DialogSection className="px-6 pb-6 pt-4">
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />

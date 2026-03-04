@@ -42,7 +42,7 @@ export function UserAccountDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>{editingUser ? "Edit User Account" : "Create User Account"}</DialogTitle>
         </DialogHeader>

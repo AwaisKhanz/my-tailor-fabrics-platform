@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { requireBranchScope } from '../common/utils/branch-scope.util';
 import {
   DASHBOARD_READ_ROLES,
   EMPLOYEE_AND_OPERATOR_ROLES,
@@ -34,7 +35,7 @@ export class AttendanceController {
   ) {
     const data = await this.attendanceService.clockIn(
       employeeId,
-      req.branchId,
+      requireBranchScope(req),
       note,
     );
     return { success: true, data };
@@ -47,7 +48,10 @@ export class AttendanceController {
     @Param('recordId') recordId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.attendanceService.clockOut(recordId, req.branchId);
+    const data = await this.attendanceService.clockOut(
+      recordId,
+      requireBranchScope(req),
+    );
     return { success: true, data };
   }
 

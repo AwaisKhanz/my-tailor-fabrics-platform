@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { type DesignType } from "@tbms/shared-types";
+import {
+  type DesignType,
+  type CreateDesignTypeInput,
+  type UpdateDesignTypeInput,
+} from "@tbms/shared-types";
 
 export const DESIGN_TYPE_ALL_SCOPE = "ALL";
 
@@ -20,8 +24,12 @@ interface UseDesignTypeDialogParams {
   open: boolean;
   initialData?: DesignType | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: Partial<DesignType>) => Promise<void>;
+  onSubmit: (payload: DesignTypeSubmitPayload) => Promise<void>;
 }
+
+export type DesignTypeSubmitPayload =
+  | { mode: "create"; data: CreateDesignTypeInput }
+  | { mode: "update"; data: UpdateDesignTypeInput };
 
 const DEFAULT_VALUES: DesignTypeFormValues = {
   name: "",
@@ -69,23 +77,35 @@ export function useDesignTypeDialog({
     async (values: DesignTypeFormValues) => {
       setSubmitting(true);
       try {
-        const payload: Partial<DesignType> = {
-          ...values,
-          garmentTypeId:
-            values.garmentTypeId === DESIGN_TYPE_ALL_SCOPE ? null : values.garmentTypeId,
-          branchId: values.branchId === DESIGN_TYPE_ALL_SCOPE ? null : values.branchId,
+        const basePayload = {
+          name: values.name,
           defaultPrice: Number(values.defaultPrice),
           defaultRate: Number(values.defaultRate),
           sortOrder: Number(values.sortOrder),
+          isActive: values.isActive,
         };
 
-        await onSubmit(payload);
+        if (initialData) {
+          const updatePayload: UpdateDesignTypeInput = basePayload;
+          await onSubmit({ mode: "update", data: updatePayload });
+        } else {
+          const createPayload: CreateDesignTypeInput = {
+            ...basePayload,
+            garmentTypeId:
+              values.garmentTypeId === DESIGN_TYPE_ALL_SCOPE
+                ? null
+                : values.garmentTypeId,
+            branchId:
+              values.branchId === DESIGN_TYPE_ALL_SCOPE ? null : values.branchId,
+          };
+          await onSubmit({ mode: "create", data: createPayload });
+        }
         onOpenChange(false);
       } finally {
         setSubmitting(false);
       }
     },
-    [onOpenChange, onSubmit],
+    [initialData, onOpenChange, onSubmit],
   );
 
   return {

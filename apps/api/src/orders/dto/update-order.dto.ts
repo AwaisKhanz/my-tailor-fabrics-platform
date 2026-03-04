@@ -9,21 +9,18 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DiscountType, FabricSource } from '@tbms/shared-types';
+import { AddonType, DiscountType, FabricSource } from '@tbms/shared-types';
 
 export class UpdateOrderItemAddonDto {
-  @IsString()
-  @IsOptional()
-  type?: string;
+  @IsEnum(AddonType)
+  type!: AddonType;
 
   @IsString()
-  @IsOptional()
-  name?: string;
+  name!: string;
 
   @IsNumber()
   @Min(0)
-  @IsOptional()
-  price?: number;
+  price!: number;
 
   @IsNumber()
   @IsOptional()
@@ -56,7 +53,7 @@ export class UpdateOrderItemDto {
   @IsOptional()
   employeeId?: string;
 
-  @IsString()
+  @IsDateString()
   @IsOptional()
   dueDate?: string;
 
@@ -71,10 +68,12 @@ export class UpdateOrderItemDto {
   addons?: UpdateOrderItemAddonDto[];
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
   unitPrice?: number;
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
   employeeRate?: number;
 }
@@ -102,9 +101,4 @@ export class UpdateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => UpdateOrderItemDto)
   items?: UpdateOrderItemDto[];
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  advancePayment?: number;
 }

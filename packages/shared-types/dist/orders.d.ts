@@ -3,13 +3,15 @@ import { EmployeeLedgerEntry } from './ledger';
 export interface OrderItemInput {
     garmentTypeId: string;
     quantity: number;
+    unitPrice?: number;
+    employeeRate?: number;
     employeeId?: string | null;
     description?: string;
     fabricSource?: FabricSource;
     dueDate?: string;
     designTypeId?: string | null;
     addons?: {
-        type: string;
+        type: AddonType;
         name: string;
         price: number;
         cost?: number;
@@ -118,6 +120,17 @@ export interface WorkflowStepTemplate {
     isActive: boolean;
     createdAt: Date | string;
 }
+export interface WorkflowStepTemplateInput {
+    id?: string;
+    stepKey: string;
+    stepName: string;
+    sortOrder: number;
+    isRequired?: boolean;
+    isActive?: boolean;
+}
+export interface UpdateGarmentWorkflowStepsInput {
+    steps: WorkflowStepTemplateInput[];
+}
 export interface OrderItemTask {
     id: string;
     orderItemId: string;
@@ -160,6 +173,22 @@ export interface DesignType {
     sortOrder: number;
     createdAt: string;
     updatedAt: string;
+}
+export interface CreateDesignTypeInput {
+    name: string;
+    defaultPrice: number;
+    defaultRate: number;
+    branchId?: string | null;
+    garmentTypeId?: string | null;
+    sortOrder?: number;
+    isActive?: boolean;
+}
+export interface UpdateDesignTypeInput {
+    name?: string;
+    defaultPrice?: number;
+    defaultRate?: number;
+    sortOrder?: number;
+    isActive?: boolean;
 }
 export interface OrderItemAddon {
     id: string;

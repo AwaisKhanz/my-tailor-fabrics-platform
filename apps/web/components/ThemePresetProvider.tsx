@@ -1,8 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { useTheme } from "next-themes";
+import { createThemeCssVariables, type ThemeMode } from "@/lib/theme-css";
 import {
   DEFAULT_THEME_PRESET,
+  getThemePreset,
   isThemePreset,
   THEME_PRESET_STORAGE_KEY,
   type ThemePresetId,
@@ -22,6 +25,7 @@ export function ThemePresetProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const { resolvedTheme } = useTheme();
   const [preset, setPresetState] =
     React.useState<ThemePresetId>(DEFAULT_THEME_PRESET);
 
@@ -33,8 +37,16 @@ export function ThemePresetProvider({
   }, []);
 
   React.useEffect(() => {
-    document.documentElement.dataset.themePreset = preset;
-  }, [preset]);
+    const mode: ThemeMode = resolvedTheme === "light" ? "light" : "dark";
+    const root = document.documentElement;
+    const selectedPreset = getThemePreset(preset);
+    const cssVariables = createThemeCssVariables(selectedPreset.palette[mode], mode);
+
+    root.dataset.themePreset = preset;
+    for (const [key, value] of Object.entries(cssVariables)) {
+      root.style.setProperty(key, value);
+    }
+  }, [preset, resolvedTheme]);
 
   const setPreset = React.useCallback((nextPreset: ThemePresetId) => {
     setPresetState(nextPreset);

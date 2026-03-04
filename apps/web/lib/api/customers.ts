@@ -1,7 +1,15 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import { Customer, CustomerMeasurement } from '@/types/customers';
-import { CustomersListSummary, CustomerStatus, Order } from '@tbms/shared-types';
+import {
+  CreateCustomerInput,
+  Customer,
+  CustomerMeasurement,
+  CustomersListSummary,
+  CustomerStatus,
+  Order,
+  UpdateCustomerInput,
+  UpsertCustomerMeasurementInput,
+} from '@tbms/shared-types';
 
 export const customerApi = {
   getCustomers: async (
@@ -37,12 +45,12 @@ export const customerApi = {
     return response.data;
   },
 
-  createCustomer: async (data: Partial<Customer>) => {
+  createCustomer: async (data: CreateCustomerInput) => {
     const response = await api.post<ApiResponse<Customer>>('/customers', data);
     return response.data;
   },
 
-  updateCustomer: async (id: string, data: Partial<Customer>) => {
+  updateCustomer: async (id: string, data: UpdateCustomerInput) => {
     const response = await api.put<ApiResponse<Customer>>(`/customers/${id}`, data);
     return response.data;
   },
@@ -52,7 +60,11 @@ export const customerApi = {
     return response.data;
   },
 
-  upsertMeasurements: async (customerId: string, categoryId: string, values: Record<string, unknown>) => {
+  upsertMeasurements: async (
+    customerId: string,
+    categoryId: string,
+    values: UpsertCustomerMeasurementInput["values"],
+  ) => {
     const response = await api.post<ApiResponse<CustomerMeasurement>>(`/customers/${customerId}/measurements`, {
       categoryId,
       values,

@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSession } from "next-auth/react";
-import { CustomerStatus, Role, type Customer } from "@tbms/shared-types";
+import {
+  CustomerStatus,
+  CreateCustomerInput,
+  UpdateCustomerInput,
+  type Customer,
+} from "@tbms/shared-types";
 import { customerApi } from "@/lib/api/customers";
 import { useToast } from "@/hooks/use-toast";
-import { useBranchStore } from "@/store/useBranchStore";
 import { typedZodResolver } from "@/lib/utils/form";
 import { customerSchema, type CustomerFormValues } from "@/types/customers";
 
@@ -36,10 +39,6 @@ export function useCustomerDialog({
 }: UseCustomerDialogParams) {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
-
-  const { data: session } = useSession();
-  const user = session?.user;
-  const { activeBranchId } = useBranchStore();
 
   const form = useForm<CustomerFormValues>({
     resolver: typedZodResolver<CustomerFormValues>(customerSchema),
@@ -72,18 +71,15 @@ export function useCustomerDialog({
       setSubmitting(true);
       try {
         if (customer) {
-          await customerApi.updateCustomer(customer.id, values);
+          const payload: UpdateCustomerInput = values;
+          await customerApi.updateCustomer(customer.id, payload);
           toast({ title: "Customer updated successfully" });
         } else {
           // Backend create path does not accept status on create.
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { status, ...createPayload } = values;
-
-          if (user?.role === Role.SUPER_ADMIN && activeBranchId) {
-            (createPayload as Record<string, unknown>).branchId = activeBranchId;
-          }
-
-          await customerApi.createCustomer(createPayload);
+          const payload: CreateCustomerInput = createPayload;
+          await customerApi.createCustomer(payload);
           toast({ title: "Customer created successfully" });
         }
 
@@ -99,7 +95,7 @@ export function useCustomerDialog({
         setSubmitting(false);
       }
     },
-    [activeBranchId, customer, onOpenChange, onSuccess, toast, user?.role],
+    [customer, onOpenChange, onSuccess, toast],
   );
 
   return {

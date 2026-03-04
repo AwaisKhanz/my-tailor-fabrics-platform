@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerEntryType } from '@tbms/shared-types';
 import type {
@@ -6,11 +6,34 @@ import type {
   LedgerStatementParams,
   LedgerSummary,
 } from '@tbms/shared-types';
-import { Prisma, LedgerEntryType as PrismaLedgerEntryType } from '@prisma/client';
+import {
+  Prisma,
+  LedgerEntryType as PrismaLedgerEntryType,
+} from '@prisma/client';
 
 @Injectable()
 export class LedgerService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private async assertEmployeeScope(
+    employeeId: string,
+    branchId?: string | null,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
+    const employee = await client.employee.findFirst({
+      where: {
+        id: employeeId,
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+  }
 
   /**
    * Create a single ledger entry.
@@ -22,6 +45,8 @@ export class LedgerService {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx ?? this.prisma;
+    await this.assertEmployeeScope(dto.employeeId, dto.branchId, tx);
+
     return client.employeeLedgerEntry.create({
       data: {
         employeeId: dto.employeeId,
@@ -40,7 +65,12 @@ export class LedgerService {
    * Get current balance for an employee: SUM of all non-deleted ledger entries.
    * Positive entries = earned, negative = paid out.
    */
-  async getBalance(employeeId: string): Promise<LedgerSummary> {
+  async getBalance(
+    employeeId: string,
+    branchId?: string | null,
+  ): Promise<LedgerSummary> {
+    await this.assertEmployeeScope(employeeId, branchId);
+
     const result = await this.prisma.$queryRaw<
       [{ total_earned: bigint; total_deducted: bigint }]
     >`
@@ -67,7 +97,10 @@ export class LedgerService {
   async getStatement(
     employeeId: string,
     options: LedgerStatementParams = {},
+    branchId?: string | null,
   ) {
+    await this.assertEmployeeScope(employeeId, branchId);
+
     const { from, to, type, page = 1, limit = 20 } = options;
     const skip = (page - 1) * limit;
 
@@ -111,7 +144,7 @@ export class LedgerService {
         },
       }),
       this.prisma.employeeLedgerEntry.count({ where }),
-      this.getBalance(employeeId),
+      this.getBalance(employeeId, branchId),
     ]);
 
     return {
@@ -128,7 +161,13 @@ export class LedgerService {
   /**
    * Get earnings grouped by week for the last N weeks.
    */
-  async getEarningsByPeriod(employeeId: string, weeksBack = 12) {
+  async getEarningsByPeriod(
+    employeeId: string,
+    weeksBack = 12,
+    branchId?: string | null,
+  ) {
+    await this.assertEmployeeScope(employeeId, branchId);
+
     const rawData = await this.prisma.$queryRaw<
       {
         period: Date;
@@ -165,9 +204,22 @@ export class LedgerService {
     }));
   }
 
-  async remove(id: string, branchId: string) {
+  async remove(id: string, branchId?: string | null) {
+    const entry = await this.prisma.employeeLedgerEntry.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!entry) {
+      throw new NotFoundException('Ledger entry not found');
+    }
+
     return this.prisma.employeeLedgerEntry.update({
-      where: { id, branchId },
+      where: { id },
       data: { deletedAt: new Date() },
     });
   }

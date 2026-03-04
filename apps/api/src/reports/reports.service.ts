@@ -77,8 +77,11 @@ export class ReportsService {
     return { fromDate, toDate };
   }
 
-  private resolvePreviousRange(currentRange: ResolvedDateRange): ResolvedDateRange {
-    const spanMs = currentRange.toDate.getTime() - currentRange.fromDate.getTime() + 1;
+  private resolvePreviousRange(
+    currentRange: ResolvedDateRange,
+  ): ResolvedDateRange {
+    const spanMs =
+      currentRange.toDate.getTime() - currentRange.fromDate.getTime() + 1;
     const previousToDate = new Date(currentRange.fromDate.getTime() - 1);
     const previousFromDate = new Date(previousToDate.getTime() - spanMs + 1);
 
@@ -106,10 +109,7 @@ export class ReportsService {
 
     return rows.map((row) => ({
       ...row,
-      share:
-        total > 0
-          ? Number(((row.value / total) * 100).toFixed(2))
-          : 0,
+      share: total > 0 ? Number(((row.value / total) * 100).toFixed(2)) : 0,
     }));
   }
 
@@ -147,11 +147,17 @@ export class ReportsService {
 
   private formatTrendLabel(date: Date, granularity: TrendGranularity): string {
     if (granularity === 'day') {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
     }
 
     if (granularity === 'month') {
-      return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        year: '2-digit',
+      });
     }
 
     return `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
@@ -206,11 +212,7 @@ export class ReportsService {
     };
   }
 
-  async getDashboardStats(
-    branchId?: string,
-    from?: string,
-    to?: string,
-  ) {
+  async getDashboardStats(branchId?: string, from?: string, to?: string) {
     const range = this.resolveOptionalDateRange(from, to);
 
     const baseOrderWhere: Prisma.OrderWhereInput = {
@@ -226,7 +228,10 @@ export class ReportsService {
         : {}),
     };
 
-    const { revenue, expenses } = await this.getFinancialTotals(branchId, range);
+    const { revenue, expenses } = await this.getFinancialTotals(
+      branchId,
+      range,
+    );
 
     // Outstanding balances are operationally current and intentionally not date-windowed.
     const earnedBranchCondition = branchId
@@ -342,7 +347,9 @@ export class ReportsService {
       ? Prisma.sql`AND e."branchId" = ${branchId}`
       : Prisma.empty;
 
-    const revenueRaw = await this.prisma.$queryRaw<{ month: Date; total: bigint }[]>(
+    const revenueRaw = await this.prisma.$queryRaw<
+      { month: Date; total: bigint }[]
+    >(
       Prisma.sql`
         SELECT date_trunc('month', op."paidAt") as month, SUM(op.amount) as total
         FROM "OrderPayment" op
@@ -355,7 +362,9 @@ export class ReportsService {
       `,
     );
 
-    const expenseRaw = await this.prisma.$queryRaw<{ month: Date; total: bigint }[]>(
+    const expenseRaw = await this.prisma.$queryRaw<
+      { month: Date; total: bigint }[]
+    >(
       Prisma.sql`
         SELECT date_trunc('month', e."expenseDate") as month, SUM(e.amount) as total
         FROM "Expense" e
@@ -442,7 +451,10 @@ export class ReportsService {
 
     const points = rows.map((row) => ({
       periodStart: row.periodStart.toISOString(),
-      label: this.formatTrendLabel(new Date(row.periodStart), resolvedGranularity),
+      label: this.formatTrendLabel(
+        new Date(row.periodStart),
+        resolvedGranularity,
+      ),
       revenue: Number(row.revenue ?? 0),
       expenses: Number(row.expenses ?? 0),
       net: Number(row.net ?? 0),
@@ -474,7 +486,9 @@ export class ReportsService {
       : Prisma.empty;
     const range = this.resolveOptionalDateRange(from, to);
 
-    const result = await this.prisma.$queryRaw<{ label: string; value: bigint }[]>(
+    const result = await this.prisma.$queryRaw<
+      { label: string; value: bigint }[]
+    >(
       Prisma.sql`
         SELECT oi."garmentTypeName" as label, SUM(oi."unitPrice" * oi.quantity) as value
         FROM "OrderItem" oi
@@ -767,11 +781,7 @@ export class ReportsService {
     }));
   }
 
-  async getSummary(
-    branchId?: string,
-    from?: string,
-    to?: string,
-  ) {
+  async getSummary(branchId?: string, from?: string, to?: string) {
     const currentRange = this.resolveDateRange(from, to, 30);
     const previousRange = this.resolvePreviousRange(currentRange);
 
@@ -789,8 +799,14 @@ export class ReportsService {
       }),
     ]);
 
-    const totalDesignRevenue = designs.reduce((sum, design) => sum + design.revenue, 0);
-    const totalAddonRevenue = addons.reduce((sum, addon) => sum + addon.total, 0);
+    const totalDesignRevenue = designs.reduce(
+      (sum, design) => sum + design.revenue,
+      0,
+    );
+    const totalAddonRevenue = addons.reduce(
+      (sum, addon) => sum + addon.total,
+      0,
+    );
     const net = dashboard.revenue - dashboard.expenses;
     const revenueDelta = dashboard.revenue - previousTotals.revenue;
     const expensesDelta = dashboard.expenses - previousTotals.expenses;

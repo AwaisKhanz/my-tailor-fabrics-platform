@@ -1,6 +1,10 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import { PaymentSummary, Payment } from '@tbms/shared-types';
+import {
+  DisbursePaymentInput,
+  Payment,
+  PaymentSummary,
+} from '@tbms/shared-types';
 
 export type { PaymentSummary };
 
@@ -40,8 +44,8 @@ export const paymentsApi = {
     return response.data;
   },
 
-  disburse: async (data: { employeeId: string; amount: number; note?: string }) => {
-    const response = await api.post<ApiResponse<unknown>>('/payments', data);
+  disburse: async (data: DisbursePaymentInput) => {
+    const response = await api.post<ApiResponse<Payment>>('/payments', data);
     return response.data;
   },
 

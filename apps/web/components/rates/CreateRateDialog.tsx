@@ -21,6 +21,7 @@ import {
 import { Banknote, Calendar } from "lucide-react";
 import type { CreateRateCardInput } from "@tbms/shared-types";
 import { logDevError } from "@/lib/logger";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateRateDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function CreateRateDialog({
   branches,
   steps
 }: CreateRateDialogProps) {
+  const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
   const [formData, setFormData] = React.useState({
     garmentTypeId: "",
@@ -49,12 +51,30 @@ export function CreateRateDialog({
   });
 
   const handleSubmit = async () => {
+    const amount = Number.parseFloat(formData.amount);
+    if (!formData.garmentTypeId || !formData.stepKey || !formData.effectiveFrom) {
+      toast({
+        title: "Missing fields",
+        description: "Please select garment type, step, and effective date.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!Number.isFinite(amount) || amount < 0) {
+      toast({
+        title: "Invalid rate",
+        description: "Rate must be a valid non-negative number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await onSubmit({
         ...formData,
         branchId: formData.branchId === "GLOBAL" ? null : formData.branchId,
-        amount: Math.round(parseFloat(formData.amount) * 100)
+        amount: Math.round(amount * 100)
       });
       onOpenChange(false);
     } catch (err) {
@@ -66,7 +86,7 @@ export function CreateRateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>New Rate Card</DialogTitle>
           <DialogDescription>

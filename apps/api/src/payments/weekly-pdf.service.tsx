@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as React from 'react';
 import { renderToStream } from '@react-pdf/renderer';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { WeeklyPaymentReportRow } from '@tbms/shared-types';
 
 const styles = StyleSheet.create({
     page: { padding: 30, fontSize: 12, fontFamily: 'Helvetica' },
@@ -17,8 +18,8 @@ const styles = StyleSheet.create({
     footer: { marginTop: 30, fontSize: 10, textAlign: 'center', color: '#888' }
 });
 
-const WeeklyPaymentDocument = ({ data }: { data: { employeeCode: string; employeeName: string; paidThisWeek: number | string; }[] }) => {
-    const totalPaid = data.reduce((sum, row) => sum + (Number(row.paidThisWeek) || 0), 0);
+const WeeklyPaymentDocument = ({ data }: { data: WeeklyPaymentReportRow[] }) => {
+    const totalPaid = data.reduce((sum, row) => sum + row.paidThisWeek, 0);
     const dateStr = new Date().toLocaleDateString();
 
     return (
@@ -39,7 +40,7 @@ const WeeklyPaymentDocument = ({ data }: { data: { employeeCode: string; employe
                         <View style={styles.tableRow} key={i}>
                             <View style={styles.tableCol}><Text style={styles.tableCell}>{row.employeeCode}</Text></View>
                             <View style={styles.tableCol}><Text style={styles.tableCell}>{row.employeeName}</Text></View>
-                            <View style={styles.tableCol}><Text style={styles.tableCell}>{(Number(row.paidThisWeek) / 100).toFixed(2)}</Text></View>
+                            <View style={styles.tableCol}><Text style={styles.tableCell}>{(row.paidThisWeek / 100).toFixed(2)}</Text></View>
                             <View style={styles.tableCol}><Text style={styles.tableCell}></Text></View>  {/* Empty column for physical signature */}
                         </View>
                     ))}
@@ -63,7 +64,7 @@ const WeeklyPaymentDocument = ({ data }: { data: { employeeCode: string; employe
 export class WeeklyPdfService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async generatePdfStream(data: { employeeCode: string; employeeName: string; paidThisWeek: number | string; }[]): Promise<NodeJS.ReadableStream> {
+    async generatePdfStream(data: WeeklyPaymentReportRow[]): Promise<NodeJS.ReadableStream> {
         if (!data || data.length === 0) {
             throw new NotFoundException('No payments found for this week to generate report.');
         }

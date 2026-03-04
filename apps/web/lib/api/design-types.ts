@@ -1,5 +1,10 @@
 import { api } from '../api';
-import { DesignType, ApiResponse } from '@tbms/shared-types';
+import {
+  DesignType,
+  ApiResponse,
+  CreateDesignTypeInput,
+  UpdateDesignTypeInput,
+} from '@tbms/shared-types';
 
 export const designTypesApi = {
   findAll: async (params?: { branchId?: string; garmentTypeId?: string; search?: string }) => {
@@ -12,12 +17,12 @@ export const designTypesApi = {
     return response.data;
   },
 
-  create: async (data: Partial<DesignType>) => {
+  create: async (data: CreateDesignTypeInput) => {
     const response = await api.post<ApiResponse<DesignType>>('/design-types', data);
     return response.data;
   },
 
-  update: async (id: string, data: Partial<DesignType>) => {
+  update: async (id: string, data: UpdateDesignTypeInput) => {
     const response = await api.patch<ApiResponse<DesignType>>(`/design-types/${id}`, data);
     return response.data;
   },

@@ -6,6 +6,30 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .bg-theme-radial-top {
+    background-image: radial-gradient(
+      circle at top,
+      hsl(var(--primary) / 0.14),
+      transparent 55%
+    );
+  }
+
+  .bg-theme-radial-top-right {
+    background-image: radial-gradient(
+      circle at top right,
+      hsl(var(--primary-foreground) / 0.14),
+      transparent 45%
+    );
+  }
+
+  .shadow-theme-elevated {
+    box-shadow: 0 28px 80px hsl(var(--overlay-strong));
+  }
+
+  .shadow-theme-soft {
+    box-shadow: 0 16px 36px hsl(var(--overlay));
+  }
 }
 
 
@@ -45,11 +69,16 @@
     --ready: 262 62% 66%;
     --ready-foreground: 262 100% 95%;
     --brand-dark: 222 47% 11%;
+    --overlay: 222 47% 11% / 0.5;
+    --overlay-strong: 222 47% 11% / 0.8;
     --chart-1: 217 91% 60%;
     --chart-2: 160 84% 39%;
     --chart-3: 38 92% 50%;
     --chart-4: 0 84% 60%;
     --chart-5: 215 16% 47%;
+    --chart-6: 234 89% 65%;
+    --chart-7: 199 89% 48%;
+    --chart-8: 271 81% 56%;
   }
 
   .dark,
@@ -80,14 +109,21 @@
     --warning-foreground: 38 100% 95%;
     --info: 213 94% 68%;
     --info-foreground: 210 40% 98%;
+    --pending: 215 20% 65%;
+    --pending-foreground: 210 40% 98%;
     --ready: 262 64% 68%;
     --ready-foreground: 262 100% 95%;
     --brand-dark: 222 47% 11%;
+    --overlay: 229 84% 5% / 0.5;
+    --overlay-strong: 229 84% 5% / 0.8;
     --chart-1: 213 94% 68%;
     --chart-2: 158 64% 52%;
     --chart-3: 43 96% 56%;
     --chart-4: 0 91% 71%;
     --chart-5: 215 20% 65%;
+    --chart-6: 234 89% 74%;
+    --chart-7: 188 95% 68%;
+    --chart-8: 270 95% 75%;
   }
 
   :root[data-theme-preset="heritage-craft"] {
@@ -122,11 +158,16 @@
     --ready: 262 54% 58%;
     --ready-foreground: 262 100% 95%;
     --brand-dark: 25 76% 31%;
+    --overlay: 17 47% 12% / 0.5;
+    --overlay-strong: 17 47% 12% / 0.8;
     --chart-1: 25 76% 31%;
     --chart-2: 31 53% 64%;
     --chart-3: 123 46% 34%;
     --chart-4: 350 73% 44%;
     --chart-5: 27 51% 28%;
+    --chart-6: 31 27% 63%;
+    --chart-7: 27 24% 49%;
+    --chart-8: 263 70% 52%;
   }
 
   .dark[data-theme-preset="heritage-craft"] {
@@ -161,11 +202,16 @@
     --ready: 262 62% 66%;
     --ready-foreground: 262 100% 95%;
     --brand-dark: 17 47% 12%;
+    --overlay: 28 41% 7% / 0.5;
+    --overlay-strong: 28 41% 7% / 0.8;
     --chart-1: 31 53% 64%;
     --chart-2: 0 100% 71%;
     --chart-3: 122 39% 49%;
     --chart-4: 36 100% 65%;
     --chart-5: 25 21% 53%;
+    --chart-6: 25 76% 31%;
+    --chart-7: 30 71% 97%;
+    --chart-8: 262 84% 78%;
   }
 
   :root[data-theme-preset="royal-atelier"] {
@@ -200,11 +246,16 @@
     --ready: 262 54% 58%;
     --ready-foreground: 262 100% 95%;
     --brand-dark: 240 28% 14%;
+    --overlay: 240 28% 14% / 0.5;
+    --overlay-strong: 240 28% 14% / 0.8;
     --chart-1: 46 65% 52%;
     --chart-2: 353 42% 32%;
     --chart-3: 161 94% 30%;
     --chart-4: 32 95% 44%;
     --chart-5: 220 9% 46%;
+    --chart-6: 0 72% 51%;
+    --chart-7: 220 9% 46%;
+    --chart-8: 271 81% 56%;
   }
 
   .dark[data-theme-preset="royal-atelier"] {
@@ -239,11 +290,16 @@
     --ready: 262 62% 66%;
     --ready-foreground: 262 100% 95%;
     --brand-dark: 240 28% 14%;
+    --overlay: 240 24% 7% / 0.5;
+    --overlay-strong: 240 24% 7% / 0.8;
     --chart-1: 46 65% 52%;
     --chart-2: 351 63% 37%;
     --chart-3: 160 84% 39%;
     --chart-4: 38 92% 50%;
     --chart-5: 218 11% 65%;
+    --chart-6: 45 29% 97%;
+    --chart-7: 213 94% 68%;
+    --chart-8: 270 95% 75%;
   }
 }
 

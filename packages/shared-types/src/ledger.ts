@@ -38,6 +38,16 @@ export interface CreateLedgerEntryInput {
   note?: string | null;
 }
 
+export interface CreateManualLedgerEntryInput {
+  employeeId: string;
+  type: LedgerEntryType;
+  amount: number;
+  branchId?: string;
+  orderItemTaskId?: string | null;
+  paymentId?: string | null;
+  note?: string | null;
+}
+
 export interface LedgerSummary {
   totalEarned: number;   // sum of all positive entries
   totalDeducted: number; // sum of all negative entries (abs value)

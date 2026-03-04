@@ -4,7 +4,7 @@ import type {
   EmployeeLedgerEntry,
   LedgerSummary,
   EarningsByPeriod,
-  CreateLedgerEntryInput,
+  CreateManualLedgerEntryInput,
   LedgerStatement,
   LedgerStatementParams,
 } from '@tbms/shared-types';
@@ -43,7 +43,7 @@ export const ledgerApi = {
    * Create a new manual ledger entry.
    * @param data - The entry details. The `amount` field MUST be in **Paise** (integers).
    */
-  createEntry: async (data: Partial<CreateLedgerEntryInput>) => {
+  createEntry: async (data: CreateManualLedgerEntryInput) => {
     const response = await api.post<ApiResponse<EmployeeLedgerEntry>>(
       '/ledger',
       data

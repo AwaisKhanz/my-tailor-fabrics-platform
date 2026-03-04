@@ -71,10 +71,15 @@ export class AttendanceService {
     });
   }
 
-  async findAll(branchId: string, employeeId?: string, page = 1, limit = 20) {
+  async findAll(
+    branchId: string | null,
+    employeeId?: string,
+    page = 1,
+    limit = 20,
+  ) {
     const skip = (page - 1) * limit;
     const where: Prisma.AttendanceRecordWhereInput = {
-      branchId,
+      ...(branchId ? { branchId } : {}),
       deletedAt: null,
       ...(employeeId ? { employeeId } : {}),
     };
@@ -97,7 +102,7 @@ export class AttendanceService {
     return { data, total };
   }
 
-  async getEmployeeSummary(employeeId: string, branchId: string) {
+  async getEmployeeSummary(employeeId: string, branchId: string | null) {
     const records = await this.prisma.attendanceRecord.findMany({
       where: { employeeId, deletedAt: null, ...(branchId ? { branchId } : {}) },
       orderBy: { date: 'desc' },

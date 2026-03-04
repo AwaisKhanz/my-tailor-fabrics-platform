@@ -8,13 +8,27 @@ export interface MeasurementField {
     sortOrder: number;
     dropdownOptions: string[];
 }
+export interface CreateMeasurementFieldInput {
+    label: string;
+    fieldType?: FieldType;
+    unit?: string;
+    isRequired?: boolean;
+    sortOrder?: number;
+    dropdownOptions?: string[];
+}
+export interface UpdateMeasurementFieldInput {
+    label?: string;
+    fieldType?: FieldType;
+    unit?: string;
+    isRequired?: boolean;
+    sortOrder?: number;
+    dropdownOptions?: string[];
+}
 export interface CreateMeasurementCategoryInput {
     name: string;
     sortOrder?: number;
     isActive?: boolean;
-    fields?: Omit<MeasurementField, 'id' | 'dropdownOptions'> & {
-        dropdownOptions?: string[];
-    }[];
+    fields?: CreateMeasurementFieldInput[];
 }
 export interface UpdateMeasurementCategoryInput {
     name?: string;
@@ -47,6 +61,17 @@ export interface GarmentType {
     createdAt: Date | string;
     updatedAt: Date | string;
     measurementCategories?: MeasurementCategory[];
+}
+export interface CreateGarmentTypeInput {
+    name: string;
+    customerPrice: number;
+    employeeRate: number;
+    description?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+    measurementCategoryIds?: string[];
+}
+export interface UpdateGarmentTypeInput extends Partial<CreateGarmentTypeInput> {
 }
 export interface GarmentPriceLog {
     id: string;
