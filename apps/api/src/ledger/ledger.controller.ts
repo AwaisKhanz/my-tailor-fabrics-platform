@@ -8,20 +8,20 @@ import {
   Query,
   Delete,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { LedgerService } from './ledger.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { LedgerEntryType } from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateLedgerEntryDto } from './dto/create-ledger-entry.dto';
+import { parsePositiveInt } from '../common/utils/query-parsing.util';
+import { success } from '../common/utils/response.util';
 
 @Controller('ledger')
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
+@RequirePermissions('ledger.read')
 export class LedgerController {
   constructor(private readonly ledgerService: LedgerService) {}
 
@@ -31,6 +31,7 @@ export class LedgerController {
    */
   @Post()
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('ledger.manage')
   async createManualEntry(
     @Body() dto: CreateLedgerEntryDto,
     @Req() req: AuthenticatedRequest,
@@ -47,7 +48,7 @@ export class LedgerController {
       branchId,
       createdById: req.user.userId,
     });
-    return { success: true, data };
+    return success(data);
   }
 
   @Get(':employeeId/balance')
@@ -56,8 +57,11 @@ export class LedgerController {
     @Param('employeeId') employeeId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    const summary = await this.ledgerService.getBalance(employeeId, req.branchId);
-    return { success: true, data: summary };
+    const summary = await this.ledgerService.getBalance(
+      employeeId,
+      req.branchId,
+    );
+    return success(summary);
   }
 
   @Get(':employeeId/statement')
@@ -68,17 +72,20 @@ export class LedgerController {
     @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('type') type?: LedgerEntryType,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query() pagination?: PaginationQueryDto,
   ) {
-    const result = await this.ledgerService.getStatement(employeeId, {
-      from,
-      to,
-      type,
-      page: page ? parseInt(page) : 1,
-      limit: limit ? parseInt(limit) : 20,
-    }, req.branchId);
-    return { success: true, data: result };
+    const result = await this.ledgerService.getStatement(
+      employeeId,
+      {
+        from,
+        to,
+        type,
+        page: pagination?.page ?? 1,
+        limit: pagination?.limit ?? 20,
+      },
+      req.branchId,
+    );
+    return success(result);
   }
 
   /**
@@ -94,16 +101,17 @@ export class LedgerController {
   ) {
     const data = await this.ledgerService.getEarningsByPeriod(
       employeeId,
-      weeksBack ? parseInt(weeksBack) : 12,
+      parsePositiveInt(weeksBack, 12),
       req.branchId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Delete(':id')
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('ledger.manage')
   async deleteEntry(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ledgerService.remove(id, req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 }

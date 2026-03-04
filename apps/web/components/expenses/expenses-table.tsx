@@ -15,6 +15,7 @@ interface ExpensesTableProps {
   deletingId: string | null;
   onPageChange: (page: number) => void;
   onDeleteExpense: (expense: Expense) => void;
+  canManageExpenses?: boolean;
 }
 
 export function ExpensesTable({
@@ -26,6 +27,7 @@ export function ExpensesTable({
   deletingId,
   onPageChange,
   onDeleteExpense,
+  canManageExpenses = true,
 }: ExpensesTableProps) {
   const columns = useMemo<ColumnDef<Expense>[]>(
     () => [
@@ -68,18 +70,20 @@ export function ExpensesTable({
         header: "Actions",
         align: "right",
         cell: (expense) => (
-          <Button
-            variant="tableDanger"
-            size="iconSm"
-            onClick={() => onDeleteExpense(expense)}
-            disabled={deletingId === expense.id}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          canManageExpenses ? (
+            <Button
+              variant="tableDanger"
+              size="iconSm"
+              onClick={() => onDeleteExpense(expense)}
+              disabled={deletingId === expense.id}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          ) : null
         ),
       },
     ],
-    [deletingId, onDeleteExpense],
+    [canManageExpenses, deletingId, onDeleteExpense],
   );
 
   return (

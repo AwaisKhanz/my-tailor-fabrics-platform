@@ -4,9 +4,13 @@ import { PageHeader } from "@/components/ui/page-header";
 
 interface RatesPageHeaderProps {
   onCreate: () => void;
+  canCreateRate?: boolean;
 }
 
-export function RatesPageHeader({ onCreate }: RatesPageHeaderProps) {
+export function RatesPageHeader({
+  onCreate,
+  canCreateRate = true,
+}: RatesPageHeaderProps) {
   return (
     <PageHeader
       title="Labor Rates"
@@ -16,12 +20,12 @@ export function RatesPageHeader({ onCreate }: RatesPageHeaderProps) {
           Manage step-based production payouts and effective dates.
         </span>
       }
-      actions={
+      actions={canCreateRate ? (
         <Button variant="premium" size="lg" className="w-full gap-2 sm:w-auto" onClick={onCreate}>
           <Plus className="h-4 w-4" />
           Define New Rate
         </Button>
-      }
+      ) : null}
     />
   );
 }

@@ -12,6 +12,10 @@ interface OrderDetailHeaderCardProps {
   createdAtLabel: string;
   dueDateLabel: string;
   canCancel: boolean;
+  canEditAction: boolean;
+  canPrintReceipt: boolean;
+  canShareAction: boolean;
+  canCancelAction: boolean;
   sharing: boolean;
   statusLoading: boolean;
   onPrintReceipt: () => void;
@@ -27,6 +31,10 @@ export function OrderDetailHeaderCard({
   createdAtLabel,
   dueDateLabel,
   canCancel,
+  canEditAction,
+  canPrintReceipt,
+  canShareAction,
+  canCancelAction,
   sharing,
   statusLoading,
   onPrintReceipt,
@@ -73,38 +81,44 @@ export function OrderDetailHeaderCard({
               canCancel ? "lg:max-w-[760px]" : "lg:max-w-[640px]",
             )}
           >
-            <Button
-              variant="premium"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-              onClick={onEditOrder}
-            >
-              <Pencil className="h-4 w-4" />
-              Edit Order
-            </Button>
+            {canEditAction ? (
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                onClick={onEditOrder}
+              >
+                <Pencil className="h-4 w-4" />
+                Edit Order
+              </Button>
+            ) : null}
 
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-              onClick={onPrintReceipt}
-            >
-              <Printer className="h-4 w-4" />
-              Print Receipt
-            </Button>
+            {canPrintReceipt ? (
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                onClick={onPrintReceipt}
+              >
+                <Printer className="h-4 w-4" />
+                Print Receipt
+              </Button>
+            ) : null}
 
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-              onClick={onShareStatus}
-              disabled={sharing}
-            >
-              <Share2 className="h-4 w-4" />
-              Share Status
-            </Button>
+            {canShareAction ? (
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                onClick={onShareStatus}
+                disabled={sharing}
+              >
+                <Share2 className="h-4 w-4" />
+                Share Status
+              </Button>
+            ) : null}
 
-            {canCancel ? (
+            {canCancel && canCancelAction ? (
               <Button
                 variant="destructive"
                 size="lg"

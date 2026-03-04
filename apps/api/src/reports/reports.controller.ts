@@ -1,17 +1,17 @@
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
-import { Controller, Get, Req, Res, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { ExportService } from './export.service';
 import { PdfExportService } from './pdf-export.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { DASHBOARD_READ_ROLES } from '@tbms/shared-constants';
 import { resolveBranchScopeForRead } from '../common/utils/branch-resolution.util';
+import { parseOptionalPositiveInt } from '../common/utils/query-parsing.util';
+import { success } from '../common/utils/response.util';
 
 @Controller('reports')
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
+@RequirePermissions('reports.read')
 export class ReportsController {
   constructor(
     private readonly reportsService: ReportsService,
@@ -20,6 +20,7 @@ export class ReportsController {
   ) {}
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('dashboard.read')
   @Get('dashboard')
   async getDashboard(
     @Req() req: AuthenticatedRequest,
@@ -29,7 +30,7 @@ export class ReportsController {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getDashboardStats(branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -48,7 +49,7 @@ export class ReportsController {
       from,
       to,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -67,7 +68,7 @@ export class ReportsController {
       from,
       to,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -82,7 +83,7 @@ export class ReportsController {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getSummary(branchId, from, to);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -103,7 +104,7 @@ export class ReportsController {
       to,
       granularity,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -118,7 +119,7 @@ export class ReportsController {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getDistributions(branchId, from, to);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -131,12 +132,11 @@ export class ReportsController {
     const branchId = resolveBranchScopeForRead(req, targetBranchId, {
       allowAllForSuperAdmin: true,
     });
-    const parsedMonths = months ? Number(months) : undefined;
     const data = await this.reportsService.getRevenueVsExpenses(
       branchId,
-      parsedMonths,
+      parseOptionalPositiveInt(months),
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -155,7 +155,7 @@ export class ReportsController {
       from,
       to,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
@@ -170,17 +170,17 @@ export class ReportsController {
     const branchId = resolveBranchScopeForRead(req, targetBranchId, {
       allowAllForSuperAdmin: true,
     });
-    const parsedLimit = limit ? Number(limit) : undefined;
     const data = await this.reportsService.getProductivityPoints(
       branchId,
       from,
       to,
-      parsedLimit,
+      parseOptionalPositiveInt(limit),
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('reports.read', 'reports.export')
   @Get('export/orders')
   async exportOrders(
     @Req() req: AuthenticatedRequest,
@@ -217,6 +217,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('reports.read', 'reports.export')
   @Get('export/payments')
   async exportPayments(
     @Req() req: AuthenticatedRequest,
@@ -257,6 +258,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('reports.read', 'reports.export')
   @Get('export/expenses')
   async exportExpenses(
     @Req() req: AuthenticatedRequest,
@@ -297,6 +299,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('reports.read', 'reports.export')
   @Get('export/employees')
   async exportEmployees(
     @Req() req: AuthenticatedRequest,

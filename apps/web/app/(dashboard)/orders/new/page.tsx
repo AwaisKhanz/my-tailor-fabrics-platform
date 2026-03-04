@@ -16,8 +16,9 @@ import { OrderFormSkeleton } from "@/components/orders/order-form-skeleton";
 import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-card";
 import { OrderFormItemsCard } from "@/components/orders/order-form-items-card";
 import { OrderFormSummaryCard } from "@/components/orders/order-form-summary-card";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function NewOrderPage() {
+function NewOrderPage() {
   const router = useRouter();
 
   const {
@@ -205,3 +206,5 @@ export default function NewOrderPage() {
     </PageShell>
   );
 }
+
+export default withRoleGuard(NewOrderPage, { all: ["orders.create"] });

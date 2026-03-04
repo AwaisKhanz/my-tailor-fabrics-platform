@@ -10,6 +10,8 @@
     "dev": "concurrently -n \"api,web,shared,const,theme\" -c \"cyan,green,yellow,magenta,blue\" \"npm run dev -w api\" \"npm run dev -w web\" \"npm run dev -w @tbms/shared-types\" \"npm run dev -w @tbms/shared-constants\" \"npm run dev -w @tbms/shared-theme\"",
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
+    "rbac:audit": "node scripts/rbac-audit.mjs",
+    "security:backend:guardrails": "sh ./scripts/security-backend-guardrails.sh",
     "refactor:manifest:generate": "sh ./scripts/generate-refactor-manifest.sh",
     "refactor:manifest:verify": "sh ./scripts/verify-refactor-manifest.sh",
     "db:backup": "sh scripts/db-backup.sh",

@@ -1,35 +1,47 @@
 path,module,phase,status,owner,notes
-apps/api/package.json,security-env,1,NS,unassigned,
+apps/api/package.json,security-env,1,DN,codex,Sixty-fourth modernization pass
 apps/api/src/app.controller.spec.ts,testing,9,NS,unassigned,
 apps/api/src/app.controller.ts,cross-cutting,8,DN,codex,Forty-first modernization pass
-apps/api/src/app.module.ts,optimization-dx,8,NS,unassigned,
+apps/api/src/app.module.ts,optimization-dx,8,DN,codex,Sixty-first modernization pass
 apps/api/src/app.service.ts,cross-cutting,8,NS,unassigned,
-apps/api/src/attendance/attendance.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/attendance/attendance.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/attendance/attendance.module.ts,backend-domains,6,NS,unassigned,
-apps/api/src/attendance/attendance.service.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/attendance/attendance.service.ts,backend-domains,6,DN,codex,Fifty-fifth modernization pass
+apps/api/src/attendance/dto/clock-in.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
+apps/api/src/audit-logs/audit-logs.controller.ts,cross-cutting,8,DN,codex,Sixty-third modernization pass
+apps/api/src/audit-logs/audit-logs.module.ts,cross-cutting,8,NS,unassigned,
+apps/api/src/audit-logs/audit-logs.service.ts,cross-cutting,8,DN,codex,Sixtieth modernization pass
 apps/api/src/auth/auth.controller.spec.ts,security-env,1,DN,codex,Sixth modernization pass
-apps/api/src/auth/auth.controller.ts,security-env,1,DN,codex,Forty-first modernization pass
+apps/api/src/auth/auth.controller.ts,security-env,1,DN,codex,Sixty-third modernization pass
 apps/api/src/auth/auth.module.ts,security-env,1,DN,codex,Initial modernization pass
 apps/api/src/auth/auth.service.spec.ts,security-env,1,DN,codex,Sixth modernization pass
-apps/api/src/auth/auth.service.ts,security-env,1,NS,unassigned,
+apps/api/src/auth/auth.service.ts,security-env,1,DN,codex,Sixty-second modernization pass
 apps/api/src/auth/dto/login.dto.ts,security-env,1,NS,unassigned,
-apps/api/src/auth/strategies/jwt-refresh.strategy.ts,security-env,1,DN,codex,Initial modernization pass
-apps/api/src/auth/strategies/jwt.strategy.ts,security-env,1,DN,codex,Initial modernization pass
-apps/api/src/branches/branches.controller.ts,backend-domains,6,DN,codex,Fourth modernization pass
+apps/api/src/auth/strategies/jwt-refresh.strategy.ts,security-env,1,DN,codex,Sixtieth modernization pass
+apps/api/src/auth/strategies/jwt.strategy.ts,security-env,1,DN,codex,Sixtieth modernization pass
+apps/api/src/branches/branches.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/branches/branches.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after service hardening
 apps/api/src/branches/branches.service.ts,backend-domains,6,DN,codex,Fortieth modernization pass
 apps/api/src/branches/dto/branch.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/common/decorators/auth.decorators.ts,auth-rbac,2,NS,unassigned,
-apps/api/src/common/env.ts,cross-cutting,8,DN,codex,Initial modernization pass
-apps/api/src/common/filters/all-exceptions.filter.ts,optimization-dx,8,NS,unassigned,
-apps/api/src/common/guards/branch.guard.ts,auth-rbac,2,DN,codex,Forty-third modernization pass
-apps/api/src/common/guards/jwt-auth.guard.ts,auth-rbac,2,NS,unassigned,
-apps/api/src/common/guards/roles.guard.ts,auth-rbac,2,DN,codex,Forty-second modernization pass
-apps/api/src/common/interceptors/audit.interceptor.ts,optimization-dx,8,NS,unassigned,
-apps/api/src/common/interfaces/request.interface.ts,auth-rbac,2,DN,codex,Forty-eighth modernization pass
-apps/api/src/common/utils/branch-resolution.util.ts,auth-rbac,2,DN,codex,Forty-ninth modernization pass
-apps/api/src/common/utils/branch-scope.util.ts,auth-rbac,2,DN,codex,Forty-eighth modernization pass
-apps/api/src/config/config.controller.ts,backend-domains,6,DN,codex,Forty-first modernization pass
+apps/api/src/common/decorators/permissions.decorator.ts,cross-cutting,8,NS,unassigned,
+apps/api/src/common/dto/pagination-query.dto.ts,cross-cutting,8,DN,codex,Fifty-third modernization pass
+apps/api/src/common/env.ts,cross-cutting,8,DN,codex,Sixty-first modernization pass
+apps/api/src/common/filters/all-exceptions.filter.ts,optimization-dx,8,DN,codex,Fifty-seventh modernization pass
+apps/api/src/common/guards/branch.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
+apps/api/src/common/guards/jwt-auth.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
+apps/api/src/common/guards/permissions.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
+apps/api/src/common/guards/roles.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
+apps/api/src/common/interceptors/audit.interceptor.ts,optimization-dx,8,DN,codex,Sixtieth modernization pass
+apps/api/src/common/interfaces/request.interface.ts,auth-rbac,2,DN,codex,Fifty-fourth modernization pass
+apps/api/src/common/utils/branch-resolution.util.ts,cross-cutting,8,DN,codex,Forty-ninth modernization pass
+apps/api/src/common/utils/branch-scope.util.ts,cross-cutting,8,DN,codex,Sixty-first modernization pass
+apps/api/src/common/utils/employee-scope.util.ts,cross-cutting,8,DN,codex,Fifty-fifth modernization pass
+apps/api/src/common/utils/email.util.ts,cross-cutting,8,DN,codex,Sixty-first modernization pass
+apps/api/src/common/utils/query-parsing.util.ts,cross-cutting,8,DN,codex,Fiftieth modernization pass
+apps/api/src/common/utils/response.util.ts,cross-cutting,8,DN,codex,Fifty-first modernization pass
+apps/api/src/common/utils/security-event.util.ts,cross-cutting,8,DN,codex,Sixty-second modernization pass
+apps/api/src/config/config.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/config/config.module.ts,backend-domains,6,NS,unassigned,
 apps/api/src/config/config.service.ts,backend-domains,6,NS,unassigned,
 apps/api/src/config/dto/garment-type.dto.ts,backend-domains,6,NS,unassigned,
@@ -37,79 +49,80 @@ apps/api/src/config/dto/measurement-category.dto.ts,backend-domains,6,NS,unassig
 apps/api/src/config/dto/system-settings.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/config/dto/workflow-step.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/customers/customers.controller.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/customers/customers.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/customers/customers.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/customers/customers.module.ts,backend-domains,6,NS,unassigned,
 apps/api/src/customers/customers.service.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/customers/customers.service.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/customers/customers.service.ts,backend-domains,6,DN,codex,Fiftieth modernization pass
 apps/api/src/customers/dto/create-customer.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/customers/dto/upsert-measurement.dto.ts,backend-domains,6,NS,unassigned,
-apps/api/src/design-types/design-types.controller.ts,cross-cutting,8,DN,codex,Forty-ninth modernization pass
+apps/api/src/design-types/design-types.controller.ts,cross-cutting,8,DN,codex,Sixty-third modernization pass
 apps/api/src/design-types/design-types.module.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/design-types/design-types.service.ts,cross-cutting,8,DN,codex,Forty-fourth modernization pass
 apps/api/src/design-types/dto/design-type.dto.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/employees/dto/create-employee.dto.ts,backend-domains,6,NJ,codex,DTO already uses shared enums and strict validation; no extra change needed
 apps/api/src/employees/employees.controller.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/employees/employees.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/employees/employees.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/employees/employees.module.ts,backend-domains,6,DN,codex,Thirty-eighth modernization pass
 apps/api/src/employees/employees.service.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/employees/employees.service.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/employees/employees.service.ts,backend-domains,6,DN,codex,Sixty-first modernization pass
 apps/api/src/expenses/dto/expense.dto.ts,backend-domains,6,NJ,codex,DTO validation is already strict and aligned with service usage
-apps/api/src/expenses/expenses.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/expenses/expenses.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/expenses/expenses.module.ts,backend-domains,6,NJ,codex,Module wiring is correct; no structural change needed for this pass
-apps/api/src/expenses/expenses.service.ts,backend-domains,6,DN,codex,Thirty-fifth modernization pass
+apps/api/src/expenses/expenses.service.ts,backend-domains,6,DN,codex,Sixty-first modernization pass
 apps/api/src/ledger/dto/create-ledger-entry.dto.ts,backend-domains,6,NS,unassigned,
-apps/api/src/ledger/ledger.controller.ts,backend-domains,6,DN,codex,Forty-third modernization pass
+apps/api/src/ledger/ledger.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/ledger/ledger.module.ts,backend-domains,6,NS,unassigned,
-apps/api/src/ledger/ledger.service.ts,backend-domains,6,DN,codex,Forty-third modernization pass
-apps/api/src/mail/mail.controller.ts,reporting-public-status,7,DN,codex,Forty-first modernization pass
+apps/api/src/ledger/ledger.service.ts,backend-domains,6,DN,codex,Sixty-first modernization pass
+apps/api/src/mail/dto/send-test-mail.dto.ts,reporting-public-status,7,DN,codex,Fifty-third modernization pass
+apps/api/src/mail/mail.controller.ts,reporting-public-status,7,DN,codex,Fifty-third modernization pass
 apps/api/src/mail/mail.module.ts,reporting-public-status,7,NS,unassigned,
 apps/api/src/mail/mail.service.ts,reporting-public-status,7,NS,unassigned,
-apps/api/src/main.ts,security-env,1,DN,codex,Initial modernization pass
+apps/api/src/main.ts,security-env,1,DN,codex,Sixty-first modernization pass
 apps/api/src/orders/dto/add-payment.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/orders/dto/create-order.dto.ts,backend-domains,6,NS,unassigned,
-apps/api/src/orders/dto/update-order.dto.ts,backend-domains,6,NS,unassigned,
+apps/api/src/orders/dto/update-order.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
 apps/api/src/orders/dto/update-status.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/orders/money.ts,backend-domains,6,DN,codex,Second modernization pass
-apps/api/src/orders/orders.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/orders/orders.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/orders/orders.module.ts,backend-domains,6,DN,codex,Initial modernization pass
-apps/api/src/orders/orders.service.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
-apps/api/src/orders/receipt.service.tsx,backend-domains,6,DN,codex,Forty-eighth modernization pass
-apps/api/src/orders/status.controller.ts,backend-domains,6,DN,codex,Initial modernization pass
+apps/api/src/orders/orders.service.ts,backend-domains,6,DN,codex,Sixtieth modernization pass
+apps/api/src/orders/receipt.service.tsx,backend-domains,6,DN,codex,Fiftieth modernization pass
+apps/api/src/orders/status.controller.ts,backend-domains,6,DN,codex,Sixty-second modernization pass
 apps/api/src/payments/dto/payment.dto.ts,backend-domains,6,NJ,codex,DTO already minimal and valid; no additional hardening needed this pass
-apps/api/src/payments/payments.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/payments/payments.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/payments/payments.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after service/controller hardening
-apps/api/src/payments/payments.service.ts,backend-domains,6,DN,codex,Forty-third modernization pass
+apps/api/src/payments/payments.service.ts,backend-domains,6,DN,codex,Sixty-first modernization pass
 apps/api/src/payments/weekly-pdf.service.tsx,backend-domains,6,NS,unassigned,
 apps/api/src/prisma/prisma.module.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/prisma/prisma.service.spec.ts,testing,9,NS,unassigned,
 apps/api/src/prisma/prisma.service.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/rates/dto/create-rate.dto.ts,backend-domains,6,DN,codex,Thirty-sixth modernization pass
-apps/api/src/rates/rates.controller.ts,backend-domains,6,DN,codex,Forty-ninth modernization pass
+apps/api/src/rates/rates.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/rates/rates.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after controller/service hardening
 apps/api/src/rates/rates.service.ts,backend-domains,6,DN,codex,Thirty-sixth modernization pass
 apps/api/src/reports/export.service.ts,reporting-public-status,7,DN,codex,Initial modernization pass
 apps/api/src/reports/pdf-export.service.tsx,reporting-public-status,7,NS,unassigned,
-apps/api/src/reports/reports.controller.ts,reporting-public-status,7,DN,codex,Forty-ninth modernization pass
+apps/api/src/reports/reports.controller.ts,reporting-public-status,7,DN,codex,Sixty-third modernization pass
 apps/api/src/reports/reports.module.ts,reporting-public-status,7,NS,unassigned,
-apps/api/src/reports/reports.service.ts,reporting-public-status,7,DN,codex,Eighth modernization pass
+apps/api/src/reports/reports.service.ts,reporting-public-status,7,DN,codex,Sixty-first modernization pass
 apps/api/src/scheduler/scheduler.module.ts,cross-cutting,8,NS,unassigned,
-apps/api/src/scheduler/scheduler.service.ts,cross-cutting,8,NS,unassigned,
+apps/api/src/scheduler/scheduler.service.ts,cross-cutting,8,DN,codex,Fifty-sixth modernization pass
 apps/api/src/search/search.controller.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/search/search.controller.ts,backend-domains,6,DN,codex,Forty-ninth modernization pass
+apps/api/src/search/search.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/search/search.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after search hardening
 apps/api/src/search/search.service.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
 apps/api/src/search/search.service.ts,backend-domains,6,DN,codex,Thirty-seventh modernization pass
-apps/api/src/tasks/dto/create-task.dto.ts,backend-domains,6,NS,unassigned,
-apps/api/src/tasks/dto/update-task.dto.ts,backend-domains,6,NS,unassigned,
+apps/api/src/tasks/dto/create-task.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
+apps/api/src/tasks/dto/update-task.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
 apps/api/src/tasks/entities/task.entity.ts,backend-domains,6,NS,unassigned,
-apps/api/src/tasks/tasks.controller.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/tasks/tasks.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/tasks/tasks.module.ts,backend-domains,6,DN,codex,Second modernization pass
-apps/api/src/tasks/tasks.service.ts,backend-domains,6,DN,codex,Forty-eighth modernization pass
+apps/api/src/tasks/tasks.service.ts,backend-domains,6,DN,codex,Sixtieth modernization pass
 apps/api/src/users/dto/user.dto.ts,backend-domains,6,NS,unassigned,
-apps/api/src/users/users.controller.ts,backend-domains,6,DN,codex,Fourth modernization pass
+apps/api/src/users/users.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/users/users.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after shared-logic service refactor
 apps/api/src/users/users.service.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/users/users.service.ts,backend-domains,6,DN,codex,Thirty-ninth modernization pass
+apps/api/src/users/users.service.ts,backend-domains,6,DN,codex,Sixty-first modernization pass
 apps/web/app/(dashboard)/customers/[id]/page.tsx,web-domains,5,DN,codex,Fifteenth modernization pass
 apps/web/app/(dashboard)/customers/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 22
 apps/web/app/(dashboard)/employees/[id]/page.tsx,web-domains,5,DN,codex,Thirteenth modernization pass
@@ -125,15 +138,20 @@ apps/web/app/(dashboard)/page.tsx,web-domains,5,DN,codex,Thirteenth modernizatio
 apps/web/app/(dashboard)/payments/page.tsx,web-domains,5,DN,codex,Fourteenth modernization pass
 apps/web/app/(dashboard)/reports/page.tsx,web-domains,5,DN,codex,Sixteenth modernization pass
 apps/web/app/(dashboard)/settings/appearance/page.tsx,web-domains,5,NS,unassigned,
+apps/web/app/(dashboard)/settings/attendance/page.tsx,web-domains,5,NS,unassigned,
+apps/web/app/(dashboard)/settings/audit-logs/page.tsx,web-domains,5,NS,unassigned,
 apps/web/app/(dashboard)/settings/branches/[id]/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 26
 apps/web/app/(dashboard)/settings/branches/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 21
 apps/web/app/(dashboard)/settings/design-types/page.tsx,web-domains,5,DN,codex,Eighteenth modernization pass
+apps/web/app/(dashboard)/settings/expense-categories/page.tsx,web-domains,5,NS,unassigned,
 apps/web/app/(dashboard)/settings/garments/[id]/page.tsx,web-domains,5,DN,codex,Fifteenth modernization pass
 apps/web/app/(dashboard)/settings/garments/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 23
+apps/web/app/(dashboard)/settings/integrations/page.tsx,web-domains,5,NS,unassigned,
 apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in passes 25 and 27
 apps/web/app/(dashboard)/settings/measurements/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in passes 24 and 32
 apps/web/app/(dashboard)/settings/page.tsx,web-domains,5,NJ,codex,Redirect-only route; no decomposition needed
 apps/web/app/(dashboard)/settings/rates/page.tsx,web-domains,5,DN,codex,Nineteenth modernization pass
+apps/web/app/(dashboard)/settings/system/page.tsx,web-domains,5,NS,unassigned,
 apps/web/app/(dashboard)/settings/users/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 20
 apps/web/app/api/auth/[...nextauth]/route.ts,security-env,1,DN,codex,Initial modernization pass
 apps/web/app/api/status/[token]/route.ts,reporting-public-status,7,DN,codex,Initial modernization pass
@@ -150,8 +168,10 @@ apps/web/components/AuthProvider.tsx,security-env,1,NS,unassigned,
 apps/web/components/ThemePresetProvider.tsx,cross-cutting,8,NS,unassigned,
 apps/web/components/ThemeProvider.tsx,design-system,4,NS,unassigned,
 apps/web/components/auth/auth-state-card.tsx,web-domains,5,DN,codex,Nineteenth modernization pass
+apps/web/components/auth/can.tsx,web-domains,5,NS,unassigned,
 apps/web/components/auth/login-brand-panel.tsx,web-domains,5,DN,codex,Seventeenth modernization pass
 apps/web/components/auth/login-form-panel.tsx,web-domains,5,DN,codex,Seventeenth modernization pass
+apps/web/components/auth/with-role-guard.tsx,web-domains,5,NS,unassigned,
 apps/web/components/common/ConfirmPasswordDialog.tsx,design-system,4,NS,unassigned,
 apps/web/components/config/BranchHubConfig.tsx,web-domains,5,DN,codex,Twenty-sixth modernization pass
 apps/web/components/config/BranchesTable.tsx,web-domains,5,DN,codex,Twenty-first modernization pass
@@ -164,7 +184,12 @@ apps/web/components/config/MeasurementCategoryDetail.tsx,web-domains,5,DN,codex,
 apps/web/components/config/MeasurementCategoryDialog.tsx,web-domains,5,DN,codex,Thirty-second modernization pass
 apps/web/components/config/MeasurementFieldDialog.tsx,web-domains,5,DN,codex,Twenty-seventh modernization pass
 apps/web/components/config/UsersTable.tsx,web-domains,5,DN,codex,Twentieth modernization pass
+apps/web/components/config/appearance/appearance-mode-card.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/appearance/appearance-preset-directory.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/appearance/appearance-settings-page.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/appearance/appearance-stats-grid.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/attendance/attendance-settings-page.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/audit-logs/audit-logs-page.tsx,web-domains,5,DN,codex,Sixtieth modernization pass
 apps/web/components/config/branches/branch-delete-summary.tsx,web-domains,5,DN,codex,Twenty-first modernization pass
 apps/web/components/config/branches/branch-form-dialog.tsx,web-domains,5,DN,codex,Twenty-first modernization pass
 apps/web/components/config/branches/branches-directory-table.tsx,web-domains,5,DN,codex,Twenty-first modernization pass
@@ -176,6 +201,7 @@ apps/web/components/config/branches/hub/branch-hub-meta-card.tsx,web-domains,5,N
 apps/web/components/config/branches/hub/branch-hub-overview-header.tsx,web-domains,5,DN,codex,Twenty-sixth modernization pass
 apps/web/components/config/branches/hub/branch-hub-relations-grid.tsx,web-domains,5,DN,codex,Twenty-sixth modernization pass
 apps/web/components/config/branches/hub/branch-hub-skeleton.tsx,web-domains,5,DN,codex,Twenty-sixth modernization pass
+apps/web/components/config/expenses/expense-categories-page.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/garments/detail/garment-analytics-stats-grid.tsx,web-domains,5,DN,codex,Fifteenth modernization pass
 apps/web/components/config/garments/detail/garment-detail-breadcrumb.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/garments/detail/garment-detail-header.tsx,web-domains,5,DN,codex,Fifteenth modernization pass
@@ -190,6 +216,7 @@ apps/web/components/config/garments/list/garment-types-inventory-table.tsx,web-d
 apps/web/components/config/garments/list/garment-types-list-toolbar.tsx,web-domains,5,DN,codex,Twenty-third modernization pass
 apps/web/components/config/garments/list/garment-types-page-header.tsx,web-domains,5,DN,codex,Twenty-third modernization pass
 apps/web/components/config/garments/list/garment-types-stats-grid.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/integrations/integrations-settings-page.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/measurements/detail/measurement-category-breadcrumbs.tsx,web-domains,5,DN,codex,Twenty-fifth modernization pass
 apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx,web-domains,5,DN,codex,Twenty-fifth modernization pass
 apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx,web-domains,5,DN,codex,Twenty-seventh modernization pass
@@ -203,6 +230,10 @@ apps/web/components/config/measurements/list/measurement-categories-inventory-ta
 apps/web/components/config/measurements/list/measurement-categories-list-toolbar.tsx,web-domains,5,DN,codex,Twenty-fourth modernization pass
 apps/web/components/config/measurements/list/measurement-categories-page-header.tsx,web-domains,5,DN,codex,Twenty-fourth modernization pass
 apps/web/components/config/measurements/list/measurement-categories-stats-grid.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/system/system-settings-page.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/system/system-settings-state-card.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/system/system-settings-stats-grid.tsx,web-domains,5,NS,unassigned,
+apps/web/components/config/system/system-settings-workflow-card.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/users/user-account-dialog.tsx,web-domains,5,DN,codex,Twentieth modernization pass
 apps/web/components/config/users/users-access-table.tsx,web-domains,5,DN,codex,Twentieth modernization pass
 apps/web/components/config/users/users-list-toolbar.tsx,web-domains,5,DN,codex,Twentieth modernization pass
@@ -345,6 +376,10 @@ apps/web/components/ui/tabs.tsx,design-system,4,NS,unassigned,
 apps/web/components/ui/toast.tsx,design-system,4,NS,unassigned,
 apps/web/components/ui/toaster.tsx,design-system,4,NS,unassigned,
 apps/web/components/ui/typography.tsx,design-system,4,DN,codex,Twentieth modernization pass
+apps/web/hooks/use-appearance-settings-page.ts,web-domains,5,NS,unassigned,
+apps/web/hooks/use-attendance-settings-page.ts,web-domains,5,NS,unassigned,
+apps/web/hooks/use-authz.ts,auth-rbac,2,NS,unassigned,
+apps/web/hooks/use-audit-logs-page.ts,web-domains,5,DN,codex,Fifty-ninth modernization pass
 apps/web/hooks/use-branch-hub-config-page.ts,web-domains,5,DN,codex,Twenty-sixth modernization pass
 apps/web/hooks/use-branches-page.ts,web-domains,5,DN,codex,Twenty-first modernization pass
 apps/web/hooks/use-customer-detail-page.ts,web-domains,5,DN,codex,Fifteenth modernization pass
@@ -357,9 +392,11 @@ apps/web/hooks/use-design-types-page.ts,web-domains,5,DN,codex,Eighteenth modern
 apps/web/hooks/use-employee-detail-page.ts,web-domains,5,DN,codex,Thirteenth modernization pass
 apps/web/hooks/use-employee-dialog.ts,web-domains,5,DN,codex,Twenty-eighth modernization pass
 apps/web/hooks/use-employees-page.ts,web-domains,5,DN,codex,Sixteenth modernization pass
+apps/web/hooks/use-expense-categories-page.ts,web-domains,5,NS,unassigned,
 apps/web/hooks/use-expenses-page.ts,web-domains,5,DN,codex,Fourteenth modernization pass
 apps/web/hooks/use-garment-detail-page.ts,web-domains,5,DN,codex,Fifteenth modernization pass
 apps/web/hooks/use-garment-types-page.ts,web-domains,5,DN,codex,Twenty-third modernization pass
+apps/web/hooks/use-integrations-settings-page.ts,web-domains,5,NS,unassigned,
 apps/web/hooks/use-login-page.ts,web-domains,5,DN,codex,Seventeenth modernization pass
 apps/web/hooks/use-measurement-categories-page.ts,web-domains,5,DN,codex,Twenty-fourth modernization pass
 apps/web/hooks/use-measurement-category-detail-page.ts,web-domains,5,DN,codex,Twenty-fifth modernization pass
@@ -373,11 +410,14 @@ apps/web/hooks/use-payments-page.ts,web-domains,5,DN,codex,Fourteenth modernizat
 apps/web/hooks/use-public-order-status-page.ts,reporting-public-status,7,DN,codex,Eighteenth modernization pass
 apps/web/hooks/use-rates-page.ts,web-domains,5,DN,codex,Nineteenth modernization pass
 apps/web/hooks/use-reports-workspace.ts,web-domains,5,NS,unassigned,
+apps/web/hooks/use-system-settings-page.ts,web-domains,5,NS,unassigned,
 apps/web/hooks/use-task-assignment-dialog.ts,web-domains,5,DN,codex,Thirty-first modernization pass
 apps/web/hooks/use-toast.ts,web-domains,5,NJ,codex,Shared toast hook; no page decomposition applicable
 apps/web/hooks/use-users-page.ts,web-domains,5,DN,codex,Twentieth modernization pass
 apps/web/lib/api.ts,security-env,1,DN,codex,Seventh modernization pass
+apps/web/lib/authz.ts,auth-rbac,2,NS,unassigned,
 apps/web/lib/api/attendance.ts,shared-contracts,3,NS,unassigned,
+apps/web/lib/api/audit-logs.ts,shared-contracts,3,NS,unassigned,
 apps/web/lib/api/branches.ts,shared-contracts,3,DN,codex,Eighth modernization pass
 apps/web/lib/api/config.ts,shared-contracts,3,NS,unassigned,
 apps/web/lib/api/customers.ts,shared-contracts,3,DN,codex,Initial modernization pass
@@ -386,6 +426,7 @@ apps/web/lib/api/employees.ts,shared-contracts,3,DN,codex,Eighth modernization p
 apps/web/lib/api/expenses.ts,shared-contracts,3,NS,unassigned,
 apps/web/lib/api/ledger.ts,shared-contracts,3,DN,codex,Eighth modernization pass
 apps/web/lib/api/loyalty.ts,shared-contracts,3,NS,unassigned,
+apps/web/lib/api/mail.ts,shared-contracts,3,NS,unassigned,
 apps/web/lib/api/orders.ts,shared-contracts,3,DN,codex,Initial modernization pass
 apps/web/lib/api/payments.ts,shared-contracts,3,DN,codex,Twenty-ninth modernization pass
 apps/web/lib/api/rates.ts,shared-contracts,3,NS,unassigned,
@@ -419,11 +460,13 @@ apps/web/types/next-auth.d.ts,shared-contracts,3,DN,codex,Initial modernization 
 apps/web/types/orders/index.ts,shared-contracts,3,NS,unassigned,
 apps/web/types/orders/models.ts,shared-contracts,3,NS,unassigned,
 apps/web/types/orders/schemas.ts,shared-contracts,3,NS,unassigned,
-package.json,security-env,1,DN,codex,Initial modernization pass
+package.json,security-env,1,DN,codex,Sixty-fourth modernization pass
+packages/shared-constants/src/audit.ts,shared-contracts,3,DN,codex,Fifty-ninth modernization pass
+packages/shared-constants/src/authz.ts,shared-contracts,3,NS,unassigned,
 packages/shared-constants/src/customers.ts,shared-contracts,3,NS,unassigned,
 packages/shared-constants/src/employees.ts,shared-contracts,3,NS,unassigned,
 packages/shared-constants/src/garments.ts,shared-contracts,3,NS,unassigned,
-packages/shared-constants/src/index.ts,shared-contracts,3,DN,codex,Initial modernization pass
+packages/shared-constants/src/index.ts,shared-contracts,3,DN,codex,Fifty-seventh modernization pass
 packages/shared-constants/src/ledger.ts,shared-contracts,3,NS,unassigned,
 packages/shared-constants/src/measurements.ts,shared-contracts,3,NS,unassigned,
 packages/shared-constants/src/orders.ts,shared-contracts,3,DN,codex,Fortieth modernization pass
@@ -431,6 +474,8 @@ packages/shared-constants/src/rates.ts,shared-contracts,3,DN,codex,Ninth moderni
 packages/shared-constants/src/rbac.ts,shared-contracts,3,DN,codex,Fourth modernization pass
 packages/shared-constants/src/roles.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/attendance.ts,shared-contracts,3,NS,unassigned,
+packages/shared-types/src/audit.ts,shared-contracts,3,DN,codex,Sixtieth modernization pass
+packages/shared-types/src/authz.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/branches.ts,shared-contracts,3,DN,codex,Eighth modernization pass
 packages/shared-types/src/common.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/config.ts,shared-contracts,3,NS,unassigned,
@@ -438,6 +483,7 @@ packages/shared-types/src/customers.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/employees.ts,shared-contracts,3,DN,codex,Eighth modernization pass
 packages/shared-types/src/expenses.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/index.ts,shared-contracts,3,DN,codex,Eighth modernization pass
+packages/shared-types/src/integrations.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/ledger.ts,shared-contracts,3,DN,codex,Eighth modernization pass
 packages/shared-types/src/orders.ts,shared-contracts,3,DN,codex,Initial modernization pass
 packages/shared-types/src/payments.ts,shared-contracts,3,NS,unassigned,

@@ -66,6 +66,10 @@ interface EmployeeDetailTabsProps {
   onOpenDocumentDialog: () => void;
   onOpenAccountDialog: () => void;
   onOpenLedgerDialog: () => void;
+  canManageTaskStatus?: boolean;
+  canManageLedger?: boolean;
+  canManageDocuments?: boolean;
+  canManageAccount?: boolean;
 }
 
 interface EmployeeSectionProps {
@@ -174,6 +178,10 @@ export function EmployeeDetailTabs({
   onOpenDocumentDialog,
   onOpenAccountDialog,
   onOpenLedgerDialog,
+  canManageTaskStatus = true,
+  canManageLedger = true,
+  canManageDocuments = true,
+  canManageAccount = true,
 }: EmployeeDetailTabsProps) {
   const historyColumns: ColumnDef<OrderItem>[] = [
     {
@@ -272,7 +280,11 @@ export function EmployeeDetailTabs({
     {
       header: "Status",
       cell: (task) => (
-        <Select value={task.status} onValueChange={(value) => onTaskStatusChange(task.id, value as TaskStatus)}>
+        <Select
+          value={task.status}
+          onValueChange={(value) => onTaskStatusChange(task.id, value as TaskStatus)}
+          disabled={!canManageTaskStatus}
+        >
           <SelectTrigger className="h-7 w-[130px] text-[10px] font-bold uppercase">
             <SelectValue />
           </SelectTrigger>
@@ -356,14 +368,16 @@ export function EmployeeDetailTabs({
       header: "Action",
       align: "right",
       cell: (entry) => (
-        <Button
-          variant="tableDanger"
-          size="iconSm"
-          className="h-7 w-7 text-muted-foreground hover:text-destructive"
-          onClick={() => onDeleteLedgerEntry(entry.id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        canManageLedger ? (
+          <Button
+            variant="tableDanger"
+            size="iconSm"
+            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+            onClick={() => onDeleteLedgerEntry(entry.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        ) : null
       ),
     },
   ];
@@ -456,10 +470,12 @@ export function EmployeeDetailTabs({
           </Badge>
         }
         action={
-          <Button size="sm" variant="premium" className="h-8 w-full sm:w-auto" onClick={onOpenLedgerDialog}>
-            <Plus className="h-4 w-4" />
-            Add Entry
-          </Button>
+          canManageLedger ? (
+            <Button size="sm" variant="premium" className="h-8 w-full sm:w-auto" onClick={onOpenLedgerDialog}>
+              <Plus className="h-4 w-4" />
+              Add Entry
+            </Button>
+          ) : null
         }
         defaultOpen={false}
         onFirstOpen={() => {
@@ -571,10 +587,12 @@ export function EmployeeDetailTabs({
           </Badge>
         }
         action={
-          <Button size="sm" variant="outline" className="h-8 w-full sm:w-auto" onClick={onOpenDocumentDialog}>
-            <Plus className="h-4 w-4" />
-            Add Document
-          </Button>
+          canManageDocuments ? (
+            <Button size="sm" variant="outline" className="h-8 w-full sm:w-auto" onClick={onOpenDocumentDialog}>
+              <Plus className="h-4 w-4" />
+              Add Document
+            </Button>
+          ) : null
         }
         defaultOpen={false}
       >
@@ -656,9 +674,11 @@ export function EmployeeDetailTabs({
                   Provision an account to allow order tracking access.
                 </p>
               </div>
-              <Button size="lg" className="rounded-full px-8" onClick={onOpenAccountDialog}>
-                Provision Account Now
-              </Button>
+              {canManageAccount ? (
+                <Button size="lg" className="rounded-full px-8" onClick={onOpenAccountDialog}>
+                  Provision Account Now
+                </Button>
+              ) : null}
             </div>
           )}
         </div>

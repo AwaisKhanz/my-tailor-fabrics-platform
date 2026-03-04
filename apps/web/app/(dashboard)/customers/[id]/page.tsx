@@ -14,10 +14,15 @@ import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell"
 import { StatCard } from "@/components/ui/stat-card";
 import { formatPKR } from "@/lib/utils";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function CustomerDetailPage() {
+function CustomerDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canEditCustomer = canAll(["customers.update"]);
+  const canManageMeasurements = canAll(["customers.measurements.manage"]);
 
   const customerId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -66,6 +71,7 @@ export default function CustomerDetailPage() {
         />
         <CustomerDetailHeader
           customer={customer}
+          canEditProfile={canEditCustomer}
           onEdit={openEditDialog}
         />
       </PageSection>
@@ -120,30 +126,37 @@ export default function CustomerDetailPage() {
               getMeasurementLabel={getMeasurementLabel}
               onUpdateMeasurements={openMeasurementDialog}
               onOpenOrder={(orderId) => router.push(`/orders/${orderId}`)}
+              canUpdateMeasurements={canManageMeasurements}
             />
           }
           side={<CustomerProfileCard customer={customer} />}
         />
       </PageSection>
 
-      <CustomerDialog
-        open={editDialogOpen}
-        onOpenChange={closeEditDialog}
-        customer={customer}
-        onSuccess={() => {
-          void fetchCustomerData();
-        }}
-      />
+      {canEditCustomer ? (
+        <CustomerDialog
+          open={editDialogOpen}
+          onOpenChange={closeEditDialog}
+          customer={customer}
+          onSuccess={() => {
+            void fetchCustomerData();
+          }}
+        />
+      ) : null}
 
-      <CustomerMeasurementDialog
-        open={measurementDialogOpen}
-        customerId={customer.id}
-        onOpenChange={closeMeasurementDialog}
-        onSuccess={() => {
-          closeMeasurementDialog(false);
-          void fetchCustomerData();
-        }}
-      />
+      {canManageMeasurements ? (
+        <CustomerMeasurementDialog
+          open={measurementDialogOpen}
+          customerId={customer.id}
+          onOpenChange={closeMeasurementDialog}
+          onSuccess={() => {
+            closeMeasurementDialog(false);
+            void fetchCustomerData();
+          }}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(CustomerDetailPage, { all: ["customers.read"] });

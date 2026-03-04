@@ -9,11 +9,13 @@ import { formatDate } from "@/lib/utils";
 interface MeasurementCategoryDetailHeaderProps {
   category: MeasurementCategory | null;
   onAddField: () => void;
+  canManageMeasurements?: boolean;
 }
 
 export function MeasurementCategoryDetailHeader({
   category,
   onAddField,
+  canManageMeasurements = true,
 }: MeasurementCategoryDetailHeaderProps) {
   const totalFields = category?.fields?.length ?? 0;
   const requiredFields = category?.fields?.filter((field) => field.isRequired).length ?? 0;
@@ -55,12 +57,14 @@ export function MeasurementCategoryDetailHeader({
             </div>
           </div>
 
-          <div className="flex w-full justify-start lg:w-auto lg:justify-end">
-            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={onAddField}>
-              <Plus className="mr-2 h-5 w-5" />
-              Add New Field
-            </Button>
-          </div>
+          {canManageMeasurements ? (
+            <div className="flex w-full justify-start lg:w-auto lg:justify-end">
+              <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={onAddField}>
+                <Plus className="mr-2 h-5 w-5" />
+                Add New Field
+              </Button>
+            </div>
+          ) : null}
         </div>
       </CardContent>
     </Card>

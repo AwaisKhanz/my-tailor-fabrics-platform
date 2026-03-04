@@ -9,7 +9,6 @@ import {
   Delete,
   Query,
   Req,
-  UseGuards,
   Put,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
@@ -19,22 +18,19 @@ import {
   UpdateCustomerDto,
 } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
+import { success } from '../common/utils/response.util';
 import { CustomerStatus } from '@tbms/shared-types';
 import { ADMIN_ROLES, OPERATOR_ROLES } from '@tbms/shared-constants';
 
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
-  private parseStatus(
-    value?: string,
-  ): CustomerStatus | undefined {
+  private parseStatus(value?: string): CustomerStatus | undefined {
     if (!value) {
       return undefined;
     }
@@ -45,6 +41,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.create')
   @Post()
   async create(
     @Body() createCustomerDto: CreateCustomerDto,
@@ -54,14 +51,14 @@ export class CustomersController {
       createCustomerDto,
       requireBranchScope(req),
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.read')
   @Get()
   async findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('search') search: string,
     @Query('isVip') isVip: string,
     @Query('status') status: string | undefined,
@@ -70,16 +67,17 @@ export class CustomersController {
     const parsedStatus = this.parseStatus(status);
     const data = await this.customersService.findAll(
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
       search,
       isVip === 'true' ? true : undefined,
       parsedStatus,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.read')
   @Get('summary')
   async getSummary(
     @Query('search') search: string,
@@ -96,17 +94,19 @@ export class CustomersController {
       isVip: vipFilter,
       status: parsedStatus,
     });
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.read')
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.findOne(id, req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.update')
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -118,37 +118,39 @@ export class CustomersController {
       requireBranchScope(req),
       updateCustomerDto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('customers.delete')
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.remove(
       id,
       requireBranchScope(req),
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.read')
   @Get(':id/orders')
   async getOrders(
     @Param('id') id: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.customersService.getOrders(
       id,
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.measurements.manage')
   @Post(':id/measurements')
   async upsertMeasurement(
     @Param('id') id: string,
@@ -160,10 +162,11 @@ export class CustomersController {
       requireBranchScope(req),
       dto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('customers.update')
   @Patch(':id/vip')
   async toggleVip(
     @Param('id') id: string,
@@ -175,6 +178,6 @@ export class CustomersController {
       requireBranchScope(req),
       body.isVip,
     );
-    return { success: true, data };
+    return success(data);
   }
 }

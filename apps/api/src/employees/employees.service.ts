@@ -12,6 +12,7 @@ import { SearchService } from '../search/search.service';
 import { LedgerService } from '../ledger/ledger.service';
 import * as bcrypt from 'bcrypt';
 import { Role, Prisma } from '@prisma/client';
+import { normalizeEmailAddress } from '../common/utils/email.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -188,10 +189,23 @@ export class EmployeesService {
     rawPass: string,
   ) {
     const employee = await this.findOne(employeeId, branchId);
+    const normalizedEmail = normalizeEmailAddress(email);
 
     // Check if email taken
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw new ConflictException('Email already in use');
+    const existing = await this.prisma.user.findFirst({
+      where: {
+        email: { equals: normalizedEmail, mode: 'insensitive' },
+      },
+      select: { id: true, deletedAt: true },
+    });
+    if (existing) {
+      if (existing.deletedAt) {
+        throw new ConflictException(
+          'A user with this email existed and was deleted. Contact support.',
+        );
+      }
+      throw new ConflictException('Email already in use');
+    }
 
     if (employee.userAccount)
       throw new ConflictException('Employee already has a user account linked');
@@ -203,7 +217,7 @@ export class EmployeesService {
       const user = await tx.user.create({
         data: {
           name: employee.fullName,
-          email,
+          email: normalizedEmail,
           passwordHash,
           role: Role.EMPLOYEE,
           branchId: employee.branchId, // Use the employee's branch, not the requester's which could be null for Super Admin
@@ -217,7 +231,7 @@ export class EmployeesService {
 
   async getStats(id: string, branchId: string | null) {
     await this.findOne(id, branchId);
-    const summary = await this.ledgerService.getBalance(id);
+    const summary = await this.ledgerService.getBalance(id, branchId);
     return {
       totalEarned: summary.totalEarned,
       totalPaid: summary.totalDeducted,
@@ -226,18 +240,17 @@ export class EmployeesService {
     };
   }
 
-  async getItems(
-    id: string,
-    branchId: string | null,
-    page = 1,
-    limit = 20,
-  ) {
+  async getItems(id: string, branchId: string | null, page = 1, limit = 20) {
     await this.findOne(id, branchId);
 
     const { limit: safeLimit, skip } = this.normalizePagination(page, limit);
     const [data, total] = await Promise.all([
       this.prisma.orderItem.findMany({
-        where: { employeeId: id, deletedAt: null },
+        where: {
+          employeeId: id,
+          deletedAt: null,
+          ...(branchId ? { order: { branchId } } : {}),
+        },
         select: {
           id: true,
           orderId: true,
@@ -253,7 +266,11 @@ export class EmployeesService {
         orderBy: { completedAt: 'desc' },
       }),
       this.prisma.orderItem.count({
-        where: { employeeId: id, deletedAt: null },
+        where: {
+          employeeId: id,
+          deletedAt: null,
+          ...(branchId ? { order: { branchId } } : {}),
+        },
       }),
     ]);
 

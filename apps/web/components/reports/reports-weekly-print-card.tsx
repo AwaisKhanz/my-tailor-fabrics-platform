@@ -5,11 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 interface ReportsWeeklyPrintCardProps {
   printing: boolean;
   onPrint: () => void;
+  canExport?: boolean;
 }
 
 export function ReportsWeeklyPrintCard({
   printing,
   onPrint,
+  canExport = true,
 }: ReportsWeeklyPrintCardProps) {
   return (
     <Card className="overflow-hidden border-border/70 bg-card/95">
@@ -28,7 +30,13 @@ export function ReportsWeeklyPrintCard({
       </CardHeader>
 
       <CardContent spacing="section">
-        <Button variant="premium" className="w-full" size="lg" onClick={onPrint} disabled={printing}>
+        <Button
+          variant="premium"
+          className="w-full"
+          size="lg"
+          onClick={onPrint}
+          disabled={printing || !canExport}
+        >
           <FileText className="mr-2 h-4 w-4" />
           {printing ? "Generating..." : "Generate Print View"}
         </Button>

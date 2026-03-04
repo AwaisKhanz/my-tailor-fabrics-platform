@@ -12,6 +12,7 @@ interface ExportCardConfig {
 interface ReportsExportGridProps {
   exportingKey: string | null;
   onExport: (type: ReportExportType, format: "pdf" | "excel") => void;
+  canExport?: boolean;
 }
 
 const EXPORT_CARDS: ExportCardConfig[] = [
@@ -35,6 +36,7 @@ const EXPORT_CARDS: ExportCardConfig[] = [
 export function ReportsExportGrid({
   exportingKey,
   onExport,
+  canExport = true,
 }: ReportsExportGridProps) {
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -59,7 +61,7 @@ export function ReportsExportGrid({
                 size="sm"
                 className="flex-1 font-bold"
                 onClick={() => onExport(card.type, "excel")}
-                disabled={Boolean(exportingKey)}
+                disabled={Boolean(exportingKey) || !canExport}
               >
                 <FileDown className="mr-2 h-3 w-3" />
                 {exportingKey === excelKey ? "Generating..." : "Excel"}
@@ -70,7 +72,7 @@ export function ReportsExportGrid({
                 size="sm"
                 className="flex-1 font-bold"
                 onClick={() => onExport(card.type, "pdf")}
-                disabled={Boolean(exportingKey)}
+                disabled={Boolean(exportingKey) || !canExport}
               >
                 <FileText className="mr-2 h-3 w-3" />
                 {exportingKey === pdfKey ? "Generating..." : "PDF"}

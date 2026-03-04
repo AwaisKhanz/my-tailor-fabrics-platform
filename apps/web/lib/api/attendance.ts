@@ -1,6 +1,6 @@
 import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
-import type { AttendanceRecord, AttendanceSummary } from '@/types/attendance';
+import type { AttendanceRecord, AttendanceSummary } from '@tbms/shared-types';
 
 export const attendanceApi = {
   clockIn: async (employeeId: string, note?: string) => {

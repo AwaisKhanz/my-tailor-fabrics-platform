@@ -12,8 +12,12 @@ import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { formatPKR } from "@/lib/utils";
 import { useExpensesPage } from "@/hooks/use-expenses-page";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function ExpensesPage() {
+function ExpensesPage() {
+  const { canAll } = useAuthz();
+  const canManageExpenses = canAll(["expenses.manage"]);
   const {
     loading,
     categoriesLoading,
@@ -56,10 +60,12 @@ export default function ExpensesPage() {
           }
           density="compact"
           actions={
-            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
-              <Plus className="h-4 w-4" />
-              Add Expense
-            </Button>
+            canManageExpenses ? (
+              <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
+                <Plus className="h-4 w-4" />
+                Add Expense
+              </Button>
+            ) : null
           }
         />
       </PageSection>
@@ -96,45 +102,52 @@ export default function ExpensesPage() {
             deletingId={deletingId}
             onPageChange={setPage}
             onDeleteExpense={requestDeleteExpense}
+            canManageExpenses={canManageExpenses}
           />
         </TableSurface>
       </PageSection>
 
-      <ExpenseCreateDialog
-        open={addOpen}
-        saving={saving}
-        categoriesLoading={categoriesLoading}
-        categories={categories}
-        form={form}
-        onOpenChange={(open) => {
-          if (open) {
-            openAddDialog();
-          } else {
-            closeAddDialog();
-          }
-        }}
-        onFormChange={updateFormField}
-        onSubmit={submitCreateExpense}
-      />
+      {canManageExpenses ? (
+        <ExpenseCreateDialog
+          open={addOpen}
+          saving={saving}
+          categoriesLoading={categoriesLoading}
+          categories={categories}
+          form={form}
+          onOpenChange={(open) => {
+            if (open) {
+              openAddDialog();
+            } else {
+              closeAddDialog();
+            }
+          }}
+          onFormChange={updateFormField}
+          onSubmit={submitCreateExpense}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={Boolean(deleteTarget)}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeDeleteDialog();
+      {canManageExpenses ? (
+        <ConfirmDialog
+          open={Boolean(deleteTarget)}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeDeleteDialog();
+            }
+          }}
+          title="Delete this expense?"
+          description={
+            deleteTarget
+              ? `This will permanently remove ${deleteTarget.category.name} (${formatPKR(deleteTarget.amount)}).`
+              : "This action cannot be undone."
           }
-        }}
-        title="Delete this expense?"
-        description={
-          deleteTarget
-            ? `This will permanently remove ${deleteTarget.category.name} (${formatPKR(deleteTarget.amount)}).`
-            : "This action cannot be undone."
-        }
-        onConfirm={confirmDeleteExpense}
-        confirmText="Delete Expense"
-        variant="destructive"
-        loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
-      />
+          onConfirm={confirmDeleteExpense}
+          confirmText="Delete Expense"
+          variant="destructive"
+          loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(ExpensesPage, { all: ["expenses.manage"] });

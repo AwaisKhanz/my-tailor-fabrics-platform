@@ -10,6 +10,7 @@ interface CustomerDetailTabsProps {
   getMeasurementLabel: (categoryId: string, fieldId: string) => string;
   onUpdateMeasurements: () => void;
   onOpenOrder: (orderId: string) => void;
+  canUpdateMeasurements?: boolean;
 }
 
 export function CustomerDetailTabs({
@@ -19,6 +20,7 @@ export function CustomerDetailTabs({
   getMeasurementLabel,
   onUpdateMeasurements,
   onOpenOrder,
+  canUpdateMeasurements = true,
 }: CustomerDetailTabsProps) {
   return (
     <div className="space-y-6">
@@ -27,6 +29,7 @@ export function CustomerDetailTabs({
           measurements={measurements}
           getMeasurementLabel={getMeasurementLabel}
           onUpdateMeasurements={onUpdateMeasurements}
+          canUpdateMeasurements={canUpdateMeasurements}
         />
       </section>
 

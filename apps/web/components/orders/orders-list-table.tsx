@@ -20,6 +20,8 @@ interface OrdersListTableProps {
   onPageChange: (page: number) => void;
   onViewOrder: (orderId: string) => void;
   onEditOrder: (orderId: string) => void;
+  canEditOrder?: boolean;
+  canPrintReceipt?: boolean;
 }
 
 function formatShortDate(value: string) {
@@ -50,6 +52,8 @@ export function OrdersListTable({
   onPageChange,
   onViewOrder,
   onEditOrder,
+  canEditOrder = true,
+  canPrintReceipt = true,
 }: OrdersListTableProps) {
   const handlePrintReceipt = useCallback(async (orderId: string) => {
     try {
@@ -190,7 +194,7 @@ export function OrdersListTable({
                 <Eye className="h-4 w-4" />
               </Button>
 
-              {!isDelivered ? (
+              {!isDelivered && canEditOrder ? (
                 <Button
                   type="button"
                   variant="tableIcon"
@@ -205,7 +209,7 @@ export function OrdersListTable({
                 </Button>
               ) : null}
 
-              {isReady ? (
+              {isReady && canPrintReceipt ? (
                 <Button
                   type="button"
                   variant="tableIcon"
@@ -239,7 +243,7 @@ export function OrdersListTable({
         },
       },
     ],
-    [handlePrintReceipt, onEditOrder, onViewOrder],
+    [canEditOrder, canPrintReceipt, handlePrintReceipt, onEditOrder, onViewOrder],
   );
 
   return (

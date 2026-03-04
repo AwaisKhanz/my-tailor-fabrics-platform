@@ -1,4 +1,7 @@
+import type { StringValue } from 'ms';
+
 const isProduction = process.env.NODE_ENV === 'production';
+type TrustProxyConfig = boolean | number | string | string[];
 
 function resolveEnv(
   name: string,
@@ -7,6 +10,22 @@ function resolveEnv(
 ): string {
   if (value && value.trim().length > 0) {
     return value;
+  }
+
+  if (isProduction) {
+    throw new Error(`${name} is required in production`);
+  }
+
+  return devFallback;
+}
+
+function resolveDurationEnv(
+  name: string,
+  value: string | undefined,
+  devFallback: StringValue,
+): StringValue {
+  if (value && value.trim().length > 0) {
+    return value as StringValue;
   }
 
   if (isProduction) {
@@ -33,11 +52,15 @@ export function getJwtRefreshSecret(): string {
 }
 
 export function getJwtExpiresIn(): number | StringValue {
-  const value = process.env.JWT_EXPIRES_IN;
-  if (!value || value.trim().length === 0) {
-    return '7d';
-  }
-  return value as StringValue;
+  return resolveDurationEnv('JWT_EXPIRES_IN', process.env.JWT_EXPIRES_IN, '7d');
+}
+
+export function getJwtRefreshExpiresIn(): number | StringValue {
+  return resolveDurationEnv(
+    'JWT_REFRESH_EXPIRES_IN',
+    process.env.JWT_REFRESH_EXPIRES_IN,
+    '30d',
+  );
 }
 
 export function getFrontendUrl(): string {
@@ -54,4 +77,75 @@ export function isPublicMailEndpointsEnabled(): boolean {
   }
   return process.env.ENABLE_PUBLIC_MAIL_ENDPOINTS === 'true';
 }
-import type { StringValue } from 'ms';
+
+export function getStatusPinPepper(): string {
+  return resolveEnv(
+    'STATUS_PIN_PEPPER',
+    process.env.STATUS_PIN_PEPPER,
+    'dev-only-status-pin-pepper-change-me',
+  );
+}
+
+export function getTrustProxyConfig(): TrustProxyConfig {
+  const rawValue = process.env.TRUST_PROXY;
+  const value = rawValue?.trim();
+
+  if (!value) {
+    if (isProduction) {
+      throw new Error('TRUST_PROXY is required in production');
+    }
+    return false;
+  }
+
+  const normalized = value.toLowerCase();
+  if (
+    normalized === 'false' ||
+    normalized === '0' ||
+    normalized === 'off' ||
+    normalized === 'no'
+  ) {
+    return false;
+  }
+
+  if (
+    normalized === 'true' ||
+    normalized === '1' ||
+    normalized === 'on' ||
+    normalized === 'yes'
+  ) {
+    return true;
+  }
+
+  if (/^\d+$/.test(value)) {
+    const hops = Number.parseInt(value, 10);
+    if (hops < 0) {
+      throw new Error('TRUST_PROXY numeric value must be >= 0');
+    }
+    return hops;
+  }
+
+  if (value.includes(',')) {
+    const entries = value
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+
+    if (entries.length === 0) {
+      throw new Error('TRUST_PROXY list must contain at least one entry');
+    }
+
+    return entries;
+  }
+
+  return value;
+}
+
+export function assertSecurityEnvironment(): void {
+  void getJwtSecret();
+  void getJwtRefreshSecret();
+  void getJwtExpiresIn();
+  void getJwtRefreshExpiresIn();
+  void getFrontendUrl();
+  void getStatusPinPepper();
+  void getTrustProxyConfig();
+}

@@ -3,6 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  type MeasurementCategory,
+  type MeasurementValues,
+  FieldType,
+} from "@tbms/shared-types";
+import {
   Form,
   FormControl,
   FormField,
@@ -24,7 +29,6 @@ import {
   customerApi,
 } from "@/lib/api/customers";
 import { configApi } from "@/lib/api/config";
-import { MeasurementCategory } from "@/types/config";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { logDevError } from "@/lib/logger";
@@ -33,7 +37,7 @@ interface MeasurementFormProps {
   customerId: string;
   onSuccess: () => void;
   initialCategoryId?: string;
-  initialValues?: Record<string, unknown>;
+  initialValues?: MeasurementValues;
 }
 
 export function MeasurementForm({
@@ -48,8 +52,8 @@ export function MeasurementForm({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const form = useForm({
-    defaultValues: initialValues || {},
+  const form = useForm<MeasurementValues>({
+    defaultValues: initialValues ?? {},
   });
 
   useEffect(() => {
@@ -85,7 +89,7 @@ export function MeasurementForm({
     }
   };
 
-  async function onSubmit(values: Record<string, unknown>) {
+  async function onSubmit(values: MeasurementValues) {
     if (!selectedCategory) return;
     setSubmitting(true);
     try {
@@ -132,7 +136,7 @@ export function MeasurementForm({
                 <FormField
                   key={field.id}
                   control={form.control}
-                  name={field.id}
+                  name={field.id as keyof MeasurementValues}
                   render={({ field: formField }) => (
                     <FormItem>
                       <FormLabel>
@@ -140,7 +144,7 @@ export function MeasurementForm({
                         {field.isRequired && <span className="text-destructive">*</span>}
                       </FormLabel>
                       <FormControl>
-                        {field.fieldType === "DROPDOWN" ? (
+                        {field.fieldType === FieldType.DROPDOWN ? (
                           <Select 
                             onValueChange={formField.onChange} 
                             defaultValue={formField.value as string}
@@ -160,7 +164,7 @@ export function MeasurementForm({
                         ) : (
                           <Input
                             placeholder={`Enter ${field.label.toLowerCase()}`}
-                            type={field.fieldType === "NUMBER" ? "text" : "text"}
+                            type={field.fieldType === FieldType.NUMBER ? "text" : "text"}
                             {...formField}
                             value={(formField.value as string | number) ?? ""}
                           />

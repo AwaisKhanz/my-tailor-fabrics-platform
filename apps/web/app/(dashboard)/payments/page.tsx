@@ -10,8 +10,12 @@ import { PaymentsEmployeeSelectorCard } from "@/components/payments/payments-emp
 import { PaymentsHistorySection } from "@/components/payments/payments-history-section";
 import { PaymentsSummaryCards } from "@/components/payments/payments-summary-cards";
 import { usePaymentsPage } from "@/hooks/use-payments-page";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function PaymentsPage() {
+function PaymentsPage() {
+  const { canAll } = useAuthz();
+  const canManagePayments = canAll(["payments.manage"]);
   const {
     employees,
     employeesLoading,
@@ -55,7 +59,7 @@ export default function PaymentsPage() {
           }
           density="compact"
           actions={
-            canDisburse ? (
+            canManagePayments && canDisburse ? (
               <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openDisburseDialog}>
                 <Banknote className="h-4 w-4" />
                 Disburse Payment
@@ -81,7 +85,8 @@ export default function PaymentsPage() {
             loading={summaryLoading}
             summary={summary}
             currentBalance={currentBalance}
-            canDisburse={canDisburse}
+            canDisburse={canManagePayments && canDisburse}
+            canManagePayments={canManagePayments}
             onDisburse={openDisburseDialog}
           />
 
@@ -109,17 +114,21 @@ export default function PaymentsPage() {
         </PageSection>
       )}
 
-      <PaymentsDisburseDialog
-        open={disburseOpen}
-        loading={disbursing}
-        employeeName={selectedEmployee?.fullName ?? "selected employee"}
-        currentBalance={currentBalance}
-        form={disburseForm}
-        onOpenChange={closeDisburseDialog}
-        onAmountChange={setDisbursementAmount}
-        onNoteChange={setDisbursementNote}
-        onSubmit={submitDisbursement}
-      />
+      {canManagePayments ? (
+        <PaymentsDisburseDialog
+          open={disburseOpen}
+          loading={disbursing}
+          employeeName={selectedEmployee?.fullName ?? "selected employee"}
+          currentBalance={currentBalance}
+          form={disburseForm}
+          onOpenChange={closeDisburseDialog}
+          onAmountChange={setDisbursementAmount}
+          onNoteChange={setDisbursementNote}
+          onSubmit={submitDisbursement}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(PaymentsPage, { all: ["payments.manage"] });

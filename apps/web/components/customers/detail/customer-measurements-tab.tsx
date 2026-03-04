@@ -11,12 +11,14 @@ interface CustomerMeasurementsTabProps {
   measurements: CustomerMeasurement[];
   onUpdateMeasurements: () => void;
   getMeasurementLabel: (categoryId: string, fieldId: string) => string;
+  canUpdateMeasurements?: boolean;
 }
 
 export function CustomerMeasurementsTab({
   measurements,
   onUpdateMeasurements,
   getMeasurementLabel,
+  canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
   return (
     <Card className="overflow-hidden border-border/70 bg-card/95">
@@ -32,10 +34,12 @@ export function CustomerMeasurementsTab({
             Keep sizing data updated for better fit accuracy and quicker order entry.
           </Typography>
         </div>
-        <Button size="sm" className="w-full sm:w-auto" onClick={onUpdateMeasurements}>
-          <Ruler className="mr-2 h-4 w-4" />
-          Update Measurements
-        </Button>
+        {canUpdateMeasurements ? (
+          <Button size="sm" className="w-full sm:w-auto" onClick={onUpdateMeasurements}>
+            <Ruler className="mr-2 h-4 w-4" />
+            Update Measurements
+          </Button>
+        ) : null}
       </CardHeader>
 
       <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
@@ -74,10 +78,14 @@ export function CustomerMeasurementsTab({
             icon={Ruler}
             title="No measurements recorded"
             description="Add the first measurement set to personalize order creation and fitting history."
-            action={{
-              label: "Add First Measurement",
-              onClick: onUpdateMeasurements,
-            }}
+            action={
+              canUpdateMeasurements
+                ? {
+                    label: "Add First Measurement",
+                    onClick: onUpdateMeasurements,
+                  }
+                : undefined
+            }
           />
         )}
       </CardContent>

@@ -11,6 +11,8 @@ import { ReportsOperationsTab } from "@/components/reports/reports-operations-ta
 import { ReportsOverviewTab } from "@/components/reports/reports-overview-tab";
 import { ReportsWorkspaceFilters } from "@/components/reports/reports-workspace-filters";
 import { useReportsWorkspace } from "@/hooks/use-reports-workspace";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
 const REPORT_TABS = [
   { key: "overview", label: "Overview" },
@@ -19,7 +21,9 @@ const REPORT_TABS = [
   { key: "exports", label: "Exports" },
 ] as const;
 
-export default function ReportsPage() {
+function ReportsPage() {
+  const { canAll } = useAuthz();
+  const canExportReports = canAll(["reports.export"]);
   const {
     activeTab,
     setActiveTab,
@@ -119,6 +123,7 @@ export default function ReportsPage() {
               printingWeekly={printingWeekly}
               onExport={exportReport}
               onPrint={printWeeklySummary}
+              canExport={canExportReports}
             />
           </TabsContent>
         </Tabs>
@@ -126,3 +131,5 @@ export default function ReportsPage() {
     </PageShell>
   );
 }
+
+export default withRoleGuard(ReportsPage, { all: ["reports.read"] });

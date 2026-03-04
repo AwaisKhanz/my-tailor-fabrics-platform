@@ -17,6 +17,7 @@ interface OrderItemsTableProps {
   items: OrderItem[];
   employees: EmployeeOption[];
   onManageTasks: (item: OrderItem) => void;
+  canManageTasks?: boolean;
 }
 
 function formatShortDate(value: string) {
@@ -30,6 +31,7 @@ export function OrderItemsTable({
   items,
   employees,
   onManageTasks,
+  canManageTasks = true,
 }: OrderItemsTableProps) {
   const employeeMap = useMemo(
     () => new Map(employees.map((employee) => [employee.id, employee.fullName])),
@@ -70,7 +72,7 @@ export function OrderItemsTable({
     {
       header: "Assignment",
       cell: (item) => {
-        if (item.tasks && item.tasks.length > 0) {
+        if (canManageTasks && item.tasks && item.tasks.length > 0) {
           return (
             <Button
               variant="outline"

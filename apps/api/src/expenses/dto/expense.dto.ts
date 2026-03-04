@@ -4,6 +4,8 @@ import {
   IsOptional,
   Min,
   IsDateString,
+  IsBoolean,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class CreateExpenseDto {
@@ -47,4 +49,24 @@ export class UpdateExpenseDto {
   @IsDateString()
   @IsOptional()
   expenseDate?: string;
+}
+
+export class CreateExpenseCategoryDto {
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+}
+
+export class UpdateExpenseCategoryDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

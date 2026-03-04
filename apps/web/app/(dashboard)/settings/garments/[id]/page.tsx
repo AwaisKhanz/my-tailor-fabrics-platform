@@ -12,11 +12,15 @@ import { GarmentPricingLogsCard } from "@/components/config/garments/detail/garm
 import { GarmentPricingSidebar } from "@/components/config/garments/detail/garment-pricing-sidebar";
 import { GarmentRatesSection } from "@/components/config/garments/detail/garment-rates-section";
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
+import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentDetailPage } from "@/hooks/use-garment-detail-page";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function GarmentDetailPage() {
+function GarmentDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageRates = canAll(["rates.manage"]);
 
   const garmentId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -49,6 +53,7 @@ export default function GarmentDetailPage() {
         <GarmentDetailHeader
           garment={garment}
           onOpenRates={() => setCreateRateDialogOpen(true)}
+          canManageRates={canManageRates}
         />
       </PageSection>
 
@@ -69,6 +74,7 @@ export default function GarmentDetailPage() {
               open={createRateDialogOpen}
               onOpenChange={setCreateRateDialogOpen}
               onCreateRate={handleCreateRate}
+              canManageRates={canManageRates}
             />
             <GarmentPricingLogsCard logs={garment.priceLogs || []} />
           </PageSection>
@@ -78,3 +84,7 @@ export default function GarmentDetailPage() {
     </PageShell>
   );
 }
+
+export default withRoleGuard(GarmentDetailPage, {
+  all: ["settings.read", "garments.read"],
+});

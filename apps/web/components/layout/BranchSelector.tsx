@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Role } from "@tbms/shared-types";
 import { useBranchStore } from "@/store/useBranchStore";
 import { api } from "@/lib/api";
 import { logDevError } from "@/lib/logger";
@@ -15,11 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Cookies from "js-cookie";
+import { useAuthz } from "@/hooks/use-authz";
 
 export function BranchSelector() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { canAll } = useAuthz();
+  const canSwitchBranch = canAll(["branch.switch"]);
   const { 
     activeBranchId, 
     availableBranches, 
@@ -33,7 +32,7 @@ export function BranchSelector() {
   }, [hydrate]);
 
   useEffect(() => {
-    if (user?.role === Role.SUPER_ADMIN && availableBranches.length === 0) {
+    if (canSwitchBranch && availableBranches.length === 0) {
       const fetchBranches = async () => {
         try {
           const response = await api.get("/config/branches");
@@ -52,9 +51,9 @@ export function BranchSelector() {
       };
       fetchBranches();
     }
-  }, [user, availableBranches.length, setAvailableBranches, setActiveBranch]);
+  }, [availableBranches.length, canSwitchBranch, setAvailableBranches, setActiveBranch]);
 
-  if (user?.role !== Role.SUPER_ADMIN) return null;
+  if (!canSwitchBranch) return null;
 
   return (
     <Select

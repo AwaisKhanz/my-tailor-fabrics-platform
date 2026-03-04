@@ -3,13 +3,26 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '@tbms/shared-types';
 import { IS_PUBLIC_KEY } from '../decorators/auth.decorators';
+import type { Request } from 'express';
+import { emitSecurityEvent } from '../utils/security-event.util';
+
+type BranchGuardRequest = Request & {
+  user?: {
+    role?: Role;
+    branchId?: string | null;
+  };
+  branchId?: string | null;
+};
 
 @Injectable()
 export class BranchGuard implements CanActivate {
+  private readonly logger = new Logger(BranchGuard.name);
+
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -22,10 +35,16 @@ export class BranchGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<BranchGuardRequest>();
     const user = request.user;
 
-    if (!user) {
+    if (!user?.role) {
+      emitSecurityEvent(this.logger, 'branch_scope_denied', {
+        reason: 'missing_user_role',
+        path: request.originalUrl ?? request.url,
+        method: request.method,
+        ip: request.ip,
+      });
       return false;
     }
 
@@ -35,12 +54,20 @@ export class BranchGuard implements CanActivate {
     if (user.role === Role.SUPER_ADMIN) {
       const rawHeader = request.headers['x-branch-id'];
       const targetBranch = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
-      request.branchId = targetBranch?.trim() || null; // Injected for downstream use
+      request.branchId =
+        typeof targetBranch === 'string' ? targetBranch.trim() || null : null; // Injected for downstream use
       return true;
     }
 
     // All other roles are strictly scoped to their assigned branch
     if (!user.branchId) {
+      emitSecurityEvent(this.logger, 'branch_scope_denied', {
+        reason: 'user_without_branch_assignment',
+        path: request.originalUrl ?? request.url,
+        method: request.method,
+        ip: request.ip,
+        role: user.role,
+      });
       throw new ForbiddenException('User is not assigned to any branch');
     }
 

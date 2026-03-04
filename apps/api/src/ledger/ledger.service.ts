@@ -70,6 +70,9 @@ export class LedgerService {
     branchId?: string | null,
   ): Promise<LedgerSummary> {
     await this.assertEmployeeScope(employeeId, branchId);
+    const branchCondition = branchId
+      ? Prisma.sql`AND "branchId" = ${branchId}`
+      : Prisma.empty;
 
     const result = await this.prisma.$queryRaw<
       [{ total_earned: bigint; total_deducted: bigint }]
@@ -80,6 +83,7 @@ export class LedgerService {
       FROM "EmployeeLedgerEntry"
       WHERE "employeeId" = ${employeeId}
         AND "deletedAt" IS NULL
+        ${branchCondition}
     `;
 
     const totalEarned = Number(result[0]?.total_earned ?? 0);
@@ -107,6 +111,7 @@ export class LedgerService {
     const where: Prisma.EmployeeLedgerEntryWhereInput = {
       employeeId,
       deletedAt: null,
+      ...(branchId ? { branchId } : {}),
       ...(from || to
         ? {
             createdAt: {
@@ -167,6 +172,9 @@ export class LedgerService {
     branchId?: string | null,
   ) {
     await this.assertEmployeeScope(employeeId, branchId);
+    const branchCondition = branchId
+      ? Prisma.sql`AND "branchId" = ${branchId}`
+      : Prisma.empty;
 
     const rawData = await this.prisma.$queryRaw<
       {
@@ -185,6 +193,7 @@ export class LedgerService {
         WHERE "employeeId" = ${employeeId}
           AND "deletedAt" IS NULL
           AND "createdAt" >= NOW() - (${weeksBack} || ' weeks')::interval
+          ${branchCondition}
         GROUP BY period
       )
       SELECT

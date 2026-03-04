@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { google, Auth, gmail_v1 } from 'googleapis';
+import { isPublicMailEndpointsEnabled } from '../common/env';
 
 @Injectable()
 export class MailService {
@@ -10,6 +11,29 @@ export class MailService {
 
   constructor() {
     this.initGmailClient();
+  }
+
+  getStatus() {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+    const senderEmail = process.env.GOOGLE_EMAIL;
+    const redirectUri =
+      process.env.GOOGLE_REDIRECT_URI ||
+      'https://developers.google.com/oauthplayground';
+
+    return {
+      publicEndpointsEnabled: isPublicMailEndpointsEnabled(),
+      ready: Boolean(this.gmailClient),
+      senderEmail,
+      redirectUri,
+      configured: {
+        clientId: Boolean(clientId),
+        clientSecret: Boolean(clientSecret),
+        refreshToken: Boolean(refreshToken),
+        senderEmail: Boolean(senderEmail),
+      },
+    };
   }
 
   private initGmailClient() {

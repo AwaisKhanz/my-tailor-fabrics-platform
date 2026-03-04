@@ -9,23 +9,31 @@ import {
   Delete,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
-import { CreateExpenseDto, UpdateExpenseDto } from './dto/expense.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
+import {
+  CreateExpenseCategoryDto,
+  CreateExpenseDto,
+  UpdateExpenseCategoryDto,
+  UpdateExpenseDto,
+} from './dto/expense.dto';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
+import {
+  success,
+  successOnly,
+  successSpread,
+} from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 @Controller('expenses')
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.manage')
   @Post()
   async create(
     @Body() dto: CreateExpenseDto,
@@ -36,15 +44,15 @@ export class ExpensesController {
       req.user.userId,
       dto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.read')
   @Get()
   async findAll(
     @Req() req: AuthenticatedRequest,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('categoryId') categoryId?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
@@ -53,32 +61,62 @@ export class ExpensesController {
   ) {
     const data = await this.expensesService.findAll(
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
       categoryId,
       from,
       to,
       sortBy,
       sortOrder,
     );
-    return { success: true, ...data };
+    return successSpread(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.read')
   @Get('categories')
   async findAllCategories() {
     const data = await this.expensesService.findAllCategories();
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.manage')
+  @Post('categories')
+  async createCategory(@Body() dto: CreateExpenseCategoryDto) {
+    const data = await this.expensesService.createCategory(dto);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.manage')
+  @Put('categories/:id')
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() dto: UpdateExpenseCategoryDto,
+  ) {
+    const data = await this.expensesService.updateCategory(id, dto);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.manage')
+  @Delete('categories/:id')
+  async removeCategory(@Param('id') id: string) {
+    await this.expensesService.removeCategory(id);
+    return successOnly();
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.read')
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.expensesService.findOne(id, req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.manage')
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -90,13 +128,14 @@ export class ExpensesController {
       requireBranchScope(req),
       dto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.manage')
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     await this.expensesService.remove(id, requireBranchScope(req));
-    return { success: true };
+    return successOnly();
   }
 }

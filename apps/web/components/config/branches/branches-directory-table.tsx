@@ -25,6 +25,7 @@ interface BranchesDirectoryTableProps {
   onEdit: (branch: Branch) => void;
   onDelete: (branch: Branch) => void;
   onToggleActive: (branch: Branch) => void;
+  canManageBranches?: boolean;
 }
 
 export function BranchesDirectoryTable({
@@ -38,6 +39,7 @@ export function BranchesDirectoryTable({
   onEdit,
   onDelete,
   onToggleActive,
+  canManageBranches = true,
 }: BranchesDirectoryTableProps) {
   const columns = useMemo<ColumnDef<Branch>[]>(
     () => [
@@ -88,63 +90,74 @@ export function BranchesDirectoryTable({
         align: "right",
         cell: (branch) => (
           <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="tableIcon"
-                  size="iconSm"
-                  aria-label={`Open actions for ${branch.name}`}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44 rounded-lg">
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={`/settings/branches/${branch.id}`}
-                    className="flex cursor-pointer items-center p-3 text-xs font-bold"
+            {canManageBranches ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="tableIcon"
+                    size="iconSm"
+                    aria-label={`Open actions for ${branch.name}`}
                   >
-                    <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
-                    Manage Hub
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onEdit(branch)}
-                  className="cursor-pointer p-3 text-xs font-bold"
-                >
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit Branch
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onToggleActive(branch)}
-                  className="cursor-pointer p-3 text-xs font-bold text-foreground"
-                >
-                  {branch.isActive ? (
-                    <>
-                      <Ban className="mr-2 h-4 w-4 text-warning" />
-                      Deactivate
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="mr-2 h-4 w-4 text-success" />
-                      Activate
-                    </>
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(branch)}
-                  className="cursor-pointer p-3 text-xs font-bold text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Branch
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 rounded-lg">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/settings/branches/${branch.id}`}
+                      className="flex cursor-pointer items-center p-3 text-xs font-bold"
+                    >
+                      <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
+                      Manage Hub
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onEdit(branch)}
+                    className="cursor-pointer p-3 text-xs font-bold"
+                  >
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit Branch
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onToggleActive(branch)}
+                    className="cursor-pointer p-3 text-xs font-bold text-foreground"
+                  >
+                    {branch.isActive ? (
+                      <>
+                        <Ban className="mr-2 h-4 w-4 text-warning" />
+                        Deactivate
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="mr-2 h-4 w-4 text-success" />
+                        Activate
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onDelete(branch)}
+                    className="cursor-pointer p-3 text-xs font-bold text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Branch
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="tableIcon"
+                size="iconSm"
+                aria-label={`View ${branch.name}`}
+                onClick={() => onOpenBranch(branch)}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         ),
       },
     ],
-    [onDelete, onEdit, onToggleActive],
+    [canManageBranches, onDelete, onEdit, onOpenBranch, onToggleActive],
   );
 
   return (

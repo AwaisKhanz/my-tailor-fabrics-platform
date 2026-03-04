@@ -10,9 +10,13 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useCustomersPage } from "@/hooks/use-customers-page";
+import { useAuthz } from "@/hooks/use-authz";
 
 export function CustomerTable() {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canCreateCustomer = canAll(["customers.create"]);
+  const canEditCustomer = canAll(["customers.update"]);
 
   const {
     loading,
@@ -38,7 +42,10 @@ export function CustomerTable() {
 
   return (
     <PageShell spacing="default">
-      <CustomersPageHeader onAddCustomer={openCreateDialog} />
+      <CustomersPageHeader
+        onAddCustomer={openCreateDialog}
+        canCreateCustomer={canCreateCustomer}
+      />
 
       <PageSection
         spacing="compact"
@@ -93,18 +100,21 @@ export function CustomerTable() {
               router.push(`/customers/${customer.id}`);
             }}
             onEdit={openEditDialog}
+            canEditCustomer={canEditCustomer}
           />
         </TableSurface>
       </PageSection>
 
-      <CustomerDialog
-        open={isDialogOpen}
-        onOpenChange={closeDialog}
-        customer={selectedCustomer}
-        onSuccess={() => {
-          void fetchCustomers();
-        }}
-      />
+      {canCreateCustomer || canEditCustomer ? (
+        <CustomerDialog
+          open={isDialogOpen}
+          onOpenChange={closeDialog}
+          customer={selectedCustomer}
+          onSuccess={() => {
+            void fetchCustomers();
+          }}
+        />
+      ) : null}
     </PageShell>
   );
 }

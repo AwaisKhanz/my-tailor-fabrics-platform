@@ -4,19 +4,23 @@ import { PageHeader } from "@/components/ui/page-header";
 
 interface BranchesPageHeaderProps {
   onCreate: () => void;
+  canCreate?: boolean;
 }
 
-export function BranchesPageHeader({ onCreate }: BranchesPageHeaderProps) {
+export function BranchesPageHeader({
+  onCreate,
+  canCreate = true,
+}: BranchesPageHeaderProps) {
   return (
     <PageHeader
       title="Branch Management"
       description="Configure operational locations, ownership details, and branch visibility in one place."
-      actions={
+      actions={canCreate ? (
         <Button variant="premium" size="lg" onClick={onCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Add New Branch
         </Button>
-      }
+      ) : null}
     />
   );
 }

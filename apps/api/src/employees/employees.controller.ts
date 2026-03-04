@@ -9,7 +9,6 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import {
@@ -18,23 +17,26 @@ import {
   CreateEmployeeUserAccountDto,
   UpdateEmployeeDto,
 } from './dto/create-employee.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import {
+  RequireAnyPermissions,
+  RequirePermissions,
+} from '../common/decorators/permissions.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
+import { success, successSpread } from '../common/utils/response.util';
 import {
   ADMIN_ROLES,
   EMPLOYEE_SELF_ROLES,
   OPERATOR_ROLES,
 } from '@tbms/shared-constants';
 
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('employees')
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
   @Post()
   async create(
     @Body() createEmployeeDto: CreateEmployeeDto,
@@ -44,34 +46,36 @@ export class EmployeesController {
       createEmployeeDto,
       requireBranchScope(req),
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
   @Get()
   async findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('search') search: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.employeesService.findAll(
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
       search,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.findOne(id, req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -83,20 +87,22 @@ export class EmployeesController {
       requireBranchScope(req),
       updateEmployeeDto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.remove(
       id,
       requireBranchScope(req),
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
   @Post(':id/user-account')
   async createUserAccount(
     @Param('id') id: string,
@@ -110,34 +116,36 @@ export class EmployeesController {
       dto.password,
     );
     const result = { id: data.id, email: data.email };
-    return { success: true, data: result, user: result };
+    return successSpread({ data: result, user: result });
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
   @Get(':id/stats')
   async getStats(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getStats(id, req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
   @Get(':id/items')
   async getItems(
     @Param('id') id: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.employeesService.getItems(
       id,
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
   @Post(':id/documents')
   async addDocument(
     @Param('id') id: string,
@@ -152,43 +160,45 @@ export class EmployeesController {
       dto.fileType,
       req.user.userId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   // Employee Portal Endpoints
   @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequireAnyPermissions('employees.read', 'tasks.read')
   @Get('my/profile')
   async getMyProfile(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyProfile(
       req.user.employeeId!,
       req.branchId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequireAnyPermissions('employees.read', 'tasks.read')
   @Get('my/stats')
   async getMyStats(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyStats(
       req.user.employeeId!,
       req.branchId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequireAnyPermissions('employees.read', 'tasks.read')
   @Get('my/items')
   async getMyItems(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.employeesService.getMyItems(
       req.user.employeeId!,
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
     );
-    return { success: true, data };
+    return success(data);
   }
 }

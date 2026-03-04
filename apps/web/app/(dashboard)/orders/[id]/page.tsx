@@ -24,10 +24,13 @@ import { OrderPaymentDialog } from "@/components/orders/order-payment-dialog";
 import { OrderShareDialog } from "@/components/orders/order-share-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function OrderDetailPage() {
+function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { canAll } = useAuthz();
   const { toast } = useToast();
 
   const orderId = typeof params.id === "string" ? params.id : null;
@@ -126,6 +129,12 @@ export default function OrderDetailPage() {
   const canCancel =
     order.status !== OrderStatus.CANCELLED &&
     order.status !== OrderStatus.COMPLETED;
+  const canEditAction = canAll(["orders.update"]);
+  const canShareAction = canAll(["orders.share"]);
+  const canCancelAction = canAll(["orders.cancel"]);
+  const canPrintReceipt = canAll(["orders.receipt"]);
+  const canCapturePayment = canAll(["payments.manage"]);
+  const canManageTasks = canAll(["tasks.assign"]);
 
   const publicShareUrl =
     shareData && typeof window !== "undefined"
@@ -176,6 +185,10 @@ export default function OrderDetailPage() {
           createdAtLabel={formatDate(order.createdAt)}
           dueDateLabel={formatDate(order.dueDate)}
           canCancel={canCancel}
+          canEditAction={canEditAction}
+          canPrintReceipt={canPrintReceipt}
+          canShareAction={canShareAction}
+          canCancelAction={canCancelAction}
           sharing={sharing}
           statusLoading={statusLoading}
           onPrintReceipt={() => {
@@ -262,6 +275,7 @@ export default function OrderDetailPage() {
               <OrderItemsTable
                 items={order.items}
                 employees={employees}
+                canManageTasks={canManageTasks}
                 onManageTasks={(item) => {
                   setTaskItem(item);
                   setTaskOpen(true);
@@ -273,6 +287,7 @@ export default function OrderDetailPage() {
             <div className="space-y-6">
               <OrderFinancialSummaryCard
                 order={order}
+                canCapturePayment={canCapturePayment}
                 onCapturePayment={() => setPaymentOpen(true)}
               />
 
@@ -330,3 +345,5 @@ export default function OrderDetailPage() {
     </PageShell>
   );
 }
+
+export default withRoleGuard(OrderDetailPage, { all: ["orders.read"] });

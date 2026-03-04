@@ -11,6 +11,7 @@ interface PaymentsSummaryCardsProps {
   currentBalance: number;
   canDisburse: boolean;
   onDisburse: () => void;
+  canManagePayments?: boolean;
 }
 
 export function PaymentsSummaryCards({
@@ -19,6 +20,7 @@ export function PaymentsSummaryCards({
   currentBalance,
   canDisburse,
   onDisburse,
+  canManagePayments = true,
 }: PaymentsSummaryCardsProps) {
   if (loading) {
     return (
@@ -61,15 +63,17 @@ export function PaymentsSummaryCards({
         badgeText={currentBalance > 0 ? "DUE" : "CLEAR"}
         valueClassName={currentBalance > 0 ? "" : "text-muted-foreground"}
         action={
-          <Button
-            variant={canDisburse ? "premium" : "outline"}
-            size="sm"
-            className="w-full sm:w-auto"
-            onClick={onDisburse}
-            disabled={!canDisburse}
-          >
-            Disburse Payment
-          </Button>
+          canManagePayments ? (
+            <Button
+              variant={canDisburse ? "premium" : "outline"}
+              size="sm"
+              className="w-full sm:w-auto"
+              onClick={onDisburse}
+              disabled={!canDisburse}
+            >
+              Disburse Payment
+            </Button>
+          ) : null
         }
       />
     </div>

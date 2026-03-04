@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { Role } from "@tbms/shared-types";
-import { FRONTEND_ROUTE_ROLES } from "@tbms/shared-constants";
+import { canRoleAccessPathname, FRONTEND_ROUTE_ROLES } from "@tbms/shared-constants";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
 import Image from "next/image";
@@ -27,11 +26,17 @@ import {
   UserCog,
   Layout,
   Palette,
+  SlidersHorizontal,
+  Clock3,
+  Wallet,
+  PlugZap,
+  ClipboardList,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useAuthz } from "@/hooks/use-authz";
 
 interface NavItem {
   title: string;
@@ -99,13 +104,36 @@ const NAV_ITEMS: NavItem[] = [
       { title: 'Branches', href: '/settings/branches', icon: Building2 },
       { title: 'Garments', href: '/settings/garments', icon: Shirt },
       { title: 'Labor Rates', href: '/settings/rates', icon: Banknote },
+      { title: 'Expense Categories', href: '/settings/expense-categories', icon: Wallet },
       { title: 'Design Types', href: '/settings/design-types', icon: Layout },
       { title: 'Measurements', href: '/settings/measurements', icon: Ruler },
       { title: 'Staff Accounts', href: '/settings/users', icon: UserCog },
+      { title: 'Attendance', href: '/settings/attendance', icon: Clock3 },
+      { title: 'System Controls', href: '/settings/system', icon: SlidersHorizontal },
+      { title: 'Integrations', href: '/settings/integrations', icon: PlugZap },
+      { title: 'Audit Logs', href: '/settings/audit-logs', icon: ClipboardList },
       { title: 'Appearance', href: '/settings/appearance', icon: Palette },
     ],
   },
 ];
+
+function getVisibleNavItems(role: Role | null): NavItem[] {
+  if (!role) {
+    return [];
+  }
+
+  return NAV_ITEMS
+    .map((item) => ({
+      ...item,
+      subItems: item.subItems?.filter((subItem) =>
+        canRoleAccessPathname(role, subItem.href),
+      ),
+    }))
+    .filter(
+      (item) =>
+        item.roles.includes(role) && canRoleAccessPathname(role, item.href),
+    );
+}
 
 function NavList({
   items,
@@ -232,11 +260,8 @@ function NavList({
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const user = session?.user;
-  const role = user?.role;
-
-  const items = NAV_ITEMS.filter((item) => role && item.roles.includes(role as Role));
+  const { role } = useAuthz();
+  const items = getVisibleNavItems(role);
 
 
   const BrandHeader = () => (
@@ -272,11 +297,8 @@ export function Sidebar() {
 export function MobileSidebarTrigger() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const user = session?.user;
-  const role = user?.role;
-
-  const items = NAV_ITEMS.filter((item) => role && item.roles.includes(role as Role));
+  const { role } = useAuthz();
+  const items = getVisibleNavItems(role);
 
   return (
     <>

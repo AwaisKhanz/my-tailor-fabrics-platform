@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   AddonType,
@@ -13,10 +12,8 @@ import {
   Employee,
   FabricSource,
   GarmentType,
-  Role,
   UpdateOrderInput,
 } from "@tbms/shared-types";
-import { ADMIN_ROLES } from "@tbms/shared-constants";
 import { typedZodResolver } from "@/lib/utils/form";
 import { useToast } from "@/hooks/use-toast";
 import { orderSchema, type OrderFormValues } from "@/types/orders/schemas";
@@ -25,6 +22,7 @@ import { customerApi } from "@/lib/api/customers";
 import { employeesApi } from "@/lib/api/employees";
 import { designTypesApi } from "@/lib/api/design-types";
 import { ordersApi } from "@/lib/api/orders";
+import { useAuthz } from "@/hooks/use-authz";
 
 interface OrderTotals {
   subtotal: number;
@@ -44,18 +42,15 @@ const createDefaultOrderItem = (): OrderFormValues["items"][number] => ({
 const toDateInputValue = (value: Date | string) =>
   new Date(value).toISOString().split("T")[0];
 
-const isAdminRole = (role: unknown): role is (typeof ADMIN_ROLES)[number] =>
-  role === Role.ADMIN || role === Role.SUPER_ADMIN;
-
 export function useOrderFormPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { canAll } = useAuthz();
   const { toast } = useToast();
 
   const editOrderId = searchParams.get("edit");
   const isEditMode = Boolean(editOrderId);
-  const canManageDiscounts = isAdminRole(session?.user?.role);
+  const canManageDiscounts = canAll(["orders.financial.manage"]);
 
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);

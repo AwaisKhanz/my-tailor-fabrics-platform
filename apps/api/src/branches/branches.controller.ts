@@ -6,13 +6,13 @@ import {
   Body,
   Param,
   Query,
-  UseGuards,
   Delete,
 } from '@nestjs/common';
 import { BranchesService } from './branches.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { success, successOnly } from '../common/utils/response.util';
 import {
   ADMIN_ROLES,
   ALL_ROLES,
@@ -20,58 +20,62 @@ import {
 } from '@tbms/shared-constants';
 import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('branches')
 export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
   @Roles(...ALL_ROLES)
+  @RequirePermissions('branches.read')
   @Get()
   async findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('search') search?: string,
   ) {
     const data = await this.branchesService.findAll({
-      page: page ? Number(page) : undefined,
-      limit: limit ? Number(limit) : undefined,
+      page: pagination.page,
+      limit: pagination.limit,
       search,
     });
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('branches.read')
   @Get('stats')
   async getStats() {
     const data = await this.branchesService.getStats();
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('branches.read')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.branchesService.findOne(id);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
+  @RequirePermissions('branches.manage')
   @Post()
   async createBranch(@Body() body: CreateBranchDto) {
     const data = await this.branchesService.create(body);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
+  @RequirePermissions('branches.manage')
   @Put(':id')
   async updateBranch(@Param('id') id: string, @Body() body: UpdateBranchDto) {
     const data = await this.branchesService.update(id, body);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
+  @RequirePermissions('branches.manage')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.branchesService.remove(id);
-    return { success: true };
+    return successOnly();
   }
 }

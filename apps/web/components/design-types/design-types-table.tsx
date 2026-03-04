@@ -18,6 +18,7 @@ interface DesignTypesTableProps {
   onResetFilters: () => void;
   onEdit: (designType: DesignType) => void;
   onDelete: (designType: DesignType) => void;
+  canManageDesignTypes?: boolean;
 }
 
 export function DesignTypesTable({
@@ -31,6 +32,7 @@ export function DesignTypesTable({
   onResetFilters,
   onEdit,
   onDelete,
+  canManageDesignTypes = true,
 }: DesignTypesTableProps) {
   const garmentNameById = useMemo(
     () => new Map(garmentTypes.map((garment) => [garment.id, garment.name])),
@@ -91,31 +93,37 @@ export function DesignTypesTable({
         align: "right",
         cell: (designType) => (
           <div className="flex justify-end gap-2">
-            <Button
-              variant="tableIcon"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onEdit(designType);
-              }}
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="tableDanger"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onDelete(designType);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {canManageDesignTypes ? (
+              <>
+                <Button
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEdit(designType);
+                  }}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="tableDanger"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDelete(designType);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+            )}
           </div>
         ),
       },
     ],
-    [branchById, garmentNameById, onDelete, onEdit],
+    [branchById, canManageDesignTypes, garmentNameById, onDelete, onEdit],
   );
 
   return (
@@ -153,7 +161,7 @@ export function DesignTypesTable({
         itemLabel="design types"
         emptyMessage="No design types have been defined yet."
         chrome="flat"
-        onRowClick={onEdit}
+        onRowClick={canManageDesignTypes ? onEdit : undefined}
       />
     </TableSurface>
   );

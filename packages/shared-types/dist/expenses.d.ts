@@ -16,6 +16,16 @@ export interface ExpenseCategory {
     id: string;
     name: string;
     isActive: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+}
+export interface CreateExpenseCategoryInput {
+    name: string;
+    isActive?: boolean;
+}
+export interface UpdateExpenseCategoryInput {
+    name?: string;
+    isActive?: boolean;
 }
 export interface CreateExpenseInput {
     categoryId: string;

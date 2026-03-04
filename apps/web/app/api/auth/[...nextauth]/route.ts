@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { NextResponse } from "next/server";
+import { getRolePermissions, isRole } from "@tbms/shared-constants";
 import { getNextAuthSecret, getServerApiBaseUrl } from "@/lib/env";
 
 const JWT_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // must match JWT_EXPIRES_IN in .env
@@ -45,19 +46,31 @@ function createAuthHandler() {
       async jwt({ token, user: nextAuthUser }) {
         // On initial sign-in, persist user data and token expiry into the JWT
         if (nextAuthUser) {
+          if (!isRole(nextAuthUser.role)) {
+            throw new Error("Invalid role received from authentication server");
+          }
           token.accessToken = nextAuthUser.accessToken;
           token.role = nextAuthUser.role;
+          token.permissions = getRolePermissions(nextAuthUser.role);
           token.branchId = nextAuthUser.branchId;
           token.id = nextAuthUser.id;
           token.accessTokenExpires = Date.now() + JWT_EXPIRY_SECONDS * 1000;
+        }
+
+        if (isRole(token.role) && !token.permissions) {
+          token.permissions = getRolePermissions(token.role);
         }
 
         return token;
       },
       async session({ session, token }) {
         if (token && session.user) {
+          if (!isRole(token.role)) {
+            throw new Error("Invalid role in session token");
+          }
           session.user.id = token.id;
           session.user.role = token.role;
+          session.user.permissions = token.permissions;
           session.user.branchId = token.branchId;
           session.accessToken = token.accessToken;
         }

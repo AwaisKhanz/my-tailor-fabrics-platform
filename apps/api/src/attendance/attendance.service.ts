@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 
 @Injectable()
 export class AttendanceService {
@@ -31,10 +32,13 @@ export class AttendanceService {
 
     const now = new Date();
 
-    const employee = await this.prisma.employee.findUnique({
-      where: { id: employeeId },
+    const employee = await requireEmployeeInScope(this.prisma, {
+      employeeId,
+      branchId,
+      requireActive: true,
+      inactiveMessage: 'Only active employees can clock in',
     });
-    if (!employee) throw new NotFoundException('Employee not found');
+
     const recordBranchId = branchId || employee.branchId;
 
     return this.prisma.attendanceRecord.create({

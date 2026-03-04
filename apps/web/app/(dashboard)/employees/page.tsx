@@ -11,9 +11,13 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useEmployeesPage } from "@/hooks/use-employees-page";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function EmployeesPage() {
+function EmployeesPage() {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageEmployees = canAll(["employees.manage"]);
 
   const {
     loading,
@@ -38,10 +42,12 @@ export default function EmployeesPage() {
         title="Employees"
         description="Manage team records, assignments, and staff visibility from one directory."
         actions={
-          <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
-            <Plus className="h-4 w-4" />
-            New Employee
-          </Button>
+          canManageEmployees ? (
+            <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
+              <Plus className="h-4 w-4" />
+              New Employee
+            </Button>
+          ) : null
         }
       />
 
@@ -97,13 +103,17 @@ export default function EmployeesPage() {
         </TableSurface>
       </PageSection>
 
-      <EmployeeDialog
-        open={addDialogOpen}
-        onOpenChange={closeAddDialog}
-        onSuccess={() => {
-          void fetchEmployees();
-        }}
-      />
+      {canManageEmployees ? (
+        <EmployeeDialog
+          open={addDialogOpen}
+          onOpenChange={closeAddDialog}
+          onSuccess={() => {
+            void fetchEmployees();
+          }}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(EmployeesPage, { all: ["employees.read"] });

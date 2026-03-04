@@ -1,4 +1,6 @@
 import { CustomerStatus } from './common';
+export type MeasurementValue = string | number | boolean | null;
+export type MeasurementValues = Record<string, MeasurementValue>;
 export interface Customer {
     id: string;
     branchId: string;
@@ -25,7 +27,7 @@ export interface CustomerMeasurement {
     id: string;
     customerId: string;
     categoryId: string;
-    values: Record<string, unknown>;
+    values: MeasurementValues;
     updatedAt: string;
     category?: {
         id: string;
@@ -50,7 +52,7 @@ export interface ToggleCustomerVipInput {
 }
 export interface UpsertCustomerMeasurementInput {
     categoryId: string;
-    values: Record<string, unknown>;
+    values: MeasurementValues;
 }
 export interface CustomersListSummary {
     totalCustomers: number;

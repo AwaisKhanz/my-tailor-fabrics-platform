@@ -7,3 +7,4 @@ export * from './customers';
 export * from './rates';
 export * from './ledger';
 export * from './rbac';
+export * from './audit';

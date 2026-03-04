@@ -2,9 +2,11 @@ import { api } from '../api';
 import { ApiResponse, PaginatedResponse } from '@/types/common';
 
 import {
+  CreateExpenseCategoryInput,
   CreateExpenseInput,
   Expense,
   ExpenseCategory,
+  UpdateExpenseCategoryInput,
   UpdateExpenseInput,
 } from '@tbms/shared-types';
 
@@ -17,8 +19,22 @@ export const expensesApi = {
   },
 
   getCategories: async () => {
-    // Note: Assuming there's an endpoint for categories or it's part of config
     const response = await api.get<ApiResponse<ExpenseCategory[]>>('/expenses/categories');
+    return response.data;
+  },
+
+  createCategory: async (data: CreateExpenseCategoryInput) => {
+    const response = await api.post<ApiResponse<ExpenseCategory>>('/expenses/categories', data);
+    return response.data;
+  },
+
+  updateCategory: async (id: string, data: UpdateExpenseCategoryInput) => {
+    const response = await api.put<ApiResponse<ExpenseCategory>>(`/expenses/categories/${id}`, data);
+    return response.data;
+  },
+
+  deleteCategory: async (id: string) => {
+    const response = await api.delete<ApiResponse<void>>(`/expenses/categories/${id}`);
     return response.data;
   },
 

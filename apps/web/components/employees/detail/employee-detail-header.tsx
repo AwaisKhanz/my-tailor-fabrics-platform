@@ -11,12 +11,16 @@ interface EmployeeDetailHeaderProps {
   employee: EmployeeWithRelations;
   onProvisionAccount: () => void;
   onEditProfile: () => void;
+  canProvisionAccount?: boolean;
+  canEditProfile?: boolean;
 }
 
 export function EmployeeDetailHeader({
   employee,
   onProvisionAccount,
   onEditProfile,
+  canProvisionAccount = true,
+  canEditProfile = true,
 }: EmployeeDetailHeaderProps) {
   const joinDateLabel = formatDate(employee.dateOfJoining);
   const hasAccount = Boolean(employee.userAccount);
@@ -69,7 +73,7 @@ export function EmployeeDetailHeader({
           <div
             className={`flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end ${hasAccount ? "lg:max-w-[260px]" : "lg:max-w-[520px]"}`}
           >
-            {!hasAccount ? (
+            {!hasAccount && canProvisionAccount ? (
               <Button
                 variant="outline"
                 size="lg"
@@ -80,15 +84,17 @@ export function EmployeeDetailHeader({
                 Provision Account
               </Button>
             ) : null}
-            <Button
-              variant="premium"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[220px]"
-              onClick={onEditProfile}
-            >
-              <Edit2 className="h-4 w-4" />
-              Edit Profile
-            </Button>
+            {canEditProfile ? (
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[220px]"
+                onClick={onEditProfile}
+              >
+                <Edit2 className="h-4 w-4" />
+                Edit Profile
+              </Button>
+            ) : null}
           </div>
         </div>
       </CardContent>

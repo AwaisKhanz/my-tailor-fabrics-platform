@@ -10,27 +10,28 @@ import {
   Query,
   Req,
   Res,
-  UseGuards,
   Delete,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ReceiptService } from './receipt.service';
 import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import {
+  UpdateOrderDto,
+  UpdateOrderItemAssignmentDto,
+} from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
+import { success, successOnly } from '../common/utils/response.util';
 import {
   ADMIN_ROLES,
   DASHBOARD_READ_ROLES,
   OPERATOR_ROLES,
 } from '@tbms/shared-constants';
 
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(
@@ -39,6 +40,7 @@ export class OrdersController {
   ) {}
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('orders.create')
   @Post()
   async create(
     @Body() createOrderDto: CreateOrderDto,
@@ -50,14 +52,14 @@ export class OrdersController {
       req.user.userId,
       req.user.role,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('orders.read')
   @Get()
   async findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('status') status: string,
     @Query('from') from: string,
     @Query('to') to: string,
@@ -69,14 +71,15 @@ export class OrdersController {
   ) {
     const data = await this.ordersService.findAll(
       req.branchId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
       { status, from, to, employeeId, search, sortBy, sortOrder },
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('orders.read')
   @Get('summary')
   async getSummary(
     @Query('status') status: string,
@@ -93,17 +96,19 @@ export class OrdersController {
       employeeId,
       search,
     });
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('orders.read')
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.findOne(id, req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('orders.update')
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -116,9 +121,10 @@ export class OrdersController {
       dto,
       req.user.role,
     );
-    return { success: true, data };
+    return success(data);
   }
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('orders.cancel')
   @Delete(':id')
   async cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.cancelOrder(
@@ -126,10 +132,11 @@ export class OrdersController {
       requireBranchScope(req),
       req.user.userId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('orderItems.manage')
   @Post(':id/items')
   async addItem(
     @Param('id') id: string,
@@ -141,15 +148,16 @@ export class OrdersController {
       requireBranchScope(req),
       dto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('orderItems.manage')
   @Patch(':id/items/:itemId')
   async updateItem(
     @Param('id') id: string,
     @Param('itemId') itemId: string,
-    @Body() dto: { status?: string; employeeId?: string },
+    @Body() dto: UpdateOrderItemAssignmentDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.ordersService.updateItem(
@@ -158,25 +166,23 @@ export class OrdersController {
       requireBranchScope(req),
       dto,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('orderItems.manage')
   @Delete(':id/items/:itemId')
   async removeItem(
     @Param('id') id: string,
     @Param('itemId') itemId: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    await this.ordersService.removeItem(
-      id,
-      itemId,
-      requireBranchScope(req),
-    );
-    return { success: true };
+    await this.ordersService.removeItem(id, itemId, requireBranchScope(req));
+    return successOnly();
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('payments.manage')
   @Post(':id/payment')
   async addPayment(
     @Param('id') id: string,
@@ -189,10 +195,11 @@ export class OrdersController {
       addPaymentDto,
       req.user.userId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('orders.update')
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
@@ -205,10 +212,11 @@ export class OrdersController {
       updateStatusDto,
       req.user.userId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
+  @RequirePermissions('orders.receipt')
   @Get(':id/receipt')
   async getReceipt(
     @Param('id') id: string,
@@ -228,12 +236,13 @@ export class OrdersController {
 
   /** Generate/regenerate a shareable public link + PIN for the customer */
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('orders.share')
   @Post(':id/share')
   async shareOrder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.generateShareLink(
       id,
       requireBranchScope(req),
     );
-    return { success: true, data };
+    return success(data);
   }
 }

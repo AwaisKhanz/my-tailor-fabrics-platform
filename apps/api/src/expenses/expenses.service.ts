@@ -5,7 +5,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CreateExpenseDto, UpdateExpenseDto } from './dto/expense.dto';
+import {
+  CreateExpenseCategoryDto,
+  CreateExpenseDto,
+  UpdateExpenseCategoryDto,
+  UpdateExpenseDto,
+} from './dto/expense.dto';
+import { requireBranchId } from '../common/utils/branch-scope.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -18,15 +24,6 @@ const EXPENSE_SORT_FIELDS: ReadonlyArray<
 @Injectable()
 export class ExpensesService {
   constructor(private readonly prisma: PrismaService) {}
-
-  private requireBranchId(branchId?: string | null): string {
-    if (!branchId) {
-      throw new BadRequestException(
-        'x-branch-id is required for this operation',
-      );
-    }
-    return branchId;
-  }
 
   private parseDateBoundary(
     value?: string,
@@ -68,6 +65,78 @@ export class ExpensesService {
     });
   }
 
+  private async assertCategoryNameAvailable(
+    name: string,
+    excludeId?: string,
+  ): Promise<void> {
+    const normalizedName = name.trim();
+    if (!normalizedName) {
+      throw new BadRequestException('Category name is required');
+    }
+
+    const existing = await this.prisma.expenseCategory.findFirst({
+      where: {
+        deletedAt: null,
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+        name: { equals: normalizedName, mode: 'insensitive' },
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      throw new BadRequestException(
+        'Expense category with this name already exists',
+      );
+    }
+  }
+
+  private async findCategoryById(id: string) {
+    const category = await this.prisma.expenseCategory.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Expense category not found');
+    }
+
+    return category;
+  }
+
+  async createCategory(dto: CreateExpenseCategoryDto) {
+    await this.assertCategoryNameAvailable(dto.name);
+    return this.prisma.expenseCategory.create({
+      data: {
+        name: dto.name.trim(),
+        isActive: dto.isActive ?? true,
+      },
+    });
+  }
+
+  async updateCategory(id: string, dto: UpdateExpenseCategoryDto) {
+    await this.findCategoryById(id);
+    if (dto.name) {
+      await this.assertCategoryNameAvailable(dto.name, id);
+    }
+
+    return this.prisma.expenseCategory.update({
+      where: { id },
+      data: {
+        ...(dto.name ? { name: dto.name.trim() } : {}),
+        ...(typeof dto.isActive === 'boolean'
+          ? { isActive: dto.isActive }
+          : {}),
+      },
+    });
+  }
+
+  async removeCategory(id: string) {
+    await this.findCategoryById(id);
+    return this.prisma.expenseCategory.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+
   private async assertActiveCategory(categoryId: string) {
     const category = await this.prisma.expenseCategory.findFirst({
       where: { id: categoryId, deletedAt: null, isActive: true },
@@ -83,7 +152,7 @@ export class ExpensesService {
     addedById: string,
     dto: CreateExpenseDto,
   ) {
-    const scopedBranchId = this.requireBranchId(branchId);
+    const scopedBranchId = requireBranchId(branchId);
     await this.assertActiveCategory(dto.categoryId);
 
     return this.prisma.expense.create({

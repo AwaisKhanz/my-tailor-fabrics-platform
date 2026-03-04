@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, Clock3, Plus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/components/auth/can";
 import { StatCard } from "@/components/ui/stat-card";
 import { formatPKR } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/page-header";
@@ -11,9 +12,14 @@ import { TableSurface } from "@/components/ui/table-layout";
 import { useOrdersListPage } from "@/hooks/use-orders-list-page";
 import { OrdersListToolbar } from "@/components/orders/orders-list-toolbar";
 import { OrdersListTable } from "@/components/orders/orders-list-table";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function OrdersPage() {
+function OrdersPage() {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canEditOrder = canAll(["orders.update"]);
+  const canPrintReceipt = canAll(["orders.receipt"]);
 
   const {
     loading,
@@ -39,15 +45,17 @@ export default function OrdersPage() {
         title="Orders"
         description="Manage customer orders and production workflow from one place."
         actions={
-          <Button
-            variant="premium"
-            size="lg"
-            className="w-full sm:w-auto"
-            onClick={() => router.push("/orders/new")}
-          >
-            <Plus className="h-4 w-4" />
-            New Order
-          </Button>
+          <Can all={["orders.create"]}>
+            <Button
+              variant="premium"
+              size="lg"
+              className="w-full sm:w-auto"
+              onClick={() => router.push("/orders/new")}
+            >
+              <Plus className="h-4 w-4" />
+              New Order
+            </Button>
+          </Can>
         }
       />
 
@@ -111,9 +119,13 @@ export default function OrdersPage() {
             onPageChange={setPage}
             onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
             onEditOrder={(orderId) => router.push(`/orders/new?edit=${orderId}`)}
+            canEditOrder={canEditOrder}
+            canPrintReceipt={canPrintReceipt}
           />
         </TableSurface>
       </PageSection>
     </PageShell>
   );
 }
+
+export default withRoleGuard(OrdersPage, { all: ["orders.read"] });

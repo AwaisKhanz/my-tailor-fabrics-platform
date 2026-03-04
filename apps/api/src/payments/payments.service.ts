@@ -1,13 +1,13 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { LedgerService } from '../ledger/ledger.service';
 import { LedgerEntryType, WeeklyPaymentReportRow } from '@tbms/shared-types';
+import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 
 const MAX_TRANSACTION_RETRIES = 3;
 const DEFAULT_HISTORY_PAGE = 1;
@@ -29,20 +29,10 @@ export class PaymentsService {
     employeeId: string,
     actorBranchId?: string | null,
   ) {
-    const employee = await this.prisma.employee.findFirst({
-      where: {
-        id: employeeId,
-        deletedAt: null,
-        ...(actorBranchId ? { branchId: actorBranchId } : {}),
-      },
-      select: { id: true, branchId: true },
+    return requireEmployeeInScope(this.prisma, {
+      employeeId,
+      branchId: actorBranchId,
     });
-
-    if (!employee) {
-      throw new NotFoundException('Employee not found');
-    }
-
-    return employee;
   }
 
   async getEmployeeBalanceSummary(
@@ -52,7 +42,10 @@ export class PaymentsService {
     await this.assertEmployeeScope(employeeId, actorBranchId);
 
     // Use ledger as single source of truth for balance
-    const balance = await this.ledgerService.getBalance(employeeId, actorBranchId);
+    const balance = await this.ledgerService.getBalance(
+      employeeId,
+      actorBranchId,
+    );
     const weekly = await this.getWeeklyBreakdown(employeeId, 8, actorBranchId);
     return {
       totalEarned: balance.totalEarned,
@@ -220,6 +213,17 @@ export class PaymentsService {
     const where: Prisma.PaymentWhereInput = {
       employeeId,
       deletedAt: null,
+      ...(actorBranchId
+        ? {
+            ledgerEntries: {
+              some: {
+                branchId: actorBranchId,
+                deletedAt: null,
+                type: LedgerEntryType.PAYOUT,
+              },
+            },
+          }
+        : {}),
       ...(fromDate || toDate
         ? {
             paidAt: {
@@ -253,8 +257,8 @@ export class PaymentsService {
   async getWeeklyReport(
     actorBranchId?: string | null,
   ): Promise<WeeklyPaymentReportRow[]> {
-    const branchFilter = actorBranchId
-      ? Prisma.sql`AND e."branchId" = ${actorBranchId}`
+    const ledgerBranchFilter = actorBranchId
+      ? Prisma.sql`AND le."branchId" = ${actorBranchId}`
       : Prisma.empty;
 
     const rows = await this.prisma.$queryRaw<
@@ -265,17 +269,27 @@ export class PaymentsService {
         paidThisWeek: bigint | number | null;
       }[]
     >`
+            WITH scoped_payments AS (
+              SELECT DISTINCT
+                  p.id,
+                  p."employeeId",
+                  p.amount
+              FROM "Payment" p
+              JOIN "EmployeeLedgerEntry" le ON le."paymentId" = p.id
+              WHERE p."paidAt" >= date_trunc('week', NOW() AT TIME ZONE 'Asia/Karachi')
+                AND p."deletedAt" IS NULL
+                AND le."deletedAt" IS NULL
+                AND le.type = 'PAYOUT'
+                ${ledgerBranchFilter}
+            )
             SELECT
                 e.id as "employeeId",
                 e."fullName" as "employeeName",
                 e."employeeCode" as "employeeCode",
-                SUM(p.amount) as "paidThisWeek"
-            FROM "Payment" p
-            JOIN "Employee" e ON e.id = p."employeeId"
-            WHERE p."paidAt" >= date_trunc('week', NOW() AT TIME ZONE 'Asia/Karachi')
-              AND p."deletedAt" IS NULL
-              AND e."deletedAt" IS NULL
-              ${branchFilter}
+                COALESCE(SUM(sp.amount), 0) as "paidThisWeek"
+            FROM scoped_payments sp
+            JOIN "Employee" e ON e.id = sp."employeeId"
+            WHERE e."deletedAt" IS NULL
             GROUP BY e.id, e."fullName", e."employeeCode"
             ORDER BY "paidThisWeek" DESC
         `;

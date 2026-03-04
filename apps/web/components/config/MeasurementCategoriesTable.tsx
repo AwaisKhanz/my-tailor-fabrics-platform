@@ -9,10 +9,13 @@ import { MeasurementCategoriesStatsGrid } from "@/components/config/measurements
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
+import { useAuthz } from "@/hooks/use-authz";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
 
 export function MeasurementCategoriesTable() {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageMeasurements = canAll(["measurements.manage"]);
 
   const {
     loading,
@@ -42,7 +45,7 @@ export function MeasurementCategoriesTable() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <MeasurementCategoriesPageHeader onAdd={openCreateDialog} />
+        <MeasurementCategoriesPageHeader onAdd={openCreateDialog} canCreate={canManageMeasurements} />
       </PageSection>
 
       <PageSection spacing="compact">
@@ -75,29 +78,34 @@ export function MeasurementCategoriesTable() {
             }}
             onEdit={openEditDialog}
             onDelete={requestDelete}
+            canManageMeasurements={canManageMeasurements}
           />
         </TableSurface>
       </PageSection>
 
-      <MeasurementCategoryDialog
-        open={isDialogOpen}
-        onOpenChange={closeDialog}
-        initialData={selectedCategory}
-        onSuccess={() => {
-          void fetchCategories();
-        }}
-      />
+      {canManageMeasurements ? (
+        <MeasurementCategoryDialog
+          open={isDialogOpen}
+          onOpenChange={closeDialog}
+          initialData={selectedCategory}
+          onSuccess={() => {
+            void fetchCategories();
+          }}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={isConfirmOpen}
-        onOpenChange={closeConfirm}
-        title="Delete Category"
-        description={`Are you sure you want to delete the "${categoryToDelete?.name}" category? This action cannot be undone.`}
-        onConfirm={() => {
-          void confirmDelete();
-        }}
-        confirmText="Delete Category"
-      />
+      {canManageMeasurements ? (
+        <ConfirmDialog
+          open={isConfirmOpen}
+          onOpenChange={closeConfirm}
+          title="Delete Category"
+          description={`Are you sure you want to delete the "${categoryToDelete?.name}" category? This action cannot be undone.`}
+          onConfirm={() => {
+            void confirmDelete();
+          }}
+          confirmText="Delete Category"
+        />
+      ) : null}
     </PageShell>
   );
 }

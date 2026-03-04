@@ -1,7 +1,12 @@
 "use client";
 
 import { UsersTable } from "@/components/config/UsersTable";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function UsersSettingsPage() {
+function UsersSettingsPage() {
   return <UsersTable />;
 }
+
+export default withRoleGuard(UsersSettingsPage, {
+  all: ["settings.read", "users.manage"],
+});

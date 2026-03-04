@@ -3,8 +3,9 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { MeasurementCategoryDetail } from "@/components/config/MeasurementCategoryDetail";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function MeasurementDetailPage() {
+function MeasurementDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
@@ -12,3 +13,7 @@ export default function MeasurementDetailPage() {
     <MeasurementCategoryDetail id={id} />
   );
 }
+
+export default withRoleGuard(MeasurementDetailPage, {
+  all: ["settings.read", "measurements.read"],
+});

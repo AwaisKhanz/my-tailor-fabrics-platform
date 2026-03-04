@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as React from 'react';
 import { Document, Page, Text, View, StyleSheet, renderToStream } from '@react-pdf/renderer';
@@ -37,6 +38,19 @@ interface ReceiptOrder {
   totalPaid: number;
   balanceDue: number;
 }
+
+type ReceiptOrderRecord = Prisma.OrderGetPayload<{
+  include: {
+    customer: true;
+    branch: true;
+    items: {
+      include: {
+        designType: true;
+        addons: true;
+      };
+    };
+  };
+}>;
 
 const ReceiptDocument = ({ order }: { order: ReceiptOrder }) => (
   <Document>
@@ -138,6 +152,42 @@ const ReceiptDocument = ({ order }: { order: ReceiptOrder }) => (
 export class ReceiptService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private toReceiptOrder(order: ReceiptOrderRecord): ReceiptOrder {
+    return {
+      orderNumber: order.orderNumber,
+      orderDate: order.orderDate,
+      customer: {
+        fullName: order.customer.fullName,
+        phone: order.customer.phone,
+      },
+      branch: {
+        name: order.branch.name,
+      },
+      items: order.items.map((item) => ({
+        id: item.id,
+        garmentTypeName: item.garmentTypeName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        designType: item.designType
+          ? {
+              name: item.designType.name,
+              defaultPrice: item.designType.defaultPrice,
+            }
+          : null,
+        addons: item.addons.map((addon) => ({
+          id: addon.id,
+          name: addon.name,
+          price: addon.price,
+        })),
+      })),
+      subtotal: order.subtotal,
+      discountAmount: order.discountAmount,
+      totalAmount: order.totalAmount,
+      totalPaid: order.totalPaid,
+      balanceDue: order.balanceDue,
+    };
+  }
+
   async generateOrderReceipt(
     orderId: string,
     branchId: string | null,
@@ -162,8 +212,12 @@ export class ReceiptService {
       throw new NotFoundException('Order not found or access denied');
     }
 
+    const receiptOrder = this.toReceiptOrder(order);
+
     // Workaround for React 18 / React PDF typings issue
-    const element = React.createElement(ReceiptDocument, { order: order as unknown as ReceiptOrder });
+    const element = React.createElement(ReceiptDocument, {
+      order: receiptOrder,
+    }) as React.ReactElement;
     return renderToStream(element as never);
   }
 }

@@ -1,7 +1,12 @@
 "use client";
 
 import { AppearanceSettingsPage } from "@/components/config/appearance/appearance-settings-page";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function AppearancePage() {
+function AppearancePage() {
   return <AppearanceSettingsPage />;
 }
+
+export default withRoleGuard(AppearancePage, {
+  all: ["settings.read", "appearance.manage"],
+});

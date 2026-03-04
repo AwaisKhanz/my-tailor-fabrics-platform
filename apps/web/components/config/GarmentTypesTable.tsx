@@ -11,10 +11,13 @@ import { GarmentTypesStatsGrid } from "@/components/config/garments/list/garment
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
+import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
 
 export function GarmentTypesTable() {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageGarments = canAll(["garments.manage"]);
 
   const {
     loading,
@@ -50,7 +53,7 @@ export function GarmentTypesTable() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <GarmentTypesPageHeader onAdd={openCreateDialog} />
+        <GarmentTypesPageHeader onAdd={openCreateDialog} canCreate={canManageGarments} />
       </PageSection>
 
       <PageSection spacing="compact">
@@ -83,18 +86,21 @@ export function GarmentTypesTable() {
             onOpenHistory={openHistoryDialog}
             onOpenWorkflow={openWorkflowDialog}
             onDelete={requestDelete}
+            canManageGarments={canManageGarments}
           />
         </TableSurface>
       </PageSection>
 
-      <GarmentTypeDialog
-        open={isDialogOpen}
-        onOpenChange={closeGarmentDialog}
-        initialData={selectedType}
-        onSuccess={() => {
-          void fetchGarmentTypes();
-        }}
-      />
+      {canManageGarments ? (
+        <GarmentTypeDialog
+          open={isDialogOpen}
+          onOpenChange={closeGarmentDialog}
+          initialData={selectedType}
+          onSuccess={() => {
+            void fetchGarmentTypes();
+          }}
+        />
+      ) : null}
 
       <GarmentPriceHistoryDialog
         open={isHistoryOpen}
@@ -103,27 +109,31 @@ export function GarmentTypesTable() {
         garmentName={selectedType?.name || ""}
       />
 
-      <GarmentWorkflowStepsDialog
-        open={isWorkflowOpen}
-        onOpenChange={closeWorkflowDialog}
-        garmentId={selectedType?.id || ""}
-        garmentName={selectedType?.name || ""}
-        initialSteps={selectedType?.workflowSteps || []}
-        onSuccess={() => {
-          void fetchGarmentTypes();
-        }}
-      />
+      {canManageGarments ? (
+        <GarmentWorkflowStepsDialog
+          open={isWorkflowOpen}
+          onOpenChange={closeWorkflowDialog}
+          garmentId={selectedType?.id || ""}
+          garmentName={selectedType?.name || ""}
+          initialSteps={selectedType?.workflowSteps || []}
+          onSuccess={() => {
+            void fetchGarmentTypes();
+          }}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={isConfirmOpen}
-        onOpenChange={closeConfirmDialog}
-        title="Delete Garment Type"
-        description={`Are you sure you want to delete "${typeToDelete?.name}"? This action cannot be undone.`}
-        onConfirm={() => {
-          void confirmDelete();
-        }}
-        confirmText="Delete Garment Type"
-      />
+      {canManageGarments ? (
+        <ConfirmDialog
+          open={isConfirmOpen}
+          onOpenChange={closeConfirmDialog}
+          title="Delete Garment Type"
+          description={`Are you sure you want to delete "${typeToDelete?.name}"? This action cannot be undone.`}
+          onConfirm={() => {
+            void confirmDelete();
+          }}
+          confirmText="Delete Garment Type"
+        />
+      ) : null}
     </PageShell>
   );
 }

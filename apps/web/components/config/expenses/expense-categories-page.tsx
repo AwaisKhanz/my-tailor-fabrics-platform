@@ -1,0 +1,299 @@
+"use client";
+
+import { useMemo } from "react";
+import { Edit2, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
+import { type ExpenseCategory } from "@tbms/shared-types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
+import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { StatCard } from "@/components/ui/stat-card";
+import { Switch } from "@/components/ui/switch";
+import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-layout";
+import { useAuthz } from "@/hooks/use-authz";
+import { useExpenseCategoriesPage } from "@/hooks/use-expense-categories-page";
+
+export function ExpenseCategoriesPage() {
+  const { canAll } = useAuthz();
+  const canManageExpenseCategories = canAll(["expenses.manage"]);
+
+  const {
+    loading,
+    saving,
+    deletingId,
+    filteredCategories,
+    stats,
+    search,
+    hasActiveFilters,
+    dialogOpen,
+    editingCategory,
+    form,
+    deleteTarget,
+    setSearch,
+    resetFilters,
+    openCreateDialog,
+    openEditDialog,
+    closeDialog,
+    updateFormField,
+    saveCategory,
+    toggleCategoryStatus,
+    requestDeleteCategory,
+    closeDeleteDialog,
+    confirmDeleteCategory,
+  } = useExpenseCategoriesPage();
+
+  const columns = useMemo<ColumnDef<ExpenseCategory>[]>(
+    () => [
+      {
+        header: "Category Name",
+        cell: (category) => (
+          <span className="font-semibold text-foreground">{category.name}</span>
+        ),
+      },
+      {
+        header: "Status",
+        cell: (category) => (
+          <Badge variant={category.isActive ? "success" : "outline"} size="xs">
+            {category.isActive ? "Active" : "Inactive"}
+          </Badge>
+        ),
+      },
+      {
+        header: "Actions",
+        align: "right",
+        cell: (category) => (
+          <div className="flex justify-end gap-2">
+            {canManageExpenseCategories ? (
+              <>
+                <Button
+                  type="button"
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openEditDialog(category);
+                  }}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    void toggleCategoryStatus(category);
+                  }}
+                >
+                  {category.isActive ? "Disable" : "Enable"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="tableDanger"
+                  size="iconSm"
+                  disabled={deletingId === category.id}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    requestDeleteCategory(category);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [
+      canManageExpenseCategories,
+      deletingId,
+      openEditDialog,
+      requestDeleteCategory,
+      toggleCategoryStatus,
+    ],
+  );
+
+  return (
+    <PageShell>
+      <PageSection spacing="compact">
+        <PageHeader
+          title="Expense Categories"
+          description="Manage reusable spending categories for branch expense logging."
+          density="compact"
+          actions={canManageExpenseCategories ? (
+            <Button
+              type="button"
+              variant="premium"
+              size="lg"
+              onClick={openCreateDialog}
+              className="w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4" />
+              Add Category
+            </Button>
+          ) : null}
+        />
+      </PageSection>
+
+      <PageSection spacing="compact" className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title="Total Categories"
+          subtitle="configured"
+          value={stats.total.toLocaleString()}
+          tone="primary"
+        />
+        <StatCard
+          title="Active"
+          subtitle="usable in expenses"
+          value={stats.active.toLocaleString()}
+          tone="success"
+        />
+        <StatCard
+          title="Inactive"
+          subtitle="disabled for new records"
+          value={stats.inactive.toLocaleString()}
+          tone="warning"
+        />
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <TableSurface>
+          <TableToolbar
+            title="Category Directory"
+            total={filteredCategories.length}
+            totalLabel="categories"
+            activeFilterCount={hasActiveFilters ? 1 : 0}
+            controls={
+              <>
+                <TableSearch
+                  icon={<Search className="h-4 w-4" />}
+                  placeholder="Search category..."
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="tableReset"
+                  size="sm"
+                  className="md:ml-auto"
+                  onClick={resetFilters}
+                  disabled={!hasActiveFilters}
+                >
+                  <RotateCcw className="mr-2 h-3.5 w-3.5" />
+                  Reset
+                </Button>
+              </>
+            }
+          />
+
+          <DataTable
+            columns={columns}
+            data={filteredCategories}
+            loading={loading}
+            itemLabel="categories"
+            emptyMessage="No expense categories found."
+            chrome="flat"
+            onRowClick={canManageExpenseCategories ? openEditDialog : undefined}
+          />
+        </TableSurface>
+      </PageSection>
+
+      {canManageExpenseCategories ? (
+        <ScrollableDialog
+          open={dialogOpen}
+          onOpenChange={closeDialog}
+          title={editingCategory ? "Edit Expense Category" : "Create Expense Category"}
+          footerActions={
+            <DialogFormActions
+              onCancel={() => closeDialog(false)}
+              submitFormId="expense-category-form"
+              submitting={saving}
+              submitText={editingCategory ? "Save Changes" : "Create Category"}
+              submitVariant="premium"
+            />
+          }
+        >
+          <FormStack
+            as="form"
+            id="expense-category-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void saveCategory();
+            }}
+          >
+            <Card className="border-border/70 bg-background/40">
+              <CardHeader variant="section" className="space-y-1">
+                <CardTitle className="text-sm font-semibold">
+                  Category Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent spacing="section" className="space-y-4 p-4">
+                <div className="space-y-2">
+                  <Label htmlFor="expense-category-name" variant="dashboard">
+                    Name
+                  </Label>
+                  <Input
+                    id="expense-category-name"
+                    variant="table"
+                    value={form.name}
+                    onChange={(event) =>
+                      updateFormField("name", event.target.value)
+                    }
+                    placeholder="e.g. Utilities"
+                    disabled={saving}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-md border border-border/70 bg-background/50 px-3 py-2.5">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Active</p>
+                    <p className="text-xs text-muted-foreground">
+                      Active categories are available in expense entry forms.
+                    </p>
+                  </div>
+                  <Switch
+                    variant="premium"
+                    checked={form.isActive}
+                    onCheckedChange={(checked) =>
+                      updateFormField("isActive", checked)
+                    }
+                    disabled={saving}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </FormStack>
+        </ScrollableDialog>
+      ) : null}
+
+      {canManageExpenseCategories ? (
+        <ConfirmDialog
+          open={Boolean(deleteTarget)}
+          onOpenChange={closeDeleteDialog}
+          title="Delete this category?"
+          description={
+            deleteTarget
+              ? `This will remove "${deleteTarget.name}" from selectable expense categories.`
+              : "This action cannot be undone."
+          }
+          onConfirm={() => {
+            void confirmDeleteCategory();
+          }}
+          confirmText="Delete Category"
+          variant="destructive"
+          loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
+        />
+      ) : null}
+    </PageShell>
+  );
+}

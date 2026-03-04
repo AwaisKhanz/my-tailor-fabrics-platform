@@ -4,9 +4,13 @@ import { PageHeader } from "@/components/ui/page-header";
 
 interface DesignTypesPageHeaderProps {
   onCreate: () => void;
+  canCreateDesignType?: boolean;
 }
 
-export function DesignTypesPageHeader({ onCreate }: DesignTypesPageHeaderProps) {
+export function DesignTypesPageHeader({
+  onCreate,
+  canCreateDesignType = true,
+}: DesignTypesPageHeaderProps) {
   return (
     <PageHeader
       title="Design Types"
@@ -16,12 +20,12 @@ export function DesignTypesPageHeader({ onCreate }: DesignTypesPageHeaderProps) 
           Standardize pricing for different design complexities.
         </span>
       }
-      actions={
+      actions={canCreateDesignType ? (
         <Button variant="premium" size="lg" className="w-full gap-2 sm:w-auto" onClick={onCreate}>
           <Plus className="h-4 w-4" />
           Add Design Type
         </Button>
-      }
+      ) : null}
     />
   );
 }

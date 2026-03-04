@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 interface CustomerDetailHeaderProps {
   customer: Customer;
   onEdit: () => void;
+  canEditProfile?: boolean;
 }
 
 export function CustomerDetailHeader({
   customer,
   onEdit,
+  canEditProfile = true,
 }: CustomerDetailHeaderProps) {
   const createdAtLabel = new Date(customer.createdAt).toLocaleDateString();
 
@@ -59,12 +61,14 @@ export function CustomerDetailHeader({
             </div>
           </div>
 
-          <div className="flex w-full justify-start lg:w-auto lg:justify-end">
-            <Button variant="premium" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[180px]" onClick={onEdit}>
-              <Edit2 className="h-4 w-4" />
-              Edit Profile
-            </Button>
-          </div>
+          {canEditProfile ? (
+            <div className="flex w-full justify-start lg:w-auto lg:justify-end">
+              <Button variant="premium" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[180px]" onClick={onEdit}>
+                <Edit2 className="h-4 w-4" />
+                Edit Profile
+              </Button>
+            </div>
+          ) : null}
         </div>
       </CardContent>
     </Card>

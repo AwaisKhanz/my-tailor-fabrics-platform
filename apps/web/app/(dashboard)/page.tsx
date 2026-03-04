@@ -24,8 +24,10 @@ import {
 import { DashboardProductivityCard } from "@/components/dashboard/dashboard-productivity-card";
 import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { Typography } from "@/components/ui/typography";
+import { Can } from "@/components/auth/can";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function DashboardPage() {
+function DashboardPage() {
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -62,23 +64,27 @@ export default function DashboardPage() {
         }
         actions={
           <>
-            <Button
-              variant="premium"
-              size="lg"
-              className="w-full sm:w-auto"
-              onClick={() => router.push("/orders/new")}
-            >
-              <Plus className="h-4 w-4" />
-              New Order
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full border-primary/30 bg-primary/5 font-semibold text-primary sm:w-auto"
-              onClick={() => router.push("/reports")}
-            >
-              Open Reports
-            </Button>
+            <Can all={["orders.create"]}>
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={() => router.push("/orders/new")}
+              >
+                <Plus className="h-4 w-4" />
+                New Order
+              </Button>
+            </Can>
+            <Can all={["reports.read"]}>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full border-primary/30 bg-primary/5 font-semibold text-primary sm:w-auto"
+                onClick={() => router.push("/reports")}
+              >
+                Open Reports
+              </Button>
+            </Can>
           </>
         }
       />
@@ -189,3 +195,5 @@ export default function DashboardPage() {
     </PageShell>
   );
 }
+
+export default withRoleGuard(DashboardPage, { all: ["dashboard.read"] });

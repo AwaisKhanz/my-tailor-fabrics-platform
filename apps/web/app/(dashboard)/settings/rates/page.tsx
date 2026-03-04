@@ -7,9 +7,14 @@ import { RatesStatsGrid } from "@/components/rates/rates-stats-grid";
 import { RatesTable } from "@/components/rates/rates-table";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
+import { useAuthz } from "@/hooks/use-authz";
 import { useRatesPage } from "@/hooks/use-rates-page";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function RatesPage() {
+function RatesPage() {
+  const { canAll } = useAuthz();
+  const canManageRates = canAll(["rates.manage"]);
+
   const {
     loading,
     rates,
@@ -33,7 +38,10 @@ export default function RatesPage() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <RatesPageHeader onCreate={() => setCreateDialogOpen(true)} />
+        <RatesPageHeader
+          onCreate={() => setCreateDialogOpen(true)}
+          canCreateRate={canManageRates}
+        />
       </PageSection>
 
       <PageSection spacing="compact">
@@ -64,14 +72,20 @@ export default function RatesPage() {
         </TableSurface>
       </PageSection>
 
-      <CreateRateDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSubmit={createRate}
-        garmentTypes={garmentTypes.map((garment) => ({ id: garment.id, name: garment.name }))}
-        branches={branches.map((branch) => ({ id: branch.id, name: branch.name, code: branch.code }))}
-        steps={stepKeys}
-      />
+      {canManageRates ? (
+        <CreateRateDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSubmit={createRate}
+          garmentTypes={garmentTypes.map((garment) => ({ id: garment.id, name: garment.name }))}
+          branches={branches.map((branch) => ({ id: branch.id, name: branch.name, code: branch.code }))}
+          steps={stepKeys}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(RatesPage, {
+  all: ["settings.read", "rates.read"],
+});

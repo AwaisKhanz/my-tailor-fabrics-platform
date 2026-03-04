@@ -45,6 +45,7 @@ interface CustomersDirectoryTableProps {
   onPageChange: (page: number) => void;
   onView: (customer: Customer) => void;
   onEdit: (customer: Customer) => void;
+  canEditCustomer?: boolean;
 }
 
 export function CustomersDirectoryTable({
@@ -56,6 +57,7 @@ export function CustomersDirectoryTable({
   onPageChange,
   onView,
   onEdit,
+  canEditCustomer = true,
 }: CustomersDirectoryTableProps) {
   const columns = useMemo<ColumnDef<Customer>[]>(
     () => [
@@ -157,23 +159,25 @@ export function CustomersDirectoryTable({
             >
               <Eye className="h-4 w-4" />
             </Button>
-            <Button
-              variant="tableIcon"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onEdit(customer);
-              }}
-              title="Edit"
-              aria-label={`Edit ${customer.fullName}`}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+            {canEditCustomer ? (
+              <Button
+                variant="tableIcon"
+                size="iconSm"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEdit(customer);
+                }}
+                title="Edit"
+                aria-label={`Edit ${customer.fullName}`}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [onEdit, onView],
+    [canEditCustomer, onEdit, onView],
   );
 
   return (

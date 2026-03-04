@@ -11,10 +11,13 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
+import { useAuthz } from "@/hooks/use-authz";
 import { useBranchesPage } from "@/hooks/use-branches-page";
 
 export function BranchesTable() {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageBranches = canAll(["branches.manage"]);
 
   const {
     loading,
@@ -50,7 +53,7 @@ export function BranchesTable() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <BranchesPageHeader onCreate={openCreateDialog} />
+        <BranchesPageHeader onCreate={openCreateDialog} canCreate={canManageBranches} />
       </PageSection>
 
       <PageSection
@@ -111,32 +114,37 @@ export function BranchesTable() {
             onEdit={openEditDialog}
             onDelete={requestDelete}
             onToggleActive={toggleBranchActive}
+            canManageBranches={canManageBranches}
           />
         </TableSurface>
       </PageSection>
 
-      <BranchFormDialog
-        open={dialogOpen}
-        editingBranch={editingBranch}
-        saving={saving}
-        form={form}
-        onOpenChange={handleDialogOpenChange}
-        onFieldChange={updateFormField}
-        onSubmit={() => {
-          void saveBranch();
-        }}
-      />
+      {canManageBranches ? (
+        <BranchFormDialog
+          open={dialogOpen}
+          editingBranch={editingBranch}
+          saving={saving}
+          form={form}
+          onOpenChange={handleDialogOpenChange}
+          onFieldChange={updateFormField}
+          onSubmit={() => {
+            void saveBranch();
+          }}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={isConfirmOpen}
-        onOpenChange={setIsConfirmOpen}
-        title="Delete Branch"
-        description={<BranchDeleteSummary branch={branchToDelete} />}
-        onConfirm={() => {
-          void confirmDelete();
-        }}
-        confirmText="Delete Branch"
-      />
+      {canManageBranches ? (
+        <ConfirmDialog
+          open={isConfirmOpen}
+          onOpenChange={setIsConfirmOpen}
+          title="Delete Branch"
+          description={<BranchDeleteSummary branch={branchToDelete} />}
+          onConfirm={() => {
+            void confirmDelete();
+          }}
+          confirmText="Delete Branch"
+        />
+      ) : null}
     </PageShell>
   );
 }

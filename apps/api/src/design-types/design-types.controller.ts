@@ -8,17 +8,14 @@ import {
   Delete,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { DesignTypesService } from './design-types.service';
 import {
   CreateDesignTypeDto,
   UpdateDesignTypeDto,
 } from './dto/design-type.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
@@ -29,29 +26,34 @@ import {
   resolveBranchScopeForMutation,
   resolveBranchScopeForRead,
 } from '../common/utils/branch-resolution.util';
+import { success, successOnly } from '../common/utils/response.util';
 
 @Controller('design-types')
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class DesignTypesController {
   constructor(private readonly designTypesService: DesignTypesService) {}
 
   @Post()
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('designTypes.manage')
   async create(
     @Body() createDesignTypeDto: CreateDesignTypeDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const dto = {
       ...createDesignTypeDto,
-      branchId: resolveBranchScopeForMutation(req, createDesignTypeDto.branchId),
+      branchId: resolveBranchScopeForMutation(
+        req,
+        createDesignTypeDto.branchId,
+      ),
     };
 
     const data = await this.designTypesService.create(dto);
-    return { success: true, data };
+    return success(data);
   }
 
   @Get()
   @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('designTypes.read')
   async findAll(
     @Req() req: AuthenticatedRequest,
     @Query('branchId') branchId?: string,
@@ -66,31 +68,31 @@ export class DesignTypesController {
       garmentTypeId,
       search,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Post('seed')
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
+  @RequirePermissions('designTypes.manage')
   async seed() {
     await this.designTypesService.seedDefaults();
-    return { success: true };
+    return successOnly();
   }
 
   @Get(':id')
   @Roles(...OPERATOR_ROLES)
-  async findOne(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  @RequirePermissions('designTypes.read')
+  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.designTypesService.findOne(
       id,
       req.branchId ?? undefined,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Patch(':id')
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('designTypes.manage')
   async update(
     @Param('id') id: string,
     @Body() updateDesignTypeDto: UpdateDesignTypeDto,
@@ -101,13 +103,14 @@ export class DesignTypesController {
       updateDesignTypeDto,
       req.branchId ?? undefined,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Delete(':id')
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('designTypes.manage')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     await this.designTypesService.remove(id, req.branchId ?? undefined);
-    return { success: true };
+    return successOnly();
   }
 }

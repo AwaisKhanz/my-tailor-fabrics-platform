@@ -15,10 +15,18 @@ import { EmployeeLedgerEntryDialog } from "@/components/employees/detail/employe
 import { EmployeeDetailSkeleton } from "@/components/employees/detail/employee-detail-skeleton";
 import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
+import { useAuthz } from "@/hooks/use-authz";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function EmployeeDetailPage() {
+function EmployeeDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageEmployees = canAll(["employees.manage"]);
+  const canManageAccounts = canAll(["users.manage"]);
+  const canManageLedger = canAll(["ledger.manage"]);
+  const canManageDocuments = canAll(["employees.manage"]);
+  const canManageTaskStatus = canAll(["tasks.update"]);
   const employeeId = typeof params.id === "string" ? params.id : null;
 
   const {
@@ -101,6 +109,8 @@ export default function EmployeeDetailPage() {
 
         <EmployeeDetailHeader
           employee={employee}
+          canProvisionAccount={canManageAccounts}
+          canEditProfile={canManageEmployees}
           onProvisionAccount={() => setAccountDialogOpen(true)}
           onEditProfile={() => setEditDialogOpen(true)}
         />
@@ -149,58 +159,72 @@ export default function EmployeeDetailPage() {
               onOpenDocumentDialog={() => setDocumentDialogOpen(true)}
               onOpenAccountDialog={() => setAccountDialogOpen(true)}
               onOpenLedgerDialog={() => setLedgerDialogOpen(true)}
+              canManageTaskStatus={canManageTaskStatus}
+              canManageLedger={canManageLedger}
+              canManageDocuments={canManageDocuments}
+              canManageAccount={canManageAccounts}
             />
           }
           side={<EmployeeProfileSidebar employee={employee} />}
         />
       </PageSection>
 
-      <EmployeeDocumentUploadDialog
-        open={documentDialogOpen}
-        onOpenChange={setDocumentDialogOpen}
-        label={docLabel}
-        url={docUrl}
-        uploading={uploadingDocument}
-        onLabelChange={setDocLabel}
-        onUrlChange={setDocUrl}
-        onSubmit={() => {
-          void uploadDocument();
-        }}
-      />
+      {canManageDocuments ? (
+        <EmployeeDocumentUploadDialog
+          open={documentDialogOpen}
+          onOpenChange={setDocumentDialogOpen}
+          label={docLabel}
+          url={docUrl}
+          uploading={uploadingDocument}
+          onLabelChange={setDocLabel}
+          onUrlChange={setDocUrl}
+          onSubmit={() => {
+            void uploadDocument();
+          }}
+        />
+      ) : null}
 
-      <AccountCreationDialog
-        open={accountDialogOpen}
-        onOpenChange={setAccountDialogOpen}
-        employee={employee}
-        onSuccess={() => {
-          void fetchEmployeeData();
-        }}
-      />
+      {canManageAccounts ? (
+        <AccountCreationDialog
+          open={accountDialogOpen}
+          onOpenChange={setAccountDialogOpen}
+          employee={employee}
+          onSuccess={() => {
+            void fetchEmployeeData();
+          }}
+        />
+      ) : null}
 
-      <EmployeeDialog
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        initialData={employee}
-        onSuccess={() => {
-          void fetchEmployeeData();
-        }}
-      />
+      {canManageEmployees ? (
+        <EmployeeDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          initialData={employee}
+          onSuccess={() => {
+            void fetchEmployeeData();
+          }}
+        />
+      ) : null}
 
-      <EmployeeLedgerEntryDialog
-        open={ledgerDialogOpen}
-        onOpenChange={setLedgerDialogOpen}
-        employeeName={employee.fullName}
-        entryType={newEntryType}
-        amount={newEntryAmount}
-        note={newEntryNote}
-        submitting={submittingLedgerEntry}
-        onEntryTypeChange={setNewEntryType}
-        onAmountChange={setNewEntryAmount}
-        onNoteChange={setNewEntryNote}
-        onSubmit={() => {
-          void submitLedgerEntry();
-        }}
-      />
+      {canManageLedger ? (
+        <EmployeeLedgerEntryDialog
+          open={ledgerDialogOpen}
+          onOpenChange={setLedgerDialogOpen}
+          employeeName={employee.fullName}
+          entryType={newEntryType}
+          amount={newEntryAmount}
+          note={newEntryNote}
+          submitting={submittingLedgerEntry}
+          onEntryTypeChange={setNewEntryType}
+          onAmountChange={setNewEntryAmount}
+          onNoteChange={setNewEntryNote}
+          onSubmit={() => {
+            void submitLedgerEntry();
+          }}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(EmployeeDetailPage, { all: ["employees.read"] });

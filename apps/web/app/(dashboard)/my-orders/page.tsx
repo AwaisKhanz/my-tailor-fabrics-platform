@@ -1,13 +1,15 @@
 "use client";
 
+import { Role } from "@tbms/shared-types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { MyOrdersTable } from "@/components/orders/my-orders-table";
 import { MyOrdersToolbar } from "@/components/orders/my-orders-toolbar";
 import { useMyOrdersPage } from "@/hooks/use-my-orders-page";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function MyOrdersPage() {
+function MyOrdersPage() {
   const {
     loading,
     search,
@@ -37,3 +39,8 @@ export default function MyOrdersPage() {
     </PageShell>
   );
 }
+
+export default withRoleGuard(MyOrdersPage, {
+  roles: [Role.EMPLOYEE],
+  all: ["orders.read"],
+});

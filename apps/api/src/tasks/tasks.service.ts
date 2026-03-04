@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { TaskStatus, Role, LedgerEntryType } from '@tbms/shared-types';
+import { TaskStatus, LedgerEntryType, Role } from '@tbms/shared-types';
+import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 
 @Injectable()
 export class TasksService {
@@ -15,12 +16,7 @@ export class TasksService {
     taskId: string,
     employeeId: string,
     branchId: string,
-    userRole: string,
   ) {
-    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(userRole as Role)) {
-      throw new ForbiddenException('Only Admins can assign tasks');
-    }
-
     const task = await this.prisma.orderItemTask.findFirst({
       where: {
         id: taskId,
@@ -29,6 +25,16 @@ export class TasksService {
     });
 
     if (!task) throw new NotFoundException('Task not found');
+
+    await requireEmployeeInScope(this.prisma, {
+      employeeId,
+      branchId,
+      requireActive: true,
+      inactiveMessage: 'Task can only be assigned to active employees',
+      inactiveViolation: 'forbidden',
+      wrongBranchMessage:
+        'Cannot assign task to an employee from another branch',
+    });
 
     return this.prisma.orderItemTask.update({
       where: { id: taskId },
@@ -184,12 +190,7 @@ export class TasksService {
     taskId: string,
     rateOverride: number,
     branchId: string,
-    userRole: string,
   ) {
-    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(userRole as Role)) {
-      throw new ForbiddenException('Only Admins can override task rates');
-    }
-
     const task = await this.prisma.orderItemTask.findFirst({
       where: {
         id: taskId,

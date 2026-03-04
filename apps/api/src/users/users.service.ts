@@ -9,6 +9,7 @@ import { Role, CreateUserInput, UpdateUserInput } from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { normalizeEmailAddress } from '../common/utils/email.util';
 
 const PASSWORD_HASH_ROUNDS = 12;
 
@@ -29,7 +30,7 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   private normalizeEmail(email: string): string {
-    return email.trim().toLowerCase();
+    return normalizeEmailAddress(email);
   }
 
   private resolveBranchId(value?: string): string | null | undefined {

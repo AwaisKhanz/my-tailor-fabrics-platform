@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { ADMIN_ROLES } from "@tbms/shared-constants";
 import { BranchSelector } from "./BranchSelector";
 import { MobileSidebarTrigger } from "./Sidebar";
 import { LogOut, User, LayoutDashboard } from "lucide-react";
@@ -18,12 +17,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useAuthz } from "@/hooks/use-authz";
 
 export function Topbar() {
   const { data: session } = useSession();
+  const { canAll } = useAuthz();
   const user = session?.user;
   const role = user?.role;
-  const canAccessSettings = role ? ADMIN_ROLES.includes(role) : false;
+  const canAccessSettings = canAll(["users.manage"]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">

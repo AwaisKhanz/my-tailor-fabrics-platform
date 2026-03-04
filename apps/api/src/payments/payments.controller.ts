@@ -8,21 +8,19 @@ import {
   Query,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { DisbursePaymentDto } from './dto/payment.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
+import { success, successSpread } from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 import { WeeklyPdfService } from './weekly-pdf.service';
 
 @Controller('payments')
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
 export class PaymentsController {
   constructor(
     private readonly paymentsService: PaymentsService,
@@ -30,6 +28,7 @@ export class PaymentsController {
   ) {}
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.read')
   @Get('employee/:id/summary')
   async getSummary(
     @Param('id') employeeId: string,
@@ -39,10 +38,11 @@ export class PaymentsController {
       employeeId,
       req.branchId,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.manage')
   @Post()
   async disbursePay(
     @Body() dto: DisbursePaymentDto,
@@ -55,16 +55,16 @@ export class PaymentsController {
       requireBranchScope(req),
       dto.note,
     );
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.read')
   @Get('employee/:id/history')
   async getHistory(
     @Param('id') employeeId: string,
     @Req() req: AuthenticatedRequest,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('sortBy') sortBy?: string,
@@ -72,25 +72,27 @@ export class PaymentsController {
   ) {
     const data = await this.paymentsService.getHistory(
       employeeId,
-      Number(page) || 1,
-      Number(limit) || 20,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
       from,
       to,
       sortBy,
       sortOrder,
       req.branchId,
     );
-    return { success: true, ...data };
+    return successSpread(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.read')
   @Get('weekly-report')
   async getWeeklyReport(@Req() req: AuthenticatedRequest) {
     const data = await this.paymentsService.getWeeklyReport(req.branchId);
-    return { success: true, data };
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.read')
   @Get('weekly-report/pdf')
   async getWeeklyReportPdf(
     @Req() req: AuthenticatedRequest,

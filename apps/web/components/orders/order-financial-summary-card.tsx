@@ -8,11 +8,13 @@ import { formatPKR } from "@/lib/utils";
 interface OrderFinancialSummaryCardProps {
   order: Order;
   onCapturePayment: () => void;
+  canCapturePayment?: boolean;
 }
 
 export function OrderFinancialSummaryCard({
   order,
   onCapturePayment,
+  canCapturePayment = true,
 }: OrderFinancialSummaryCardProps) {
   return (
     <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
@@ -65,13 +67,15 @@ export function OrderFinancialSummaryCard({
           </div>
         </div>
 
-        <Button
-          variant="premium"
-          className="h-11 w-full"
-          onClick={onCapturePayment}
-        >
-          Capture Payment
-        </Button>
+        {canCapturePayment ? (
+          <Button
+            variant="premium"
+            className="h-11 w-full"
+            onClick={onCapturePayment}
+          >
+            Capture Payment
+          </Button>
+        ) : null}
       </CardContent>
     </Card>
   );

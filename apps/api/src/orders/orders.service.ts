@@ -20,6 +20,7 @@ import {
 import {
   UpdateOrderDto,
   UpdateOrderItemAddonDto,
+  UpdateOrderItemAssignmentDto,
 } from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
@@ -27,11 +28,14 @@ import {
   OrderStatus,
   ItemStatus,
   DiscountType,
-  Role,
   OrdersListSummary,
 } from '@tbms/shared-types';
+import { hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
 import { calculateDiscountAmount, calculateOrderTotals } from './money';
+import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
+import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
+import { getStatusPinPepper } from '../common/env';
 
 type OrdersFindFilters = {
   status?: string;
@@ -49,6 +53,21 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly ratesService: RatesService,
   ) {}
+
+  private hashPublicStatusPin(token: string, pin: string): string {
+    return createHmac('sha256', getStatusPinPepper())
+      .update(`${token}:${pin}`)
+      .digest('hex');
+  }
+
+  private safeStringEqual(left: string, right: string): boolean {
+    const leftBuffer = Buffer.from(left);
+    const rightBuffer = Buffer.from(right);
+    if (leftBuffer.length !== rightBuffer.length) {
+      return false;
+    }
+    return timingSafeEqual(leftBuffer, rightBuffer);
+  }
 
   private async generateOrderNumber(
     branchId: string,
@@ -89,7 +108,8 @@ export class OrdersService {
 
     if (
       (createOrderDto.discountType || createOrderDto.discountValue) &&
-      ![Role.ADMIN, Role.SUPER_ADMIN].includes(userRole as Role)
+      (!isRole(userRole) ||
+        !hasAllPermissions(userRole, ['orders.financial.manage']))
     ) {
       throw new ForbiddenException('Only Admins can apply discounts');
     }
@@ -107,6 +127,7 @@ export class OrdersService {
       }
 
       const orderBranchId = branchId || customer.branchId;
+      const validatedEmployeeIds = new Set<string>();
 
       // 2. Resolve Prices and compute item subtotals
       let subtotal = 0;
@@ -114,6 +135,19 @@ export class OrdersService {
       const pieceMap: Record<string, number> = {};
 
       for (const item of createOrderDto.items) {
+        if (item.employeeId && !validatedEmployeeIds.has(item.employeeId)) {
+          await requireEmployeeInScope(
+            tx,
+            {
+              employeeId: item.employeeId,
+              branchId: orderBranchId,
+              requireActive: true,
+              inactiveMessage: 'Only active employees can be assigned',
+            },
+          );
+          validatedEmployeeIds.add(item.employeeId);
+        }
+
         const type = await tx.garmentType.findUnique({
           where: { id: item.garmentTypeId },
         });
@@ -662,32 +696,39 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Order not found');
 
-    // Random hex token (URL-safe)
-    const token = Array.from({ length: 16 }, () =>
-      Math.floor(Math.random() * 16).toString(16),
-    ).join('');
-
-    // 4-digit PIN
-    const pin = String(Math.floor(1000 + Math.random() * 9000));
+    // Crypto-secure token and pin for public tracking links
+    const token = randomBytes(16).toString('hex');
+    const pin = randomInt(0, 10000).toString().padStart(4, '0');
+    const pinHash = this.hashPublicStatusPin(token, pin);
 
     const updated = await this.prisma.order.update({
       where: { id },
-      data: { shareToken: token, sharePin: pin },
-      select: { id: true, orderNumber: true, shareToken: true, sharePin: true },
+      data: {
+        shareToken: token,
+        sharePin: null,
+        sharePinHash: pinHash,
+        sharePinMigratedAt: null,
+      },
+      select: { id: true, orderNumber: true, shareToken: true },
     });
 
-    return updated;
+    return {
+      ...updated,
+      sharePin: pin,
+    };
   }
 
   async getPublicOrderStatus(token: string, pin: string) {
     const order = await this.prisma.order.findFirst({
       where: {
         shareToken: token,
-        sharePin: pin,
         deletedAt: null,
       },
       select: {
         id: true,
+        sharePin: true,
+        sharePinHash: true,
+        sharePinMigratedAt: true,
         orderNumber: true,
         dueDate: true,
         totalAmount: true,
@@ -720,7 +761,40 @@ export class OrdersService {
       throw new NotFoundException('Invalid tracking link or PIN');
     }
 
-    return order;
+    const providedPinHash = this.hashPublicStatusPin(token, pin);
+    const matchesHashedPin = order.sharePinHash
+      ? this.safeStringEqual(order.sharePinHash, providedPinHash)
+      : false;
+    const matchesLegacyPin =
+      !matchesHashedPin &&
+      !!order.sharePin &&
+      this.safeStringEqual(order.sharePin, pin);
+
+    if (!matchesHashedPin && !matchesLegacyPin) {
+      throw new NotFoundException('Invalid tracking link or PIN');
+    }
+
+    if (matchesLegacyPin && !order.sharePinHash && order.sharePin) {
+      await this.prisma.order
+        .update({
+          where: { id: order.id },
+          data: {
+            sharePinHash: providedPinHash,
+            sharePin: null,
+            sharePinMigratedAt: new Date(),
+          },
+        })
+        .catch(() => undefined);
+    }
+
+    const {
+      sharePin: _legacyPin,
+      sharePinHash: _sharePinHash,
+      sharePinMigratedAt: _sharePinMigratedAt,
+      ...publicOrder
+    } = order;
+
+    return publicOrder;
   }
 
   async update(
@@ -741,7 +815,10 @@ export class OrdersService {
       if (dto.notes !== undefined) data.notes = dto.notes;
 
       if (dto.discountType !== undefined || dto.discountValue !== undefined) {
-        if (![Role.ADMIN, Role.SUPER_ADMIN].includes(userRole as Role)) {
+        if (
+          !isRole(userRole) ||
+          !hasAllPermissions(userRole, ['orders.financial.manage'])
+        ) {
           throw new ForbiddenException(
             'Only admins can change financial details',
           );
@@ -761,11 +838,35 @@ export class OrdersService {
       if (dto.items && Array.isArray(dto.items)) {
         for (const itemDto of dto.items) {
           if (itemDto.id) {
+            const existingItem = await tx.orderItem.findFirst({
+              where: {
+                id: itemDto.id,
+                orderId: id,
+                deletedAt: null,
+              },
+              select: { id: true },
+            });
+            if (!existingItem) {
+              throw new NotFoundException('Order item not found');
+            }
+
+            if (itemDto.employeeId) {
+              await requireEmployeeInScope(
+                tx,
+                {
+                  employeeId: itemDto.employeeId,
+                  branchId: order.branchId,
+                  requireActive: true,
+                  inactiveMessage: 'Only active employees can be assigned',
+                },
+              );
+            }
+
             // Update all pieces of this "logical" item if they share the same base configuration?
             // Actually, in our DB, each piece is an individual OrderItem.
             // But from the frontend's perspective, they might be sending IDs of specific pieces.
             await tx.orderItem.update({
-              where: { id: itemDto.id },
+              where: { id: existingItem.id },
               data: {
                 unitPrice: itemDto.unitPrice,
                 designTypeId: itemDto.designTypeId || null,
@@ -798,7 +899,7 @@ export class OrdersService {
     orderId: string,
     itemId: string,
     branchId: string,
-    dto: { status?: string; employeeId?: string },
+    dto: UpdateOrderItemAssignmentDto,
   ) {
     const order = await this.prisma.order.findFirst({
       where: {
@@ -814,11 +915,22 @@ export class OrdersService {
     });
     if (!item) throw new NotFoundException('Order item not found');
 
+    if (dto.employeeId) {
+      await requireEmployeeInScope(
+        this.prisma,
+        {
+          employeeId: dto.employeeId,
+          branchId: order.branchId,
+          requireActive: true,
+          inactiveMessage: 'Only active employees can be assigned',
+        },
+      );
+    }
+
     const updated = await this.prisma.orderItem.update({
       where: { id: itemId },
       data: {
-        status:
-          (dto.status as import('@tbms/shared-types').ItemStatus) || undefined,
+        status: dto.status || undefined,
         employeeId: dto.employeeId || undefined,
       },
     });
@@ -841,8 +953,16 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Order not found');
 
+    const item = await this.prisma.orderItem.findFirst({
+      where: { id: itemId, orderId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!item) {
+      throw new NotFoundException('Order item not found');
+    }
+
     await this.prisma.orderItem.update({
-      where: { id: itemId },
+      where: { id: item.id },
       data: { deletedAt: new Date(), status: 'CANCELLED' },
     });
 
@@ -894,6 +1014,18 @@ export class OrdersService {
         },
       });
       if (!order) throw new NotFoundException('Order not found');
+
+      if (itemDto.employeeId) {
+        await requireEmployeeInScope(
+          tx,
+          {
+            employeeId: itemDto.employeeId,
+            branchId: order.branchId,
+            requireActive: true,
+            inactiveMessage: 'Only active employees can be assigned',
+          },
+        );
+      }
 
       const type = await tx.garmentType.findUnique({
         where: { id: itemDto.garmentTypeId },

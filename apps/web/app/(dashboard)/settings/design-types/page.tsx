@@ -6,9 +6,14 @@ import { DesignTypesStatsGrid } from "@/components/design-types/design-types-sta
 import { DesignTypesTable } from "@/components/design-types/design-types-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
+import { useAuthz } from "@/hooks/use-authz";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
+import { withRoleGuard } from "@/components/auth/with-role-guard";
 
-export default function DesignTypesPage() {
+function DesignTypesPage() {
+  const { canAll } = useAuthz();
+  const canManageDesignTypes = canAll(["designTypes.manage"]);
+
   const {
     loading,
     designTypes,
@@ -34,7 +39,10 @@ export default function DesignTypesPage() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <DesignTypesPageHeader onCreate={openCreateDialog} />
+        <DesignTypesPageHeader
+          onCreate={openCreateDialog}
+          canCreateDesignType={canManageDesignTypes}
+        />
       </PageSection>
 
       <PageSection spacing="compact">
@@ -56,36 +64,45 @@ export default function DesignTypesPage() {
           onResetFilters={resetFilters}
           onEdit={openEditDialog}
           onDelete={requestDeleteDesignType}
+          canManageDesignTypes={canManageDesignTypes}
         />
       </PageSection>
 
-      <CreateDesignTypeDialog
-        open={createDialogOpen}
-        onOpenChange={closeCreateDialog}
-        onSubmit={saveDesignType}
-        initialData={selectedDesign}
-        garmentTypes={garmentTypes.map((garment) => ({ id: garment.id, name: garment.name }))}
-        branches={branches.map((branch) => ({
-          id: branch.id,
-          name: branch.name,
-          code: branch.code,
-        }))}
-      />
+      {canManageDesignTypes ? (
+        <CreateDesignTypeDialog
+          open={createDialogOpen}
+          onOpenChange={closeCreateDialog}
+          onSubmit={saveDesignType}
+          initialData={selectedDesign}
+          garmentTypes={garmentTypes.map((garment) => ({ id: garment.id, name: garment.name }))}
+          branches={branches.map((branch) => ({
+            id: branch.id,
+            name: branch.name,
+            code: branch.code,
+          }))}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={Boolean(deleteTarget)}
-        onOpenChange={closeDeleteDialog}
-        title="Remove this design type?"
-        description={
-          deleteTarget
-            ? `This will permanently remove \"${deleteTarget.name}\" from your design catalog.`
-            : "This action cannot be undone."
-        }
-        onConfirm={confirmDeleteDesignType}
-        confirmText="Remove Design Type"
-        variant="destructive"
-        loading={deleting}
-      />
+      {canManageDesignTypes ? (
+        <ConfirmDialog
+          open={Boolean(deleteTarget)}
+          onOpenChange={closeDeleteDialog}
+          title="Remove this design type?"
+          description={
+            deleteTarget
+              ? `This will permanently remove \"${deleteTarget.name}\" from your design catalog.`
+              : "This action cannot be undone."
+          }
+          onConfirm={confirmDeleteDesignType}
+          confirmText="Remove Design Type"
+          variant="destructive"
+          loading={deleting}
+        />
+      ) : null}
     </PageShell>
   );
 }
+
+export default withRoleGuard(DesignTypesPage, {
+  all: ["settings.read", "designTypes.read"],
+});

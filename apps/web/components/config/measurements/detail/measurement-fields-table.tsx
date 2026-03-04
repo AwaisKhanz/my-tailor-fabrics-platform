@@ -12,6 +12,7 @@ interface MeasurementFieldsTableProps {
   loading: boolean;
   onEditField: (field: MeasurementField) => void;
   onDeleteField: (field: MeasurementField) => void;
+  canManageFields?: boolean;
 }
 
 export function MeasurementFieldsTable({
@@ -19,6 +20,7 @@ export function MeasurementFieldsTable({
   loading,
   onEditField,
   onDeleteField,
+  canManageFields = true,
 }: MeasurementFieldsTableProps) {
   const columns = useMemo<ColumnDef<MeasurementField>[]>(
     () => [
@@ -59,25 +61,31 @@ export function MeasurementFieldsTable({
         align: "right",
         cell: (field) => (
           <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="tableIcon"
-              size="iconSm"
-              onClick={() => onEditField(field)}
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="tableDanger"
-              size="iconSm"
-              onClick={() => onDeleteField(field)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {canManageFields ? (
+              <>
+                <Button
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={() => onEditField(field)}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="tableDanger"
+                  size="iconSm"
+                  onClick={() => onDeleteField(field)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+            )}
           </div>
         ),
       },
     ],
-    [onDeleteField, onEditField],
+    [canManageFields, onDeleteField, onEditField],
   );
 
   return (

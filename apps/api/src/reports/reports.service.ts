@@ -20,6 +20,13 @@ interface ResolvedDateRange {
   toDate: Date;
 }
 
+type DateRangeColumn =
+  | 'orderCreatedAt'
+  | 'orderPaymentPaidAt'
+  | 'expenseDate'
+  | 'orderItemCompletedAt'
+  | 'taskCompletedAt';
+
 @Injectable()
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -92,14 +99,27 @@ export class ReportsService {
   }
 
   private getSqlDateCondition(
-    columnName: string,
+    column: DateRangeColumn,
     range: ResolvedDateRange | null,
   ): Prisma.Sql {
     if (!range) {
       return Prisma.empty;
     }
 
-    return Prisma.sql`AND ${Prisma.raw(columnName)} BETWEEN ${range.fromDate} AND ${range.toDate}`;
+    switch (column) {
+      case 'orderPaymentPaidAt':
+        return Prisma.sql`AND op."paidAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
+      case 'expenseDate':
+        return Prisma.sql`AND e."expenseDate" BETWEEN ${range.fromDate} AND ${range.toDate}`;
+      case 'orderCreatedAt':
+        return Prisma.sql`AND o."createdAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
+      case 'orderItemCompletedAt':
+        return Prisma.sql`AND oi."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
+      case 'taskCompletedAt':
+        return Prisma.sql`AND oit."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
+      default:
+        return Prisma.empty;
+    }
   }
 
   private toDistributionPoints(
@@ -127,21 +147,21 @@ export class ReportsService {
   } {
     if (granularity === 'day') {
       return {
-        truncateUnitSql: Prisma.raw(`'day'`),
-        stepSql: Prisma.raw(`INTERVAL '1 day'`),
+        truncateUnitSql: Prisma.sql`'day'`,
+        stepSql: Prisma.sql`INTERVAL '1 day'`,
       };
     }
 
     if (granularity === 'month') {
       return {
-        truncateUnitSql: Prisma.raw(`'month'`),
-        stepSql: Prisma.raw(`INTERVAL '1 month'`),
+        truncateUnitSql: Prisma.sql`'month'`,
+        stepSql: Prisma.sql`INTERVAL '1 month'`,
       };
     }
 
     return {
-      truncateUnitSql: Prisma.raw(`'week'`),
-      stepSql: Prisma.raw(`INTERVAL '1 week'`),
+      truncateUnitSql: Prisma.sql`'week'`,
+      stepSql: Prisma.sql`INTERVAL '1 week'`,
     };
   }
 
@@ -423,7 +443,7 @@ export class ReportsService {
           FROM "OrderPayment" op
           JOIN "Order" o ON o.id = op."orderId"
           WHERE o."deletedAt" IS NULL
-            ${this.getSqlDateCondition('op."paidAt"', range)}
+            ${this.getSqlDateCondition('orderPaymentPaidAt', range)}
             ${branchConditionOrder}
           GROUP BY 1
         ),
@@ -433,7 +453,7 @@ export class ReportsService {
             COALESCE(SUM(e.amount), 0)::double precision AS expenses
           FROM "Expense" e
           WHERE e."deletedAt" IS NULL
-            ${this.getSqlDateCondition('e."expenseDate"', range)}
+            ${this.getSqlDateCondition('expenseDate', range)}
             ${branchConditionExpense}
           GROUP BY 1
         )
@@ -496,7 +516,7 @@ export class ReportsService {
         WHERE oi.status NOT IN ('CANCELLED')
           AND o."deletedAt" IS NULL
           ${branchCondition}
-          ${this.getSqlDateCondition('o."createdAt"', range)}
+          ${this.getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY oi."garmentTypeName"
         ORDER BY value DESC
       `,
@@ -529,7 +549,7 @@ export class ReportsService {
             AND oi.status NOT IN ('CANCELLED')
             AND oi."designTypeId" IS NOT NULL
             ${branchCondition}
-            ${this.getSqlDateCondition('o."createdAt"', range)}
+            ${this.getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY dt.id, dt.name
           ORDER BY value DESC
         `,
@@ -547,7 +567,7 @@ export class ReportsService {
             AND a."deletedAt" IS NULL
             AND oi.status NOT IN ('CANCELLED')
             ${branchCondition}
-            ${this.getSqlDateCondition('o."createdAt"', range)}
+            ${this.getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY a.type
           ORDER BY value DESC
         `,
@@ -563,7 +583,7 @@ export class ReportsService {
           WHERE o."deletedAt" IS NULL
             AND oi.status NOT IN ('CANCELLED')
             ${branchCondition}
-            ${this.getSqlDateCondition('o."createdAt"', range)}
+            ${this.getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY oi."garmentTypeName"
           ORDER BY value DESC
         `,
@@ -594,11 +614,11 @@ export class ReportsService {
       : Prisma.empty;
 
     const itemDateCondition = range
-      ? Prisma.sql`AND oi."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`
+      ? this.getSqlDateCondition('orderItemCompletedAt', range)
       : Prisma.empty;
 
     const taskDateCondition = range
-      ? Prisma.sql`AND oit."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`
+      ? this.getSqlDateCondition('taskCompletedAt', range)
       : Prisma.empty;
 
     const result = await this.prisma.$queryRaw<
@@ -728,7 +748,7 @@ export class ReportsService {
         WHERE o."deletedAt" IS NULL
           AND oi.status NOT IN ('CANCELLED')
           ${branchCondition}
-          ${this.getSqlDateCondition('o."createdAt"', range)}
+          ${this.getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY dt.name
         ORDER BY count DESC
       `,
@@ -768,7 +788,7 @@ export class ReportsService {
           AND a."deletedAt" IS NULL
           AND oi.status NOT IN ('CANCELLED')
           ${branchCondition}
-          ${this.getSqlDateCondition('o."createdAt"', range)}
+          ${this.getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY a.type
         ORDER BY total DESC
       `,

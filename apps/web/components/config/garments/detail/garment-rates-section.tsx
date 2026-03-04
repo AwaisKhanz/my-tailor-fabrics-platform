@@ -12,6 +12,7 @@ interface GarmentRatesSectionProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreateRate: (data: CreateRateCardInput) => Promise<void>;
+  canManageRates?: boolean;
 }
 
 export function GarmentRatesSection({
@@ -20,6 +21,7 @@ export function GarmentRatesSection({
   open,
   onOpenChange,
   onCreateRate,
+  canManageRates = true,
 }: GarmentRatesSectionProps) {
   const activeRatesCount = garment.rateCards?.length ?? 0;
 
@@ -45,15 +47,17 @@ export function GarmentRatesSection({
             <Badge variant="secondary" size="xs">
               {activeRatesCount} active rate{activeRatesCount === 1 ? "" : "s"}
             </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-2"
-              onClick={() => onOpenChange(true)}
-            >
-              <Settings className="h-3.5 w-3.5" />
-              Update Rates
-            </Button>
+            {canManageRates ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-2"
+                onClick={() => onOpenChange(true)}
+              >
+                <Settings className="h-3.5 w-3.5" />
+                Update Rates
+              </Button>
+            ) : null}
           </div>
         </CardHeader>
 
@@ -62,18 +66,20 @@ export function GarmentRatesSection({
         </CardContent>
       </Card>
 
-      <CreateRateDialog
-        open={open}
-        onOpenChange={onOpenChange}
-        onSubmit={onCreateRate}
-        garmentTypes={[{ id: garment.id, name: garment.name }]}
-        branches={branches.map((branch) => ({
-          id: branch.id,
-          name: branch.name,
-          code: branch.code,
-        }))}
-        steps={garment.workflowSteps?.map((step) => step.stepKey) || []}
-      />
+      {canManageRates ? (
+        <CreateRateDialog
+          open={open}
+          onOpenChange={onOpenChange}
+          onSubmit={onCreateRate}
+          garmentTypes={[{ id: garment.id, name: garment.name }]}
+          branches={branches.map((branch) => ({
+            id: branch.id,
+            name: branch.name,
+            code: branch.code,
+          }))}
+          steps={garment.workflowSteps?.map((step) => step.stepKey) || []}
+        />
+      ) : null}
     </>
   );
 }

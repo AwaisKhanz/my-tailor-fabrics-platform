@@ -214,6 +214,8 @@ model Order {
   createdById    String
   shareToken     String?                  @unique
   sharePin       String?
+  sharePinHash   String?
+  sharePinMigratedAt DateTime?
   searchVector   Unsupported("tsvector")?
   createdAt      DateTime                 @default(now())
   updatedAt      DateTime                 @updatedAt
@@ -338,7 +340,8 @@ model Expense {
 
 model AuditLog {
   id        String    @id @default(cuid())
-  userId    String
+  userId    String?
+  actorEmail String?
   action    String
   entity    String
   entityId  String
@@ -349,7 +352,7 @@ model AuditLog {
   userAgent String?
   createdAt DateTime  @default(now())
   deletedAt DateTime?
-  user      User      @relation(fields: [userId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
 
   @@index([entity, entityId])
   @@index([userId])

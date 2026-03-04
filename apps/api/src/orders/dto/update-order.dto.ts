@@ -9,7 +9,12 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AddonType, DiscountType, FabricSource } from '@tbms/shared-types';
+import {
+  AddonType,
+  DiscountType,
+  FabricSource,
+  ItemStatus,
+} from '@tbms/shared-types';
 
 export class UpdateOrderItemAddonDto {
   @IsEnum(AddonType)
@@ -76,6 +81,16 @@ export class UpdateOrderItemDto {
   @Min(0)
   @IsOptional()
   employeeRate?: number;
+}
+
+export class UpdateOrderItemAssignmentDto {
+  @IsEnum(ItemStatus)
+  @IsOptional()
+  status?: ItemStatus;
+
+  @IsString()
+  @IsOptional()
+  employeeId?: string;
 }
 
 export class UpdateOrderDto {

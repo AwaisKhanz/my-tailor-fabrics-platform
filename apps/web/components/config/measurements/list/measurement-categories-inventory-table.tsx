@@ -16,6 +16,7 @@ interface MeasurementCategoriesInventoryTableProps {
   onView: (category: MeasurementCategory) => void;
   onEdit: (category: MeasurementCategory) => void;
   onDelete: (category: MeasurementCategory) => void;
+  canManageMeasurements?: boolean;
 }
 
 export function MeasurementCategoriesInventoryTable({
@@ -28,6 +29,7 @@ export function MeasurementCategoriesInventoryTable({
   onView,
   onEdit,
   onDelete,
+  canManageMeasurements = true,
 }: MeasurementCategoriesInventoryTableProps) {
   const columns = useMemo<ColumnDef<MeasurementCategory>[]>(
     () => [
@@ -75,31 +77,35 @@ export function MeasurementCategoriesInventoryTable({
             >
               <Eye className="h-4 w-4" />
             </Button>
-            <Button
-              variant="tableIcon"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onEdit(category);
-              }}
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="tableDanger"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onDelete(category);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {canManageMeasurements ? (
+              <>
+                <Button
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEdit(category);
+                  }}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="tableDanger"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDelete(category);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : null}
           </div>
         ),
       },
     ],
-    [onDelete, onEdit, onView],
+    [canManageMeasurements, onDelete, onEdit, onView],
   );
 
   return (

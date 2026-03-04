@@ -11,3 +11,6 @@ export * from './attendance';
 export * from './branches';
 export * from './ledger';
 export * from './reports';
+export * from './audit';
+export * from './integrations';
+export * from './authz';

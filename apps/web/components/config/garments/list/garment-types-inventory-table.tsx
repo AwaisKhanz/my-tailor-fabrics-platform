@@ -21,6 +21,7 @@ interface GarmentTypesInventoryTableProps {
   onOpenHistory: (type: GarmentTypeWithWorkflow) => void;
   onOpenWorkflow: (type: GarmentTypeWithWorkflow) => void;
   onDelete: (type: GarmentTypeWithWorkflow) => void;
+  canManageGarments?: boolean;
 }
 
 export function GarmentTypesInventoryTable({
@@ -35,6 +36,7 @@ export function GarmentTypesInventoryTable({
   onOpenHistory,
   onOpenWorkflow,
   onDelete,
+  canManageGarments = true,
 }: GarmentTypesInventoryTableProps) {
   const columns = useMemo<ColumnDef<GarmentTypeWithWorkflow>[]>(
     () => [
@@ -85,17 +87,6 @@ export function GarmentTypesInventoryTable({
               size="iconSm"
               onClick={(event) => {
                 event.stopPropagation();
-                onEdit(item);
-              }}
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
-
-            <Button
-              variant="tableIcon"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
                 onOpenHistory(item);
               }}
               title="View Price History"
@@ -103,33 +94,48 @@ export function GarmentTypesInventoryTable({
               <Clock className="h-4 w-4" />
             </Button>
 
-            <Button
-              variant="tableIcon"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpenWorkflow(item);
-              }}
-              title="Configure Production Workflow"
-            >
-              <Shirt className="h-4 w-4" />
-            </Button>
+            {canManageGarments ? (
+              <>
+                <Button
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEdit(item);
+                  }}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
 
-            <Button
-              variant="tableDanger"
-              size="iconSm"
-              onClick={(event) => {
-                event.stopPropagation();
-                onDelete(item);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+                <Button
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onOpenWorkflow(item);
+                  }}
+                  title="Configure Production Workflow"
+                >
+                  <Shirt className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  variant="tableDanger"
+                  size="iconSm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDelete(item);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : null}
           </div>
         ),
       },
     ],
-    [onDelete, onEdit, onOpenHistory, onOpenWorkflow],
+    [canManageGarments, onDelete, onEdit, onOpenHistory, onOpenWorkflow],
   );
 
   return (

@@ -10,11 +10,14 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageShell, PageSection } from "@/components/ui/page-shell";
+import { useAuthz } from "@/hooks/use-authz";
 import { Typography } from "@/components/ui/typography";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
 
 export function MeasurementCategoryDetail({ id }: { id: string }) {
   const router = useRouter();
+  const { canAll } = useAuthz();
+  const canManageMeasurements = canAll(["measurements.manage"]);
 
   const {
     loading,
@@ -67,7 +70,11 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
           onBack={() => router.push("/settings/measurements")}
         />
 
-        <MeasurementCategoryDetailHeader category={category} onAddField={openAddFieldDialog} />
+        <MeasurementCategoryDetailHeader
+          category={category}
+          onAddField={openAddFieldDialog}
+          canManageMeasurements={canManageMeasurements}
+        />
       </PageSection>
 
       <PageSection spacing="compact">
@@ -80,31 +87,36 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
           loading={loading}
           onEditField={openEditFieldDialog}
           onDeleteField={requestDeleteField}
+          canManageFields={canManageMeasurements}
         />
       </PageSection>
 
-      <MeasurementFieldDialog
-        open={isFieldDialogOpen}
-        onOpenChange={closeFieldDialog}
-        categoryId={id}
-        categoryName={category?.name}
-        initialData={selectedField}
-        existingFields={category?.fields || []}
-        onSuccess={() => {
-          void fetchCategory();
-        }}
-      />
+      {canManageMeasurements ? (
+        <MeasurementFieldDialog
+          open={isFieldDialogOpen}
+          onOpenChange={closeFieldDialog}
+          categoryId={id}
+          categoryName={category?.name}
+          initialData={selectedField}
+          existingFields={category?.fields || []}
+          onSuccess={() => {
+            void fetchCategory();
+          }}
+        />
+      ) : null}
 
-      <ConfirmDialog
-        open={isConfirmOpen}
-        onOpenChange={closeDeleteConfirm}
-        title="Delete Field"
-        description={`Are you sure you want to delete the field "${fieldToDelete?.label}"? This action cannot be undone.`}
-        onConfirm={() => {
-          void confirmDeleteField();
-        }}
-        confirmText="Delete Field"
-      />
+      {canManageMeasurements ? (
+        <ConfirmDialog
+          open={isConfirmOpen}
+          onOpenChange={closeDeleteConfirm}
+          title="Delete Field"
+          description={`Are you sure you want to delete the field "${fieldToDelete?.label}"? This action cannot be undone.`}
+          onConfirm={() => {
+            void confirmDeleteField();
+          }}
+          confirmText="Delete Field"
+        />
+      ) : null}
     </PageShell>
   );
 }

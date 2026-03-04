@@ -5,24 +5,23 @@ import {
   Body,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { RatesService } from './rates.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { BranchGuard } from '../common/guards/branch.guard';
 import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateRateDto } from './dto/create-rate.dto';
 import {
   resolveBranchScopeForMutation,
   resolveBranchScopeForRead,
   resolveBranchScopeForReadOrNull,
 } from '../common/utils/branch-resolution.util';
+import { success, successWithMeta } from '../common/utils/response.util';
 
 @Controller('rates')
-@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)
+@RequirePermissions('rates.read')
 export class RatesController {
   constructor(private readonly ratesService: RatesService) {}
 
@@ -30,8 +29,7 @@ export class RatesController {
   @Roles(...ADMIN_ROLES)
   async findAll(
     @Req() req: AuthenticatedRequest,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query() pagination: PaginationQueryDto,
     @Query('search') search?: string,
   ) {
     const {
@@ -42,19 +40,18 @@ export class RatesController {
     } = await this.ratesService.findAll({
       branchId: resolveBranchScopeForReadOrNull(req),
       search,
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
+      page: pagination.page,
+      limit: pagination.limit,
     });
 
-    return {
-      success: true,
-      data: { data, total },
-      meta: {
+    return successWithMeta(
+      { data, total },
+      {
         total,
         page: safePage,
         lastPage,
       },
-    };
+    );
   }
 
   @Get('stats')
@@ -68,18 +65,19 @@ export class RatesController {
       search,
     });
 
-    return { success: true, data };
+    return success(data);
   }
 
   @Post()
   @Roles(...ADMIN_ROLES)
+  @RequirePermissions('rates.manage')
   async create(@Body() dto: CreateRateDto, @Req() req: AuthenticatedRequest) {
     const data = await this.ratesService.create({
       ...dto,
       branchId: resolveBranchScopeForMutation(req, dto.branchId),
       createdById: req.user.userId,
     });
-    return { success: true, data };
+    return success(data);
   }
 
   @Get('history')
@@ -98,6 +96,6 @@ export class RatesController {
       stepKey,
       scopedBranchId ?? undefined,
     );
-    return { success: true, data };
+    return success(data);
   }
 }

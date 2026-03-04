@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderStatus } from '@tbms/shared-types';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SchedulerService {
@@ -45,7 +46,7 @@ export class SchedulerService {
     for (const order of overdueCandidates) {
       try {
         await this.prisma.$transaction(
-          async (tx: import('.prisma/client').Prisma.TransactionClient) => {
+          async (tx: Prisma.TransactionClient) => {
             // 1. Log transition
             await tx.orderStatusHistory.create({
               data: {
@@ -65,8 +66,11 @@ export class SchedulerService {
           },
         );
         successCount++;
-      } catch (err) {
-        this.logger.error(`Failed to mark order ${order.id} as OVERDUE:`, err);
+      } catch (error: unknown) {
+        this.logger.error(
+          `Failed to mark order ${order.id} as OVERDUE`,
+          error instanceof Error ? error.stack : JSON.stringify(error),
+        );
       }
     }
 

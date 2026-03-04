@@ -15,6 +15,17 @@ interface CustomersListFilters {
   status?: CustomerStatus;
 }
 
+function toPrismaMeasurementValues(
+  values: UpsertMeasurementDto['values'],
+): Prisma.InputJsonObject {
+  return Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [
+      key,
+      value as Prisma.JsonValue,
+    ]),
+  ) as Prisma.InputJsonObject;
+}
+
 @Injectable()
 export class CustomersService {
   constructor(
@@ -250,15 +261,17 @@ export class CustomersService {
     if (!category || !category.isActive)
       throw new NotFoundException('Measurement Category not found or inactive');
 
+    const measurementValues = toPrismaMeasurementValues(dto.values);
+
     return this.prisma.customerMeasurement.upsert({
       where: {
         customerId_categoryId: { customerId: id, categoryId: dto.categoryId },
       },
-      update: { values: dto.values as Prisma.InputJsonValue },
+      update: { values: measurementValues },
       create: {
         customerId: id,
         categoryId: dto.categoryId,
-        values: dto.values as Prisma.InputJsonValue,
+        values: measurementValues,
       },
     });
   }

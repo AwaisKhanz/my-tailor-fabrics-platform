@@ -2087,3 +2087,792 @@ This is the single source of truth for implementation edits and why they were ma
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 50 (Controller query parsing consistency sweep)
+
+### Shared query parsing utility
+- Added `apps/api/src/common/utils/query-parsing.util.ts` with reusable numeric query parsers:
+  - `parsePositiveInt(value, defaultValue)`
+  - `parseOptionalPositiveInt(value)`
+- Purpose: replace repeated ad-hoc numeric parsing (`Number(...) || ...`, `parseInt(...)`) with one canonical implementation for safer, consistent behavior.
+
+### Controller consistency refactor
+- Replaced repeated page/limit/number query parsing with shared utility usage in:
+  - `apps/api/src/attendance/attendance.controller.ts`
+  - `apps/api/src/config/config.controller.ts`
+  - `apps/api/src/branches/branches.controller.ts`
+  - `apps/api/src/expenses/expenses.controller.ts`
+  - `apps/api/src/customers/customers.controller.ts`
+  - `apps/api/src/orders/orders.controller.ts`
+  - `apps/api/src/ledger/ledger.controller.ts`
+  - `apps/api/src/employees/employees.controller.ts`
+  - `apps/api/src/payments/payments.controller.ts`
+  - `apps/api/src/reports/reports.controller.ts`
+  - `apps/api/src/rates/rates.controller.ts`
+  - `apps/api/src/search/search.controller.ts`
+- Specific consistency outcomes:
+  - invalid/non-positive numeric query values now consistently fall back to explicit defaults where required.
+  - optional pagination inputs now consistently resolve to `undefined` when not valid.
+  - removed controller-level parsing drift between `Number(...)` and `parseInt(...)` patterns.
+
+### Verification-driven type stability fixes
+- `apps/api/src/customers/customers.service.ts`
+  - Reworked `toPrismaMeasurementValues` conversion to avoid mutating `Prisma.InputJsonObject` (readonly index signature), using `Object.fromEntries` with explicit `Prisma.JsonValue` casting.
+- `apps/api/src/orders/receipt.service.tsx`
+  - Restored explicit `renderToStream` cast workaround (`element as never`) to keep React PDF typing compatible under current toolchain.
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Added new tracked utility file:
+    - `apps/api/src/common/utils/query-parsing.util.ts` (`DN`, `Fiftieth modernization pass`)
+  - Updated touched file notes to `Fiftieth modernization pass`:
+    - `apps/api/src/attendance/attendance.controller.ts`
+    - `apps/api/src/config/config.controller.ts`
+    - `apps/api/src/branches/branches.controller.ts`
+    - `apps/api/src/expenses/expenses.controller.ts`
+    - `apps/api/src/customers/customers.controller.ts`
+    - `apps/api/src/orders/orders.controller.ts`
+    - `apps/api/src/ledger/ledger.controller.ts`
+    - `apps/api/src/employees/employees.controller.ts`
+    - `apps/api/src/payments/payments.controller.ts`
+    - `apps/api/src/reports/reports.controller.ts`
+    - `apps/api/src/rates/rates.controller.ts`
+    - `apps/api/src/search/search.controller.ts`
+    - `apps/api/src/customers/customers.service.ts`
+    - `apps/api/src/orders/receipt.service.tsx`
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fiftieth Implementation Pass”.
+  - Updated Phase 8 note and manifest snapshot counts.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 51 (Controller response-envelope consistency sweep)
+
+### Shared response utility
+- Added `apps/api/src/common/utils/response.util.ts` with reusable response envelope helpers:
+  - `success(data)`
+  - `successOnly()`
+  - `successSpread(payload)`
+  - `successWithMeta(data, meta)`
+- Purpose: remove repeated inline `return { success: true, ... }` boilerplate and enforce one consistent success-response construction pattern.
+
+### Controller consistency refactor
+- Replaced repeated inline success envelopes with shared helpers in:
+  - `apps/api/src/branches/branches.controller.ts`
+  - `apps/api/src/attendance/attendance.controller.ts`
+  - `apps/api/src/customers/customers.controller.ts`
+  - `apps/api/src/employees/employees.controller.ts`
+  - `apps/api/src/orders/orders.controller.ts`
+  - `apps/api/src/expenses/expenses.controller.ts`
+  - `apps/api/src/payments/payments.controller.ts`
+  - `apps/api/src/ledger/ledger.controller.ts`
+  - `apps/api/src/search/search.controller.ts`
+  - `apps/api/src/rates/rates.controller.ts`
+  - `apps/api/src/reports/reports.controller.ts`
+- Pattern outcomes:
+  - Standard single-data responses now use `success(data)`.
+  - No-body mutation responses now use `successOnly()`.
+  - Existing spread responses (list + meta payload forms) now use `successSpread(...)`.
+  - Explicit data+meta responses now use `successWithMeta(...)`.
+- Response shapes remain backward-compatible (same field names and structure).
+
+### Manifest/coverage tracking alignment
+- `docs/refactor-manifest.csv`
+  - Added new tracked utility file:
+    - `apps/api/src/common/utils/response.util.ts` (`DN`, `Fifty-first modernization pass`)
+  - Updated touched file notes to `Fifty-first modernization pass`:
+    - `apps/api/src/branches/branches.controller.ts`
+    - `apps/api/src/attendance/attendance.controller.ts`
+    - `apps/api/src/customers/customers.controller.ts`
+    - `apps/api/src/employees/employees.controller.ts`
+    - `apps/api/src/orders/orders.controller.ts`
+    - `apps/api/src/expenses/expenses.controller.ts`
+    - `apps/api/src/payments/payments.controller.ts`
+    - `apps/api/src/ledger/ledger.controller.ts`
+    - `apps/api/src/search/search.controller.ts`
+    - `apps/api/src/rates/rates.controller.ts`
+    - `apps/api/src/reports/reports.controller.ts`
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-first Implementation Pass”.
+  - Updated Phase 8 note and manifest snapshot counts.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 52 (Shared query DTO normalization sweep)
+
+### Shared query DTO introduction
+- Added reusable pagination query DTO:
+  - `apps/api/src/common/dto/pagination-query.dto.ts`
+- Purpose: standardize `page`/`limit` query normalization through one validated DTO shape (with transform support) instead of ad-hoc per-handler parsing.
+
+### Controller adoption
+- Switched paginated handlers to consume `PaginationQueryDto` and use normalized numeric values directly (`query.page ?? default`, `query.limit ?? default`) in:
+  - `apps/api/src/branches/branches.controller.ts`
+  - `apps/api/src/attendance/attendance.controller.ts`
+  - `apps/api/src/customers/customers.controller.ts`
+  - `apps/api/src/employees/employees.controller.ts`
+  - `apps/api/src/orders/orders.controller.ts`
+  - `apps/api/src/expenses/expenses.controller.ts`
+  - `apps/api/src/payments/payments.controller.ts`
+  - `apps/api/src/ledger/ledger.controller.ts`
+  - `apps/api/src/config/config.controller.ts`
+  - `apps/api/src/rates/rates.controller.ts`
+  - `apps/api/src/search/search.controller.ts`
+- Kept existing behavior-compatible defaults in controllers/services while removing manual repeated parsing logic.
+
+### Cleanup
+- Removed unused temporary DTO file:
+  - `apps/api/src/common/dto/limit-query.dto.ts`
+
+### Manifest coverage hardening
+- Added missing tracked files discovered during verification:
+  - `apps/api/src/common/dto/pagination-query.dto.ts` (`DN`, `Fifty-second modernization pass`)
+  - `apps/web/app/(dashboard)/settings/system/page.tsx` (`NS`, unassigned)
+  - `apps/web/components/config/system/system-settings-page.tsx` (`NS`, unassigned)
+- Updated touched API controller notes to `Fifty-second modernization pass`.
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-second Implementation Pass”.
+  - Updated Phase 8 note and manifest snapshot counts.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 53 (Inline request-body DTO normalization)
+
+### Task/attendance/mail body-contract hardening
+- Replaced inline ad-hoc body parsing with validated DTO contracts:
+  - `apps/api/src/tasks/dto/create-task.dto.ts`
+    - added `AssignTaskDto` with required `employeeId` validation.
+  - `apps/api/src/tasks/dto/update-task.dto.ts`
+    - added `UpdateTaskStatusDto` (`TaskStatus` enum validation)
+    - added `UpdateTaskRateDto` (numeric non-negative validation)
+  - `apps/api/src/attendance/dto/clock-in.dto.ts`
+    - added `ClockInDto` for `employeeId` + optional bounded `note`.
+  - `apps/api/src/mail/dto/send-test-mail.dto.ts`
+    - added `SendTestMailDto` with `IsEmail` validation.
+- Updated controllers to consume DTOs directly (no `@Body('field')`/inline objects):
+  - `apps/api/src/tasks/tasks.controller.ts`
+  - `apps/api/src/attendance/attendance.controller.ts`
+  - `apps/api/src/mail/mail.controller.ts`
+
+### Order item assignment DTO alignment
+- Added dedicated DTO for order-item patch operations:
+  - `apps/api/src/orders/dto/update-order.dto.ts`
+    - added `UpdateOrderItemAssignmentDto` (`status` enum + optional `employeeId`).
+- Updated usage to remove inline body type and align service contract:
+  - `apps/api/src/orders/orders.controller.ts`
+  - `apps/api/src/orders/orders.service.ts`
+
+### Additional query DTO consistency extension
+- Expanded reusable pagination DTO to carry shared query keys used by controller `@Query()` usage:
+  - `apps/api/src/common/dto/pagination-query.dto.ts`
+- This keeps global validation/whitelisting safe when `@Query()` DTOs are combined with additional query params in controllers.
+
+### Manifest coverage hardening
+- Added newly introduced backend files to manifest:
+  - `apps/api/src/attendance/dto/clock-in.dto.ts` (`DN`, `Fifty-third modernization pass`)
+  - `apps/api/src/mail/dto/send-test-mail.dto.ts` (`DN`, `Fifty-third modernization pass`)
+- Added missing frontend files discovered by verifier (tracked as `NS`):
+  - `apps/web/app/(dashboard)/settings/attendance/page.tsx`
+  - `apps/web/app/(dashboard)/settings/expense-categories/page.tsx`
+  - `apps/web/components/config/attendance/attendance-settings-page.tsx`
+  - `apps/web/components/config/expenses/expense-categories-page.tsx`
+  - `apps/web/hooks/use-attendance-settings-page.ts`
+  - `apps/web/hooks/use-expense-categories-page.ts`
+- Updated touched backend file notes to `Fifty-third modernization pass`:
+  - `apps/api/src/tasks/dto/create-task.dto.ts`
+  - `apps/api/src/tasks/dto/update-task.dto.ts`
+  - `apps/api/src/tasks/tasks.controller.ts`
+  - `apps/api/src/attendance/attendance.controller.ts`
+  - `apps/api/src/mail/mail.controller.ts`
+  - `apps/api/src/orders/dto/update-order.dto.ts`
+  - `apps/api/src/orders/orders.controller.ts`
+  - `apps/api/src/orders/orders.service.ts`
+  - `apps/api/src/common/dto/pagination-query.dto.ts`
+
+### Tracking updates
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-third Implementation Pass”.
+  - Updated Phase 6/7 notes and manifest snapshot counts.
+
+### Verification run after edits
+- `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 54 (Backend auth/security and branch-integrity hardening)
+
+### Auth refresh flow correctness + consistency
+- `apps/api/src/auth/auth.service.ts`
+  - Re-enabled real refresh-token lifecycle: login now issues refresh token, stores a hashed copy, and refresh endpoint rotates tokens with hash update.
+  - Added shared token payload/token issuance helpers to remove duplicated JWT signing logic.
+- `apps/api/src/auth/auth.controller.ts`
+  - Centralized refresh-cookie options via helper methods (`setRefreshCookie`, `clearRefreshCookie`) to avoid duplicated cookie config.
+  - Normalized refresh identity extraction (`userId`/`sub`) and refresh-token handling for safer compatibility across strategies.
+- `apps/api/src/auth/strategies/jwt-refresh.strategy.ts`
+  - Hardened cookie extraction with strict string checks.
+  - Returned normalized auth shape (`userId`, role/branch/employee fields, refreshToken) so controller/service contracts match.
+- `apps/api/src/common/interfaces/request.interface.ts`
+  - Extended request user shape with optional refresh fields used in refresh flow typing.
+- `apps/api/src/common/env.ts`
+  - Added `getJwtRefreshExpiresIn()` for explicit refresh-token TTL management (`JWT_REFRESH_EXPIRES_IN`, default `30d`).
+
+### Public status and global API protection hardening
+- `apps/api/src/orders/orders.service.ts`
+  - Replaced `Math.random()` share token/PIN generation with cryptographically secure `randomBytes` + `randomInt`.
+  - Fixed `removeItem` integrity by validating the item belongs to the target order before soft-delete.
+- `apps/api/src/app.module.ts`
+  - Added global `ThrottlerGuard` provider so throttling config is actively enforced at runtime.
+
+### Branch ownership enforcement hardening
+- `apps/api/src/attendance/attendance.service.ts`
+  - Enforced active-employee-only clock-in and strict employee-branch ownership validation before creating attendance records.
+- `apps/api/src/tasks/tasks.service.ts`
+  - Enforced assignment-only-to-active-employee and same-branch employee validation in task assignment path.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Regenerated manifest after verifier detected untracked files, preserving existing statuses/notes and adding new `NS` entries for:
+    - `apps/api/src/audit-logs/audit-logs.controller.ts`
+    - `apps/api/src/audit-logs/audit-logs.module.ts`
+    - `apps/api/src/audit-logs/audit-logs.service.ts`
+    - `apps/web/app/(dashboard)/settings/audit-logs/page.tsx`
+    - `apps/web/app/(dashboard)/settings/integrations/page.tsx`
+    - `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+    - `apps/web/components/config/integrations/integrations-settings-page.tsx`
+    - `apps/web/hooks/use-audit-logs-page.ts`
+    - `apps/web/hooks/use-integrations-settings-page.ts`
+    - `apps/web/lib/api/audit-logs.ts`
+    - `apps/web/lib/api/mail.ts`
+    - `packages/shared-types/src/audit.ts`
+    - `packages/shared-types/src/integrations.ts`
+  - Marked/touched entries as `Fifty-fourth modernization pass`:
+    - `apps/api/src/app.module.ts`
+    - `apps/api/src/auth/auth.controller.ts`
+    - `apps/api/src/auth/auth.service.ts`
+    - `apps/api/src/auth/strategies/jwt-refresh.strategy.ts`
+    - `apps/api/src/common/env.ts`
+    - `apps/api/src/common/interfaces/request.interface.ts`
+    - `apps/api/src/orders/orders.service.ts`
+    - `apps/api/src/attendance/attendance.service.ts`
+    - `apps/api/src/tasks/tasks.service.ts`
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-fourth Implementation Pass”.
+  - Updated Phase 1/6/7/8 notes and manifest snapshot counts.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 63 (Controller guard deduplication + policy consistency)
+
+### Backend guard consistency cleanup
+- `apps/api/src/attendance/attendance.controller.ts`
+- `apps/api/src/audit-logs/audit-logs.controller.ts`
+- `apps/api/src/branches/branches.controller.ts`
+- `apps/api/src/config/config.controller.ts`
+- `apps/api/src/customers/customers.controller.ts`
+- `apps/api/src/design-types/design-types.controller.ts`
+- `apps/api/src/employees/employees.controller.ts`
+- `apps/api/src/expenses/expenses.controller.ts`
+- `apps/api/src/ledger/ledger.controller.ts`
+- `apps/api/src/orders/orders.controller.ts`
+- `apps/api/src/payments/payments.controller.ts`
+- `apps/api/src/rates/rates.controller.ts`
+- `apps/api/src/reports/reports.controller.ts`
+- `apps/api/src/search/search.controller.ts`
+- `apps/api/src/tasks/tasks.controller.ts`
+- `apps/api/src/users/users.controller.ts`
+  - Removed redundant class-level `@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)` and `@UseGuards(JwtAuthGuard, RolesGuard)` now that equivalent guards are already registered globally in `AppModule`.
+  - Removed now-unused explicit guard imports from these controllers to reduce policy duplication noise at endpoint layer.
+
+### Auth controller alignment
+- `apps/api/src/auth/auth.controller.ts`
+  - Removed redundant method-level `@UseGuards(JwtAuthGuard)` on `POST /auth/logout` and `GET /auth/me` (covered by global JWT guard + role metadata).
+  - Kept route-specific `@UseGuards(AuthGuard('jwt-refresh'))` on `POST /auth/refresh` (special strategy requirement).
+
+### Why this change
+- Authorization policy is now easier to audit: controller endpoints declare `@Roles`/`@RequirePermissions`, while shared global guards enforce authentication/role/permission/branch consistently.
+- This reduces repeated decorator/config drift and avoids partial guard changes between controllers.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked/touched entries as `Sixty-third modernization pass` for all updated backend controllers and `auth.controller`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Sixty-third Implementation Pass”.
+  - Added explicit guard-dedup completion bullet under backend hardening checklist.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 64 (Backend security guardrails automation)
+
+### New backend guardrail script
+- `scripts/security-backend-guardrails.sh` (new)
+  - Added explicit repository guardrails to fail fast when backend runtime code introduces:
+    - unsafe SQL primitives (`$queryRawUnsafe`, `$executeRawUnsafe`, `Prisma.raw(...)`)
+    - direct `console.*` logging in `apps/api/src` (Nest `Logger` only policy)
+    - redundant controller class-level guard stacks (`@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)` / `@UseGuards(JwtAuthGuard, RolesGuard)`)
+    - `dev-only-*` secret placeholder leakage outside `apps/api/src/common/env.ts`
+
+### Script wiring
+- `package.json`
+  - Added root script: `security:backend:guardrails`.
+- `apps/api/package.json`
+  - Added workspace script: `security:guardrails`.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Updated touched package manifest entries as `Sixty-fourth modernization pass`:
+    - `apps/api/package.json`
+    - `package.json`
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Sixty-fourth Implementation Pass”.
+  - Added guardrail verification entries and hardening bullet.
+
+### Verification run after edits
+- `npm run security:backend:guardrails` ✅
+- `npm run security:guardrails -w api` ✅
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 59 (Backend security consistency hardening continuation)
+
+### Public status endpoint hardening
+- `apps/api/src/orders/status.controller.ts`
+  - Reworked public status anti-bruteforce flow to avoid trusting raw `x-forwarded-for` parsing and rely on request IP abstraction.
+  - Added token-level + token+IP failed-attempt throttling state (both dimensions must now pass).
+  - Added hashed token cache keying (no raw share tokens in cache keys).
+  - Replaced raw token logging with token fingerprint logging in structured security events.
+  - Preserved existing public API shape (`GET /status/:token?pin=XXXX`) while tightening abuse controls.
+
+### Production cache/throttle safety
+- `apps/api/src/app.module.ts`
+  - Enforced fail-fast behavior in production when `REDIS_URL` is missing/invalid.
+  - Kept in-memory cache fallback only for non-production local/dev usage.
+
+### Branch-scope financial/history correctness
+- `apps/api/src/ledger/ledger.service.ts`
+  - Added branch filters to ledger balance, statement, and earnings-by-period calculations when a branch scope is present.
+- `apps/api/src/payments/payments.service.ts`
+  - Added branch-scoped filtering to payment history via linked ledger payout entries.
+  - Reworked weekly payment report to scope by ledger payout branch context (historical branch-safe) instead of employee current branch.
+- `apps/api/src/employees/employees.service.ts`
+  - Ensured employee financial stats pass branch scope into ledger balance.
+  - Added branch scoping to employee item-history queries.
+
+### Reusability and duplication cleanup
+- `apps/api/src/common/utils/branch-scope.util.ts`
+  - Added reusable `requireBranchId(...)` utility.
+  - Refactored `requireBranchScope(req)` to delegate to the shared helper.
+- `apps/api/src/expenses/expenses.service.ts`
+  - Removed duplicated local branch-require helper and reused shared `requireBranchId(...)`.
+
+### Shared email normalization consistency
+- `apps/api/src/common/utils/email.util.ts` (new)
+  - Added canonical `normalizeEmailAddress(...)` helper.
+- `apps/api/src/users/users.service.ts`
+  - Switched user email normalization to the shared helper.
+- `apps/api/src/employees/employees.service.ts`
+  - Normalized employee user-account email before lookup/create.
+  - Updated uniqueness check to case-insensitive lookup (`findFirst` with insensitive match) for safer duplicate prevention.
+  - Added deleted-user collision handling so account creation returns explicit conflict messaging instead of DB unique-index failure noise.
+
+### Raw SQL safety cleanup
+- `apps/api/src/reports/reports.service.ts`
+  - Removed generic column-name SQL interpolation pattern and replaced with enum-backed static SQL fragment mapping.
+  - Removed remaining `Prisma.raw(...)` usage in trend/date-condition helpers.
+  - Kept query behavior/response shapes unchanged while reducing injection-risk surface.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run build -w @tbms/shared-constants` ✅
+- `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 60 (Proxy/IP trust hardening + email uniqueness guardrail)
+
+### Proxy trust hardening
+- `apps/api/src/common/env.ts`
+  - Added `getTrustProxyConfig()` with strict parsing for `TRUST_PROXY` values (`true/false`, numeric hop count, CSV trusted proxies, or named presets).
+  - Enforced explicit `TRUST_PROXY` in production via `assertSecurityEnvironment()`.
+- `apps/api/src/main.ts`
+  - Wired Express `trust proxy` setting from `getTrustProxyConfig()` before middleware stack to ensure `req.ip` behavior follows explicit deployment policy.
+
+### Database guardrail for email uniqueness
+- `apps/api/prisma/migrations/20260304201500_user_email_case_insensitive_unique/migration.sql` (new)
+  - Added migration to enforce case-insensitive uniqueness for user emails with:
+    - duplicate-detection precheck
+    - unique functional index on `LOWER("email")`
+  - Keeps API response contracts unchanged while preventing case-only account duplication at DB layer.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run build -w @tbms/shared-constants` ✅
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+
+## 2026-03-04 — Pass 62 (Security-event logging deduplication + guard observability)
+
+### Reusable security-event logging utility
+- `apps/api/src/common/utils/security-event.util.ts` (new)
+  - Added shared `emitSecurityEvent(...)` helper for consistent structured security log emission.
+  - Standardizes event payload shape (`event`, `at`, additional metadata) and avoids repeated inline logger JSON formatting.
+
+### Auth/status/permissions deduplication
+- `apps/api/src/auth/auth.service.ts`
+  - Replaced local `logSecurityEvent(...)` implementation with shared `emitSecurityEvent(...)`.
+- `apps/api/src/orders/status.controller.ts`
+  - Replaced local `logSecurityEvent(...)` implementation with shared `emitSecurityEvent(...)`.
+- `apps/api/src/common/guards/permissions.guard.ts`
+  - Replaced inline security-event logging formatter with shared utility.
+
+### Guard-level deny observability improvements
+- `apps/api/src/common/guards/roles.guard.ts`
+  - Added structured deny logs for:
+    - missing authorization metadata
+    - missing user role
+    - role not allowed
+- `apps/api/src/common/guards/branch.guard.ts`
+  - Added structured deny logs for:
+    - missing user role
+    - user without branch assignment
+- `apps/api/src/common/guards/jwt-auth.guard.ts`
+  - Added structured auth-failure logs (`jwt_auth_failed`) with request metadata in `handleRequest(...)`.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+
+## 2026-03-04 — Pass 60 (Security-first backend hardening implementation)
+
+### Phase 1 — Immediate security correctness
+- `apps/api/src/auth/strategies/jwt.strategy.ts`
+  - Switched request principal enrichment to source `role`, `branchId`, `employeeId`, and permission set from current DB user record (not token role/branch claims).
+  - Added token payload email consistency check against current DB user email.
+- `apps/api/src/auth/strategies/jwt-refresh.strategy.ts`
+  - Applied the same DB-sourced identity/authorization model for refresh flow.
+  - Added token payload email consistency check against DB user email.
+- `apps/api/src/auth/auth.controller.ts`
+  - Added targeted throttling decorators:
+    - `POST /auth/login`
+    - `POST /auth/refresh`
+  - Removed local refresh `try/catch` response handling and `console.error`; refresh now throws framework exceptions for centralized handling.
+- `apps/api/src/common/env.ts`
+  - Hardened JWT duration env behavior to fail closed in production (`JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN` now required).
+  - Added `getStatusPinPepper()` for public-status PIN hashing secret management.
+  - Added `assertSecurityEnvironment()` startup validator.
+- `apps/api/src/main.ts`
+  - Added early `assertSecurityEnvironment()` call during bootstrap to fail fast on missing security-critical envs.
+
+### Phase 2 — Public status PIN hardening with backward compatibility
+- `apps/api/prisma/schema.prisma`
+  - Added `Order.sharePinHash` and `Order.sharePinMigratedAt`.
+- `apps/api/prisma/migrations/20260304170000_security_hardening_auth_status_audit/migration.sql` (new)
+  - Added migration SQL for share PIN hash columns and audit actor nullable support.
+- `apps/api/src/orders/orders.service.ts`
+  - Added HMAC-based PIN hashing (`STATUS_PIN_PEPPER`).
+  - Updated share-link generation to store hash-only for new links (`sharePin` no longer persisted for new links).
+  - Kept response compatibility by still returning the generated PIN in API response payload.
+  - Updated public status verification to:
+    - Validate hashed PIN for new links.
+    - Validate legacy plaintext PIN for old links.
+    - Opportunistically migrate legacy records to hash-only on successful legacy PIN use.
+- `apps/api/src/orders/status.controller.ts`
+  - Added targeted route throttling for `GET /status/:token`.
+  - Added per-token+IP failed-attempt backoff policy with cache-based counters and temporary block windows.
+  - Added structured security-event logging for blocked and invalid status attempts.
+
+### Phase 3 — Authorization consistency / reuse
+- `apps/api/src/tasks/tasks.service.ts`
+  - Removed duplicate service-layer permission gate checks for assignment/rate override where controller decorators already enforce capability.
+- `apps/api/src/tasks/tasks.controller.ts`
+  - Updated service calls after service signature simplification.
+- `apps/api/src/common/guards/permissions.guard.ts`
+  - Added structured security-event logs on permission-denied decisions for better centralized observability.
+
+### Phase 4 — Audit completeness + observability
+- `apps/api/prisma/schema.prisma`
+  - Made `AuditLog.userId` nullable and relation optional.
+  - Added `AuditLog.actorEmail` for unknown-actor auth events.
+- `apps/api/src/common/interceptors/audit.interceptor.ts`
+  - Extended actor resolution to persist `LOGIN_FAILED` even when email is unknown / user does not exist.
+  - Added actor email capture and nullable user linkage.
+  - Added deterministic entity fallback when userId is absent.
+- `apps/api/src/audit-logs/audit-logs.service.ts`
+  - Adjusted unique-user stats query to ignore `null` userId rows.
+- `packages/shared-types/src/audit.ts`
+  - Updated audit entry contract to support nullable/optional `userId` and optional `actorEmail`.
+- `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+  - Improved actor display to show `actorEmail` when user relation is absent (unknown-account failed-login visibility).
+- `apps/api/src/auth/auth.service.ts`
+  - Added structured security-event logs for failed login and failed refresh conditions.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked/touched entries as `Sixtieth modernization pass`:
+    - `apps/api/src/common/env.ts`
+    - `apps/api/src/main.ts`
+    - `apps/api/src/auth/auth.controller.ts`
+    - `apps/api/src/auth/auth.service.ts`
+    - `apps/api/src/auth/strategies/jwt.strategy.ts`
+    - `apps/api/src/auth/strategies/jwt-refresh.strategy.ts`
+    - `apps/api/src/orders/status.controller.ts`
+    - `apps/api/src/orders/orders.service.ts`
+    - `apps/api/src/common/guards/permissions.guard.ts`
+    - `apps/api/src/tasks/tasks.controller.ts`
+    - `apps/api/src/tasks/tasks.service.ts`
+    - `apps/api/src/common/interceptors/audit.interceptor.ts`
+    - `apps/api/src/audit-logs/audit-logs.service.ts`
+    - `packages/shared-types/src/audit.ts`
+    - `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+
+### Verification run after edits
+- `npm run prisma:generate -w api` ✅
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run build -w @tbms/shared-constants` ✅
+- `npm run build -w api` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ fails on pre-existing duplicate default export in `apps/web/app/(dashboard)/settings/integrations/page.tsx` (not introduced in this pass)
+
+## 2026-03-04 — Pass 59 (Audit action coverage and entity mapping completeness)
+
+### Shared audit contract expansion
+- `packages/shared-constants/src/audit.ts`
+  - Expanded canonical audit actions to include auth lifecycle coverage:
+    - `LOGIN_FAILED`
+    - `LOGOUT`
+    - `TOKEN_REFRESH`
+  - Added `ExpenseCategory` to canonical audit entities so expense-category mutations are classified explicitly (instead of generic `Expense`/`Unknown`).
+
+### Backend audit interceptor hardening
+- `apps/api/src/common/interceptors/audit.interceptor.ts`
+  - Extended action resolver:
+    - `POST /auth/logout` -> `LOGOUT`
+    - `POST /auth/refresh` -> `TOKEN_REFRESH`
+    - `POST /auth/login` failures -> `LOGIN_FAILED` (success remains `LOGIN`)
+  - Extended entity resolver:
+    - `/expenses/categories` now maps to `ExpenseCategory`.
+  - Extended old-value loader:
+    - Added `ExpenseCategory` model lookup for update/delete audit diffs.
+  - Extended actor resolution for auth failures:
+    - `LOGIN_FAILED` now follows same actor-resolution path as `LOGIN` (existing-user email lookup), improving failed-login event capture for known accounts.
+
+### Frontend audit UX consistency
+- `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+  - Added dedicated badge variants/summaries for new auth actions (`TOKEN_REFRESH`, `LOGOUT`, `LOGIN_FAILED`) for clearer audit readability.
+- `apps/web/hooks/use-audit-logs-page.ts`
+  - Exported `ALL_FILTER` to align hook exports with consumer imports and keep type-check clean.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked/touched entries as `Fifty-ninth modernization pass`:
+    - `apps/api/src/common/interceptors/audit.interceptor.ts`
+    - `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+    - `apps/web/hooks/use-audit-logs-page.ts`
+    - `packages/shared-constants/src/audit.ts`
+  - Added missing manifest coverage entries discovered by verifier sweep:
+    - `apps/web/lib/authz.ts`
+    - `apps/web/components/auth/can.tsx`
+    - `apps/web/components/auth/with-role-guard.tsx`
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-constants` ✅
+- `npm run build -w api` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run lint -w api` ⚠️ fails due existing strict-eslint backlog in legacy files (not introduced by this pass)
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 55 (Order assignment integrity + shared backend validation consistency)
+
+### Shared employee-scope validation utility
+- `apps/api/src/common/utils/employee-scope.util.ts` (new)
+  - Added canonical helper `requireEmployeeInScope(...)` for employee existence, branch ownership, and optional active-status enforcement.
+  - Added configurable violation messaging and inactive-violation mode (`bad_request` / `forbidden`) so domains can keep behavior-appropriate HTTP semantics while reusing one validation flow.
+
+### Backend service hardening using shared validator
+- `apps/api/src/orders/orders.service.ts`
+  - Replaced local employee-branch validation with shared `requireEmployeeInScope`.
+  - Hardened order flows to prevent cross-order item updates by validating `itemDto.id` ownership (`orderId`) before update.
+  - Enforced branch-scoped active employee validation for all assignment entry points:
+    - order creation item assignment
+    - add-item assignment
+    - order update item reassignment
+    - item assignment patch endpoint
+  - Increased share-link token entropy from 8-byte hex to 16-byte hex for stronger tracking link resistance.
+- `apps/api/src/attendance/attendance.service.ts`
+  - Replaced inline employee validation with shared employee-scope helper (active + branch ownership).
+- `apps/api/src/tasks/tasks.service.ts`
+  - Replaced inline assignment validation with shared employee-scope helper while preserving forbidden semantics for inactive/cross-branch assignment.
+- `apps/api/src/payments/payments.service.ts`
+  - Replaced duplicated employee scope lookup logic with shared employee-scope helper.
+
+### Response envelope consistency sweep
+- `apps/api/src/users/users.controller.ts`
+  - Standardized all responses to shared response helpers (`success`, `successOnly`) instead of ad-hoc inline objects.
+- `apps/api/src/design-types/design-types.controller.ts`
+  - Standardized create/read/update/delete/seed responses to shared response helpers.
+- `apps/api/src/config/config.controller.ts`
+  - Standardized all config endpoints (settings/garment/measurement CRUD and stats/history flows) to shared response helpers.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked/touched entries as `Fifty-fifth modernization pass`:
+    - `apps/api/src/common/utils/employee-scope.util.ts`
+    - `apps/api/src/orders/orders.service.ts`
+    - `apps/api/src/attendance/attendance.service.ts`
+    - `apps/api/src/tasks/tasks.service.ts`
+    - `apps/api/src/payments/payments.service.ts`
+    - `apps/api/src/users/users.controller.ts`
+    - `apps/api/src/design-types/design-types.controller.ts`
+    - `apps/api/src/config/config.controller.ts`
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-fifth Implementation Pass”.
+  - Updated phase notes for Phase 6/8 and refreshed manifest snapshot counts.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 56 (Cross-cutting audit/guard/scheduler hardening)
+
+### Audit interceptor hardening (security + type safety)
+- `apps/api/src/common/interceptors/audit.interceptor.ts`
+  - Replaced dynamic unsafe `prisma[model]` lookup (`@ts-ignore` path) with explicit entity-to-model lookup switch.
+  - Added strict request typing for interceptor input to reduce unsafe access paths.
+  - Added sensitive payload redaction for audit logging (`password`, token/secret/auth headers, API keys, cookies, etc.) before persistence.
+  - Added safe JSON conversion helper for audit payload storage and fallback-to-`JsonNull` behavior for unserializable values.
+  - Added deterministic entity/action resolution helpers and safer response/entity-id extraction.
+  - Normalized branch attribution preference (`request.branchId` first, then user branch).
+  - Added structured audit-write failure logging with context.
+
+### Guard typing consistency hardening
+- `apps/api/src/common/guards/roles.guard.ts`
+  - Added typed request contract for role extraction, removing implicit `any` user-role access.
+- `apps/api/src/common/guards/branch.guard.ts`
+  - Added typed request contract and safer `x-branch-id` parsing for super-admin branch selection.
+
+### Audit logs branch-scope parity
+- `apps/api/src/audit-logs/audit-logs.controller.ts`
+  - Added optional `branchId` query support and normalized scoping through shared `resolveBranchScopeForReadOrNull(...)` (including super-admin `all` behavior), aligning with report/rates branch-resolution style.
+
+### Scheduler typing cleanup
+- `apps/api/src/scheduler/scheduler.service.ts`
+  - Replaced ad-hoc inline transaction-client type import with `Prisma.TransactionClient`.
+  - Normalized error logging for cron failures to structured stack/message output.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Regenerated manifest after verifier detected additional untracked files, preserving prior statuses and adding new `NS` coverage entries for:
+    - `apps/web/components/config/appearance/appearance-stats-grid.tsx`
+    - `apps/web/components/config/appearance/appearance-preset-directory.tsx`
+    - `apps/web/components/config/system/system-settings-state-card.tsx`
+    - `apps/web/components/config/system/system-settings-stats-grid.tsx`
+    - `apps/web/components/config/system/system-settings-workflow-card.tsx`
+    - `apps/web/hooks/use-appearance-settings-page.ts`
+    - `apps/web/hooks/use-system-settings-page.ts`
+  - Marked/touched entries as `Fifty-sixth modernization pass`:
+    - `apps/api/src/common/interceptors/audit.interceptor.ts`
+    - `apps/api/src/common/guards/roles.guard.ts`
+    - `apps/api/src/common/guards/branch.guard.ts`
+    - `apps/api/src/audit-logs/audit-logs.controller.ts`
+    - `apps/api/src/scheduler/scheduler.service.ts`
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-sixth Implementation Pass”.
+  - Updated Phase 2/8 notes and manifest snapshot counts.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 57 (Shared audit constants + exception/auth guard hardening)
+
+### Shared audit constants canonicalization
+- `packages/shared-constants/src/audit.ts` (new)
+  - Added canonical audit constants:
+    - `AUDIT_ACTIONS`
+    - `AUDIT_ENTITIES`
+    - `AUDIT_FILTER_ENTITIES`
+    - `AUDIT_UNKNOWN_ENTITY`
+- `packages/shared-constants/src/index.ts`
+  - Exported new audit constants module from shared constants entrypoint.
+
+### Shared type contract alignment
+- `packages/shared-types/src/audit.ts`
+  - Added optional `branchId` to `AuditLogsQueryInput` for frontend/backend filter contract parity.
+
+### Backend audit/security hardening
+- `apps/api/src/audit-logs/audit-logs.service.ts`
+  - Normalized and whitelisted `action`/`entity` filter inputs using shared constants.
+  - Added user-id normalization before query composition.
+- `apps/api/src/common/interceptors/audit.interceptor.ts`
+  - Switched to shared audit constants for action/entity domain consistency.
+  - Kept typed/sanitized audit flow from prior pass while removing remaining local audit-entity/action drift.
+- `apps/api/src/common/filters/all-exceptions.filter.ts`
+  - Hardened exception message handling:
+    - parses `HttpException` response safely
+    - preserves useful 4xx messages
+    - masks internal 5xx messages in production to avoid leaking internals
+  - Kept detailed server-side logging for debugging.
+- `apps/api/src/common/guards/jwt-auth.guard.ts`
+  - Added typed `handleRequest` override to enforce explicit unauthorized responses when auth context is missing/invalid.
+  - Kept public-route bypass behavior unchanged.
+
+### Frontend audit filter consistency
+- `apps/web/hooks/use-audit-logs-page.ts`
+  - Replaced local hardcoded audit action/entity lists with shared constants (`AUDIT_ACTIONS`, `AUDIT_FILTER_ENTITIES`) so UI filter options match backend canonical values.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked/touched entries as `Fifty-seventh modernization pass`:
+    - `apps/api/src/common/guards/jwt-auth.guard.ts`
+    - `apps/api/src/common/filters/all-exceptions.filter.ts`
+    - `apps/api/src/audit-logs/audit-logs.service.ts`
+    - `apps/api/src/common/interceptors/audit.interceptor.ts`
+    - `apps/web/hooks/use-audit-logs-page.ts`
+    - `packages/shared-constants/src/audit.ts`
+    - `packages/shared-constants/src/index.ts`
+    - `packages/shared-types/src/audit.ts`
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Fifty-seventh Implementation Pass”.
+  - Updated Phase 2/3/5/8 notes and manifest snapshot counts.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-constants` ✅
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 58 (Audit persistence reliability for complete event capture)
+
+### Backend audit reliability fix
+- `apps/api/src/common/interceptors/audit.interceptor.ts`
+  - Replaced fire-and-forget audit writes (`void persistAuditLog`) with awaited RxJS flow so request success/failure paths both wait for audit persistence attempt.
+  - Added `PersistAuditLogInput` typed payload for consistent audit write arguments.
+  - Added `safelyPersistAuditLog` wrapper to ensure audit write failures never break business API responses, while still logging internal audit persistence errors.
+  - Kept existing success/error audit capture behavior and sensitive-field redaction intact.
+
+### Why this change
+- Audit writes were previously asynchronous side effects in `tap/catchError`, which could make logs appear missing or delayed under rapid client refresh/load.
+- Persisting within the request observable flow improves deterministic save behavior for mutation events.
+
+### Verification run after edits
+- `npm run build -w api` ✅

@@ -10,11 +10,13 @@ import { formatDate } from "@/lib/utils";
 interface GarmentDetailHeaderProps {
   garment: GarmentTypeWithAnalytics;
   onOpenRates: () => void;
+  canManageRates?: boolean;
 }
 
 export function GarmentDetailHeader({
   garment,
   onOpenRates,
+  canManageRates = true,
 }: GarmentDetailHeaderProps) {
   const garmentCode = `GT-${garment.id.slice(-4).toUpperCase()}`;
   const measurementFormsCount = garment.measurementCategories?.length ?? 0;
@@ -62,15 +64,17 @@ export function GarmentDetailHeader({
           </div>
 
           <div className="flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end lg:max-w-[520px]">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-              onClick={onOpenRates}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Update Rates
-            </Button>
+            {canManageRates ? (
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                onClick={onOpenRates}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Update Rates
+              </Button>
+            ) : null}
             <Button
               asChild
               variant="premium"
