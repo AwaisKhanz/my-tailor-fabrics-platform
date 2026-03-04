@@ -8,6 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Role } from '@tbms/shared-types';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 export class CreateUserDto {
   @IsString()
@@ -57,4 +58,14 @@ export class UpdateUserDto {
 export class SetUserActiveDto {
   @IsBoolean()
   isActive!: boolean;
+}
+
+export class ListUsersQueryDto extends PaginationQueryDto {
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
+
+  @IsOptional()
+  @IsString()
+  branchId?: string;
 }

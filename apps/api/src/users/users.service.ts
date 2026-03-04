@@ -4,8 +4,13 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
-import { Role, CreateUserInput, UpdateUserInput } from '@tbms/shared-types';
+import { Prisma, Role as PrismaRole } from '@prisma/client';
+import {
+  Role,
+  CreateUserInput,
+  UpdateUserInput,
+  UserAccountsQueryInput,
+} from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
@@ -87,20 +92,48 @@ export class UsersService {
     });
   }
 
-  async findAll(branchId?: string) {
-    const where = {
+  async findAll(options: UserAccountsQueryInput = {}) {
+    const page = options.page && options.page > 0 ? options.page : 1;
+    const limit =
+      options.limit && options.limit > 0 ? Math.min(options.limit, 100) : 10;
+    const search = options.search?.trim();
+
+    const where: Prisma.UserWhereInput = {
       deletedAt: null,
-      ...(branchId ? { branchId } : {}),
+      ...(options.branchId ? { branchId: options.branchId } : {}),
+      ...(options.role ? { role: options.role as unknown as PrismaRole } : {}),
     };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        {
+          branch: {
+            is: {
+              OR: [
+                { name: { contains: search, mode: 'insensitive' } },
+                { code: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          },
+        },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
         select: USER_SELECT,
         orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
       }),
       this.prisma.user.count({ where }),
     ]);
-    return { data, total };
+
+    return { data, total, page, limit };
   }
 
   async setupInitialSuperAdmin(data: CreateUserInput) {

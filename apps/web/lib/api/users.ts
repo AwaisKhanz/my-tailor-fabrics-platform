@@ -3,6 +3,7 @@ import { ApiResponse, PaginatedResponse } from '@/types/common';
 
 import type {
   CreateUserInput,
+  UserAccountsQueryInput,
   UpdateUserInput,
   UserAccount,
   UserStatsSummary,
@@ -11,9 +12,17 @@ import type {
 export type { UserAccount };
 
 export const usersApi = {
-  getUsers: async (branchId?: string) => {
-    const params = branchId ? { branchId } : {};
-    const response = await api.get<ApiResponse<PaginatedResponse<UserAccount>>>('/users', { params });
+  getUsers: async (query: UserAccountsQueryInput = {}) => {
+    const params = {
+      page: query.page,
+      limit: query.limit,
+      search: query.search?.trim() || undefined,
+      role: query.role,
+      branchId: query.branchId,
+    };
+    const response = await api.get<ApiResponse<PaginatedResponse<UserAccount>>>('/users', {
+      params,
+    });
     return response.data;
   },
 

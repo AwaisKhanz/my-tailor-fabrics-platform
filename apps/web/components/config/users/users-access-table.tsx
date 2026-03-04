@@ -11,16 +11,24 @@ import { Switch } from "@/components/ui/switch";
 interface UsersAccessTableProps {
   users: UserAccount[];
   loading: boolean;
+  page: number;
+  total: number;
+  pageSize: number;
   onEdit: (user: UserAccount) => void;
   onDelete: (user: UserAccount) => void;
+  onPageChange: (page: number) => void;
   onToggleActive: (user: UserAccount, isActive: boolean) => void;
 }
 
 export function UsersAccessTable({
   users,
   loading,
+  page,
+  total,
+  pageSize,
   onEdit,
   onDelete,
+  onPageChange,
   onToggleActive,
 }: UsersAccessTableProps) {
   const roleLabels = useMemo(() => {
@@ -120,6 +128,10 @@ export function UsersAccessTable({
       columns={columns}
       data={users}
       loading={loading}
+      page={page}
+      total={total}
+      limit={pageSize}
+      onPageChange={onPageChange}
       itemLabel="accounts"
       emptyMessage="No staff accounts found. Create your first user to manage access."
       chrome="flat"

@@ -12,7 +12,12 @@ import { UsersService } from './users.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
-import { CreateUserDto, SetUserActiveDto, UpdateUserDto } from './dto/user.dto';
+import {
+  CreateUserDto,
+  ListUsersQueryDto,
+  SetUserActiveDto,
+  UpdateUserDto,
+} from './dto/user.dto';
 import { success, successOnly } from '../common/utils/response.util';
 
 @Controller('users')
@@ -22,8 +27,8 @@ export class UsersController {
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @RequirePermissions('users.read')
   @Get()
-  async findAll(@Query('branchId') branchId?: string) {
-    const data = await this.usersService.findAll(branchId);
+  async findAll(@Query() query: ListUsersQueryDto) {
+    const data = await this.usersService.findAll(query);
     return success(data);
   }
 

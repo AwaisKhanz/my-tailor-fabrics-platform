@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
-import { Customer, Employee } from '@prisma/client';
+import { Customer, Employee, Prisma } from '@prisma/client';
 
 const MIN_QUERY_LENGTH = 2;
 const DEFAULT_LIMIT = 10;
@@ -59,6 +59,9 @@ export class SearchService {
     const safeLimit = this.normalizeLimit(limit);
 
     const cacheKey = this.buildCacheKey('cust', branchId, q, safeLimit);
+    const branchFilter = branchId
+      ? Prisma.sql`AND "branchId" = ${branchId}`
+      : Prisma.empty;
 
     // Attempt cache hit
     const hit = await this.cache.get<Customer[]>(cacheKey);
@@ -71,8 +74,8 @@ export class SearchService {
       result = await this.prisma.$queryRaw<Customer[]>`
         SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status
         FROM "Customer"
-        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-          AND "deletedAt" IS NULL
+        WHERE "deletedAt" IS NULL
+          ${branchFilter}
           AND "sizeNumber" ILIKE ${q + '%'}
         ORDER BY "createdAt" DESC
         LIMIT ${safeLimit}
@@ -86,8 +89,8 @@ export class SearchService {
           SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status,
                  ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) AS rank
           FROM "Customer"
-          WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-            AND "deletedAt" IS NULL
+          WHERE "deletedAt" IS NULL
+            ${branchFilter}
             AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
           ORDER BY rank DESC, "createdAt" DESC
           LIMIT ${safeLimit}
@@ -100,8 +103,8 @@ export class SearchService {
         result = await this.prisma.$queryRaw<Customer[]>`
           SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status
           FROM "Customer"
-          WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-            AND "deletedAt" IS NULL
+          WHERE "deletedAt" IS NULL
+            ${branchFilter}
             AND (
               "fullName" ILIKE ${likeQuery}
               OR "sizeNumber" ILIKE ${likeQuery}
@@ -128,6 +131,9 @@ export class SearchService {
     const safeLimit = this.normalizeLimit(limit);
 
     const cacheKey = this.buildCacheKey('emp', branchId, q, safeLimit);
+    const branchFilter = branchId
+      ? Prisma.sql`AND "branchId" = ${branchId}`
+      : Prisma.empty;
 
     const hit = await this.cache.get<Employee[]>(cacheKey);
     if (hit) return hit;
@@ -139,8 +145,8 @@ export class SearchService {
       result = await this.prisma.$queryRaw<Employee[]>`
         SELECT id, "branchId", "employeeCode", "fullName", designation, status
         FROM "Employee"
-        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-          AND "deletedAt" IS NULL
+        WHERE "deletedAt" IS NULL
+          ${branchFilter}
           AND status = 'ACTIVE'
           AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
         ORDER BY ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) DESC, "createdAt" DESC
@@ -153,8 +159,8 @@ export class SearchService {
       result = await this.prisma.$queryRaw<Employee[]>`
         SELECT id, "branchId", "employeeCode", "fullName", designation, status
         FROM "Employee"
-        WHERE ("branchId" = ${branchId} OR ${branchId} IS NULL)
-          AND "deletedAt" IS NULL
+        WHERE "deletedAt" IS NULL
+          ${branchFilter}
           AND status = 'ACTIVE'
           AND (
             "fullName" ILIKE ${likeQuery}

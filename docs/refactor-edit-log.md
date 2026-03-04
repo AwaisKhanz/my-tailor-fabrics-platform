@@ -2377,6 +2377,66 @@ This is the single source of truth for implementation edits and why they were ma
 ### Verification run after edits
 - `npm run build -w api` ✅
 
+## 2026-03-04 — Pass 76 (Customers/global search SQL parameter typing fix)
+
+### Backend search hardening for customer/employee raw queries
+- `apps/api/src/search/search.service.ts`
+  - Replaced branch-scope SQL pattern:
+    - from: `("branchId" = ${branchId} OR ${branchId} IS NULL)`
+    - to: conditional SQL fragment via `Prisma.sql` / `Prisma.empty`
+  - Added branch filter fragment once per request:
+    - `const branchFilter = branchId ? Prisma.sql\`AND "branchId" = ${branchId}\` : Prisma.empty`
+  - Applied this change across all customer and employee raw-search query branches (prefix, full-text, fallback ILIKE).
+
+### Why this fixes the reported error
+- The previous query shape could leave one prepared-statement parameter only used in `IS NULL` context, which PostgreSQL can treat as untyped (`42P18`, “could not determine data type of parameter ...”) for specific search inputs/paths.
+- Conditional SQL fragments remove the untyped-null placeholder pattern entirely.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 75 (Staff Access Directory API pagination/search/filter parity)
+
+### Backend users query contract hardening
+- `apps/api/src/users/dto/user.dto.ts`
+  - Added `ListUsersQueryDto` (extends `PaginationQueryDto`) with explicit optional `role` and `branchId`.
+- `apps/api/src/users/users.controller.ts`
+  - Updated `GET /users` to consume typed list-query DTO instead of a single `branchId` query field.
+- `apps/api/src/users/users.service.ts`
+  - Refactored `findAll` to support server-side:
+    - `page` / `limit`
+    - `search` (name/email/branch-name/branch-code)
+    - `role`
+    - `branchId`
+  - Added bounded pagination (`limit` capped to `100`) and deterministic `{ data, total, page, limit }` response payload.
+
+### Shared contract migration for users list filters
+- `packages/shared-types/src/users.ts`
+  - Added canonical `UserAccountsQueryInput` for cross-app users list querying.
+
+### Frontend users page parity with orders/customers pattern
+- `apps/web/lib/api/users.ts`
+  - Migrated `getUsers` from `branchId`-only to canonical query object (`page`, `limit`, `search`, `role`, `branchId`).
+- `apps/web/hooks/use-users-page.ts`
+  - Replaced client-only filtering with API-driven filtering/pagination state:
+    - added `page`, `pageSize`, `total`
+    - sends `search` + `role` + pagination to backend
+    - keeps debounce behavior for search-driven requests
+    - resets to page 1 on filter changes
+- `apps/web/components/config/users/users-access-table.tsx`
+  - Wired shared `DataTable` pagination props (`page`, `total`, `limit`, `onPageChange`).
+- `apps/web/components/config/users/users-list-toolbar.tsx`
+  - Updated toolbar total to use API total results count.
+  - Refined search placeholder to align with backend search fields.
+- `apps/web/components/config/UsersTable.tsx`
+  - Connected page state and total count through toolbar and table components.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run build -w api` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+
 ## 2026-03-04 — Pass 74 (Login-path fix: web API target + deterministic admin credential reset)
 
 ### Authentication path fix

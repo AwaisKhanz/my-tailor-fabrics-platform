@@ -111,18 +111,18 @@ apps/api/src/search/search.controller.spec.ts,backend-domains,6,DN,codex,Sixth m
 apps/api/src/search/search.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/search/search.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after search hardening
 apps/api/src/search/search.service.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/search/search.service.ts,backend-domains,6,DN,codex,Thirty-seventh modernization pass
+apps/api/src/search/search.service.ts,backend-domains,6,DN,codex,Seventy-sixth modernization pass
 apps/api/src/tasks/dto/create-task.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
 apps/api/src/tasks/dto/update-task.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
 apps/api/src/tasks/entities/task.entity.ts,backend-domains,6,NS,unassigned,
 apps/api/src/tasks/tasks.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/tasks/tasks.module.ts,backend-domains,6,DN,codex,Second modernization pass
 apps/api/src/tasks/tasks.service.ts,backend-domains,6,DN,codex,Sixtieth modernization pass
-apps/api/src/users/dto/user.dto.ts,backend-domains,6,NS,unassigned,
-apps/api/src/users/users.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
+apps/api/src/users/dto/user.dto.ts,backend-domains,6,DN,codex,Seventy-fifth modernization pass
+apps/api/src/users/users.controller.ts,backend-domains,6,DN,codex,Seventy-fifth modernization pass
 apps/api/src/users/users.module.ts,backend-domains,6,NJ,codex,Module wiring remains correct after shared-logic service refactor
 apps/api/src/users/users.service.spec.ts,backend-domains,6,DN,codex,Sixth modernization pass
-apps/api/src/users/users.service.ts,backend-domains,6,DN,codex,Sixty-first modernization pass
+apps/api/src/users/users.service.ts,backend-domains,6,DN,codex,Seventy-fifth modernization pass
 apps/web/app/(dashboard)/customers/[id]/page.tsx,web-domains,5,DN,codex,Fifteenth modernization pass
 apps/web/app/(dashboard)/customers/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 22
 apps/web/app/(dashboard)/employees/[id]/page.tsx,web-domains,5,DN,codex,Thirteenth modernization pass
@@ -183,7 +183,7 @@ apps/web/components/config/MeasurementCategoriesTable.tsx,web-domains,5,DN,codex
 apps/web/components/config/MeasurementCategoryDetail.tsx,web-domains,5,DN,codex,Twenty-fifth modernization pass
 apps/web/components/config/MeasurementCategoryDialog.tsx,web-domains,5,DN,codex,Thirty-second modernization pass
 apps/web/components/config/MeasurementFieldDialog.tsx,web-domains,5,DN,codex,Twenty-seventh modernization pass
-apps/web/components/config/UsersTable.tsx,web-domains,5,DN,codex,Twentieth modernization pass
+apps/web/components/config/UsersTable.tsx,web-domains,5,DN,codex,Seventy-fifth modernization pass
 apps/web/components/config/appearance/appearance-mode-card.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/appearance/appearance-preset-directory.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/appearance/appearance-settings-page.tsx,web-domains,5,NS,unassigned,
@@ -235,8 +235,8 @@ apps/web/components/config/system/system-settings-state-card.tsx,web-domains,5,N
 apps/web/components/config/system/system-settings-stats-grid.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/system/system-settings-workflow-card.tsx,web-domains,5,NS,unassigned,
 apps/web/components/config/users/user-account-dialog.tsx,web-domains,5,DN,codex,Twentieth modernization pass
-apps/web/components/config/users/users-access-table.tsx,web-domains,5,DN,codex,Twentieth modernization pass
-apps/web/components/config/users/users-list-toolbar.tsx,web-domains,5,DN,codex,Twentieth modernization pass
+apps/web/components/config/users/users-access-table.tsx,web-domains,5,DN,codex,Seventy-fifth modernization pass
+apps/web/components/config/users/users-list-toolbar.tsx,web-domains,5,DN,codex,Seventy-fifth modernization pass
 apps/web/components/config/users/users-page-header.tsx,web-domains,5,DN,codex,Twentieth modernization pass
 apps/web/components/config/users/users-stats-grid.tsx,web-domains,5,DN,codex,Twentieth modernization pass
 apps/web/components/customers/CustomerDialog.tsx,web-domains,5,DN,codex,Twenty-ninth modernization pass
@@ -413,7 +413,7 @@ apps/web/hooks/use-reports-workspace.ts,web-domains,5,NS,unassigned,
 apps/web/hooks/use-system-settings-page.ts,web-domains,5,NS,unassigned,
 apps/web/hooks/use-task-assignment-dialog.ts,web-domains,5,DN,codex,Thirty-first modernization pass
 apps/web/hooks/use-toast.ts,web-domains,5,NJ,codex,Shared toast hook; no page decomposition applicable
-apps/web/hooks/use-users-page.ts,web-domains,5,DN,codex,Twentieth modernization pass
+apps/web/hooks/use-users-page.ts,web-domains,5,DN,codex,Seventy-fifth modernization pass
 apps/web/lib/api.ts,security-env,1,DN,codex,Seventh modernization pass
 apps/web/lib/authz.ts,auth-rbac,2,NS,unassigned,
 apps/web/lib/api/attendance.ts,shared-contracts,3,NS,unassigned,
@@ -431,7 +431,7 @@ apps/web/lib/api/orders.ts,shared-contracts,3,DN,codex,Initial modernization pas
 apps/web/lib/api/payments.ts,shared-contracts,3,DN,codex,Twenty-ninth modernization pass
 apps/web/lib/api/rates.ts,shared-contracts,3,NS,unassigned,
 apps/web/lib/api/reports.ts,shared-contracts,3,DN,codex,Eighth modernization pass
-apps/web/lib/api/users.ts,shared-contracts,3,DN,codex,Eighth modernization pass
+apps/web/lib/api/users.ts,shared-contracts,3,DN,codex,Seventy-fifth modernization pass
 apps/web/lib/chart-theme.ts,cross-cutting,8,NS,unassigned,
 apps/web/lib/config.ts,cross-cutting,8,NS,unassigned,
 apps/web/lib/env.ts,cross-cutting,8,DN,codex,Sixty-sixth modernization pass
@@ -489,4 +489,4 @@ packages/shared-types/src/orders.ts,shared-contracts,3,DN,codex,Initial moderniz
 packages/shared-types/src/payments.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/rates.ts,shared-contracts,3,NS,unassigned,
 packages/shared-types/src/reports.ts,shared-contracts,3,DN,codex,Eighth modernization pass
-packages/shared-types/src/users.ts,shared-contracts,3,DN,codex,Eighth modernization pass
+packages/shared-types/src/users.ts,shared-contracts,3,DN,codex,Seventy-fifth modernization pass

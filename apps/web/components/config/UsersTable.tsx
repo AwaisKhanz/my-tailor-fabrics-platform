@@ -16,8 +16,10 @@ export function UsersTable() {
     saving,
     stats,
     users,
-    filteredUsersCount,
+    totalUsersCount,
     search,
+    page,
+    pageSize,
     roleFilter,
     hasActiveFilters,
     branches,
@@ -26,6 +28,7 @@ export function UsersTable() {
     form,
     isConfirmOpen,
     userToDelete,
+    setPage,
     setSearchFilter,
     setRoleFilterValue,
     resetFilters,
@@ -50,7 +53,7 @@ export function UsersTable() {
         <UsersListToolbar
           search={search}
           roleFilter={roleFilter}
-          filteredUsersCount={filteredUsersCount}
+          totalUsersCount={totalUsersCount}
           hasActiveFilters={hasActiveFilters}
           onSearchChange={setSearchFilter}
           onRoleFilterChange={setRoleFilterValue}
@@ -60,8 +63,12 @@ export function UsersTable() {
         <UsersAccessTable
           users={users}
           loading={loading}
+          page={page}
+          total={totalUsersCount}
+          pageSize={pageSize}
           onEdit={openEditDialog}
           onDelete={requestDelete}
+          onPageChange={setPage}
           onToggleActive={toggleUserActive}
         />
       </TableSurface>

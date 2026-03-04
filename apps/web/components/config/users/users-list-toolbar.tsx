@@ -8,7 +8,7 @@ import { USERS_ALL_ROLES_FILTER_VALUE, type UserRoleFilter } from "@/hooks/use-u
 interface UsersListToolbarProps {
   search: string;
   roleFilter: UserRoleFilter;
-  filteredUsersCount: number;
+  totalUsersCount: number;
   hasActiveFilters: boolean;
   onSearchChange: (value: string) => void;
   onRoleFilterChange: (value: string) => void;
@@ -18,7 +18,7 @@ interface UsersListToolbarProps {
 export function UsersListToolbar({
   search,
   roleFilter,
-  filteredUsersCount,
+  totalUsersCount,
   hasActiveFilters,
   onSearchChange,
   onRoleFilterChange,
@@ -31,7 +31,7 @@ export function UsersListToolbar({
   return (
     <TableToolbar
       title="Staff Access Directory"
-      total={filteredUsersCount}
+      total={totalUsersCount}
       totalLabel="results"
       activeFilterCount={effectiveFilterCount}
       controls={
@@ -40,7 +40,7 @@ export function UsersListToolbar({
             icon={<Search className="h-4 w-4" />}
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search by name, email, role, branch..."
+            placeholder="Search by name, email, branch..."
           />
 
           <div className="w-full md:w-56">

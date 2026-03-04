@@ -1,3 +1,5 @@
+import { Role } from './common';
+
 export interface UserAccount {
   id: string;
   name: string;
@@ -16,7 +18,13 @@ export interface UserStatsSummary {
   privileged: number;
 }
 
-import { Role } from './common';
+export interface UserAccountsQueryInput {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: Role;
+  branchId?: string;
+}
 
 export interface CreateUserInput {
   name: string;

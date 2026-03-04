@@ -8,6 +8,8 @@ import { usersApi } from "@/lib/api/users";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
 
+const PAGE_SIZE = 10;
+
 export const USERS_ALL_BRANCHES_VALUE = "ALL_BRANCHES";
 export const USERS_ALL_ROLES_FILTER_VALUE = "ALL_ROLES";
 
@@ -49,6 +51,7 @@ export function useUsersPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [users, setUsers] = useState<UserAccount[]>([]);
+  const [total, setTotal] = useState(0);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [stats, setStats] = useState<UserStatsSummary>({
     total: 0,
@@ -57,6 +60,7 @@ export function useUsersPage() {
   });
 
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<UserRoleFilter>(USERS_ALL_ROLES_FILTER_VALUE);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -69,14 +73,22 @@ export function useUsersPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      const usersQuery = {
+        page,
+        limit: PAGE_SIZE,
+        search: search.trim() || undefined,
+        role: roleFilter === USERS_ALL_ROLES_FILTER_VALUE ? undefined : roleFilter,
+      };
+
       const [usersResponse, branchesResponse, statsResponse] = await Promise.all([
-        usersApi.getUsers(),
+        usersApi.getUsers(usersQuery),
         branchesApi.getBranches(),
         usersApi.getStats(),
       ]);
 
       if (usersResponse.success) {
         setUsers(usersResponse.data.data);
+        setTotal(usersResponse.data.total);
       }
 
       if (branchesResponse.success) {
@@ -96,37 +108,17 @@ export function useUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [page, roleFilter, search, toast]);
 
   useEffect(() => {
-    void fetchData();
+    const timer = setTimeout(() => {
+      void fetchData();
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [fetchData]);
-
-  const filteredUsers = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-
-    return users.filter((user) => {
-      const matchesRole = roleFilter === USERS_ALL_ROLES_FILTER_VALUE || user.role === roleFilter;
-      if (!matchesRole) {
-        return false;
-      }
-
-      if (!normalizedSearch) {
-        return true;
-      }
-
-      return [
-        user.name,
-        user.email,
-        user.role,
-        user.branch?.name ?? "",
-        user.branch?.code ?? "",
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedSearch);
-    });
-  }, [roleFilter, search, users]);
 
   const hasActiveFilters = useMemo(
     () => search.trim().length > 0 || roleFilter !== USERS_ALL_ROLES_FILTER_VALUE,
@@ -161,16 +153,19 @@ export function useUsersPage() {
 
   const setSearchFilter = useCallback((value: string) => {
     setSearch(value);
+    setPage(1);
   }, []);
 
   const setRoleFilterValue = useCallback((value: string) => {
     if (value === USERS_ALL_ROLES_FILTER_VALUE || ROLES.some((role) => role.value === value)) {
       setRoleFilter(value as UserRoleFilter);
+      setPage(1);
     }
   }, []);
 
   const resetFilters = useCallback(() => {
     setSearch("");
+    setPage(1);
     setRoleFilter(USERS_ALL_ROLES_FILTER_VALUE);
   }, []);
 
@@ -262,10 +257,11 @@ export function useUsersPage() {
     loading,
     saving,
     stats,
-    users: filteredUsers,
-    totalUsers: users.length,
-    filteredUsersCount: filteredUsers.length,
+    users,
+    totalUsersCount: total,
     search,
+    page,
+    pageSize: PAGE_SIZE,
     roleFilter,
     hasActiveFilters,
     branches,
@@ -275,6 +271,7 @@ export function useUsersPage() {
     isConfirmOpen,
     userToDelete,
     setSearchFilter,
+    setPage,
     setRoleFilterValue,
     resetFilters,
     openCreateDialog,
