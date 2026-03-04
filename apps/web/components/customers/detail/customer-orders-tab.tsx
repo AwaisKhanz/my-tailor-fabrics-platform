@@ -28,7 +28,7 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
       {
         header: "Created",
         cell: (order) => (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-text-secondary">
             <Clock3 className="h-3.5 w-3.5" />
             <span>{new Date(order.createdAt).toLocaleDateString()}</span>
           </div>
@@ -63,7 +63,7 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
   );
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card/95">
+    <Card variant="shellFlat">
       <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
         <div className="space-y-1">
           <div className="flex items-center gap-2">

@@ -11,6 +11,7 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
@@ -60,17 +61,17 @@ export function OrderPaymentDialog({
               onSubmit();
             }}
           >
-            <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-muted px-5 py-4">
-              <span className="text-[10px] font-bold uppercase tracking-tight opacity-50">
+            <InfoTile tone="pending" radius="xl" layout="between" padding="none" className="px-5 py-4">
+              <span className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
                 Pending amount
               </span>
-              <span className="text-xl font-bold tabular-nums text-foreground">
+              <span className="text-xl font-bold tabular-nums text-text-primary">
                 {formatPKR(balanceDue)}
               </span>
-            </div>
+            </InfoTile>
 
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-tight">
+              <Label variant="tightCaps" className="text-text-primary">
                 Deposit Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -85,7 +86,7 @@ export function OrderPaymentDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-tight">
+              <Label variant="tightCaps" className="text-text-primary">
                 Transaction Note
               </Label>
               <Input

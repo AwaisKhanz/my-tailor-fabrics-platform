@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { MetaPill } from "@/components/ui/meta-pill";
 import { formatDate } from "@/lib/utils";
 
 interface EmployeeDetailHeaderProps {
@@ -26,16 +27,16 @@ export function EmployeeDetailHeader({
   const hasAccount = Boolean(employee.userAccount);
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+    <Card variant="shell">
       <CardContent spacing="section" className="space-y-6 p-5 sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3 lg:max-w-[70%]">
-            <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Label variant="microStrong">
               Employee Command
             </Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              <h1 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
                 {employee.fullName}
               </h1>
               <Badge
@@ -49,24 +50,24 @@ export function EmployeeDetailHeader({
               </Badge>
             </div>
 
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
-              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+            <div className="flex flex-col gap-2 text-xs text-text-secondary sm:flex-row sm:items-center sm:gap-3">
+              <MetaPill>
                 <Phone className="h-3.5 w-3.5" />
                 <span>{employee.phone}</span>
-              </div>
+              </MetaPill>
               {employee.city ? (
-                <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+                <MetaPill>
                   <MapPin className="h-3.5 w-3.5" />
                   <span>{employee.city}</span>
-                </div>
+                </MetaPill>
               ) : null}
-              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+              <MetaPill>
                 <CalendarDays className="h-3.5 w-3.5" />
                 <span>Joined {joinDateLabel}</span>
-              </div>
-              <div className="inline-flex items-center rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5 font-semibold text-foreground">
+              </MetaPill>
+              <MetaPill tone="strong">
                 {employee.designation || "Staff"}
-              </div>
+              </MetaPill>
             </div>
           </div>
 

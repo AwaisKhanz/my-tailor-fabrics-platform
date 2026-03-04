@@ -160,7 +160,7 @@ export function CreateRateDialog({
               <div className="space-y-2">
                 <Label htmlFor="rate">Rate (Rs.)</Label>
                 <div className="relative">
-                  <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                   <Input 
                     id="rate" 
                     type="number" 
@@ -175,7 +175,7 @@ export function CreateRateDialog({
               <div className="space-y-2">
                 <Label htmlFor="effectiveFrom">Effective From</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                   <Input 
                     id="effectiveFrom" 
                     type="date" 

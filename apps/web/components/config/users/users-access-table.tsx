@@ -5,6 +5,7 @@ import { Role, type UserAccount } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
@@ -41,11 +42,11 @@ export function UsersAccessTable({
         header: "Staff Member",
         cell: (user) => (
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
-              <Users className="h-5 w-5 text-muted-foreground" />
-            </div>
+            <InfoTile padding="none" className="h-10 w-10 shrink-0 items-center justify-center">
+              <Users className="h-5 w-5 text-text-secondary" />
+            </InfoTile>
             <div className="flex flex-col">
-              <span className="text-sm font-bold leading-tight text-foreground">{user.name}</span>
+              <span className="text-sm font-bold leading-tight text-text-primary">{user.name}</span>
               <Label variant="dashboard" className="mt-0.5">
                 ID: STAFF-{user.id ? user.id.slice(0, 3).toUpperCase() : "001"}
               </Label>
@@ -55,7 +56,7 @@ export function UsersAccessTable({
       },
       {
         header: "Email",
-        cell: (user) => <span className="text-sm font-bold text-foreground/60">{user.email}</span>,
+        cell: (user) => <span className="text-sm font-bold text-text-secondary">{user.email}</span>,
       },
       {
         header: "Role",
@@ -69,7 +70,7 @@ export function UsersAccessTable({
         header: "Branch Access",
         cell: (user) => (
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-sm font-bold text-text-primary">
               {user.branch ? user.branch.name : "All Branches"}
             </span>
             <Label variant="dashboard">{user.branch ? user.branch.code : "Master Access"}</Label>
@@ -80,7 +81,7 @@ export function UsersAccessTable({
         header: "Last Activity",
         cell: (user) => (
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-sm font-bold text-text-primary">
               {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString("en-PK") : "Never"}
             </span>
             <Label variant="dashboard">System Log</Label>

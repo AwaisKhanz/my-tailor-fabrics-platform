@@ -82,12 +82,12 @@ export function DataTable<T extends { id: string | number }>({
       <div className="overflow-x-auto">
         <Table className="text-sm">
           <TableHeader>
-            <TableRow className="border-b border-border bg-muted/20">
+            <TableRow className="border-b border-divider bg-surface-elevated">
               {columns.map((column, idx) => (
                 <TableHead
                   key={idx}
                   className={cn(
-                    "px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap",
+                    "px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-text-secondary whitespace-nowrap",
                     column.align === "right" && "text-right",
                     column.align === "center" && "text-center",
                     column.headerClassName
@@ -98,7 +98,7 @@ export function DataTable<T extends { id: string | number }>({
               ))}
             </TableRow>
           </TableHeader>
-          <TableBody className="divide-y divide-border">
+          <TableBody className="divide-y divide-divider">
             {data.length === 0 ? (
               <TableRow>
                 <TableCell
@@ -115,7 +115,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableRow
                   key={item.id}
                   className={cn(
-                    "hover:bg-muted/20 transition-colors group",
+                    "hover:bg-interaction-hover transition-colors group",
                     onRowClick && "cursor-pointer"
                   )}
                   onClick={() => onRowClick?.(item)}
@@ -146,7 +146,7 @@ export function DataTable<T extends { id: string | number }>({
 
       {/* Pagination Footer */}
       {totalPages > 0 && onPageChange && page && (
-        <div className="flex items-center justify-between px-5 py-3.5 border-t border-border bg-muted/10">
+        <div className="flex items-center justify-between border-t border-divider bg-surface-elevated px-5 py-3.5">
           <Typography as="p" variant="muted">
             Showing <span className="font-bold text-foreground">{from}</span> to{" "}
             <span className="font-bold text-foreground">{to}</span> of{" "}
@@ -159,7 +159,7 @@ export function DataTable<T extends { id: string | number }>({
               size="icon"
               disabled={page === 1}
               onClick={() => onPageChange(page - 1)}
-              className="h-8 w-8 rounded-lg border-border bg-background hover:bg-muted disabled:opacity-40 transition-colors"
+              className="h-8 w-8 rounded-lg border-divider bg-inputSurface-background hover:bg-interaction-hover disabled:opacity-40 transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -170,7 +170,7 @@ export function DataTable<T extends { id: string | number }>({
                   as="span"
                   variant="body"
                   key={`ellipsis-${i}`}
-                  className="h-8 w-8 flex items-center justify-center text-muted-foreground text-sm"
+                  className="h-8 w-8 flex items-center justify-center text-text-secondary text-sm"
                 >
                   ...
                 </Typography>
@@ -183,8 +183,8 @@ export function DataTable<T extends { id: string | number }>({
                   className={cn(
                     "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
                     page === p
-                      ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-sm"
-                      : "border-border bg-background hover:bg-muted text-foreground"
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                      : "border-divider bg-inputSurface-background text-foreground hover:bg-interaction-hover"
                   )}
                 >
                   {p}
@@ -197,7 +197,7 @@ export function DataTable<T extends { id: string | number }>({
               size="icon"
               disabled={page === totalPages}
               onClick={() => onPageChange(page + 1)}
-              className="h-8 w-8 rounded-lg border-border bg-background hover:bg-muted disabled:opacity-40 transition-colors"
+              className="h-8 w-8 rounded-lg border-divider bg-inputSurface-background hover:bg-interaction-hover disabled:opacity-40 transition-colors"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -211,5 +211,5 @@ export function DataTable<T extends { id: string | number }>({
     return tableContent;
   }
 
-  return <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">{tableContent}</div>;
+  return <div className="overflow-hidden rounded-lg border border-divider bg-surface shadow-sm">{tableContent}</div>;
 }

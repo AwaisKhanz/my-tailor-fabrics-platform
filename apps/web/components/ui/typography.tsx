@@ -8,9 +8,9 @@ const typographyVariants = cva('', {
       pageTitle: 'text-3xl font-bold tracking-tight text-foreground',
       sectionTitle: 'text-lg font-bold text-foreground',
       statValue: 'text-2xl font-bold tracking-tight text-foreground',
-      lead: 'text-sm text-muted-foreground',
-      muted: 'text-xs text-muted-foreground',
-      body: 'text-sm text-foreground',
+      lead: 'text-sm text-text-secondary',
+      muted: 'text-xs text-text-secondary',
+      body: 'text-sm text-text-primary',
     },
   },
   defaultVariants: {

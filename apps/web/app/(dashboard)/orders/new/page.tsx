@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormStack } from "@/components/ui/form-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { Badge } from "@/components/ui/badge";
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
+import { Typography } from "@/components/ui/typography";
 import { useOrderFormPage } from "@/hooks/use-order-form-page";
 import { OrderFormSkeleton } from "@/components/orders/order-form-skeleton";
 import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-card";
@@ -92,17 +96,17 @@ function NewOrderPage() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <Card className="border-border/70 bg-card/95">
+        <Card variant="elevatedPanel">
           <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <SectionIcon size="lg">
                 <ClipboardList className="h-4 w-4" />
-              </div>
+              </SectionIcon>
               <div>
                 <CardTitle className="text-base font-semibold tracking-tight">Order Workflow</CardTitle>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <Typography as="p" variant="muted" className="mt-1 text-xs">
                   Keep every order consistent from customer selection to final totals.
-                </p>
+                </Typography>
               </div>
             </div>
             <Badge variant="outline" size="xs" className="font-bold">
@@ -111,49 +115,52 @@ function NewOrderPage() {
           </CardHeader>
           <CardContent spacing="section" className="grid grid-cols-1 gap-3 p-5 md:grid-cols-3">
             {workflowSteps.map((step, index) => (
-              <div key={step.title} className="rounded-lg border border-border/70 bg-background/50 px-4 py-3">
-                <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <InfoTile key={step.title} tone="inputSurface" padding="none" className="px-4 py-3">
+                <Label variant="micro">
                   Step {index + 1}
                 </Label>
-                <p className="mt-1 text-sm font-semibold text-foreground">{step.title}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{step.detail}</p>
-              </div>
+                <Typography as="p" variant="body" className="mt-1 text-sm font-semibold text-foreground">
+                  {step.title}
+                </Typography>
+                <Typography as="p" variant="muted" className="mt-0.5 text-xs">
+                  {step.detail}
+                </Typography>
+              </InfoTile>
             ))}
           </CardContent>
         </Card>
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid auto-rows-fr space-y-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
-      >
-        <StatCard
-          title="Customer"
-          subtitle="Active selection"
-          value={selectedCustomer?.fullName || "Select customer"}
-          helperText={selectedCustomer?.phone || "No customer selected"}
-          tone="info"
-          valueClassName="line-clamp-1 text-xl"
-          icon={<UserRound className="h-4 w-4" />}
-        />
+      <PageSection spacing="compact">
+        <StatsGrid columns="three" flushSectionSpacing>
+          <StatCard
+            title="Customer"
+            subtitle="Active selection"
+            value={selectedCustomer?.fullName || "Select customer"}
+            helperText={selectedCustomer?.phone || "No customer selected"}
+            tone="info"
+            valueClassName="line-clamp-1 text-xl"
+            icon={<UserRound className="h-4 w-4" />}
+          />
 
-        <StatCard
-          title="Pieces"
-          subtitle="Order configuration"
-          value={fields.length}
-          helperText="Configured items"
-          tone="warning"
-          icon={<Package2 className="h-4 w-4" />}
-        />
+          <StatCard
+            title="Pieces"
+            subtitle="Order configuration"
+            value={fields.length}
+            helperText="Configured items"
+            tone="warning"
+            icon={<Package2 className="h-4 w-4" />}
+          />
 
-        <StatCard
-          title="Due Date"
-          subtitle="Delivery commitment"
-          value={watchedDueDate || "Not set"}
-          tone="success"
-          valueClassName="text-xl"
-          icon={<CalendarDays className="h-4 w-4" />}
-        />
+          <StatCard
+            title="Due Date"
+            subtitle="Delivery commitment"
+            value={watchedDueDate || "Not set"}
+            tone="success"
+            valueClassName="text-xl"
+            icon={<CalendarDays className="h-4 w-4" />}
+          />
+        </StatsGrid>
       </PageSection>
 
       <PageSection spacing="compact">

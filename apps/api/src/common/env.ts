@@ -1,4 +1,4 @@
-import type { StringValue } from 'ms';
+import ms, { type StringValue } from 'ms';
 
 const isProduction = process.env.NODE_ENV === 'production';
 type TrustProxyConfig = boolean | number | string | string[];
@@ -74,15 +74,50 @@ export function getJwtRefreshSecret(): string {
 }
 
 export function getJwtExpiresIn(): number | StringValue {
-  return resolveDurationEnv('JWT_EXPIRES_IN', process.env.JWT_EXPIRES_IN, '7d');
+  return resolveDurationEnv('JWT_EXPIRES_IN', process.env.JWT_EXPIRES_IN, '15m');
 }
 
 export function getJwtRefreshExpiresIn(): number | StringValue {
   return resolveDurationEnv(
     'JWT_REFRESH_EXPIRES_IN',
     process.env.JWT_REFRESH_EXPIRES_IN,
-    '30d',
+    '7d',
   );
+}
+
+export function getJwtRefreshCookieMaxAgeMs(): number {
+  const expiresIn = getJwtRefreshExpiresIn();
+  if (typeof expiresIn === 'number') {
+    return expiresIn * 1000;
+  }
+
+  const parsed = ms(expiresIn);
+  if (typeof parsed !== 'number' || parsed <= 0) {
+    throw new Error('JWT_REFRESH_EXPIRES_IN must resolve to a positive duration');
+  }
+
+  return parsed;
+}
+
+export function getJwtRefreshRotationGraceMs(): number {
+  const rawValue = process.env.JWT_REFRESH_ROTATION_GRACE_SECONDS?.trim();
+  if (!rawValue) {
+    return 30_000;
+  }
+
+  const parsedSeconds = Number.parseInt(rawValue, 10);
+  if (
+    Number.isNaN(parsedSeconds) ||
+    parsedSeconds < 5 ||
+    parsedSeconds > 300 ||
+    String(parsedSeconds) !== rawValue
+  ) {
+    throw new Error(
+      'JWT_REFRESH_ROTATION_GRACE_SECONDS must be an integer between 5 and 300',
+    );
+  }
+
+  return parsedSeconds * 1000;
 }
 
 export function getFrontendUrl(): string {
@@ -202,6 +237,8 @@ export function assertSecurityEnvironment(): void {
   void getJwtRefreshSecret();
   void getJwtExpiresIn();
   void getJwtRefreshExpiresIn();
+  void getJwtRefreshCookieMaxAgeMs();
+  void getJwtRefreshRotationGraceMs();
   void getFrontendUrl();
   void getStatusPinPepper();
   void getTrustProxyConfig();

@@ -47,7 +47,7 @@ export function BranchesDirectoryTable({
         header: "Branch",
         cell: (branch) => (
           <Link href={`/settings/branches/${branch.id}`} className="group inline-flex max-w-[220px] flex-col">
-            <span className="truncate text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
+            <span className="truncate text-sm font-bold leading-tight text-text-primary transition-colors group-hover:text-primary">
               {branch.name}
             </span>
             <Label variant="dashboard" className="mt-0.5 uppercase">
@@ -60,7 +60,7 @@ export function BranchesDirectoryTable({
         header: "Contact",
         cell: (branch) => (
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-foreground">
+            <span className="text-sm font-semibold text-text-primary">
               {branch.phone || "No phone provided"}
             </span>
             <Label variant="dashboard" className="mt-0.5">
@@ -72,7 +72,7 @@ export function BranchesDirectoryTable({
       {
         header: "Address",
         cell: (branch) => (
-          <Typography as="p" variant="body" className="max-w-[260px] font-medium leading-snug text-muted-foreground">
+          <Typography as="p" variant="body" className="max-w-[260px] font-medium leading-snug text-text-secondary">
             {branch.address || "No address provided"}
           </Typography>
         ),
@@ -120,7 +120,7 @@ export function BranchesDirectoryTable({
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => onToggleActive(branch)}
-                    className="cursor-pointer p-3 text-xs font-bold text-foreground"
+                    className="cursor-pointer p-3 text-xs font-bold text-text-primary"
                   >
                     {branch.isActive ? (
                       <>
@@ -136,7 +136,7 @@ export function BranchesDirectoryTable({
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => onDelete(branch)}
-                    className="cursor-pointer p-3 text-xs font-bold text-destructive focus:text-destructive"
+                    className="cursor-pointer p-3 text-xs font-bold text-error focus:text-error"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Branch

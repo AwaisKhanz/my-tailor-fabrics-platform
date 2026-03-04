@@ -16,19 +16,33 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border border-inputSurface-border bg-inputSurface-background text-foreground shadow-sm hover:bg-interaction-hover hover:text-foreground",
+        outlineDashed:
+          "border border-dashed border-inputSurface-border bg-inputSurface-background text-foreground shadow-sm hover:bg-interaction-hover hover:text-foreground",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-interaction-hover hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        muted: "border border-border bg-background hover:bg-muted text-muted-foreground",
-        dashboard: "border border-primary/30 bg-transparent text-primary hover:bg-primary/10 ",
+        muted: "border border-divider bg-surface text-text-secondary hover:bg-interaction-hover hover:text-foreground",
+        dashboard: "border border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-active ",
         tableIcon:
-          "border border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/70 hover:text-foreground",
+          "border border-transparent text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-foreground",
         tableDanger:
-          "border border-transparent text-muted-foreground hover:border-destructive/25 hover:bg-destructive/10 hover:text-destructive",
+          "border border-transparent text-text-secondary hover:border-destructive/25 hover:bg-error-muted hover:text-destructive",
         tableReset:
-          "h-10 border border-transparent text-xs font-semibold text-muted-foreground hover:border-border/70 hover:text-foreground",
+          "h-10 border border-transparent text-xs font-semibold text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-foreground",
+        tablePrimary:
+          "border border-divider bg-surface-elevated text-primary hover:bg-interaction-hover",
+        tableSuccess:
+          "border border-transparent text-success hover:border-success/25 hover:bg-success-muted hover:text-success",
+        infoGhost:
+          "text-info hover:bg-info-muted hover:text-info",
+        outlinePrimary:
+          "border border-primary/30 bg-transparent text-primary hover:bg-interaction-hover hover:text-primary",
+        sidebarIcon:
+          "rounded-lg border border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-active hover:text-sidebar-foreground",
+        sidebarIconMuted:
+          "rounded-lg border border-sidebar-border bg-transparent text-text-secondary hover:bg-interaction-hover hover:text-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",

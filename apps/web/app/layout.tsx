@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemePresetProvider } from "@/components/ThemePresetProvider";
 import { Toaster } from "@/components/ui/toaster";
 
-const schibsted = Schibsted_Grotesk({ 
-  subsets: ["latin"], 
-  variable: "--font-schibsted" 
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-schibsted",
+  fallback: ["system-ui", "-apple-system", "Segoe UI", "Arial", "sans-serif"],
 });
 
 import { siteConfig } from "@/lib/config";
@@ -27,7 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`
-          ${schibsted.variable} 
+          ${manrope.variable} 
           font-schibsted
           antialiased
         `}

@@ -4,15 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { getJwtSecret } from '../../common/env';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
-import { Role } from '@tbms/shared-types';
-
-export type JwtPayload = {
-  sub: string;
-  email: string;
-  role: string;
-  branchId: string | null;
-  employeeId: string | null;
-};
+import type { AccessTokenClaims, Role } from '@tbms/shared-types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -24,7 +16,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: AccessTokenClaims) {
+    if (payload.tokenType !== 'access') {
+      throw new UnauthorizedException('Invalid access token type');
+    }
+
     if (!isRole(payload.role)) {
       throw new UnauthorizedException('Invalid role in token');
     }

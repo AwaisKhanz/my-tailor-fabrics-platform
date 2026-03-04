@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { useToast } from "@/hooks/use-toast";
 import { employeesApi } from "@/lib/api/employees";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -92,9 +93,12 @@ export function AccountCreationDialog({
       maxWidthClass="sm:max-w-[400px]"
     >
       <div className="flex flex-col items-center justify-center mb-6 mt-2">
-        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+        <SectionIcon
+          framed={false}
+          className="h-12 w-12 rounded-full"
+        >
           <Key className="h-6 w-6 text-primary" />
-        </div>
+        </SectionIcon>
       </div>
       <Form {...form}>
         <FormStack

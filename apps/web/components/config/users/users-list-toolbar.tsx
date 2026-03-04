@@ -47,7 +47,7 @@ export function UsersListToolbar({
             <Select value={roleFilter} onValueChange={onRoleFilterChange}>
               <SelectTrigger variant="table" className="w-full text-xs font-bold">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Filter className="h-3.5 w-3.5 text-text-secondary" />
                   <SelectValue placeholder="Filter by role" />
                 </div>
               </SelectTrigger>

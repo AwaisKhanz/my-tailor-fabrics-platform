@@ -2,7 +2,7 @@
 
 import { Role } from "@tbms/shared-types";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageShell } from "@/components/ui/page-shell";
+import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { MyOrdersTable } from "@/components/orders/my-orders-table";
 import { MyOrdersToolbar } from "@/components/orders/my-orders-toolbar";
@@ -21,21 +21,26 @@ function MyOrdersPage() {
 
   return (
     <PageShell>
-      <PageHeader
-        title="My Work Orders"
-        description="Review and manage your assigned tailoring tasks."
-      />
-
-      <TableSurface>
-        <MyOrdersToolbar
-          search={search}
-          totalCount={items.length}
-          filteredCount={filteredItems.length}
-          onSearchChange={setSearchFilter}
-          onClearSearch={clearSearch}
+      <PageSection spacing="compact">
+        <PageHeader
+          title="My Work Orders"
+          description="Review and manage your assigned tailoring tasks."
+          density="compact"
         />
-        <MyOrdersTable items={filteredItems} loading={loading} />
-      </TableSurface>
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <TableSurface>
+          <MyOrdersToolbar
+            search={search}
+            totalCount={items.length}
+            filteredCount={filteredItems.length}
+            onSearchChange={setSearchFilter}
+            onClearSearch={clearSearch}
+          />
+          <MyOrdersTable items={filteredItems} loading={loading} />
+        </TableSurface>
+      </PageSection>
     </PageShell>
   );
 }

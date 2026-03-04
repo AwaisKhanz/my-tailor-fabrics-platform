@@ -108,7 +108,7 @@ export function MeasurementForm({
     }
   }
 
-  if (loading) return <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-text-secondary" /></div>;
 
   return (
     <FormStack density="relaxed">
@@ -140,7 +140,7 @@ export function MeasurementForm({
                   render={({ field: formField }) => (
                     <FormItem>
                       <FormLabel>
-                        {field.label} {field.unit && <span className="text-xs text-muted-foreground">({field.unit})</span>}
+                        {field.label} {field.unit && <span className="text-xs text-text-secondary">({field.unit})</span>}
                         {field.isRequired && <span className="text-destructive">*</span>}
                       </FormLabel>
                       <FormControl>

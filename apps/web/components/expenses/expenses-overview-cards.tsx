@@ -1,5 +1,6 @@
 import { Filter, ReceiptText, Wallet } from "lucide-react";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface ExpensesOverviewCardsProps {
@@ -16,7 +17,7 @@ export function ExpensesOverviewCards({
   activeFilterCount,
 }: ExpensesOverviewCardsProps) {
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <StatsGrid columns="three">
       <StatCard
         title="Page Spend"
         subtitle="Visible records only"
@@ -44,6 +45,6 @@ export function ExpensesOverviewCards({
         icon={<Filter className="h-4 w-4" />}
         className="sm:col-span-2 xl:col-span-1"
       />
-    </div>
+    </StatsGrid>
   );
 }

@@ -16,4 +16,5 @@ export * from './ledger';
 export * from './reports';
 export * from './audit';
 export * from './integrations';
+export * from './auth';
 export * from './authz';

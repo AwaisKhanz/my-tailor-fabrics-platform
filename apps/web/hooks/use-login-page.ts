@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 
 export function useLoginPage() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const { toast } = useToast();
 
   const [email, setEmail] = useState("");
@@ -15,12 +16,29 @@ export function useLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const handledInvalidSessionRef = useRef(false);
 
   useEffect(() => {
     if (status === "authenticated") {
+      const sessionError =
+        typeof session?.error === "string" && session.error.length > 0
+          ? session.error
+          : null;
+      const hasAccessToken =
+        typeof session?.accessToken === "string" && session.accessToken.length > 0;
+
+      if (sessionError || !hasAccessToken) {
+        if (handledInvalidSessionRef.current) {
+          return;
+        }
+        handledInvalidSessionRef.current = true;
+        void signOut({ redirect: false });
+        router.replace("/login?expired=1");
+        return;
+      }
       router.replace("/");
     }
-  }, [router, status]);
+  }, [router, session?.accessToken, session?.error, status]);
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword((current) => !current);

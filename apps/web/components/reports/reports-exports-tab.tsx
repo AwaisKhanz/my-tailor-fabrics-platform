@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { ReportsExportGrid } from "@/components/reports/reports-export-grid";
 import { ReportsWeeklyPrintCard } from "@/components/reports/reports-weekly-print-card";
@@ -22,9 +23,9 @@ export function ReportsExportsTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 px-1">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+        <SectionIcon framed={false} className="rounded-xl">
           <FileText className="h-4 w-4 text-primary" />
-        </div>
+        </SectionIcon>
         <Typography as="h2" variant="sectionTitle">
           Document Exports
         </Typography>

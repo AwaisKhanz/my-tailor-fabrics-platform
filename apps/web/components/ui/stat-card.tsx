@@ -41,12 +41,12 @@ const statValueTone = cva("text-3xl", {
 const statIconTone = cva("flex h-10 w-10 items-center justify-center rounded-lg border", {
   variants: {
     tone: {
-      default: "border-border/70 bg-muted/20 text-muted-foreground",
-      primary: "border-primary/20 bg-primary/15 text-primary",
-      success: "border-success/20 bg-success/15 text-success",
-      warning: "border-warning/20 bg-warning/15 text-warning",
-      destructive: "border-destructive/20 bg-destructive/15 text-destructive",
-      info: "border-info/20 bg-info/15 text-info",
+      default: "border-divider bg-surface-elevated text-text-secondary",
+      primary: "border-primary/20 bg-primary/10 text-primary",
+      success: "border-success/20 bg-success-muted text-success",
+      warning: "border-warning/20 bg-warning-muted text-warning",
+      destructive: "border-destructive/20 bg-error-muted text-destructive",
+      info: "border-info/20 bg-info-muted text-info",
     },
   },
   defaultVariants: {
@@ -71,6 +71,8 @@ export interface StatCardProps extends VariantProps<typeof statCardTone> {
   action?: React.ReactNode;
   icon?: React.ReactNode;
   badgeText?: string;
+  iconTone?: NonNullable<VariantProps<typeof statIconTone>["tone"]>;
+  valueTone?: NonNullable<VariantProps<typeof statValueTone>["tone"]>;
   className?: string;
   contentClassName?: string;
   valueClassName?: string;
@@ -85,30 +87,34 @@ export function StatCard({
   icon,
   badgeText,
   tone = "default",
+  iconTone,
+  valueTone,
   className,
   contentClassName,
   valueClassName,
 }: StatCardProps) {
   const resolvedTone = tone ?? "default";
+  const resolvedIconTone = iconTone ?? resolvedTone;
+  const resolvedValueTone = valueTone ?? resolvedTone;
 
   return (
-    <Card className={cn("overflow-hidden border-border/70 bg-card/95 shadow-sm", statCardTone({ tone: resolvedTone }), className)}>
+    <Card variant="elevatedPanel" className={cn("overflow-hidden shadow-sm", statCardTone({ tone: resolvedTone }), className)}>
       <CardHeader variant="rowSection" density="compact" className="items-start gap-3">
         <div className="space-y-1">
           <CardTitle variant="dashboard" className="text-base">
             {title}
           </CardTitle>
           {subtitle ? (
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{subtitle}</Label>
+            <Label variant="micro">{subtitle}</Label>
           ) : null}
         </div>
 
-        {icon ? <div className={statIconTone({ tone: resolvedTone })}>{icon}</div> : null}
+        {icon ? <div className={statIconTone({ tone: resolvedIconTone })}>{icon}</div> : null}
       </CardHeader>
 
       <CardContent spacing="section" className={cn("space-y-2 p-5", contentClassName)}>
         <div className="flex items-center gap-2">
-          <Typography as="p" variant="statValue" className={cn(statValueTone({ tone: resolvedTone }), valueClassName)}>
+          <Typography as="p" variant="statValue" className={cn(statValueTone({ tone: resolvedValueTone }), valueClassName)}>
             {value}
           </Typography>
           {badgeText ? (
@@ -119,7 +125,7 @@ export function StatCard({
         </div>
 
         {helperText ? (
-          <Label variant="dashboard" className="text-muted-foreground">
+          <Label variant="dashboard" className="text-text-secondary">
             {helperText}
           </Label>
         ) : null}

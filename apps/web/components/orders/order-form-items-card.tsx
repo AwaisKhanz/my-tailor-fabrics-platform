@@ -38,7 +38,7 @@ export function OrderFormItemsCard({
   getItemLineTotal,
 }: OrderFormItemsCardProps) {
   return (
-    <Card variant="premium" className="border-border/70">
+    <Card variant="premium">
       <CardHeader variant="rowSection" density="comfortable" className="items-start gap-4 sm:items-center">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export function OrderFormItemsCard({
               {fields.length} PIECES
             </Badge>
           </div>
-          <Label variant="dashboard" className="text-muted-foreground/90">
+          <Label variant="dashboard" className="text-text-secondary">
             Configure garment, pricing, design, and assignment per piece.
           </Label>
         </div>

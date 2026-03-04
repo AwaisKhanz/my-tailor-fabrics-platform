@@ -9,14 +9,14 @@ import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 
 const AVATAR_COLORS = [
-  "bg-primary/20 text-primary",
-  "bg-success/20 text-success",
-  "bg-warning/20 text-warning",
-  "bg-info/20 text-info",
-  "bg-destructive/10 text-destructive",
-  "bg-chart-1/20 text-chart-1",
-  "bg-chart-2/20 text-chart-2",
-  "bg-chart-3/20 text-chart-3",
+  "bg-info-muted text-info",
+  "bg-success-muted text-success",
+  "bg-warning-muted text-warning",
+  "bg-ready-muted text-ready",
+  "bg-error-muted text-error",
+  "bg-primary/10 text-primary",
+  "bg-pending-muted text-text-primary",
+  "bg-surface-elevated text-text-primary",
 ];
 
 function getInitials(name: string) {
@@ -88,7 +88,7 @@ export function CustomersDirectoryTable({
                 {initials}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-semibold leading-tight text-foreground">
+                <span className="text-sm font-semibold leading-tight text-text-primary">
                   {customer.fullName}
                 </span>
                 {customer.isVip ? (
@@ -105,7 +105,7 @@ export function CustomersDirectoryTable({
         header: "Contact Info",
         cell: (customer) => (
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold tabular-nums text-foreground">{customer.phone}</span>
+            <span className="text-sm font-semibold tabular-nums text-text-primary">{customer.phone}</span>
             {customer.whatsapp ? (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-success/50" />
@@ -115,7 +115,7 @@ export function CustomersDirectoryTable({
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/50" />
+                <span className="h-2 w-2 shrink-0 rounded-full bg-text-disabled" />
                 <Label variant="dashboard">No WhatsApp</Label>
               </div>
             )}
@@ -129,7 +129,7 @@ export function CustomersDirectoryTable({
       {
         header: "Lifetime Value",
         cell: (customer) => (
-          <span className="text-sm font-semibold tabular-nums text-foreground">
+          <span className="text-sm font-semibold tabular-nums text-text-primary">
             {formatPKR(customer.lifetimeValue)}
           </span>
         ),

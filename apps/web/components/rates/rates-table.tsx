@@ -28,7 +28,7 @@ export function RatesTable({
       {
         header: "Garment Type",
         cell: (rate) => (
-          <div className="font-medium text-foreground">{rate.garmentType?.name || "Unknown"}</div>
+          <div className="font-medium text-text-primary">{rate.garmentType?.name || "Unknown"}</div>
         ),
       },
       {

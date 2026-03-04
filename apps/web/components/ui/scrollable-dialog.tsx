@@ -44,7 +44,7 @@ export function ScrollableDialog({
         variant="flush"
         className={cn(maxWidthClass, maxHeightClass, "flex flex-col")}
       >
-        <DialogHeader className="p-6 pb-4 border-b shrink-0">
+        <DialogHeader className="shrink-0 border-b border-divider p-6 pb-4">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
@@ -56,7 +56,7 @@ export function ScrollableDialog({
         </ScrollArea>
         
         {footerActions ? (
-          <DialogActionRow className="shrink-0 bg-muted/50 px-6 pb-6">
+          <DialogActionRow className="shrink-0 bg-surface-elevated px-6 pb-6">
             {footerActions}
           </DialogActionRow>
         ) : null}

@@ -5,6 +5,7 @@ import { GARMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 import { type GarmentTypeWithWorkflow } from "@/hooks/use-garment-types-page";
@@ -44,14 +45,19 @@ export function GarmentTypesInventoryTable({
         header: "Garment Name",
         cell: (item) => (
           <div className="group/row flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted transition-colors group-hover/row:border-primary/20 group-hover/row:bg-primary/5">
-              <Shirt className="h-5 w-5 text-muted-foreground transition-colors group-hover/row:text-primary" />
-            </div>
+            <InfoTile
+              tone="surface"
+              padding="none"
+              interaction="interactivePrimary"
+              className="h-10 w-10 shrink-0 items-center justify-center"
+            >
+              <Shirt className="h-5 w-5 text-text-secondary transition-colors group-hover/row:text-primary" />
+            </InfoTile>
             <Link
               href={`/settings/garments/${item.id}`}
               className="group/link flex flex-col transition-opacity hover:opacity-80"
             >
-              <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover/link:text-primary">
+              <span className="text-sm font-bold leading-tight text-text-primary transition-colors group-hover/link:text-primary">
                 {item.name}
               </span>
               <Label variant="dashboard" className="mt-0.5">
@@ -63,11 +69,11 @@ export function GarmentTypesInventoryTable({
       },
       {
         header: "Customer Price",
-        cell: (item) => <span className="text-sm font-bold text-foreground">{formatPKR(item.customerPrice)}</span>,
+        cell: (item) => <span className="text-sm font-bold text-text-primary">{formatPKR(item.customerPrice)}</span>,
       },
       {
         header: "Employee Rate",
-        cell: (item) => <span className="text-sm font-bold text-foreground">{formatPKR(item.employeeRate)}</span>,
+        cell: (item) => <span className="text-sm font-bold text-text-primary">{formatPKR(item.employeeRate)}</span>,
       },
       {
         header: "Status",

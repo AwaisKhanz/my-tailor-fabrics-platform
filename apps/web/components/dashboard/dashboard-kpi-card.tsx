@@ -47,7 +47,7 @@ export function DashboardKpiCard({
       helperText={loading ? undefined : helperText}
       badgeText={loading ? undefined : badgeText}
       className="h-full"
-      valueClassName={loading ? "text-foreground" : undefined}
+      valueClassName={loading ? "text-text-primary" : undefined}
     />
   );
 }

@@ -30,7 +30,7 @@ export function MyOrdersTable({ items, loading }: MyOrdersTableProps) {
         header: "Garment Type",
         cell: (item) => (
           <div className="flex flex-col">
-            <span className="text-sm font-semibold leading-tight text-foreground">
+            <span className="text-sm font-semibold leading-tight text-text-primary">
               {item.garmentTypeName}
             </span>
             <Label variant="dashboard" className="mt-0.5">

@@ -17,11 +17,19 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import type { CookieOptions, Response } from 'express';
 import { Public, Roles } from '../common/decorators/auth.decorators';
-import { isProductionEnvironment } from '../common/env';
+import {
+  getJwtRefreshCookieMaxAgeMs,
+  isProductionEnvironment,
+} from '../common/env';
 import { ALL_ROLES } from '@tbms/shared-constants';
+import type {
+  ApiResponse,
+  AuthLoginResponseData,
+  AuthRefreshResponseData,
+  Role,
+} from '@tbms/shared-types';
 
 const REFRESH_COOKIE_NAME = 'Refresh-Token';
-const REFRESH_COOKIE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Controller('auth')
 export class AuthController {
@@ -31,9 +39,9 @@ export class AuthController {
     return {
       httpOnly: true,
       secure: isProductionEnvironment(),
-      sameSite: 'lax',
-      maxAge: REFRESH_COOKIE_MAX_AGE_MS,
-      path: '/',
+      sameSite: 'strict',
+      maxAge: getJwtRefreshCookieMaxAgeMs(),
+      path: '/auth/refresh',
     };
   }
 
@@ -64,13 +72,18 @@ export class AuthController {
 
     this.setRefreshCookie(res, result.refreshToken);
 
-    return res.json({
+    const responseBody: ApiResponse<AuthLoginResponseData> = {
       success: true,
       data: {
         accessToken: result.accessToken,
-        user: result.user,
+        user: {
+          ...result.user,
+          role: result.user.role as Role,
+        },
       },
-    });
+    };
+
+    return res.json(responseBody);
   }
 
   @Public()
@@ -85,7 +98,7 @@ export class AuthController {
   })
   @Post('refresh')
   async refresh(@Req() req: AuthenticatedRequest, @Res() res: Response) {
-    const userId = req.user.userId ?? req.user.sub;
+    const userId = req.user.userId;
     const refreshToken = req.user.refreshToken;
     if (!userId || !refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
@@ -95,10 +108,14 @@ export class AuthController {
 
     this.setRefreshCookie(res, result.refreshToken);
 
-    return res.json({
+    const responseBody: ApiResponse<AuthRefreshResponseData> = {
       success: true,
-      data: { accessToken: result.accessToken },
-    });
+      data: {
+        accessToken: result.accessToken,
+      },
+    };
+
+    return res.json(responseBody);
   }
   @Roles(...ALL_ROLES)
   @HttpCode(HttpStatus.OK)

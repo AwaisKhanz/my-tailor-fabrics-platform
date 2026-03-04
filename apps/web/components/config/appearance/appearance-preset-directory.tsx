@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 
 interface AppearancePresetDirectoryProps {
@@ -27,7 +28,7 @@ export function AppearancePresetDirectory({
   onApply,
 }: AppearancePresetDirectoryProps) {
   return (
-    <Card className="border-border/70 bg-card/95">
+    <Card variant="panel">
       <CardHeader variant="section" className="space-y-1">
         <CardTitle className="text-base font-semibold">
           Theme Preset Directory
@@ -45,31 +46,32 @@ export function AppearancePresetDirectory({
             onChange={(event) => onQueryChange(event.target.value)}
             className="pl-9"
           />
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-hover:text-primary">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary transition-colors group-hover:text-primary">
             <Search className="h-4 w-4" />
           </span>
         </div>
 
         <div className="space-y-2">
           {presets.length === 0 ? (
-            <div className="rounded-lg border border-border/70 bg-background/40 px-4 py-6 text-center text-sm text-muted-foreground">
+            <InfoTile padding="none" className="px-4 py-6 text-center text-sm text-text-secondary">
               No presets match your search.
-            </div>
+            </InfoTile>
           ) : (
             presets.map((themePreset) => {
               const active = activePresetId === themePreset.id;
 
               return (
-                <div
+                <InfoTile
                   key={themePreset.id}
-                  className="rounded-lg border border-border/70 bg-background/35 p-3 transition-colors hover:border-primary/30"
+                  padding="content"
+                  className="transition-colors hover:border-borderStrong"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-foreground">
+                      <p className="text-sm font-semibold text-text-primary">
                         {themePreset.label}
                       </p>
-                      <p className="text-xs leading-relaxed text-muted-foreground">
+                      <p className="text-xs leading-relaxed text-text-secondary">
                         {themePreset.description}
                       </p>
                     </div>
@@ -91,7 +93,7 @@ export function AppearancePresetDirectory({
                       {active ? "Selected" : "Apply"}
                     </Button>
                   </div>
-                </div>
+                </InfoTile>
               );
             })
           )}

@@ -1,0 +1,261 @@
+path,module,phase,status,notes
+apps/web/app/(dashboard)/customers/[id]/page.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/app/(dashboard)/customers/page.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/app/(dashboard)/employees/[id]/page.tsx,domain,6,NJ,Reviewed orchestrator uses semantic primitives only
+apps/web/app/(dashboard)/employees/page.tsx,domain,6,DN,Table surface migrated to semantic tokens
+apps/web/app/(dashboard)/expenses/page.tsx,domain,6,DN,Table surface aligned to semantic border and surface tokens
+apps/web/app/(dashboard)/layout.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/app/(dashboard)/my-orders/page.tsx,domain,6,NJ,Orchestrator route already uses shared shell primitives and has no direct token classes
+apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx,domain,6,NJ,Dialog orchestration only and styling delegated to shared dialog/table primitives
+apps/web/app/(dashboard)/orders/[id]/page.tsx,domain,6,DN,Phase 6 domain token migration wave 1
+apps/web/app/(dashboard)/orders/new/page.tsx,domain,6,DN,Phase 6 domain token migration wave 1
+apps/web/app/(dashboard)/orders/page.tsx,domain,6,DN,Phase 6 domain token migration wave 1
+apps/web/app/(dashboard)/page.tsx,domain,6,DN,Phase 6 domain token migration wave 1
+apps/web/app/(dashboard)/payments/page.tsx,domain,6,NJ,Page already composes tokenized section components without local color drift
+apps/web/app/(dashboard)/reports/page.tsx,domain,6,DN,Phase 6 domain token migration wave 1
+apps/web/app/(dashboard)/settings/appearance/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to AppearanceSettingsPage
+apps/web/app/(dashboard)/settings/attendance/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to AttendanceSettingsPage
+apps/web/app/(dashboard)/settings/audit-logs/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to AuditLogsPage
+apps/web/app/(dashboard)/settings/branches/[id]/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to BranchHubConfig
+apps/web/app/(dashboard)/settings/branches/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to BranchesTable
+apps/web/app/(dashboard)/settings/design-types/page.tsx,domain,6,NJ,Page orchestrator delegates semantics to design-types subcomponents
+apps/web/app/(dashboard)/settings/expense-categories/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to ExpenseCategoriesPage
+apps/web/app/(dashboard)/settings/garments/[id]/page.tsx,domain,6,NJ,Detail route orchestrator delegates semantics to garment detail subcomponents
+apps/web/app/(dashboard)/settings/garments/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to GarmentTypesTable
+apps/web/app/(dashboard)/settings/integrations/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to IntegrationsSettingsPage
+apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx,domain,6,NJ,Detail route wrapper delegates semantic rendering to MeasurementCategoryDetail
+apps/web/app/(dashboard)/settings/measurements/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to MeasurementCategoriesTable
+apps/web/app/(dashboard)/settings/page.tsx,domain,6,NJ,Redirect-only route with no theme class usage
+apps/web/app/(dashboard)/settings/rates/page.tsx,domain,6,DN,Rates directory surface aligned to semantic border and surface tokens
+apps/web/app/(dashboard)/settings/system/page.tsx,domain,6,NJ,Route wrapper delegates semantic rendering to SystemSettingsPage
+apps/web/app/(dashboard)/settings/users/page.tsx,domain,6,NJ,Route wrapper delegates UI semantics to UsersTable component
+apps/web/app/globals.css,web-theme,2,DN,Phase 1 to 3 contract and token surface migration
+apps/web/app/layout.tsx,domain,6,NJ,Root provider shell has no direct theme token class mappings to migrate
+apps/web/app/login/page.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/app/status/[token]/page.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/app/unauthorized/page.tsx,shell,4,NJ,Delegates shell styling to AuthStateCard
+apps/web/components/AuthProvider.tsx,domain,6,NJ,Session provider wrapper has no UI token classes
+apps/web/components/ThemePresetProvider.tsx,domain,6,NJ,Theme variable application logic already aligned to V2 tokens without class usage
+apps/web/components/ThemeProvider.tsx,domain,6,NJ,next-themes passthrough provider has no token class usage
+apps/web/components/auth/auth-state-card.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/components/auth/can.tsx,domain,6,NJ,Authorization render guard contains no styling concerns
+apps/web/components/auth/login-brand-panel.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/components/auth/login-form-panel.tsx,domain,6,DN,Migrated login panel labels icons and footer divider to semantic text and divider tokens
+apps/web/components/auth/with-role-guard.tsx,domain,6,NJ,Role guard logic only with no theme class usage
+apps/web/components/common/ConfirmPasswordDialog.tsx,domain,6,NJ,Dialog uses shared form controls and action layout without local color overrides
+apps/web/components/config/BranchHubConfig.tsx,domain,6,NJ,Hub orchestrator composes already tokenized sections without local color drift
+apps/web/components/config/BranchesTable.tsx,domain,6,DN,Branches directory surface aligned to semantic border and surface tokens
+apps/web/components/config/GarmentPriceHistoryDialog.tsx,domain,6,DN,History timeline states and typography migrated to semantic surface and text tokens
+apps/web/components/config/GarmentTypeDialog.tsx,domain,6,DN,Global pricing and measurement scope blocks migrated to semantic surface divider and text tokens
+apps/web/components/config/GarmentTypesTable.tsx,domain,6,NJ,Table composition delegates semantics to garment list subcomponents
+apps/web/components/config/GarmentWorkflowStepsDialog.tsx,domain,6,DN,Workflow step rows and controls migrated to semantic surface and text tokens
+apps/web/components/config/MeasurementCategoriesTable.tsx,domain,6,NJ,Page shell delegates semantic classes to measurement list/detail subcomponents
+apps/web/components/config/MeasurementCategoryDetail.tsx,domain,6,DN,Detail shell cards and split sections migrated to semantic surface and divider tokens
+apps/web/components/config/MeasurementCategoryDialog.tsx,domain,6,NJ,Dialog uses shared form controls without local color overrides
+apps/web/components/config/MeasurementFieldDialog.tsx,domain,6,NJ,Dialog composition relies on tokenized measurement field subcomponents
+apps/web/components/config/UsersTable.tsx,domain,6,DN,Access directory table surface aligned to semantic border and surface tokens
+apps/web/components/config/appearance/appearance-mode-card.tsx,domain,6,DN,Mode selector card surface migrated to semantic divider and surface tokens
+apps/web/components/config/appearance/appearance-preset-directory.tsx,domain,6,DN,Preset directory list cards and search affordance migrated to semantic surface and text tokens
+apps/web/components/config/appearance/appearance-settings-page.tsx,domain,6,NJ,Composes tokenized cards and stat primitives without local color classes
+apps/web/components/config/appearance/appearance-stats-grid.tsx,domain,6,NJ,Stats display relies on shared StatCard tone semantics
+apps/web/components/config/attendance/attendance-settings-page.tsx,domain,6,DN,Ledger text hierarchy quick clock-in card and table surface migrated to semantic tokens
+apps/web/components/config/audit-logs/audit-logs-page.tsx,domain,6,DN,Audit table typography and surface migrated to semantic text and surface tokens
+apps/web/components/config/branches/branch-delete-summary.tsx,domain,6,DN,Delete impact panel migrated to semantic surface divider and warning-muted tokens
+apps/web/components/config/branches/branch-form-dialog.tsx,domain,6,DN,Required field markers migrated to semantic error token
+apps/web/components/config/branches/branches-directory-table.tsx,domain,6,DN,Directory row typography and destructive actions migrated to semantic text tokens
+apps/web/components/config/branches/branches-list-toolbar.tsx,domain,6,NJ,Toolbar relies on shared table search and button primitives
+apps/web/components/config/branches/branches-page-header.tsx,domain,6,NJ,Header uses shared page header and premium button primitives
+apps/web/components/config/branches/hub/branch-global-pricing-card.tsx,domain,6,DN,Pricing info cards and labels migrated to semantic surface divider and text tokens
+apps/web/components/config/branches/hub/branch-hub-breadcrumbs.tsx,domain,6,DN,Breadcrumb text and focus ring migrated to semantic tokens
+apps/web/components/config/branches/hub/branch-hub-meta-card.tsx,domain,6,DN,Meta card chips and detail blocks migrated to semantic surface divider and text tokens
+apps/web/components/config/branches/hub/branch-hub-overview-header.tsx,domain,6,DN,Overview header badges and chips migrated to semantic surface and divider tokens
+apps/web/components/config/branches/hub/branch-hub-relations-grid.tsx,domain,6,NJ,Relations metrics rely on shared StatCard tone semantics
+apps/web/components/config/branches/hub/branch-hub-skeleton.tsx,domain,6,NJ,Skeleton structure delegates color to shared Skeleton primitives
+apps/web/components/config/expenses/expense-categories-page.tsx,domain,6,DN,Expense category cards table rows and metrics migrated to semantic surface divider and text tokens
+apps/web/components/config/garments/detail/garment-analytics-stats-grid.tsx,domain,6,NJ,Stats rely on shared StatCard tone semantics
+apps/web/components/config/garments/detail/garment-detail-breadcrumb.tsx,domain,6,DN,Breadcrumb text and focus ring migrated to semantic tokens
+apps/web/components/config/garments/detail/garment-detail-header.tsx,domain,6,DN,Header chips and metadata migrated to semantic surface divider and text tokens
+apps/web/components/config/garments/detail/garment-detail-not-found.tsx,domain,6,DN,Not-found card and icon states migrated to semantic surface divider and error tokens
+apps/web/components/config/garments/detail/garment-detail-skeleton.tsx,domain,6,NJ,Skeleton structure delegates color to shared Skeleton primitives
+apps/web/components/config/garments/detail/garment-measurement-forms-card.tsx,domain,6,DN,Measurement forms list migrated to semantic surface and divider token usage
+apps/web/components/config/garments/detail/garment-overview-card.tsx,domain,6,DN,Overview meta cards and pricing blocks migrated to semantic surface divider and text tokens
+apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx,domain,6,DN,Pricing logs timeline and change cards migrated to semantic surface divider and text tokens
+apps/web/components/config/garments/detail/garment-pricing-sidebar.tsx,domain,6,DN,Pricing sidebar cards and progress track migrated to semantic surface and text tokens
+apps/web/components/config/garments/detail/garment-rates-section.tsx,domain,6,DN,Rates section header and list surface migrated to semantic tokens
+apps/web/components/config/garments/list/garment-types-inventory-table.tsx,domain,6,DN,Garment inventory row badges and typography migrated to semantic surface divider and text tokens
+apps/web/components/config/garments/list/garment-types-list-toolbar.tsx,domain,6,NJ,Toolbar relies on shared table search and reset primitives
+apps/web/components/config/garments/list/garment-types-page-header.tsx,domain,6,NJ,Header uses shared page header and premium action button primitives
+apps/web/components/config/garments/list/garment-types-stats-grid.tsx,domain,6,NJ,Stats rely on shared StatCard tone semantics
+apps/web/components/config/integrations/integrations-settings-page.tsx,domain,6,DN,Integration status and action cards migrated to semantic warning surface divider and text tokens
+apps/web/components/config/measurements/detail/measurement-category-breadcrumbs.tsx,domain,6,DN,Breadcrumb text and focus ring migrated to semantic tokens
+apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx,domain,6,DN,Detail header chips and metadata migrated to semantic surface divider and text tokens
+apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx,domain,6,NJ,Field form uses shared labels and inputs without local color overrides
+apps/web/components/config/measurements/detail/measurement-field-dialog-category-note.tsx,domain,6,NJ,Category note content relies on shared typography and muted variant primitives
+apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx,domain,6,DN,Dropdown option chips input and add-action states migrated to semantic surface and text tokens
+apps/web/components/config/measurements/detail/measurement-field-dialog-required-toggle.tsx,domain,6,NJ,Required toggle uses shared Switch and Form primitives without local color drift
+apps/web/components/config/measurements/detail/measurement-fields-stats-grid.tsx,domain,6,NJ,Stats rely on shared StatCard tone semantics
+apps/web/components/config/measurements/detail/measurement-fields-table.tsx,domain,6,DN,Fields table value text and read-only states migrated to semantic text tokens
+apps/web/components/config/measurements/dialog/measurement-category-dialog-name-field.tsx,domain,6,NJ,Dialog name field uses shared form controls with no local token overrides
+apps/web/components/config/measurements/list/measurement-categories-inventory-table.tsx,domain,6,DN,Categories inventory table typography and chip styles migrated to semantic text tokens
+apps/web/components/config/measurements/list/measurement-categories-list-toolbar.tsx,domain,6,NJ,Toolbar relies on shared table search and reset primitives
+apps/web/components/config/measurements/list/measurement-categories-page-header.tsx,domain,6,NJ,Header uses shared page header and premium action button primitives
+apps/web/components/config/measurements/list/measurement-categories-stats-grid.tsx,domain,6,NJ,Stats rely on shared StatCard tone semantics
+apps/web/components/config/system/system-settings-page.tsx,domain,6,NJ,Page orchestrator delegates visuals to tokenized system cards and stats grid
+apps/web/components/config/system/system-settings-state-card.tsx,domain,6,DN,State summary rows migrated to semantic surface divider and text tokens
+apps/web/components/config/system/system-settings-stats-grid.tsx,domain,6,NJ,System metrics rely on shared StatCard tone semantics
+apps/web/components/config/system/system-settings-workflow-card.tsx,domain,6,DN,Workflow control panel migrated to semantic surface divider and text tokens
+apps/web/components/config/users/user-account-dialog.tsx,domain,6,DN,Required field markers migrated to semantic error token
+apps/web/components/config/users/users-access-table.tsx,domain,6,DN,Directory avatar and text styles migrated to semantic surface divider and text tokens
+apps/web/components/config/users/users-list-toolbar.tsx,domain,6,DN,Role filter icon migrated to semantic secondary text token
+apps/web/components/config/users/users-page-header.tsx,domain,6,NJ,Header actions rely on shared page header and button primitives
+apps/web/components/config/users/users-stats-grid.tsx,domain,6,NJ,Stats visuals are fully delegated to shared StatCard tones
+apps/web/components/customers/CustomerDialog.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/CustomerTable.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/MeasurementForm.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/detail/customer-detail-breadcrumb.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/detail/customer-detail-header.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/detail/customer-detail-skeleton.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/detail/customer-detail-tabs.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/detail/customer-measurement-dialog.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/detail/customer-measurements-tab.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/detail/customer-notes-tab.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/detail/customer-orders-tab.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/detail/customer-profile-card.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/dialog/customer-dialog-address-field.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/dialog/customer-dialog-meta-fields.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/dialog/customer-dialog-primary-fields.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/list/customers-directory-table.tsx,domain,6,DN,Phase 6 domain token migration wave 2 customers sweep
+apps/web/components/customers/list/customers-list-toolbar.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/customers/list/customers-page-header.tsx,domain,6,NJ,No direct color semantics; delegates visuals to tokenized primitives/layout wrappers
+apps/web/components/dashboard/dashboard-design-popularity-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/dashboard/dashboard-garment-breakdown-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/dashboard/dashboard-kpi-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/dashboard/dashboard-overdue-banner.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/dashboard/dashboard-overdue-orders-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/dashboard/dashboard-productivity-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/dashboard/dashboard-revenue-expenses-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/design-types/CreateDesignTypeDialog.tsx,domain,6,NJ,Dialog shell and form controls already rely on tokenized shared primitives
+apps/web/components/design-types/design-types-page-header.tsx,domain,6,NJ,Header uses shared page header and premium button primitives
+apps/web/components/design-types/design-types-stats-grid.tsx,domain,6,NJ,Stats rely on shared StatCard tone semantics
+apps/web/components/design-types/design-types-table.tsx,domain,6,DN,Directory table text and table surface migrated to semantic text and surface tokens
+apps/web/components/design-types/dialog/design-type-dialog-basic-fields.tsx,domain,6,NJ,Field rows use shared form labels and premium inputs without local color overrides
+apps/web/components/design-types/dialog/design-type-dialog-scope-fields.tsx,domain,6,NJ,Scope selectors use shared select primitives without local color overrides
+apps/web/components/design-types/dialog/design-type-dialog-sort-field.tsx,domain,6,NJ,Sort field uses shared form controls with no local token drift
+apps/web/components/employees/AccountCreationDialog.tsx,domain,6,DN,Account icon surface migrated to sidebar active token
+apps/web/components/employees/EmployeeDialog.tsx,domain,6,NJ,Dialog composition uses shared primitives only
+apps/web/components/employees/detail/employee-detail-breadcrumb.tsx,domain,6,DN,Breadcrumb text and focus ring moved to semantic tokens
+apps/web/components/employees/detail/employee-detail-header.tsx,domain,6,DN,Header chips and text migrated to surface divider and text tokens
+apps/web/components/employees/detail/employee-detail-skeleton.tsx,domain,6,NJ,Skeleton layout has no direct color token usage
+apps/web/components/employees/detail/employee-detail-tabs.tsx,domain,6,DN,Section cards ledger and account states migrated to semantic tokens
+apps/web/components/employees/detail/employee-document-upload-dialog.tsx,domain,6,NJ,Dialog relies on shared form controls with semantic variants
+apps/web/components/employees/detail/employee-financial-cards.tsx,domain,6,NJ,Uses shared StatCard tones without local token drift
+apps/web/components/employees/detail/employee-ledger-entry-dialog.tsx,domain,6,DN,Helper caption migrated to semantic secondary text token
+apps/web/components/employees/detail/employee-profile-sidebar.tsx,domain,6,DN,Sidebar cards icon chips and metadata text moved to semantic tokens
+apps/web/components/employees/dialog/employee-dialog-contact-fields.tsx,domain,6,DN,Section heading moved to semantic secondary text token
+apps/web/components/employees/dialog/employee-dialog-primary-fields.tsx,domain,6,NJ,Inputs and labels already use shared dashboard variants
+apps/web/components/employees/dialog/employee-dialog-work-fields.tsx,domain,6,NJ,Select and input fields already tokenized via shared primitives
+apps/web/components/employees/list/employees-list-table.tsx,domain,6,DN,Avatar and contact row classes migrated to semantic tokens
+apps/web/components/employees/list/employees-list-toolbar.tsx,domain,6,NJ,Toolbar uses shared table controls no local token overrides
+apps/web/components/expenses/expense-create-dialog.tsx,domain,6,DN,Entry scope container and required markers moved to semantic tokens
+apps/web/components/expenses/expenses-filters-card.tsx,domain,6,NJ,Filters rely on shared table toolbar and form primitives
+apps/web/components/expenses/expenses-overview-cards.tsx,domain,6,NJ,Overview uses shared StatCard tone system only
+apps/web/components/expenses/expenses-table.tsx,domain,6,DN,Icons category chip description and amount styles migrated to semantic tokens
+apps/web/components/layout/BranchSelector.tsx,domain,6,DN,Migrated selector trigger to semantic elevated-surface strong-border and primary text tokens
+apps/web/components/layout/GlobalSearchCommand.tsx,domain,6,DN,Migrated command palette surfaces borders text and feedback states to semantic interaction and status tokens
+apps/web/components/layout/Sidebar.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/components/layout/ThemeToggle.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/components/layout/Topbar.tsx,shell,4,DN,Phase 4 shell token migration
+apps/web/components/orders/my-orders-table.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/orders/my-orders-toolbar.tsx,domain,6,NJ,No direct color semantics delegates styling to tokenized table/card/skeleton primitives
+apps/web/components/orders/order-customer-insight-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-detail-breadcrumb.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/orders/order-detail-header-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-financial-summary-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-form-customer-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-form-item-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-form-items-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-form-skeleton.tsx,domain,6,NJ,No direct color semantics delegates styling to tokenized table/card/skeleton primitives
+apps/web/components/orders/order-form-summary-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-items-table.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-lifecycle-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-payment-dialog.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-share-dialog.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/order-timeline-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 orders component sweep
+apps/web/components/orders/orders-list-table.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/orders/orders-list-toolbar.tsx,domain,6,NJ,No direct color semantics delegates styling to tokenized table/card/skeleton primitives
+apps/web/components/orders/task-assignment/task-assignment-table.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/payments/payments-disburse-dialog.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/payments/payments-employee-selector-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/payments/payments-history-section.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/payments/payments-summary-cards.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/rates/CreateRateDialog.tsx,domain,6,DN,Inline rate/date field icons migrated to semantic secondary text token
+apps/web/components/rates/RatesList.tsx,domain,6,DN,Effective date text hierarchy migrated to semantic primary and secondary text tokens
+apps/web/components/rates/rates-page-header.tsx,domain,6,NJ,Header uses shared page header and premium button primitives
+apps/web/components/rates/rates-search-stats.tsx,domain,6,NJ,Search toolbar relies on shared table search and reset button primitives
+apps/web/components/rates/rates-stats-grid.tsx,domain,6,NJ,Stats rely on shared StatCard tone semantics
+apps/web/components/rates/rates-table.tsx,domain,6,DN,Garment type column typography migrated to semantic primary text token
+apps/web/components/reports/reports-chart-legend.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-distribution-chart.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-export-grid.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-exports-tab.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-financial-tab.tsx,domain,6,NJ,Composes stat and chart primitives only with no direct token classes
+apps/web/components/reports/reports-financial-trend-chart.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-operations-tab.tsx,domain,6,NJ,Composes chart primitives only with no direct token classes
+apps/web/components/reports/reports-overview-tab.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-productivity-chart.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-weekly-print-card.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/reports/reports-workspace-filters.tsx,domain,6,DN,Phase 6 domain token migration wave 1 component sweep
+apps/web/components/status/status-order-details-card.tsx,domain,6,DN,Updated balance due color from destructive alias to semantic error token
+apps/web/components/status/status-order-header-card.tsx,domain,6,NJ,Already uses shared card badge and typography primitives without raw token drift
+apps/web/components/status/status-order-items-card.tsx,domain,6,NJ,Already uses shared card and typography primitives without raw token drift
+apps/web/components/status/status-page-frame.tsx,domain,6,DN,Reusable status page shell wrapper for consistent public status route layout states
+apps/web/components/status/status-pin-gate-card.tsx,domain,6,DN,Migrated card shell border surface shadow and error text to semantic divider and error tokens
+apps/web/components/ui/avatar.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/badge.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/button.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/card.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/chart-empty-state.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/chart-loading-state.tsx,ui,5,NJ,Delegates visual tokens to Skeleton primitive
+apps/web/components/ui/chart-shell.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/checkbox.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/command.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/confirm-dialog.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/data-table.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/dialog.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/dropdown-menu.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/empty-state.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/entity-breadcrumb.tsx,ui,5,DN,Reusable semantic breadcrumb primitive to standardize detail breadcrumb styling across domains
+apps/web/components/ui/form-layout.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/form.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/input.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/info-tile.tsx,ui,5,DN,Reusable semantic tile primitive for centralized border/surface/padding variants
+apps/web/components/ui/label.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/meta-pill.tsx,ui,5,DN,Reusable semantic metadata pill primitive for compact labeled chips
+apps/web/components/ui/multi-select.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/page-header.tsx,ui,5,NJ,Structural composition uses Typography tokenized variant
+apps/web/components/ui/page-shell.tsx,ui,5,NJ,Layout-only helper no direct color semantics
+apps/web/components/ui/popover.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/progress-track.tsx,ui,5,DN,Reusable semantic progress track and single-bar primitives for consistent chart and stats bars
+apps/web/components/ui/scroll-area.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/scrollable-dialog.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/section-icon.tsx,ui,5,DN,Reusable semantic section/header icon shell primitive for consistent icon containers
+apps/web/components/ui/select.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/separator.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/sheet.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/skeleton.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/stat-card.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/stats-grid.tsx,ui,5,DN,Reusable responsive stat grid primitive for consistent metric card layout across pages and domains
+apps/web/components/ui/switch.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/table-layout.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/table-skeleton.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/table.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/tabs.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/toast.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/components/ui/toaster.tsx,ui,5,NJ,Container wrapper delegates styling to Toast primitive
+apps/web/components/ui/typography.tsx,ui,5,DN,Phase 5 primitive token migration
+apps/web/lib/chart-theme.ts,web-theme,2,NJ,Chart token helper already references V2 chart variable classes and needs no change
+apps/web/lib/theme-css.ts,web-theme,3,DN,Phase 1 to 3 contract and token surface migration
+apps/web/lib/theme-presets.ts,web-theme,2,NJ,Shared-theme re-export intentionally minimal and already aligned with canonical contract
+apps/web/tailwind.config.ts,web-theme,2,DN,Phase 1 to 3 contract and token surface migration
+packages/shared-theme/src/index.ts,shared-theme,1,NJ,No change required re-export remains canonical
+packages/shared-theme/src/theme-presets.ts,shared-theme,1,DN,Phase 1 to 3 contract and token surface migration

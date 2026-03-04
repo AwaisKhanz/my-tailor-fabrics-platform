@@ -4,6 +4,8 @@ import type { ProductivityPoint } from "@tbms/shared-types";
 import { ChartEmptyState } from "@/components/ui/chart-empty-state";
 import { ChartLoadingState } from "@/components/ui/chart-loading-state";
 import { ChartShell } from "@/components/ui/chart-shell";
+import { InfoTile } from "@/components/ui/info-tile";
+import { ProgressTrack } from "@/components/ui/progress-track";
 import { ReportsChartLegend } from "@/components/reports/reports-chart-legend";
 import { formatPKR } from "@/lib/utils";
 
@@ -54,12 +56,12 @@ export function ReportsProductivityChart({
       {!loading && topPoints.length > 0 ? (
         <div className="space-y-3">
           {activePoint ? (
-            <div className="rounded-lg border border-border/60 bg-background/35 px-3 py-2">
-              <p className="text-xs font-semibold text-foreground">{activePoint.employeeName}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
+            <InfoTile padding="md">
+              <p className="text-xs font-semibold text-text-primary">{activePoint.employeeName}</p>
+              <p className="mt-1 text-[11px] text-text-secondary">
                 {activePoint.totalCompleted} completed • {formatPKR(activePoint.payout)}
               </p>
-            </div>
+            </InfoTile>
           ) : null}
 
           {topPoints.map((point) => {
@@ -73,23 +75,23 @@ export function ReportsProductivityChart({
             return (
               <div
                 key={point.employeeId}
-                className={`space-y-1.5 rounded-lg border px-3 py-2.5 transition-colors ${isActive ? "border-primary/40 bg-primary/5" : "border-border/50 bg-background/30"}`}
+                className={`space-y-1.5 rounded-lg border px-3 py-2.5 transition-colors ${isActive ? "border-primary/40 bg-interaction-hover" : "border-divider bg-surface-elevated/70"}`}
                 onMouseEnter={() => setHoveredEmployeeId(point.employeeId)}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-foreground">{point.employeeName}</p>
+                  <p className="text-sm font-medium text-text-primary">{point.employeeName}</p>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-muted-foreground">{total} completed</p>
-                    <p className="text-xs text-muted-foreground">{formatPKR(point.payout)}</p>
+                    <p className="text-xs font-semibold text-text-secondary">{total} completed</p>
+                    <p className="text-xs text-text-secondary">{formatPKR(point.payout)}</p>
                   </div>
                 </div>
 
-                <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                <ProgressTrack size="md" className="flex">
                   <div className="bg-chart-1" style={{ width: `${itemsWidth}%` }} />
                   <div className="bg-chart-2" style={{ width: `${tasksWidth}%` }} />
-                </div>
+                </ProgressTrack>
 
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <div className="flex items-center justify-between text-[11px] text-text-secondary">
                   <span>Items: {point.completedItems}</span>
                   <span>Tasks: {point.completedTasks}</span>
                 </div>

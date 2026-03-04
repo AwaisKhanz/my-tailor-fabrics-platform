@@ -61,16 +61,16 @@ export function OrderLifecycleCard({
   }
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="section" density="comfortable">
         <CardTitle variant="dashboard">Lifecycle Action</CardTitle>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-text-secondary">
           Advance this order to the next stage.
         </p>
       </CardHeader>
 
       <CardContent spacing="section" className="space-y-3 p-5 sm:p-6">
-        <p className="text-xs text-muted-foreground">{nextConfig.helper}</p>
+        <p className="text-xs text-text-secondary">{nextConfig.helper}</p>
 
         <Button
           variant={nextConfig.variant}

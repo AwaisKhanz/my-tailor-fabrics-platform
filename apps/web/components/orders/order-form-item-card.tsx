@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { InfoTile } from "@/components/ui/info-tile";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -61,7 +62,7 @@ export function OrderFormItemCard({
   const selectedGarment = garmentTypes.find((garment) => garment.id === garmentTypeId);
 
   return (
-    <div className="space-y-5 rounded-xl border border-border/70 bg-background/70 p-4 sm:p-5">
+    <InfoTile padding="none" radius="xl" className="space-y-5 p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
@@ -74,16 +75,16 @@ export function OrderFormItemCard({
               </Badge>
             ) : null}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-text-secondary">
             Configure garment, quantity, pricing, and production details.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-1.5 text-right">
-            <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Piece Total</p>
-            <p className="text-sm font-semibold text-foreground">{formatPKR(Math.round(lineTotal * 100))}</p>
-          </div>
+          <InfoTile tone="pending" padding="none" className="text-right px-3 py-1.5">
+            <p className="text-[10px] uppercase tracking-[0.08em] text-text-secondary">Piece Total</p>
+            <p className="text-sm font-semibold text-text-primary">{formatPKR(Math.round(lineTotal * 100))}</p>
+          </InfoTile>
           <Button
             type="button"
             variant="tableDanger"
@@ -262,7 +263,12 @@ export function OrderFormItemCard({
         />
       </div>
 
-      <div className="space-y-3 rounded-lg border border-dashed border-border/70 bg-muted/10 p-3 sm:p-4">
+      <InfoTile
+        tone="pending"
+        borderStyle="dashed"
+        padding="content"
+        className="space-y-3 sm:p-4"
+      >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Label variant="dashboard">Addons & Custom Charges</Label>
           <Button
@@ -277,13 +283,18 @@ export function OrderFormItemCard({
         </div>
 
         {watchedAddons.length === 0 ? (
-          <p className="px-1 text-xs text-muted-foreground">
+          <p className="px-1 text-xs text-text-secondary">
             No addon charges for this piece.
           </p>
         ) : (
           <div className="space-y-2">
             {watchedAddons.map((addon, addonIndex) => (
-              <div key={`${index}-${addonIndex}`} className="grid grid-cols-1 items-end gap-2 rounded-md border border-border/60 bg-background p-2 md:grid-cols-12">
+              <InfoTile
+                key={`${index}-${addonIndex}`}
+                tone="surface"
+                padding="none"
+                className="grid grid-cols-1 items-end gap-2 rounded-md p-2 md:grid-cols-12"
+              >
                 <div className="md:col-span-3">
                   <Select
                     value={addon.type || AddonType.EXTRA}
@@ -341,11 +352,11 @@ export function OrderFormItemCard({
                     <XCircle className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
+              </InfoTile>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </InfoTile>
+    </InfoTile>
   );
 }

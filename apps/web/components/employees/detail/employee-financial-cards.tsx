@@ -1,5 +1,6 @@
 import { Banknote, CheckCircle2 } from "lucide-react";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface EmployeeFinancialCardsProps {
@@ -12,7 +13,7 @@ interface EmployeeFinancialCardsProps {
 
 export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <StatsGrid columns="three">
       <StatCard
         title="Lifetime Earned"
         subtitle="Total generated payouts"
@@ -37,6 +38,6 @@ export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
         icon={<Banknote className="h-4 w-4" />}
         className="sm:col-span-2 xl:col-span-1"
       />
-    </div>
+    </StatsGrid>
   );
 }

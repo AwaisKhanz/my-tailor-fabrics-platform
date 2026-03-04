@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Switch } from "@/components/ui/switch";
 
 interface SystemSettingsWorkflowCardProps {
@@ -30,7 +31,7 @@ export function SystemSettingsWorkflowCard({
   onSave,
 }: SystemSettingsWorkflowCardProps) {
   return (
-    <Card className="border-border/70 bg-card/95">
+    <Card variant="panel">
       <CardHeader variant="section" className="space-y-1">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -47,13 +48,13 @@ export function SystemSettingsWorkflowCard({
       </CardHeader>
 
       <CardContent spacing="section" className="space-y-5 p-5">
-        <div className="rounded-lg border border-border/70 bg-background/40 p-4">
+        <InfoTile padding="contentLg">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">
+              <p className="text-sm font-semibold text-text-primary">
                 Enable Task Workflow
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-text-secondary">
                 When enabled, newly created order items generate step-based
                 tasks using garment workflow templates.
               </p>
@@ -66,7 +67,7 @@ export function SystemSettingsWorkflowCard({
               aria-label="Toggle task workflow"
             />
           </div>
-        </div>
+        </InfoTile>
 
         <div className="flex flex-wrap justify-end gap-2">
           <Button

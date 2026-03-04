@@ -1,6 +1,7 @@
 import { FileText, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionIcon } from "@/components/ui/section-icon";
 
 interface ReportsWeeklyPrintCardProps {
   printing: boolean;
@@ -14,7 +15,7 @@ export function ReportsWeeklyPrintCard({
   canExport = true,
 }: ReportsWeeklyPrintCardProps) {
   return (
-    <Card className="overflow-hidden border-border/70 bg-card/95">
+    <Card variant="shellFlat">
       <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
         <div>
           <CardTitle className="text-base font-semibold tracking-tight">
@@ -24,9 +25,9 @@ export function ReportsWeeklyPrintCard({
             Optimized for physical printing and shift-based task management.
           </CardDescription>
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+        <SectionIcon size="lg">
           <Printer className="h-4 w-4" />
-        </div>
+        </SectionIcon>
       </CardHeader>
 
       <CardContent spacing="section">

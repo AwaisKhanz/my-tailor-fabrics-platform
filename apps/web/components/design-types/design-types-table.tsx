@@ -47,7 +47,7 @@ export function DesignTypesTable({
     () => [
       {
         header: "Name",
-        cell: (designType) => <div className="font-bold text-foreground">{designType.name}</div>,
+        cell: (designType) => <div className="font-bold text-text-primary">{designType.name}</div>,
       },
       {
         header: "Application",
@@ -117,7 +117,7 @@ export function DesignTypesTable({
                 </Button>
               </>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+              <span className="text-xs font-medium text-text-secondary">Read only</span>
             )}
           </div>
         ),

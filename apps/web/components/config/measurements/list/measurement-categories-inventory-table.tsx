@@ -41,7 +41,7 @@ export function MeasurementCategoriesInventoryTable({
               event.stopPropagation();
               onView(category);
             }}
-            className="font-semibold text-foreground transition-colors hover:text-primary"
+            className="font-semibold text-text-primary transition-colors hover:text-primary"
           >
             {category.name}
           </button>

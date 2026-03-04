@@ -18,7 +18,7 @@ export function AppearanceModeCard({
   onSetMode,
 }: AppearanceModeCardProps) {
   return (
-    <Card className="border-border/70 bg-card/95 lg:sticky lg:top-20">
+    <Card variant="panel" className="lg:sticky lg:top-20">
       <CardHeader variant="section" className="space-y-1">
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Palette className="h-4 w-4 text-primary" />

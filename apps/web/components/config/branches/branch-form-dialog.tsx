@@ -56,7 +56,7 @@ export function BranchFormDialog({
         {!editingBranch ? (
           <div className="space-y-1.5">
             <Label>
-              Branch Code <span className="text-destructive">*</span>
+              Branch Code <span className="text-error">*</span>
             </Label>
             <Input
               variant="premium"
@@ -73,7 +73,7 @@ export function BranchFormDialog({
 
         <div className="space-y-1.5">
           <Label>
-            Branch Name <span className="text-destructive">*</span>
+            Branch Name <span className="text-error">*</span>
           </Label>
           <Input
             variant="premium"

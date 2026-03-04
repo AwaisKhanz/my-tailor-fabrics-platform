@@ -11,6 +11,7 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
@@ -63,14 +64,14 @@ export function PaymentsDisburseDialog({
               onSubmit();
             }}
           >
-            <div className="rounded-xl border border-border/50 bg-muted/30 p-4">
+            <InfoTile tone="pending" padding="contentLg" radius="xl">
               <Label variant="dashboard" className="mb-1 block">
                 Available to pay
               </Label>
               <Typography as="p" variant="statValue" className="text-warning">
                 {formatPKR(currentBalance)}
               </Typography>
-            </div>
+            </InfoTile>
 
             <div className="space-y-2">
               <Label variant="dashboard">

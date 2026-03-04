@@ -1,4 +1,4 @@
-import type { ThemePalette } from "@/lib/theme-presets";
+import type { ThemePaletteV2 } from "@/lib/theme-presets";
 
 export type ThemeMode = "light" | "dark";
 
@@ -185,56 +185,91 @@ function buildAccent(baseColor: string, mode: ThemeMode): string {
   return `${hsl.h} ${hsl.s}% ${hsl.l}% / ${alpha}`;
 }
 
-export function createThemeCssVariables(palette: ThemePalette, mode: ThemeMode): Record<string, string> {
-  const primaryForeground = pickReadableForeground(
+function resolveForeground(
+  background: string,
+  preferred: string | undefined,
+  fallbackA: string,
+  fallbackB: string,
+): string {
+  if (preferred && preferred.trim().length > 0) {
+    return preferred;
+  }
+
+  return pickReadableForeground(background, fallbackA, fallbackB);
+}
+
+export function createThemeCssVariables(
+  palette: ThemePaletteV2,
+  mode: ThemeMode,
+): Record<string, string> {
+  const primaryForeground = resolveForeground(
     palette.primary,
-    palette.background,
+    palette.primaryForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const secondaryForeground = pickReadableForeground(
+  const secondaryForeground = resolveForeground(
     palette.secondary,
-    palette.background,
+    palette.secondaryForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const destructiveForeground = pickReadableForeground(
+  const accentForeground = resolveForeground(
+    palette.accent,
+    palette.accentForeground,
+    palette.textInverse,
+    palette.textPrimary,
+  );
+
+  const destructiveForeground = resolveForeground(
     palette.error,
-    palette.background,
+    palette.errorForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const successForeground = pickReadableForeground(
+  const successForeground = resolveForeground(
     palette.success,
-    palette.background,
+    palette.successForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const warningForeground = pickReadableForeground(
+  const warningForeground = resolveForeground(
     palette.warning,
-    palette.background,
+    palette.warningForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const infoForeground = pickReadableForeground(
+  const infoForeground = resolveForeground(
     palette.info,
-    palette.background,
+    palette.infoForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const pendingForeground = pickReadableForeground(
+  const pendingForeground = resolveForeground(
     palette.pending,
-    palette.background,
+    palette.pendingForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
 
-  const readyForeground = pickReadableForeground(
+  const readyForeground = resolveForeground(
     palette.ready,
-    palette.background,
+    palette.readyForeground,
+    palette.textInverse,
     palette.textPrimary,
   );
+
+  const mutedSurface = palette.pendingMuted ?? buildMuted(palette.background, mode);
+  const accentSurface = palette.hover ?? buildAccent(palette.accent, mode);
 
   return {
+    // Canonical V2 tokens
     "--background": colorToHslVarValue(palette.background),
     "--foreground": colorToHslVarValue(palette.textPrimary),
     "--card": colorToHslVarValue(palette.surface),
@@ -245,25 +280,68 @@ export function createThemeCssVariables(palette: ThemePalette, mode: ThemeMode):
     "--primary-foreground": colorToHslVarValue(primaryForeground),
     "--secondary": colorToHslVarValue(palette.secondary),
     "--secondary-foreground": colorToHslVarValue(secondaryForeground),
-    "--muted": buildMuted(palette.background, mode),
+    "--muted": colorToHslVarValue(mutedSurface),
     "--muted-foreground": colorToHslVarValue(palette.textSecondary),
-    "--accent": buildAccent(palette.accent, mode),
-    "--accent-foreground": colorToHslVarValue(palette.accent),
+    "--accent": colorToHslVarValue(accentSurface),
+    "--accent-foreground": colorToHslVarValue(accentForeground),
     "--destructive": colorToHslVarValue(palette.error),
     "--destructive-foreground": colorToHslVarValue(destructiveForeground),
+    "--error": colorToHslVarValue(palette.error),
+    "--error-foreground": colorToHslVarValue(destructiveForeground),
+    "--error-muted": colorToHslVarValue(palette.errorMuted),
     "--border": colorToHslVarValue(palette.border),
-    "--input": colorToHslVarValue(palette.border),
-    "--ring": colorToHslVarValue(palette.primary),
+    "--input": colorToHslVarValue(palette.inputBorder),
+    "--ring": colorToHslVarValue(palette.focusRing ?? palette.primary),
+
+    "--surface": colorToHslVarValue(palette.surface),
+    "--surface-elevated": colorToHslVarValue(palette.surfaceElevated),
+
+    "--app-bar": colorToHslVarValue(palette.appBar),
+    "--app-bar-foreground": colorToHslVarValue(palette.appBarText),
+    "--sidebar": colorToHslVarValue(palette.sidebar),
+    "--sidebar-foreground": colorToHslVarValue(palette.sidebarText),
+    "--sidebar-active": colorToHslVarValue(palette.sidebarActive),
+    "--sidebar-border": colorToHslVarValue(palette.sidebarBorder),
+
+    "--text-primary": colorToHslVarValue(palette.textPrimary),
+    "--text-secondary": colorToHslVarValue(palette.textSecondary),
+    "--text-disabled": colorToHslVarValue(palette.textDisabled),
+    "--text-inverse": colorToHslVarValue(palette.textInverse),
+
+    "--border-strong": colorToHslVarValue(palette.borderStrong),
+    "--divider": colorToHslVarValue(palette.divider),
+
+    "--hover": colorToHslVarValue(palette.hover),
+    "--active": colorToHslVarValue(palette.active),
+    "--focus-ring": colorToHslVarValue(palette.focusRing),
     "--success": colorToHslVarValue(palette.success),
     "--success-foreground": colorToHslVarValue(successForeground),
+    "--success-muted": colorToHslVarValue(palette.successMuted),
     "--warning": colorToHslVarValue(palette.warning),
     "--warning-foreground": colorToHslVarValue(warningForeground),
+    "--warning-muted": colorToHslVarValue(palette.warningMuted),
     "--info": colorToHslVarValue(palette.info),
     "--info-foreground": colorToHslVarValue(infoForeground),
+    "--info-muted": colorToHslVarValue(palette.infoMuted),
     "--pending": colorToHslVarValue(palette.pending),
     "--pending-foreground": colorToHslVarValue(pendingForeground),
+    "--pending-muted": colorToHslVarValue(palette.pendingMuted),
     "--ready": colorToHslVarValue(palette.ready),
     "--ready-foreground": colorToHslVarValue(readyForeground),
+    "--ready-muted": colorToHslVarValue(palette.readyMuted),
+
+    "--input-background": colorToHslVarValue(palette.inputBackground),
+    "--input-text": colorToHslVarValue(palette.inputText),
+    "--input-placeholder": colorToHslVarValue(palette.inputPlaceholder),
+    "--input-border": colorToHslVarValue(palette.inputBorder),
+
+    "--code-background": colorToHslVarValue(palette.codeBackground),
+    "--code-text": colorToHslVarValue(palette.codeText),
+
+    "--scrollbar": colorToHslVarValue(palette.scrollbar),
+    "--scrollbar-track": colorToHslVarValue(palette.scrollbarTrack),
+    "--shadow-color": colorToHslVarValue(palette.shadowColor),
+
     "--brand-dark": colorToHslVarValue(palette.brandDark),
     "--overlay": colorToHslVarValue(palette.overlay),
     "--overlay-strong": colorToHslVarValue(palette.overlayStrong),
@@ -275,5 +353,15 @@ export function createThemeCssVariables(palette: ThemePalette, mode: ThemeMode):
     "--chart-6": colorToHslVarValue(palette.chart6),
     "--chart-7": colorToHslVarValue(palette.chart7),
     "--chart-8": colorToHslVarValue(palette.chart8),
+
+    // Compatibility aliases (temporary during migration cycle)
+    "--legacy-surface": colorToHslVarValue(palette.surface),
+    "--legacy-text-primary": colorToHslVarValue(palette.textPrimary),
+    "--legacy-text-secondary": colorToHslVarValue(palette.textSecondary),
+    "--legacy-border": colorToHslVarValue(palette.border),
+    "--legacy-overlay": colorToHslVarValue(palette.overlay),
+    "--legacy-overlay-strong": colorToHslVarValue(palette.overlayStrong),
+    "--legacy-pending": colorToHslVarValue(palette.pending),
+    "--legacy-ready": colorToHslVarValue(palette.ready),
   };
 }

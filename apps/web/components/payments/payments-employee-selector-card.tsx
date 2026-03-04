@@ -1,7 +1,9 @@
 import { UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionIcon } from "@/components/ui/section-icon";
 import {
   Select,
   SelectContent,
@@ -28,15 +30,15 @@ export function PaymentsEmployeeSelectorCard({
   onEmployeeChange,
 }: PaymentsEmployeeSelectorCardProps) {
   return (
-    <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+          <SectionIcon size="lg">
             <UserRound className="h-4 w-4" />
-          </div>
+          </SectionIcon>
           <div>
             <CardTitle className="text-base font-semibold tracking-tight">Employee Scope</CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 text-xs text-text-secondary">
               Select an employee to load payroll summary and ledger.
             </p>
           </div>
@@ -61,7 +63,7 @@ export function PaymentsEmployeeSelectorCard({
               {employees.map((employee) => (
                 <SelectItem key={employee.id} value={employee.id}>
                   {employee.fullName}
-                  <span className="ml-1 text-muted-foreground opacity-60">
+                  <span className="ml-1 text-text-secondary opacity-60">
                     ({employee.employeeCode})
                   </span>
                 </SelectItem>
@@ -72,24 +74,24 @@ export function PaymentsEmployeeSelectorCard({
 
         {selectedEmployee ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <div className="rounded-lg border border-border/70 bg-background/50 px-3 py-2.5">
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Employee</Label>
+            <InfoTile>
+              <Label variant="micro">Employee</Label>
               <Typography as="p" variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.fullName}
               </Typography>
-            </div>
-            <div className="rounded-lg border border-border/70 bg-background/50 px-3 py-2.5">
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Code</Label>
+            </InfoTile>
+            <InfoTile>
+              <Label variant="micro">Code</Label>
               <Typography as="p" variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.employeeCode}
               </Typography>
-            </div>
-            <div className="rounded-lg border border-border/70 bg-background/50 px-3 py-2.5">
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Role</Label>
+            </InfoTile>
+            <InfoTile>
+              <Label variant="micro">Role</Label>
               <Typography as="p" variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.designation || "Staff"}
               </Typography>
-            </div>
+            </InfoTile>
           </div>
         ) : (
           <Typography as="p" variant="muted">

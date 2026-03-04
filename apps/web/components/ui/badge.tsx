@@ -13,15 +13,16 @@ const badgeVariants = cva(
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-transparent bg-destructive/10 text-destructive border-destructive/20",
+          "border-transparent bg-error-muted text-destructive border-destructive/20",
         outline: "text-foreground",
-        success: "border-transparent bg-success/10 text-success border-success/20",
-        warning: "border-transparent bg-warning/10 text-warning border-warning/20",
-        info: "border-transparent bg-info/10 text-info border-info/20",
-        ready: "border-transparent bg-ready/10 text-ready border-ready/20",
-        admin: "border-transparent bg-primary/20 text-primary border-primary/10",
+        outlineSoft: "border-divider bg-surface-elevated text-foreground",
+        success: "border-transparent bg-success-muted text-success border-success/20",
+        warning: "border-transparent bg-warning-muted text-warning border-warning/20",
+        info: "border-transparent bg-info-muted text-info border-info/20",
+        ready: "border-transparent bg-ready-muted text-ready border-ready/20",
+        admin: "border-transparent bg-sidebar-active text-sidebar-foreground border-sidebar-border",
         royal: "border-transparent bg-chart-4/10 text-chart-4 border-chart-4/10",
-        amber: "border-transparent bg-warning/10 text-warning border-warning/20",
+        amber: "border-transparent bg-warning-muted text-warning border-warning/20",
         premium: "font-bold uppercase tracking-tight text-[10px] px-2 py-0.5",
       },
       size: {

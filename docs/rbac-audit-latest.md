@@ -1,6 +1,6 @@
 # RBAC Audit Matrix
 
-Generated: 2026-03-04T12:08:17.930Z
+Generated: 2026-03-04T16:17:54.718Z
 
 ## Frontend Guard vs Route Policy
 

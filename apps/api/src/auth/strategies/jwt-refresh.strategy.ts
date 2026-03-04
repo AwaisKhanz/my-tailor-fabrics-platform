@@ -4,9 +4,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
 import { getJwtRefreshSecret } from '../../common/env';
-import type { JwtPayload } from './jwt.strategy';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
-import { Role } from '@tbms/shared-types';
+import type { RefreshTokenClaims, Role } from '@tbms/shared-types';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,7 +25,11 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(req: Request, payload: JwtPayload) {
+  async validate(req: Request, payload: RefreshTokenClaims) {
+    if (payload.tokenType !== 'refresh') {
+      throw new UnauthorizedException('Invalid refresh token type');
+    }
+
     if (!isRole(payload.role)) {
       throw new UnauthorizedException('Invalid role in token');
     }

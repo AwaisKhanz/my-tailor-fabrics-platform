@@ -8,8 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useOrderDetail } from "@/hooks/use-order-detail";
 import { OrderItem, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskAssignmentDialog } from "./TaskAssignmentDialog";
 import { formatDate, formatPKR } from "@/lib/utils";
@@ -24,6 +22,8 @@ import { OrderPaymentDialog } from "@/components/orders/order-payment-dialog";
 import { OrderShareDialog } from "@/components/orders/order-share-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
+import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 
@@ -204,65 +204,50 @@ function OrderDetailPage() {
         />
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid auto-rows-fr space-y-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <Card className="border-border/70 bg-card/95">
-          <CardContent spacing="section" className="p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Pieces</Label>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{totalPieces}</p>
-              </div>
-              <div className="rounded-lg bg-primary/15 p-2">
-                <Package className="h-4 w-4 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 bg-card/95">
-          <CardContent spacing="section" className="p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Assigned Tailors</Label>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{assignedTailorsCount}</p>
-              </div>
-              <div className="rounded-lg bg-info/15 p-2">
-                <UserCog className="h-4 w-4 text-info" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 bg-card/95">
-          <CardContent spacing="section" className="p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Active Tasks</Label>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{totalTaskCount}</p>
-              </div>
-              <div className="rounded-lg bg-warning/15 p-2">
-                <TimerReset className="h-4 w-4 text-warning" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 bg-card/95">
-          <CardContent spacing="section" className="p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Balance Due</Label>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-destructive">{formatPKR(order.balanceDue)}</p>
-              </div>
-              <div className="rounded-lg bg-destructive/15 p-2">
-                <CircleDollarSign className="h-4 w-4 text-destructive" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <PageSection spacing="compact">
+        <StatsGrid columns="four" flushSectionSpacing>
+          <StatCard
+            title="Pieces"
+            subtitle="Order volume"
+            value={totalPieces}
+            icon={<Package className="h-4 w-4" />}
+            iconTone="primary"
+            valueClassName="text-2xl"
+            className="h-full"
+            contentClassName="p-5"
+          />
+          <StatCard
+            title="Assigned Tailors"
+            subtitle="Active assignees"
+            value={assignedTailorsCount}
+            icon={<UserCog className="h-4 w-4" />}
+            iconTone="info"
+            valueClassName="text-2xl"
+            className="h-full"
+            contentClassName="p-5"
+          />
+          <StatCard
+            title="Active Tasks"
+            subtitle="In production"
+            value={totalTaskCount}
+            icon={<TimerReset className="h-4 w-4" />}
+            iconTone="warning"
+            valueClassName="text-2xl"
+            className="h-full"
+            contentClassName="p-5"
+          />
+          <StatCard
+            title="Balance Due"
+            subtitle="Outstanding amount"
+            value={formatPKR(order.balanceDue)}
+            icon={<CircleDollarSign className="h-4 w-4" />}
+            iconTone="destructive"
+            valueTone="destructive"
+            valueClassName="text-2xl"
+            className="h-full"
+            contentClassName="p-5"
+          />
+        </StatsGrid>
       </PageSection>
 
       <PageSection>

@@ -57,12 +57,12 @@ export function RatesList({ rates, showBranch = true }: RatesListProps) {
         align: "right",
         cell: (rate) => (
           <div className="flex flex-col items-end whitespace-nowrap">
-            <span className="flex items-center gap-1 font-medium text-foreground text-[10px]">
+            <span className="flex items-center gap-1 font-medium text-text-primary text-[10px]">
               <Clock className="h-2.5 w-2.5" />
               {new Date(rate.effectiveFrom).toLocaleDateString()}
             </span>
             {rate.effectiveTo && (
-              <span className="text-[10px] text-muted-foreground">until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
+              <span className="text-[10px] text-text-secondary">until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
             )}
           </div>
         )

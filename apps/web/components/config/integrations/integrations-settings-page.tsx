@@ -5,6 +5,7 @@ import { Copy, ExternalLink, Mail, RefreshCcw, ShieldCheck, Zap } from "lucide-r
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
@@ -82,7 +83,7 @@ export function IntegrationsSettingsPage() {
 
       {forbidden ? (
         <PageSection spacing="compact">
-          <Card className="border-warning/30 bg-warning/5">
+          <Card variant="warningSoft">
             <CardHeader variant="section" className="space-y-1">
               <CardTitle className="flex items-center gap-2 text-base font-semibold">
                 <ShieldCheck className="h-4 w-4 text-warning" />
@@ -121,7 +122,7 @@ export function IntegrationsSettingsPage() {
       </PageSection>
 
       <PageSection spacing="compact" className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <Card className="border-border/70 bg-card/95">
+        <Card variant="panel">
           <CardHeader variant="section" className="space-y-1">
             <CardTitle className="text-base font-semibold">Gmail Integration Status</CardTitle>
             <CardDescription>
@@ -130,53 +131,53 @@ export function IntegrationsSettingsPage() {
           </CardHeader>
           <CardContent spacing="section" className="space-y-3 p-5">
             <div className="grid gap-2 sm:grid-cols-2">
-              <div className="flex items-center justify-between rounded-md border border-border/70 bg-background/40 px-3 py-2.5">
-                <span className="text-sm text-muted-foreground">Client ID</span>
+              <InfoTile layout="betweenGap" className="rounded-md">
+                <span className="text-sm text-text-secondary">Client ID</span>
                 <Badge variant={statusVariant(status.configured.clientId)} size="xs">
                   {status.configured.clientId ? "Configured" : "Missing"}
                 </Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-md border border-border/70 bg-background/40 px-3 py-2.5">
-                <span className="text-sm text-muted-foreground">Client Secret</span>
+              </InfoTile>
+              <InfoTile layout="betweenGap" className="rounded-md">
+                <span className="text-sm text-text-secondary">Client Secret</span>
                 <Badge variant={statusVariant(status.configured.clientSecret)} size="xs">
                   {status.configured.clientSecret ? "Configured" : "Missing"}
                 </Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-md border border-border/70 bg-background/40 px-3 py-2.5">
-                <span className="text-sm text-muted-foreground">Refresh Token</span>
+              </InfoTile>
+              <InfoTile layout="betweenGap" className="rounded-md">
+                <span className="text-sm text-text-secondary">Refresh Token</span>
                 <Badge variant={statusVariant(status.configured.refreshToken)} size="xs">
                   {status.configured.refreshToken ? "Configured" : "Missing"}
                 </Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-md border border-border/70 bg-background/40 px-3 py-2.5">
-                <span className="text-sm text-muted-foreground">Sender Email</span>
+              </InfoTile>
+              <InfoTile layout="betweenGap" className="rounded-md">
+                <span className="text-sm text-text-secondary">Sender Email</span>
                 <Badge variant={statusVariant(status.configured.senderEmail)} size="xs">
                   {status.configured.senderEmail ? "Configured" : "Missing"}
                 </Badge>
-              </div>
+              </InfoTile>
             </div>
 
-            <div className="rounded-md border border-border/70 bg-background/40 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <InfoTile padding="content" className="rounded-md">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
                 Sender
               </p>
-              <p className="mt-1 text-sm font-medium text-foreground">
+              <p className="mt-1 text-sm font-medium text-text-primary">
                 {status.senderEmail || "Not configured"}
               </p>
-            </div>
+            </InfoTile>
 
-            <div className="rounded-md border border-border/70 bg-background/40 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <InfoTile padding="content" className="rounded-md">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
                 Redirect URI
               </p>
-              <p className="mt-1 break-all text-sm text-foreground">
+              <p className="mt-1 break-all text-sm text-text-primary">
                 {status.redirectUri || "Not configured"}
               </p>
-            </div>
+            </InfoTile>
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/95">
+        <Card variant="panel">
           <CardHeader variant="section" className="space-y-1">
             <CardTitle className="text-base font-semibold">Integration Actions</CardTitle>
             <CardDescription>
@@ -184,10 +185,10 @@ export function IntegrationsSettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent spacing="section" className="space-y-5 p-5">
-            <div className="space-y-3 rounded-lg border border-border/70 bg-background/40 p-4">
+            <InfoTile padding="contentLg" className="space-y-3">
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-foreground">Authorization URL</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm font-semibold text-text-primary">Authorization URL</p>
+                <p className="text-xs text-text-secondary">
                   Use this URL to complete OAuth consent and refresh token exchange.
                 </p>
               </div>
@@ -203,7 +204,7 @@ export function IntegrationsSettingsPage() {
               </Button>
 
               {authMessage ? (
-                <p className="text-xs text-muted-foreground">{authMessage}</p>
+                <p className="text-xs text-text-secondary">{authMessage}</p>
               ) : null}
 
               {authUrl ? (
@@ -223,9 +224,9 @@ export function IntegrationsSettingsPage() {
                   </div>
                 </div>
               ) : null}
-            </div>
+            </InfoTile>
 
-            <div className="space-y-3 rounded-lg border border-border/70 bg-background/40 p-4">
+            <InfoTile padding="contentLg" className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor="integration-test-email" variant="dashboard">
                   Test recipient email
@@ -253,7 +254,7 @@ export function IntegrationsSettingsPage() {
                   Public mail endpoints are disabled in this environment.
                 </p>
               ) : null}
-            </div>
+            </InfoTile>
           </CardContent>
         </Card>
       </PageSection>

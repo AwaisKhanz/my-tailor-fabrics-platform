@@ -23,6 +23,8 @@
     "prisma:seed:demo": "SEED_CORE_DATA=true SEED_DEMO_DATA=true npm exec -w api prisma db seed",
     "refactor:manifest:generate": "sh ./scripts/generate-refactor-manifest.sh",
     "refactor:manifest:verify": "sh ./scripts/verify-refactor-manifest.sh",
+    "theme:migration:verify": "sh ./scripts/verify-theme-token-migration.sh",
+    "theme:usage:audit": "node ./scripts/audit-theme-usage.mjs",
     "db:backup": "sh scripts/db-backup.sh",
     "db:restore": "sh scripts/db-restore.sh"
   },

@@ -30,9 +30,50 @@
   .shadow-theme-soft {
     box-shadow: 0 16px 36px hsl(var(--overlay));
   }
+
+  .bg-app-bar {
+    background-color: hsl(var(--app-bar));
+    color: hsl(var(--app-bar-foreground));
+  }
+
+  .bg-sidebar-surface {
+    background-color: hsl(var(--sidebar));
+    color: hsl(var(--sidebar-foreground));
+  }
+
+  .bg-surface-elevated {
+    background-color: hsl(var(--surface-elevated));
+  }
+
+  .text-disabled {
+    color: hsl(var(--text-disabled));
+  }
+
+  .code-surface {
+    background-color: hsl(var(--code-background));
+    color: hsl(var(--code-text));
+  }
+
+  .scrollbar-theme {
+    scrollbar-color: hsl(var(--scrollbar)) hsl(var(--scrollbar-track));
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-theme::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .scrollbar-theme::-webkit-scrollbar-track {
+    background: hsl(var(--scrollbar-track));
+  }
+
+  .scrollbar-theme::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--scrollbar));
+    border-radius: 999px;
+    border: 2px solid hsl(var(--scrollbar-track));
+  }
 }
-
-
 
 @layer base {
   :root,
@@ -53,10 +94,13 @@
     --accent-foreground: 160 93% 24%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 100%;
+    --error-muted: 0 100% 96%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 160 84% 39%;
-    --radius: 0.5rem;
+    --radius: 0.2rem;
 
     --success: 160 84% 39%;
     --success-foreground: 160 100% 95%;
@@ -71,6 +115,37 @@
     --brand-dark: 222 47% 11%;
     --overlay: 222 47% 11% / 0.5;
     --overlay-strong: 222 47% 11% / 0.8;
+    --surface: 0 0% 100%;
+    --surface-elevated: 210 33% 98%;
+    --app-bar: 0 0% 100%;
+    --app-bar-foreground: 222 47% 11%;
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-active: 210 16% 93%;
+    --sidebar-border: 214 20% 84%;
+    --text-primary: 222 47% 11%;
+    --text-secondary: 215 16% 47%;
+    --text-disabled: 217 10% 59%;
+    --text-inverse: 0 0% 100%;
+    --border-strong: 214 20% 65%;
+    --divider: 214 24% 88%;
+    --hover: 160 84% 39% / 0.1;
+    --active: 160 84% 39% / 0.18;
+    --focus-ring: 160 84% 39%;
+    --input-background: 0 0% 100%;
+    --input-text: 222 47% 11%;
+    --input-placeholder: 215 16% 47%;
+    --input-border: 214 32% 91%;
+    --success-muted: 144 67% 95%;
+    --warning-muted: 43 100% 94%;
+    --info-muted: 213 100% 96%;
+    --pending-muted: 214 20% 94%;
+    --ready-muted: 262 100% 96%;
+    --code-background: 210 40% 96%;
+    --code-text: 222 47% 11%;
+    --scrollbar: 214 20% 75%;
+    --scrollbar-track: 214 20% 95%;
+    --shadow-color: 222 47% 11% / 0.2;
     --chart-1: 217 91% 60%;
     --chart-2: 160 84% 39%;
     --chart-3: 38 92% 50%;
@@ -99,6 +174,9 @@
     --accent-foreground: 158 64% 52%;
     --destructive: 0 91% 71%;
     --destructive-foreground: 222 47% 11%;
+    --error: 0 91% 71%;
+    --error-foreground: 222 47% 11%;
+    --error-muted: 0 52% 24%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 213 94% 68%;
@@ -116,6 +194,37 @@
     --brand-dark: 222 47% 11%;
     --overlay: 229 84% 5% / 0.5;
     --overlay-strong: 229 84% 5% / 0.8;
+    --surface: 222 47% 11%;
+    --surface-elevated: 222 40% 15%;
+    --app-bar: 222 47% 11%;
+    --app-bar-foreground: 210 40% 98%;
+    --sidebar: 229 72% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-active: 222 33% 16%;
+    --sidebar-border: 217 33% 17%;
+    --text-primary: 210 40% 98%;
+    --text-secondary: 215 20% 65%;
+    --text-disabled: 215 15% 49%;
+    --text-inverse: 222 47% 11%;
+    --border-strong: 217 20% 33%;
+    --divider: 217 24% 22%;
+    --hover: 158 64% 52% / 0.16;
+    --active: 158 64% 52% / 0.24;
+    --focus-ring: 213 94% 68%;
+    --input-background: 222 47% 11%;
+    --input-text: 210 40% 98%;
+    --input-placeholder: 215 20% 65%;
+    --input-border: 217 33% 17%;
+    --success-muted: 158 52% 22%;
+    --warning-muted: 43 60% 22%;
+    --info-muted: 213 58% 24%;
+    --pending-muted: 215 15% 22%;
+    --ready-muted: 262 37% 28%;
+    --code-background: 229 50% 7%;
+    --code-text: 210 40% 98%;
+    --scrollbar: 217 20% 34%;
+    --scrollbar-track: 222 33% 16%;
+    --shadow-color: 229 84% 5% / 0.55;
     --chart-1: 213 94% 68%;
     --chart-2: 158 64% 52%;
     --chart-3: 43 96% 56%;

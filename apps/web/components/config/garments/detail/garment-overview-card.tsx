@@ -2,7 +2,10 @@ import { BadgePercent, Banknote, CalendarDays, Layers3, Shirt } from "lucide-rea
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { MetaPill } from "@/components/ui/meta-pill";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { formatDate, formatPKR } from "@/lib/utils";
 
@@ -15,12 +18,12 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
   const workflowStepsCount = garment.workflowSteps?.length ?? 0;
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="rowSection" className="items-start sm:items-center">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+          <SectionIcon tone="primary">
             <Shirt className="h-4 w-4" />
-          </div>
+          </SectionIcon>
           <CardTitle className="text-base font-semibold tracking-tight">
             Garment Profile
           </CardTitle>
@@ -32,27 +35,27 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
 
       <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2.5">
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+          <InfoTile>
+            <Label variant="micro">
               Sort Order
             </Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">{garment.sortOrder}</p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2.5">
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+            <p className="mt-1 text-sm font-semibold text-text-primary">{garment.sortOrder}</p>
+          </InfoTile>
+          <InfoTile>
+            <Label variant="micro">
               Linked Forms / Steps
             </Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">
+            <p className="mt-1 text-sm font-semibold text-text-primary">
               {measurementFormsCount} form{measurementFormsCount === 1 ? "" : "s"} / {workflowStepsCount} step
               {workflowStepsCount === 1 ? "" : "s"}
             </p>
-          </div>
+          </InfoTile>
         </div>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <div className="space-y-4 rounded-xl border border-border/70 bg-background/40 p-4">
+          <InfoTile padding="contentLg" radius="xl" className="space-y-4">
             <div>
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <Label variant="micro">
                 Description
               </Label>
               <Typography as="p" variant="body" className="mt-1 leading-relaxed">
@@ -60,21 +63,21 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
               </Typography>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 text-xs text-muted-foreground sm:grid-cols-2">
-              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+            <div className="grid grid-cols-1 gap-3 text-xs text-text-secondary sm:grid-cols-2">
+              <MetaPill>
                 <CalendarDays className="h-3.5 w-3.5" />
                 <span>Created {formatDate(garment.createdAt)}</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/20 px-2.5 py-1.5">
+              </MetaPill>
+              <MetaPill>
                 <Layers3 className="h-3.5 w-3.5" />
                 <span>Updated {formatDate(garment.updatedAt)}</span>
-              </div>
+              </MetaPill>
             </div>
-          </div>
+          </InfoTile>
 
-          <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <InfoTile tone="primarySoft" padding="contentLg" radius="xl" className="space-y-4">
             <div className="mb-1 flex items-center justify-between">
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-primary/90">
+              <Label variant="micro" className="text-primary/90">
                 Margin Snapshot
               </Label>
               <BadgePercent className="h-4 w-4 text-primary" />
@@ -102,7 +105,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
             <Badge variant="outline" size="xs" className="font-bold">
               Revenue split based on current global prices
             </Badge>
-          </div>
+          </InfoTile>
         </div>
       </CardContent>
     </Card>

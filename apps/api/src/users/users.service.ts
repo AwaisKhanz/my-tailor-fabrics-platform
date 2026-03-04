@@ -34,6 +34,14 @@ const USER_SELECT = {
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async markLastLogin(userId: string, at: Date = new Date()) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { lastLoginAt: at },
+      select: { id: true, lastLoginAt: true },
+    });
+  }
+
   private normalizeEmail(email: string): string {
     return normalizeEmailAddress(email);
   }
@@ -85,10 +93,37 @@ export class UsersService {
     });
   }
 
-  async updateRefreshToken(userId: string, refreshToken: string | null) {
+  async setRefreshTokenState(
+    userId: string,
+    state: {
+      currentTokenHash: string | null;
+      previousTokenHash?: string | null;
+      previousTokenExpiresAt?: Date | null;
+    },
+  ) {
     return this.prisma.user.update({
       where: { id: userId },
-      data: { refreshToken },
+      data: {
+        refreshToken: state.currentTokenHash,
+        previousRefreshToken: state.previousTokenHash ?? null,
+        previousRefreshTokenExpiresAt: state.previousTokenExpiresAt ?? null,
+      },
+    });
+  }
+
+  async updateRefreshToken(userId: string, refreshToken: string | null) {
+    return this.setRefreshTokenState(userId, {
+      currentTokenHash: refreshToken,
+      previousTokenHash: null,
+      previousTokenExpiresAt: null,
+    });
+  }
+
+  async clearRefreshTokenState(userId: string) {
+    return this.setRefreshTokenState(userId, {
+      currentTokenHash: null,
+      previousTokenHash: null,
+      previousTokenExpiresAt: null,
     });
   }
 

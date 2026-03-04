@@ -78,7 +78,7 @@ export function CustomerTable() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <TableSurface className="border-border/70 bg-card/95">
+        <TableSurface>
           <CustomersListToolbar
             total={total}
             search={search}

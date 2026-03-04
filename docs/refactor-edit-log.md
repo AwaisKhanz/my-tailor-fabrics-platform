@@ -2377,6 +2377,156 @@ This is the single source of truth for implementation edits and why they were ma
 ### Verification run after edits
 - `npm run build -w api` ✅
 
+## 2026-03-04 — Pass 76 (Auth stability fix: access-token auto-refresh in NextAuth)
+
+### Root-cause addressed
+- API logs confirmed repeated `jwt expired` from `JwtAuthGuard` while `/api/auth/session` was still valid.
+- Cause: web session lifetime and access token lifetime drift (`session` remained active while API JWT expired), with no automatic refresh path.
+
+### Web auth refresh implementation
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - Removed hardcoded access-token expiry assumption.
+  - Added JWT `exp` decoding utility and now derives `accessTokenExpires` from the real API-issued token.
+  - Added refresh-token extraction from API `Set-Cookie` headers on login (`Refresh-Token` cookie parsing server-side).
+  - Added `refreshAccessToken(...)` flow in NextAuth `jwt` callback:
+    - when access token is near expiry (30s buffer), call `POST /auth/refresh`
+    - send refresh token via `Cookie` header
+    - rotate refresh token when API returns updated `Set-Cookie`
+    - persist new access token + expiry into NextAuth JWT
+  - Added session-level `error` propagation for refresh failures.
+  - Increased NextAuth session `maxAge` to 30 days so session wrapper stays stable while access tokens rotate transparently.
+
+### Shared auth typing alignment
+- `apps/web/types/next-auth.d.ts`
+  - Added `refreshToken` + `error` fields where needed.
+  - Relaxed `next-auth/jwt` field optionality to match pre-sign-in token lifecycle and refresh callback behavior.
+
+### Verification run after edits
+- `npm run lint -w web` ✅
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run build -w web` ⚠️ blocked by offline font fetch (`fonts.googleapis.com` DNS/network in current environment), not by auth code changes.
+
+## 2026-03-04 — Pass 77 (Auth stability hardening: legacy session self-heal + 401 retry recovery)
+
+### Why this pass
+- Logs still showed `jwt expired` bursts because some existing sessions had stale `accessTokenExpires` metadata from earlier logic, and multiple page-load API calls raced before refresh.
+
+### Session self-heal for old tokens
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - In `jwt` callback, always reconcile `accessTokenExpires` from real JWT `exp` when `accessToken` exists.
+  - This repairs previously-issued NextAuth JWTs that had mismatched long expiry metadata without requiring manual cookie surgery.
+
+### Client API retry recovery
+- `apps/web/lib/api.ts`
+  - Added token-expiry parsing and proactive near-expiry refresh check before each request (30s buffer).
+  - Added shared refresh lock to prevent parallel refresh storms.
+  - Added one-time 401 retry path:
+    - force fetch fresh `/api/auth/session` (no-store)
+    - if token refreshed, retry failed API request once with new bearer token
+    - otherwise fall back to existing login redirect handling
+  - Kept branch-header behavior unchanged.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+
+## 2026-03-04 — Pass 78 (Auth architecture decision and long-term consistency baseline)
+
+### Documentation baseline (single source auth model)
+- `docs/auth-architecture.md` (new)
+  - Documented long-term decision:
+    - backend is single auth authority
+    - web/NextAuth is session façade and token-rotation shell
+    - shared packages are canonical for auth contracts/permissions
+  - Documented anti-pattern to avoid (independent dual auth lifecycles).
+  - Documented migration path for shared auth contracts and CI auth regressions.
+
+## 2026-03-04 — Pass 79 (Refresh-token contract fix + stale-session flood protection)
+
+### Root issue observed
+- `/api/auth/session` payload showed `error: "MissingRefreshToken"` while API calls failed with `jwt expired`.
+- This indicates refresh flow had no usable refresh token in the web session state.
+
+### Backend auth contract hardening
+- `apps/api/src/auth/auth.controller.ts`
+  - Updated `POST /auth/login` response to include `refreshToken` in `data`.
+  - Updated `POST /auth/refresh` response to include rotated `refreshToken` in `data`.
+  - Cookie behavior remains unchanged; this adds deterministic body contract for server-to-server/BFF consumers.
+
+### Web NextAuth token source hardening
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - Login path now reads `refreshToken` from response body first, then falls back to `Set-Cookie` parsing.
+  - Refresh path now reads rotated `refreshToken` from response body first, then falls back to `Set-Cookie` parsing.
+  - This removes dependency on runtime-specific `set-cookie` header accessibility.
+
+### Stale-session request storm protection
+- `apps/web/lib/api.ts`
+  - Added early request guard: if session error is `MissingRefreshToken`, stop API request and force redirect to login.
+  - Prevents repeated backend 401 floods from known invalid auth session state.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 80 (Shared auth contract extraction for multi-portal consistency)
+
+### Shared auth contracts
+- `packages/shared-types/src/auth.ts` (new)
+  - Added canonical auth payload contracts:
+    - `AuthenticatedUserSnapshot`
+    - `AuthLoginResponseData`
+    - `AuthRefreshResponseData`
+- `packages/shared-types/src/index.ts`
+  - Exported shared auth contracts from package entrypoint.
+
+### API/Web adoption
+- `apps/api/src/auth/auth.controller.ts`
+  - Adopted shared auth response contracts via typed `ApiResponse<AuthLoginResponseData>` and `ApiResponse<AuthRefreshResponseData>`.
+  - Normalized role casting at response boundary to match shared `Role` enum contract.
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - Typed login/refresh API calls against shared auth contracts.
+  - Keeps refresh-token body-first extraction logic for runtime consistency.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-types` ✅
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run build -w api` ✅
+- `npm run lint -w web` ✅
+
+## 2026-03-04 — Pass 81 (Auth-expired redirect loop fix + scope alignment)
+
+### Issue addressed
+- After introducing stale-session protection, login redirect loops were observed (`/login?expired=1` and `/api/auth/session` repeating rapidly).
+- Root cause: session could remain `authenticated` while carrying auth error state, causing dashboard/login guards to bounce.
+
+### Loop-prevention and invalid-session handling
+- `apps/web/hooks/use-login-page.ts`
+  - Updated authenticated redirect logic:
+    - if `session.error` exists, clear session via `signOut({ redirect: false })`
+    - keep user on `/login?expired=1` instead of redirecting to dashboard.
+- `apps/web/app/(dashboard)/layout.tsx`
+  - Added `session.error` guard:
+    - clears invalid session
+    - routes to `/login?expired=1` deterministically.
+- `apps/web/lib/api.ts`
+  - Added debounced one-time handling for `MissingRefreshToken` session state:
+    - sign out invalid session
+    - throttle redirects with sessionStorage marker
+    - prevent API-request flood + repeated navigation loops.
+
+### Scope correction per request
+- Removed in-progress Google sign-in additions (not requested in this workstream):
+  - `apps/api/src/auth/dto/google-login.dto.ts` deleted
+  - Removed temporary Google-login endpoint/service logic that had been started.
+- Kept only shared-auth/session consistency work relevant to current issue.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run build -w api` ✅
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+
 ## 2026-03-04 — Pass 76 (Customers/global search SQL parameter typing fix)
 
 ### Backend search hardening for customer/employee raw queries
@@ -3305,3 +3455,1408 @@ This is the single source of truth for implementation edits and why they were ma
 
 ### Verification run after edits
 - `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 82 (Comprehensive auth hardening + redirect-loop elimination)
+
+### Web auth/session robustness
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - Hardened refresh failure handling:
+    - on missing/failed refresh, clears `accessToken` and expiry metadata (prevents stale-expired token reuse).
+  - Session callback no longer throws for invalid role payloads; now marks session with `InvalidSessionRole` error and strips access token.
+  - Preserves refresh rotation behavior while failing safely into explicit invalid-session state.
+
+- `apps/web/lib/api.ts`
+  - Added shared session cache + in-flight dedupe for `getSession()` calls to reduce session endpoint request storms.
+  - Added unified `handleInvalidSession(...)` flow:
+    - debounced sign-out + redirect to `/login?expired=1`
+    - cache invalidation and deterministic handling of any session error state.
+  - Kept one-time 401 retry path, now backed by centralized invalid-session fallback if refresh does not recover.
+
+- `apps/web/hooks/use-login-page.ts`
+  - Added one-time guard for invalid authenticated sessions to prevent repeated signOut/redirect loops on login page.
+
+- `apps/web/app/(dashboard)/layout.tsx`
+  - Added one-time guard for invalid authenticated sessions to prevent dashboard/login bounce loops.
+
+- `apps/web/middleware.ts`
+  - Added token error-state guard for protected routes (`token.error` => redirect to `/login?expired=1`) for early server-side enforcement.
+
+- `apps/web/components/AuthProvider.tsx`
+  - Disabled `SessionProvider` focus/offline refetch behavior to reduce noisy/redundant `/api/auth/session` churn during normal usage/devtools focus shifts.
+
+### Backend auth refresh hardening
+- `apps/api/src/auth/auth.service.ts`
+  - Tightened refresh path: inactive users can no longer refresh tokens (`user.isActive` required).
+  - Added explicit security-event reason mapping for not-found/inactive/missing-refresh-token states.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 83 (Auth lifecycle stabilization + expiry-loop fix)
+
+### Backend auth refresh stabilization
+- `apps/api/src/auth/auth.service.ts`
+  - Removed per-refresh refresh-token rotation to eliminate concurrent refresh race invalidation.
+  - Refresh flow now:
+    - validates hashed stored refresh token
+    - issues a new access token
+    - returns the same session refresh token for compatibility
+  - Login flow still issues and stores hashed refresh token at session start.
+
+### Backend auth logging signal cleanup
+- `apps/api/src/common/filters/all-exceptions.filter.ts`
+  - Changed non-5xx exception logging from `error` stack traces to `warn` messages.
+  - Keeps 5xx as full error logs, reducing noise from expected auth 401 events while preserving security-event logs.
+
+### Web auth/session invalid-state hardening
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - Replaced invalid-role throw path with deterministic invalid-session state (`InvalidSessionRole`), clearing token auth fields.
+  - Added strict guards for missing refresh/access tokens:
+    - `MissingRefreshToken`
+    - `MissingAccessToken`
+  - Session callback now marks missing-access-token sessions as invalid instead of returning a seemingly authenticated session.
+  - Removed permissions persistence from NextAuth JWT cookie and now derives permissions from role during session hydration to reduce cookie payload and auth-state drift risk.
+
+- `apps/web/lib/api.ts`
+  - Request interceptor now proactively invalidates session when:
+    - session has explicit auth error
+    - session exists but `accessToken` is missing
+    - token is expiring and forced refresh fails
+  - Prevents unauthorized request storms and converges all invalid states to one controlled sign-out path.
+
+- `apps/web/hooks/use-login-page.ts`
+  - Treats authenticated session without access token as invalid and signs out once.
+
+- `apps/web/app/(dashboard)/layout.tsx`
+  - Treats authenticated session without access token as invalid and redirects once.
+
+- `apps/web/middleware.ts`
+  - Protected routes now also require token `accessToken` presence (in addition to token existence and no token error).
+
+### Local env alignment for auth correctness
+- `apps/web/.env`
+- `apps/web/.env.local`
+  - Corrected `NEXTAUTH_URL` to `http://localhost:3000` (web origin).
+
+- `apps/api/.env`
+  - Aligned default local runtime values with local-dev contract:
+    - `PORT=3001`
+    - `JWT_EXPIRES_IN=15m`
+
+### Architecture notes updated
+- `docs/auth-architecture.md`
+  - Updated to match implemented strategy:
+    - backend remains auth authority
+    - refresh token is session-stable (hashed at rest), not per-refresh rotating
+    - avoids concurrent refresh self-revocation in NextAuth multi-request scenarios.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run build -w web` ⚠️ blocked in current environment by offline Google Fonts fetch (`fonts.googleapis.com` DNS), not by auth code
+- `npm run build -w api` ✅
+- `npm run build -w @tbms/shared-types` ✅
+- `npm run rbac:audit` ✅
+- `npm run security:backend:guardrails` ✅
+
+## 2026-03-04 — Pass 84 (API env loading consistency for mail/auth config)
+
+### Problem addressed
+- Mail status endpoint reported all Google configuration flags as `false` even when values existed in `apps/api/.env`.
+- Root cause: dev runtime was started with only `--env-file .env.local`, where Google values were empty.
+
+### Fix implemented
+- `apps/api/package.json`
+  - Updated dev/debug start scripts to load env files in layered order:
+    - base: `.env`
+    - override: `.env.local`
+  - Updated scripts:
+    - `start:dev` -> `nest start --watch --env-file .env --env-file .env.local`
+    - `start:debug` -> `nest start --debug --watch --env-file .env --env-file .env.local`
+
+- `apps/api/.env.local`
+- `apps/api/.env.local.example`
+  - Commented out empty `GOOGLE_*` keys to prevent overriding non-empty `.env` values with blank strings.
+  - Added inline note: define `GOOGLE_*` in `.env.local` only when intentionally overriding.
+
+### Verification run after edits
+- `npm run start:dev -w api -- --help` ✅ (confirmed multi `--env-file` parsing and script validity)
+
+## 2026-03-04 — Pass 85 (Theme Token V2 migration foundation)
+
+### Phase 0 baseline + tracking controls
+- `docs/theme-token-migration.csv` (new)
+  - Added full migration inventory for Theme Token V2 scope.
+  - Columns: `path,module,phase,status,notes`.
+  - Includes coverage for:
+    - `apps/web/app/**/*.tsx`
+    - `apps/web/components/**/*.tsx`
+    - `apps/web/lib/*theme*`
+    - `apps/web/app/globals.css`
+    - `apps/web/tailwind.config.ts`
+    - `packages/shared-theme/src/*`
+- `scripts/verify-theme-token-migration.sh` (new)
+  - Added strict verifier that fails when:
+    - scoped files are missing from manifest
+    - invalid status appears (`NS/IP/DN/NJ` only)
+    - `NJ` row has no reason in notes
+- `docs/theme-token-migration-status.md` (new)
+  - Added phase ledger and current rollout snapshot.
+
+### Phase 1 shared contract upgrade
+- `packages/shared-theme/src/theme-presets.ts`
+  - Replaced legacy palette with canonical `ThemePaletteV2` field contract.
+  - Fixed `ThemePreset.id` typing from `any` to `ThemePresetId`.
+  - Aligned `THEME_PRESET_IDS` to actual preset IDs only:
+    - `google-ai-studio-v2`
+    - `console-minimalist-xai`
+  - Updated `DEFAULT_THEME_PRESET` to valid ID.
+  - Expanded preset light/dark palettes with complete V2 semantic fields.
+- `packages/shared-theme/src/index.ts`
+  - Marked as `NJ` in migration manifest (no code change needed; canonical re-export remains correct).
+
+### Phase 2/3 token surface and compatibility layer
+- `apps/web/lib/theme-css.ts`
+  - Migrated generator input type to `ThemePaletteV2`.
+  - Added CSS variable output for full V2 token set:
+    - layout, typography, borders, interactions, forms, muted semantic states, code, utilities.
+  - Preserved compatibility behavior with alias variables and readable foreground fallbacks.
+  - Kept backward-safe values for legacy token usage during migration cycle.
+- `apps/web/tailwind.config.ts`
+  - Added Tailwind color namespaces for V2 token families:
+    - `surface`, `appBar`, `sidebar`, `text`, `borderStrong`, `divider`, `interaction`,
+      `inputSurface`, semantic muted variants, `code`, `scrollbar`, `shadowColor`.
+  - Added canonical `error` namespace (`error`, `error.foreground`, `error.muted`) while preserving `destructive` compatibility keys.
+- `apps/web/app/globals.css`
+  - Added defaults for all newly introduced CSS variables in both root and dark blocks.
+  - Added utility classes for shell/layout and technical utilities:
+    - `bg-app-bar`, `bg-sidebar-surface`, `bg-surface-elevated`, `code-surface`, `scrollbar-theme`.
+
+### Phase 4 shell migration (in progress)
+- `apps/web/app/(dashboard)/layout.tsx`
+  - Applied tokenized shell classes (`surface`, `text-secondary`, `scrollbar-theme`) for consistent app shell behavior.
+- `apps/web/app/login/page.tsx`
+  - Switched login container surface to semantic elevated token and stronger semantic border.
+- `apps/web/components/layout/Sidebar.tsx`
+  - Replaced broad background/muted usage with dedicated sidebar/app interaction tokens.
+  - Standardized active/inactive nav states with `sidebarActive`, `sidebarBorder`, and `interaction-hover`.
+- `apps/web/components/layout/Topbar.tsx`
+  - Migrated topbar wrapper to `appBar` semantic tokens and aligned border semantics.
+- `apps/web/components/layout/ThemeToggle.tsx`
+  - Migrated trigger styling to semantic sidebar/interaction tokens.
+- `apps/web/components/auth/login-brand-panel.tsx`
+  - Replaced broad foreground classes with semantic inverse token usage for brand panel consistency.
+- `apps/web/components/auth/auth-state-card.tsx`
+  - Migrated shell card/error accent usage to semantic elevated + muted error tokens.
+- `apps/web/app/status/[token]/page.tsx`
+  - Migrated public status page shell background classes to semantic surface tokens.
+- `apps/web/app/unauthorized/page.tsx`
+  - Marked as `NJ` in migration manifest because it delegates shell/layout rendering to `AuthStateCard` (already migrated).
+
+### Phase 5 primitive migration (in progress)
+- Updated core UI primitives to consume semantic tokens consistently:
+  - `apps/web/components/ui/button.tsx`
+  - `apps/web/components/ui/badge.tsx`
+  - `apps/web/components/ui/card.tsx`
+  - `apps/web/components/ui/input.tsx`
+  - `apps/web/components/ui/select.tsx`
+  - `apps/web/components/ui/dialog.tsx`
+  - `apps/web/components/ui/sheet.tsx`
+  - `apps/web/components/ui/table.tsx`
+  - `apps/web/components/ui/tabs.tsx`
+  - `apps/web/components/ui/toast.tsx`
+  - `apps/web/components/ui/typography.tsx`
+  - `apps/web/components/ui/stat-card.tsx`
+  - `apps/web/components/ui/empty-state.tsx`
+  - `apps/web/components/ui/data-table.tsx`
+  - `apps/web/components/ui/dropdown-menu.tsx`
+  - `apps/web/components/ui/command.tsx`
+- Result: removed overloaded generic muted/accent usage across these primitives and replaced with explicit semantic layout/form/interaction/semantic-muted tokens.
+
+### Phase 7 guardrails bootstrap
+- `scripts/audit-theme-usage.mjs` (new)
+  - Added non-tokenized color audit for app/component code paths to detect raw color usage patterns.
+- `package.json`
+  - Added scripts:
+    - `theme:migration:verify`
+    - `theme:usage:audit`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Marked this pass completed files as `DN` for Phases 4 and 5 with explicit migration notes.
+- `docs/theme-token-migration-status.md`
+  - Updated phase ledger and completion snapshot.
+
+### Verification run after edits
+- `npm run build -w @tbms/shared-theme` ✅
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+- `npm run build -w web` ⚠️ blocked in current environment by offline Google Fonts fetch (`fonts.googleapis.com` DNS), not by theme-token code
+
+## 2026-03-04 — Pass 86 (Theme Token V2 Phase 5 completion + Phase 6 Wave 1)
+
+### Phase 5 primitive migration completed
+- Migrated remaining token-bearing UI primitives:
+  - `apps/web/components/ui/avatar.tsx`
+  - `apps/web/components/ui/chart-empty-state.tsx`
+  - `apps/web/components/ui/chart-shell.tsx`
+  - `apps/web/components/ui/checkbox.tsx`
+  - `apps/web/components/ui/confirm-dialog.tsx`
+  - `apps/web/components/ui/form-layout.tsx`
+  - `apps/web/components/ui/form.tsx`
+  - `apps/web/components/ui/label.tsx`
+  - `apps/web/components/ui/multi-select.tsx`
+  - `apps/web/components/ui/popover.tsx`
+  - `apps/web/components/ui/scroll-area.tsx`
+  - `apps/web/components/ui/scrollable-dialog.tsx`
+  - `apps/web/components/ui/separator.tsx`
+  - `apps/web/components/ui/skeleton.tsx`
+  - `apps/web/components/ui/switch.tsx`
+  - `apps/web/components/ui/table-layout.tsx`
+  - `apps/web/components/ui/table-skeleton.tsx`
+- Marked structural wrappers as `NJ` with explicit reasons in manifest:
+  - `apps/web/components/ui/chart-loading-state.tsx`
+  - `apps/web/components/ui/page-header.tsx`
+  - `apps/web/components/ui/page-shell.tsx`
+  - `apps/web/components/ui/toaster.tsx`
+
+### Phase 6 domain migration wave 1 (dashboard/orders/reports route orchestrators)
+- Updated route-level semantic token usage in:
+  - `apps/web/app/(dashboard)/page.tsx`
+  - `apps/web/app/(dashboard)/orders/page.tsx`
+  - `apps/web/app/(dashboard)/orders/new/page.tsx`
+  - `apps/web/app/(dashboard)/orders/[id]/page.tsx`
+  - `apps/web/app/(dashboard)/reports/page.tsx`
+- Changes include replacing broad card/muted/background usages with semantic surface/divider/input/interaction/error-muted/info-muted/warning-muted token classes.
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated Phase 5 to fully complete (`33 DN`, `4 NJ`).
+  - Marked Phase 6 Wave 1 files as `DN`.
+- `docs/theme-token-migration-status.md`
+  - Updated phase ledger and coverage snapshot.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-04 — Pass 87 (Theme Token V2 Phase 6 Wave 1 component sweep)
+
+### Scope completed in this pass
+- Migrated token usage from broad legacy classes to semantic V2 tokens in wave-1 domain components (dashboard/payments/reports + related order list/task tables).
+- Standardized classes toward:
+  - `bg-surface` / `bg-surface-elevated`
+  - `border-divider`
+  - `text-text-primary` / `text-text-secondary`
+  - `bg-interaction-hover`
+  - semantic muted tracks (`bg-pending-muted`) and semantic alert surfaces (`bg-error-muted`, `bg-success-muted`).
+
+### Files updated
+- `apps/web/components/dashboard/dashboard-design-popularity-card.tsx`
+- `apps/web/components/dashboard/dashboard-garment-breakdown-card.tsx`
+- `apps/web/components/dashboard/dashboard-kpi-card.tsx`
+- `apps/web/components/dashboard/dashboard-overdue-banner.tsx`
+- `apps/web/components/dashboard/dashboard-overdue-orders-card.tsx`
+- `apps/web/components/dashboard/dashboard-productivity-card.tsx`
+- `apps/web/components/dashboard/dashboard-revenue-expenses-card.tsx`
+- `apps/web/components/payments/payments-disburse-dialog.tsx`
+- `apps/web/components/payments/payments-employee-selector-card.tsx`
+- `apps/web/components/payments/payments-history-section.tsx`
+- `apps/web/components/payments/payments-summary-cards.tsx`
+- `apps/web/components/reports/reports-chart-legend.tsx`
+- `apps/web/components/reports/reports-distribution-chart.tsx`
+- `apps/web/components/reports/reports-export-grid.tsx`
+- `apps/web/components/reports/reports-exports-tab.tsx`
+- `apps/web/components/reports/reports-financial-trend-chart.tsx`
+- `apps/web/components/reports/reports-overview-tab.tsx`
+- `apps/web/components/reports/reports-productivity-chart.tsx`
+- `apps/web/components/reports/reports-weekly-print-card.tsx`
+- `apps/web/components/reports/reports-workspace-filters.tsx`
+- `apps/web/components/orders/my-orders-table.tsx`
+- `apps/web/components/orders/orders-list-table.tsx`
+- `apps/web/components/orders/order-detail-breadcrumb.tsx`
+- `apps/web/components/orders/task-assignment/task-assignment-table.tsx`
+
+### Migration tracker updates
+- `docs/theme-token-migration.csv`
+  - Marked above files as `DN` in Phase 6 with note: `Phase 6 domain token migration wave 1 component sweep`.
+- `docs/theme-token-migration-status.md`
+  - Updated phase 6 note and coverage snapshot to current manifest state (`DN=74`, `NS=173`, `NJ=6`).
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 88 (Theme Token V2 Phase 6 Orders detail/form sweep)
+
+### Scope completed in this pass
+- Continued Phase 6 domain migration for the Orders module by converting local component styles from broad legacy classes to semantic V2 tokens.
+- Standardized this batch to:
+  - `bg-surface` / `bg-surface-elevated`
+  - `border-divider`
+  - `text-text-primary` / `text-text-secondary`
+  - `bg-pending-muted` for neutral state blocks
+  - semantic info/success/error muted surfaces where appropriate.
+
+### Files migrated (`DN`)
+- `apps/web/components/orders/order-customer-insight-card.tsx`
+- `apps/web/components/orders/order-detail-header-card.tsx`
+- `apps/web/components/orders/order-financial-summary-card.tsx`
+- `apps/web/components/orders/order-form-customer-card.tsx`
+- `apps/web/components/orders/order-form-item-card.tsx`
+- `apps/web/components/orders/order-form-items-card.tsx`
+- `apps/web/components/orders/order-form-summary-card.tsx`
+- `apps/web/components/orders/order-items-table.tsx`
+- `apps/web/components/orders/order-lifecycle-card.tsx`
+- `apps/web/components/orders/order-payment-dialog.tsx`
+- `apps/web/components/orders/order-share-dialog.tsx`
+- `apps/web/components/orders/order-timeline-card.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/components/orders/my-orders-toolbar.tsx`
+  - No direct color semantics; fully delegates styling to tokenized table primitives.
+- `apps/web/components/orders/orders-list-toolbar.tsx`
+  - No direct color semantics; fully delegates styling to tokenized table/select/button primitives.
+- `apps/web/components/orders/order-form-skeleton.tsx`
+  - Structural loading layout; color semantics delegated to tokenized `Card` and `Skeleton` primitives.
+
+### Migration tracker updates
+- `docs/theme-token-migration.csv`
+  - Updated above files to `DN`/`NJ` for Phase 6 with explicit notes.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note and coverage snapshot.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `86`
+- `NS`: `158`
+- `NJ`: `9`
+- Phase 6 breakdown: `DN=41`, `NS=156`, `NJ=3`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 89 (Theme Token V2 Phase 6 Customers sweep)
+
+### Scope completed in this pass
+- Completed the Customers domain migration sweep for Phase 6.
+- Replaced broad token usage with semantic V2 tokens in customer list/detail/profile/measurement UI.
+- Marked wrapper/structural files as `NJ` where no direct color semantics existed.
+
+### Files migrated (`DN`)
+- `apps/web/components/customers/CustomerTable.tsx`
+- `apps/web/components/customers/MeasurementForm.tsx`
+- `apps/web/components/customers/detail/customer-detail-breadcrumb.tsx`
+- `apps/web/components/customers/detail/customer-detail-header.tsx`
+- `apps/web/components/customers/detail/customer-measurements-tab.tsx`
+- `apps/web/components/customers/detail/customer-notes-tab.tsx`
+- `apps/web/components/customers/detail/customer-orders-tab.tsx`
+- `apps/web/components/customers/detail/customer-profile-card.tsx`
+- `apps/web/components/customers/list/customers-directory-table.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/customers/[id]/page.tsx`
+- `apps/web/app/(dashboard)/customers/page.tsx`
+- `apps/web/components/customers/CustomerDialog.tsx`
+- `apps/web/components/customers/detail/customer-detail-skeleton.tsx`
+- `apps/web/components/customers/detail/customer-detail-tabs.tsx`
+- `apps/web/components/customers/detail/customer-measurement-dialog.tsx`
+- `apps/web/components/customers/dialog/customer-dialog-address-field.tsx`
+- `apps/web/components/customers/dialog/customer-dialog-meta-fields.tsx`
+- `apps/web/components/customers/dialog/customer-dialog-primary-fields.tsx`
+- `apps/web/components/customers/list/customers-list-toolbar.tsx`
+- `apps/web/components/customers/list/customers-page-header.tsx`
+
+### Migration tracker updates
+- `docs/theme-token-migration.csv`
+  - Updated all customer domain rows to `DN`/`NJ` with explicit notes.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note and coverage snapshot.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `95`
+- `NS`: `138`
+- `NJ`: `20`
+- Phase 6 breakdown: `DN=50`, `NS=136`, `NJ=14`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 90 (Theme Token V2 Phase 6 Employees sweep)
+
+### Scope completed in this pass
+- Completed the Employees domain migration sweep for Phase 6.
+- Replaced remaining broad token classes in employee detail/list/contact surfaces with semantic V2 tokens.
+- Marked orchestrator/wrapper-only employee files as `NJ` where styles are delegated to shared primitives.
+
+### Files migrated (`DN`)
+- `apps/web/app/(dashboard)/employees/page.tsx`
+- `apps/web/components/employees/AccountCreationDialog.tsx`
+- `apps/web/components/employees/detail/employee-detail-breadcrumb.tsx`
+- `apps/web/components/employees/detail/employee-detail-header.tsx`
+- `apps/web/components/employees/detail/employee-detail-tabs.tsx`
+- `apps/web/components/employees/detail/employee-ledger-entry-dialog.tsx`
+- `apps/web/components/employees/detail/employee-profile-sidebar.tsx`
+- `apps/web/components/employees/dialog/employee-dialog-contact-fields.tsx`
+- `apps/web/components/employees/list/employees-list-table.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/employees/[id]/page.tsx`
+- `apps/web/components/employees/EmployeeDialog.tsx`
+- `apps/web/components/employees/detail/employee-detail-skeleton.tsx`
+- `apps/web/components/employees/detail/employee-document-upload-dialog.tsx`
+- `apps/web/components/employees/detail/employee-financial-cards.tsx`
+- `apps/web/components/employees/dialog/employee-dialog-primary-fields.tsx`
+- `apps/web/components/employees/dialog/employee-dialog-work-fields.tsx`
+- `apps/web/components/employees/list/employees-list-toolbar.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated all employee rows in Phase 6 to `DN`/`NJ` with explicit notes.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `104`
+- `NS`: `121`
+- `NJ`: `28`
+- Phase 6 breakdown: `DN=59`, `NS=119`, `NJ=22`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 91 (Theme Token V2 Phase 6 Expenses sweep)
+
+### Scope completed in this pass
+- Completed the Expenses domain migration sweep for Phase 6.
+- Replaced remaining broad token classes in expense dialogs/tables with semantic V2 tokens.
+- Marked filters/overview components as `NJ` where styling already delegates to shared tokenized primitives.
+
+### Files migrated (`DN`)
+- `apps/web/app/(dashboard)/expenses/page.tsx`
+- `apps/web/components/expenses/expense-create-dialog.tsx`
+- `apps/web/components/expenses/expenses-table.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/components/expenses/expenses-filters-card.tsx`
+- `apps/web/components/expenses/expenses-overview-cards.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated all expenses rows to `DN`/`NJ` with explicit notes.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass section.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `107`
+- `NS`: `116`
+- `NJ`: `30`
+- Phase 6 breakdown: `DN=62`, `NS=114`, `NJ=24`
+
+## 2026-03-05 — Pass 92 (Theme Token V2 Phase 6 Users settings sweep)
+
+### Scope completed in this pass
+- Completed the Settings Users subdomain migration for Phase 6.
+- Replaced remaining broad token usage in the users access directory with semantic V2 tokens.
+- Marked route/header/stats wrappers as `NJ` where visuals are delegated to shared primitives.
+
+### Files migrated (`DN`)
+- `apps/web/components/config/UsersTable.tsx`
+- `apps/web/components/config/users/user-account-dialog.tsx`
+- `apps/web/components/config/users/users-access-table.tsx`
+- `apps/web/components/config/users/users-list-toolbar.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/settings/users/page.tsx`
+- `apps/web/components/config/users/users-page-header.tsx`
+- `apps/web/components/config/users/users-stats-grid.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated settings users rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `111`
+- `NS`: `109`
+- `NJ`: `33`
+- Phase 6 breakdown: `DN=66`, `NS=107`, `NJ=27`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 93 (Theme Token V2 Phase 6 Branches sweep)
+
+### Scope completed in this pass
+- Completed the Settings Branches subdomain migration for Phase 6.
+- Replaced broad token usage in branch directory, branch hub cards, and destructive summaries with semantic V2 tokens.
+- Marked route/orchestrator/stat/skeleton wrappers as `NJ` where visuals are delegated to shared primitives.
+
+### Files migrated (`DN`)
+- `apps/web/components/config/BranchesTable.tsx`
+- `apps/web/components/config/branches/branch-delete-summary.tsx`
+- `apps/web/components/config/branches/branch-form-dialog.tsx`
+- `apps/web/components/config/branches/branches-directory-table.tsx`
+- `apps/web/components/config/branches/hub/branch-global-pricing-card.tsx`
+- `apps/web/components/config/branches/hub/branch-hub-breadcrumbs.tsx`
+- `apps/web/components/config/branches/hub/branch-hub-meta-card.tsx`
+- `apps/web/components/config/branches/hub/branch-hub-overview-header.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/settings/branches/page.tsx`
+- `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx`
+- `apps/web/components/config/BranchHubConfig.tsx`
+- `apps/web/components/config/branches/branches-list-toolbar.tsx`
+- `apps/web/components/config/branches/branches-page-header.tsx`
+- `apps/web/components/config/branches/hub/branch-hub-relations-grid.tsx`
+- `apps/web/components/config/branches/hub/branch-hub-skeleton.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated settings branches rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `119`
+- `NS`: `94`
+- `NJ`: `40`
+- Phase 6 breakdown: `DN=74`, `NS=92`, `NJ=34`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 94 (Theme Token V2 Phase 6 Platform settings sweep)
+
+### Scope completed in this pass
+- Completed the platform settings domain sweep for appearance, attendance, audit logs, integrations, and system settings.
+- Replaced broad legacy token usage in settings cards/tables/panels with semantic V2 tokens.
+- Marked route wrappers and stat/orchestrator components as `NJ` where they delegate all visuals to shared primitives.
+
+### Files migrated (`DN`)
+- `apps/web/components/config/appearance/appearance-mode-card.tsx`
+- `apps/web/components/config/appearance/appearance-preset-directory.tsx`
+- `apps/web/components/config/attendance/attendance-settings-page.tsx`
+- `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+- `apps/web/components/config/integrations/integrations-settings-page.tsx`
+- `apps/web/components/config/system/system-settings-state-card.tsx`
+- `apps/web/components/config/system/system-settings-workflow-card.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/settings/appearance/page.tsx`
+- `apps/web/app/(dashboard)/settings/attendance/page.tsx`
+- `apps/web/app/(dashboard)/settings/audit-logs/page.tsx`
+- `apps/web/app/(dashboard)/settings/integrations/page.tsx`
+- `apps/web/app/(dashboard)/settings/system/page.tsx`
+- `apps/web/components/config/appearance/appearance-settings-page.tsx`
+- `apps/web/components/config/appearance/appearance-stats-grid.tsx`
+- `apps/web/components/config/system/system-settings-page.tsx`
+- `apps/web/components/config/system/system-settings-stats-grid.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated platform settings rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `126`
+- `NS`: `78`
+- `NJ`: `49`
+- Phase 6 breakdown: `DN=81`, `NS=76`, `NJ=43`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 95 (Theme Token V2 Phase 6 Design Types sweep)
+
+### Scope completed in this pass
+- Completed the Design Types settings subdomain sweep for Phase 6.
+- Migrated the remaining token-drift in the design types directory table to semantic V2 tokens.
+- Marked all route/dialog/header/stats orchestration files as `NJ` where they already relied on shared tokenized primitives.
+
+### Files migrated (`DN`)
+- `apps/web/components/design-types/design-types-table.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/settings/design-types/page.tsx`
+- `apps/web/components/design-types/CreateDesignTypeDialog.tsx`
+- `apps/web/components/design-types/design-types-page-header.tsx`
+- `apps/web/components/design-types/design-types-stats-grid.tsx`
+- `apps/web/components/design-types/dialog/design-type-dialog-basic-fields.tsx`
+- `apps/web/components/design-types/dialog/design-type-dialog-scope-fields.tsx`
+- `apps/web/components/design-types/dialog/design-type-dialog-sort-field.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated design types rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `127`
+- `NS`: `70`
+- `NJ`: `56`
+- Phase 6 breakdown: `DN=82`, `NS=68`, `NJ=50`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 96 (Theme Token V2 Phase 6 Rates sweep)
+
+### Scope completed in this pass
+- Completed the Rates settings subdomain sweep for Phase 6.
+- Replaced remaining broad token usage in rates list/table/dialog with semantic V2 tokens.
+- Marked rates header/search/stats components as `NJ` where visuals are already delegated to shared primitives.
+
+### Files migrated (`DN`)
+- `apps/web/app/(dashboard)/settings/rates/page.tsx`
+- `apps/web/components/rates/CreateRateDialog.tsx`
+- `apps/web/components/rates/RatesList.tsx`
+- `apps/web/components/rates/rates-table.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/components/rates/rates-page-header.tsx`
+- `apps/web/components/rates/rates-search-stats.tsx`
+- `apps/web/components/rates/rates-stats-grid.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated rates rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `131`
+- `NS`: `63`
+- `NJ`: `59`
+- Phase 6 breakdown: `DN=86`, `NS=61`, `NJ=53`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 97 (Theme Token V2 Phase 6 Garments + Measurements + Expense Categories sweep)
+
+### Scope completed in this pass
+- Completed the largest remaining settings-domain sweep for garments, measurements, and expense categories.
+- Migrated legacy broad token usage (`foreground/muted/card/background/border`) to semantic V2 tokens across detail/list/dialog surfaces.
+- Marked route wrappers, stat cards, and form shell components as `NJ` where visual semantics are delegated to shared tokenized primitives.
+
+### Files migrated (`DN`)
+- `apps/web/components/config/GarmentPriceHistoryDialog.tsx`
+- `apps/web/components/config/GarmentTypeDialog.tsx`
+- `apps/web/components/config/GarmentWorkflowStepsDialog.tsx`
+- `apps/web/components/config/MeasurementCategoryDetail.tsx`
+- `apps/web/components/config/expenses/expense-categories-page.tsx`
+- `apps/web/components/config/garments/detail/garment-detail-breadcrumb.tsx`
+- `apps/web/components/config/garments/detail/garment-detail-header.tsx`
+- `apps/web/components/config/garments/detail/garment-detail-not-found.tsx`
+- `apps/web/components/config/garments/detail/garment-measurement-forms-card.tsx`
+- `apps/web/components/config/garments/detail/garment-overview-card.tsx`
+- `apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx`
+- `apps/web/components/config/garments/detail/garment-pricing-sidebar.tsx`
+- `apps/web/components/config/garments/detail/garment-rates-section.tsx`
+- `apps/web/components/config/garments/list/garment-types-inventory-table.tsx`
+- `apps/web/components/config/measurements/detail/measurement-category-breadcrumbs.tsx`
+- `apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx`
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx`
+- `apps/web/components/config/measurements/detail/measurement-fields-table.tsx`
+- `apps/web/components/config/measurements/list/measurement-categories-inventory-table.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/settings/expense-categories/page.tsx`
+- `apps/web/app/(dashboard)/settings/garments/page.tsx`
+- `apps/web/app/(dashboard)/settings/garments/[id]/page.tsx`
+- `apps/web/app/(dashboard)/settings/measurements/page.tsx`
+- `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx`
+- `apps/web/components/config/GarmentTypesTable.tsx`
+- `apps/web/components/config/MeasurementCategoriesTable.tsx`
+- `apps/web/components/config/MeasurementCategoryDialog.tsx`
+- `apps/web/components/config/MeasurementFieldDialog.tsx`
+- `apps/web/components/config/garments/detail/garment-analytics-stats-grid.tsx`
+- `apps/web/components/config/garments/detail/garment-detail-skeleton.tsx`
+- `apps/web/components/config/garments/list/garment-types-list-toolbar.tsx`
+- `apps/web/components/config/garments/list/garment-types-page-header.tsx`
+- `apps/web/components/config/garments/list/garment-types-stats-grid.tsx`
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx`
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-category-note.tsx`
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-required-toggle.tsx`
+- `apps/web/components/config/measurements/detail/measurement-fields-stats-grid.tsx`
+- `apps/web/components/config/measurements/dialog/measurement-category-dialog-name-field.tsx`
+- `apps/web/components/config/measurements/list/measurement-categories-list-toolbar.tsx`
+- `apps/web/components/config/measurements/list/measurement-categories-page-header.tsx`
+- `apps/web/components/config/measurements/list/measurement-categories-stats-grid.tsx`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated garments/measurements/expense-category rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase note, coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `150`
+- `NS`: `22`
+- `NJ`: `81`
+- Phase 6 breakdown: `DN=105`, `NS=20`, `NJ=75`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 98 (Theme Token V2 Final NS closure sweep)
+
+### Scope completed in this pass
+- Completed the last unreviewed (`NS`) files in the theme migration manifest.
+- Migrated remaining token drift in auth/search/status components to semantic V2 tokens.
+- Closed all remaining manifest rows as `DN` or `NJ`, including phase-2 helper/re-export files.
+
+### Files migrated (`DN`)
+- `apps/web/components/auth/login-form-panel.tsx`
+- `apps/web/components/layout/BranchSelector.tsx`
+- `apps/web/components/layout/GlobalSearchCommand.tsx`
+- `apps/web/components/status/status-order-details-card.tsx`
+- `apps/web/components/status/status-pin-gate-card.tsx`
+
+### Files reviewed as no-change justified (`NJ`)
+- `apps/web/app/(dashboard)/my-orders/page.tsx`
+- `apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx`
+- `apps/web/app/(dashboard)/payments/page.tsx`
+- `apps/web/app/(dashboard)/settings/page.tsx`
+- `apps/web/app/layout.tsx`
+- `apps/web/components/AuthProvider.tsx`
+- `apps/web/components/ThemePresetProvider.tsx`
+- `apps/web/components/ThemeProvider.tsx`
+- `apps/web/components/auth/can.tsx`
+- `apps/web/components/auth/with-role-guard.tsx`
+- `apps/web/components/common/ConfirmPasswordDialog.tsx`
+- `apps/web/components/reports/reports-financial-tab.tsx`
+- `apps/web/components/reports/reports-operations-tab.tsx`
+- `apps/web/components/status/status-order-header-card.tsx`
+- `apps/web/components/status/status-order-items-card.tsx`
+- `apps/web/lib/chart-theme.ts`
+- `apps/web/lib/theme-presets.ts`
+
+### Tracking updates
+- `docs/theme-token-migration.csv`
+  - Updated final `NS` rows to `DN`/`NJ` with explicit reasons.
+- `docs/theme-token-migration-status.md`
+  - Updated phase ledger (`Phase 2` and `Phase 6` to `DN`), coverage snapshot, and latest-pass list.
+
+### Snapshot after this pass
+- Total scoped files: `253`
+- `DN`: `155`
+- `NS`: `0`
+- `NJ`: `98`
+- Phase 6 breakdown: `DN=110`, `NS=0`, `NJ=90`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 99 (Component-first theme consistency refactor)
+
+### Why this pass
+- Repeated theme classes were being passed at callsites (`Card` / `TableSurface`) instead of being owned by shared UI primitives.
+- Standardized design should be controlled from component variants, not per-page class duplication.
+
+### Primitive-level centralization
+- `apps/web/components/ui/card.tsx`
+  - Made divider/surface shell the canonical base.
+  - Added reusable semantic variants:
+    - `panel`, `shell`, `shellFlat`, `elevatedPanel`, `elevatedShell`
+    - `successSoft`, `warningSoft`, `errorSoft`, `success`, `error`
+  - Kept existing `default`, `premium`, `interactive` variants.
+
+- `apps/web/components/ui/table-layout.tsx`
+  - Added `TableSurface` variants and moved surface styling into component:
+    - `default`, `flat`, `elevated`
+  - Removed need for repeated table border/background classes at usage sites.
+
+### App-wide callsite cleanup
+- Removed duplicated `TableSurface` style props in all usages (`className="border-divider bg-surface"` removed globally).
+- Replaced repeated `Card` class bundles with variants across domain/shell pages.
+- Current centralized usage footprint:
+  - `Card` semantic variants are used in 43 files.
+  - `TableSurface` now has clean default usage everywhere, with one explicit `variant="flat"` callsite for task-assignment table.
+
+### Representative migrated callsites
+- `apps/web/components/employees/detail/employee-detail-tabs.tsx` (`shellFlat`, `successSoft`)
+- `apps/web/components/reports/reports-export-grid.tsx` (`shellFlat`)
+- `apps/web/components/customers/detail/customer-measurements-tab.tsx` (`shell`)
+- `apps/web/components/dashboard/dashboard-overdue-banner.tsx` (`error`, `success`)
+- `apps/web/components/config/integrations/integrations-settings-page.tsx` (`warningSoft`)
+- `apps/web/components/orders/order-form-items-card.tsx` (removed border override on `premium`)
+- `apps/web/components/orders/order-form-summary-card.tsx` (moved from class override to canonical `Card`)
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 100 (Full shared-component consistency sweep)
+
+### Goal
+- Move remaining design-token styling out of page/component callsites and into shared UI primitives for consistent, component-first theming.
+
+### Shared primitive upgrades
+- `apps/web/components/ui/button.tsx`
+  - Added variants to remove per-callsite theme classes:
+    - `tablePrimary`, `tableSuccess`, `infoGhost`, `outlinePrimary`, `outlineDashed`, `sidebarIcon`, `sidebarIconMuted`
+- `apps/web/components/ui/select.tsx`
+  - Added variants:
+    - `appBar`, `inlineGhost`
+- `apps/web/components/ui/tabs.tsx`
+  - Added variants:
+    - `TabsList.variant="segmented"`
+    - `TabsTrigger.variant="segmented"`
+- `apps/web/components/ui/card.tsx`
+  - Added semantic card variants:
+    - `panel`, `shell`, `shellFlat`, `elevatedPanel`, `elevatedShell`, `successSoft`, `warningSoft`, `errorSoft`, `success`, `error`
+  - Added `CardFooter` tone variants:
+    - `tone="mutedSection"`
+- `apps/web/components/ui/table-layout.tsx`
+  - Added `TableSurface` variants (`default`, `flat`, `elevated`) and moved canonical surface style into primitive.
+- `apps/web/components/ui/input.tsx`
+  - Added variants:
+    - `readOnlyCode`, `premiumSuccess`
+
+### Callsite refactors (component-first)
+- Replaced repeated `Card` surface/border/shadow class bundles with variants in domain modules.
+- Replaced repeated `TableSurface` border/background class bundles with default variant usage.
+- Updated button usages to new variants in:
+  - `apps/web/components/layout/Sidebar.tsx`
+  - `apps/web/components/layout/ThemeToggle.tsx`
+  - `apps/web/components/layout/Topbar.tsx`
+  - `apps/web/components/orders/order-items-table.tsx`
+  - `apps/web/components/orders/task-assignment/task-assignment-table.tsx`
+  - `apps/web/components/orders/order-share-dialog.tsx`
+  - `apps/web/components/dashboard/dashboard-design-popularity-card.tsx`
+  - `apps/web/components/config/GarmentWorkflowStepsDialog.tsx`
+- Updated select/tabs callsites to new variants in:
+  - `apps/web/components/layout/BranchSelector.tsx`
+  - `apps/web/components/orders/task-assignment/task-assignment-table.tsx`
+  - `apps/web/app/(dashboard)/reports/page.tsx`
+- Updated input/card-footer callsites:
+  - `apps/web/components/orders/order-share-dialog.tsx`
+  - `apps/web/components/orders/order-form-summary-card.tsx`
+
+### Audit results after this pass
+- No remaining `Card/CardHeader/CardContent/CardFooter` callsites with `bg-*`, `border-*`, `shadow-*` classes.
+- No remaining `TableSurface` callsites with `bg-*`, `border-*`, `shadow-*` classes.
+- No remaining `Button`/`Input`/`SelectTrigger`/`TabsList`/`TabsTrigger` callsites with `bg-*`, `border-*`, `shadow-*` classes.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 101 (InfoTile Primitive + App-wide Tile Consistency Sweep)
+
+### Goal
+- Remove remaining repeated `border/bg/padding` tile classes from page-level callsites and centralize them in one shared UI primitive.
+
+### New reusable primitive
+- `apps/web/components/ui/info-tile.tsx` (`DN`)
+  - Added canonical `InfoTile` component for semantic tile surfaces.
+  - Added exported `infoTileVariants` helper for non-`div` elements (`button`, `a`, `Link`) that need the same semantic tile styling.
+  - Variants:
+    - `tone`: `elevated`, `elevatedSoft`, `elevatedMuted`, `pending`, `success`, `error`, `surface`
+    - `padding`: `none`, `xs`, `sm`, `md`, `lg`, `content`, `contentLg`
+    - `layout`: `default`, `row`, `between`, `betweenGap`
+    - `borderStyle`: `solid`, `dashed`, `dashedStrong`
+    - `radius`: `lg`, `xl`
+
+### Component-first migration coverage (this pass)
+- Orders:
+  - `apps/web/components/orders/order-customer-insight-card.tsx`
+  - `apps/web/components/orders/order-form-customer-card.tsx`
+  - `apps/web/components/orders/order-financial-summary-card.tsx`
+  - `apps/web/components/orders/order-form-summary-card.tsx`
+  - `apps/web/components/orders/order-form-item-card.tsx`
+  - `apps/web/components/orders/order-timeline-card.tsx`
+- Dashboard:
+  - `apps/web/components/dashboard/dashboard-revenue-expenses-card.tsx`
+  - `apps/web/components/dashboard/dashboard-design-popularity-card.tsx`
+  - `apps/web/components/dashboard/dashboard-productivity-card.tsx`
+  - `apps/web/components/dashboard/dashboard-garment-breakdown-card.tsx`
+- Reports:
+  - `apps/web/components/reports/reports-distribution-chart.tsx`
+  - `apps/web/components/reports/reports-productivity-chart.tsx`
+  - `apps/web/components/reports/reports-workspace-filters.tsx`
+  - `apps/web/components/reports/reports-overview-tab.tsx`
+  - `apps/web/components/reports/reports-financial-trend-chart.tsx`
+- Settings/config:
+  - `apps/web/components/config/integrations/integrations-settings-page.tsx`
+  - `apps/web/components/config/system/system-settings-state-card.tsx`
+  - `apps/web/components/config/system/system-settings-workflow-card.tsx`
+  - `apps/web/components/config/expenses/expense-categories-page.tsx`
+  - `apps/web/components/config/GarmentTypeDialog.tsx`
+  - `apps/web/components/config/appearance/appearance-preset-directory.tsx`
+  - `apps/web/components/config/branches/hub/branch-global-pricing-card.tsx`
+  - `apps/web/components/config/branches/hub/branch-hub-meta-card.tsx`
+  - `apps/web/components/config/branches/branch-delete-summary.tsx`
+  - `apps/web/components/config/garments/detail/garment-overview-card.tsx`
+  - `apps/web/components/config/garments/detail/garment-pricing-sidebar.tsx`
+  - `apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx`
+  - `apps/web/components/config/garments/detail/garment-measurement-forms-card.tsx`
+  - `apps/web/components/config/garments/list/garment-types-inventory-table.tsx`
+  - `apps/web/components/config/users/users-access-table.tsx`
+- Employees/customers/layout:
+  - `apps/web/components/employees/detail/employee-detail-tabs.tsx`
+  - `apps/web/components/customers/detail/customer-profile-card.tsx`
+  - `apps/web/components/layout/GlobalSearchCommand.tsx`
+  - `apps/web/components/expenses/expense-create-dialog.tsx`
+  - `apps/web/components/payments/payments-employee-selector-card.tsx`
+
+### Migration manifest updates
+- `docs/theme-token-migration.csv`
+  - Added missing scoped primitive rows:
+    - `apps/web/components/ui/info-tile.tsx` (`DN`)
+    - `apps/web/components/ui/meta-pill.tsx` (`DN`)
+  - This fixed `theme:migration:verify` coverage failure.
+
+### Consistency audit result after this pass
+- App callsites now have no remaining direct `border-divider + bg-surface-elevated` tile bundles outside shared UI primitives.
+- Remaining matches are intentionally inside shared primitives only:
+  - `apps/web/components/ui/data-table.tsx`
+  - `apps/web/components/ui/empty-state.tsx`
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 102 (SectionIcon Primitive + Header/Icon Shell Centralization)
+
+### Goal
+- Eliminate the repeated header/icon container class bundles (`bg-sidebar-active`, `bg-primary/10`, ring styles, rounded sizes) and centralize them in a single reusable primitive.
+
+### New reusable primitive
+- `apps/web/components/ui/section-icon.tsx` (`DN`)
+  - Added `SectionIcon` with semantic variants:
+    - `tone`: `sidebar`, `primary`, `info`, `infoSoft`, `warningSoft`, `errorSoft`
+    - `size`: `sm`, `md`, `lg`
+    - `framed`: `true|false` (ring on/off)
+  - This replaces repeated inline icon-shell wrappers across pages and components.
+
+### Primitive extensions in this pass
+- `apps/web/components/ui/info-tile.tsx`
+  - Added `tone="inputSurface"` for workflow-step and form-side info tiles.
+
+### Migration coverage (callsites)
+- UI shell:
+  - `apps/web/components/ui/chart-shell.tsx`
+- Orders flow:
+  - `apps/web/app/(dashboard)/orders/new/page.tsx`
+  - `apps/web/app/(dashboard)/orders/[id]/page.tsx`
+  - `apps/web/components/orders/order-customer-insight-card.tsx`
+  - `apps/web/components/orders/order-financial-summary-card.tsx`
+  - `apps/web/components/orders/order-form-customer-card.tsx`
+  - `apps/web/components/orders/order-form-summary-card.tsx`
+  - `apps/web/components/orders/order-payment-dialog.tsx`
+  - `apps/web/components/orders/order-timeline-card.tsx`
+- Payments/reports/status/layout:
+  - `apps/web/components/payments/payments-employee-selector-card.tsx`
+  - `apps/web/components/payments/payments-disburse-dialog.tsx`
+  - `apps/web/components/reports/reports-exports-tab.tsx`
+  - `apps/web/components/reports/reports-weekly-print-card.tsx`
+  - `apps/web/components/layout/GlobalSearchCommand.tsx`
+  - `apps/web/components/status/status-pin-gate-card.tsx`
+- Dashboard/customers/employees:
+  - `apps/web/components/dashboard/dashboard-garment-breakdown-card.tsx`
+  - `apps/web/components/customers/detail/customer-profile-card.tsx`
+  - `apps/web/components/employees/detail/employee-detail-tabs.tsx`
+  - `apps/web/components/employees/detail/employee-profile-sidebar.tsx`
+  - `apps/web/components/employees/AccountCreationDialog.tsx`
+- Settings/garments/branches:
+  - `apps/web/components/config/branches/hub/branch-global-pricing-card.tsx`
+  - `apps/web/components/config/branches/hub/branch-hub-meta-card.tsx`
+  - `apps/web/components/config/GarmentPriceHistoryDialog.tsx`
+  - `apps/web/components/config/garments/detail/garment-overview-card.tsx`
+  - `apps/web/components/config/garments/detail/garment-measurement-forms-card.tsx`
+  - `apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx`
+  - `apps/web/components/config/garments/detail/garment-pricing-sidebar.tsx`
+  - `apps/web/components/config/garments/detail/garment-rates-section.tsx`
+
+### Migration manifest updates
+- `docs/theme-token-migration.csv`
+  - Added coverage row for:
+    - `apps/web/components/ui/section-icon.tsx` (`DN`)
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 103 (Residual Drift Cleanup + Shared Variant Reuse)
+
+### Goal
+- Remove remaining feature-level style drift that was still bypassing shared variants after Pass 102.
+
+### Changes completed
+- Replaced ad-hoc dashed add-option button with shared button variant:
+  - `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx`
+  - Migrated to `Button variant="outlineDashed"` (removed raw dashed/hover color classes)
+- Unified avatar fallback semantics in employees list:
+  - `apps/web/components/employees/list/employees-list-table.tsx`
+  - Switched from sidebar-active to semantic primary tint (`bg-primary/10 text-primary`)
+- Removed sidebar-state color from customer avatar color pool:
+  - `apps/web/components/customers/list/customers-directory-table.tsx`
+  - Replaced `bg-sidebar-active` entry with semantic primary tint
+
+### Residual scope status
+- Remaining `bg-sidebar-active` usage is now intentionally constrained to:
+  - Shell/navigation primitives (`Sidebar`, `Topbar`)
+  - Shared UI primitives (`avatar`, `button`, `badge`, `table`, `skeleton`, `empty/chart-empty`, etc.)
+  - `SectionIcon` primitive tone definitions
+- No remaining repeated icon-shell or tile-shell class bundles in feature callsites outside shared primitives.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 104 (Feature Wrapper Drift Elimination + Primitive Variant Expansion)
+
+### Goal
+- Remove remaining feature-level wrappers that still hardcoded shared visual bundles (`rounded + border + bg + shadow`) and route them through reusable UI primitives.
+
+### Shared primitive updates
+- `apps/web/components/ui/info-tile.tsx`
+  - Added semantic tones:
+    - `info`
+    - `warning`
+    - `primarySoft`
+    - `inverseSoft`
+  - Added interaction variants:
+    - `interactive`
+    - `interactivePrimary`
+- `apps/web/components/ui/input.tsx`
+  - Added `variant="searchCommand"` for global search command input styling.
+  - Added `variant="inlineChip"` for compact inline token/option editor inputs.
+- `apps/web/components/ui/section-icon.tsx`
+  - Added `tone="timelinePrimary"` for timeline marker/icon shells.
+
+### Feature/component migrations in this pass
+- `apps/web/components/status/status-pin-gate-card.tsx`
+  - Replaced raw outer shell with `Card variant="premium"` + `CardContent`.
+  - Replaced logo wrapper shell with `InfoTile`.
+- `apps/web/components/orders/order-share-dialog.tsx`
+  - Replaced raw PIN callout box with `InfoTile tone="info"`.
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx`
+  - Replaced raw inline `<input>` styling with shared `Input variant="inlineChip"`.
+  - Normalized option chip wrapper to `InfoTile` variants.
+- `apps/web/components/employees/detail/employee-detail-tabs.tsx`
+  - Replaced raw document row wrappers with `InfoTile` semantic variants.
+- `apps/web/components/config/branches/branch-delete-summary.tsx`
+  - Replaced warning callout container with `InfoTile tone="warning"`.
+- `apps/web/components/config/garments/detail/garment-overview-card.tsx`
+  - Replaced margin snapshot raw box with `InfoTile tone="primarySoft"`.
+- `apps/web/components/layout/GlobalSearchCommand.tsx`
+  - Switched search input to `Input variant="searchCommand"`.
+  - Replaced command hint chip with `MetaPill`.
+  - Replaced results popover shell with `Card variant="premium"` + `CardHeader`.
+  - Replaced raw error alert block with `InfoTile tone="error"`.
+- `apps/web/app/login/page.tsx`
+  - Replaced raw login container shell with `Card variant="premium"`.
+- `apps/web/components/auth/login-brand-panel.tsx`
+  - Replaced brand chip raw shell with `InfoTile tone="inverseSoft"`.
+- `apps/web/components/layout/Sidebar.tsx`
+  - Replaced mobile sidebar logo wrapper raw shell with `SectionIcon`.
+- `apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx`
+  - Replaced timeline marker shell with `SectionIcon tone="timelinePrimary"`.
+- `apps/web/components/config/garments/list/garment-types-inventory-table.tsx`
+  - Replaced hover border/bg classes with `InfoTile interaction="interactivePrimary"`.
+
+### Residual drift status (post-pass scan)
+- Feature-level `rounded + border + bg` wrapper bundles are now removed from domain/components scope.
+- Remaining `border + bg` wrappers are intentionally layout-shell structures:
+  - top app shell/login brand shell/sidebar/topbar wrappers.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 105 (Cross-Domain Breadcrumb Consolidation)
+
+### Goal
+- Eliminate duplicated breadcrumb structure/styles across detail pages and enforce one reusable breadcrumb primitive.
+
+### Shared primitive added
+- `apps/web/components/ui/entity-breadcrumb.tsx`
+  - New reusable breadcrumb primitive with:
+    - `sectionLabel`
+    - `currentLabel`
+    - `onBack`
+    - optional `currentClassName`, `separatorClassName`, `className`
+  - Centralizes shared breadcrumb classes and focus/hover behavior.
+
+### Migrations completed
+- `apps/web/components/orders/order-detail-breadcrumb.tsx`
+- `apps/web/components/customers/detail/customer-detail-breadcrumb.tsx`
+- `apps/web/components/employees/detail/employee-detail-breadcrumb.tsx`
+- `apps/web/components/config/measurements/detail/measurement-category-breadcrumbs.tsx`
+- `apps/web/components/config/garments/detail/garment-detail-breadcrumb.tsx`
+- `apps/web/components/config/branches/hub/branch-hub-breadcrumbs.tsx`
+
+### Manifest update
+- `docs/theme-token-migration.csv`
+  - Added:
+    - `apps/web/components/ui/entity-breadcrumb.tsx` (`DN`)
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 106 (Order Detail Page Metrics Standardization)
+
+### Goal
+- Remove remaining hand-written metric card blocks from a route page and enforce one reusable metric primitive pattern.
+
+### Shared primitive refinements
+- `apps/web/components/ui/stat-card.tsx`
+  - Added `iconTone` and `valueTone` props so icon and value semantics can be controlled independently.
+  - Updated primary icon tone to semantic primary tint (`bg-primary/10`) instead of sidebar-active.
+  - Switched shell styling to component-level card variant (`Card variant="elevatedPanel"`) and removed direct raw border/background shell classes.
+
+### Page migration completed
+- `apps/web/app/(dashboard)/orders/[id]/page.tsx`
+  - Replaced four custom metric card blocks (Pieces, Assigned Tailors, Active Tasks, Balance Due) with shared `StatCard` usage.
+  - Removed local metric shell styling and icon container duplication from page code.
+
+### Result
+- `/orders/[id]` now uses a fully reusable metric-card abstraction and no longer defines custom card-shell metric structures inline.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 107 (Complete Page Recheck + Route-Level Consistency)
+
+### Goal
+- Recheck route pages and remove remaining per-page UI drift by preferring shared primitives in page files.
+
+### Route/page consistency updates
+- `apps/web/app/(dashboard)/employees/[id]/page.tsx`
+  - Replaced custom “employee not found” fallback section with shared `EmptyState`.
+  - Aligned route-level empty/error rendering with customer/order detail pages.
+- `apps/web/app/(dashboard)/orders/new/page.tsx`
+  - Replaced raw workflow `<p>` blocks with shared `Typography` for title/description text.
+  - Kept existing `InfoTile` and `Card` structure while removing direct raw text tag styling from page code.
+
+### Result
+- Detail route not-found behavior is now consistent across domains using one empty-state primitive.
+- Order create route page text styling now follows shared typography component policy.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 108 (Stats Grid Primitive Rollout Across Pages)
+
+### Goal
+- Remove repeated route-level and domain-level stat grid class bundles and enforce a shared responsive metric-grid primitive.
+
+### Shared primitive added
+- `apps/web/components/ui/stats-grid.tsx`
+  - New reusable stat-grid wrapper with semantic column variants:
+    - `columns="two" | "three" | "four" | "threeMd"`
+    - `flushSectionSpacing` toggle for page-section contexts.
+
+### Page migrations completed
+- `apps/web/app/(dashboard)/employees/page.tsx`
+- `apps/web/app/(dashboard)/orders/page.tsx`
+- `apps/web/app/(dashboard)/customers/[id]/page.tsx`
+- `apps/web/app/(dashboard)/orders/[id]/page.tsx`
+- `apps/web/app/(dashboard)/orders/new/page.tsx`
+- `apps/web/app/(dashboard)/page.tsx`
+
+### Domain component migrations completed
+- `apps/web/components/employees/detail/employee-financial-cards.tsx`
+- `apps/web/components/payments/payments-summary-cards.tsx`
+- `apps/web/components/expenses/expenses-overview-cards.tsx`
+
+### Manifest updates
+- `docs/theme-token-migration.csv`
+  - Added:
+    - `apps/web/components/ui/stats-grid.tsx` (`DN`)
+
+### Result
+- Metric card grids now use one shared layout contract instead of repeated local class strings.
+- Route pages and domain summary components share consistent responsive stat-grid behavior.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 109 (Dashboard Section Layout Unification)
+
+### Goal
+- Remove duplicated dashboard section grid wrappers and align dashboard split layouts to one shared layout primitive.
+
+### Page migration completed
+- `apps/web/app/(dashboard)/page.tsx`
+  - Replaced two repeated manual `PageSection` grid wrappers with shared `DetailSplit`.
+  - Preserved visual order and responsive behavior:
+    - Financial insights: `ratio="3-2"` (revenue vs garments)
+    - Operations insights: `ratio="2-1"` with explicit mobile ordering to keep design card before productivity card.
+
+### Result
+- Dashboard section layout now follows the same shared split-layout pattern used elsewhere in the app, reducing per-page layout duplication.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 110 (Next 2 Pages: Status + Reports Consistency)
+
+### Goal
+- Refactor the next two route pages with component-first consistency:
+  1. `apps/web/app/status/[token]/page.tsx`
+  2. `apps/web/app/(dashboard)/reports/page.tsx`
+
+### Shared primitive updates
+- `apps/web/components/status/status-page-frame.tsx` (new)
+  - Added reusable public-status route shell wrapper with semantic layout variants:
+    - `layout="centered"` for PIN gate state
+    - `layout="content"` for empty/error/success content states
+- `apps/web/components/ui/tabs.tsx`
+  - Added semantic `TabsContent` spacing variants:
+    - `default`
+    - `roomy`
+    - `none`
+
+### Page migrations completed
+- `apps/web/app/status/[token]/page.tsx`
+  - Replaced duplicated `PageShell`/`PageSection` wrappers with shared `StatusPageFrame`.
+  - Unified submitted/not-submitted/error route-state layout handling under one shell contract.
+- `apps/web/app/(dashboard)/reports/page.tsx`
+  - Removed repeated `TabsContent className="mt-4"` callsite styling.
+  - Switched to `TabsContent spacing="roomy"` variant.
+  - Replaced duplicated tab-content blocks with tab-config-driven rendering to keep structure consistent.
+
+### Manifest update
+- `docs/theme-token-migration.csv`
+  - Added:
+    - `apps/web/components/status/status-page-frame.tsx` (`DN`)
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 111 (Next 3 Pages: Payments + Expenses + My Orders)
+
+### Goal
+- Apply another route-level consistency pass on the next three pages by standardizing page structure and reducing duplicated page logic patterns.
+
+### Page updates completed
+- `apps/web/app/(dashboard)/payments/page.tsx`
+  - Removed duplicated `PageSection` branches by unifying selected/non-selected employee content into one section.
+  - Added explicit `hasSelectedEmployee` flag for clearer page-level render flow.
+- `apps/web/app/(dashboard)/expenses/page.tsx`
+  - Consolidated duplicated `canManageExpenses` dialog gates into one fragment block.
+  - Keeps management dialogs colocated under one role gate for cleaner route-level consistency.
+- `apps/web/app/(dashboard)/my-orders/page.tsx`
+  - Added `PageSection` wrappers for header and table content to align with dashboard page structure.
+  - Set `PageHeader density="compact"` for consistency with other dashboard routes.
+
+### Result
+- These three pages now follow the same route-shell rhythm and avoid duplicated conditional wrappers at page level.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 112 (Dashboard Route Header Structure Alignment)
+
+### Goal
+- Align remaining top-level dashboard routes to one route-shell structure pattern by placing page headers inside `PageSection` blocks consistently.
+
+### Page updates completed
+- `apps/web/app/(dashboard)/employees/page.tsx`
+  - Wrapped `PageHeader` in `PageSection spacing="compact"`.
+  - Set `density="compact"` for header rhythm parity with other dashboard routes.
+- `apps/web/app/(dashboard)/orders/page.tsx`
+  - Wrapped `PageHeader` in `PageSection spacing="compact"`.
+  - Set `density="compact"` for consistent header spacing.
+- `apps/web/app/(dashboard)/page.tsx`
+  - Wrapped `PageHeader` in `PageSection spacing="compact"`.
+  - Set `density="compact"` while preserving existing actions and role badge behavior.
+
+### Result
+- Top-level dashboard routes now follow the same page-shell hierarchy:
+  - `PageShell` → `PageSection` (header) → `PageSection` (content).
+- Reduced remaining route-level structural drift in core dashboard pages.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅

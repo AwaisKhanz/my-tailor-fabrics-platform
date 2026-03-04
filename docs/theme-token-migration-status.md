@@ -1,0 +1,279 @@
+# Theme Token V2 Migration Status
+
+Last updated: 2026-03-05
+
+## Phase Ledger
+| Phase | Status | Goal | Notes |
+|---|---|---|---|
+| Phase 0 | DN | Baseline + migration control | `docs/theme-token-migration.csv` created, `scripts/verify-theme-token-migration.sh` created |
+| Phase 1 | DN | Shared theme contract upgrade | Full contract shipped, index re-export marked `NJ` |
+| Phase 2 | DN | CSS variable + Tailwind expansion | Globals and Tailwind token surfaces expanded; chart helper and shared preset re-export reviewed (`NJ`) |
+| Phase 3 | DN | Compatibility alias layer | Compatibility aliases active in `createThemeCssVariables` |
+| Phase 4 | DN | Core shell migration | 8 `DN` + 1 `NJ` (delegated shell wrapper) |
+| Phase 5 | DN | UI primitive migration | 33 `DN` + 4 `NJ` |
+| Phase 6 | DN | Domain component migration | All scoped domain files reviewed and marked `DN`/`NJ`; no remaining `NS` entries |
+| Phase 7 | IP | Hardening guardrails | `audit-theme-usage.mjs` and npm guard scripts added |
+| Phase 8 | NS | Deprecation cleanup | Not started in this pass |
+
+## Coverage Snapshot
+- Total scoped files in manifest: 253
+- Completed (`DN`): 155
+- Remaining (`NS`): 0
+- No-change justified (`NJ`): 98
+- Phase 1 scoped files: 2
+- Phase 2 scoped files: 4
+- Phase 3 scoped files: 1
+- Phase 4 scoped files: 9
+- Phase 5 scoped files: 37
+- Phase 6 scoped files: 200
+
+## Latest Passes (Final NS Closure + Employees + Expenses + Users Settings + Branches + Platform Settings + Design Types + Rates + Garments/Measurements Sweep)
+- `apps/web/components/auth/login-form-panel.tsx` (`DN`)
+- `apps/web/components/layout/BranchSelector.tsx` (`DN`)
+- `apps/web/components/layout/GlobalSearchCommand.tsx` (`DN`)
+- `apps/web/components/status/status-order-details-card.tsx` (`DN`)
+- `apps/web/components/status/status-pin-gate-card.tsx` (`DN`)
+- `apps/web/app/(dashboard)/my-orders/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/payments/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/page.tsx` (`NJ`)
+- `apps/web/app/layout.tsx` (`NJ`)
+- `apps/web/components/AuthProvider.tsx` (`NJ`)
+- `apps/web/components/ThemePresetProvider.tsx` (`NJ`)
+- `apps/web/components/ThemeProvider.tsx` (`NJ`)
+- `apps/web/components/auth/can.tsx` (`NJ`)
+- `apps/web/components/auth/with-role-guard.tsx` (`NJ`)
+- `apps/web/components/common/ConfirmPasswordDialog.tsx` (`NJ`)
+- `apps/web/components/reports/reports-financial-tab.tsx` (`NJ`)
+- `apps/web/components/reports/reports-operations-tab.tsx` (`NJ`)
+- `apps/web/components/status/status-order-header-card.tsx` (`NJ`)
+- `apps/web/components/status/status-order-items-card.tsx` (`NJ`)
+- `apps/web/lib/chart-theme.ts` (`NJ`)
+- `apps/web/lib/theme-presets.ts` (`NJ`)
+- `apps/web/app/(dashboard)/employees/page.tsx` (`DN`)
+- `apps/web/components/employees/AccountCreationDialog.tsx` (`DN`)
+- `apps/web/components/employees/detail/employee-detail-breadcrumb.tsx` (`DN`)
+- `apps/web/components/employees/detail/employee-detail-header.tsx` (`DN`)
+- `apps/web/components/employees/detail/employee-detail-tabs.tsx` (`DN`)
+- `apps/web/components/employees/detail/employee-ledger-entry-dialog.tsx` (`DN`)
+- `apps/web/components/employees/detail/employee-profile-sidebar.tsx` (`DN`)
+- `apps/web/components/employees/dialog/employee-dialog-contact-fields.tsx` (`DN`)
+- `apps/web/components/employees/list/employees-list-table.tsx` (`DN`)
+- `apps/web/app/(dashboard)/employees/[id]/page.tsx` (`NJ`)
+- `apps/web/components/employees/EmployeeDialog.tsx` (`NJ`)
+- `apps/web/components/employees/detail/employee-detail-skeleton.tsx` (`NJ`)
+- `apps/web/components/employees/detail/employee-document-upload-dialog.tsx` (`NJ`)
+- `apps/web/components/employees/detail/employee-financial-cards.tsx` (`NJ`)
+- `apps/web/components/employees/dialog/employee-dialog-primary-fields.tsx` (`NJ`)
+- `apps/web/components/employees/dialog/employee-dialog-work-fields.tsx` (`NJ`)
+- `apps/web/components/employees/list/employees-list-toolbar.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/expenses/page.tsx` (`DN`)
+- `apps/web/components/expenses/expense-create-dialog.tsx` (`DN`)
+- `apps/web/components/expenses/expenses-table.tsx` (`DN`)
+- `apps/web/components/expenses/expenses-filters-card.tsx` (`NJ`)
+- `apps/web/components/expenses/expenses-overview-cards.tsx` (`NJ`)
+- `apps/web/components/config/UsersTable.tsx` (`DN`)
+- `apps/web/components/config/users/user-account-dialog.tsx` (`DN`)
+- `apps/web/components/config/users/users-access-table.tsx` (`DN`)
+- `apps/web/components/config/users/users-list-toolbar.tsx` (`DN`)
+- `apps/web/app/(dashboard)/settings/users/page.tsx` (`NJ`)
+- `apps/web/components/config/users/users-page-header.tsx` (`NJ`)
+- `apps/web/components/config/users/users-stats-grid.tsx` (`NJ`)
+- `apps/web/components/config/BranchesTable.tsx` (`DN`)
+- `apps/web/components/config/branches/branch-delete-summary.tsx` (`DN`)
+- `apps/web/components/config/branches/branch-form-dialog.tsx` (`DN`)
+- `apps/web/components/config/branches/branches-directory-table.tsx` (`DN`)
+- `apps/web/components/config/branches/hub/branch-global-pricing-card.tsx` (`DN`)
+- `apps/web/components/config/branches/hub/branch-hub-breadcrumbs.tsx` (`DN`)
+- `apps/web/components/config/branches/hub/branch-hub-meta-card.tsx` (`DN`)
+- `apps/web/components/config/branches/hub/branch-hub-overview-header.tsx` (`DN`)
+- `apps/web/app/(dashboard)/settings/branches/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx` (`NJ`)
+- `apps/web/components/config/BranchHubConfig.tsx` (`NJ`)
+- `apps/web/components/config/branches/branches-list-toolbar.tsx` (`NJ`)
+- `apps/web/components/config/branches/branches-page-header.tsx` (`NJ`)
+- `apps/web/components/config/branches/hub/branch-hub-relations-grid.tsx` (`NJ`)
+- `apps/web/components/config/branches/hub/branch-hub-skeleton.tsx` (`NJ`)
+- `apps/web/components/config/appearance/appearance-mode-card.tsx` (`DN`)
+- `apps/web/components/config/appearance/appearance-preset-directory.tsx` (`DN`)
+- `apps/web/components/config/attendance/attendance-settings-page.tsx` (`DN`)
+- `apps/web/components/config/audit-logs/audit-logs-page.tsx` (`DN`)
+- `apps/web/components/config/integrations/integrations-settings-page.tsx` (`DN`)
+- `apps/web/components/config/system/system-settings-state-card.tsx` (`DN`)
+- `apps/web/components/config/system/system-settings-workflow-card.tsx` (`DN`)
+- `apps/web/app/(dashboard)/settings/appearance/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/attendance/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/audit-logs/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/integrations/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/system/page.tsx` (`NJ`)
+- `apps/web/components/config/appearance/appearance-settings-page.tsx` (`NJ`)
+- `apps/web/components/config/appearance/appearance-stats-grid.tsx` (`NJ`)
+- `apps/web/components/config/system/system-settings-page.tsx` (`NJ`)
+- `apps/web/components/config/system/system-settings-stats-grid.tsx` (`NJ`)
+- `apps/web/components/design-types/design-types-table.tsx` (`DN`)
+- `apps/web/app/(dashboard)/settings/design-types/page.tsx` (`NJ`)
+- `apps/web/components/design-types/CreateDesignTypeDialog.tsx` (`NJ`)
+- `apps/web/components/design-types/design-types-page-header.tsx` (`NJ`)
+- `apps/web/components/design-types/design-types-stats-grid.tsx` (`NJ`)
+- `apps/web/components/design-types/dialog/design-type-dialog-basic-fields.tsx` (`NJ`)
+- `apps/web/components/design-types/dialog/design-type-dialog-scope-fields.tsx` (`NJ`)
+- `apps/web/components/design-types/dialog/design-type-dialog-sort-field.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/rates/page.tsx` (`DN`)
+- `apps/web/components/rates/CreateRateDialog.tsx` (`DN`)
+- `apps/web/components/rates/RatesList.tsx` (`DN`)
+- `apps/web/components/rates/rates-table.tsx` (`DN`)
+- `apps/web/components/rates/rates-page-header.tsx` (`NJ`)
+- `apps/web/components/rates/rates-search-stats.tsx` (`NJ`)
+- `apps/web/components/rates/rates-stats-grid.tsx` (`NJ`)
+- `apps/web/components/config/GarmentPriceHistoryDialog.tsx` (`DN`)
+- `apps/web/components/config/GarmentTypeDialog.tsx` (`DN`)
+- `apps/web/components/config/GarmentWorkflowStepsDialog.tsx` (`DN`)
+- `apps/web/components/config/MeasurementCategoryDetail.tsx` (`DN`)
+- `apps/web/components/config/expenses/expense-categories-page.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-detail-breadcrumb.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-detail-header.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-detail-not-found.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-measurement-forms-card.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-overview-card.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-pricing-logs-card.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-pricing-sidebar.tsx` (`DN`)
+- `apps/web/components/config/garments/detail/garment-rates-section.tsx` (`DN`)
+- `apps/web/components/config/garments/list/garment-types-inventory-table.tsx` (`DN`)
+- `apps/web/components/config/measurements/detail/measurement-category-breadcrumbs.tsx` (`DN`)
+- `apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx` (`DN`)
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx` (`DN`)
+- `apps/web/components/config/measurements/detail/measurement-fields-table.tsx` (`DN`)
+- `apps/web/components/config/measurements/list/measurement-categories-inventory-table.tsx` (`DN`)
+- `apps/web/app/(dashboard)/settings/expense-categories/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/garments/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/garments/[id]/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/measurements/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx` (`NJ`)
+- `apps/web/components/config/GarmentTypesTable.tsx` (`NJ`)
+- `apps/web/components/config/MeasurementCategoriesTable.tsx` (`NJ`)
+- `apps/web/components/config/MeasurementCategoryDialog.tsx` (`NJ`)
+- `apps/web/components/config/MeasurementFieldDialog.tsx` (`NJ`)
+- `apps/web/components/config/garments/detail/garment-analytics-stats-grid.tsx` (`NJ`)
+- `apps/web/components/config/garments/detail/garment-detail-skeleton.tsx` (`NJ`)
+- `apps/web/components/config/garments/list/garment-types-list-toolbar.tsx` (`NJ`)
+- `apps/web/components/config/garments/list/garment-types-page-header.tsx` (`NJ`)
+- `apps/web/components/config/garments/list/garment-types-stats-grid.tsx` (`NJ`)
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx` (`NJ`)
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-category-note.tsx` (`NJ`)
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-required-toggle.tsx` (`NJ`)
+- `apps/web/components/config/measurements/detail/measurement-fields-stats-grid.tsx` (`NJ`)
+- `apps/web/components/config/measurements/dialog/measurement-category-dialog-name-field.tsx` (`NJ`)
+- `apps/web/components/config/measurements/list/measurement-categories-list-toolbar.tsx` (`NJ`)
+- `apps/web/components/config/measurements/list/measurement-categories-page-header.tsx` (`NJ`)
+- `apps/web/components/config/measurements/list/measurement-categories-stats-grid.tsx` (`NJ`)
+
+## Completed This Pass
+- `packages/shared-theme/src/theme-presets.ts`
+- `apps/web/lib/theme-css.ts`
+- `apps/web/tailwind.config.ts`
+- `apps/web/app/globals.css`
+- `apps/web/app/(dashboard)/layout.tsx`
+- `apps/web/app/login/page.tsx`
+- `apps/web/components/auth/auth-state-card.tsx`
+- `apps/web/components/auth/login-brand-panel.tsx`
+- `apps/web/components/layout/Sidebar.tsx`
+- `apps/web/components/layout/ThemeToggle.tsx`
+- `apps/web/components/layout/Topbar.tsx`
+- `apps/web/app/status/[token]/page.tsx`
+- `apps/web/components/ui/badge.tsx`
+- `apps/web/components/ui/button.tsx`
+- `apps/web/components/ui/card.tsx`
+- `apps/web/components/ui/command.tsx`
+- `apps/web/components/ui/data-table.tsx`
+- `apps/web/components/ui/dialog.tsx`
+- `apps/web/components/ui/dropdown-menu.tsx`
+- `apps/web/components/ui/empty-state.tsx`
+- `apps/web/components/ui/input.tsx`
+- `apps/web/components/ui/select.tsx`
+- `apps/web/components/ui/sheet.tsx`
+- `apps/web/components/ui/stat-card.tsx`
+- `apps/web/components/ui/table.tsx`
+- `apps/web/components/ui/tabs.tsx`
+- `apps/web/components/ui/toast.tsx`
+- `apps/web/components/ui/typography.tsx`
+- `apps/web/components/ui/avatar.tsx`
+- `apps/web/components/ui/chart-empty-state.tsx`
+- `apps/web/components/ui/chart-shell.tsx`
+- `apps/web/components/ui/checkbox.tsx`
+- `apps/web/components/ui/confirm-dialog.tsx`
+- `apps/web/components/ui/form-layout.tsx`
+- `apps/web/components/ui/form.tsx`
+- `apps/web/components/ui/label.tsx`
+- `apps/web/components/ui/multi-select.tsx`
+- `apps/web/components/ui/popover.tsx`
+- `apps/web/components/ui/scroll-area.tsx`
+- `apps/web/components/ui/scrollable-dialog.tsx`
+- `apps/web/components/ui/separator.tsx`
+- `apps/web/components/ui/skeleton.tsx`
+- `apps/web/components/ui/switch.tsx`
+- `apps/web/components/ui/table-layout.tsx`
+- `apps/web/components/ui/table-skeleton.tsx`
+- `apps/web/app/(dashboard)/page.tsx`
+- `apps/web/app/(dashboard)/orders/page.tsx`
+- `apps/web/app/(dashboard)/orders/new/page.tsx`
+- `apps/web/app/(dashboard)/orders/[id]/page.tsx`
+- `apps/web/app/(dashboard)/reports/page.tsx`
+- `apps/web/components/dashboard/dashboard-design-popularity-card.tsx`
+- `apps/web/components/dashboard/dashboard-garment-breakdown-card.tsx`
+- `apps/web/components/dashboard/dashboard-kpi-card.tsx`
+- `apps/web/components/dashboard/dashboard-overdue-banner.tsx`
+- `apps/web/components/dashboard/dashboard-overdue-orders-card.tsx`
+- `apps/web/components/dashboard/dashboard-productivity-card.tsx`
+- `apps/web/components/dashboard/dashboard-revenue-expenses-card.tsx`
+- `apps/web/components/payments/payments-disburse-dialog.tsx`
+- `apps/web/components/payments/payments-employee-selector-card.tsx`
+- `apps/web/components/payments/payments-history-section.tsx`
+- `apps/web/components/payments/payments-summary-cards.tsx`
+- `apps/web/components/reports/reports-chart-legend.tsx`
+- `apps/web/components/reports/reports-distribution-chart.tsx`
+- `apps/web/components/reports/reports-export-grid.tsx`
+- `apps/web/components/reports/reports-exports-tab.tsx`
+- `apps/web/components/reports/reports-financial-trend-chart.tsx`
+- `apps/web/components/reports/reports-overview-tab.tsx`
+- `apps/web/components/reports/reports-productivity-chart.tsx`
+- `apps/web/components/reports/reports-weekly-print-card.tsx`
+- `apps/web/components/reports/reports-workspace-filters.tsx`
+- `apps/web/components/orders/my-orders-table.tsx`
+- `apps/web/components/orders/orders-list-table.tsx`
+- `apps/web/components/orders/order-detail-breadcrumb.tsx`
+- `apps/web/components/orders/task-assignment/task-assignment-table.tsx`
+- `apps/web/components/orders/order-customer-insight-card.tsx`
+- `apps/web/components/orders/order-detail-header-card.tsx`
+- `apps/web/components/orders/order-financial-summary-card.tsx`
+- `apps/web/components/orders/order-form-customer-card.tsx`
+- `apps/web/components/orders/order-form-item-card.tsx`
+- `apps/web/components/orders/order-form-items-card.tsx`
+- `apps/web/components/orders/order-form-summary-card.tsx`
+- `apps/web/components/orders/order-items-table.tsx`
+- `apps/web/components/orders/order-lifecycle-card.tsx`
+- `apps/web/components/orders/order-payment-dialog.tsx`
+- `apps/web/components/orders/order-share-dialog.tsx`
+- `apps/web/components/orders/order-timeline-card.tsx`
+- `apps/web/components/orders/my-orders-toolbar.tsx` (`NJ`)
+- `apps/web/components/orders/orders-list-toolbar.tsx` (`NJ`)
+- `apps/web/components/orders/order-form-skeleton.tsx` (`NJ`)
+- `apps/web/components/customers/CustomerTable.tsx`
+- `apps/web/components/customers/MeasurementForm.tsx`
+- `apps/web/components/customers/detail/customer-detail-breadcrumb.tsx`
+- `apps/web/components/customers/detail/customer-detail-header.tsx`
+- `apps/web/components/customers/detail/customer-measurements-tab.tsx`
+- `apps/web/components/customers/detail/customer-notes-tab.tsx`
+- `apps/web/components/customers/detail/customer-orders-tab.tsx`
+- `apps/web/components/customers/detail/customer-profile-card.tsx`
+- `apps/web/components/customers/list/customers-directory-table.tsx`
+- `apps/web/app/(dashboard)/customers/[id]/page.tsx` (`NJ`)
+- `apps/web/app/(dashboard)/customers/page.tsx` (`NJ`)
+- `apps/web/components/customers/CustomerDialog.tsx` (`NJ`)
+- `apps/web/components/customers/detail/customer-detail-skeleton.tsx` (`NJ`)
+- `apps/web/components/customers/detail/customer-detail-tabs.tsx` (`NJ`)
+- `apps/web/components/customers/detail/customer-measurement-dialog.tsx` (`NJ`)
+- `apps/web/components/customers/dialog/customer-dialog-address-field.tsx` (`NJ`)
+- `apps/web/components/customers/dialog/customer-dialog-meta-fields.tsx` (`NJ`)
+- `apps/web/components/customers/dialog/customer-dialog-primary-fields.tsx` (`NJ`)
+- `apps/web/components/customers/list/customers-list-toolbar.tsx` (`NJ`)
+- `apps/web/components/customers/list/customers-page-header.tsx` (`NJ`)

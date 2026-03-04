@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { UserRound } from "lucide-react";
 import { Order } from "@tbms/shared-types";
 
@@ -39,15 +41,15 @@ export function OrderCustomerInsightCard({
   const measurementPreview = getMeasurementPreview(customer);
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+          <SectionIcon size="lg">
             <UserRound className="h-4 w-4 text-primary" />
-          </div>
+          </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Customer Profile</CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">Contact details and saved measurements.</p>
+            <p className="mt-1 text-xs text-text-secondary">Contact details and saved measurements.</p>
           </div>
         </div>
         <Badge variant="outline" size="xs" className="font-bold uppercase tracking-[0.08em]">
@@ -57,23 +59,23 @@ export function OrderCustomerInsightCard({
 
       <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg border border-border/70 bg-background/50 px-3 py-2.5">
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Full Name</Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">{customer.fullName}</p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/50 px-3 py-2.5">
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Phone</Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">{customer.phone || "-"}</p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/50 px-3 py-2.5">
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">City</Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">{customer.city || "-"}</p>
-          </div>
+          <InfoTile>
+            <Label variant="micro">Full Name</Label>
+            <p className="mt-1 text-sm font-semibold text-text-primary">{customer.fullName}</p>
+          </InfoTile>
+          <InfoTile>
+            <Label variant="micro">Phone</Label>
+            <p className="mt-1 text-sm font-semibold text-text-primary">{customer.phone || "-"}</p>
+          </InfoTile>
+          <InfoTile>
+            <Label variant="micro">City</Label>
+            <p className="mt-1 text-sm font-semibold text-text-primary">{customer.city || "-"}</p>
+          </InfoTile>
         </div>
 
-        <div className="rounded-lg border border-border/70 bg-muted/20 p-4">
+        <InfoTile tone="pending" padding="contentLg">
           <div className="mb-3 flex items-center justify-between">
-            <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+            <Label variant="micro">
               Measurement Snapshot
             </Label>
             <Badge variant="info" size="xs" className="font-bold uppercase tracking-[0.08em]">
@@ -82,22 +84,22 @@ export function OrderCustomerInsightCard({
           </div>
 
           {measurementPreview.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">
+            <p className="py-4 text-center text-xs text-text-secondary">
               No measurements available for this customer.
             </p>
           ) : (
             <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
               {measurementPreview.map((item) => (
                 <div key={item.label} className="flex items-center justify-between gap-3">
-                  <span className="truncate text-xs text-muted-foreground">{item.label}</span>
-                  <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground">
+                  <span className="truncate text-xs text-text-secondary">{item.label}</span>
+                  <span className="shrink-0 text-xs font-semibold tabular-nums text-text-primary">
                     {item.value}
                   </span>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </InfoTile>
       </CardContent>
     </Card>
   );

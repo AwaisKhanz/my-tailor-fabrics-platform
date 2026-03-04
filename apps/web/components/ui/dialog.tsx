@@ -46,9 +46,9 @@ const dialogContentVariants = cva(
       },
       variant: {
         default:
-          "grid gap-4 border border-border/70 bg-card p-6 text-card-foreground shadow-theme-elevated sm:rounded-xl",
+          "grid gap-4 border border-divider bg-surface-elevated p-6 text-card-foreground shadow-theme-elevated sm:rounded-xl",
         flush:
-          "grid gap-0 overflow-hidden border border-border/70 bg-card p-0 text-card-foreground shadow-theme-elevated sm:rounded-xl",
+          "grid gap-0 overflow-hidden border border-divider bg-surface-elevated p-0 text-card-foreground shadow-theme-elevated sm:rounded-xl",
       },
     },
     defaultVariants: {
@@ -74,7 +74,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-surface transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-interaction-focus focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-interaction-hover data-[state=open]:text-text-secondary">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -132,7 +132,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-text-secondary", className)}
     {...props}
   />
 ))

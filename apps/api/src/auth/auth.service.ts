@@ -3,16 +3,20 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
-import { getJwtRefreshExpiresIn, getJwtRefreshSecret } from '../common/env';
+import {
+  getJwtRefreshExpiresIn,
+  getJwtRefreshRotationGraceMs,
+  getJwtRefreshSecret,
+} from '../common/env';
 import { emitSecurityEvent } from '../common/utils/security-event.util';
-
-type AuthTokenPayload = {
-  email: string;
-  sub: string;
-  role: string;
-  branchId: string | null;
-  employeeId: string | null;
-};
+import { isRole } from '@tbms/shared-constants';
+import type {
+  AccessTokenClaims,
+  AuthTokenClaims,
+  AuthTokenPair,
+  AuthenticatedUserSnapshot,
+  RefreshTokenClaims,
+} from '@tbms/shared-types';
 
 type AuthUserPayload = {
   id: string;
@@ -56,17 +60,17 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { accessToken, refreshToken } = await this.issueTokens(user);
-    await this.storeRefreshTokenHash(user.id, refreshToken);
+    const tokenPair = await this.issueTokenPair(user);
+    await this.storeRefreshTokenHash(user.id, tokenPair.refreshToken);
+    await this.usersService.markLastLogin(user.id);
 
     return {
-      accessToken,
-      refreshToken,
+      ...tokenPair,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role: user.role as AuthenticatedUserSnapshot['role'],
         branchId: user.branchId,
         employeeId: user.employeeId,
       },
@@ -74,37 +78,72 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    return this.usersService.updateRefreshToken(userId, null);
+    return this.usersService.clearRefreshTokenState(userId);
   }
 
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.usersService.findById(userId);
-    if (!user || !user.refreshToken) {
+    if (!user || !user.isActive || !user.refreshToken) {
       emitSecurityEvent(this.logger, 'auth_refresh_failed', {
         userId,
-        reason: 'missing_refresh_token_state',
+        reason: !user
+          ? 'user_not_found'
+          : !user.isActive
+            ? 'user_inactive'
+            : 'missing_refresh_token_state',
       });
       throw new UnauthorizedException('Access Denied');
     }
 
-    const refreshMatches = await bcrypt.compare(
+    const refreshMatchesCurrent = await bcrypt.compare(
       refreshToken,
       user.refreshToken,
     );
-    if (!refreshMatches) {
+
+    const now = Date.now();
+    let refreshMatchesPrevious = false;
+    if (
+      !refreshMatchesCurrent &&
+      user.previousRefreshToken &&
+      user.previousRefreshTokenExpiresAt &&
+      user.previousRefreshTokenExpiresAt.getTime() > now
+    ) {
+      refreshMatchesPrevious = await bcrypt.compare(
+        refreshToken,
+        user.previousRefreshToken,
+      );
+    }
+
+    if (!refreshMatchesCurrent && !refreshMatchesPrevious) {
       emitSecurityEvent(this.logger, 'auth_refresh_failed', {
         userId,
-        reason: 'refresh_token_mismatch',
+        reason: 'refresh_token_reuse_or_mismatch',
       });
+      await this.usersService.clearRefreshTokenState(userId);
       throw new UnauthorizedException('Access Denied');
     }
 
-    const tokens = await this.issueTokens(user);
-    await this.storeRefreshTokenHash(user.id, tokens.refreshToken);
-    return tokens;
+    if (refreshMatchesPrevious && !refreshMatchesCurrent) {
+      emitSecurityEvent(this.logger, 'auth_refresh_grace_reuse', {
+        userId,
+      });
+    }
+
+    const nextTokenPair = await this.issueTokenPair(user);
+    await this.rotateRefreshTokenHash(
+      user.id,
+      user.refreshToken,
+      nextTokenPair.refreshToken,
+    );
+
+    return nextTokenPair;
   }
 
-  private buildTokenPayload(user: AuthUserPayload): AuthTokenPayload {
+  private buildTokenClaims(user: AuthUserPayload): AuthTokenClaims {
+    if (!isRole(user.role)) {
+      throw new UnauthorizedException('Invalid user role state');
+    }
+
     return {
       email: user.email,
       sub: user.id,
@@ -114,11 +153,22 @@ export class AuthService {
     };
   }
 
-  private async issueTokens(user: AuthUserPayload) {
-    const payload = this.buildTokenPayload(user);
+  private async issueAccessToken(user: AuthUserPayload): Promise<string> {
+    const payload: AccessTokenClaims = {
+      ...this.buildTokenClaims(user),
+      tokenType: 'access',
+    };
+    return this.jwtService.signAsync(payload);
+  }
+
+  private async issueTokenPair(user: AuthUserPayload): Promise<AuthTokenPair> {
+    const refreshPayload: RefreshTokenClaims = {
+      ...this.buildTokenClaims(user),
+      tokenType: 'refresh',
+    };
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, {
+      this.issueAccessToken(user),
+      this.jwtService.signAsync(refreshPayload, {
         secret: getJwtRefreshSecret(),
         expiresIn: getJwtRefreshExpiresIn(),
       }),
@@ -132,6 +182,30 @@ export class AuthService {
       refreshToken,
       REFRESH_TOKEN_HASH_ROUNDS,
     );
-    await this.usersService.updateRefreshToken(userId, refreshTokenHash);
+    await this.usersService.setRefreshTokenState(userId, {
+      currentTokenHash: refreshTokenHash,
+      previousTokenHash: null,
+      previousTokenExpiresAt: null,
+    });
+  }
+
+  private async rotateRefreshTokenHash(
+    userId: string,
+    currentRefreshTokenHash: string,
+    nextRefreshToken: string,
+  ) {
+    const nextRefreshTokenHash = await bcrypt.hash(
+      nextRefreshToken,
+      REFRESH_TOKEN_HASH_ROUNDS,
+    );
+    const previousTokenExpiresAt = new Date(
+      Date.now() + getJwtRefreshRotationGraceMs(),
+    );
+
+    await this.usersService.setRefreshTokenState(userId, {
+      currentTokenHash: nextRefreshTokenHash,
+      previousTokenHash: currentRefreshTokenHash,
+      previousTokenExpiresAt,
+    });
   }
 }

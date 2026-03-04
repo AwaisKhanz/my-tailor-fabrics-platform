@@ -46,6 +46,7 @@ function PaymentsPage() {
     setDisbursementNote,
     submitDisbursement,
   } = usePaymentsPage();
+  const hasSelectedEmployee = Boolean(selectedEmployeeId);
 
   return (
     <PageShell>
@@ -60,7 +61,12 @@ function PaymentsPage() {
           density="compact"
           actions={
             canManagePayments && canDisburse ? (
-              <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openDisburseDialog}>
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={openDisburseDialog}
+              >
                 <Banknote className="h-4 w-4" />
                 Disburse Payment
               </Button>
@@ -79,40 +85,40 @@ function PaymentsPage() {
         />
       </PageSection>
 
-      {selectedEmployeeId ? (
-        <PageSection spacing="compact">
-          <PaymentsSummaryCards
-            loading={summaryLoading}
-            summary={summary}
-            currentBalance={currentBalance}
-            canDisburse={canManagePayments && canDisburse}
-            canManagePayments={canManagePayments}
-            onDisburse={openDisburseDialog}
-          />
+      <PageSection spacing="compact">
+        {hasSelectedEmployee ? (
+          <>
+            <PaymentsSummaryCards
+              loading={summaryLoading}
+              summary={summary}
+              currentBalance={currentBalance}
+              canDisburse={canManagePayments && canDisburse}
+              canManagePayments={canManagePayments}
+              onDisburse={openDisburseDialog}
+            />
 
-          <PaymentsHistorySection
-            history={history}
-            loading={historyLoading}
-            page={historyPage}
-            total={historyTotal}
-            limit={historyPageSize}
-            filters={historyFilters}
-            activeFilterCount={historyFilterCount}
-            onPageChange={setHistoryPage}
-            onFromChange={setHistoryFrom}
-            onToChange={setHistoryTo}
-            onResetFilters={resetHistoryFilters}
-          />
-        </PageSection>
-      ) : (
-        <PageSection spacing="compact">
+            <PaymentsHistorySection
+              history={history}
+              loading={historyLoading}
+              page={historyPage}
+              total={historyTotal}
+              limit={historyPageSize}
+              filters={historyFilters}
+              activeFilterCount={historyFilterCount}
+              onPageChange={setHistoryPage}
+              onFromChange={setHistoryFrom}
+              onToChange={setHistoryTo}
+              onResetFilters={resetHistoryFilters}
+            />
+          </>
+        ) : (
           <EmptyState
             icon={Banknote}
             title="No Employee Selected"
             description="Choose an employee above to view their outstanding balance and payment ledger."
           />
-        </PageSection>
-      )}
+        )}
+      </PageSection>
 
       {canManagePayments ? (
         <PaymentsDisburseDialog

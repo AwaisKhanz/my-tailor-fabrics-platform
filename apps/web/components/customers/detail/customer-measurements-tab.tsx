@@ -21,7 +21,7 @@ export function CustomerMeasurementsTab({
   canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
   return (
-    <Card className="overflow-hidden border-border/70 bg-card/95">
+    <Card variant="shellFlat">
       <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ export function CustomerMeasurementsTab({
         {measurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {measurements.map((measurement) => (
-              <Card key={measurement.id} className="overflow-hidden border-border/60 shadow-sm">
+              <Card key={measurement.id} variant="shell">
                 <CardHeader variant="sectionSoft" density="compact">
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}

@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { InfoTile } from "@/components/ui/info-tile";
+import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/ui/typography";
 
 interface MeasurementFieldDialogDropdownOptionsProps {
@@ -29,27 +32,30 @@ export function MeasurementFieldDialogDropdownOptions({
         <Typography as="p" variant="body" className="font-medium leading-none">
           Dropdown Options
         </Typography>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
           Manage Options
         </span>
       </div>
 
-      <div className="min-h-[80px] rounded-md border bg-muted/50 p-3">
+      <InfoTile padding="content" className="min-h-[80px] rounded-md">
         <div className="flex flex-wrap gap-2">
           {options.map((option) => (
-            <span
+            <InfoTile
               key={option}
-              className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-3 py-1 text-sm font-medium text-foreground shadow-sm"
+              tone="surface"
+              padding="sm"
+              layout="row"
+              className="inline-flex text-sm font-medium text-text-primary shadow-sm"
             >
               {option}
               <button
                 type="button"
                 onClick={() => onRemoveOption(option)}
-                className="ml-0.5 rounded-sm text-muted-foreground transition-colors hover:text-destructive"
+                className="ml-0.5 rounded-sm text-text-secondary transition-colors hover:text-error"
               >
                 <X className="h-3 w-3" />
               </button>
-            </span>
+            </InfoTile>
           ))}
 
           <AddOptionInline
@@ -58,7 +64,7 @@ export function MeasurementFieldDialogDropdownOptions({
             onAdd={onAddOption}
           />
         </div>
-      </div>
+      </InfoTile>
     </div>
   );
 }
@@ -77,9 +83,9 @@ function AddOptionInline({
   if (editing) {
     return (
       <div className="flex items-center gap-1">
-        <input
+        <Input
           autoFocus
-          className="w-28 rounded border border-primary/50 bg-background px-2 py-1 text-sm outline-none ring-1 ring-primary/20"
+          variant="inlineChip"
           placeholder="Option name"
           value={value}
           onChange={(event) => onChange(event.target.value)}
@@ -104,13 +110,15 @@ function AddOptionInline({
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outlineDashed"
+      size="sm"
       onClick={() => setEditing(true)}
-      className="inline-flex items-center gap-1 rounded-md border border-dashed border-primary/50 px-3 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+      className="h-7 px-3 text-sm font-medium"
     >
       <Plus className="h-3 w-3" />
       Add Option
-    </button>
+    </Button>
   );
 }

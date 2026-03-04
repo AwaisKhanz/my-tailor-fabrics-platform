@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 
 interface SystemSettingsStateCardProps {
   workflowEnabled: boolean;
@@ -17,7 +18,7 @@ export function SystemSettingsStateCard({
   lastUpdatedText,
 }: SystemSettingsStateCardProps) {
   return (
-    <Card className="border-border/70 bg-card/95">
+    <Card variant="panel">
       <CardHeader variant="section" className="space-y-1">
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Workflow className="h-4 w-4 text-primary" />
@@ -28,16 +29,16 @@ export function SystemSettingsStateCard({
         </CardDescription>
       </CardHeader>
       <CardContent spacing="section" className="space-y-4 p-5 text-sm">
-        <div className="flex items-center justify-between gap-3 rounded-md border border-border/70 bg-background/40 px-3 py-2">
-          <span className="text-muted-foreground">Task workflow</span>
-          <span className="font-semibold text-foreground">
+        <InfoTile layout="betweenGap" padding="md" className="rounded-md">
+          <span className="text-text-secondary">Task workflow</span>
+          <span className="font-semibold text-text-primary">
             {workflowEnabled ? "Active" : "Inactive"}
           </span>
-        </div>
-        <div className="flex items-center justify-between gap-3 rounded-md border border-border/70 bg-background/40 px-3 py-2">
-          <span className="text-muted-foreground">Last updated</span>
-          <span className="font-medium text-foreground">{lastUpdatedText}</span>
-        </div>
+        </InfoTile>
+        <InfoTile layout="betweenGap" padding="md" className="rounded-md">
+          <span className="text-text-secondary">Last updated</span>
+          <span className="font-medium text-text-primary">{lastUpdatedText}</span>
+        </InfoTile>
       </CardContent>
     </Card>
   );

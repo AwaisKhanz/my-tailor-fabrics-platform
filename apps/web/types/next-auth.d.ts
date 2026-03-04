@@ -11,6 +11,7 @@ declare module "next-auth" {
       branchId: string | null;
     } & DefaultSession["user"];
     accessToken?: string;
+    error?: string;
   }
 
   interface User {
@@ -19,16 +20,19 @@ declare module "next-auth" {
     permissions?: Permission[];
     branchId: string | null;
     accessToken: string;
+    refreshToken: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id: string;
-    role: Role;
+    id?: string;
+    role?: Role;
     permissions?: Permission[];
-    branchId: string | null;
-    accessToken: string;
+    branchId?: string | null;
+    accessToken?: string;
+    refreshToken?: string;
     accessTokenExpires?: number;
+    error?: string;
   }
 }

@@ -42,7 +42,7 @@ export function PaymentsHistorySection({
         header: "Paid Date",
         cell: (payment) => (
           <div className="flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <Calendar className="h-3.5 w-3.5 text-text-secondary" />
             <span className="text-xs font-medium">{formatDate(payment.paidAt)}</span>
           </div>
         ),
@@ -50,7 +50,7 @@ export function PaymentsHistorySection({
       {
         header: "Note",
         cell: (payment) => (
-          <span className="text-xs text-muted-foreground">{payment.note || "—"}</span>
+          <span className="text-xs text-text-secondary">{payment.note || "—"}</span>
         ),
       },
       {

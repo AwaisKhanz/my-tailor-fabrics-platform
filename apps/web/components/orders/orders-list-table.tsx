@@ -99,7 +99,7 @@ export function OrdersListTable({
               </AvatarFallback>
             </Avatar>
             <div className="flex min-w-0 flex-col">
-              <span className="truncate text-sm font-semibold leading-tight text-foreground">
+              <span className="truncate text-sm font-semibold leading-tight text-text-primary">
                 {order.customer.fullName}
               </span>
               <Label variant="dashboard" className="mt-0.5">
@@ -112,7 +112,7 @@ export function OrdersListTable({
       {
         header: "Order Date",
         cell: (order) => (
-          <span className="whitespace-nowrap text-sm text-muted-foreground">
+          <span className="whitespace-nowrap text-sm text-text-secondary">
             {formatShortDate(order.createdAt)}
           </span>
         ),
@@ -127,7 +127,7 @@ export function OrdersListTable({
           return (
             <div className="flex flex-col items-start gap-0.5">
               <span
-                className={`whitespace-nowrap text-sm font-medium ${isOverdue ? "font-bold text-destructive" : "text-muted-foreground"}`}
+                className={`whitespace-nowrap text-sm font-medium ${isOverdue ? "font-bold text-destructive" : "text-text-secondary"}`}
               >
                 {formatShortDate(order.dueDate)}
               </span>
@@ -138,7 +138,7 @@ export function OrdersListTable({
                     ? "text-destructive"
                     : isCompleted
                       ? "text-success"
-                      : "text-muted-foreground"
+                      : "text-text-secondary"
                 }
               >
                 {isOverdue ? "Overdue" : isCompleted ? "Closed" : "Scheduled"}
@@ -150,7 +150,7 @@ export function OrdersListTable({
       {
         header: "Total Amount",
         cell: (order) => (
-          <span className="whitespace-nowrap text-sm font-semibold text-foreground">
+          <span className="whitespace-nowrap text-sm font-semibold text-text-primary">
             {formatPKR(order.totalAmount)}
           </span>
         ),

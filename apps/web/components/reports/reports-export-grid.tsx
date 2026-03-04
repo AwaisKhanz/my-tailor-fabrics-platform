@@ -45,7 +45,7 @@ export function ReportsExportGrid({
         const pdfKey = `${card.type}:pdf`;
 
         return (
-          <Card key={card.type} className="overflow-hidden border-border/70 bg-card/95">
+          <Card key={card.type} variant="shellFlat">
             <CardHeader variant="rowSection" density="compact" className="items-start gap-4 sm:items-center">
               <div>
                 <CardTitle className="text-base font-semibold tracking-tight">{card.title}</CardTitle>

@@ -27,7 +27,7 @@ export function Topbar() {
   const canAccessSettings = canAll(["users.manage"]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
+    <header className="sticky top-0 z-40 border-b border-sidebar-border bg-appBar/95 text-appBar-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-appBar/90">
       <div className="flex h-16 w-full items-center gap-3 px-3 sm:px-4 lg:px-6">
         <MobileSidebarTrigger />
         <div className="min-w-0 flex-1 md:flex-none">
@@ -46,11 +46,11 @@ export function Topbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="outline"
+                variant="sidebarIcon"
                 size="icon"
-                className="h-9 w-9 rounded-lg border-border/80 p-0"
+                className="h-9 w-9 p-0"
               >
-                <div className="flex h-full w-full items-center justify-center rounded-[7px] bg-primary/10 text-sm font-bold text-primary">
+                <div className="flex h-full w-full items-center justify-center rounded-[7px] bg-sidebar-active text-sm font-bold text-appBar-foreground">
                   {(user?.email || "U")[0].toUpperCase()}
                 </div>
               </Button>
@@ -91,7 +91,7 @@ export function Topbar() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="border-t border-border/60 px-3 py-2 lg:hidden">
+      <div className="border-t border-sidebar-border px-3 py-2 lg:hidden">
         <GlobalSearchCommand compact enableHotkeys={false} />
       </div>
     </header>

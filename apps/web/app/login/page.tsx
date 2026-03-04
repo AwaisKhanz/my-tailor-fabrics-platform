@@ -2,6 +2,7 @@
 
 import { LoginBrandPanel } from "@/components/auth/login-brand-panel";
 import { LoginFormPanel } from "@/components/auth/login-form-panel";
+import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
 import { useLoginPage } from "@/hooks/use-login-page";
 
@@ -27,7 +28,7 @@ export default function LoginPage() {
       className="relative flex min-h-screen w-full items-center justify-center bg-background px-4 py-6 sm:px-6 sm:py-10"
     >
       <div className="pointer-events-none absolute inset-0 bg-theme-radial-top" />
-      <div className="relative w-full max-w-6xl overflow-hidden rounded-2xl border border-border/70 bg-card/95 shadow-theme-elevated">
+      <Card variant="premium" className="relative w-full max-w-6xl overflow-hidden">
         <div className="grid min-h-[640px] grid-cols-1 md:grid-cols-[1.05fr_0.95fr]">
           <LoginBrandPanel />
 
@@ -44,7 +45,7 @@ export default function LoginPage() {
             onSubmit={handleSubmit}
           />
         </div>
-      </div>
+      </Card>
     </PageShell>
   );
 }

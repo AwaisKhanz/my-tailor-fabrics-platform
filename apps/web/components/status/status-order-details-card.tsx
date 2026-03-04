@@ -46,7 +46,7 @@ export function StatusOrderDetailsCard({ order }: StatusOrderDetailsCardProps) {
           <Typography as="p" variant="muted" className="text-xs">
             Balance Due
           </Typography>
-          <Typography as="p" variant="body" className="font-medium text-destructive">
+          <Typography as="p" variant="body" className="font-medium text-error">
             {formatPKR(order.balanceDue)}
           </Typography>
         </div>

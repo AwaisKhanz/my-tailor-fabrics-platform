@@ -3,6 +3,7 @@ import { type Branch, type CreateRateCardInput, type GarmentTypeWithAnalytics } 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
 import { RatesList } from "@/components/rates/RatesList";
 
@@ -27,13 +28,13 @@ export function GarmentRatesSection({
 
   return (
     <>
-      <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+      <Card variant="shell">
         <CardHeader variant="rowSection" className="items-start gap-3 sm:items-center">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+              <SectionIcon tone="primary">
                 <Banknote className="h-4 w-4" />
-              </div>
+              </SectionIcon>
               <CardTitle className="text-base font-semibold tracking-tight">
                 Production Rates (Step-based)
               </CardTitle>

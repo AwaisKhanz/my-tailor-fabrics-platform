@@ -31,4 +31,5 @@ __exportStar(require("./ledger"), exports);
 __exportStar(require("./reports"), exports);
 __exportStar(require("./audit"), exports);
 __exportStar(require("./integrations"), exports);
+__exportStar(require("./auth"), exports);
 __exportStar(require("./authz"), exports);

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -162,8 +163,8 @@ export function GarmentWorkflowStepsDialog({
             }}
           >
             {steps.map((step, index) => (
-              <div key={index} className="group flex items-center gap-3 rounded-lg border bg-muted/50 p-3">
-                <div className="flex cursor-move flex-col items-center justify-center text-muted-foreground hover:text-foreground">
+              <InfoTile key={index} padding="content" className="group flex items-center gap-3">
+                <div className="flex cursor-move flex-col items-center justify-center text-text-secondary hover:text-text-primary">
                   <GripVertical className="h-4 w-4" />
                   <span className="text-[10px] font-bold">{index + 1}</span>
                 </div>
@@ -191,14 +192,14 @@ export function GarmentWorkflowStepsDialog({
 
                 <div className="flex items-center gap-4 border-l border-r px-2">
                    <div className="flex flex-col items-center gap-1">
-                      <Label variant="dashboard" className="text-muted-foreground">Required</Label>
+                      <Label variant="dashboard" className="text-text-secondary">Required</Label>
                       <Switch
                           checked={step.isRequired}
                           onCheckedChange={(v) => handleChange(index, "isRequired", v)}
                       />
                    </div>
                    <div className="flex flex-col items-center gap-1">
-                      <Label variant="dashboard" className="text-muted-foreground">Active</Label>
+                      <Label variant="dashboard" className="text-text-secondary">Active</Label>
                       <Switch
                           checked={step.isActive}
                           onCheckedChange={(v) => handleChange(index, "isActive", v)}
@@ -208,23 +209,23 @@ export function GarmentWorkflowStepsDialog({
 
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="tableDanger"
                   size="icon"
-                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                  className="h-8 w-8 shrink-0"
                   onClick={() => handleRemoveStep(index)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-              </div>
+              </InfoTile>
             ))}
 
             {steps.length === 0 ? (
-              <div className="rounded-lg border-2 border-dashed py-8 text-center text-muted-foreground">
+              <InfoTile borderStyle="dashedStrong" padding="none" className="py-8 text-center text-text-secondary">
                 No steps configured. Add your first step below.
-              </div>
+              </InfoTile>
             ) : null}
 
-            <Button type="button" variant="outline" className="w-full border-dashed" onClick={handleAddStep}>
+            <Button type="button" variant="outlineDashed" className="w-full" onClick={handleAddStep}>
               <Plus className="mr-2 h-4 w-4" /> Add Step
             </Button>
           </FormStack>

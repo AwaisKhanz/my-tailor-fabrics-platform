@@ -60,5 +60,5 @@ export function TableSkeleton({
     return table;
   }
 
-  return <div className="overflow-hidden rounded-lg border bg-card">{table}</div>;
+  return <div className="overflow-hidden rounded-lg border border-divider bg-surface">{table}</div>;
 }

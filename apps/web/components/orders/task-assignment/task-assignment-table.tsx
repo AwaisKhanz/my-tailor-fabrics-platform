@@ -61,8 +61,8 @@ export function TaskAssignmentTable({
         header: "Step",
         cell: (task) => (
           <div className="flex flex-col">
-            <span className="font-bold text-foreground">{task.stepName}</span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span className="font-bold text-text-primary">{task.stepName}</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
               {task.stepKey}
             </span>
           </div>
@@ -105,7 +105,7 @@ export function TaskAssignmentTable({
               value={task.status}
               onValueChange={(value) => onStatusChange(task.id, value as TaskStatus)}
             >
-              <SelectTrigger className="h-8 border-none bg-transparent p-0 shadow-none hover:bg-muted">
+              <SelectTrigger variant="inlineGhost" className="h-8 p-0">
                 <Badge variant={STATUS_VARIANTS[task.status] || "outline"} className="w-full justify-center uppercase">
                   {TASK_STATUS_LABELS[task.status]}
                 </Badge>
@@ -149,9 +149,9 @@ export function TaskAssignmentTable({
                   }}
                 />
                 <Button
-                  variant="tableIcon"
+                  variant="tableSuccess"
                   size="iconSm"
-                  className="h-7 w-7 text-success"
+                  className="h-7 w-7"
                   onClick={() => onRateUpdate(task.id)}
                 >
                   <Check className="h-3 w-3" />
@@ -159,7 +159,7 @@ export function TaskAssignmentTable({
                 <Button
                   variant="tableDanger"
                   size="iconSm"
-                  className="h-7 w-7 text-destructive"
+                  className="h-7 w-7"
                   onClick={onCancelRateEdit}
                 >
                   <X className="h-3 w-3" />
@@ -177,7 +177,7 @@ export function TaskAssignmentTable({
                       ? "text-primary"
                       : task.designType?.defaultRate
                         ? "text-primary/80"
-                        : "text-foreground"
+                        : "text-text-primary"
                   }`}
                 >
                   {formatPKR(
@@ -185,7 +185,7 @@ export function TaskAssignmentTable({
                   )}
                 </span>
                 {task.rateOverride ? (
-                  <span className="text-[9px] text-muted-foreground line-through">
+                  <span className="text-[9px] text-text-secondary line-through">
                     Base: {formatPKR(task.rateSnapshot ?? 0)}
                   </span>
                 ) : null}
@@ -196,7 +196,7 @@ export function TaskAssignmentTable({
                 className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
                 onClick={() => onStartRateEdit(task.id, effectiveRateInRupees)}
               >
-                <Edit2 className="h-3 w-3 text-muted-foreground" />
+                <Edit2 className="h-3 w-3 text-text-secondary" />
               </Button>
             </div>
           );
@@ -218,7 +218,7 @@ export function TaskAssignmentTable({
   );
 
   return (
-    <TableSurface className="shadow-none">
+    <TableSurface variant="flat">
       <DataTable
         columns={columns}
         data={tasks}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BarChart, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 
@@ -111,57 +112,61 @@ export function DashboardRevenueExpensesCard({
   const tooltipY = padTop + 10;
 
   return (
-    <Card className="border-border/70 bg-card h-full">
+    <Card variant="panel" className="h-full">
       <CardHeader variant="rowSection" className="items-start">
         <div className="space-y-1">
           <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
             Revenue vs. Expenses
           </CardTitle>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-text-secondary">
             Monthly trend powered by backend report totals.
           </p>
         </div>
-        <div className="flex items-center gap-1 rounded-md border border-border/60 bg-muted/25 px-2 py-1">
+        <InfoTile layout="row" padding="xs" className="rounded-md gap-1">
           <Label variant="dashboard">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
-        </div>
+        </InfoTile>
       </CardHeader>
       <CardContent spacing="section" className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
+          <InfoTile padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <Label variant="micro">
                 Revenue
               </Label>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-1">{formatPKR(totalRevenue)}</p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
+          </InfoTile>
+          <InfoTile padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <Label variant="micro">
                 Expenses
               </Label>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-2">{formatPKR(totalExpenses)}</p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/45 px-3 py-2">
+          </InfoTile>
+          <InfoTile padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
-              <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <Label variant="micro">
                 Net
               </Label>
             </div>
             <p className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-chart-3"}`}>
               {formatPKR(net)}
             </p>
-          </div>
+          </InfoTile>
         </div>
 
         {rows.length < 2 ? (
-          <div className="relative flex h-[220px] w-full items-center justify-center rounded-lg border border-dashed border-border bg-background/20">
-            <div className="flex max-w-md items-center gap-3 text-sm font-medium text-muted-foreground/70">
+          <InfoTile
+            borderStyle="dashed"
+            padding="none"
+            className="relative flex h-[220px] w-full items-center justify-center"
+          >
+            <div className="flex max-w-md items-center gap-3 text-sm font-medium text-text-secondary/80">
               <BarChart className="h-10 w-10 opacity-20" />
               <span>
                 {rows.length === 0
@@ -169,9 +174,9 @@ export function DashboardRevenueExpensesCard({
                   : "Need at least 2 periods to render a trend chart."}
               </span>
             </div>
-          </div>
+          </InfoTile>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border/70 bg-background/20 px-2 py-3">
+          <InfoTile padding="sm" className="overflow-hidden">
             <svg
               viewBox={`0 0 ${width} ${height}`}
               className="h-[200px] w-full sm:h-[214px]"
@@ -188,7 +193,7 @@ export function DashboardRevenueExpensesCard({
                     y1={y}
                     x2={width - padRight}
                     y2={y}
-                    className="stroke-border/40"
+                    className="stroke-divider"
                     strokeDasharray="3 4"
                   />
                 );
@@ -218,7 +223,7 @@ export function DashboardRevenueExpensesCard({
                   <circle cx={point.x} cy={point.revenueY} r="2.8" className="fill-chart-1" />
                   <circle cx={point.x} cy={point.expensesY} r="2.4" className="fill-chart-2" />
                   <circle cx={point.x} cy={point.netY} r="2.1" className="fill-chart-3" />
-                  <text x={point.x} y={height - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">
+                  <text x={point.x} y={height - 10} textAnchor="middle" className="fill-text-secondary text-[10px]">
                     {point.month}
                   </text>
                 </g>
@@ -240,8 +245,8 @@ export function DashboardRevenueExpensesCard({
 
               {activePoint ? (
                 <g transform={`translate(${tooltipX}, ${tooltipY})`}>
-                  <rect x="0" y="0" width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-card stroke-border/80" strokeWidth="1" />
-                  <text x="10" y="17" className="fill-foreground text-[11px] font-semibold">
+                  <rect x="0" y="0" width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-surface stroke-divider" strokeWidth="1" />
+                  <text x="10" y="17" className="fill-text-primary text-[11px] font-semibold">
                     {activePoint.month}
                   </text>
                   <text x="10" y="33" className="fill-chart-1 text-[10px]">
@@ -256,7 +261,7 @@ export function DashboardRevenueExpensesCard({
                 </g>
               ) : null}
             </svg>
-          </div>
+          </InfoTile>
         )}
       </CardContent>
     </Card>

@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { type Branch } from "@tbms/shared-types";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
 
@@ -9,12 +10,12 @@ interface BranchDeleteSummaryProps {
 
 function ImpactMetric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex flex-col rounded-md border border-border bg-background px-2 py-1.5 shadow-sm">
-      <span className="text-xs font-bold text-foreground">{value}</span>
+    <InfoTile tone="surface" padding="xs" className="flex-col rounded-md shadow-sm">
+      <span className="text-xs font-bold text-text-primary">{value}</span>
       <Label variant="dashboard" className="text-[9px]">
         {label}
       </Label>
-    </div>
+    </InfoTile>
   );
 }
 
@@ -25,24 +26,24 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
 
   return (
     <div className="space-y-4 pt-2">
-      <Typography as="p" variant="body" className="font-medium leading-relaxed text-muted-foreground">
+      <Typography as="p" variant="body" className="font-medium leading-relaxed text-text-secondary">
         Are you sure you want to delete{" "}
-        <strong className="text-foreground">&quot;{branch?.name}&quot;</strong>? This action will hide
+        <strong className="text-text-primary">&quot;{branch?.name}&quot;</strong>? This action will hide
         the branch and deactivate it. Historic data will be preserved, but new operations will be
         blocked.
       </Typography>
 
-      <div className="space-y-2 rounded-lg border border-border bg-muted/50 p-3">
+      <InfoTile padding="content" className="space-y-2">
         <Label variant="dashboard">Linked Records Impact</Label>
         <div className="grid grid-cols-3 gap-2">
           <ImpactMetric label="Staff" value={employeesCount} />
           <ImpactMetric label="Clients" value={customersCount} />
           <ImpactMetric label="All Orders" value={ordersCount} />
         </div>
-      </div>
+      </InfoTile>
 
       {ordersCount > 0 ? (
-        <div className="rounded-lg border border-warning/20 bg-warning/10 p-3">
+        <InfoTile tone="warning" padding="content">
           <Typography
             as="p"
             variant="muted"
@@ -52,7 +53,7 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
             Warning: this branch has active orders. The system will block deletion until they are
             completed or cancelled.
           </Typography>
-        </div>
+        </InfoTile>
       ) : null}
     </div>
   );

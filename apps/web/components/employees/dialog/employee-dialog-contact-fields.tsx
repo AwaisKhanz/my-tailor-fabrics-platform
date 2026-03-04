@@ -12,7 +12,7 @@ interface EmployeeDialogContactFieldsProps {
 export function EmployeeDialogContactFields({ form }: EmployeeDialogContactFieldsProps) {
   return (
     <FormStack className="border-t pt-4">
-      <Typography as="h3" variant="sectionTitle" className="text-sm uppercase tracking-wide text-muted-foreground">
+      <Typography as="h3" variant="sectionTitle" className="text-sm uppercase tracking-wide text-text-secondary">
         Personal &amp; Emergency Details
       </Typography>
 

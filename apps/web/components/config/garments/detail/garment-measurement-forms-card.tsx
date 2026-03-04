@@ -4,8 +4,11 @@ import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 
 interface GarmentMeasurementFormsCardProps {
   garment: GarmentTypeWithAnalytics;
@@ -17,13 +20,13 @@ export function GarmentMeasurementFormsCard({
   const categories = garment.measurementCategories ?? [];
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="rowSection" className="items-start gap-3 sm:items-center">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            <SectionIcon tone="primary">
               <ClipboardList className="h-4 w-4" />
-            </div>
+            </SectionIcon>
             <CardTitle className="text-base font-semibold tracking-tight">
               Connected Measurement Forms
             </CardTitle>
@@ -53,12 +56,19 @@ export function GarmentMeasurementFormsCard({
               <Link
                 key={category.id}
                 href={`/settings/measurements/${category.id}`}
-                className="group flex items-center justify-between rounded-lg border border-border/70 bg-muted/10 p-3 transition-all hover:border-primary/30 hover:bg-primary/5"
+                className={cn(
+                  infoTileVariants({ padding: "content", layout: "betweenGap" }),
+                  "group transition-all hover:border-primary/30 hover:bg-primary/5",
+                )}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 transition-colors group-hover:bg-primary/20">
+                  <SectionIcon
+                    tone="primary"
+                    framed={false}
+                    className="rounded-md transition-colors group-hover:bg-primary/20"
+                  >
                     <Scale className="h-4 w-4 text-primary" />
-                  </div>
+                  </SectionIcon>
                   <div>
                     <Typography as="p" variant="body" className="font-bold transition-colors group-hover:text-primary">
                       {category.name}
@@ -68,19 +78,24 @@ export function GarmentMeasurementFormsCard({
                     </Label>
                   </div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                <ChevronRight className="h-4 w-4 text-text-secondary transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
               </Link>
             ))}
           </div>
         ) : (
-          <div className="col-span-full rounded-xl border border-dashed border-border/70 bg-muted/20 py-8 text-center">
+          <InfoTile
+            borderStyle="dashed"
+            padding="none"
+            radius="xl"
+            className="col-span-full py-8 text-center"
+          >
             <Typography as="p" variant="lead">
               No measurement forms attached.
             </Typography>
-            <Label variant="dashboard" className="mt-1 block text-muted-foreground">
+            <Label variant="dashboard" className="mt-1 block text-text-secondary">
               Attach forms from garment management settings.
             </Label>
-          </div>
+          </InfoTile>
         )}
       </CardContent>
     </Card>

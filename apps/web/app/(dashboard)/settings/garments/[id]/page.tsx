@@ -61,26 +61,28 @@ function GarmentDetailPage() {
         <GarmentAnalyticsStatsGrid garment={garment} />
       </PageSection>
 
-      <DetailSplit
-        ratio="3-2"
-        gap="spacious"
-        main={
-          <PageSection spacing="compact">
-            <GarmentOverviewCard garment={garment} />
-            <GarmentMeasurementFormsCard garment={garment} />
-            <GarmentRatesSection
-              garment={garment}
-              branches={branches}
-              open={createRateDialogOpen}
-              onOpenChange={setCreateRateDialogOpen}
-              onCreateRate={handleCreateRate}
-              canManageRates={canManageRates}
-            />
-            <GarmentPricingLogsCard logs={garment.priceLogs || []} />
-          </PageSection>
-        }
-        side={<GarmentPricingSidebar garment={garment} />}
-      />
+      <PageSection spacing="compact">
+        <DetailSplit
+          ratio="3-2"
+          gap="spacious"
+          main={
+            <PageSection spacing="compact">
+              <GarmentOverviewCard garment={garment} />
+              <GarmentMeasurementFormsCard garment={garment} />
+              <GarmentRatesSection
+                garment={garment}
+                branches={branches}
+                open={createRateDialogOpen}
+                onOpenChange={setCreateRateDialogOpen}
+                onCreateRate={handleCreateRate}
+                canManageRates={canManageRates}
+              />
+              <GarmentPricingLogsCard logs={garment.priceLogs || []} />
+            </PageSection>
+          }
+          side={<GarmentPricingSidebar garment={garment} />}
+        />
+      </PageSection>
     </PageShell>
   );
 }

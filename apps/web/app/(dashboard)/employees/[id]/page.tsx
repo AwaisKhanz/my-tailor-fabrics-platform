@@ -1,8 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Typography } from "@/components/ui/typography";
+import { AlertCircle } from "lucide-react";
 import { AccountCreationDialog } from "@/components/employees/AccountCreationDialog";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
 import { EmployeeDetailBreadcrumb } from "@/components/employees/detail/employee-detail-breadcrumb";
@@ -13,6 +12,7 @@ import { EmployeeDetailTabs } from "@/components/employees/detail/employee-detai
 import { EmployeeDocumentUploadDialog } from "@/components/employees/detail/employee-document-upload-dialog";
 import { EmployeeLedgerEntryDialog } from "@/components/employees/detail/employee-ledger-entry-dialog";
 import { EmployeeDetailSkeleton } from "@/components/employees/detail/employee-detail-skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
@@ -87,14 +87,15 @@ function EmployeeDetailPage() {
   if (!employee) {
     return (
       <PageShell>
-        <PageSection className="flex flex-col items-center justify-center py-20">
-          <Typography as="h2" variant="sectionTitle">
-            Employee not found
-          </Typography>
-          <Button variant="link" onClick={() => router.push("/employees")}>
-            Back to list
-          </Button>
-        </PageSection>
+        <EmptyState
+          icon={AlertCircle}
+          title="Employee not found"
+          description="The requested employee record is unavailable or may have been removed."
+          action={{
+            label: "Back to Employees",
+            onClick: () => router.push("/employees"),
+          }}
+        />
       </PageShell>
     );
   }

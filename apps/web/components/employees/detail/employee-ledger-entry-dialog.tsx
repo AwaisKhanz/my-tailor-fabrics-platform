@@ -89,7 +89,7 @@ export function EmployeeLedgerEntryDialog({
                   <SelectItem value={LedgerEntryType.SALARY}>Monthly Salary</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+              <p className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
                 {reducesBalance
                   ? "This entry will decrease employee balance"
                   : "This entry will increase employee balance"}

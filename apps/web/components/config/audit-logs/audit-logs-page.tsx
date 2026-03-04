@@ -110,7 +110,7 @@ export function AuditLogsPage() {
       {
         header: "Timestamp",
         cell: (record) => (
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-text-primary">
             {formatDateTime(record.createdAt)}
           </span>
         ),
@@ -127,8 +127,8 @@ export function AuditLogsPage() {
         header: "Entity",
         cell: (record) => (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-foreground">{record.entity}</p>
-            <p className="text-xs text-muted-foreground">{record.entityId}</p>
+            <p className="text-sm font-semibold text-text-primary">{record.entity}</p>
+            <p className="text-xs text-text-secondary">{record.entityId}</p>
           </div>
         ),
       },
@@ -136,10 +136,10 @@ export function AuditLogsPage() {
         header: "Actor",
         cell: (record) => (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-sm font-semibold text-text-primary">
               {record.user?.name || (record.actorEmail ? "Unknown account" : "Unknown user")}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-text-secondary">
               {record.user?.email || record.actorEmail || "—"}
             </p>
           </div>
@@ -148,7 +148,7 @@ export function AuditLogsPage() {
       {
         header: "Change Summary",
         cell: (record) => (
-          <span className="line-clamp-2 text-sm text-muted-foreground">
+          <span className="line-clamp-2 text-sm text-text-secondary">
             {getChangeSummary(record)}
           </span>
         ),
@@ -157,8 +157,8 @@ export function AuditLogsPage() {
         header: "Source",
         cell: (record) => (
           <div className="space-y-0.5 text-right">
-            <p className="text-sm font-medium text-foreground">{record.ipAddress || "Unknown IP"}</p>
-            <p className="line-clamp-1 max-w-[240px] text-xs text-muted-foreground">
+            <p className="text-sm font-medium text-text-primary">{record.ipAddress || "Unknown IP"}</p>
+            <p className="line-clamp-1 max-w-[240px] text-xs text-text-secondary">
               {record.userAgent || "User agent unavailable"}
             </p>
           </div>

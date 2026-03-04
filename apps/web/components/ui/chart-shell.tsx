@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionIcon } from "@/components/ui/section-icon";
 
 interface ChartShellProps {
   title: string;
@@ -26,13 +27,13 @@ export function ChartShell({
   contentClassName,
 }: ChartShellProps) {
   return (
-    <Card className={cn("overflow-hidden border-border/70 bg-card/95", className)}>
+    <Card className={cn("overflow-hidden border-divider bg-surface-elevated", className)}>
       <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
         <div className="flex items-center gap-3">
           {icon ? (
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+            <SectionIcon size="lg">
               {icon}
-            </div>
+            </SectionIcon>
           ) : null}
           <div>
             <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>
@@ -50,7 +51,7 @@ export function ChartShell({
         {children}
       </CardContent>
 
-      {footer ? <div className="border-t border-border/50 px-6 py-4">{footer}</div> : null}
+      {footer ? <div className="border-t border-divider px-6 py-4">{footer}</div> : null}
     </Card>
   );
 }

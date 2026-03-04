@@ -7,7 +7,11 @@ import { ClipboardList, Loader2, Search, UserSquare2, Users, X } from "lucide-re
 import { ordersApi } from "@/lib/api/orders";
 import { customerApi } from "@/lib/api/customers";
 import { employeesApi } from "@/lib/api/employees";
+import { Card, CardHeader } from "@/components/ui/card";
+import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
+import { MetaPill } from "@/components/ui/meta-pill";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatDate } from "@/lib/utils";
 
@@ -179,10 +183,10 @@ export function GlobalSearchCommand({
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
-      <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-text-secondary" />
       <Input
         ref={inputRef}
-        variant="table"
+        variant="searchCommand"
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -199,7 +203,7 @@ export function GlobalSearchCommand({
         }}
         placeholder={compact ? "Search orders, customers..." : "Search orders, customers, and staff..."}
         className={cn(
-          "h-9 w-full border-border/70 bg-background/90 pl-10",
+          "w-full pl-10",
           query ? "pr-9" : !compact ? "pr-24" : undefined,
         )}
       />
@@ -213,57 +217,57 @@ export function GlobalSearchCommand({
             setError(null);
             inputRef.current?.focus();
           }}
-          className="absolute right-2.5 top-1/2 z-10 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="absolute right-2.5 top-1/2 z-10 -translate-y-1/2 rounded p-0.5 text-text-secondary hover:bg-interaction-hover hover:text-text-primary"
           aria-label="Clear search"
         >
           <X className="h-3.5 w-3.5" />
         </button>
       ) : !compact ? (
-        <div className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded-md border border-border/70 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground xl:inline-flex">
+        <MetaPill className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 gap-1 px-1.5 py-0.5 text-[10px] font-medium xl:inline-flex">
           Ctrl/Cmd K
-        </div>
+        </MetaPill>
       ) : null}
 
       {open ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[70] overflow-hidden rounded-xl border border-border/70 bg-card shadow-theme-elevated">
-          <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <Card variant="premium" className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[70] overflow-hidden">
+          <CardHeader variant="rowSection" density="compact" className="items-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
               Global Search
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-text-secondary">
               {hasMinimumQuery
                 ? loading
                   ? "Searching..."
                   : `${resultCount} result${resultCount === 1 ? "" : "s"}`
                 : "Type at least 2 characters"}
             </p>
-          </div>
+          </CardHeader>
 
           <ScrollArea className="max-h-[420px]">
             <div className="space-y-3 p-3">
               {loading ? (
-                <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm text-muted-foreground">
+                <InfoTile tone="elevatedMuted" padding="md" layout="row" className="text-sm text-text-secondary">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Searching orders, customers, and employees...
-                </div>
+                </InfoTile>
               ) : null}
 
               {!loading && error ? (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                <InfoTile tone="error" padding="md" className="text-sm text-error">
                   {error}
-                </div>
+                </InfoTile>
               ) : null}
 
               {!loading && !error && !hasMinimumQuery ? (
-                <div className="rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm text-muted-foreground">
+                <InfoTile tone="elevatedMuted" padding="md" className="text-sm text-text-secondary">
                   Start typing to search order number, customer, phone, or employee code.
-                </div>
+                </InfoTile>
               ) : null}
 
               {!loading && !error && hasMinimumQuery && resultCount === 0 ? (
-                <div className="rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm text-muted-foreground">
+                <InfoTile tone="elevatedMuted" padding="md" className="text-sm text-text-secondary">
                   No matching records found.
-                </div>
+                </InfoTile>
               ) : null}
 
               {!loading && !error && hasMinimumQuery ? (
@@ -313,7 +317,7 @@ export function GlobalSearchCommand({
               ) : null}
             </div>
           </ScrollArea>
-        </div>
+        </Card>
       ) : null}
     </div>
   );
@@ -331,10 +335,10 @@ function ResultGroup({
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between px-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
           {title}
         </p>
-        <p className="text-[11px] text-muted-foreground">{count}</p>
+        <p className="text-[11px] text-text-secondary">{count}</p>
       </div>
       <div className="space-y-1.5">{children}</div>
     </section>
@@ -356,14 +360,21 @@ function ResultItem({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-lg border border-border/60 bg-background/35 px-3 py-2.5 text-left transition-colors hover:border-primary/30 hover:bg-primary/5"
+      className={cn(
+        infoTileVariants({
+          tone: "elevatedMuted",
+          padding: "lg",
+          layout: "row",
+        }),
+        "w-full text-left transition-colors hover:border-primary/35 hover:bg-interaction-hover",
+      )}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+      <SectionIcon tone="primary" framed={false} className="rounded-md">
         <Icon className="h-4 w-4" />
-      </span>
+      </SectionIcon>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-foreground">{title}</span>
-        <span className="block truncate text-xs text-muted-foreground">{subtitle}</span>
+        <span className="block truncate text-sm font-semibold text-text-primary">{title}</span>
+        <span className="block truncate text-xs text-text-secondary">{subtitle}</span>
       </span>
     </button>
   );

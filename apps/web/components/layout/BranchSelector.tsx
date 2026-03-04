@@ -64,8 +64,8 @@ export function BranchSelector() {
       }}
     >
       <SelectTrigger
-        variant="table"
-        className="h-9 w-[170px] border-border/70 bg-background/90 text-xs font-semibold tracking-wide sm:w-[230px] sm:text-sm"
+        variant="appBar"
+        className="h-9 w-[170px] text-xs font-semibold tracking-wide sm:w-[230px] sm:text-sm"
       >
         <SelectValue placeholder="Select Branch" />
       </SelectTrigger>

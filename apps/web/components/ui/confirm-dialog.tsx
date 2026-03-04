@@ -65,18 +65,18 @@ export function ConfirmDialog({
           <DialogHeader className="gap-3">
             <div className={cn(
                "flex h-12 w-12 items-center justify-center rounded-full shrink-0",
-               variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+               variant === "destructive" ? "bg-error-muted text-destructive" : "bg-sidebar-active text-primary"
             )}>
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div className="space-y-1">
               <DialogTitle className="text-xl font-bold tracking-tight">{title}</DialogTitle>
               {typeof description === "string" ? (
-                <DialogDescription className="text-muted-foreground text-[15px] leading-relaxed">
+                <DialogDescription className="text-[15px] leading-relaxed text-text-secondary">
                   {description}
                 </DialogDescription>
               ) : (
-                <div className="text-muted-foreground text-[15px] leading-relaxed">
+                <div className="text-[15px] leading-relaxed text-text-secondary">
                   {description}
                 </div>
               )}

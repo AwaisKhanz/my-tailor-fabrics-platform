@@ -40,6 +40,8 @@ model User {
   isActive             Boolean                        @default(true)
   lastLoginAt          DateTime?
   refreshToken         String?
+  previousRefreshToken String?
+  previousRefreshTokenExpiresAt DateTime?
   createdAt            DateTime                       @default(now())
   updatedAt            DateTime                       @updatedAt
   deletedAt            DateTime?

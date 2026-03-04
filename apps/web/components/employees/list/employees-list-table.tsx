@@ -36,13 +36,13 @@ export function EmployeesListTable({
         header: "Employee",
         cell: (employee) => (
           <div className="group flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-border/50 shadow-sm">
-              <AvatarFallback className="bg-primary/5 font-bold text-primary">
+            <Avatar className="h-9 w-9 border border-divider shadow-sm">
+              <AvatarFallback className="bg-primary/10 font-bold text-primary">
                 {employee.fullName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
+              <span className="text-sm font-bold leading-tight text-text-primary transition-colors group-hover:text-primary">
                 {employee.fullName}
               </span>
               <Label variant="dashboard" className="mt-0.5">
@@ -63,8 +63,8 @@ export function EmployeesListTable({
       {
         header: "Contact",
         cell: (employee) => (
-          <div className="flex items-center gap-1.5 text-xs font-semibold tabular-nums text-foreground">
-            <Phone className="h-3 w-3 text-muted-foreground" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold tabular-nums text-text-primary">
+            <Phone className="h-3 w-3 text-text-secondary" />
             {employee.phone}
           </div>
         ),

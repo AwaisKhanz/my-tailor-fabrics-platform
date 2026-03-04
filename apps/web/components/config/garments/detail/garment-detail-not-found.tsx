@@ -12,10 +12,10 @@ export function GarmentDetailNotFound({ onBack }: GarmentDetailNotFoundProps) {
   return (
     <PageShell width="narrow">
       <PageSection spacing="compact">
-        <Card className="border-border/70 bg-card/95 shadow-sm">
+        <Card>
           <CardContent className="flex min-h-[360px] flex-col items-center justify-center p-6 text-center">
             <div className="mb-4 rounded-full bg-destructive/10 p-4">
-              <AlertCircle className="h-8 w-8 text-destructive" />
+              <AlertCircle className="h-8 w-8 text-error" />
             </div>
 
             <Typography as="h2" variant="sectionTitle">

@@ -3,6 +3,7 @@ import { type PaymentSummary } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface PaymentsSummaryCardsProps {
@@ -24,11 +25,11 @@ export function PaymentsSummaryCards({
 }: PaymentsSummaryCardsProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <StatsGrid columns="three">
         {[1, 2, 3].map((item) => (
           <Skeleton key={item} className="h-28 rounded-xl" />
         ))}
-      </div>
+      </StatsGrid>
     );
   }
 
@@ -37,7 +38,7 @@ export function PaymentsSummaryCards({
   }
 
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-3">
+    <StatsGrid columns="three">
       <StatCard
         title="Total Earned"
         subtitle="All lifecycle steps"
@@ -61,7 +62,7 @@ export function PaymentsSummaryCards({
         tone="warning"
         icon={<Banknote className="h-4 w-4" />}
         badgeText={currentBalance > 0 ? "DUE" : "CLEAR"}
-        valueClassName={currentBalance > 0 ? "" : "text-muted-foreground"}
+        valueClassName={currentBalance > 0 ? "" : "text-text-secondary"}
         action={
           canManagePayments ? (
             <Button
@@ -76,6 +77,6 @@ export function PaymentsSummaryCards({
           ) : null
         }
       />
-    </div>
+    </StatsGrid>
   );
 }

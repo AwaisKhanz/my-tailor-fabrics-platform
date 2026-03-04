@@ -1,17 +1,14 @@
 "use client";
 
-import React from "react";
 import { useParams } from "next/navigation";
 import { MeasurementCategoryDetail } from "@/components/config/MeasurementCategoryDetail";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 
 function MeasurementDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
+  const params = useParams<{ id: string }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  return (
-    <MeasurementCategoryDetail id={id} />
-  );
+  return <MeasurementCategoryDetail id={id} />;
 }
 
 export default withRoleGuard(MeasurementDetailPage, {

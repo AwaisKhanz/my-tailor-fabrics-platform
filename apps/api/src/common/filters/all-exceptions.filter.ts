@@ -85,11 +85,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message,
     };
 
-    // LOG THE CRASH/ERROR WITH STACK TRACE
-    this.logger.error(
-      `Unhandled Exception at ${responseBody.path}: ${responseBody.message}`,
-      exception instanceof Error ? exception.stack : JSON.stringify(exception),
-    );
+    if (httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(
+        `Unhandled Exception at ${responseBody.path}: ${responseBody.message}`,
+        exception instanceof Error ? exception.stack : JSON.stringify(exception),
+      );
+    } else {
+      this.logger.warn(
+        `Handled HttpException ${httpStatus} at ${responseBody.path}: ${responseBody.message}`,
+      );
+    }
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }

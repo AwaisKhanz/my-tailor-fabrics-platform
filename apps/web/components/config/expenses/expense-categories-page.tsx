@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
@@ -54,7 +55,7 @@ export function ExpenseCategoriesPage() {
       {
         header: "Category Name",
         cell: (category) => (
-          <span className="font-semibold text-foreground">{category.name}</span>
+          <span className="font-semibold text-text-primary">{category.name}</span>
         ),
       },
       {
@@ -108,7 +109,7 @@ export function ExpenseCategoriesPage() {
                 </Button>
               </>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+              <span className="text-xs font-medium text-text-secondary">Read only</span>
             )}
           </div>
         ),
@@ -231,7 +232,7 @@ export function ExpenseCategoriesPage() {
               void saveCategory();
             }}
           >
-            <Card className="border-border/70 bg-background/40">
+            <Card variant="elevatedPanel">
               <CardHeader variant="section" className="space-y-1">
                 <CardTitle className="text-sm font-semibold">
                   Category Details
@@ -254,10 +255,10 @@ export function ExpenseCategoriesPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between rounded-md border border-border/70 bg-background/50 px-3 py-2.5">
+                <InfoTile layout="betweenGap" className="rounded-md">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Active</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm font-medium text-text-primary">Active</p>
+                    <p className="text-xs text-text-secondary">
                       Active categories are available in expense entry forms.
                     </p>
                   </div>
@@ -269,7 +270,7 @@ export function ExpenseCategoriesPage() {
                     }
                     disabled={saving}
                   />
-                </div>
+                </InfoTile>
               </CardContent>
             </Card>
           </FormStack>

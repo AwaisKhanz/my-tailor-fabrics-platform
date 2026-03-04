@@ -4,6 +4,7 @@ import type { FinancialTrend } from "@tbms/shared-types";
 import { ChartEmptyState } from "@/components/ui/chart-empty-state";
 import { ChartLoadingState } from "@/components/ui/chart-loading-state";
 import { ChartShell } from "@/components/ui/chart-shell";
+import { InfoTile } from "@/components/ui/info-tile";
 import { ReportsChartLegend } from "@/components/reports/reports-chart-legend";
 import { formatPKR } from "@/lib/utils";
 
@@ -170,7 +171,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
   const tooltipY = padTop + 10;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border/60 bg-background/40 px-2 py-3">
+    <InfoTile padding="sm" radius="xl" className="overflow-hidden">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="h-[290px] w-full"
@@ -187,10 +188,10 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               y1={tick.y}
               x2={width - padRight}
               y2={tick.y}
-              className="stroke-border/50"
+              className="stroke-divider"
               strokeDasharray="3 4"
             />
-            <text x={8} y={tick.y + 4} className="fill-muted-foreground text-[10px]">
+            <text x={8} y={tick.y + 4} className="fill-text-secondary text-[10px]">
               {formatNumber(tick.value)}
             </text>
           </g>
@@ -234,7 +235,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               className="fill-chart-3"
             />
             {index % labelStep === 0 || index === dataPoints.length - 1 ? (
-              <text x={point.x} y={height - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">
+              <text x={point.x} y={height - 10} textAnchor="middle" className="fill-text-secondary text-[10px]">
                 {point.label}
               </text>
             ) : null}
@@ -263,10 +264,10 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               width={tooltipWidth}
               height={tooltipHeight}
               rx="8"
-              className="fill-card stroke-border/80"
+              className="fill-surface stroke-divider"
               strokeWidth="1"
             />
-            <text x="12" y="18" className="fill-foreground text-[11px] font-semibold">
+            <text x="12" y="18" className="fill-text-primary text-[11px] font-semibold">
               {activePoint.label}
             </text>
             <text x="12" y="35" className="fill-chart-1 text-[10px]">
@@ -281,6 +282,6 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
           </g>
         ) : null}
       </svg>
-    </div>
+    </InfoTile>
   );
 }

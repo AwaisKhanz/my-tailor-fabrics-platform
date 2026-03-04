@@ -35,7 +35,7 @@ export function ExpensesTable({
         header: "Date",
         cell: (expense) => (
           <div className="flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <Calendar className="h-3.5 w-3.5 text-text-secondary" />
             <span className="text-sm font-medium">{formatDate(expense.expenseDate)}</span>
           </div>
         ),
@@ -44,8 +44,8 @@ export function ExpensesTable({
         header: "Category",
         cell: (expense) => (
           <div className="flex items-center gap-2">
-            <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-            <Badge variant="outline" size="xs" className="bg-muted/20">
+            <Tag className="h-3.5 w-3.5 text-text-secondary" />
+            <Badge variant="outlineSoft" size="xs">
               {expense.category.name}
             </Badge>
           </div>
@@ -54,7 +54,7 @@ export function ExpensesTable({
       {
         header: "Description",
         cell: (expense) => (
-          <span className="block max-w-[420px] truncate text-sm text-muted-foreground">
+          <span className="block max-w-[420px] truncate text-sm text-text-secondary">
             {expense.description || "—"}
           </span>
         ),
@@ -63,7 +63,7 @@ export function ExpensesTable({
         header: "Amount",
         align: "right",
         cell: (expense) => (
-          <span className="font-bold text-destructive">{formatPKR(expense.amount)}</span>
+          <span className="font-bold text-error">{formatPKR(expense.amount)}</span>
         ),
       },
       {

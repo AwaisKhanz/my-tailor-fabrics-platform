@@ -70,7 +70,7 @@ export function AttendanceSettingsPage() {
       {
         header: "Date",
         cell: (record) => (
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-text-primary">
             {formatDate(record.date)}
           </span>
         ),
@@ -79,10 +79,10 @@ export function AttendanceSettingsPage() {
         header: "Employee",
         cell: (record) => (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-sm font-semibold text-text-primary">
               {record.employee?.fullName ?? "Unknown employee"}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-text-secondary">
               {record.employee?.employeeCode ?? "No code"}
               {record.employee?.designation
                 ? ` • ${record.employee.designation}`
@@ -94,7 +94,7 @@ export function AttendanceSettingsPage() {
       {
         header: "Clock In",
         cell: (record) => (
-          <span className="text-sm text-foreground">
+          <span className="text-sm text-text-primary">
             {formatDateTime(record.clockIn)}
           </span>
         ),
@@ -103,7 +103,7 @@ export function AttendanceSettingsPage() {
         header: "Clock Out",
         cell: (record) =>
           record.clockOut ? (
-            <span className="text-sm text-foreground">
+            <span className="text-sm text-text-primary">
               {formatDateTime(record.clockOut)}
             </span>
           ) : (
@@ -116,7 +116,7 @@ export function AttendanceSettingsPage() {
         header: "Hours",
         align: "right",
         cell: (record) => (
-          <span className="font-semibold text-foreground">
+          <span className="font-semibold text-text-primary">
             {typeof record.hoursWorked === "number"
               ? `${record.hoursWorked.toFixed(2)}h`
               : "—"}
@@ -126,7 +126,7 @@ export function AttendanceSettingsPage() {
       {
         header: "Note",
         cell: (record) => (
-          <span className="line-clamp-2 text-sm text-muted-foreground">
+          <span className="line-clamp-2 text-sm text-text-secondary">
             {record.note || "—"}
           </span>
         ),
@@ -136,7 +136,7 @@ export function AttendanceSettingsPage() {
         align: "right",
         cell: (record) =>
           record.clockOut ? (
-            <span className="text-xs text-muted-foreground">Closed</span>
+            <span className="text-xs text-text-secondary">Closed</span>
           ) : !canManageAttendanceEntries ? (
             <Badge variant="outline" size="xs">
               Open
@@ -209,7 +209,7 @@ export function AttendanceSettingsPage() {
 
       {canManageAttendanceEntries ? (
         <PageSection spacing="compact">
-          <Card className="border-border/70 bg-card/95">
+          <Card variant="panel">
             <CardHeader variant="section" className="space-y-1">
               <CardTitle className="flex items-center gap-2 text-base font-semibold">
                 <UserCheck className="h-4 w-4 text-primary" />
@@ -221,7 +221,7 @@ export function AttendanceSettingsPage() {
             </CardHeader>
             <CardContent spacing="section" className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end">
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
                   Employee
                 </p>
                 <Select
@@ -247,7 +247,7 @@ export function AttendanceSettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
                   Note (Optional)
                 </p>
                 <Input

@@ -51,15 +51,15 @@ export function OrderItemsTable({
   const columns: ColumnDef<OrderItem>[] = [
     {
       header: "Piece",
-      cell: (item) => <span className="font-semibold text-foreground">#{item.pieceNo}</span>,
+      cell: (item) => <span className="font-semibold text-text-primary">#{item.pieceNo}</span>,
     },
     {
       header: "Item",
       cell: (item) => (
         <div className="flex min-w-[180px] items-start gap-2">
-          <Scissors className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+          <Scissors className="mt-0.5 h-3.5 w-3.5 text-text-secondary" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">{item.garmentTypeName}</p>
+            <p className="truncate text-sm font-semibold text-text-primary">{item.garmentTypeName}</p>
             {item.designType ? (
               <Label variant="dashboard" className="mt-0.5 text-primary">
                 {item.designType.name}
@@ -75,9 +75,9 @@ export function OrderItemsTable({
         if (canManageTasks && item.tasks && item.tasks.length > 0) {
           return (
             <Button
-              variant="outline"
+              variant="tablePrimary"
               size="sm"
-              className="h-8 border-primary/20 bg-primary/5 text-[11px] font-semibold text-primary"
+              className="h-8 text-[11px] font-semibold"
               onClick={() => onManageTasks(item)}
             >
               Manage Tasks
@@ -89,13 +89,13 @@ export function OrderItemsTable({
           ? employeeMap.get(item.employeeId) ?? "Assigned"
           : "Unassigned";
 
-        return <span className="text-xs font-medium text-muted-foreground">{employeeName}</span>;
+        return <span className="text-xs font-medium text-text-secondary">{employeeName}</span>;
       },
     },
     {
       header: "Due",
       cell: (item) => (
-        <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="inline-flex items-center gap-1 text-xs text-text-secondary">
           <CalendarDays className="h-3 w-3" />
           {item.dueDate ? formatShortDate(item.dueDate) : "-"}
         </div>
@@ -133,9 +133,9 @@ export function OrderItemsTable({
 
         return (
           <div className="text-right">
-            <p className="text-sm font-semibold text-foreground">{formatPKR(total)}</p>
+            <p className="text-sm font-semibold text-text-primary">{formatPKR(total)}</p>
             {addonsTotal > 0 || designPrice > 0 ? (
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[10px] text-text-secondary">
                 +{formatPKR(addonsTotal + designPrice)} extras
               </p>
             ) : null}
@@ -146,11 +146,11 @@ export function OrderItemsTable({
   ];
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
         <div>
           <CardTitle variant="dashboard">Order Items</CardTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-text-secondary">
             Piece breakdown, assignments, and task controls.
           </p>
         </div>

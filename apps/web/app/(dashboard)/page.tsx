@@ -22,7 +22,8 @@ import {
   OVERDUE_ORDERS_QUERY,
 } from "@/components/dashboard/dashboard-overdue-orders-card";
 import { DashboardProductivityCard } from "@/components/dashboard/dashboard-productivity-card";
-import { PageShell, PageSection } from "@/components/ui/page-shell";
+import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { Typography } from "@/components/ui/typography";
 import { Can } from "@/components/auth/can";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
@@ -50,47 +51,57 @@ function DashboardPage() {
 
   return (
     <PageShell spacing="spacious">
-      <PageHeader
-        title="Dashboard"
-        description={
-          <span className="text-muted-foreground">
-            Welcome back, <span className="font-medium text-foreground">{session?.user?.email}</span>
-            {session?.user?.role ? (
-              <Badge variant="admin" size="xs" className="ml-2">
-                {roleLabel}
-              </Badge>
-            ) : null}
-          </span>
-        }
-        actions={
-          <>
-            <Can all={["orders.create"]}>
-              <Button
-                variant="premium"
-                size="lg"
-                className="w-full sm:w-auto"
-                onClick={() => router.push("/orders/new")}
-              >
-                <Plus className="h-4 w-4" />
-                New Order
-              </Button>
-            </Can>
-            <Can all={["reports.read"]}>
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full border-primary/30 bg-primary/5 font-semibold text-primary sm:w-auto"
-                onClick={() => router.push("/reports")}
-              >
-                Open Reports
-              </Button>
-            </Can>
-          </>
-        }
-      />
+      <PageSection spacing="compact">
+        <PageHeader
+          title="Dashboard"
+          description={
+            <span className="text-text-secondary">
+              Welcome back,{" "}
+              <span className="font-medium text-foreground">
+                {session?.user?.email}
+              </span>
+              {session?.user?.role ? (
+                <Badge variant="admin" size="xs" className="ml-2">
+                  {roleLabel}
+                </Badge>
+              ) : null}
+            </span>
+          }
+          density="compact"
+          actions={
+            <>
+              <Can all={["orders.create"]}>
+                <Button
+                  variant="premium"
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  onClick={() => router.push("/orders/new")}
+                >
+                  <Plus className="h-4 w-4" />
+                  New Order
+                </Button>
+              </Can>
+              <Can all={["reports.read"]}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full font-semibold sm:w-auto"
+                  onClick={() => router.push("/reports")}
+                >
+                  Open Reports
+                </Button>
+              </Can>
+            </>
+          }
+        />
+      </PageSection>
 
       <PageSection spacing="none" className="space-y-1">
-        <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
+        <Typography
+          as="h2"
+          variant="sectionTitle"
+          className="text-base sm:text-lg"
+        >
           Today Overview
         </Typography>
         <Typography as="p" variant="muted" className="text-xs sm:text-sm">
@@ -99,7 +110,7 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatsGrid columns="four">
           <DashboardKpiCard
             title="Total Revenue"
             loading={loading}
@@ -139,7 +150,7 @@ function DashboardPage() {
             badgeVariant="info"
             helperText="Orders opened today"
           />
-        </div>
+        </StatsGrid>
       </PageSection>
 
       <PageSection spacing="compact">
@@ -152,35 +163,57 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none" className="pt-1">
-        <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
+        <Typography
+          as="h2"
+          variant="sectionTitle"
+          className="text-base sm:text-lg"
+        >
           Financial Insights
         </Typography>
       </PageSection>
 
-      <PageSection className="grid grid-cols-1 space-y-0 gap-6 xl:grid-cols-12">
-        <div className="xl:col-span-8 h-full">
-          <DashboardRevenueExpensesCard rows={revenueExpenseRows} />
-        </div>
-        <div className="xl:col-span-4">
-          <DashboardGarmentBreakdownCard garments={garments} totalItems={totalGarmentItems} />
-        </div>
+      <PageSection>
+        <DetailSplit
+          ratio="3-2"
+          mainClassName="h-full"
+          sideClassName="h-full"
+          main={<DashboardRevenueExpensesCard rows={revenueExpenseRows} />}
+          side={
+            <DashboardGarmentBreakdownCard
+              garments={garments}
+              totalItems={totalGarmentItems}
+            />
+          }
+        />
       </PageSection>
 
-      <PageSection className="grid grid-cols-1 space-y-0 gap-6 xl:grid-cols-12">
-        <div className="xl:col-span-4 h-full">
-          <DashboardDesignPopularityCard
-            loading={loading}
-            designs={designs}
-            onViewAnalytics={() => router.push("/reports")}
-          />
-        </div>
-        <div className="xl:col-span-8 h-full">
-          <DashboardProductivityCard loading={loading} productivity={productivity} />
-        </div>
+      <PageSection>
+        <DetailSplit
+          ratio="2-1"
+          mainClassName="order-2 lg:order-none h-full"
+          sideClassName="order-1 lg:order-none h-full"
+          main={
+            <DashboardProductivityCard
+              loading={loading}
+              productivity={productivity}
+            />
+          }
+          side={
+            <DashboardDesignPopularityCard
+              loading={loading}
+              designs={designs}
+              onViewAnalytics={() => router.push("/reports")}
+            />
+          }
+        />
       </PageSection>
 
       <PageSection spacing="none">
-        <Typography as="h2" variant="sectionTitle" className="text-base sm:text-lg">
+        <Typography
+          as="h2"
+          variant="sectionTitle"
+          className="text-base sm:text-lg"
+        >
           Operational Attention
         </Typography>
       </PageSection>

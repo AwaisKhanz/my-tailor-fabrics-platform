@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { ProgressBar } from "@/components/ui/progress-track";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EmployeeProductivity } from "@/lib/api/reports";
 
@@ -21,7 +23,7 @@ export function DashboardProductivityCard({
     : 0;
 
   return (
-    <Card className="border-border/70 bg-card h-full">
+    <Card variant="panel" className="h-full">
       <CardHeader variant="rowSection" className="items-start">
         <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
           Employee Productivity
@@ -44,16 +46,16 @@ export function DashboardProductivityCard({
             </div>
           ))
         ) : productivity.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border bg-background/20 py-10 text-center text-xs text-muted-foreground">
+          <InfoTile borderStyle="dashed" padding="none" className="py-10 text-center text-xs text-text-secondary">
             No productivity data for this period
-          </div>
+          </InfoTile>
         ) : (
           <>
             {activeEmployee ? (
-              <div className="rounded-lg border border-border/60 bg-background/35 px-3 py-2">
-                <p className="text-xs font-semibold text-foreground">{activeEmployee.label}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{activeEmployee.value} completed</p>
-              </div>
+              <InfoTile padding="md">
+                <p className="text-xs font-semibold text-text-primary">{activeEmployee.label}</p>
+                <p className="mt-1 text-[11px] text-text-secondary">{activeEmployee.value} completed</p>
+              </InfoTile>
             ) : null}
 
             {productivity.map((employee) => {
@@ -68,16 +70,20 @@ export function DashboardProductivityCard({
               return (
                 <div
                   key={employee.label}
-                  className={`flex flex-col gap-2 rounded-md px-1 py-1 transition-colors ${activeEmployee?.label === employee.label ? "bg-primary/5" : ""}`}
+                  className={`flex flex-col gap-2 rounded-md px-1 py-1 transition-colors ${activeEmployee?.label === employee.label ? "bg-interaction-hover" : ""}`}
                   onMouseEnter={() => setHoveredEmployee(employee.label)}
                 >
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-bold">{employee.label}</span>
                     <Label variant="dashboard">{employee.value} Items</Label>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full rounded-full ${barClass}`} style={{ width: `${percentage}%` }} />
-                  </div>
+                  <ProgressBar
+                    value={percentage}
+                    max={100}
+                    tone="primary"
+                    fillClassName={barClass}
+                    size="sm"
+                  />
                 </div>
               );
             })}

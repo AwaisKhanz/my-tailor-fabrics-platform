@@ -4,7 +4,6 @@ import { Permission, Role } from '@tbms/shared-types';
 export interface AuthenticatedRequest extends Request {
   user: {
     userId: string;
-    sub?: string;
     email: string;
     role: Role;
     permissions?: Permission[];

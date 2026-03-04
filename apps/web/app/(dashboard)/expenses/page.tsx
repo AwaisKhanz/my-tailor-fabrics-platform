@@ -108,43 +108,43 @@ function ExpensesPage() {
       </PageSection>
 
       {canManageExpenses ? (
-        <ExpenseCreateDialog
-          open={addOpen}
-          saving={saving}
-          categoriesLoading={categoriesLoading}
-          categories={categories}
-          form={form}
-          onOpenChange={(open) => {
-            if (open) {
-              openAddDialog();
-            } else {
-              closeAddDialog();
-            }
-          }}
-          onFormChange={updateFormField}
-          onSubmit={submitCreateExpense}
-        />
-      ) : null}
+        <>
+          <ExpenseCreateDialog
+            open={addOpen}
+            saving={saving}
+            categoriesLoading={categoriesLoading}
+            categories={categories}
+            form={form}
+            onOpenChange={(open) => {
+              if (open) {
+                openAddDialog();
+              } else {
+                closeAddDialog();
+              }
+            }}
+            onFormChange={updateFormField}
+            onSubmit={submitCreateExpense}
+          />
 
-      {canManageExpenses ? (
-        <ConfirmDialog
-          open={Boolean(deleteTarget)}
-          onOpenChange={(open) => {
-            if (!open) {
-              closeDeleteDialog();
+          <ConfirmDialog
+            open={Boolean(deleteTarget)}
+            onOpenChange={(open) => {
+              if (!open) {
+                closeDeleteDialog();
+              }
+            }}
+            title="Delete this expense?"
+            description={
+              deleteTarget
+                ? `This will permanently remove ${deleteTarget.category.name} (${formatPKR(deleteTarget.amount)}).`
+                : "This action cannot be undone."
             }
-          }}
-          title="Delete this expense?"
-          description={
-            deleteTarget
-              ? `This will permanently remove ${deleteTarget.category.name} (${formatPKR(deleteTarget.amount)}).`
-              : "This action cannot be undone."
-          }
-          onConfirm={confirmDeleteExpense}
-          confirmText="Delete Expense"
-          variant="destructive"
-          loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
-        />
+            onConfirm={confirmDeleteExpense}
+            confirmText="Delete Expense"
+            variant="destructive"
+            loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
+          />
+        </>
       ) : null}
     </PageShell>
   );

@@ -2,7 +2,9 @@ import { Check, Clock3, Dot } from "lucide-react";
 import { type ReactNode } from "react";
 import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionIcon } from "@/components/ui/section-icon";
 
 interface TimelineStep {
   key: string;
@@ -66,15 +68,15 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
   const timelineSteps = buildTimeline(status);
 
   return (
-    <Card className="overflow-hidden border-border/70 bg-card shadow-sm">
+    <Card variant="shell">
       <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+          <SectionIcon size="lg">
             <Clock3 className="h-4 w-4 text-primary" />
-          </div>
+          </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Order Timeline</CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">Current progression and status events.</p>
+            <p className="mt-1 text-xs text-text-secondary">Current progression and status events.</p>
           </div>
         </div>
       </CardHeader>
@@ -83,7 +85,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         <div className="space-y-3">
           {timelineSteps.map((step, index) => {
             const isLast = index === timelineSteps.length - 1;
-            let markerClass = "border-border bg-muted text-muted-foreground";
+            let markerClass = "border-divider bg-pending-muted text-text-secondary";
             let markerIcon: ReactNode = <Dot className="h-4 w-4" />;
 
             if (step.done) {
@@ -98,7 +100,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
               <div key={step.key} className="relative flex gap-3">
                 {!isLast ? (
                   <span
-                    className={`absolute left-[11px] top-6 h-6 w-px ${step.done ? "bg-success/50" : "bg-border"}`}
+                    className={`absolute left-[11px] top-6 h-6 w-px ${step.done ? "bg-success/50" : "bg-divider"}`}
                   />
                 ) : null}
 
@@ -107,11 +109,11 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
                 </div>
 
                 <div className="pt-0.5">
-                  <p className={`text-xs font-semibold ${step.active ? "text-primary" : "text-foreground"}`}>
+                  <p className={`text-xs font-semibold ${step.active ? "text-primary" : "text-text-primary"}`}>
                     {step.key}
                   </p>
                   {step.active ? (
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">Current stage</p>
+                    <p className="mt-0.5 text-[11px] text-text-secondary">Current stage</p>
                   ) : null}
                 </div>
               </div>
@@ -119,23 +121,23 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
           })}
         </div>
 
-        <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-          <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Recent Events</Label>
+        <InfoTile tone="pending" padding="content">
+          <Label variant="micro">Recent Events</Label>
           <div className="mt-2 space-y-2">
             {history.slice(0, 4).map((entry) => (
-              <div key={entry.id} className="rounded-md border border-border/60 bg-background/60 px-2.5 py-2">
-                <p className="text-xs font-semibold text-foreground">
+              <InfoTile key={entry.id} padding="sm" className="rounded-md">
+                <p className="text-xs font-semibold text-text-primary">
                   {entry.toStatus.replace("_", " ")}
                 </p>
-                <p className="text-[11px] text-muted-foreground">{formatHistoryTime(entry.createdAt)}</p>
-              </div>
+                <p className="text-[11px] text-text-secondary">{formatHistoryTime(entry.createdAt)}</p>
+              </InfoTile>
             ))}
 
             {history.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No status history found.</p>
+              <p className="text-xs text-text-secondary">No status history found.</p>
             ) : null}
           </div>
-        </div>
+        </InfoTile>
       </CardContent>
     </Card>
   );

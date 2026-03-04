@@ -58,7 +58,7 @@ export function UserAccountDialog({
         >
           <div className="space-y-1.5">
             <Label>
-              Full Name <span className="text-destructive">*</span>
+              Full Name <span className="text-error">*</span>
             </Label>
             <Input
               variant="premium"
@@ -70,7 +70,7 @@ export function UserAccountDialog({
 
           <div className="space-y-1.5">
             <Label>
-              Email <span className="text-destructive">*</span>
+              Email <span className="text-error">*</span>
             </Label>
             <Input
               variant="premium"
@@ -87,7 +87,7 @@ export function UserAccountDialog({
               {editingUser ? (
                 "(leave blank to keep current)"
               ) : (
-                <span className="text-destructive">*</span>
+                <span className="text-error">*</span>
               )}
             </Label>
             <Input
@@ -101,7 +101,7 @@ export function UserAccountDialog({
 
           <div className="space-y-1.5">
             <Label>
-              Role <span className="text-destructive">*</span>
+              Role <span className="text-error">*</span>
             </Label>
             <Select
               value={form.role}

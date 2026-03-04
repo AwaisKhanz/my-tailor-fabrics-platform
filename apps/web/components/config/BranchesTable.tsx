@@ -94,7 +94,7 @@ export function BranchesTable() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <TableSurface className="border-border/70 bg-card/95">
+        <TableSurface>
           <BranchesListToolbar
             totalCount={totalCount}
             search={search}

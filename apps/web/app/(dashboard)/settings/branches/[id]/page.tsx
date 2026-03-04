@@ -1,17 +1,14 @@
 "use client";
 
-import React from "react";
 import { useParams } from "next/navigation";
 import { BranchHubConfig } from "@/components/config/BranchHubConfig";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 
 function BranchHubPage() {
-  const params = useParams();
-  const id = params.id as string;
+  const params = useParams<{ id: string }>();
+  const branchId = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  return (
-    <BranchHubConfig branchId={id} />
-  );
+  return <BranchHubConfig branchId={branchId} />;
 }
 
 export default withRoleGuard(BranchHubPage, {

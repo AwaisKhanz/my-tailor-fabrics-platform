@@ -13,6 +13,7 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
@@ -74,7 +75,7 @@ export function ExpenseCreateDialog({
               onSubmit();
             }}
           >
-            <div className="rounded-xl border border-border/50 bg-muted/30 p-4">
+            <InfoTile padding="contentLg" radius="xl">
               <Label variant="dashboard" className="mb-1 block">
                 Entry Scope
               </Label>
@@ -82,11 +83,11 @@ export function ExpenseCreateDialog({
                 <ReceiptText className="h-4 w-4 text-primary" />
                 Branch expense record
               </Typography>
-            </div>
+            </InfoTile>
 
             <div className="space-y-2">
               <Label variant="dashboard">
-                Category <span className="text-destructive">*</span>
+                Category <span className="text-error">*</span>
               </Label>
               <Select
                 value={form.categoryId}
@@ -112,7 +113,7 @@ export function ExpenseCreateDialog({
 
             <div className="space-y-2">
               <Label variant="dashboard">
-                Amount (Rs.) <span className="text-destructive">*</span>
+                Amount (Rs.) <span className="text-error">*</span>
               </Label>
               <Input
                 variant="premium"
@@ -127,7 +128,7 @@ export function ExpenseCreateDialog({
 
             <div className="space-y-2">
               <Label variant="dashboard">
-                Expense Date <span className="text-destructive">*</span>
+                Expense Date <span className="text-error">*</span>
               </Label>
               <Input
                 variant="premium"

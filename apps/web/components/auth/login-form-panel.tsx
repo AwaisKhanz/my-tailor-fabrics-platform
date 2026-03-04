@@ -33,7 +33,7 @@ export function LoginFormPanel({
   onSubmit,
 }: LoginFormPanelProps) {
   return (
-    <section className="flex h-full w-full flex-1 flex-col justify-center bg-card px-6 py-8 sm:px-8 lg:px-10">
+    <section className="flex h-full w-full flex-1 flex-col justify-center bg-surface px-6 py-8 sm:px-8 lg:px-10">
       <div className="mx-auto w-full max-w-[390px] space-y-7 md:space-y-8">
         <div className="space-y-2 text-center md:text-left">
           <Typography as="h2" variant="pageTitle" className="text-3xl sm:text-[2rem]">
@@ -47,11 +47,11 @@ export function LoginFormPanel({
         <FormStack as="form" density="default" onSubmit={onSubmit}>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-bold text-foreground">
+              <Label htmlFor="email" className="text-xs font-bold text-text-primary">
                 Email Address
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                 <Input
                   id="email"
                   variant="premium"
@@ -67,11 +67,11 @@ export function LoginFormPanel({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-xs font-bold text-foreground">
+              <Label htmlFor="password" className="text-xs font-bold text-text-primary">
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                 <Input
                   id="password"
                   variant="premium"
@@ -86,7 +86,7 @@ export function LoginFormPanel({
                 <button
                   type="button"
                   onClick={onTogglePassword}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary transition-colors hover:text-text-primary"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -106,7 +106,7 @@ export function LoginFormPanel({
               />
               <Label
                 htmlFor="stay-signed-in"
-                className="cursor-pointer whitespace-nowrap text-sm font-medium text-muted-foreground"
+                className="cursor-pointer whitespace-nowrap text-sm font-medium text-text-secondary"
               >
                 Stay signed in
               </Label>
@@ -125,8 +125,8 @@ export function LoginFormPanel({
           </Button>
         </FormStack>
 
-        <div className="border-t border-border/60 pt-4 text-center md:text-left">
-          <Typography as="p" variant="muted" className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
+        <div className="border-t border-divider pt-4 text-center md:text-left">
+          <Typography as="p" variant="muted" className="text-[10px] font-medium leading-relaxed text-text-secondary/80">
             &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
             <br />
             Version 2.4.0 ({siteConfig.branding.edition})

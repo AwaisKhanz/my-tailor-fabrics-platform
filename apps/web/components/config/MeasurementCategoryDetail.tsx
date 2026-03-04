@@ -40,7 +40,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
     return (
       <PageShell width="narrow">
         <PageSection spacing="compact">
-          <Card className="border-border/70 bg-card/95 shadow-sm">
+          <Card>
             <CardContent className="flex min-h-[340px] flex-col items-center justify-center p-6 text-center">
               <Typography as="h2" variant="sectionTitle">
                 Category Not Found

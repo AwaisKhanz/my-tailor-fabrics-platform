@@ -12,6 +12,7 @@ import { CustomerProfileCard } from "@/components/customers/detail/customer-prof
 import { EmptyState } from "@/components/ui/empty-state";
 import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
@@ -76,41 +77,40 @@ function CustomerDetailPage() {
         />
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid auto-rows-fr space-y-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <StatCard
-          title="Total Orders"
-          subtitle="Order history count"
-          value={customer.stats?.totalOrders ?? 0}
-          tone="primary"
-          icon={<ShoppingBag className="h-4 w-4" />}
-        />
+      <PageSection spacing="compact">
+        <StatsGrid columns="four" flushSectionSpacing>
+          <StatCard
+            title="Total Orders"
+            subtitle="Order history count"
+            value={customer.stats?.totalOrders ?? 0}
+            tone="primary"
+            icon={<ShoppingBag className="h-4 w-4" />}
+          />
 
-        <StatCard
-          title="Total Spent"
-          subtitle="Confirmed transactions"
-          value={formatPKR(customer.stats?.totalSpent ?? 0)}
-          tone="success"
-          icon={<Banknote className="h-4 w-4" />}
-        />
+          <StatCard
+            title="Total Spent"
+            subtitle="Confirmed transactions"
+            value={formatPKR(customer.stats?.totalSpent ?? 0)}
+            tone="success"
+            icon={<Banknote className="h-4 w-4" />}
+          />
 
-        <StatCard
-          title="Lifetime Value"
-          subtitle="Customer contribution"
-          value={formatPKR(customer.lifetimeValue)}
-          tone="info"
-          icon={<Wallet className="h-4 w-4" />}
-        />
+          <StatCard
+            title="Lifetime Value"
+            subtitle="Customer contribution"
+            value={formatPKR(customer.lifetimeValue)}
+            tone="info"
+            icon={<Wallet className="h-4 w-4" />}
+          />
 
-        <StatCard
-          title="Measurement Sets"
-          subtitle="Saved sizing profiles"
-          value={customer.measurements?.length ?? 0}
-          tone="warning"
-          icon={<Ruler className="h-4 w-4" />}
-        />
+          <StatCard
+            title="Measurement Sets"
+            subtitle="Saved sizing profiles"
+            value={customer.measurements?.length ?? 0}
+            tone="warning"
+            icon={<Ruler className="h-4 w-4" />}
+          />
+        </StatsGrid>
       </PageSection>
 
       <PageSection spacing="compact">

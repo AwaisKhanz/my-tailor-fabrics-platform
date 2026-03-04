@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DialogActionRow, DialogSection } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Copy } from "lucide-react";
@@ -45,14 +46,15 @@ export function OrderShareDialog({
         {shareData ? (
           <DialogSection density="relaxed">
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+              <Label variant="tightCaps">
                 Public URL
               </Label>
               <div className="flex gap-2">
                 <Input
+                  variant="readOnlyCode"
                   readOnly
                   value={publicUrl}
-                  className="flex-1 bg-muted/30 font-mono text-xs"
+                  className="flex-1"
                 />
                 <Button
                   size="icon"
@@ -64,26 +66,26 @@ export function OrderShareDialog({
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <InfoTile tone="info" padding="contentLg" layout="betweenGap" radius="xl">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-tight text-primary/60">
+                <p className="text-[10px] font-bold uppercase tracking-tight text-info/70">
                   Access PIN
                 </p>
-                <p className="text-3xl font-bold tracking-tight text-primary">
+                <p className="text-3xl font-bold tracking-tight text-info">
                   {shareData.pin}
                 </p>
               </div>
               <Button
                 size="sm"
-                variant="ghost"
-                className="font-bold text-primary"
+                variant="infoGhost"
+                className="font-bold"
                 onClick={() => onCopy(shareData.pin)}
               >
                 Copy PIN
               </Button>
-            </div>
+            </InfoTile>
 
-            <p className="text-center text-[10px] font-bold text-muted-foreground">
+            <p className="text-center text-[10px] font-bold text-text-secondary">
               * Customers will need the 4-digit PIN to access their order
               details.
             </p>

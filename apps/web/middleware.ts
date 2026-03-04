@@ -14,9 +14,21 @@ export async function middleware(request: NextRequest) {
   const userRole = isRole(token?.role) ? token.role : undefined;
   const { pathname } = request.nextUrl;
   const routePolicy = resolveRoutePermissionPolicy(pathname);
+  const authError =
+    token && typeof token.error === 'string' && token.error.length > 0
+      ? token.error
+      : null;
+  const hasAccessToken =
+    token &&
+    typeof token.accessToken === 'string' &&
+    token.accessToken.length > 0;
 
   if (routePolicy && !token) {
     return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  if (routePolicy && token && (authError || !hasAccessToken)) {
+    return NextResponse.redirect(new URL('/login?expired=1', request.url));
   }
 
   if (token && userRole) {

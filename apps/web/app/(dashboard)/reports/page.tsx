@@ -46,6 +46,35 @@ function ReportsPage() {
     printWeeklySummary,
   } = useReportsWorkspace();
 
+  const reportTabContent = {
+    overview: (
+      <ReportsOverviewTab
+        loading={loading}
+        summary={summary}
+        financialTrend={financialTrend}
+        distributions={distributions}
+        productivity={productivity}
+      />
+    ),
+    financial: <ReportsFinancialTab loading={loading} trend={financialTrend} />,
+    operations: (
+      <ReportsOperationsTab
+        loading={loading}
+        distributions={distributions}
+        productivity={productivity}
+      />
+    ),
+    exports: (
+      <ReportsExportsTab
+        exportingKey={exportingKey}
+        printingWeekly={printingWeekly}
+        onExport={exportReport}
+        onPrint={printWeeklySummary}
+        canExport={canExportReports}
+      />
+    ),
+  } as const;
+
   return (
     <PageShell spacing="default">
       <PageSection spacing="compact">
@@ -55,7 +84,7 @@ function ReportsPage() {
           actions={
             <Button
               variant="outline"
-              className="w-full border-primary/20 font-bold text-primary hover:bg-primary/5 sm:w-auto"
+              className="w-full sm:w-auto"
               onClick={refreshAnalytics}
               disabled={loading}
             >
@@ -82,12 +111,12 @@ function ReportsPage() {
       <PageSection spacing="compact">
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
           <div className="overflow-x-auto pb-1">
-            <TabsList className="h-auto min-w-max justify-start gap-1 rounded-xl border border-border/70 bg-card p-1">
+            <TabsList variant="segmented">
               {REPORT_TABS.map((tab) => (
                 <TabsTrigger
                   key={tab.key}
                   value={tab.key}
-                  className="h-9 px-4 text-xs font-semibold uppercase tracking-[0.08em] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  variant="segmented"
                 >
                   {tab.label}
                 </TabsTrigger>
@@ -95,37 +124,11 @@ function ReportsPage() {
             </TabsList>
           </div>
 
-          <TabsContent value="overview" className="mt-4">
-            <ReportsOverviewTab
-              loading={loading}
-              summary={summary}
-              financialTrend={financialTrend}
-              distributions={distributions}
-              productivity={productivity}
-            />
-          </TabsContent>
-
-          <TabsContent value="financial" className="mt-4">
-            <ReportsFinancialTab loading={loading} trend={financialTrend} />
-          </TabsContent>
-
-          <TabsContent value="operations" className="mt-4">
-            <ReportsOperationsTab
-              loading={loading}
-              distributions={distributions}
-              productivity={productivity}
-            />
-          </TabsContent>
-
-          <TabsContent value="exports" className="mt-4">
-            <ReportsExportsTab
-              exportingKey={exportingKey}
-              printingWeekly={printingWeekly}
-              onExport={exportReport}
-              onPrint={printWeeklySummary}
-              canExport={canExportReports}
-            />
-          </TabsContent>
+          {REPORT_TABS.map((tab) => (
+            <TabsContent key={tab.key} value={tab.key} spacing="roomy">
+              {reportTabContent[tab.key]}
+            </TabsContent>
+          ))}
         </Tabs>
       </PageSection>
     </PageShell>

@@ -1,6 +1,7 @@
 import type { TrendGranularity } from "@tbms/shared-types";
 import { CalendarRange } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -50,7 +51,7 @@ export function ReportsWorkspaceFilters({
   })}`;
 
   return (
-    <Card className="border-border/70 bg-card/95">
+    <Card variant="panel">
       <CardContent className="space-y-3 p-4">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
@@ -96,10 +97,10 @@ export function ReportsWorkspaceFilters({
           </div>
 
           {preset === "custom" ? null : (
-            <div className="flex h-9 items-center rounded-md border border-border/70 bg-background/40 px-3 text-xs text-muted-foreground lg:w-fit">
+            <InfoTile layout="row" padding="md" className="h-9 rounded-md text-xs text-text-secondary lg:w-fit">
               <CalendarRange className="mr-1.5 h-3.5 w-3.5" />
               {rangeLabel}
-            </div>
+            </InfoTile>
           )}
         </div>
 

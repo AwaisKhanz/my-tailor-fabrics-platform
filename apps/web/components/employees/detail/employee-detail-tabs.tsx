@@ -29,8 +29,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SectionIcon } from "@/components/ui/section-icon";
 import {
   Select,
   SelectContent,
@@ -116,7 +118,7 @@ function EmployeeSection({
   };
 
   return (
-    <Card id={id} className="overflow-hidden border-border/70 bg-card/95">
+    <Card id={id} variant="shellFlat">
       <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -193,7 +195,7 @@ export function EmployeeDetailTabs({
       cell: (item) => (
         <div className="flex flex-col">
           <span className="font-medium">{item.garmentTypeName}</span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[10px] text-text-secondary">
             {item.completedAt ? `Completed: ${formatDate(item.completedAt)}` : "Pending"}
           </span>
         </div>
@@ -244,7 +246,7 @@ export function EmployeeDetailTabs({
     {
       header: "Clock Out",
       cell: (record) => (
-        <span className="text-xs font-medium text-destructive">
+        <span className="text-xs font-medium text-error">
           {record.clockOut
             ? new Date(record.clockOut).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -311,7 +313,7 @@ export function EmployeeDetailTabs({
       header: "Last Update",
       align: "right",
       cell: (task) => (
-        <span className="text-[10px] text-muted-foreground">{formatDateTime(task.updatedAt)}</span>
+        <span className="text-[10px] text-text-secondary">{formatDateTime(task.updatedAt)}</span>
       ),
     },
   ];
@@ -320,7 +322,7 @@ export function EmployeeDetailTabs({
     {
       header: "Date",
       cell: (entry) => (
-        <span className="whitespace-nowrap text-xs text-muted-foreground">
+        <span className="whitespace-nowrap text-xs text-text-secondary">
           {formatDateTime(entry.createdAt as string)}
         </span>
       ),
@@ -337,7 +339,7 @@ export function EmployeeDetailTabs({
       header: "Amount",
       align: "right",
       cell: (entry) => (
-        <span className={`text-sm font-bold ${entry.amount >= 0 ? "text-ready" : "text-destructive"}`}>
+        <span className={`text-sm font-bold ${entry.amount >= 0 ? "text-ready" : "text-error"}`}>
           {entry.amount >= 0 ? "+" : ""}
           {formatPKR(Math.abs(entry.amount))}
         </span>
@@ -352,14 +354,14 @@ export function EmployeeDetailTabs({
               {entry.orderItemTask.stepName} - {entry.orderItemTask.orderItem?.garmentTypeName}
             </span>
           ) : null}
-          {entry.note ? <span className="text-[10px] text-muted-foreground">{entry.note}</span> : null}
+          {entry.note ? <span className="text-[10px] text-text-secondary">{entry.note}</span> : null}
         </div>
       ),
     },
     {
       header: "Order #",
       cell: (entry) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-text-secondary">
           {entry.orderItemTask?.orderItem?.order?.orderNumber ?? "-"}
         </span>
       ),
@@ -372,7 +374,7 @@ export function EmployeeDetailTabs({
           <Button
             variant="tableDanger"
             size="iconSm"
-            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+            className="h-7 w-7"
             onClick={() => onDeleteLedgerEntry(entry.id)}
           >
             <Trash2 className="h-4 w-4" />
@@ -398,10 +400,10 @@ export function EmployeeDetailTabs({
 
   return (
     <div className="space-y-6">
-      <Card className="border-border/70 bg-card/95">
+      <Card variant="panel">
         <CardContent spacing="section" className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <Label variant="microCaps">
               Workspace Sections
             </Label>
             <Typography as="p" variant="muted">
@@ -528,7 +530,7 @@ export function EmployeeDetailTabs({
 
           {ledgerTotal > ledgerLimit ? (
             <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-text-secondary">
                 Showing {(ledgerPage - 1) * ledgerLimit + 1}-
                 {Math.min(ledgerPage * ledgerLimit, ledgerTotal)} of {ledgerTotal}
               </span>
@@ -598,17 +600,22 @@ export function EmployeeDetailTabs({
       >
         <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
           {employee.documents?.map((document) => (
-            <div
+            <InfoTile
               key={document.id}
-              className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-sm transition-colors hover:border-primary/50"
+              tone="surface"
+              padding="contentLg"
+              layout="betweenGap"
+              radius="xl"
+              interaction="interactive"
+              className="shadow-sm"
             >
               <div className="flex items-center gap-4">
-                <div className="rounded-lg bg-primary/10 p-2">
+                <SectionIcon framed={false}>
                   <FileText className="h-6 w-6 text-primary" />
-                </div>
+                </SectionIcon>
                 <div>
                   <p className="text-sm font-bold">{document.label}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
                     {document.fileType}
                   </p>
                 </div>
@@ -618,14 +625,19 @@ export function EmployeeDetailTabs({
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </Button>
-            </div>
+            </InfoTile>
           ))}
 
           {!employee.documents || employee.documents.length === 0 ? (
-            <div className="col-span-1 flex flex-col items-center justify-center rounded-xl border-2 border-dashed bg-muted/50 py-14 text-muted-foreground sm:col-span-2">
+            <InfoTile
+              borderStyle="dashedStrong"
+              padding="none"
+              radius="xl"
+              className="col-span-1 flex flex-col items-center justify-center py-14 text-text-secondary sm:col-span-2"
+            >
               <FileText className="mb-3 h-12 w-12 opacity-20" />
               <p className="text-sm font-medium">No documentation uploaded yet.</p>
-            </div>
+            </InfoTile>
           ) : null}
         </div>
       </EmployeeSection>
@@ -643,7 +655,7 @@ export function EmployeeDetailTabs({
       >
         <div className="p-4 sm:p-5">
           {employee.userAccount ? (
-            <Card className="border-success/20 bg-success/10 shadow-none">
+            <Card variant="successSoft">
               <CardHeader variant="sectionSoft" density="compact">
                 <CardTitle className="flex items-center gap-2 text-sm">
                   <ShieldCheck className="h-5 w-5 text-success" /> System Access Enabled
@@ -651,26 +663,30 @@ export function EmployeeDetailTabs({
                 <CardDescription>This employee has an active portal account.</CardDescription>
               </CardHeader>
               <CardContent spacing="section" className="space-y-4">
-                <div className="flex items-center justify-between border-b py-2 text-sm">
-                  <span className="text-muted-foreground">Login Email</span>
+                <div className="flex items-center justify-between border-b border-divider py-2 text-sm">
+                  <span className="text-text-secondary">Login Email</span>
                   <span className="font-bold tracking-tight">{employee.userAccount.email}</span>
                 </div>
-                <div className="flex items-center justify-between border-b py-2 text-sm">
-                  <span className="text-muted-foreground">Status</span>
+                <div className="flex items-center justify-between border-b border-divider py-2 text-sm">
+                  <span className="text-text-secondary">Status</span>
                   <Badge variant="outline">{employee.userAccount.isActive ? "ACTIVE" : "INACTIVE"}</Badge>
                 </div>
               </CardContent>
             </Card>
           ) : (
             <div className="flex flex-col items-center justify-center space-y-5 py-10 text-center">
-              <div className="rounded-full bg-muted p-4">
-                <ShieldCheck className="h-10 w-10 text-muted-foreground opacity-30" />
-              </div>
+              <InfoTile
+                tone="elevated"
+                padding="none"
+                className="rounded-full border-none p-4"
+              >
+                <ShieldCheck className="h-10 w-10 text-text-secondary opacity-30" />
+              </InfoTile>
               <div>
                 <Typography as="h3" variant="sectionTitle">
                   No Portal Account
                 </Typography>
-                <p className="mt-1 max-w-[300px] text-sm text-muted-foreground">
+                <p className="mt-1 max-w-[300px] text-sm text-text-secondary">
                   Provision an account to allow order tracking access.
                 </p>
               </div>

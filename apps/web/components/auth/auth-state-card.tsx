@@ -33,9 +33,9 @@ export function AuthStateCard({
     >
       <div className="pointer-events-none absolute inset-0 bg-theme-radial-top" />
       <PageSection spacing="compact" className="relative w-full max-w-xl">
-        <Card variant="premium" className="border-border/70 bg-card/95">
+        <Card variant="premium">
           <CardContent spacing="section" className="space-y-5 py-8 text-center sm:py-10">
-            <div className="mx-auto w-fit rounded-full bg-destructive/10 p-5">
+            <div className="mx-auto w-fit rounded-full bg-error-muted p-5">
               <Icon className="h-10 w-10 text-destructive" />
             </div>
 

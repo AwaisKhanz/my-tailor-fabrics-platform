@@ -3,15 +3,25 @@ import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
 
 const cardVariants = cva(
-  "rounded-xl border bg-card text-card-foreground shadow-sm",
+  "rounded-xl border border-divider bg-surface text-card-foreground shadow-sm",
   {
     variants: {
       variant: {
         default: "",
+        panel: "shadow-none",
+        shell: "overflow-hidden",
+        shellFlat: "overflow-hidden shadow-none",
+        elevatedPanel: "bg-surface-elevated shadow-none",
+        elevatedShell: "overflow-hidden bg-surface-elevated shadow-none",
+        successSoft: "border-success/30 bg-success-muted shadow-none",
+        warningSoft: "border-warning/30 bg-warning-muted shadow-none",
+        errorSoft: "border-error/30 bg-error-muted shadow-none",
+        success: "border-success bg-success-muted",
+        error: "border-error bg-error-muted",
         premium:
-          "border-border/80 bg-card shadow-sm",
+          "border-borderStrong/70 bg-surface-elevated shadow-sm",
         interactive:
-          "cursor-pointer transition-all hover:border-primary/25 hover:shadow-md",
+          "cursor-pointer transition-all hover:border-borderStrong hover:bg-surface-elevated hover:shadow-md",
       },
     },
     defaultVariants: {
@@ -40,10 +50,10 @@ const cardHeaderVariants = cva(
     variants: {
       variant: {
         default: "space-y-1.5 p-6",
-        section: "border-b border-border/70 bg-muted/30 px-6 py-4",
-        sectionSoft: "border-b border-border/70 bg-muted/50 px-6 py-4",
+        section: "border-b border-divider bg-surface-elevated px-6 py-4",
+        sectionSoft: "border-b border-divider bg-surface-elevated/80 px-6 py-4",
         rowSection:
-          "flex-row items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-6 py-4",
+          "flex-row items-center justify-between gap-3 border-b border-divider bg-surface-elevated px-6 py-4",
       },
       density: {
         default: "",
@@ -112,7 +122,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-text-secondary", className)}
     {...props}
   />
 ))
@@ -154,9 +164,14 @@ const cardFooterVariants = cva("flex items-center p-6 pt-0", {
       compact: "p-5 pt-0",
       section: "p-6",
     },
+    tone: {
+      default: "",
+      mutedSection: "border-t border-divider bg-pending-muted/60",
+    },
   },
   defaultVariants: {
     spacing: "default",
+    tone: "default",
   },
 })
 
@@ -167,10 +182,10 @@ export interface CardFooterProps
 const CardFooter = React.forwardRef<
   HTMLDivElement,
   CardFooterProps
->(({ className, spacing, ...props }, ref) => (
+>(({ className, spacing, tone, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(cardFooterVariants({ spacing, className }))}
+    className={cn(cardFooterVariants({ spacing, tone, className }))}
     {...props}
   />
 ))

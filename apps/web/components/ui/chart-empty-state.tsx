@@ -10,12 +10,12 @@ interface ChartEmptyStateProps {
 
 export function ChartEmptyState({ title, description, icon: Icon, className }: ChartEmptyStateProps) {
   return (
-    <div className={cn("flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/10 px-6 py-10 text-center", className)}>
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+    <div className={cn("flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-divider bg-surface-elevated px-6 py-10 text-center", className)}>
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-active text-primary">
         <Icon className="h-5 w-5" />
       </div>
       <p className="text-sm font-semibold text-foreground">{title}</p>
-      <p className="mt-1 max-w-sm text-xs text-muted-foreground">{description}</p>
+      <p className="mt-1 max-w-sm text-xs text-text-secondary">{description}</p>
     </div>
   );
 }

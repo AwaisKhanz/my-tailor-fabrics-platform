@@ -26,20 +26,20 @@ export function DashboardOverdueBanner({
 
   if (overdueCount > 0) {
     return (
-      <Card className="border-destructive/25 bg-destructive/10">
+      <Card variant="error">
         <CardContent spacing="section" className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex items-start gap-3 sm:items-center sm:gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/20">
-              <AlertTriangle className="h-6 w-6 text-destructive" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-error/15">
+              <AlertTriangle className="h-6 w-6 text-error" />
             </div>
             <div>
               <Label
                 variant="dashboard"
-                className="block text-sm font-bold text-destructive"
+                className="block text-sm font-bold text-error"
               >
                 {overdueCount} Overdue {overdueCount === 1 ? "Order" : "Orders"}
               </Label>
-              <p className="text-sm text-destructive/80">
+              <p className="text-sm text-error/80">
                 These orders have passed their due date and require immediate
                 attention.
               </p>
@@ -59,9 +59,9 @@ export function DashboardOverdueBanner({
 
   if (!error) {
     return (
-      <Card className="border-success/25 bg-success/10">
+      <Card variant="success">
         <CardContent spacing="section" className="flex items-center gap-4 p-5 sm:p-6">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/20">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/15">
             <CheckCircle2 className="h-6 w-6 text-success" />
           </div>
           <div>

@@ -2,7 +2,10 @@ import { Banknote } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { ProgressBar } from "@/components/ui/progress-track";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { cn, formatPKR } from "@/lib/utils";
 
@@ -19,12 +22,12 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+      <Card variant="shell">
         <CardHeader variant="rowSection" className="items-start sm:items-center">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+            <SectionIcon tone="primary">
               <Banknote className="h-4 w-4" />
-            </div>
+            </SectionIcon>
             <CardTitle className="text-base font-semibold tracking-tight">
               Global Pricing
             </CardTitle>
@@ -37,14 +40,14 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
         <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">Customer Price</span>
+              <span className="text-xs font-medium text-text-secondary">Customer Price</span>
               <Typography as="span" variant="sectionTitle" className="text-lg">
                 {formatPKR(customerPrice)}
               </Typography>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">Employee Rate</span>
+              <span className="text-xs font-medium text-text-secondary">Employee Rate</span>
               <Typography as="span" variant="sectionTitle" className="text-lg">
                 {formatPKR(employeeRate)}
               </Typography>
@@ -58,12 +61,13 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                 </Typography>
               </div>
 
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full bg-primary"
-                  style={{ width: `${marginPercentage}%` }}
-                />
-              </div>
+              <ProgressBar
+                value={marginPercentage}
+                max={100}
+                tone="primary"
+                className="bg-surface-elevated"
+                size="sm"
+              />
 
               <div className="mt-1 flex justify-between">
                 <Typography as="span" variant="muted" className="text-[9px] font-bold">
@@ -78,12 +82,12 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden border-border/70 bg-card/95 shadow-sm">
+      <Card variant="shell">
         <CardHeader variant="rowSection" className="items-start sm:items-center">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-info/10 text-info ring-1 ring-info/20">
+            <SectionIcon tone="info">
               <Banknote className="h-4 w-4" />
-            </div>
+            </SectionIcon>
             <CardTitle className="text-base font-semibold tracking-tight">
               Top Tailors
             </CardTitle>
@@ -96,9 +100,9 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
         <CardContent spacing="section" className="space-y-3 p-5 sm:p-6">
           {garment.analytics.topTailors.length > 0 ? (
             garment.analytics.topTailors.map((tailor, index) => (
-              <div
+              <InfoTile
                 key={`${tailor.name}-${index}`}
-                className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/15 px-3 py-2.5"
+                layout="betweenGap"
               >
                 <div className="flex items-center gap-2">
                   <div
@@ -106,7 +110,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                       "flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold",
                       index === 0
                         ? "bg-ready/20 text-ready"
-                        : "bg-muted text-muted-foreground",
+                        : "bg-surface-elevated text-text-secondary",
                     )}
                   >
                     {index + 1}
@@ -116,10 +120,10 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                   </Typography>
                 </div>
 
-                <Badge variant="outline" size="xs" className="border-border text-[10px] font-bold">
+                <Badge variant="outline" size="xs" className="border-divider text-[10px] font-bold">
                   {tailor.count} completed
                 </Badge>
-              </div>
+              </InfoTile>
             ))
           ) : (
             <Typography as="p" variant="lead" className="py-4 text-center text-xs">

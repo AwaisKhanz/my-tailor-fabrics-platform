@@ -26,7 +26,7 @@ export function MeasurementFieldsTable({
     () => [
       {
         header: "Field Label",
-        cell: (field) => <span className="font-semibold text-foreground">{field.label}</span>,
+        cell: (field) => <span className="font-semibold text-text-primary">{field.label}</span>,
       },
       {
         header: "Data Type",
@@ -48,7 +48,7 @@ export function MeasurementFieldsTable({
                 </Label>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-text-secondary">
                 <div className="h-3.5 w-3.5 rounded-full border-2 border-muted" />
                 <Label variant="dashboard">Optional</Label>
               </div>
@@ -79,7 +79,7 @@ export function MeasurementFieldsTable({
                 </Button>
               </>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+              <span className="text-xs font-medium text-text-secondary">Read only</span>
             )}
           </div>
         ),

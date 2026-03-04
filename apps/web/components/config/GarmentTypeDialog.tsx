@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
 import { Switch } from "@/components/ui/switch";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Filter, Globe } from "lucide-react";
@@ -188,8 +189,8 @@ export function GarmentTypeDialog({
 
           <div className="space-y-3 pt-2">
             <div className="flex items-center gap-2">
-              <Globe className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Global Base Pricing</span>
+              <Globe className="h-3 w-3 text-text-secondary" />
+              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">Global Base Pricing</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <FormField
@@ -221,10 +222,10 @@ export function GarmentTypeDialog({
             </div>
           </div>
 
-          <div className="space-y-3 pt-3 border-t border-border/50">
+          <div className="space-y-3 pt-3 border-t border-divider">
             <div className="flex items-center gap-2">
-              <Filter className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Measurement Categories</span>
+              <Filter className="h-3 w-3 text-text-secondary" />
+              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">Measurement Categories</span>
             </div>
             <FormField
               control={form.control}
@@ -252,7 +253,8 @@ export function GarmentTypeDialog({
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border/50 p-2.5 h-[38px] bg-muted/20">
+                <FormItem>
+                  <InfoTile layout="between" padding="none" className="h-[38px] px-2.5 py-0">
                   <FormLabel variant="dashboard" className="cursor-pointer">Active</FormLabel>
                   <FormControl>
                     <Switch
@@ -260,6 +262,7 @@ export function GarmentTypeDialog({
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  </InfoTile>
                 </FormItem>
               )}
             />
