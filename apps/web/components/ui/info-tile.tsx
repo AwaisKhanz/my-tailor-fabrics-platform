@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-export const infoTileVariants = cva("rounded-lg border border-divider", {
+export const infoTileVariants = cva("rounded-lg border border-divider text-text-primary", {
   variants: {
       tone: {
         elevated: "bg-surface-elevated",
@@ -15,7 +15,7 @@ export const infoTileVariants = cva("rounded-lg border border-divider", {
         warning: "border-warning/30 bg-warning-muted",
         primarySoft: "border-primary/20 bg-primary/5",
         inverseSoft: "border-text-inverse/25 bg-text-inverse/10 text-text-inverse",
-        surface: "bg-surface",
+        surface: "bg-card",
         inputSurface: "bg-inputSurface-background",
       },
     padding: {
@@ -40,8 +40,8 @@ export const infoTileVariants = cva("rounded-lg border border-divider", {
     },
     interaction: {
       default: "",
-      interactive: "transition-colors hover:border-borderStrong",
-      interactivePrimary: "transition-colors hover:border-primary/20 hover:bg-primary/5",
+      interactive: "transition-all duration-200 hover:border-borderStrong hover:shadow-sm hover:shadow-shadowColor/10",
+      interactivePrimary: "transition-all duration-200 hover:border-primary/20 hover:bg-primary/5 hover:shadow-sm hover:shadow-shadowColor/10",
     },
     radius: {
       lg: "rounded-lg",

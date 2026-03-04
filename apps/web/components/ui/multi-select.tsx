@@ -53,7 +53,7 @@ export function MultiSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-auto min-h-11 w-full justify-between border-divider bg-inputSurface-background px-3 py-2 transition-all hover:border-primary/30 hover:bg-surface",
+            "h-auto min-h-11 w-full justify-between border-divider bg-inputSurface-background px-3 py-2 transition-all hover:border-borderStrong hover:bg-surface",
             className
           )}
         >
@@ -65,7 +65,7 @@ export function MultiSelect({
                   <Badge
                     key={value}
                     variant="secondary"
-                    className="rounded-md border-primary/10 bg-sidebar-active pr-1 text-primary transition-colors hover:bg-interaction-hover"
+                    className="rounded-md border-primary/10 bg-muted pr-1 text-primary transition-colors hover:bg-interaction-hover"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleUnselect(value)

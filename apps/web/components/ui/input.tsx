@@ -3,23 +3,23 @@ import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
 
 const inputVariants = cva(
-  "flex h-9 w-full rounded-md border border-inputSurface-border bg-inputSurface-background px-3 py-1 text-base text-inputSurface-text shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-inputSurface-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-interaction-focus disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+  "flex h-10 w-full rounded-lg border border-inputSurface-border bg-inputSurface-background px-3 py-2 text-sm text-inputSurface-text shadow-sm shadow-shadowColor/5 transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-text-primary placeholder:text-inputSurface-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interaction-focus/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "border-inputSurface-border",
+        default: "hover:border-borderStrong/80 focus-visible:border-primary/50",
         premium:
-          "h-11 border-divider bg-inputSurface-background focus:border-primary/60 focus:ring-2 focus:ring-interaction-focus/30 transition-all",
+          "h-11 border-divider bg-inputSurface-background hover:border-borderStrong focus-visible:border-primary/60 focus-visible:ring-interaction-focus/30",
         premiumSuccess:
-          "h-11 border-divider bg-inputSurface-background font-semibold text-success focus:border-primary/60 focus:ring-2 focus:ring-interaction-focus/30 transition-all",
+          "h-11 border-success/35 bg-success-muted/30 font-semibold text-success hover:border-success/55 focus-visible:border-success/70 focus-visible:ring-success/30",
         table:
-          "h-10 border-divider bg-inputSurface-background shadow-none focus:border-primary/60 focus:ring-2 focus:ring-interaction-focus/30",
+          "h-10 rounded-md border-divider bg-inputSurface-background shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         searchCommand:
-          "h-9 border-borderStrong/70 bg-surface-elevated shadow-none focus:border-primary/60 focus:ring-2 focus:ring-interaction-focus/30",
+          "h-9 rounded-md border-borderStrong/70 bg-surface-elevated shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         readOnlyCode:
-          "border-divider bg-pending-muted font-mono text-xs shadow-none",
+          "border-divider bg-code-background font-mono text-xs text-code-text shadow-none",
         inlineChip:
-          "h-7 w-28 border-primary/50 bg-surface px-2 py-1 text-sm shadow-none ring-1 ring-primary/20 focus:border-primary/60 focus:ring-2 focus:ring-primary/25",
+          "h-7 w-28 rounded-md border-primary/40 bg-surface px-2 py-1 text-sm shadow-none ring-1 ring-primary/20 hover:border-primary/60 focus-visible:border-primary/60 focus-visible:ring-primary/25",
       },
     },
     defaultVariants: {

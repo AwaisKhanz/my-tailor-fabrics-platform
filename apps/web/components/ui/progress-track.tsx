@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const progressTrackVariants = cva("w-full overflow-hidden rounded-full bg-pending-muted", {
+const progressTrackVariants = cva("w-full overflow-hidden rounded-full bg-muted", {
   variants: {
     size: {
       xs: "h-1.5",
@@ -23,7 +23,7 @@ export function ProgressTrack({ className, size, ...props }: ProgressTrackProps)
   return <div className={cn(progressTrackVariants({ size, className }))} {...props} />;
 }
 
-const progressFillVariants = cva("h-full rounded-full", {
+const progressFillVariants = cva("h-full rounded-full transition-[width] duration-300 ease-out", {
   variants: {
     tone: {
       primary: "bg-primary",

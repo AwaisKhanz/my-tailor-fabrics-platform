@@ -10,7 +10,7 @@ interface BranchDeleteSummaryProps {
 
 function ImpactMetric({ label, value }: { label: string; value: number }) {
   return (
-    <InfoTile tone="surface" padding="xs" className="flex-col rounded-md shadow-sm">
+    <InfoTile tone="surface" padding="xs" className="flex-col rounded-md">
       <span className="text-xs font-bold text-text-primary">{value}</span>
       <Label variant="dashboard" className="text-[9px]">
         {label}

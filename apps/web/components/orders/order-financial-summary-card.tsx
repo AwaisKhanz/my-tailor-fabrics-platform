@@ -1,7 +1,7 @@
 import { CreditCard } from "lucide-react";
 import { Order } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -19,21 +19,21 @@ export function OrderFinancialSummaryCard({
   canCapturePayment = true,
 }: OrderFinancialSummaryCardProps) {
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
         <div className="flex items-center gap-3">
-          <SectionIcon size="lg">
+          <SectionIcon tone="infoSoft" size="lg">
             <CreditCard className="h-4 w-4 text-primary" />
           </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Financial Summary</CardTitle>
-            <p className="mt-1 text-xs text-text-secondary">Invoice, received payments, and pending balance.</p>
+            <CardDescription variant="header">Invoice, received payments, and pending balance.</CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
-        <InfoTile padding="contentLg" className="space-y-3">
+      <CardContent spacing="section" padding="inset" className="space-y-4">
+        <InfoTile tone="elevatedSoft" padding="contentLg" className="space-y-3">
           <div className="flex items-center justify-between">
             <Label variant="micro">
               Subtotal

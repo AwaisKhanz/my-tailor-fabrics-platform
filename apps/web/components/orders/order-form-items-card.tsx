@@ -39,10 +39,10 @@ export function OrderFormItemsCard({
 }: OrderFormItemsCardProps) {
   return (
     <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" className="items-start gap-4 sm:items-center">
+      <CardHeader variant="rowSection" density="comfortable" align="startResponsive" gap="md">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base font-semibold tracking-tight">Order Items</CardTitle>
+            <CardTitle variant="section">Order Items</CardTitle>
             <Badge variant="secondary" size="xs" className="font-semibold">
               {fields.length} PIECES
             </Badge>
@@ -64,7 +64,7 @@ export function OrderFormItemsCard({
         </Button>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-4">
         {fields.map((field, index) => {
           const currentItem = watchedItems[index] || {
             garmentTypeId: "",

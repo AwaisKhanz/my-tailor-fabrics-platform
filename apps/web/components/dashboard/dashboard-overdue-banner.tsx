@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 import { OrderStatus, type DashboardStats } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,7 +27,10 @@ export function DashboardOverdueBanner({
   if (overdueCount > 0) {
     return (
       <Card variant="error">
-        <CardContent spacing="section" className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <CardContent
+          spacing="section"
+          className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+        >
           <div className="flex items-start gap-3 sm:items-center sm:gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-error/15">
               <AlertTriangle className="h-6 w-6 text-error" />
@@ -59,19 +62,28 @@ export function DashboardOverdueBanner({
 
   if (!error) {
     return (
-      <Card variant="success">
-        <CardContent spacing="section" className="flex items-center gap-4 p-5 sm:p-6">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/15">
-            <CheckCircle2 className="h-6 w-6 text-success" />
-          </div>
-          <div>
-            <Label variant="dashboard" className="block text-sm font-bold text-success">
-              All orders on track
-            </Label>
-            <p className="text-sm text-success/80">No overdue orders at this time.</p>
-          </div>
-        </CardContent>
-      </Card>
+      <></>
+      // <Card variant="successSoft">
+      //   <CardContent
+      //     spacing="section"
+      //     className="flex items-center gap-4 p-5 sm:p-6"
+      //   >
+      //     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/15">
+      //       <CheckCircle2 className="h-6 w-6 text-success" />
+      //     </div>
+      //     <div>
+      //       <Label
+      //         variant="dashboard"
+      //         className="block text-sm font-bold text-success"
+      //       >
+      //         All orders on track
+      //       </Label>
+      //       <p className="text-sm text-success/80">
+      //         No overdue orders at this time.
+      //       </p>
+      //     </div>
+      //   </CardContent>
+      // </Card>
     );
   }
 

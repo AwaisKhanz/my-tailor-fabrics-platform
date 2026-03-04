@@ -16,7 +16,7 @@ const AVATAR_COLORS = [
   "bg-error-muted text-error",
   "bg-primary/10 text-primary",
   "bg-pending-muted text-text-primary",
-  "bg-surface-elevated text-text-primary",
+  "bg-muted text-muted-foreground",
 ];
 
 function getInitials(name: string) {

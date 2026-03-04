@@ -3,6 +3,7 @@ import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
+import { Typography } from "@/components/ui/typography";
 import { CalendarDays, Clock3, Pencil, Printer, Share2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,9 +44,52 @@ export function OrderDetailHeaderCard({
   onCancelOrder,
   onEditOrder,
 }: OrderDetailHeaderCardProps) {
+  const actionButtons = [
+    canEditAction
+      ? {
+          key: "edit",
+          label: "Edit Order",
+          icon: Pencil,
+          variant: "premium" as const,
+          onClick: onEditOrder,
+          disabled: false,
+        }
+      : null,
+    canPrintReceipt
+      ? {
+          key: "receipt",
+          label: "Print Receipt",
+          icon: Printer,
+          variant: "outline" as const,
+          onClick: onPrintReceipt,
+          disabled: false,
+        }
+      : null,
+    canShareAction
+      ? {
+          key: "share",
+          label: "Share Status",
+          icon: Share2,
+          variant: "outline" as const,
+          onClick: onShareStatus,
+          disabled: sharing,
+        }
+      : null,
+    canCancel && canCancelAction
+      ? {
+          key: "cancel",
+          label: "Cancel Order",
+          icon: XCircle,
+          variant: "destructive" as const,
+          onClick: onCancelOrder,
+          disabled: statusLoading,
+        }
+      : null,
+  ].filter((action): action is NonNullable<typeof action> => action !== null);
+
   return (
     <Card variant="shell">
-      <CardContent spacing="section" className="space-y-6 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
             <Label variant="microStrong">
@@ -53,9 +97,9 @@ export function OrderDetailHeaderCard({
             </Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
                 {orderNumber}
-              </h1>
+              </Typography>
               <Badge
                 variant={statusVariant}
                 className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]"
@@ -82,55 +126,22 @@ export function OrderDetailHeaderCard({
               canCancel ? "lg:max-w-[760px]" : "lg:max-w-[640px]",
             )}
           >
-            {canEditAction ? (
-              <Button
-                variant="premium"
-                size="lg"
-                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-                onClick={onEditOrder}
-              >
-                <Pencil className="h-4 w-4" />
-                Edit Order
-              </Button>
-            ) : null}
-
-            {canPrintReceipt ? (
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-                onClick={onPrintReceipt}
-              >
-                <Printer className="h-4 w-4" />
-                Print Receipt
-              </Button>
-            ) : null}
-
-            {canShareAction ? (
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-                onClick={onShareStatus}
-                disabled={sharing}
-              >
-                <Share2 className="h-4 w-4" />
-                Share Status
-              </Button>
-            ) : null}
-
-            {canCancel && canCancelAction ? (
-              <Button
-                variant="destructive"
-                size="lg"
-                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-                onClick={onCancelOrder}
-                disabled={statusLoading}
-              >
-                <XCircle className="h-4 w-4" />
-                Cancel Order
-              </Button>
-            ) : null}
+            {actionButtons.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Button
+                  key={action.key}
+                  variant={action.variant}
+                  size="lg"
+                  className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                >
+                  <Icon className="h-4 w-4" />
+                  {action.label}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </CardContent>

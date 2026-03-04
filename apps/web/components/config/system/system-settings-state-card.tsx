@@ -18,9 +18,9 @@ export function SystemSettingsStateCard({
   lastUpdatedText,
 }: SystemSettingsStateCardProps) {
   return (
-    <Card variant="panel">
+    <Card variant="premium">
       <CardHeader variant="section" className="space-y-1">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+        <CardTitle variant="section" className="flex items-center gap-2">
           <Workflow className="h-4 w-4 text-primary" />
           Current State
         </CardTitle>

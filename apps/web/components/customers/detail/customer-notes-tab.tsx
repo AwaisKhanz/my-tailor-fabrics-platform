@@ -9,7 +9,7 @@ interface CustomerNotesTabProps {
 export function CustomerNotesTab({ notes }: CustomerNotesTabProps) {
   return (
     <Card>
-      <CardContent spacing="section" className="space-y-2 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-2">
         <Label variant="microCaps">
           Preferences & Internal Notes
         </Label>

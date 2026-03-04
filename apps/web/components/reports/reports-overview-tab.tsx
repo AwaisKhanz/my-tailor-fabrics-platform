@@ -113,20 +113,26 @@ export function ReportsOverviewTab({
             valueFormatter={(value) => formatPKR(value)}
           />
 
-          <Card variant="shellFlat">
-            <CardHeader variant="rowSection" className="items-center">
-              <CardTitle className="text-base font-semibold tracking-tight">Top Performers</CardTitle>
+          <Card variant="premium">
+            <CardHeader variant="rowSection">
+              <CardTitle variant="section">Top Performers</CardTitle>
             </CardHeader>
             <CardContent spacing="section" className="space-y-2">
               {loading ? (
                 Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="h-8 animate-pulse rounded bg-pending-muted" />
+                  <div key={index} className="h-8 animate-pulse rounded bg-muted" />
                 ))
               ) : productivity.length === 0 ? (
                 <p className="py-6 text-center text-sm text-text-secondary">No productivity records for this range.</p>
               ) : (
                 productivity.slice(0, 5).map((entry, index) => (
-                  <InfoTile key={entry.employeeId} tone="elevatedSoft" padding="md" layout="between">
+                  <InfoTile
+                    key={entry.employeeId}
+                    tone="elevatedSoft"
+                    padding="md"
+                    layout="between"
+                    interaction="interactive"
+                  >
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" size="xs">
                         #{index + 1}

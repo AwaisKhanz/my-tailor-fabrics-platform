@@ -20,18 +20,18 @@ export function BranchGlobalPricingCard({ branch }: BranchGlobalPricingCardProps
   const hasBranchRateOverrides = Boolean(branch?.stats?.hasBranchRateOverrides);
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
           <SectionIcon>
             <Shirt className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle className="text-base font-semibold tracking-tight">Global Pricing Model</CardTitle>
+          <CardTitle variant="section">Global Pricing Model</CardTitle>
         </div>
         <Badge variant="info" size="xs">Global</Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-5">
         <Typography as="p" variant="lead" className="text-sm leading-relaxed">
           Customer garment prices are controlled from one shared catalog in{" "}
           <span className="font-semibold text-text-primary">Settings &gt; Garments</span>. This means
@@ -43,19 +43,25 @@ export function BranchGlobalPricingCard({ branch }: BranchGlobalPricingCardProps
             <Label variant="micro">
               Customer Price Source
             </Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">Global Garment Catalog</p>
+            <Typography as="p" variant="body" className="mt-1 text-sm font-semibold text-text-primary">
+              Global Garment Catalog
+            </Typography>
           </InfoTile>
           <InfoTile padding="md">
             <Label variant="micro">
               Branch-level Price List
             </Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">Not Supported for Customer Prices</p>
+            <Typography as="p" variant="body" className="mt-1 text-sm font-semibold text-text-primary">
+              Not Supported for Customer Prices
+            </Typography>
           </InfoTile>
           <InfoTile padding="md">
             <Label variant="micro">
               Active Garment Types
             </Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{garmentTypesCount.toLocaleString()}</p>
+            <Typography as="p" variant="body" className="mt-1 text-sm font-semibold text-text-primary">
+              {garmentTypesCount.toLocaleString()}
+            </Typography>
           </InfoTile>
         </div>
 
@@ -64,19 +70,19 @@ export function BranchGlobalPricingCard({ branch }: BranchGlobalPricingCardProps
             <Label variant="micro">
               Task Rate Overrides
             </Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+            <Typography as="p" variant="body" className="mt-1 text-sm font-semibold text-text-primary">
               {hasBranchRateOverrides
                 ? `${branchRateCards.toLocaleString()} branch-specific rates`
                 : "Disabled (no branch-specific rate cards)"}
-            </p>
+            </Typography>
           </InfoTile>
           <InfoTile padding="md" className="sm:col-span-2">
             <Label variant="micro">
               Global Task Rate Cards
             </Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+            <Typography as="p" variant="body" className="mt-1 text-sm font-semibold text-text-primary">
               {globalRateCards.toLocaleString()} default rate cards are available system-wide
-            </p>
+            </Typography>
           </InfoTile>
         </div>
 

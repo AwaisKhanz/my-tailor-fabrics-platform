@@ -44,19 +44,19 @@ export function ScrollableDialog({
         variant="flush"
         className={cn(maxWidthClass, maxHeightClass, "flex flex-col")}
       >
-        <DialogHeader className="shrink-0 border-b border-divider p-6 pb-4">
+        <DialogHeader variant="section">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         
-        <ScrollArea className="flex-1 px-6">
+        <ScrollArea variant="dialogBody">
           <div className="py-4">
             {children}
           </div>
         </ScrollArea>
         
         {footerActions ? (
-          <DialogActionRow className="shrink-0 bg-surface-elevated px-6 pb-6">
+          <DialogActionRow className="shrink-0 bg-popover px-6 pb-6">
             {footerActions}
           </DialogActionRow>
         ) : null}

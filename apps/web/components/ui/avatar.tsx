@@ -2,17 +2,45 @@
 
 import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+const avatarVariants = cva(
+  "relative flex shrink-0 overflow-hidden rounded-full",
+  {
+    variants: {
+      size: {
+        default: "h-10 w-10",
+        md: "h-9 w-9",
+        sm: "h-8 w-8",
+      },
+      tone: {
+        default: "",
+        framed: "border border-divider shadow-[0_1px_2px_hsl(var(--shadow-color)/0.1)]",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+      tone: "default",
+    },
+  }
+)
+
+interface AvatarProps
+  extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>,
+    VariantProps<typeof avatarVariants> {
+  className?: string
+}
+
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & { className?: string }
->(({ className, ...props }, ref) => (
+  AvatarProps
+>(({ className, size, tone, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
     className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+      avatarVariants({ size, tone }),
       className
     )}
     {...props}
@@ -39,7 +67,7 @@ const AvatarFallback = React.forwardRef<
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-sidebar-active text-text-secondary",
+      "flex h-full w-full items-center justify-center rounded-full border border-divider bg-muted text-muted-foreground",
       className
     )}
     {...props}

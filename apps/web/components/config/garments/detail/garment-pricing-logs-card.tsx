@@ -14,13 +14,13 @@ interface GarmentPricingLogsCardProps {
 
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
           <SectionIcon tone="primary">
             <History className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle className="text-base font-semibold tracking-tight">
+          <CardTitle variant="section">
             Recent Pricing Logs
           </CardTitle>
         </div>
@@ -29,7 +29,7 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="p-5 pt-5 sm:p-6">
+      <CardContent spacing="section" padding="inset">
         {logs.length > 0 ? (
           <div className="relative space-y-6 before:absolute before:bottom-2 before:left-2.5 before:top-2 before:w-px before:bg-border">
             {logs.map((log) => (

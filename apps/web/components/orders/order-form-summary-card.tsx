@@ -1,7 +1,14 @@
 import { DiscountType } from "@tbms/shared-types";
 import { Calculator, CalendarDays, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   FormControl,
   FormField,
@@ -53,17 +60,17 @@ export function OrderFormSummaryCard({
   isEditMode,
 }: OrderFormSummaryCardProps) {
   return (
-    <Card>
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="flex items-center gap-3">
-          <SectionIcon>
+          <SectionIcon tone="infoSoft">
             <Calculator className="h-4 w-4" />
           </SectionIcon>
           <div>
-            <CardTitle className="text-base font-semibold tracking-tight">Order Summary</CardTitle>
-            <p className="mt-1 text-xs text-text-secondary">
+            <CardTitle variant="section">Order Summary</CardTitle>
+            <CardDescription variant="header">
               Review totals and finalize payment details.
-            </p>
+            </CardDescription>
           </div>
         </div>
         <Badge variant="outline" size="xs">
@@ -73,7 +80,7 @@ export function OrderFormSummaryCard({
 
       <CardContent spacing="section" className="space-y-5">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <InfoTile tone="pending" className="space-y-1">
+          <InfoTile tone="elevatedSoft" className="space-y-1">
             <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-text-secondary">
               <UserRound className="h-3.5 w-3.5" />
               Customer
@@ -83,7 +90,7 @@ export function OrderFormSummaryCard({
             </p>
           </InfoTile>
 
-          <InfoTile tone="pending" className="space-y-1">
+          <InfoTile tone="elevatedSoft" className="space-y-1">
             <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-text-secondary">
               <CalendarDays className="h-3.5 w-3.5" />
               Due Date
@@ -92,7 +99,7 @@ export function OrderFormSummaryCard({
           </InfoTile>
         </div>
 
-        <InfoTile tone="pending" padding="content" className="space-y-3">
+        <InfoTile tone="elevatedSoft" padding="content" className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <Label variant="dashboard">Subtotal</Label>
             <span className="font-semibold text-text-primary">

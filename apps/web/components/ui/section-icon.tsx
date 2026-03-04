@@ -26,7 +26,7 @@ const sectionIconVariants = cva(
       },
     },
     defaultVariants: {
-      tone: "sidebar",
+      tone: "primary",
       size: "md",
       framed: true,
     },

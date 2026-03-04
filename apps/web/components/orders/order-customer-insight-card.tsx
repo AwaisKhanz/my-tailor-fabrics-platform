@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -41,15 +41,15 @@ export function OrderCustomerInsightCard({
   const measurementPreview = getMeasurementPreview(customer);
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
         <div className="flex items-center gap-3">
-          <SectionIcon size="lg">
+          <SectionIcon tone="infoSoft" size="lg">
             <UserRound className="h-4 w-4 text-primary" />
           </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Customer Profile</CardTitle>
-            <p className="mt-1 text-xs text-text-secondary">Contact details and saved measurements.</p>
+            <CardDescription variant="header">Contact details and saved measurements.</CardDescription>
           </div>
         </div>
         <Badge variant="outline" size="xs" className="font-bold uppercase tracking-[0.08em]">
@@ -57,23 +57,23 @@ export function OrderCustomerInsightCard({
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoTile>
+          <InfoTile tone="elevatedSoft">
             <Label variant="micro">Full Name</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">{customer.fullName}</p>
           </InfoTile>
-          <InfoTile>
+          <InfoTile tone="elevatedSoft">
             <Label variant="micro">Phone</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">{customer.phone || "-"}</p>
           </InfoTile>
-          <InfoTile>
+          <InfoTile tone="elevatedSoft">
             <Label variant="micro">City</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">{customer.city || "-"}</p>
           </InfoTile>
         </div>
 
-        <InfoTile tone="pending" padding="contentLg">
+        <InfoTile tone="elevatedSoft" padding="contentLg">
           <div className="mb-3 flex items-center justify-between">
             <Label variant="micro">
               Measurement Snapshot

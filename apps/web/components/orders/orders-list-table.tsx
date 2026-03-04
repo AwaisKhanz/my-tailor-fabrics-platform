@@ -93,7 +93,7 @@ export function OrdersListTable({
         header: "Customer",
         cell: (order) => (
           <div className="flex items-center gap-2.5">
-            <Avatar className="h-8 w-8">
+            <Avatar size="sm">
               <AvatarFallback className="bg-primary/15 text-[11px] font-bold text-primary">
                 {getInitials(order.customer.fullName)}
               </AvatarFallback>

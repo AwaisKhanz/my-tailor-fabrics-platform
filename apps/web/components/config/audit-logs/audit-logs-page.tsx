@@ -21,6 +21,23 @@ import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-l
 import { formatDateTime } from "@/lib/utils";
 import { ALL_FILTER, useAuditLogsPage } from "@/hooks/use-audit-logs-page";
 
+const ACTION_SUMMARY_MAP: Record<string, string> = {
+  LOGIN: "Session authentication event",
+  TOKEN_REFRESH: "Access token refresh event",
+  LOGOUT: "Session logout event",
+  LOGIN_FAILED: "Failed login attempt",
+};
+
+const ACTION_BADGE_VARIANT_MAP: Record<string, "success" | "info" | "destructive" | "warning" | "outline"> = {
+  CREATE: "success",
+  UPDATE: "info",
+  DELETE: "destructive",
+  LOGIN: "warning",
+  TOKEN_REFRESH: "warning",
+  LOGOUT: "info",
+  LOGIN_FAILED: "destructive",
+};
+
 function toRecord(value: JsonValue | null | undefined): Record<string, JsonValue> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
@@ -29,17 +46,9 @@ function toRecord(value: JsonValue | null | undefined): Record<string, JsonValue
 }
 
 function getChangeSummary(record: AuditLogEntry): string {
-  if (record.action === "LOGIN") {
-    return "Session authentication event";
-  }
-  if (record.action === "TOKEN_REFRESH") {
-    return "Access token refresh event";
-  }
-  if (record.action === "LOGOUT") {
-    return "Session logout event";
-  }
-  if (record.action === "LOGIN_FAILED") {
-    return "Failed login attempt";
+  const summary = ACTION_SUMMARY_MAP[record.action];
+  if (summary) {
+    return summary;
   }
 
   const oldValue = toRecord(record.oldValue);
@@ -62,29 +71,7 @@ function getChangeSummary(record: AuditLogEntry): string {
 }
 
 function getActionBadgeVariant(action: string): "success" | "info" | "destructive" | "warning" | "outline" {
-  const normalized = action.toUpperCase();
-  if (normalized === "CREATE") {
-    return "success";
-  }
-  if (normalized === "UPDATE") {
-    return "info";
-  }
-  if (normalized === "DELETE") {
-    return "destructive";
-  }
-  if (normalized === "LOGIN") {
-    return "warning";
-  }
-  if (normalized === "TOKEN_REFRESH") {
-    return "warning";
-  }
-  if (normalized === "LOGOUT") {
-    return "info";
-  }
-  if (normalized === "LOGIN_FAILED") {
-    return "destructive";
-  }
-  return "outline";
+  return ACTION_BADGE_VARIANT_MAP[action.toUpperCase()] ?? "outline";
 }
 
 export function AuditLogsPage() {

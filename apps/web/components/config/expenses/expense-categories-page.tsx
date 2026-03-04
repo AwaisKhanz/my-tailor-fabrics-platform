@@ -210,90 +210,90 @@ export function ExpenseCategoriesPage() {
       </PageSection>
 
       {canManageExpenseCategories ? (
-        <ScrollableDialog
-          open={dialogOpen}
-          onOpenChange={closeDialog}
-          title={editingCategory ? "Edit Expense Category" : "Create Expense Category"}
-          footerActions={
-            <DialogFormActions
-              onCancel={() => closeDialog(false)}
-              submitFormId="expense-category-form"
-              submitting={saving}
-              submitText={editingCategory ? "Save Changes" : "Create Category"}
-              submitVariant="premium"
-            />
-          }
-        >
-          <FormStack
-            as="form"
-            id="expense-category-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void saveCategory();
-            }}
+        <>
+          <ScrollableDialog
+            open={dialogOpen}
+            onOpenChange={closeDialog}
+            title={editingCategory ? "Edit Expense Category" : "Create Expense Category"}
+            footerActions={
+              <DialogFormActions
+                onCancel={() => closeDialog(false)}
+                submitFormId="expense-category-form"
+                submitting={saving}
+                submitText={editingCategory ? "Save Changes" : "Create Category"}
+                submitVariant="premium"
+              />
+            }
           >
-            <Card variant="elevatedPanel">
-              <CardHeader variant="section" className="space-y-1">
-                <CardTitle className="text-sm font-semibold">
-                  Category Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent spacing="section" className="space-y-4 p-4">
-                <div className="space-y-2">
-                  <Label htmlFor="expense-category-name" variant="dashboard">
-                    Name
-                  </Label>
-                  <Input
-                    id="expense-category-name"
-                    variant="table"
-                    value={form.name}
-                    onChange={(event) =>
-                      updateFormField("name", event.target.value)
-                    }
-                    placeholder="e.g. Utilities"
-                    disabled={saving}
-                  />
-                </div>
-
-                <InfoTile layout="betweenGap" className="rounded-md">
-                  <div>
-                    <p className="text-sm font-medium text-text-primary">Active</p>
-                    <p className="text-xs text-text-secondary">
-                      Active categories are available in expense entry forms.
-                    </p>
+            <FormStack
+              as="form"
+              id="expense-category-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void saveCategory();
+              }}
+            >
+              <Card variant="elevatedPanel">
+                <CardHeader variant="section" className="space-y-1">
+                  <CardTitle className="text-sm font-semibold">
+                    Category Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent spacing="section" className="space-y-4 p-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="expense-category-name" variant="dashboard">
+                      Name
+                    </Label>
+                    <Input
+                      id="expense-category-name"
+                      variant="table"
+                      value={form.name}
+                      onChange={(event) =>
+                        updateFormField("name", event.target.value)
+                      }
+                      placeholder="e.g. Utilities"
+                      disabled={saving}
+                    />
                   </div>
-                  <Switch
-                    variant="premium"
-                    checked={form.isActive}
-                    onCheckedChange={(checked) =>
-                      updateFormField("isActive", checked)
-                    }
-                    disabled={saving}
-                  />
-                </InfoTile>
-              </CardContent>
-            </Card>
-          </FormStack>
-        </ScrollableDialog>
-      ) : null}
 
-      {canManageExpenseCategories ? (
-        <ConfirmDialog
-          open={Boolean(deleteTarget)}
-          onOpenChange={closeDeleteDialog}
-          title="Delete this category?"
-          description={
-            deleteTarget
-              ? `This will remove "${deleteTarget.name}" from selectable expense categories.`
-              : "This action cannot be undone."
-          }
-          onConfirm={() => {
-            void confirmDeleteCategory();
-          }}
-          confirmText="Delete Category"
-          variant="destructive"
-          loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
-        />
+                  <InfoTile layout="betweenGap" className="rounded-md">
+                    <div>
+                      <p className="text-sm font-medium text-text-primary">Active</p>
+                      <p className="text-xs text-text-secondary">
+                        Active categories are available in expense entry forms.
+                      </p>
+                    </div>
+                    <Switch
+                      variant="premium"
+                      checked={form.isActive}
+                      onCheckedChange={(checked) =>
+                        updateFormField("isActive", checked)
+                      }
+                      disabled={saving}
+                    />
+                  </InfoTile>
+                </CardContent>
+              </Card>
+            </FormStack>
+          </ScrollableDialog>
+
+          <ConfirmDialog
+            open={Boolean(deleteTarget)}
+            onOpenChange={closeDeleteDialog}
+            title="Delete this category?"
+            description={
+              deleteTarget
+                ? `This will remove "${deleteTarget.name}" from selectable expense categories.`
+                : "This action cannot be undone."
+            }
+            onConfirm={() => {
+              void confirmDeleteCategory();
+            }}
+            confirmText="Delete Category"
+            variant="destructive"
+            loading={Boolean(deleteTarget && deletingId === deleteTarget.id)}
+          />
+        </>
       ) : null}
     </PageShell>
   );

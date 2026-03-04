@@ -5,9 +5,9 @@ import { cn } from '@/lib/utils';
 const typographyVariants = cva('', {
   variants: {
     variant: {
-      pageTitle: 'text-3xl font-bold tracking-tight text-foreground',
-      sectionTitle: 'text-lg font-bold text-foreground',
-      statValue: 'text-2xl font-bold tracking-tight text-foreground',
+      pageTitle: 'text-3xl font-bold tracking-tight text-text-primary',
+      sectionTitle: 'text-lg font-bold text-text-primary',
+      statValue: 'text-2xl font-bold tracking-tight text-text-primary',
       lead: 'text-sm text-text-secondary',
       muted: 'text-xs text-text-secondary',
       body: 'text-sm text-text-primary',

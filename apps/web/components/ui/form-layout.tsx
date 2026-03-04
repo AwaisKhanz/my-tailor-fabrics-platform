@@ -61,7 +61,7 @@ const dialogActionRowVariants = cva("", {
       relaxed: "pt-5",
     },
     bordered: {
-      true: "border-t border-divider",
+      true: "border-t border-divider bg-surface-elevated/60",
       false: "",
     },
   },

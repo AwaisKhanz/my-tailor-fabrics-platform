@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Switch } from "@/components/ui/switch";
+import { Typography } from "@/components/ui/typography";
 
 interface SystemSettingsWorkflowCardProps {
   loading: boolean;
@@ -31,10 +32,10 @@ export function SystemSettingsWorkflowCard({
   onSave,
 }: SystemSettingsWorkflowCardProps) {
   return (
-    <Card variant="panel">
+    <Card variant="premium">
       <CardHeader variant="section" className="space-y-1">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          <CardTitle variant="section" className="flex items-center gap-2">
             <Settings2 className="h-4 w-4 text-primary" />
             Workflow Engine
           </CardTitle>
@@ -51,13 +52,13 @@ export function SystemSettingsWorkflowCard({
         <InfoTile padding="contentLg">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-text-primary">
+              <Typography as="p" variant="body" className="text-sm font-semibold text-text-primary">
                 Enable Task Workflow
-              </p>
-              <p className="text-sm text-text-secondary">
+              </Typography>
+              <Typography as="p" variant="lead" className="text-sm text-text-secondary">
                 When enabled, newly created order items generate step-based
                 tasks using garment workflow templates.
-              </p>
+              </Typography>
             </div>
             <Switch
               variant="premium"

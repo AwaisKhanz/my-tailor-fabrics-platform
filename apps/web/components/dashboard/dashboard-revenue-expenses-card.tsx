@@ -112,24 +112,24 @@ export function DashboardRevenueExpensesCard({
   const tooltipY = padTop + 10;
 
   return (
-    <Card variant="panel" className="h-full">
-      <CardHeader variant="rowSection" className="items-start">
+    <Card variant="premium" className="h-full">
+      <CardHeader variant="rowSection" align="start">
         <div className="space-y-1">
-          <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+          <CardTitle variant="dashboardSection">
             Revenue vs. Expenses
           </CardTitle>
           <p className="text-xs text-text-secondary">
             Monthly trend powered by backend report totals.
           </p>
         </div>
-        <InfoTile layout="row" padding="xs" className="rounded-md gap-1">
+        <InfoTile tone="elevatedSoft" layout="row" padding="xs" className="rounded-md gap-1">
           <Label variant="dashboard">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
         </InfoTile>
       </CardHeader>
       <CardContent spacing="section" className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-3">
-          <InfoTile padding="md">
+          <InfoTile tone="elevatedSoft" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
               <Label variant="micro">
@@ -138,7 +138,7 @@ export function DashboardRevenueExpensesCard({
             </div>
             <p className="mt-1 text-lg font-bold text-chart-1">{formatPKR(totalRevenue)}</p>
           </InfoTile>
-          <InfoTile padding="md">
+          <InfoTile tone="elevatedSoft" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
               <Label variant="micro">
@@ -147,7 +147,7 @@ export function DashboardRevenueExpensesCard({
             </div>
             <p className="mt-1 text-lg font-bold text-chart-2">{formatPKR(totalExpenses)}</p>
           </InfoTile>
-          <InfoTile padding="md">
+          <InfoTile tone="elevatedSoft" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
               <Label variant="micro">
@@ -245,7 +245,15 @@ export function DashboardRevenueExpensesCard({
 
               {activePoint ? (
                 <g transform={`translate(${tooltipX}, ${tooltipY})`}>
-                  <rect x="0" y="0" width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-surface stroke-divider" strokeWidth="1" />
+                  <rect
+                    x="0"
+                    y="0"
+                    width={tooltipWidth}
+                    height={tooltipHeight}
+                    rx="8"
+                    className="fill-popover stroke-borderStrong/50"
+                    strokeWidth="1"
+                  />
                   <text x="10" y="17" className="fill-text-primary text-[11px] font-semibold">
                     {activePoint.month}
                   </text>

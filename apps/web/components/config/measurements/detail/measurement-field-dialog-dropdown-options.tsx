@@ -45,7 +45,7 @@ export function MeasurementFieldDialogDropdownOptions({
               tone="surface"
               padding="sm"
               layout="row"
-              className="inline-flex text-sm font-medium text-text-primary shadow-sm"
+              className="inline-flex text-sm font-medium text-text-primary"
             >
               {option}
               <button

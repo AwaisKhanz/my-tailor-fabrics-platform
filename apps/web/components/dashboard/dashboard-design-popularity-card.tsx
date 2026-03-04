@@ -23,9 +23,9 @@ export function DashboardDesignPopularityCard({
   const activeDesign = designs.find((design) => design.name === hoveredDesignName) ?? designs[0];
 
   return (
-    <Card variant="panel">
+    <Card variant="premium">
       <CardHeader variant="section" density="compact">
-        <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+        <CardTitle variant="dashboardSection">
           Design Popularity
         </CardTitle>
         <p className="text-xs text-text-secondary">Most requested designs in the selected period.</p>
@@ -46,7 +46,7 @@ export function DashboardDesignPopularityCard({
           ) : (
             <>
               {activeDesign ? (
-                <InfoTile padding="md">
+                <InfoTile tone="elevatedSoft" padding="md">
                   <p className="text-xs font-semibold text-text-primary">{activeDesign.name}</p>
                   <p className="mt-1 text-[11px] text-text-secondary">{activeDesign.count} requests</p>
                 </InfoTile>
@@ -55,7 +55,11 @@ export function DashboardDesignPopularityCard({
               {designs.map((design) => (
                 <div
                   key={design.name}
-                  className={`space-y-1 rounded-md px-1 py-1 transition-colors ${activeDesign?.name === design.name ? "bg-interaction-hover" : ""}`}
+                  className={`space-y-1.5 rounded-lg border px-2.5 py-2 transition-colors ${
+                    activeDesign?.name === design.name
+                      ? "border-primary/35 bg-interaction-hover"
+                      : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+                  }`}
                   onMouseEnter={() => setHoveredDesignName(design.name)}
                 >
                   <div className="flex items-center justify-between text-[11px]">

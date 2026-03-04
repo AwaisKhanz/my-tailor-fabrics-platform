@@ -25,7 +25,7 @@ const statCardTone = cva("", {
 const statValueTone = cva("text-3xl", {
   variants: {
     tone: {
-      default: "text-foreground",
+      default: "text-text-primary",
       primary: "text-primary",
       success: "text-success",
       warning: "text-warning",
@@ -41,7 +41,7 @@ const statValueTone = cva("text-3xl", {
 const statIconTone = cva("flex h-10 w-10 items-center justify-center rounded-lg border", {
   variants: {
     tone: {
-      default: "border-divider bg-surface-elevated text-text-secondary",
+      default: "border-divider bg-muted text-muted-foreground",
       primary: "border-primary/20 bg-primary/10 text-primary",
       success: "border-success/20 bg-success-muted text-success",
       warning: "border-warning/20 bg-warning-muted text-warning",
@@ -98,8 +98,8 @@ export function StatCard({
   const resolvedValueTone = valueTone ?? resolvedTone;
 
   return (
-    <Card variant="elevatedPanel" className={cn("overflow-hidden shadow-sm", statCardTone({ tone: resolvedTone }), className)}>
-      <CardHeader variant="rowSection" density="compact" className="items-start gap-3">
+    <Card variant="premium" className={cn("overflow-hidden", statCardTone({ tone: resolvedTone }), className)}>
+      <CardHeader variant="rowSection" density="compact" align="start" gap="sm">
         <div className="space-y-1">
           <CardTitle variant="dashboard" className="text-base">
             {title}

@@ -15,13 +15,13 @@ export function ReportsWeeklyPrintCard({
   canExport = true,
 }: ReportsWeeklyPrintCardProps) {
   return (
-    <Card variant="shellFlat">
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div>
-          <CardTitle className="text-base font-semibold tracking-tight">
+          <CardTitle variant="section">
             Production Work-Order Summary
           </CardTitle>
-          <CardDescription className="mt-1 text-xs">
+          <CardDescription variant="header">
             Optimized for physical printing and shift-based task management.
           </CardDescription>
         </div>

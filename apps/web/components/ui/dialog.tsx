@@ -22,7 +22,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-overlay-strong data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-overlay-strong backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -46,9 +46,9 @@ const dialogContentVariants = cva(
       },
       variant: {
         default:
-          "grid gap-4 border border-divider bg-surface-elevated p-6 text-card-foreground shadow-theme-elevated sm:rounded-xl",
+          "grid gap-4 border border-borderStrong/50 bg-popover p-6 text-popover-foreground shadow-theme-modal sm:rounded-2xl",
         flush:
-          "grid gap-0 overflow-hidden border border-divider bg-surface-elevated p-0 text-card-foreground shadow-theme-elevated sm:rounded-xl",
+          "grid gap-0 overflow-hidden border border-borderStrong/50 bg-popover p-0 text-popover-foreground shadow-theme-modal sm:rounded-2xl",
       },
     },
     defaultVariants: {
@@ -74,7 +74,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-surface transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-interaction-focus focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-interaction-hover data-[state=open]:text-text-secondary">
+      <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-text-secondary transition-colors hover:border-divider hover:bg-interaction-hover hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-interaction-focus focus:ring-offset-2 focus:ring-offset-popover disabled:pointer-events-none">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -83,13 +83,34 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-const DialogHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+const dialogHeaderVariants = cva(
+  "flex flex-col text-center sm:text-left",
+  {
+    variants: {
+      variant: {
+        default: "",
+        section: "shrink-0 border-b border-divider px-6 pb-4 pt-6 text-left",
+      },
+      spacing: {
+        default: "space-y-2",
+        relaxed: "space-y-3",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      spacing: "default",
+    },
+  },
+)
+
+interface DialogHeaderProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof dialogHeaderVariants> {}
+
+const DialogHeader = ({ className, variant, spacing, ...props }: DialogHeaderProps) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      dialogHeaderVariants({ variant, spacing }),
       className
     )}
     {...props}
@@ -103,7 +124,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-0",
       className
     )}
     {...props}

@@ -1,6 +1,6 @@
 import { Customer } from "@tbms/shared-types";
 import { UserRound } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
@@ -37,22 +37,22 @@ export function OrderFormCustomerCard({
   selectedCustomer,
 }: OrderFormCustomerCardProps) {
   return (
-    <Card>
-      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
         <div className="flex items-center gap-3">
-          <SectionIcon size="lg">
+          <SectionIcon tone="infoSoft" size="lg">
             <UserRound className="h-4 w-4" />
           </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Customer Information</CardTitle>
-            <p className="mt-1 text-xs text-text-secondary">
+            <CardDescription variant="header">
               Select the customer and set a delivery timeline.
-            </p>
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -99,15 +99,15 @@ export function OrderFormCustomerCard({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <InfoTile>
+          <InfoTile tone="elevatedSoft">
             <Label variant="micro">Size Number</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">{selectedCustomer?.sizeNumber || "-"}</p>
           </InfoTile>
-          <InfoTile>
+          <InfoTile tone="elevatedSoft">
             <Label variant="micro">City</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">{selectedCustomer?.city || "-"}</p>
           </InfoTile>
-          <InfoTile>
+          <InfoTile tone="elevatedSoft">
             <Label variant="micro">Lifetime Value</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">
               {selectedCustomer ? formatPKR(selectedCustomer.lifetimeValue) : "-"}

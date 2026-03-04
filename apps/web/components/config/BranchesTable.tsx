@@ -120,30 +120,30 @@ export function BranchesTable() {
       </PageSection>
 
       {canManageBranches ? (
-        <BranchFormDialog
-          open={dialogOpen}
-          editingBranch={editingBranch}
-          saving={saving}
-          form={form}
-          onOpenChange={handleDialogOpenChange}
-          onFieldChange={updateFormField}
-          onSubmit={() => {
-            void saveBranch();
-          }}
-        />
-      ) : null}
+        <>
+          <BranchFormDialog
+            open={dialogOpen}
+            editingBranch={editingBranch}
+            saving={saving}
+            form={form}
+            onOpenChange={handleDialogOpenChange}
+            onFieldChange={updateFormField}
+            onSubmit={() => {
+              void saveBranch();
+            }}
+          />
 
-      {canManageBranches ? (
-        <ConfirmDialog
-          open={isConfirmOpen}
-          onOpenChange={setIsConfirmOpen}
-          title="Delete Branch"
-          description={<BranchDeleteSummary branch={branchToDelete} />}
-          onConfirm={() => {
-            void confirmDelete();
-          }}
-          confirmText="Delete Branch"
-        />
+          <ConfirmDialog
+            open={isConfirmOpen}
+            onOpenChange={setIsConfirmOpen}
+            title="Delete Branch"
+            description={<BranchDeleteSummary branch={branchToDelete} />}
+            onConfirm={() => {
+              void confirmDelete();
+            }}
+            confirmText="Delete Branch"
+          />
+        </>
       ) : null}
     </PageShell>
   );

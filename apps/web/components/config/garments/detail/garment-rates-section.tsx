@@ -28,18 +28,18 @@ export function GarmentRatesSection({
 
   return (
     <>
-      <Card variant="shell">
-        <CardHeader variant="rowSection" className="items-start gap-3 sm:items-center">
+      <Card variant="premium">
+        <CardHeader variant="rowSection" align="startResponsive" gap="sm">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               <SectionIcon tone="primary">
                 <Banknote className="h-4 w-4" />
               </SectionIcon>
-              <CardTitle className="text-base font-semibold tracking-tight">
+              <CardTitle variant="section">
                 Production Rates (Step-based)
               </CardTitle>
             </div>
-            <CardDescription className="text-xs">
+            <CardDescription variant="compact">
               Define how much tailors are paid for each step of this garment.
             </CardDescription>
           </div>
@@ -62,7 +62,7 @@ export function GarmentRatesSection({
           </div>
         </CardHeader>
 
-        <CardContent spacing="section" className="p-5 sm:p-6">
+        <CardContent spacing="section" padding="inset">
           <RatesList rates={garment.rateCards || []} />
         </CardContent>
       </Card>

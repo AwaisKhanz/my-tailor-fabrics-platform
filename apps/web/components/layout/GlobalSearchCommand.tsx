@@ -230,7 +230,7 @@ export function GlobalSearchCommand({
 
       {open ? (
         <Card variant="premium" className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[70] overflow-hidden">
-          <CardHeader variant="rowSection" density="compact" className="items-center">
+          <CardHeader variant="rowSection" density="compact">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
               Global Search
             </p>
@@ -243,7 +243,7 @@ export function GlobalSearchCommand({
             </p>
           </CardHeader>
 
-          <ScrollArea className="max-h-[420px]">
+          <ScrollArea variant="commandResults">
             <div className="space-y-3 p-3">
               {loading ? (
                 <InfoTile tone="elevatedMuted" padding="md" layout="row" className="text-sm text-text-secondary">

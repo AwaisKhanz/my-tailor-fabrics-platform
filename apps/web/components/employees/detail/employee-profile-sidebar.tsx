@@ -15,22 +15,22 @@ interface EmployeeProfileSidebarProps {
 export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps) {
   return (
     <div className="space-y-6">
-      <Card variant="panel">
-        <CardHeader variant="rowSection" density="compact" className="items-start sm:items-center">
+      <Card variant="premium">
+        <CardHeader variant="rowSection" density="compact" align="startResponsive">
           <div className="flex items-center gap-2">
-            <SectionIcon>
+            <SectionIcon tone="infoSoft">
               <UserSquare2 className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle className="text-base font-semibold tracking-tight">Personal Info</CardTitle>
+            <CardTitle variant="section">Personal Info</CardTitle>
           </div>
           <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs">
             {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
           </Badge>
         </CardHeader>
-        <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+        <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="flex items-center gap-3 text-sm">
             <Phone className="h-4 w-4 text-text-secondary" />
-            <span className="font-medium">{employee.phone}</span>
+            <span className="font-medium text-text-primary">{employee.phone}</span>
           </div>
           <div className="flex items-start gap-3 text-sm text-text-secondary">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
@@ -47,16 +47,16 @@ export function EmployeeProfileSidebar({ employee }: EmployeeProfileSidebarProps
         </CardContent>
       </Card>
 
-      <Card variant="panel">
-        <CardHeader variant="rowSection" density="compact" className="items-start sm:items-center">
+      <Card variant="premium">
+        <CardHeader variant="rowSection" density="compact" align="startResponsive">
           <div className="flex items-center gap-2">
             <SectionIcon tone="infoSoft">
               <BriefcaseBusiness className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle className="text-base font-semibold tracking-tight">Employment</CardTitle>
+            <CardTitle variant="section">Employment</CardTitle>
           </div>
         </CardHeader>
-        <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+        <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="flex justify-between text-sm">
             <span className="text-text-secondary">Join Date</span>
             <span className="font-medium">{formatDate(employee.dateOfJoining)}</span>

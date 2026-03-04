@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { cn } from "@/lib/utils";
 
-const statusPageFrameVariants = cva("min-h-screen bg-surface", {
+const statusPageFrameVariants = cva("min-h-screen bg-background", {
   variants: {
     layout: {
       centered: "flex items-center justify-center px-4 py-6 sm:px-6 sm:py-10",

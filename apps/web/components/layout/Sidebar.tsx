@@ -13,15 +13,12 @@ import Image from "next/image";
 import {
   PieChart,
   Users,
-  Settings as SettingsIcon,
   ShoppingBag,
   Briefcase,
   Menu,
   X,
   BarChart,
   LayoutDashboard,
-  ChevronDown,
-  ChevronRight,
   Building2,
   Shirt,
   Banknote,
@@ -35,7 +32,7 @@ import {
   PlugZap,
   ClipboardList,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -47,233 +44,240 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   roles: Role[];
-  subItems?: { title: string; href: string; icon?: React.ElementType }[];
 }
 
-const NAV_ITEMS: NavItem[] = [
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const SETTINGS_ROLES = FRONTEND_ROUTE_ROLES["/settings"];
+
+const NAV_SECTIONS: NavSection[] = [
   {
-    title: "Dashboard",
-    href: "/",
-    icon: PieChart,
-    roles: FRONTEND_ROUTE_ROLES["/"],
+    title: "Workspace",
+    items: [
+      {
+        title: "Dashboard",
+        href: "/",
+        icon: PieChart,
+        roles: FRONTEND_ROUTE_ROLES["/"],
+      },
+      {
+        title: "My Orders",
+        href: "/my-orders",
+        icon: LayoutDashboard,
+        roles: FRONTEND_ROUTE_ROLES["/my-orders"],
+      },
+      {
+        title: "Orders",
+        href: "/orders",
+        icon: ShoppingBag,
+        roles: FRONTEND_ROUTE_ROLES["/orders"],
+      },
+      {
+        title: "Customers",
+        href: "/customers",
+        icon: Users,
+        roles: FRONTEND_ROUTE_ROLES["/customers"],
+      },
+      {
+        title: "Employees",
+        href: "/employees",
+        icon: Briefcase,
+        roles: FRONTEND_ROUTE_ROLES["/employees"],
+      },
+    ],
   },
   {
-    title: "My Orders",
-    href: "/my-orders",
-    icon: LayoutDashboard,
-    roles: FRONTEND_ROUTE_ROLES["/my-orders"],
+    title: "Finance",
+    items: [
+      {
+        title: "Payments",
+        href: "/payments",
+        icon: Banknote,
+        roles: FRONTEND_ROUTE_ROLES["/payments"],
+      },
+      {
+        title: "Expenses",
+        href: "/expenses",
+        icon: Banknote,
+        roles: FRONTEND_ROUTE_ROLES["/expenses"],
+      },
+      {
+        title: "Reports",
+        href: "/reports",
+        icon: BarChart,
+        roles: FRONTEND_ROUTE_ROLES["/reports"],
+      },
+    ],
   },
   {
-    title: "Orders",
-    href: "/orders",
-    icon: ShoppingBag,
-    roles: FRONTEND_ROUTE_ROLES["/orders"],
-  },
-  {
-    title: "Customers",
-    href: "/customers",
-    icon: Users,
-    roles: FRONTEND_ROUTE_ROLES["/customers"],
-  },
-  {
-    title: "Employees",
-    href: "/employees",
-    icon: Briefcase,
-    roles: FRONTEND_ROUTE_ROLES["/employees"],
-  },
-  {
-    title: "Payments",
-    href: "/payments",
-    icon: Banknote,
-    roles: FRONTEND_ROUTE_ROLES["/payments"],
-  },
-  {
-    title: "Expenses",
-    href: "/expenses",
-    icon: Banknote,
-    roles: FRONTEND_ROUTE_ROLES["/expenses"],
-  },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: BarChart,
-    roles: FRONTEND_ROUTE_ROLES["/reports"],
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: SettingsIcon,
-    roles: FRONTEND_ROUTE_ROLES["/settings"],
-    subItems: [
-      { title: "Branches", href: "/settings/branches", icon: Building2 },
-      { title: "Garments", href: "/settings/garments", icon: Shirt },
-      { title: "Labor Rates", href: "/settings/rates", icon: Banknote },
+    title: "Configuration",
+    items: [
+      {
+        title: "Branches",
+        href: "/settings/branches",
+        icon: Building2,
+        roles: SETTINGS_ROLES,
+      },
+      {
+        title: "Garments",
+        href: "/settings/garments",
+        icon: Shirt,
+        roles: SETTINGS_ROLES,
+      },
+      {
+        title: "Labor Rates",
+        href: "/settings/rates",
+        icon: Banknote,
+        roles: SETTINGS_ROLES,
+      },
       {
         title: "Expense Categories",
         href: "/settings/expense-categories",
         icon: Wallet,
+        roles: SETTINGS_ROLES,
       },
-      { title: "Design Types", href: "/settings/design-types", icon: Layout },
-      { title: "Measurements", href: "/settings/measurements", icon: Ruler },
-      { title: "Staff Accounts", href: "/settings/users", icon: UserCog },
-      { title: "Attendance", href: "/settings/attendance", icon: Clock3 },
+      {
+        title: "Design Types",
+        href: "/settings/design-types",
+        icon: Layout,
+        roles: SETTINGS_ROLES,
+      },
+      {
+        title: "Measurements",
+        href: "/settings/measurements",
+        icon: Ruler,
+        roles: SETTINGS_ROLES,
+      },
+    ],
+  },
+  {
+    title: "Administration",
+    items: [
+      {
+        title: "Staff Accounts",
+        href: "/settings/users",
+        icon: UserCog,
+        roles: SETTINGS_ROLES,
+      },
+      {
+        title: "Attendance",
+        href: "/settings/attendance",
+        icon: Clock3,
+        roles: SETTINGS_ROLES,
+      },
       {
         title: "System Controls",
         href: "/settings/system",
         icon: SlidersHorizontal,
+        roles: SETTINGS_ROLES,
       },
-      { title: "Integrations", href: "/settings/integrations", icon: PlugZap },
+      {
+        title: "Integrations",
+        href: "/settings/integrations",
+        icon: PlugZap,
+        roles: SETTINGS_ROLES,
+      },
       {
         title: "Audit Logs",
         href: "/settings/audit-logs",
         icon: ClipboardList,
+        roles: SETTINGS_ROLES,
       },
-      { title: "Appearance", href: "/settings/appearance", icon: Palette },
+      {
+        title: "Appearance",
+        href: "/settings/appearance",
+        icon: Palette,
+        roles: SETTINGS_ROLES,
+      },
     ],
   },
 ];
 
-function getVisibleNavItems(role: Role | null): NavItem[] {
+function getVisibleNavSections(role: Role | null): NavSection[] {
   if (!role) {
     return [];
   }
 
-  return NAV_ITEMS.map((item) => ({
-    ...item,
-    subItems: item.subItems?.filter((subItem) =>
-      canRoleAccessPathname(role, subItem.href),
+  return NAV_SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter(
+      (item) =>
+        item.roles.includes(role) && canRoleAccessPathname(role, item.href),
     ),
-  })).filter(
-    (item) =>
-      item.roles.includes(role) && canRoleAccessPathname(role, item.href),
-  );
+  })).filter((section) => section.items.length > 0);
 }
 
 function NavList({
-  items,
+  sections,
   pathname,
   onNavigate,
 }: {
-  items: NavItem[];
+  sections: NavSection[];
   pathname: string;
   onNavigate?: () => void;
 }) {
-  const [expandedItems, setExpandedItems] = useState<string[]>(() =>
-    pathname.startsWith("/settings") ? ["/settings"] : [],
-  );
-
-  useEffect(() => {
-    if (pathname.startsWith("/settings")) {
-      setExpandedItems((prev) =>
-        prev.includes("/settings") ? prev : [...prev, "/settings"],
-      );
-    }
-  }, [pathname]);
-
-  const toggleExpand = (href: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(href) ? prev.filter((i) => i !== href) : [...prev, href],
-    );
-  };
-
-  const NavItemContent = ({
-    item,
-    isSubItem = false,
-  }: {
-    item: NavItem | { title: string; href: string; icon?: React.ElementType };
-    isSubItem?: boolean;
-  }) => {
+  const NavItemContent = ({ item }: { item: NavItem }) => {
     const isActive =
       pathname === item.href ||
       (item.href !== "/" && pathname.startsWith(`${item.href}/`));
-    const isExpanded = expandedItems.includes(item.href);
-    const hasSubItems =
-      "subItems" in item && item.subItems && item.subItems.length > 0;
-    const ItemIcon = "icon" in item ? item.icon : undefined;
+    const ItemIcon = item.icon;
 
-    const baseClasses = cn(
-      "group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all",
-      isSubItem ? "ml-4 py-2.5 text-xs" : "py-2.5",
-    );
+    const baseClasses =
+      "group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all";
 
-    const activeClasses = isSubItem
-      ? "bg-sidebar-active font-semibold text-sidebar-foreground"
-      : "border border-sidebar-border bg-sidebar-active text-sidebar-foreground shadow-sm";
+    const activeClasses =
+      "border border-sidebar-border bg-sidebar-active text-sidebar-foreground shadow-sm";
 
-    const inactiveClasses = isSubItem
-      ? "text-sidebar-foreground/70 hover:bg-interaction-hover hover:text-sidebar-foreground"
-      : "border border-transparent text-sidebar-foreground/70 hover:border-sidebar-border hover:bg-interaction-hover hover:text-sidebar-foreground";
+    const inactiveClasses =
+      "border border-transparent text-sidebar-foreground/70 hover:border-sidebar-border hover:bg-interaction-hover hover:text-sidebar-foreground";
 
     return (
       <div
         className={cn(baseClasses, isActive ? activeClasses : inactiveClasses)}
       >
-        {ItemIcon && (
-          <ItemIcon
-            className={cn(
-              isSubItem ? "h-4 w-4" : "h-5 w-5",
-              "shrink-0 transition-colors",
-              isActive
-                ? "text-sidebar-foreground"
-                : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
-            )}
-          />
-        )}
+        <ItemIcon
+          className={cn(
+            "h-5 w-5 shrink-0 transition-colors",
+            isActive
+              ? "text-sidebar-foreground"
+              : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
+          )}
+        />
         <span className="flex-1 truncate transition-colors">{item.title}</span>
-        {hasSubItems &&
-          (isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-sidebar-foreground/50" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-sidebar-foreground/50" />
-          ))}
       </div>
     );
   };
 
   return (
-    <div className="space-y-1.5">
-      {items.map((item) => {
-        const hasSubItems = item.subItems && item.subItems.length > 0;
-        const isExpanded = expandedItems.includes(item.href);
+    <div className="space-y-5">
+      {sections.map((section) => (
+        <section key={section.title} className="space-y-1.5">
+          <div className="px-3">
+            <Label
+              variant="dashboard"
+              className="text-[10px] uppercase tracking-[0.12em] text-sidebar-foreground/45"
+            >
+              {section.title}
+            </Label>
+          </div>
 
-        return (
-          <div key={item.href} className="space-y-1">
-            {hasSubItems ? (
-              <button
-                type="button"
-                onClick={() => toggleExpand(item.href)}
-                className="block w-full text-left"
-                aria-expanded={isExpanded}
-                aria-controls={`nav-group-${item.href.replaceAll("/", "-")}`}
+          <div className="space-y-1">
+            {section.items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onNavigate}
+                className="block"
               >
-                <NavItemContent item={item} />
-              </button>
-            ) : (
-              <Link href={item.href} onClick={onNavigate} className="block">
                 <NavItemContent item={item} />
               </Link>
-            )}
-
-            {hasSubItems && isExpanded && (
-              <div
-                id={`nav-group-${item.href.replaceAll("/", "-")}`}
-                className="ml-5 mt-1 space-y-1 border-l border-sidebar-border pl-1"
-              >
-                {item.subItems?.map((sub) => (
-                  <Link
-                    key={sub.href}
-                    href={sub.href}
-                    onClick={onNavigate}
-                    className="block"
-                  >
-                    <NavItemContent item={sub} isSubItem />
-                  </Link>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
-        );
-      })}
+        </section>
+      ))}
     </div>
   );
 }
@@ -281,7 +285,7 @@ function NavList({
 export function Sidebar() {
   const pathname = usePathname();
   const { role } = useAuthz();
-  const items = getVisibleNavItems(role);
+  const sections = getVisibleNavSections(role);
 
   // const BrandHeader = () => (
   //   <div className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border bg-sidebar/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-sidebar/90">
@@ -305,7 +309,7 @@ export function Sidebar() {
     <aside className="hidden h-full w-72 flex-shrink-0 flex-col border-r border-sidebar-border bg-sidebar/95 md:flex">
       {/* <BrandHeader /> */}
       <div className="flex-1 overflow-y-auto px-3 py-4">
-        <NavList items={items} pathname={pathname} />
+        <NavList sections={sections} pathname={pathname} />
       </div>
     </aside>
   );
@@ -316,7 +320,7 @@ export function MobileSidebarTrigger() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { role } = useAuthz();
-  const items = getVisibleNavItems(role);
+  const sections = getVisibleNavSections(role);
 
   return (
     <>
@@ -337,7 +341,7 @@ export function MobileSidebarTrigger() {
             onClick={() => setOpen(false)}
           />
 
-          <div className="relative flex h-full w-[18.5rem] flex-col border-r border-sidebar-border bg-sidebar shadow-xl">
+          <div className="relative flex h-full w-[18.5rem] flex-col border-r border-sidebar-border bg-sidebar shadow-theme-modal">
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border bg-sidebar/95 px-4">
               <div className="flex min-w-0 items-center gap-2">
                 <SectionIcon
@@ -369,7 +373,7 @@ export function MobileSidebarTrigger() {
 
             <div className="flex-1 overflow-y-auto px-3 py-4">
               <NavList
-                items={items}
+                sections={sections}
                 pathname={pathname}
                 onNavigate={() => setOpen(false)}
               />

@@ -3,7 +3,7 @@ import { CalendarDays, Scissors } from "lucide-react";
 import { ItemStatus, OrderItem } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
@@ -146,13 +146,13 @@ export function OrderItemsTable({
   ];
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
         <div>
           <CardTitle variant="dashboard">Order Items</CardTitle>
-          <p className="mt-1 text-xs text-text-secondary">
+          <CardDescription variant="header">
             Piece breakdown, assignments, and task controls.
-          </p>
+          </CardDescription>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

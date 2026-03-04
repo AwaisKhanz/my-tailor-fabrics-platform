@@ -65,7 +65,7 @@ export function GarmentPriceHistoryDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="2xl" variant="flush">
-        <DialogHeader className="border-b px-6 pb-4 pt-6">
+        <DialogHeader variant="section">
           <div className="flex items-center gap-3 mb-2">
              <SectionIcon tone="primary" size="lg" framed={false} className="h-10 w-10">
                 <History className="h-5 w-5 text-primary" />
@@ -99,18 +99,18 @@ export function GarmentPriceHistoryDialog({
                </div>
             </InfoTile>
           ) : (
-            <ScrollArea className="h-[400px] pr-4">
+            <ScrollArea variant="themed" className="h-[400px] pr-4">
               <div className="relative space-y-8 before:absolute before:inset-0 before:left-[19px] before:w-0.5 before:bg-gradient-to-b before:from-primary/20 before:via-border/50 before:to-transparent">
                 {logs.map((log) => (
                   <div key={log.id} className="relative pl-12">
                     {/* Dot */}
-                    <div className={`absolute left-0 top-1.5 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border-2 border-background z-10 ${
-                      log.action === "UPDATE" ? "bg-primary text-primary-foreground" : "bg-surface-elevated text-text-secondary"
+                    <div className={`absolute left-0 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-background shadow-theme-soft ${
+                      log.action === "UPDATE" ? "bg-primary text-primary-foreground" : "bg-muted text-text-secondary"
                     }`}>
                       {log.action === "UPDATE" ? <Edit3 className="h-4 w-4" /> : <RotateCcw className="h-4 w-4" />}
                     </div>
 
-                    <div className="flex flex-col gap-3 group">
+                    <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                            <p className="text-sm font-extrabold text-text-primary flex items-center gap-2">
@@ -129,7 +129,8 @@ export function GarmentPriceHistoryDialog({
                         tone="surface"
                         padding="contentLg"
                         radius="xl"
-                        className="grid grid-cols-2 gap-4 shadow-sm transition-all group-hover:border-primary/20 group-hover:shadow-md"
+                        interaction="interactivePrimary"
+                        className="grid grid-cols-2 gap-4"
                       >
                         <div className="space-y-2">
                            <Label variant="dashboard">Retail Price</Label>

@@ -87,7 +87,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableHead
                   key={idx}
                   className={cn(
-                    "px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-text-secondary whitespace-nowrap",
+                    "whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary",
                     column.align === "right" && "text-right",
                     column.align === "center" && "text-center",
                     column.headerClassName
@@ -148,9 +148,9 @@ export function DataTable<T extends { id: string | number }>({
       {totalPages > 0 && onPageChange && page && (
         <div className="flex items-center justify-between border-t border-divider bg-surface-elevated px-5 py-3.5">
           <Typography as="p" variant="muted">
-            Showing <span className="font-bold text-foreground">{from}</span> to{" "}
-            <span className="font-bold text-foreground">{to}</span> of{" "}
-            <span className="font-bold text-foreground">{total}</span> {itemLabel}
+            Showing <span className="font-bold text-text-primary">{from}</span> to{" "}
+            <span className="font-bold text-text-primary">{to}</span> of{" "}
+            <span className="font-bold text-text-primary">{total}</span> {itemLabel}
           </Typography>
 
           <div className="flex items-center gap-1">
@@ -184,7 +184,7 @@ export function DataTable<T extends { id: string | number }>({
                     "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
                     page === p
                       ? "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                      : "border-divider bg-inputSurface-background text-foreground hover:bg-interaction-hover"
+                      : "border-divider bg-inputSurface-background text-text-primary hover:bg-interaction-hover"
                   )}
                 >
                   {p}
@@ -211,5 +211,9 @@ export function DataTable<T extends { id: string | number }>({
     return tableContent;
   }
 
-  return <div className="overflow-hidden rounded-lg border border-divider bg-surface shadow-sm">{tableContent}</div>;
+  return (
+    <div className="overflow-hidden rounded-xl border border-divider bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
+      {tableContent}
+    </div>
+  );
 }

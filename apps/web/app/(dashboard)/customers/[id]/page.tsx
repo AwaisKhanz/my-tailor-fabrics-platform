@@ -43,6 +43,10 @@ function CustomerDetailPage() {
     customerId: customerId ?? null,
   });
 
+  const refreshCustomerData = () => {
+    void fetchCustomerData();
+  };
+
   if (loading) {
     return <CustomerDetailSkeleton />;
   }
@@ -138,9 +142,7 @@ function CustomerDetailPage() {
           open={editDialogOpen}
           onOpenChange={closeEditDialog}
           customer={customer}
-          onSuccess={() => {
-            void fetchCustomerData();
-          }}
+          onSuccess={refreshCustomerData}
         />
       ) : null}
 
@@ -151,7 +153,7 @@ function CustomerDetailPage() {
           onOpenChange={closeMeasurementDialog}
           onSuccess={() => {
             closeMeasurementDialog(false);
-            void fetchCustomerData();
+            refreshCustomerData();
           }}
         />
       ) : null}

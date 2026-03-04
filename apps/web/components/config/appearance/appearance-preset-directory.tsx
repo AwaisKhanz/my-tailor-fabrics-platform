@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
+import { Typography } from "@/components/ui/typography";
 
 interface AppearancePresetDirectoryProps {
   query: string;
@@ -28,9 +29,9 @@ export function AppearancePresetDirectory({
   onApply,
 }: AppearancePresetDirectoryProps) {
   return (
-    <Card variant="panel">
+    <Card variant="premium">
       <CardHeader variant="section" className="space-y-1">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle variant="section">
           Theme Preset Directory
         </CardTitle>
         <CardDescription>
@@ -68,12 +69,12 @@ export function AppearancePresetDirectory({
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-text-primary">
+                      <Typography as="p" variant="body" className="text-sm font-semibold text-text-primary">
                         {themePreset.label}
-                      </p>
-                      <p className="text-xs leading-relaxed text-text-secondary">
+                      </Typography>
+                      <Typography as="p" variant="muted" className="text-xs leading-relaxed text-text-secondary">
                         {themePreset.description}
-                      </p>
+                      </Typography>
                     </div>
                     {active ? (
                       <Badge variant="success" size="xs" className="gap-1">

@@ -264,7 +264,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               width={tooltipWidth}
               height={tooltipHeight}
               rx="8"
-              className="fill-surface stroke-divider"
+              className="fill-popover stroke-borderStrong/50"
               strokeWidth="1"
             />
             <text x="12" y="18" className="fill-text-primary text-[11px] font-semibold">

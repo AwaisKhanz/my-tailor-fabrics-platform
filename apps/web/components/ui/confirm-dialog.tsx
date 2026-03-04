@@ -62,10 +62,10 @@ export function ConfirmDialog({
         )} />
         
         <div className="p-6">
-          <DialogHeader className="gap-3">
+          <DialogHeader spacing="relaxed">
             <div className={cn(
                "flex h-12 w-12 items-center justify-center rounded-full shrink-0",
-               variant === "destructive" ? "bg-error-muted text-destructive" : "bg-sidebar-active text-primary"
+               variant === "destructive" ? "bg-error-muted text-destructive" : "bg-info-muted text-info"
             )}>
               <AlertTriangle className="h-6 w-6" />
             </div>

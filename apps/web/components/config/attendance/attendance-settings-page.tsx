@@ -65,6 +65,14 @@ export function AttendanceSettingsPage() {
     refresh,
   } = useAttendanceSettingsPage();
 
+  const employeeOptions = useMemo(
+    () => activeEmployees.map((employee) => ({
+      id: employee.id,
+      label: `${employee.fullName} (${employee.employeeCode})`,
+    })),
+    [activeEmployees],
+  );
+
   const columns = useMemo<ColumnDef<AttendanceRecord>[]>(
     () => [
       {
@@ -209,9 +217,9 @@ export function AttendanceSettingsPage() {
 
       {canManageAttendanceEntries ? (
         <PageSection spacing="compact">
-          <Card variant="panel">
+          <Card variant="premium">
             <CardHeader variant="section" className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <CardTitle variant="section" className="flex items-center gap-2">
                 <UserCheck className="h-4 w-4 text-primary" />
                 Quick Clock-In
               </CardTitle>
@@ -237,9 +245,9 @@ export function AttendanceSettingsPage() {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {activeEmployees.map((employee) => (
+                    {employeeOptions.map((employee) => (
                       <SelectItem key={employee.id} value={employee.id}>
-                        {employee.fullName} ({employee.employeeCode})
+                        {employee.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -296,9 +304,9 @@ export function AttendanceSettingsPage() {
                       <SelectItem value={ALL_EMPLOYEES_FILTER}>
                         All Employees
                       </SelectItem>
-                      {activeEmployees.map((employee) => (
+                      {employeeOptions.map((employee) => (
                         <SelectItem key={employee.id} value={employee.id}>
-                          {employee.fullName} ({employee.employeeCode})
+                          {employee.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

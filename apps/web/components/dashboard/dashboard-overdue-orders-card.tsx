@@ -17,9 +17,9 @@ export function DashboardOverdueOrdersCard({
   onOpenOrder,
 }: DashboardOverdueOrdersCardProps) {
   return (
-    <Card variant="panel">
-      <CardHeader variant="rowSection" className="items-center">
-        <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+    <Card variant="premium">
+      <CardHeader variant="rowSection">
+        <CardTitle variant="dashboardSection">
           Recent Overdue Orders
         </CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>

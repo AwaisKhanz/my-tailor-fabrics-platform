@@ -18,13 +18,13 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
   const workflowStepsCount = garment.workflowSteps?.length ?? 0;
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
           <SectionIcon tone="primary">
             <Shirt className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle className="text-base font-semibold tracking-tight">
+          <CardTitle variant="section">
             Garment Profile
           </CardTitle>
         </div>
@@ -33,7 +33,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <InfoTile>
             <Label variant="micro">

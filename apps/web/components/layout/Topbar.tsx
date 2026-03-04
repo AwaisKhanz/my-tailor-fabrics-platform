@@ -58,7 +58,7 @@ export function Topbar() {
             <DropdownMenuContent className="w-64" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col gap-1.5 p-2">
-                  <p className="truncate text-sm font-semibold text-foreground">
+                  <p className="truncate text-sm font-semibold text-text-primary">
                     {user?.email || "User Account"}
                   </p>
                   <Label variant="dashboard">{role?.replace("_", " ") || "Member"}</Label>

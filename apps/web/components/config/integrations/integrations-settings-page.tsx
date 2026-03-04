@@ -38,6 +38,25 @@ export function IntegrationsSettingsPage() {
     sendTestMail,
   } = useIntegrationsSettingsPage();
 
+  const credentialStatusItems = [
+    {
+      label: "Client ID",
+      configured: status.configured.clientId,
+    },
+    {
+      label: "Client Secret",
+      configured: status.configured.clientSecret,
+    },
+    {
+      label: "Refresh Token",
+      configured: status.configured.refreshToken,
+    },
+    {
+      label: "Sender Email",
+      configured: status.configured.senderEmail,
+    },
+  ] as const;
+
   const copyAuthUrl = useCallback(async () => {
     if (!authUrl) {
       return;
@@ -85,7 +104,7 @@ export function IntegrationsSettingsPage() {
         <PageSection spacing="compact">
           <Card variant="warningSoft">
             <CardHeader variant="section" className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <CardTitle variant="section" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-warning" />
                 Access Restricted
               </CardTitle>
@@ -122,39 +141,23 @@ export function IntegrationsSettingsPage() {
       </PageSection>
 
       <PageSection spacing="compact" className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <Card variant="panel">
+        <Card variant="premium">
           <CardHeader variant="section" className="space-y-1">
-            <CardTitle className="text-base font-semibold">Gmail Integration Status</CardTitle>
+            <CardTitle variant="section">Gmail Integration Status</CardTitle>
             <CardDescription>
               Verify required OAuth credentials and sender metadata.
             </CardDescription>
           </CardHeader>
           <CardContent spacing="section" className="space-y-3 p-5">
             <div className="grid gap-2 sm:grid-cols-2">
-              <InfoTile layout="betweenGap" className="rounded-md">
-                <span className="text-sm text-text-secondary">Client ID</span>
-                <Badge variant={statusVariant(status.configured.clientId)} size="xs">
-                  {status.configured.clientId ? "Configured" : "Missing"}
-                </Badge>
-              </InfoTile>
-              <InfoTile layout="betweenGap" className="rounded-md">
-                <span className="text-sm text-text-secondary">Client Secret</span>
-                <Badge variant={statusVariant(status.configured.clientSecret)} size="xs">
-                  {status.configured.clientSecret ? "Configured" : "Missing"}
-                </Badge>
-              </InfoTile>
-              <InfoTile layout="betweenGap" className="rounded-md">
-                <span className="text-sm text-text-secondary">Refresh Token</span>
-                <Badge variant={statusVariant(status.configured.refreshToken)} size="xs">
-                  {status.configured.refreshToken ? "Configured" : "Missing"}
-                </Badge>
-              </InfoTile>
-              <InfoTile layout="betweenGap" className="rounded-md">
-                <span className="text-sm text-text-secondary">Sender Email</span>
-                <Badge variant={statusVariant(status.configured.senderEmail)} size="xs">
-                  {status.configured.senderEmail ? "Configured" : "Missing"}
-                </Badge>
-              </InfoTile>
+              {credentialStatusItems.map((item) => (
+                <InfoTile key={item.label} layout="betweenGap" className="rounded-md">
+                  <span className="text-sm text-text-secondary">{item.label}</span>
+                  <Badge variant={statusVariant(item.configured)} size="xs">
+                    {item.configured ? "Configured" : "Missing"}
+                  </Badge>
+                </InfoTile>
+              ))}
             </div>
 
             <InfoTile padding="content" className="rounded-md">
@@ -177,9 +180,9 @@ export function IntegrationsSettingsPage() {
           </CardContent>
         </Card>
 
-        <Card variant="panel">
+        <Card variant="premium">
           <CardHeader variant="section" className="space-y-1">
-            <CardTitle className="text-base font-semibold">Integration Actions</CardTitle>
+            <CardTitle variant="section">Integration Actions</CardTitle>
             <CardDescription>
               Generate OAuth authorization URL and validate delivery with a test email.
             </CardDescription>

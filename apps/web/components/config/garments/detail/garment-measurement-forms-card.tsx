@@ -20,18 +20,18 @@ export function GarmentMeasurementFormsCard({
   const categories = garment.measurementCategories ?? [];
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start gap-3 sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <SectionIcon tone="primary">
               <ClipboardList className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle className="text-base font-semibold tracking-tight">
+            <CardTitle variant="section">
               Connected Measurement Forms
             </CardTitle>
           </div>
-          <CardDescription className="text-xs">
+          <CardDescription variant="compact">
             These forms are shown when an order item is created for this garment.
           </CardDescription>
         </div>
@@ -49,7 +49,7 @@ export function GarmentMeasurementFormsCard({
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset">
         {categories.length > 0 ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {categories.map((category) => (

@@ -36,7 +36,7 @@ export function EmployeesListTable({
         header: "Employee",
         cell: (employee) => (
           <div className="group flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-divider shadow-sm">
+            <Avatar size="md" tone="framed">
               <AvatarFallback className="bg-primary/10 font-bold text-primary">
                 {employee.fullName.charAt(0)}
               </AvatarFallback>

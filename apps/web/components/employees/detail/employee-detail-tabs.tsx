@@ -118,11 +118,11 @@ function EmployeeSection({
   };
 
   return (
-    <Card id={id} variant="shellFlat">
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card id={id} variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>
+            <CardTitle variant="section">{title}</CardTitle>
             {badge}
           </div>
           <Typography as="p" variant="muted">
@@ -400,7 +400,7 @@ export function EmployeeDetailTabs({
 
   return (
     <div className="space-y-6">
-      <Card variant="panel">
+      <Card variant="premium">
         <CardContent spacing="section" className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <Label variant="microCaps">
@@ -607,7 +607,6 @@ export function EmployeeDetailTabs({
               layout="betweenGap"
               radius="xl"
               interaction="interactive"
-              className="shadow-sm"
             >
               <div className="flex items-center gap-4">
                 <SectionIcon framed={false}>

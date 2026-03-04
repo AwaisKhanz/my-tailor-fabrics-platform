@@ -24,8 +24,8 @@ interface EmptyStateProps {
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-divider bg-surface-elevated py-16 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sidebar-active">
-        <Icon className="h-6 w-6 text-text-secondary" />
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-divider bg-muted">
+        <Icon className="h-6 w-6 text-muted-foreground" />
       </div>
       <Typography as="h3" variant="sectionTitle" className="text-sm">
         {title}

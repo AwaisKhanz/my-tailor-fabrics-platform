@@ -63,11 +63,11 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
   );
 
   return (
-    <Card variant="shellFlat">
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base font-semibold tracking-tight">Order History</CardTitle>
+            <CardTitle variant="section">Order History</CardTitle>
             <Badge variant="secondary" size="xs" className="font-semibold">
               {orders.length} ORDERS
             </Badge>

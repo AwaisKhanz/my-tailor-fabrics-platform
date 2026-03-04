@@ -64,7 +64,7 @@ function DistributionBars({
   return (
     <div className="space-y-3">
       {activePoint ? (
-        <InfoTile padding="md">
+        <InfoTile tone="elevatedSoft" padding="md">
           <p className="text-xs font-semibold text-text-primary">{activePoint.label}</p>
           <p className="mt-1 text-[11px] text-text-secondary">
             {activePoint.share.toFixed(1)}% • {valueFormatter(activePoint.value)}
@@ -79,7 +79,11 @@ function DistributionBars({
         return (
           <div
             key={point.key}
-            className={`space-y-1.5 rounded-lg border p-3 transition-colors ${isActive ? "border-primary/40 bg-interaction-hover" : "border-divider bg-surface-elevated/70"}`}
+            className={`space-y-1.5 rounded-lg border p-3 transition-colors ${
+              isActive
+                ? "border-primary/40 bg-interaction-hover"
+                : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+            }`}
             onMouseEnter={() => setHoveredKey(point.key)}
           >
             <div className="flex items-center justify-between gap-3">
@@ -167,7 +171,11 @@ function DistributionDonut({
         {topPoints.map((point, index) => (
           <div
             key={point.key}
-            className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${index === activeIndex ? "border-primary/40 bg-interaction-hover" : "border-divider bg-surface-elevated/70"}`}
+            className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${
+              index === activeIndex
+                ? "border-primary/40 bg-interaction-hover"
+                : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+            }`}
             onMouseEnter={() => setHoveredIndex(index)}
           >
             <div className="flex items-center gap-2">

@@ -32,15 +32,14 @@ export function DashboardGarmentBreakdownCard({
   let offset = 0;
 
   return (
-    <Card variant="panel" className="h-full">
-      <CardHeader variant="section" density="compact" className="space-y-2 ">
+    <Card variant="premium" className="h-full">
+      <CardHeader variant="section" density="compact" className="space-y-2">
         <div className="flex items-center gap-2">
           <SectionIcon size="sm">
             <PieChart className="h-4 w-4" />
           </SectionIcon>
           <CardTitle
-            variant="dashboard"
-            className="text-base normal-case tracking-tight"
+            variant="dashboardSection"
           >
             Garment Mix
           </CardTitle>
@@ -51,7 +50,7 @@ export function DashboardGarmentBreakdownCard({
       </CardHeader>
 
       <CardContent spacing="section" className="space-y-4">
-        <InfoTile layout="between">
+        <InfoTile tone="elevatedSoft" layout="between">
           <div>
             <Label variant="micro">
               Total Value
@@ -158,7 +157,11 @@ export function DashboardGarmentBreakdownCard({
                 return (
                   <div
                     key={garment.label}
-                    className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${isActive ? "border-primary/40 bg-interaction-hover" : "border-divider bg-surface-elevated/70"}`}
+                    className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${
+                      isActive
+                        ? "border-primary/40 bg-interaction-hover"
+                        : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+                    }`}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
                   >

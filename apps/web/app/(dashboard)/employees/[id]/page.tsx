@@ -19,15 +19,14 @@ import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 
 function EmployeeDetailPage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { canAll } = useAuthz();
   const canManageEmployees = canAll(["employees.manage"]);
   const canManageAccounts = canAll(["users.manage"]);
   const canManageLedger = canAll(["ledger.manage"]);
-  const canManageDocuments = canAll(["employees.manage"]);
   const canManageTaskStatus = canAll(["tasks.update"]);
-  const employeeId = typeof params.id === "string" ? params.id : null;
+  const employeeId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const {
     loading,
@@ -79,6 +78,10 @@ function EmployeeDetailPage() {
     submitLedgerEntry,
     deleteLedgerEntry,
   } = useEmployeeDetailPage({ employeeId });
+
+  const refreshEmployeeData = () => {
+    void fetchEmployeeData();
+  };
 
   if (loading) {
     return <EmployeeDetailSkeleton />;
@@ -162,7 +165,7 @@ function EmployeeDetailPage() {
               onOpenLedgerDialog={() => setLedgerDialogOpen(true)}
               canManageTaskStatus={canManageTaskStatus}
               canManageLedger={canManageLedger}
-              canManageDocuments={canManageDocuments}
+              canManageDocuments={canManageEmployees}
               canManageAccount={canManageAccounts}
             />
           }
@@ -170,40 +173,12 @@ function EmployeeDetailPage() {
         />
       </PageSection>
 
-      {canManageDocuments ? (
-        <EmployeeDocumentUploadDialog
-          open={documentDialogOpen}
-          onOpenChange={setDocumentDialogOpen}
-          label={docLabel}
-          url={docUrl}
-          uploading={uploadingDocument}
-          onLabelChange={setDocLabel}
-          onUrlChange={setDocUrl}
-          onSubmit={() => {
-            void uploadDocument();
-          }}
-        />
-      ) : null}
-
       {canManageAccounts ? (
         <AccountCreationDialog
           open={accountDialogOpen}
           onOpenChange={setAccountDialogOpen}
           employee={employee}
-          onSuccess={() => {
-            void fetchEmployeeData();
-          }}
-        />
-      ) : null}
-
-      {canManageEmployees ? (
-        <EmployeeDialog
-          open={editDialogOpen}
-          onOpenChange={setEditDialogOpen}
-          initialData={employee}
-          onSuccess={() => {
-            void fetchEmployeeData();
-          }}
+          onSuccess={refreshEmployeeData}
         />
       ) : null}
 
@@ -223,6 +198,30 @@ function EmployeeDetailPage() {
             void submitLedgerEntry();
           }}
         />
+      ) : null}
+
+      {canManageEmployees ? (
+        <>
+          <EmployeeDocumentUploadDialog
+            open={documentDialogOpen}
+            onOpenChange={setDocumentDialogOpen}
+            label={docLabel}
+            url={docUrl}
+            uploading={uploadingDocument}
+            onLabelChange={setDocLabel}
+            onUrlChange={setDocUrl}
+            onSubmit={() => {
+              void uploadDocument();
+            }}
+          />
+
+          <EmployeeDialog
+            open={editDialogOpen}
+            onOpenChange={setEditDialogOpen}
+            initialData={employee}
+            onSuccess={refreshEmployeeData}
+          />
+        </>
       ) : null}
     </PageShell>
   );

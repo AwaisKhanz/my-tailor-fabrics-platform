@@ -84,27 +84,27 @@ export function MeasurementCategoriesTable() {
       </PageSection>
 
       {canManageMeasurements ? (
-        <MeasurementCategoryDialog
-          open={isDialogOpen}
-          onOpenChange={closeDialog}
-          initialData={selectedCategory}
-          onSuccess={() => {
-            void fetchCategories();
-          }}
-        />
-      ) : null}
+        <>
+          <MeasurementCategoryDialog
+            open={isDialogOpen}
+            onOpenChange={closeDialog}
+            initialData={selectedCategory}
+            onSuccess={() => {
+              void fetchCategories();
+            }}
+          />
 
-      {canManageMeasurements ? (
-        <ConfirmDialog
-          open={isConfirmOpen}
-          onOpenChange={closeConfirm}
-          title="Delete Category"
-          description={`Are you sure you want to delete the "${categoryToDelete?.name}" category? This action cannot be undone.`}
-          onConfirm={() => {
-            void confirmDelete();
-          }}
-          confirmText="Delete Category"
-        />
+          <ConfirmDialog
+            open={isConfirmOpen}
+            onOpenChange={closeConfirm}
+            title="Delete Category"
+            description={`Are you sure you want to delete the "${categoryToDelete?.name}" category? This action cannot be undone.`}
+            onConfirm={() => {
+              void confirmDelete();
+            }}
+            confirmText="Delete Category"
+          />
+        </>
       ) : null}
     </PageShell>
   );

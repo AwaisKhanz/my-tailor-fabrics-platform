@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
 
 const cardVariants = cva(
-  "rounded-xl border border-divider bg-surface text-card-foreground shadow-sm",
+  "rounded-xl border border-divider bg-card text-card-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]",
   {
     variants: {
       variant: {
@@ -13,15 +13,15 @@ const cardVariants = cva(
         shellFlat: "overflow-hidden shadow-none",
         elevatedPanel: "bg-surface-elevated shadow-none",
         elevatedShell: "overflow-hidden bg-surface-elevated shadow-none",
-        successSoft: "border-success/30 bg-success-muted shadow-none",
-        warningSoft: "border-warning/30 bg-warning-muted shadow-none",
-        errorSoft: "border-error/30 bg-error-muted shadow-none",
-        success: "border-success bg-success-muted",
-        error: "border-error bg-error-muted",
+        successSoft: "border-success/30 bg-success-muted/70 shadow-none",
+        warningSoft: "border-warning/30 bg-warning-muted/70 shadow-none",
+        errorSoft: "border-error/30 bg-error-muted/70 shadow-none",
+        success: "border-success/45 bg-success-muted",
+        error: "border-error/45 bg-error-muted",
         premium:
-          "border-borderStrong/70 bg-surface-elevated shadow-sm",
+          "border-borderStrong/70 bg-card shadow-[0_6px_16px_hsl(var(--shadow-color)/0.12)]",
         interactive:
-          "cursor-pointer transition-all hover:border-borderStrong hover:bg-surface-elevated hover:shadow-md",
+          "cursor-pointer transition-all duration-200 hover:border-borderStrong hover:bg-surface-elevated hover:shadow-[0_4px_12px_hsl(var(--shadow-color)/0.12)]",
       },
     },
     defaultVariants: {
@@ -60,10 +60,22 @@ const cardHeaderVariants = cva(
         compact: "px-5 py-3",
         comfortable: "px-6 py-5",
       },
+      align: {
+        default: "",
+        start: "items-start",
+        startResponsive: "items-start sm:items-center",
+      },
+      gap: {
+        default: "",
+        sm: "gap-3",
+        md: "gap-4",
+      },
     },
     defaultVariants: {
       variant: "default",
       density: "default",
+      align: "default",
+      gap: "default",
     },
   }
 )
@@ -75,22 +87,24 @@ export interface CardHeaderProps
 const CardHeader = React.forwardRef<
   HTMLDivElement,
   CardHeaderProps
->(({ className, variant, density, ...props }, ref) => (
+>(({ className, variant, density, align, gap, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(cardHeaderVariants({ variant, density, className }))}
+    className={cn(cardHeaderVariants({ variant, density, align, gap, className }))}
     {...props}
   />
 ))
 CardHeader.displayName = "CardHeader"
 
 const cardTitleVariants = cva(
-  "font-semibold leading-none tracking-tight",
+  "font-semibold leading-none tracking-tight text-text-primary",
   {
     variants: {
       variant: {
         default: "",
+        section: "text-base font-semibold tracking-tight",
         dashboard: "text-sm font-bold uppercase tracking-tight",
+        dashboardSection: "text-base font-bold normal-case tracking-tight",
         heading: "text-3xl font-bold tracking-tight",
       }
     },
@@ -116,13 +130,34 @@ const CardTitle = React.forwardRef<
 ))
 CardTitle.displayName = "CardTitle"
 
+const cardDescriptionVariants = cva(
+  "text-text-secondary",
+  {
+    variants: {
+      variant: {
+        default: "text-sm",
+        header: "mt-1 text-xs",
+        compact: "text-xs",
+        finePrint: "mt-1 text-[11px] leading-relaxed",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+export interface CardDescriptionProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardDescriptionVariants> {}
+
 const CardDescription = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  CardDescriptionProps
+>(({ className, variant, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-text-secondary", className)}
+    className={cn(cardDescriptionVariants({ variant, className }))}
     {...props}
   />
 ))
@@ -135,9 +170,14 @@ const cardContentVariants = cva("p-6 pt-0", {
       compact: "p-5 pt-0",
       section: "p-6",
     },
+    padding: {
+      default: "",
+      inset: "p-5 sm:p-6",
+    },
   },
   defaultVariants: {
     spacing: "default",
+    padding: "default",
   },
 })
 
@@ -148,10 +188,10 @@ export interface CardContentProps
 const CardContent = React.forwardRef<
   HTMLDivElement,
   CardContentProps
->(({ className, spacing, ...props }, ref) => (
+>(({ className, spacing, padding, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(cardContentVariants({ spacing, className }))}
+    className={cn(cardContentVariants({ spacing, padding, className }))}
     {...props}
   />
 ))

@@ -23,9 +23,9 @@ export function DashboardProductivityCard({
     : 0;
 
   return (
-    <Card variant="panel" className="h-full">
-      <CardHeader variant="rowSection" className="items-start">
-        <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+    <Card variant="premium" className="h-full">
+      <CardHeader variant="rowSection" align="start">
+        <CardTitle variant="dashboardSection">
           Employee Productivity
         </CardTitle>
         <div className="flex flex-col items-end">
@@ -52,7 +52,7 @@ export function DashboardProductivityCard({
         ) : (
           <>
             {activeEmployee ? (
-              <InfoTile padding="md">
+              <InfoTile tone="elevatedSoft" padding="md">
                 <p className="text-xs font-semibold text-text-primary">{activeEmployee.label}</p>
                 <p className="mt-1 text-[11px] text-text-secondary">{activeEmployee.value} completed</p>
               </InfoTile>
@@ -70,11 +70,15 @@ export function DashboardProductivityCard({
               return (
                 <div
                   key={employee.label}
-                  className={`flex flex-col gap-2 rounded-md px-1 py-1 transition-colors ${activeEmployee?.label === employee.label ? "bg-interaction-hover" : ""}`}
+                  className={`flex flex-col gap-2 rounded-lg border px-2.5 py-2 transition-colors ${
+                    activeEmployee?.label === employee.label
+                      ? "border-primary/35 bg-interaction-hover"
+                      : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+                  }`}
                   onMouseEnter={() => setHoveredEmployee(employee.label)}
                 >
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-bold">{employee.label}</span>
+                    <span className="font-bold text-text-primary">{employee.label}</span>
                     <Label variant="dashboard">{employee.value} Items</Label>
                   </div>
                   <ProgressBar

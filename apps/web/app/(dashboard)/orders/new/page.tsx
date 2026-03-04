@@ -6,7 +6,13 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormStack } from "@/components/ui/form-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -97,23 +103,23 @@ function NewOrderPage() {
 
       <PageSection spacing="compact">
         <Card variant="elevatedPanel">
-          <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+          <CardHeader variant="rowSection" align="startResponsive" gap="md">
             <div className="flex items-center gap-3">
               <SectionIcon size="lg">
                 <ClipboardList className="h-4 w-4" />
               </SectionIcon>
               <div>
-                <CardTitle className="text-base font-semibold tracking-tight">Order Workflow</CardTitle>
-                <Typography as="p" variant="muted" className="mt-1 text-xs">
+                <CardTitle variant="section">Order Workflow</CardTitle>
+                <CardDescription variant="header">
                   Keep every order consistent from customer selection to final totals.
-                </Typography>
+                </CardDescription>
               </div>
             </div>
             <Badge variant="outline" size="xs" className="font-bold">
               {isEditMode ? "EDIT ORDER" : "NEW ORDER"}
             </Badge>
           </CardHeader>
-          <CardContent spacing="section" className="grid grid-cols-1 gap-3 p-5 md:grid-cols-3">
+          <CardContent spacing="section" padding="inset" className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {workflowSteps.map((step, index) => (
               <InfoTile key={step.title} tone="inputSurface" padding="none" className="px-4 py-3">
                 <Label variant="micro">

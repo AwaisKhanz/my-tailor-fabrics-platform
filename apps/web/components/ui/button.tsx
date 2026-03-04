@@ -5,34 +5,35 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium leading-none transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interaction-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:saturate-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/85",
+          "bg-primary text-primary-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.16)] hover:bg-primary/90 hover:shadow-[0_2px_8px_hsl(var(--shadow-color)/0.16)] active:bg-primary/85",
         premium:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/85",
+          "bg-primary text-primary-foreground shadow-[0_2px_10px_hsl(var(--shadow-color)/0.14)] hover:bg-primary/92 hover:shadow-[0_4px_14px_hsl(var(--shadow-color)/0.14)] active:bg-primary/86",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.16)] hover:bg-destructive/90 hover:shadow-[0_2px_8px_hsl(var(--shadow-color)/0.16)] active:bg-destructive/84",
         outline:
-          "border border-inputSurface-border bg-inputSurface-background text-foreground shadow-sm hover:bg-interaction-hover hover:text-foreground",
+          "border border-inputSurface-border bg-inputSurface-background text-text-primary hover:border-borderStrong hover:bg-interaction-hover hover:text-text-primary",
         outlineDashed:
-          "border border-dashed border-inputSurface-border bg-inputSurface-background text-foreground shadow-sm hover:bg-interaction-hover hover:text-foreground",
+          "border border-dashed border-inputSurface-border bg-inputSurface-background text-text-primary hover:border-borderStrong hover:bg-interaction-hover hover:text-text-primary",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-interaction-hover hover:text-foreground",
+          "bg-secondary text-secondary-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.14)] hover:bg-secondary/85 hover:shadow-[0_2px_8px_hsl(var(--shadow-color)/0.14)] active:bg-secondary/78",
+        ghost: "text-text-secondary hover:bg-interaction-hover hover:text-text-primary",
         link: "text-primary underline-offset-4 hover:underline",
-        muted: "border border-divider bg-surface text-text-secondary hover:bg-interaction-hover hover:text-foreground",
+        muted:
+          "border border-divider bg-surface-elevated text-text-secondary hover:border-borderStrong hover:bg-interaction-hover hover:text-text-primary",
         dashboard: "border border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-active ",
         tableIcon:
-          "border border-transparent text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-foreground",
+          "border border-transparent text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
         tableDanger:
           "border border-transparent text-text-secondary hover:border-destructive/25 hover:bg-error-muted hover:text-destructive",
         tableReset:
-          "h-10 border border-transparent text-xs font-semibold text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-foreground",
+          "h-10 border border-transparent text-xs font-semibold text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
         tablePrimary:
-          "border border-divider bg-surface-elevated text-primary hover:bg-interaction-hover",
+          "border border-divider bg-surface-elevated text-text-primary hover:border-borderStrong hover:bg-interaction-hover",
         tableSuccess:
           "border border-transparent text-success hover:border-success/25 hover:bg-success-muted hover:text-success",
         infoGhost:
@@ -42,7 +43,7 @@ const buttonVariants = cva(
         sidebarIcon:
           "rounded-lg border border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-active hover:text-sidebar-foreground",
         sidebarIconMuted:
-          "rounded-lg border border-sidebar-border bg-transparent text-text-secondary hover:bg-interaction-hover hover:text-foreground",
+          "rounded-lg border border-sidebar-border bg-transparent text-text-secondary hover:bg-interaction-hover hover:text-text-primary",
       },
       size: {
         default: "h-9 px-4 py-2",

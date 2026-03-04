@@ -92,30 +92,30 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
       </PageSection>
 
       {canManageMeasurements ? (
-        <MeasurementFieldDialog
-          open={isFieldDialogOpen}
-          onOpenChange={closeFieldDialog}
-          categoryId={id}
-          categoryName={category?.name}
-          initialData={selectedField}
-          existingFields={category?.fields || []}
-          onSuccess={() => {
-            void fetchCategory();
-          }}
-        />
-      ) : null}
+        <>
+          <MeasurementFieldDialog
+            open={isFieldDialogOpen}
+            onOpenChange={closeFieldDialog}
+            categoryId={id}
+            categoryName={category?.name}
+            initialData={selectedField}
+            existingFields={category?.fields || []}
+            onSuccess={() => {
+              void fetchCategory();
+            }}
+          />
 
-      {canManageMeasurements ? (
-        <ConfirmDialog
-          open={isConfirmOpen}
-          onOpenChange={closeDeleteConfirm}
-          title="Delete Field"
-          description={`Are you sure you want to delete the field "${fieldToDelete?.label}"? This action cannot be undone.`}
-          onConfirm={() => {
-            void confirmDeleteField();
-          }}
-          confirmText="Delete Field"
-        />
+          <ConfirmDialog
+            open={isConfirmOpen}
+            onOpenChange={closeDeleteConfirm}
+            title="Delete Field"
+            description={`Are you sure you want to delete the field "${fieldToDelete?.label}"? This action cannot be undone.`}
+            onConfirm={() => {
+              void confirmDeleteField();
+            }}
+            confirmText="Delete Field"
+          />
+        </>
       ) : null}
     </PageShell>
   );

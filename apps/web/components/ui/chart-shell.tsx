@@ -27,8 +27,8 @@ export function ChartShell({
   contentClassName,
 }: ChartShellProps) {
   return (
-    <Card className={cn("overflow-hidden border-divider bg-surface-elevated", className)}>
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card variant="premium" className={cn("overflow-hidden", className)}>
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="flex items-center gap-3">
           {icon ? (
             <SectionIcon size="lg">
@@ -36,9 +36,9 @@ export function ChartShell({
             </SectionIcon>
           ) : null}
           <div>
-            <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>
+            <CardTitle variant="section">{title}</CardTitle>
             {description ? (
-              <CardDescription className="mt-1 text-xs">{description}</CardDescription>
+              <CardDescription variant="header">{description}</CardDescription>
             ) : null}
           </div>
         </div>

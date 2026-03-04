@@ -16,7 +16,7 @@ const NEXT_STATUS_CONFIG: Partial<
       next: OrderStatus;
       label: string;
       helper: string;
-      variant: "premium" | "outline";
+      variant: "premium" | "outlinePrimary";
     }
   >
 > = {
@@ -30,13 +30,13 @@ const NEXT_STATUS_CONFIG: Partial<
     next: OrderStatus.READY,
     label: "Mark Ready",
     helper: "Move order to ready once work is completed.",
-    variant: "outline",
+    variant: "outlinePrimary",
   },
   [OrderStatus.READY]: {
     next: OrderStatus.DELIVERED,
     label: "Mark Delivered",
     helper: "Confirm handover to customer.",
-    variant: "outline",
+    variant: "outlinePrimary",
   },
   [OrderStatus.DELIVERED]: {
     next: OrderStatus.COMPLETED,
@@ -61,7 +61,7 @@ export function OrderLifecycleCard({
   }
 
   return (
-    <Card variant="shell">
+    <Card variant="premium">
       <CardHeader variant="section" density="comfortable">
         <CardTitle variant="dashboard">Lifecycle Action</CardTitle>
         <p className="text-xs text-text-secondary">
@@ -69,8 +69,10 @@ export function OrderLifecycleCard({
         </p>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-3 p-5 sm:p-6">
-        <p className="text-xs text-text-secondary">{nextConfig.helper}</p>
+      <CardContent spacing="section" padding="inset" className="space-y-3">
+        <p className="rounded-lg border border-divider/70 bg-surface-elevated/60 px-3 py-2 text-xs text-text-secondary">
+          {nextConfig.helper}
+        </p>
 
         <Button
           variant={nextConfig.variant}

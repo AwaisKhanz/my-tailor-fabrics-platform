@@ -4860,3 +4860,256 @@ This is the single source of truth for implementation edits and why they were ma
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
 - `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 113 (Settings Detail Review Sweep)
+
+### Goal
+- Continue the next-page decomposition/consistency pass in settings detail routes and verify whether additional code changes were still required.
+
+### Review coverage completed (`NJ`)
+- `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx`
+  - Reviewed and confirmed no additional change required in this pass.
+- `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx`
+  - Reviewed and confirmed no additional change required in this pass.
+- `apps/web/app/(dashboard)/settings/design-types/page.tsx`
+  - Reviewed and confirmed no additional change required in this pass.
+- `apps/web/app/(dashboard)/settings/garments/[id]/page.tsx`
+  - Reviewed and confirmed no additional change required in this pass.
+
+### Result
+- These settings detail pages were already aligned with the current consistency baseline; no code delta was necessary.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 114 (Next Pages: Config Component Consistency Cleanup)
+
+### Goal
+- Continue the page-by-page consistency/decomposition effort by removing duplicated local logic in the next settings page components.
+
+### Page/component updates completed
+- `apps/web/components/config/audit-logs/audit-logs-page.tsx`
+  - Replaced long action `if` chains with centralized maps:
+    - `ACTION_SUMMARY_MAP`
+    - `ACTION_BADGE_VARIANT_MAP`
+  - Keeps audit action semantics in one maintainable source and reduces conditional drift.
+- `apps/web/components/config/attendance/attendance-settings-page.tsx`
+  - Added memoized `employeeOptions` and reused it in both employee selects (quick clock-in + table filter).
+  - Removed duplicated employee label rendering logic to keep both controls consistent.
+- `apps/web/components/config/integrations/integrations-settings-page.tsx`
+  - Introduced `credentialStatusItems` array and rendered status tiles via mapping instead of repeated blocks.
+  - Keeps integration credential status UI uniform and easier to extend.
+- `apps/web/components/config/expenses/expense-categories-page.tsx`
+  - Consolidated duplicate `canManageExpenseCategories` dialog guards into one role-gated fragment (form dialog + confirm dialog).
+  - Aligns with the same page-level permission-gated action pattern used across other settings modules.
+
+### Result
+- The next settings pages now have less repeated UI/logic wiring and stronger local consistency without changing behavior.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 115 (Next Pages: Measurement/Branch/Garment Guard Consolidation)
+
+### Goal
+- Continue next-page consistency by removing repeated permission-guard blocks in core configuration pages.
+
+### Page/component updates completed
+- `apps/web/components/config/MeasurementCategoriesTable.tsx`
+  - Consolidated duplicated `canManageMeasurements` wrappers into one guarded fragment containing:
+    - `MeasurementCategoryDialog`
+    - delete `ConfirmDialog`
+- `apps/web/components/config/MeasurementCategoryDetail.tsx`
+  - Consolidated duplicated `canManageMeasurements` wrappers into one guarded fragment containing:
+    - `MeasurementFieldDialog`
+    - delete `ConfirmDialog`
+- `apps/web/components/config/BranchesTable.tsx`
+  - Consolidated duplicated `canManageBranches` wrappers into one guarded fragment containing:
+    - `BranchFormDialog`
+    - delete `ConfirmDialog`
+- `apps/web/components/config/GarmentTypesTable.tsx`
+  - Consolidated duplicated `canManageGarments` wrappers into one guarded fragment containing:
+    - `GarmentTypeDialog`
+    - `GarmentWorkflowStepsDialog`
+    - delete `ConfirmDialog`
+  - Preserved `GarmentPriceHistoryDialog` outside management guard (view flow remains unchanged).
+
+### Result
+- These settings modules now follow a single permission-gated action pattern per page component, reducing repeated control flow and keeping action dialogs colocated.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 116 (Next Pages: Shared Typography + Detail Route Cleanup)
+
+### Goal
+- Continue consistency work by replacing remaining raw detail-header page titles with shared `Typography` and tightening detail-route orchestration patterns.
+
+### Page/component updates completed
+- `apps/web/components/employees/detail/employee-detail-header.tsx`
+  - Replaced raw `<h1>` with shared `Typography` (`as="h1"`, `variant="pageTitle"`).
+- `apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx`
+  - Replaced raw `<h1>` with shared `Typography` page-title primitive.
+- `apps/web/components/orders/order-detail-header-card.tsx`
+  - Replaced raw `<h1>` with shared `Typography` page-title primitive.
+- `apps/web/components/config/branches/hub/branch-hub-overview-header.tsx`
+  - Replaced raw `<h1>` with shared `Typography` page-title primitive.
+- `apps/web/components/customers/detail/customer-detail-header.tsx`
+  - Replaced raw `<h1>` with shared `Typography` page-title primitive.
+- `apps/web/components/config/garments/detail/garment-detail-header.tsx`
+  - Replaced raw `<h1>` with shared `Typography` page-title primitive.
+- `apps/web/app/(dashboard)/employees/[id]/page.tsx`
+  - Typed route params with `useParams<{ id: string }>()` and normalized dynamic param extraction.
+  - Removed duplicate employees/documents permission intent by reusing `canManageEmployees` for document capabilities.
+  - Added shared `refreshEmployeeData` callback and consolidated employee-managed dialogs under one guard block.
+- `apps/web/app/(dashboard)/customers/[id]/page.tsx`
+  - Added shared `refreshCustomerData` callback to reduce repeated success-refresh logic.
+
+### Result
+- Header typography now follows one design-system primitive in key detail surfaces.
+- Detail route orchestration is cleaner and more consistent around route param handling and post-dialog refresh flows.
+
+### Verification run after edits
+- `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
+- `npm run lint -w web` ✅
+- `npm run theme:migration:verify` ✅
+- `npm run theme:usage:audit` ✅
+
+## 2026-03-05 — Pass 117 (Next Pages: Orders Detail Route Consistency)
+
+### Goal
+- Continue consistency/decomposition in the orders detail route by standardizing route param handling, reducing inline callback drift, and normalizing action rendering.
+
+### Page/component updates completed
+- `apps/web/app/(dashboard)/orders/[id]/page.tsx`
+  - Switched to typed route params: `useParams<{ id: string }>()` with array-safe normalization.
+  - Added `refreshOrder` helper and reused it for task dialog success refresh.
+  - Added focused handlers (`handleCancelOrder`, `handleAdvanceStatus`, `handleManageTasks`) to reduce repeated inline logic.
+  - Wrapped loading skeleton block in `PageSection` for shell-structure consistency.
+- `apps/web/components/orders/order-detail-header-card.tsx`
+  - Replaced repeated action-button conditional blocks with one data-driven `actionButtons` config and mapped rendering.
+  - Preserved all existing visibility and disabled-state behavior (`share`, `cancel`, etc.) while reducing duplicated markup.
+
+### Result
+- Orders detail flow now follows cleaner route/component boundaries with less repeated UI control logic and more consistent page-shell structure.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+
+## 2026-03-05 — Pass 118 (Next Pages: Branch/System/Appearance Component Consistency)
+
+### Goal
+- Continue consistency migration by reducing raw text style drift and duplicated action markup in branch/system/appearance components.
+
+### Page/component updates completed
+- `apps/web/components/config/branches/hub/branch-global-pricing-card.tsx`
+  - Replaced raw text blocks in stats/info tiles with shared `Typography` primitives for tokenized text styling.
+- `apps/web/components/config/branches/hub/branch-hub-meta-card.tsx`
+  - Added `Typography` and replaced raw branch ID/code text nodes with shared typography usage.
+- `apps/web/components/config/system/system-settings-workflow-card.tsx`
+  - Added `Typography` and replaced raw title/description paragraph nodes in workflow toggle content.
+- `apps/web/components/config/appearance/appearance-preset-directory.tsx`
+  - Added `Typography` and replaced raw preset title/description text nodes in each preset row.
+- `apps/web/components/config/appearance/appearance-mode-card.tsx`
+  - Replaced duplicated light/dark button blocks with mapped `modeOptions` config-driven rendering for one consistent button structure.
+
+### Result
+- These components now rely more consistently on shared typography/UI patterns and contain less repeated presentation markup.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+
+## 2026-03-05 — Pass 119 (Global Card Shadow Softening)
+
+### Goal
+- Address excessive shadow depth by reducing elevation at shared UI primitive level instead of per-page overrides.
+
+### Primitive updates completed
+- `apps/web/components/ui/card.tsx`
+  - Softened base card elevation from `shadow-sm shadow-shadowColor/10` to a lower custom shadow token.
+  - Reduced `premium` variant shadow intensity.
+  - Reduced `interactive` hover shadow intensity.
+- `apps/web/components/ui/table-layout.tsx`
+  - Softened `TableSurface` framed shadow to match the updated card baseline.
+- `apps/web/components/ui/data-table.tsx`
+  - Softened framed table wrapper shadow to match the updated card baseline.
+- `apps/web/components/ui/table-skeleton.tsx`
+  - Softened framed table-skeleton wrapper shadow for loading-state consistency.
+
+### Result
+- Card-like surfaces now use noticeably lighter elevation across the app with consistent depth behavior between normal and loading table/card containers.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+
+## 2026-03-05 — Pass 120 (Global Shadow Calibration: Overlay + Buttons)
+
+### Goal
+- Continue shadow cleanup by reducing remaining strong elevation sources outside cards, with consistent depth tokens across overlays, sidebar drawer, and button variants.
+
+### Primitive/layout updates completed
+- `apps/web/app/globals.css`
+  - Reduced `shadow-theme-elevated` intensity.
+  - Reduced `shadow-theme-soft` intensity.
+  - Added `shadow-theme-modal` utility as a moderate modal/drawer shadow tier.
+- `apps/web/components/ui/dialog.tsx`
+  - Switched dialog content shadow from `shadow-theme-elevated` to `shadow-theme-modal`.
+- `apps/web/components/ui/sheet.tsx`
+  - Switched sheet panel shadow from `shadow-theme-elevated` to `shadow-theme-modal`.
+- `apps/web/components/layout/Sidebar.tsx`
+  - Replaced mobile drawer `shadow-xl` with `shadow-theme-modal` for tokenized consistency.
+- `apps/web/components/ui/button.tsx`
+  - Softened `default`, `premium`, `destructive`, and `secondary` button shadow intensities.
+  - Removed unnecessary shadows from `outline`, `outlineDashed`, and `muted` variants.
+
+### Result
+- Elevation is now flatter and more controlled across cards, dialogs/sheets, drawer, and buttons, reducing the heavy-shadow feel while preserving visual hierarchy.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+
+## 2026-03-05 — Pass 121 (Residual Shadow Outlier Cleanup + Avatar Variant Centralization)
+
+### Goal
+- Continue the consistency sweep by removing remaining non-tokenized heavy shadows and moving repeated avatar surface styling into shared UI variants.
+
+### Shared/component updates completed
+- `apps/web/components/ui/avatar.tsx`
+  - Added centralized `Avatar` variants:
+    - `size`: `default | md | sm`
+    - `tone`: `default | framed`
+  - Moved framed avatar border/shadow styling into shared primitive (`tone="framed"`) instead of per-page class overrides.
+- `apps/web/components/employees/list/employees-list-table.tsx`
+  - Replaced local avatar styling classes with shared avatar variants (`size="md"`, `tone="framed"`).
+- `apps/web/components/orders/orders-list-table.tsx`
+  - Replaced local size class with shared avatar size variant (`size="sm"`).
+- `apps/web/components/ui/switch.tsx`
+  - Replaced remaining `shadow-lg`/`shadow-md` thumb elevations with softer tokenized custom shadows.
+- `apps/web/components/config/GarmentPriceHistoryDialog.tsx`
+  - Replaced timeline marker `shadow-lg` with `shadow-theme-soft`.
+  - Replaced one-off hover shadow classes on history cards with shared `InfoTile` interaction variant (`interactivePrimary`).
+- `apps/web/components/employees/detail/employee-detail-tabs.tsx`
+  - Removed unnecessary one-off `shadow-sm` override from document `InfoTile` usage.
+- `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx`
+  - Removed one-off `shadow-sm` override from dropdown option chips.
+- `apps/web/components/config/branches/branch-delete-summary.tsx`
+  - Removed one-off `shadow-sm` override from branch impact metric tiles.
+
+### Result
+- Remaining hard elevation outliers were eliminated from frontend feature code.
+- Avatar visual styling is now controlled at primitive level through variants, reducing repeated class-level styling in page/domain components.
+- Shadow behavior is flatter and more consistent across interactive cards, chips, and timeline markers.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Performed source audit only:
+  - `rg "shadow-(2xl|xl|lg|md)" apps/web` → no matches.

@@ -28,12 +28,12 @@ import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 
 function OrderDetailPage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { canAll } = useAuthz();
   const { toast } = useToast();
 
-  const orderId = typeof params.id === "string" ? params.id : null;
+  const orderId = Array.isArray(params.id) ? params.id[0] : params.id;
   const {
     loading,
     order,
@@ -67,6 +67,10 @@ function OrderDetailPage() {
     setNote("");
   };
 
+  const refreshOrder = () => {
+    void fetchOrder();
+  };
+
   const handleShareStatus = async () => {
     const result = await generateShareLink();
     if (result) {
@@ -97,10 +101,12 @@ function OrderDetailPage() {
   if (loading) {
     return (
       <PageShell>
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-1/4" />
-          <Skeleton className="h-64 w-full" />
-        </div>
+        <PageSection spacing="compact">
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-1/4" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </PageSection>
       </PageShell>
     );
   }
@@ -170,6 +176,19 @@ function OrderDetailPage() {
     }
   };
 
+  const handleCancelOrder = () => {
+    void updateStatus(OrderStatus.CANCELLED);
+  };
+
+  const handleAdvanceStatus = (status: OrderStatus) => {
+    void updateStatus(status);
+  };
+
+  const handleManageTasks = (item: OrderItem) => {
+    setTaskItem(item);
+    setTaskOpen(true);
+  };
+
   return (
     <PageShell>
       <PageSection spacing="compact">
@@ -197,9 +216,7 @@ function OrderDetailPage() {
           onShareStatus={() => {
             void handleShareStatus();
           }}
-          onCancelOrder={() => {
-            void updateStatus(OrderStatus.CANCELLED);
-          }}
+          onCancelOrder={handleCancelOrder}
           onEditOrder={() => router.push(`/orders/new?edit=${order.id}`)}
         />
       </PageSection>
@@ -261,10 +278,7 @@ function OrderDetailPage() {
                 items={order.items}
                 employees={employees}
                 canManageTasks={canManageTasks}
-                onManageTasks={(item) => {
-                  setTaskItem(item);
-                  setTaskOpen(true);
-                }}
+                onManageTasks={handleManageTasks}
               />
             </div>
           }
@@ -279,9 +293,7 @@ function OrderDetailPage() {
               <OrderLifecycleCard
                 status={order.status}
                 statusLoading={statusLoading}
-                onAdvance={(status) => {
-                  void updateStatus(status);
-                }}
+                onAdvance={handleAdvanceStatus}
               />
 
               <OrderTimelineCard
@@ -311,9 +323,7 @@ function OrderDetailPage() {
       <TaskAssignmentDialog
         orderItem={taskItem}
         employees={employees}
-        onSuccess={() => {
-          void fetchOrder();
-        }}
+        onSuccess={refreshOrder}
         open={taskOpen}
         onOpenChange={setTaskOpen}
       />

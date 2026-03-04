@@ -24,11 +24,15 @@
   }
 
   .shadow-theme-elevated {
-    box-shadow: 0 28px 80px hsl(var(--overlay-strong));
+    box-shadow: 0 14px 36px hsl(var(--overlay-strong));
+  }
+
+  .shadow-theme-modal {
+    box-shadow: 0 16px 42px hsl(var(--overlay-strong));
   }
 
   .shadow-theme-soft {
-    box-shadow: 0 16px 36px hsl(var(--overlay));
+    box-shadow: 0 8px 20px hsl(var(--overlay));
   }
 
   .bg-app-bar {

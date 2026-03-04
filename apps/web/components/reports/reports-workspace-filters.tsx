@@ -51,7 +51,7 @@ export function ReportsWorkspaceFilters({
   })}`;
 
   return (
-    <Card variant="panel">
+    <Card variant="premium">
       <CardContent className="space-y-3 p-4">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
@@ -97,7 +97,12 @@ export function ReportsWorkspaceFilters({
           </div>
 
           {preset === "custom" ? null : (
-            <InfoTile layout="row" padding="md" className="h-9 rounded-md text-xs text-text-secondary lg:w-fit">
+            <InfoTile
+              tone="elevatedSoft"
+              layout="row"
+              padding="md"
+              className="h-9 rounded-md text-xs text-text-secondary lg:w-fit"
+            >
               <CalendarRange className="mr-1.5 h-3.5 w-3.5" />
               {rangeLabel}
             </InfoTile>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
+import { Typography } from "@/components/ui/typography";
 import { formatDate } from "@/lib/utils";
 
 interface EmployeeDetailHeaderProps {
@@ -27,8 +28,8 @@ export function EmployeeDetailHeader({
   const hasAccount = Boolean(employee.userAccount);
 
   return (
-    <Card variant="shell">
-      <CardContent spacing="section" className="space-y-6 p-5 sm:p-6">
+    <Card variant="premium">
+      <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3 lg:max-w-[70%]">
             <Label variant="microStrong">
@@ -36,9 +37,9 @@ export function EmployeeDetailHeader({
             </Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
                 {employee.fullName}
-              </h1>
+              </Typography>
               <Badge
                 variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"}
                 className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]"

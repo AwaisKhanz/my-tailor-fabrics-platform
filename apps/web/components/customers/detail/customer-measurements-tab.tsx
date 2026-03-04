@@ -21,11 +21,11 @@ export function CustomerMeasurementsTab({
   canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
   return (
-    <Card variant="shellFlat">
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base font-semibold tracking-tight">Measurements</CardTitle>
+            <CardTitle variant="section">Measurements</CardTitle>
             <Badge variant="secondary" size="xs" className="font-semibold">
               {measurements.length} SETS
             </Badge>
@@ -42,11 +42,11 @@ export function CustomerMeasurementsTab({
         ) : null}
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-4">
         {measurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {measurements.map((measurement) => (
-              <Card key={measurement.id} variant="shell">
+              <Card key={measurement.id} variant="premium">
                 <CardHeader variant="sectionSoft" density="compact">
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}

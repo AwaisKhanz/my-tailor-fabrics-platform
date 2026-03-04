@@ -4,26 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-[0.01em] transition-colors focus:outline-none focus:ring-2 focus:ring-interaction-focus focus:ring-offset-2 focus:ring-offset-background",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+          "border-primary/20 bg-primary/10 text-primary",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/85",
         destructive:
-          "border-transparent bg-error-muted text-destructive border-destructive/20",
-        outline: "text-foreground",
-        outlineSoft: "border-divider bg-surface-elevated text-foreground",
-        success: "border-transparent bg-success-muted text-success border-success/20",
-        warning: "border-transparent bg-warning-muted text-warning border-warning/20",
-        info: "border-transparent bg-info-muted text-info border-info/20",
-        ready: "border-transparent bg-ready-muted text-ready border-ready/20",
-        admin: "border-transparent bg-sidebar-active text-sidebar-foreground border-sidebar-border",
-        royal: "border-transparent bg-chart-4/10 text-chart-4 border-chart-4/10",
-        amber: "border-transparent bg-warning-muted text-warning border-warning/20",
-        premium: "font-bold uppercase tracking-tight text-[10px] px-2 py-0.5",
+          "border-destructive/25 bg-error-muted text-destructive",
+        outline: "border-divider bg-surface text-text-secondary",
+        outlineSoft: "border-divider bg-surface-elevated text-text-primary",
+        success: "border-success/25 bg-success-muted text-success",
+        warning: "border-warning/25 bg-warning-muted text-warning",
+        info: "border-info/25 bg-info-muted text-info",
+        ready: "border-ready/25 bg-ready-muted text-ready",
+        admin: "border-pending/25 bg-pending-muted text-pending",
+        royal: "border-chart-4/20 bg-chart-4/10 text-chart-4",
+        amber: "border-warning/25 bg-warning-muted text-warning",
+        premium: "border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight text-primary",
       },
       size: {
         default: "px-2.5 py-0.5 text-xs",

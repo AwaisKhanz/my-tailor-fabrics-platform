@@ -21,13 +21,13 @@ export function EntityBreadcrumb({
   return (
     <div
       className={cn(
-        "mb-1 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-text-secondary",
+        "mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary",
         className,
       )}
     >
       <button
         type="button"
-        className="rounded-sm transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-interaction-focus"
+        className="rounded-md px-1 py-0.5 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interaction-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         onClick={onBack}
       >
         {sectionLabel}

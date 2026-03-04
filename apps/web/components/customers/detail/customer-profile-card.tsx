@@ -17,21 +17,21 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
   const addressLine = [customer.address, customer.city].filter(Boolean).join(", ");
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
-          <SectionIcon>
+          <SectionIcon tone="infoSoft">
             <UserSquare2 className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle className="text-base font-semibold tracking-tight">Customer Profile</CardTitle>
+          <CardTitle variant="section">Customer Profile</CardTitle>
         </div>
         <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} size="xs">
           {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
-        <InfoTile tone="pending">
+      <CardContent spacing="section" padding="inset" className="space-y-4">
+        <InfoTile tone="elevatedSoft">
           <Label variant="micro">Size Number</Label>
           <p className="mt-1 text-sm font-semibold text-text-primary">{customer.sizeNumber}</p>
         </InfoTile>

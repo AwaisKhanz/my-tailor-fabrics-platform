@@ -22,13 +22,13 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
 
   return (
     <div className="space-y-6">
-      <Card variant="shell">
-        <CardHeader variant="rowSection" className="items-start sm:items-center">
+      <Card variant="premium">
+        <CardHeader variant="rowSection" align="startResponsive">
           <div className="flex items-center gap-2">
             <SectionIcon tone="primary">
               <Banknote className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle className="text-base font-semibold tracking-tight">
+            <CardTitle variant="section">
               Global Pricing
             </CardTitle>
           </div>
@@ -37,7 +37,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
           </Badge>
         </CardHeader>
 
-        <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+        <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-text-secondary">Customer Price</span>
@@ -65,7 +65,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                 value={marginPercentage}
                 max={100}
                 tone="primary"
-                className="bg-surface-elevated"
+                className="bg-muted"
                 size="sm"
               />
 
@@ -82,13 +82,13 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
         </CardContent>
       </Card>
 
-      <Card variant="shell">
-        <CardHeader variant="rowSection" className="items-start sm:items-center">
+      <Card variant="premium">
+        <CardHeader variant="rowSection" align="startResponsive">
           <div className="flex items-center gap-2">
             <SectionIcon tone="info">
               <Banknote className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle className="text-base font-semibold tracking-tight">
+            <CardTitle variant="section">
               Top Tailors
             </CardTitle>
           </div>
@@ -97,7 +97,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
           </Badge>
         </CardHeader>
 
-        <CardContent spacing="section" className="space-y-3 p-5 sm:p-6">
+        <CardContent spacing="section" padding="inset" className="space-y-3">
           {garment.analytics.topTailors.length > 0 ? (
             garment.analytics.topTailors.map((tailor, index) => (
               <InfoTile
@@ -110,7 +110,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                       "flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold",
                       index === 0
                         ? "bg-ready/20 text-ready"
-                        : "bg-surface-elevated text-text-secondary",
+                        : "bg-muted text-text-secondary",
                     )}
                   >
                     {index + 1}

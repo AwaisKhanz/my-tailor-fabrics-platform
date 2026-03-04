@@ -91,17 +91,6 @@ export function GarmentTypesTable() {
         </TableSurface>
       </PageSection>
 
-      {canManageGarments ? (
-        <GarmentTypeDialog
-          open={isDialogOpen}
-          onOpenChange={closeGarmentDialog}
-          initialData={selectedType}
-          onSuccess={() => {
-            void fetchGarmentTypes();
-          }}
-        />
-      ) : null}
-
       <GarmentPriceHistoryDialog
         open={isHistoryOpen}
         onOpenChange={closeHistoryDialog}
@@ -110,29 +99,38 @@ export function GarmentTypesTable() {
       />
 
       {canManageGarments ? (
-        <GarmentWorkflowStepsDialog
-          open={isWorkflowOpen}
-          onOpenChange={closeWorkflowDialog}
-          garmentId={selectedType?.id || ""}
-          garmentName={selectedType?.name || ""}
-          initialSteps={selectedType?.workflowSteps || []}
-          onSuccess={() => {
-            void fetchGarmentTypes();
-          }}
-        />
-      ) : null}
+        <>
+          <GarmentTypeDialog
+            open={isDialogOpen}
+            onOpenChange={closeGarmentDialog}
+            initialData={selectedType}
+            onSuccess={() => {
+              void fetchGarmentTypes();
+            }}
+          />
 
-      {canManageGarments ? (
-        <ConfirmDialog
-          open={isConfirmOpen}
-          onOpenChange={closeConfirmDialog}
-          title="Delete Garment Type"
-          description={`Are you sure you want to delete "${typeToDelete?.name}"? This action cannot be undone.`}
-          onConfirm={() => {
-            void confirmDelete();
-          }}
-          confirmText="Delete Garment Type"
-        />
+          <GarmentWorkflowStepsDialog
+            open={isWorkflowOpen}
+            onOpenChange={closeWorkflowDialog}
+            garmentId={selectedType?.id || ""}
+            garmentName={selectedType?.name || ""}
+            initialSteps={selectedType?.workflowSteps || []}
+            onSuccess={() => {
+              void fetchGarmentTypes();
+            }}
+          />
+
+          <ConfirmDialog
+            open={isConfirmOpen}
+            onOpenChange={closeConfirmDialog}
+            title="Delete Garment Type"
+            description={`Are you sure you want to delete "${typeToDelete?.name}"? This action cannot be undone.`}
+            onConfirm={() => {
+              void confirmDelete();
+            }}
+            confirmText="Delete Garment Type"
+          />
+        </>
       ) : null}
     </PageShell>
   );

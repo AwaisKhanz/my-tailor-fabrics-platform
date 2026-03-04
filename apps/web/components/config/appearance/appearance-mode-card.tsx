@@ -17,10 +17,25 @@ export function AppearanceModeCard({
   isDark,
   onSetMode,
 }: AppearanceModeCardProps) {
+  const modeOptions = [
+    {
+      id: "light",
+      label: "Light Mode",
+      icon: Sun,
+      active: !isDark,
+    },
+    {
+      id: "dark",
+      label: "Dark Mode",
+      icon: Moon,
+      active: isDark,
+    },
+  ] as const;
+
   return (
-    <Card variant="panel" className="lg:sticky lg:top-20">
+    <Card variant="premium" className="lg:sticky lg:top-20">
       <CardHeader variant="section" className="space-y-1">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+        <CardTitle variant="section" className="flex items-center gap-2">
           <Palette className="h-4 w-4 text-primary" />
           Display Mode
         </CardTitle>
@@ -32,24 +47,21 @@ export function AppearanceModeCard({
         spacing="section"
         className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-2 lg:grid-cols-1"
       >
-        <Button
-          type="button"
-          variant={!isDark ? "default" : "outline"}
-          className="justify-start"
-          onClick={() => onSetMode("light")}
-        >
-          <Sun className="h-4 w-4" />
-          Light Mode
-        </Button>
-        <Button
-          type="button"
-          variant={isDark ? "default" : "outline"}
-          className="justify-start"
-          onClick={() => onSetMode("dark")}
-        >
-          <Moon className="h-4 w-4" />
-          Dark Mode
-        </Button>
+        {modeOptions.map((modeOption) => {
+          const Icon = modeOption.icon;
+          return (
+            <Button
+              key={modeOption.id}
+              type="button"
+              variant={modeOption.active ? "default" : "outline"}
+              className="justify-start"
+              onClick={() => onSetMode(modeOption.id)}
+            >
+              <Icon className="h-4 w-4" />
+              {modeOption.label}
+            </Button>
+          );
+        })}
       </CardContent>
     </Card>
   );

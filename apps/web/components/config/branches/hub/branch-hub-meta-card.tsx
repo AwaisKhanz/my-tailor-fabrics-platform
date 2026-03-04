@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
+import { Typography } from "@/components/ui/typography";
 import { formatDate } from "@/lib/utils";
 
 interface BranchHubMetaCardProps {
@@ -13,36 +14,36 @@ interface BranchHubMetaCardProps {
 
 export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
           <SectionIcon>
             <Building2 className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle className="text-base font-semibold tracking-tight">Branch Profile</CardTitle>
+          <CardTitle variant="section">Branch Profile</CardTitle>
         </div>
         <Badge variant={branch?.isActive ? "success" : "outline"} size="xs">
           {branch?.isActive ? "Active" : "Inactive"}
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile>
           <Label variant="micro">
             Branch ID
           </Label>
-          <p className="mt-1 truncate text-sm font-semibold text-text-primary">
+          <Typography as="p" variant="body" className="mt-1 truncate text-sm font-semibold text-text-primary">
             {branch?.id || "N/A"}
-          </p>
+          </Typography>
         </InfoTile>
 
         <InfoTile>
           <Label variant="micro">
             Branch Code
           </Label>
-          <p className="mt-1 text-sm font-semibold uppercase text-text-primary">
+          <Typography as="p" variant="body" className="mt-1 text-sm font-semibold uppercase text-text-primary">
             {branch?.code || "N/A"}
-          </p>
+          </Typography>
         </InfoTile>
 
         <div className="flex items-start gap-3 text-sm text-text-secondary">

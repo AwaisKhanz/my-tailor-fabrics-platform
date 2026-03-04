@@ -1,7 +1,13 @@
 import { Check, Clock3, Dot } from "lucide-react";
 import { type ReactNode } from "react";
 import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -68,20 +74,22 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
   const timelineSteps = buildTimeline(status);
 
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" density="comfortable" className="items-start sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
         <div className="flex items-center gap-3">
-          <SectionIcon size="lg">
+          <SectionIcon tone="infoSoft" size="lg">
             <Clock3 className="h-4 w-4 text-primary" />
           </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Order Timeline</CardTitle>
-            <p className="mt-1 text-xs text-text-secondary">Current progression and status events.</p>
+            <CardDescription variant="header">
+              Current progression and status events.
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5 p-5 sm:p-6">
+      <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="space-y-3">
           {timelineSteps.map((step, index) => {
             const isLast = index === timelineSteps.length - 1;
@@ -121,11 +129,11 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
           })}
         </div>
 
-        <InfoTile tone="pending" padding="content">
+        <InfoTile tone="elevatedSoft" padding="content">
           <Label variant="micro">Recent Events</Label>
           <div className="mt-2 space-y-2">
             {history.slice(0, 4).map((entry) => (
-              <InfoTile key={entry.id} padding="sm" className="rounded-md">
+              <InfoTile key={entry.id} tone="surface" padding="sm" className="rounded-md">
                 <p className="text-xs font-semibold text-text-primary">
                   {entry.toStatus.replace("_", " ")}
                 </p>

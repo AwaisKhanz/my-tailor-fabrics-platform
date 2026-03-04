@@ -1,6 +1,12 @@
 import { UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -30,17 +36,17 @@ export function PaymentsEmployeeSelectorCard({
   onEmployeeChange,
 }: PaymentsEmployeeSelectorCardProps) {
   return (
-    <Card variant="shell">
-      <CardHeader variant="rowSection" className="items-start gap-4 sm:items-center">
+    <Card variant="premium">
+      <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="flex items-center gap-3">
           <SectionIcon size="lg">
             <UserRound className="h-4 w-4" />
           </SectionIcon>
           <div>
-            <CardTitle className="text-base font-semibold tracking-tight">Employee Scope</CardTitle>
-            <p className="mt-1 text-xs text-text-secondary">
+            <CardTitle variant="section">Employee Scope</CardTitle>
+            <CardDescription variant="header">
               Select an employee to load payroll summary and ledger.
-            </p>
+            </CardDescription>
           </div>
         </div>
         <Badge variant="secondary" size="xs">
