@@ -7,15 +7,27 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n \"api,web,shared,const,theme\" -c \"cyan,green,yellow,magenta,blue\" \"npm run dev -w api\" \"npm run dev -w web\" \"npm run dev -w @tbms/shared-types\" \"npm run dev -w @tbms/shared-constants\" \"npm run dev -w @tbms/shared-theme\"",
+    "env:setup": "sh ./scripts/setup-env.sh",
+    "env:verify": "sh ./scripts/verify-env-contract.sh",
+    "dev": "npm run env:setup && concurrently -n \"api,web,shared,const,theme\" -c \"cyan,green,yellow,magenta,blue\" \"npm run dev -w api\" \"npm run dev -w web\" \"npm run dev -w @tbms/shared-types\" \"npm run dev -w @tbms/shared-constants\" \"npm run dev -w @tbms/shared-theme\"",
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
     "rbac:audit": "node scripts/rbac-audit.mjs",
     "security:backend:guardrails": "sh ./scripts/security-backend-guardrails.sh",
+    "prisma:generate": "npm run prisma:generate -w api",
+    "prisma:migrate:status": "npm exec -w api prisma migrate status",
+    "prisma:migrate:deploy": "npm exec -w api prisma migrate deploy",
+    "prisma:db:push": "npm exec -w api prisma db push",
+    "prisma:seed": "npm exec -w api prisma db seed",
+    "prisma:seed:core": "SEED_CORE_DATA=true npm exec -w api prisma db seed",
+    "prisma:seed:demo": "SEED_CORE_DATA=true SEED_DEMO_DATA=true npm exec -w api prisma db seed",
     "refactor:manifest:generate": "sh ./scripts/generate-refactor-manifest.sh",
     "refactor:manifest:verify": "sh ./scripts/verify-refactor-manifest.sh",
     "db:backup": "sh scripts/db-backup.sh",
     "db:restore": "sh scripts/db-restore.sh"
+  },
+  "prisma": {
+    "schema": "apps/api/prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

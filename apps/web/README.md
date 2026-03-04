@@ -2,6 +2,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Before starting development, initialize environment files from repo root:
+
+```bash
+npm run env:setup
+```
+
+This creates/ensures `apps/web/.env`, `apps/web/.env.local`, and `apps/web/.env.production`.
+
 First, run the development server:
 
 ```bash

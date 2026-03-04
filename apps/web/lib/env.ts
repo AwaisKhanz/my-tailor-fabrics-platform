@@ -12,6 +12,10 @@ function resolveEnv(name: string, value: string | undefined, devFallback: string
   return devFallback;
 }
 
+export function isWebProductionEnvironment(): boolean {
+  return isProduction;
+}
+
 export function getWebApiBaseUrl(): string {
   const value = process.env.NEXT_PUBLIC_API_URL;
   if (value && value.trim().length > 0) {
@@ -41,5 +45,13 @@ export function getNextAuthSecret(): string {
     'NEXTAUTH_SECRET',
     process.env.NEXTAUTH_SECRET,
     'dev-only-nextauth-secret-change-me',
+  );
+}
+
+export function getNextAuthUrl(): string {
+  return resolveEnv(
+    'NEXTAUTH_URL',
+    process.env.NEXTAUTH_URL,
+    'http://localhost:3000',
   );
 }

@@ -8,11 +8,55 @@ import {
 } from '@tbms/shared-constants';
 
 const prisma = new PrismaClient();
+const isEnvTrue = (value?: string) =>
+  (value ?? '').trim().toLowerCase() === 'true';
+const shouldSeedCoreData = isEnvTrue(process.env.SEED_CORE_DATA);
+const shouldSeedDemoData =
+  isEnvTrue(process.env.SEED_DEMO_DATA);
+const shouldSeedCoreCatalogData = shouldSeedCoreData || shouldSeedDemoData;
 
 async function main() {
   console.log('Seed starting...');
+  console.log(
+    `Core catalog data seeding: ${shouldSeedCoreCatalogData ? 'enabled' : 'disabled'}`,
+  );
+  console.log(
+    `Demo transactional data seeding: ${shouldSeedDemoData ? 'enabled' : 'disabled'}`,
+  );
 
-  // 1. System Settings
+  // 1. Create Super Admin User
+  const adminEmail = 'admin@tbms.com';
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+
+  const admin = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      name: 'Main Admin',
+      passwordHash: hashedPassword,
+      role: Role.SUPER_ADMIN,
+      isActive: true,
+      branchId: null,
+      deletedAt: null,
+    },
+    create: {
+      email: adminEmail,
+      name: 'Main Admin',
+      passwordHash: hashedPassword,
+      role: Role.SUPER_ADMIN,
+      branchId: null,
+    },
+  });
+  console.log(`Created/Ensured Super Admin: ${admin.email}`);
+
+  if (!shouldSeedCoreCatalogData) {
+    console.log(
+      'Skipped settings/catalog templates (set SEED_CORE_DATA=true or SEED_DEMO_DATA=true to include).',
+    );
+    console.log('Seed complete! 🚀');
+    return;
+  }
+
+  // 2. System Settings
   await prisma.systemSettings.upsert({
     where: { id: 'default' },
     update: {},
@@ -20,7 +64,7 @@ async function main() {
   });
   console.log('Created/Ensured System Settings.');
 
-  // 2. Create Default Branch
+  // 3. Create Default Branch
   const branch = await prisma.branch.upsert({
     where: { code: 'MAIN' },
     update: {},
@@ -32,23 +76,6 @@ async function main() {
     },
   });
   console.log(`Created/Ensured Branch: ${branch.name} (${branch.code})`);
-
-  // 3. Create Super Admin User
-  const adminEmail = 'admin@tbms.com';
-  const hashedPassword = await bcrypt.hash('admin123', 10);
-
-  const admin = await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: {
-      email: adminEmail,
-      name: 'Main Admin',
-      passwordHash: hashedPassword,
-      role: Role.SUPER_ADMIN,
-      branchId: null,
-    },
-  });
-  console.log(`Created/Ensured Super Admin: ${admin.email}`);
 
   // 4. Create Garment Types & Measurement Categories
   const gtShalwar = await prisma.garmentType.upsert({
@@ -154,7 +181,7 @@ async function main() {
     }
   }
 
-  const catShalwar = await prisma.measurementCategory.upsert({
+  await prisma.measurementCategory.upsert({
     where: { id: 'cat_shalwar' },
     update: {},
     create: {
@@ -171,88 +198,94 @@ async function main() {
     }
   });
 
-  // 5. Create Employees
-  const emp1 = await prisma.employee.upsert({
-    where: { employeeCode: 'EMP-MAIN-0001' },
-    update: {},
-    create: {
-      employeeCode: 'EMP-MAIN-0001',
-      branchId: branch.id,
-      fullName: 'Ahmed Raza',
-      phone: '03001234567',
-      designation: 'Master Tailor'
-    }
-  });
-
-  const emp2 = await prisma.employee.upsert({
-    where: { employeeCode: 'EMP-MAIN-0002' },
-    update: {},
-    create: {
-      employeeCode: 'EMP-MAIN-0002',
-      branchId: branch.id,
-      fullName: 'Ali Khan',
-      phone: '03007654321',
-      designation: 'Tailor'
-    }
-  });
-
-  // 6. Create Customers
-  const customer1 = await prisma.customer.upsert({
-    where: { sizeNumber: 'C-MAIN-0001' },
-    update: {},
-    create: {
-      sizeNumber: 'C-MAIN-0001',
-      branchId: branch.id,
-      fullName: 'Kamran Ali',
-      phone: '03331112222'
-    }
-  });
-
-  const customer2 = await prisma.customer.upsert({
-    where: { sizeNumber: 'C-MAIN-0002' },
-    update: {},
-    create: {
-      sizeNumber: 'C-MAIN-0002',
-      branchId: branch.id,
-      fullName: 'Zahid Hussain',
-      phone: '03449998888'
-    }
-  });
-
-  // 7. Create an Order
-  const order = await prisma.order.upsert({
-    where: { orderNumber: 'ORD-2025-MAIN-00001' },
-    update: {},
-    create: {
-      orderNumber: 'ORD-2025-MAIN-00001',
-      branchId: branch.id,
-      customerId: customer1.id,
-      createdById: admin.id,
-      subtotal: 300000,
-      totalAmount: 300000,
-      balanceDue: 200000,
-      totalPaid: 100000,
-      dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-      status: OrderStatus.IN_PROGRESS,
-      items: {
-        create: [
-          {
-            garmentTypeId: gtShalwar.id,
-            garmentTypeName: gtShalwar.name,
-            quantity: 2,
-            unitPrice: gtShalwar.customerPrice,
-            employeeRate: gtShalwar.employeeRate,
-            employeeId: emp1.id,
-          }
-        ]
-      },
-      payments: {
-        create: [
-          { amount: 100000, receivedById: admin.id }
-        ]
+  if (shouldSeedDemoData) {
+    // 5. Create demo Employees
+    const emp1 = await prisma.employee.upsert({
+      where: { employeeCode: 'EMP-MAIN-0001' },
+      update: {},
+      create: {
+        employeeCode: 'EMP-MAIN-0001',
+        branchId: branch.id,
+        fullName: 'Ahmed Raza',
+        phone: '03001234567',
+        designation: 'Master Tailor'
       }
-    }
-  });
+    });
+
+    await prisma.employee.upsert({
+      where: { employeeCode: 'EMP-MAIN-0002' },
+      update: {},
+      create: {
+        employeeCode: 'EMP-MAIN-0002',
+        branchId: branch.id,
+        fullName: 'Ali Khan',
+        phone: '03007654321',
+        designation: 'Tailor'
+      }
+    });
+
+    // 6. Create demo Customers
+    const customer1 = await prisma.customer.upsert({
+      where: { sizeNumber: 'C-MAIN-0001' },
+      update: {},
+      create: {
+        sizeNumber: 'C-MAIN-0001',
+        branchId: branch.id,
+        fullName: 'Kamran Ali',
+        phone: '03331112222'
+      }
+    });
+
+    await prisma.customer.upsert({
+      where: { sizeNumber: 'C-MAIN-0002' },
+      update: {},
+      create: {
+        sizeNumber: 'C-MAIN-0002',
+        branchId: branch.id,
+        fullName: 'Zahid Hussain',
+        phone: '03449998888'
+      }
+    });
+
+    // 7. Create demo Order
+    await prisma.order.upsert({
+      where: { orderNumber: 'ORD-2025-MAIN-00001' },
+      update: {},
+      create: {
+        orderNumber: 'ORD-2025-MAIN-00001',
+        branchId: branch.id,
+        customerId: customer1.id,
+        createdById: admin.id,
+        subtotal: 300000,
+        totalAmount: 300000,
+        balanceDue: 200000,
+        totalPaid: 100000,
+        dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+        status: OrderStatus.IN_PROGRESS,
+        items: {
+          create: [
+            {
+              garmentTypeId: gtShalwar.id,
+              garmentTypeName: gtShalwar.name,
+              quantity: 2,
+              unitPrice: gtShalwar.customerPrice,
+              employeeRate: gtShalwar.employeeRate,
+              employeeId: emp1.id,
+            }
+          ]
+        },
+        payments: {
+          create: [{ amount: 100000, receivedById: admin.id }]
+        }
+      }
+    });
+
+    console.log('Seeded demo employees, customers, and orders.');
+  } else {
+    console.log(
+      'Skipped demo employees/customers/orders (set SEED_DEMO_DATA=true to include).',
+    );
+  }
 
   // 8. Create Initial Design Types
   const designTypes = [
@@ -276,8 +309,6 @@ async function main() {
     });
   }
   console.log('Seeded Design Types.');
-
-  console.log('Created Mock Employees, Customers, and Orders.');
 
   console.log('Seed complete! 🚀');
 }

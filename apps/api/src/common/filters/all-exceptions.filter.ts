@@ -7,10 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-
-function isProductionEnvironment(): boolean {
-  return process.env.NODE_ENV === 'production';
-}
+import { isProductionEnvironment } from '../env';
 
 function getUnknownErrorMessage(exception: unknown): string | null {
   if (!exception || typeof exception !== 'object') {

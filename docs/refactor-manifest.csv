@@ -1,8 +1,8 @@
 path,module,phase,status,owner,notes
-apps/api/package.json,security-env,1,DN,codex,Sixty-fourth modernization pass
+apps/api/package.json,security-env,1,DN,codex,Sixty-seventh modernization pass
 apps/api/src/app.controller.spec.ts,testing,9,NS,unassigned,
 apps/api/src/app.controller.ts,cross-cutting,8,DN,codex,Forty-first modernization pass
-apps/api/src/app.module.ts,optimization-dx,8,DN,codex,Sixty-first modernization pass
+apps/api/src/app.module.ts,optimization-dx,8,DN,codex,Seventy-third modernization pass
 apps/api/src/app.service.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/attendance/attendance.controller.ts,backend-domains,6,DN,codex,Sixty-third modernization pass
 apps/api/src/attendance/attendance.module.ts,backend-domains,6,NS,unassigned,
@@ -12,7 +12,7 @@ apps/api/src/audit-logs/audit-logs.controller.ts,cross-cutting,8,DN,codex,Sixty-
 apps/api/src/audit-logs/audit-logs.module.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/audit-logs/audit-logs.service.ts,cross-cutting,8,DN,codex,Sixtieth modernization pass
 apps/api/src/auth/auth.controller.spec.ts,security-env,1,DN,codex,Sixth modernization pass
-apps/api/src/auth/auth.controller.ts,security-env,1,DN,codex,Sixty-third modernization pass
+apps/api/src/auth/auth.controller.ts,security-env,1,DN,codex,Sixty-fifth modernization pass
 apps/api/src/auth/auth.module.ts,security-env,1,DN,codex,Initial modernization pass
 apps/api/src/auth/auth.service.spec.ts,security-env,1,DN,codex,Sixth modernization pass
 apps/api/src/auth/auth.service.ts,security-env,1,DN,codex,Sixty-second modernization pass
@@ -26,8 +26,8 @@ apps/api/src/branches/dto/branch.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/common/decorators/auth.decorators.ts,auth-rbac,2,NS,unassigned,
 apps/api/src/common/decorators/permissions.decorator.ts,cross-cutting,8,NS,unassigned,
 apps/api/src/common/dto/pagination-query.dto.ts,cross-cutting,8,DN,codex,Fifty-third modernization pass
-apps/api/src/common/env.ts,cross-cutting,8,DN,codex,Sixty-first modernization pass
-apps/api/src/common/filters/all-exceptions.filter.ts,optimization-dx,8,DN,codex,Fifty-seventh modernization pass
+apps/api/src/common/env.ts,cross-cutting,8,DN,codex,Sixty-sixth modernization pass
+apps/api/src/common/filters/all-exceptions.filter.ts,optimization-dx,8,DN,codex,Sixty-fifth modernization pass
 apps/api/src/common/guards/branch.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
 apps/api/src/common/guards/jwt-auth.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
 apps/api/src/common/guards/permissions.guard.ts,auth-rbac,2,DN,codex,Sixty-second modernization pass
@@ -76,8 +76,8 @@ apps/api/src/ledger/ledger.service.ts,backend-domains,6,DN,codex,Sixty-first mod
 apps/api/src/mail/dto/send-test-mail.dto.ts,reporting-public-status,7,DN,codex,Fifty-third modernization pass
 apps/api/src/mail/mail.controller.ts,reporting-public-status,7,DN,codex,Fifty-third modernization pass
 apps/api/src/mail/mail.module.ts,reporting-public-status,7,NS,unassigned,
-apps/api/src/mail/mail.service.ts,reporting-public-status,7,NS,unassigned,
-apps/api/src/main.ts,security-env,1,DN,codex,Sixty-first modernization pass
+apps/api/src/mail/mail.service.ts,reporting-public-status,7,DN,codex,Sixty-fifth modernization pass
+apps/api/src/main.ts,security-env,1,DN,codex,Sixty-fifth modernization pass
 apps/api/src/orders/dto/add-payment.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/orders/dto/create-order.dto.ts,backend-domains,6,NS,unassigned,
 apps/api/src/orders/dto/update-order.dto.ts,backend-domains,6,DN,codex,Fifty-third modernization pass
@@ -153,7 +153,7 @@ apps/web/app/(dashboard)/settings/page.tsx,web-domains,5,NJ,codex,Redirect-only 
 apps/web/app/(dashboard)/settings/rates/page.tsx,web-domains,5,DN,codex,Nineteenth modernization pass
 apps/web/app/(dashboard)/settings/system/page.tsx,web-domains,5,NS,unassigned,
 apps/web/app/(dashboard)/settings/users/page.tsx,web-domains,5,NJ,codex,Thin route wrapper; backing module decomposed in pass 20
-apps/web/app/api/auth/[...nextauth]/route.ts,security-env,1,DN,codex,Initial modernization pass
+apps/web/app/api/auth/[...nextauth]/route.ts,security-env,1,DN,codex,Sixty-sixth modernization pass
 apps/web/app/api/status/[token]/route.ts,reporting-public-status,7,DN,codex,Initial modernization pass
 apps/web/app/favicon.ico,cross-cutting,8,NS,unassigned,
 apps/web/app/fonts/GeistMonoVF.woff,cross-cutting,8,NS,unassigned,
@@ -434,8 +434,8 @@ apps/web/lib/api/reports.ts,shared-contracts,3,DN,codex,Eighth modernization pas
 apps/web/lib/api/users.ts,shared-contracts,3,DN,codex,Eighth modernization pass
 apps/web/lib/chart-theme.ts,cross-cutting,8,NS,unassigned,
 apps/web/lib/config.ts,cross-cutting,8,NS,unassigned,
-apps/web/lib/env.ts,cross-cutting,8,DN,codex,Initial modernization pass
-apps/web/lib/logger.ts,cross-cutting,8,DN,codex,Seventh modernization pass
+apps/web/lib/env.ts,cross-cutting,8,DN,codex,Sixty-sixth modernization pass
+apps/web/lib/logger.ts,cross-cutting,8,DN,codex,Sixty-sixth modernization pass
 apps/web/lib/reports-date.ts,cross-cutting,8,NS,unassigned,
 apps/web/lib/theme-css.ts,cross-cutting,8,NS,unassigned,
 apps/web/lib/theme-presets.ts,cross-cutting,8,NS,unassigned,
@@ -460,7 +460,7 @@ apps/web/types/next-auth.d.ts,shared-contracts,3,DN,codex,Initial modernization 
 apps/web/types/orders/index.ts,shared-contracts,3,NS,unassigned,
 apps/web/types/orders/models.ts,shared-contracts,3,NS,unassigned,
 apps/web/types/orders/schemas.ts,shared-contracts,3,NS,unassigned,
-package.json,security-env,1,DN,codex,Sixty-fourth modernization pass
+package.json,security-env,1,DN,codex,Seventy-second modernization pass
 packages/shared-constants/src/audit.ts,shared-contracts,3,DN,codex,Fifty-ninth modernization pass
 packages/shared-constants/src/authz.ts,shared-contracts,3,NS,unassigned,
 packages/shared-constants/src/customers.ts,shared-contracts,3,NS,unassigned,

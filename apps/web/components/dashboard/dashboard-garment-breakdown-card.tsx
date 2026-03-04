@@ -3,7 +3,11 @@ import { PieChart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import type { GarmentRevenue } from "@/lib/api/reports";
-import { getChartBgClass, getChartStrokeClass, getChartTextClass } from "@/lib/chart-theme";
+import {
+  getChartBgClass,
+  getChartStrokeClass,
+  getChartTextClass,
+} from "@/lib/chart-theme";
 import { cn, formatPKR } from "@/lib/utils";
 
 interface DashboardGarmentBreakdownCardProps {
@@ -26,13 +30,16 @@ export function DashboardGarmentBreakdownCard({
   let offset = 0;
 
   return (
-    <Card className="border-border/70 bg-card">
-      <CardHeader variant="section" density="compact" className="space-y-2">
+    <Card className="border-border/70 bg-card h-full">
+      <CardHeader variant="section" density="compact" className="space-y-2 ">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
             <PieChart className="h-4 w-4" />
           </div>
-          <CardTitle variant="dashboard" className="text-base normal-case tracking-tight">
+          <CardTitle
+            variant="dashboard"
+            className="text-base normal-case tracking-tight"
+          >
             Garment Mix
           </CardTitle>
         </div>
@@ -47,13 +54,17 @@ export function DashboardGarmentBreakdownCard({
             <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
               Total Value
             </Label>
-            <p className="mt-1 text-lg font-bold text-foreground">{formatPKR(totalItems)}</p>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {formatPKR(totalItems)}
+            </p>
           </div>
           <div className="text-right">
             <Label className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
               Active Types
             </Label>
-            <p className="mt-1 text-lg font-bold text-foreground">{topGarments.length}</p>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {topGarments.length}
+            </p>
           </div>
         </div>
 
@@ -72,9 +83,16 @@ export function DashboardGarmentBreakdownCard({
                   aria-label="Garment mix donut chart"
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
-                  <circle cx="60" cy="60" r={radius} className="fill-transparent stroke-muted" strokeWidth="12" />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r={radius}
+                    className="fill-transparent stroke-muted"
+                    strokeWidth="12"
+                  />
                   {topGarments.map((garment, index) => {
-                    const share = totalItems > 0 ? (garment.value / totalItems) * 100 : 0;
+                    const share =
+                      totalItems > 0 ? (garment.value / totalItems) * 100 : 0;
                     const slice = (share / 100) * circumference;
                     const isHovered = hoveredIndex === index;
                     const segment = (
@@ -104,14 +122,26 @@ export function DashboardGarmentBreakdownCard({
 
                 {activeGarment ? (
                   <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Selected</p>
+                    <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                      Selected
+                    </p>
                     <p className="mt-1 max-w-[88px] truncate text-xs font-semibold leading-tight text-foreground">
                       {activeGarment.label}
                     </p>
-                    <p className={cn("text-lg font-bold", getChartTextClass(activeIndex))}>
-                      {totalItems > 0 ? ((activeGarment.value / totalItems) * 100).toFixed(1) : "0.0"}%
+                    <p
+                      className={cn(
+                        "text-lg font-bold",
+                        getChartTextClass(activeIndex),
+                      )}
+                    >
+                      {totalItems > 0
+                        ? ((activeGarment.value / totalItems) * 100).toFixed(1)
+                        : "0.0"}
+                      %
                     </p>
-                    <p className="text-[11px] text-muted-foreground">{formatPKR(activeGarment.value)}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {formatPKR(activeGarment.value)}
+                    </p>
                   </div>
                 ) : null}
               </div>
@@ -119,7 +149,8 @@ export function DashboardGarmentBreakdownCard({
 
             <div className="space-y-2">
               {topGarments.map((garment, index) => {
-                const share = totalItems > 0 ? (garment.value / totalItems) * 100 : 0;
+                const share =
+                  totalItems > 0 ? (garment.value / totalItems) * 100 : 0;
                 const isActive = hoveredIndex === index;
 
                 return (
@@ -130,13 +161,24 @@ export function DashboardGarmentBreakdownCard({
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
                     <div className="flex min-w-0 items-center gap-2">
-                      <span className={cn("h-2.5 w-2.5 rounded-full", getChartBgClass(index))} />
-                      <span className="truncate text-sm text-foreground">{garment.label}</span>
+                      <span
+                        className={cn(
+                          "h-2.5 w-2.5 rounded-full",
+                          getChartBgClass(index),
+                        )}
+                      />
+                      <span className="truncate text-sm text-foreground">
+                        {garment.label}
+                      </span>
                     </div>
 
                     <div className="text-right">
-                      <p className="text-xs font-semibold text-muted-foreground">{share.toFixed(1)}%</p>
-                      <p className="text-xs text-muted-foreground">{formatPKR(garment.value)}</p>
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        {share.toFixed(1)}%
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatPKR(garment.value)}
+                      </p>
                     </div>
                   </div>
                 );

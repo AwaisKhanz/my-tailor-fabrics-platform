@@ -1,7 +1,7 @@
-const isProduction = process.env.NODE_ENV === 'production';
+import { isWebProductionEnvironment } from '@/lib/env';
 
 export function logDevError(message: string, error?: unknown): void {
-  if (isProduction) {
+  if (isWebProductionEnvironment()) {
     return;
   }
 

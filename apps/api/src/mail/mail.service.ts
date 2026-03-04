@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { google, Auth, gmail_v1 } from 'googleapis';
-import { isPublicMailEndpointsEnabled } from '../common/env';
+import {
+  getGoogleMailEnvironment,
+  isPublicMailEndpointsEnabled,
+} from '../common/env';
 
 @Injectable()
 export class MailService {
@@ -14,33 +17,28 @@ export class MailService {
   }
 
   getStatus() {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-    const senderEmail = process.env.GOOGLE_EMAIL;
-    const redirectUri =
-      process.env.GOOGLE_REDIRECT_URI ||
-      'https://developers.google.com/oauthplayground';
+    const mailEnv = getGoogleMailEnvironment();
 
     return {
       publicEndpointsEnabled: isPublicMailEndpointsEnabled(),
       ready: Boolean(this.gmailClient),
-      senderEmail,
-      redirectUri,
+      senderEmail: mailEnv.senderEmail,
+      redirectUri: mailEnv.redirectUri,
       configured: {
-        clientId: Boolean(clientId),
-        clientSecret: Boolean(clientSecret),
-        refreshToken: Boolean(refreshToken),
-        senderEmail: Boolean(senderEmail),
+        clientId: Boolean(mailEnv.clientId),
+        clientSecret: Boolean(mailEnv.clientSecret),
+        refreshToken: Boolean(mailEnv.refreshToken),
+        senderEmail: Boolean(mailEnv.senderEmail),
       },
     };
   }
 
   private initGmailClient() {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-    this.senderEmail = process.env.GOOGLE_EMAIL;
+    const mailEnv = getGoogleMailEnvironment();
+    const clientId = mailEnv.clientId;
+    const clientSecret = mailEnv.clientSecret;
+    const refreshToken = mailEnv.refreshToken;
+    this.senderEmail = mailEnv.senderEmail;
 
     if (!clientId || !clientSecret) {
       this.logger.warn(
@@ -53,8 +51,7 @@ export class MailService {
     this.oAuth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
-      process.env.GOOGLE_REDIRECT_URI ||
-        'https://developers.google.com/oauthplayground',
+      mailEnv.redirectUri,
     );
 
     if (refreshToken && this.senderEmail) {

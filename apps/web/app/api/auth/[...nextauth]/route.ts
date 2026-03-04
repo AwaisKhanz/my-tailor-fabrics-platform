@@ -3,13 +3,14 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { NextResponse } from "next/server";
 import { getRolePermissions, isRole } from "@tbms/shared-constants";
-import { getNextAuthSecret, getServerApiBaseUrl } from "@/lib/env";
+import { getNextAuthSecret, getNextAuthUrl, getServerApiBaseUrl } from "@/lib/env";
 
 const JWT_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // must match JWT_EXPIRES_IN in .env
 
 function createAuthHandler() {
   const apiBaseUrl = getServerApiBaseUrl();
   const nextAuthSecret = getNextAuthSecret();
+  void getNextAuthUrl();
 
   return NextAuth({
     providers: [

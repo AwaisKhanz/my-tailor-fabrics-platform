@@ -2377,6 +2377,133 @@ This is the single source of truth for implementation edits and why they were ma
 ### Verification run after edits
 - `npm run build -w api` ✅
 
+## 2026-03-04 — Pass 74 (Login-path fix: web API target + deterministic admin credential reset)
+
+### Authentication path fix
+- `apps/web/.env`
+  - Updated local API endpoints used by web/NextAuth server route:
+    - `NEXT_PUBLIC_API_URL=http://localhost:3001`
+    - `INTERNAL_API_URL=http://localhost:3001`
+- `apps/web/.env.local`
+  - Updated local API endpoints used by web/NextAuth server route:
+    - `NEXT_PUBLIC_API_URL=http://localhost:3001`
+    - `INTERNAL_API_URL=http://localhost:3001`
+- `apps/web/.env.local.example`
+  - Updated template defaults for local API endpoints to `http://localhost:3001`.
+
+### Deterministic admin login credential fix
+- `apps/api/prisma/seed.ts`
+  - Updated super-admin upsert behavior:
+    - existing `admin@tbms.com` record is now actively normalized on seed (`name`, `role`, `isActive`, `branchId`, `deletedAt`).
+    - `passwordHash` is now refreshed on update to match `admin123`.
+  - This removes stale-password drift when admin user already exists in DB.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run env:verify` ✅
+
+## 2026-03-04 — Pass 73 (Redis dev-start resilience hardening)
+
+### Backend runtime hardening
+- `apps/api/src/app.module.ts`
+  - Added guarded Redis-store initialization in cache module setup.
+  - New behavior:
+    - production: Redis connection errors still fail fast.
+    - non-production: Redis connection errors log a warning and fall back to in-memory cache (`store: 'memory'`, `ttl: 30000`).
+  - This prevents local-dev startup crashes when Redis is not running.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run start:dev -w api` ✅ cache-layer fallback observed
+  - Redis unavailable warning emitted from `CacheModule`.
+  - App then proceeded to route bootstrap.
+  - Remaining local blocker is DB connectivity (`localhost:5432`) in this execution environment.
+
+## 2026-03-04 — Pass 72 (Admin-only default seed mode for end-to-end flow testing)
+
+### Seed behavior refinement (default to admin-only)
+- `apps/api/prisma/seed.ts`
+  - Added `SEED_CORE_DATA` toggle and effective core gating logic:
+    - `SEED_CORE_DATA=true` seeds settings/catalog templates.
+    - `SEED_DEMO_DATA=true` now implies core data as prerequisite.
+  - Changed default `npm run prisma:seed` behavior to seed only:
+    - super-admin user (`admin@tbms.com`)
+  - Moved all settings/catalog bootstrap data behind explicit core mode:
+    - system settings
+    - default branch
+    - garment/workflow templates
+    - rate cards
+    - measurement category template
+    - design types
+  - Kept employee/customer/order demo records behind demo mode.
+  - Added clear seed-mode logs for admin/core/demo behavior.
+
+### Seed command and env template updates
+- `package.json`
+  - Added `prisma:seed:core`:
+    - `SEED_CORE_DATA=true npm exec -w api prisma db seed`
+  - Updated `prisma:seed:demo` to force core + demo:
+    - `SEED_CORE_DATA=true SEED_DEMO_DATA=true npm exec -w api prisma db seed`
+- `apps/api/.env.example`
+  - Added `SEED_CORE_DATA=false` default.
+- `apps/api/.env.local.example`
+  - Added `SEED_CORE_DATA=false` default.
+- `apps/api/.env.production.example`
+  - Added `SEED_CORE_DATA=false` and `SEED_DEMO_DATA=false` defaults for explicitness.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+
+## 2026-03-04 — Pass 71 (Core-only seed mode for flow testing)
+
+### Seed behavior hardening (default to non-demo data)
+- `apps/api/prisma/seed.ts`
+  - Added `SEED_DEMO_DATA` toggle support.
+  - Default behavior now seeds only core baseline data:
+    - system settings
+    - default branch
+    - super admin user
+    - garment/workflow/rate templates
+    - measurement category template
+    - design types
+  - Moved employee/customer/order demo records behind:
+    - `SEED_DEMO_DATA=true`
+  - Added explicit logs that indicate whether demo transactional data is enabled or skipped.
+
+### Developer workflow updates
+- `package.json`
+  - Added `prisma:seed:demo` script:
+    - `SEED_DEMO_DATA=true npm exec -w api prisma db seed`
+- `apps/api/.env.example`
+  - Added `SEED_DEMO_DATA=false` documentation default.
+- `apps/api/.env.local.example`
+  - Added `SEED_DEMO_DATA=false` documentation default.
+
+### Verification run after edits
+- `npm run build -w api` ✅
+- `npm run prisma:seed` ❌ (local runtime DB unreachable at `localhost:5432` in this environment)
+  - Confirmed seed mode log before DB connect: `Demo transactional data seeding: disabled`
+
+## 2026-03-04 — Pass 70 (Root Prisma schema-path fix for direct `npx prisma` usage)
+
+### Developer-experience fix
+- `package.json`
+  - Added root Prisma CLI mapping:
+    - `"prisma": { "schema": "apps/api/prisma/schema.prisma" }`
+  - This makes direct root commands like `npx prisma generate` resolve the monorepo schema without requiring `--schema`.
+
+### Verification run after edits
+- `npx prisma generate` ✅
+  - Prisma schema resolved from `apps/api/prisma/schema.prisma`.
+  - Prisma client generated successfully.
+- `npm run prisma:migrate:deploy` ❌
+  - Blocked by DB connectivity: datasource points to `localhost:5432/tbms`, but host/port is unreachable in the current environment.
+
+### Operational note
+- Schema creation on a new empty database should be run after database connectivity is available:
+  - `npm run prisma:migrate:deploy` (preferred, applies migration history)
+  - optional: `npm run prisma:seed` (if seed data is needed)
+
 ## 2026-03-04 — Pass 63 (Controller guard deduplication + policy consistency)
 
 ### Backend guard consistency cleanup
@@ -2451,6 +2578,248 @@ This is the single source of truth for implementation edits and why they were ma
 - `npm run build -w api` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 65 (Env-access centralization + guardrail expansion)
+
+### Shared env helper expansion
+- `apps/api/src/common/env.ts`
+  - Added reusable runtime helpers:
+    - `isProductionEnvironment()`
+    - `getServerPort()` (validated numeric port)
+    - `getRedisUrl()` (trimmed optional redis URL)
+    - `getGoogleMailEnvironment()` (normalized Google mail env bundle + redirect URI default)
+  - Added `GoogleMailEnvironment` type contract.
+  - Included `getServerPort()` in startup env assertion flow.
+
+### Direct `process.env` usage removal from backend runtime modules
+- `apps/api/src/app.module.ts`
+  - Replaced direct `process.env.NODE_ENV` and `process.env.REDIS_URL` reads with shared env helpers.
+- `apps/api/src/main.ts`
+  - Replaced inline `process.env.PORT ?? 5000` with `getServerPort()`.
+- `apps/api/src/auth/auth.controller.ts`
+  - Replaced cookie secure-flag env check with `isProductionEnvironment()`.
+- `apps/api/src/common/filters/all-exceptions.filter.ts`
+  - Removed local `process.env` helper and reused shared env helper.
+- `apps/api/src/mail/mail.service.ts`
+  - Replaced repeated direct Google env reads with `getGoogleMailEnvironment()` in both status and client init paths.
+
+### Guardrail expansion
+- `scripts/security-backend-guardrails.sh`
+  - Added new failing check for direct `process.env` usage outside `apps/api/src/common/env.ts`.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked touched backend files as `Sixty-fifth modernization pass`:
+    - `apps/api/src/common/env.ts`
+    - `apps/api/src/app.module.ts`
+    - `apps/api/src/main.ts`
+    - `apps/api/src/auth/auth.controller.ts`
+    - `apps/api/src/common/filters/all-exceptions.filter.ts`
+    - `apps/api/src/mail/mail.service.ts`
+  - Updated `apps/api/src/mail/mail.service.ts` from `NS` to `DN`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Sixty-fifth Implementation Pass”.
+  - Added env-centralization and expanded guardrail completion bullets.
+  - Updated manifest snapshot counts for Phase 7.
+
+### Verification run after edits
+- `npm run security:backend:guardrails` ✅
+- `npm run build -w api` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 66 (Monorepo env contract standardization + setup automation)
+
+### Environment contract and setup automation
+- `.env.example`
+  - Reworked into explicit monorepo env contract sections (core runtime, DB, cache/proxy, API security, web auth/routing, mail, storage).
+  - Added missing production-relevant keys consumed by runtime/contracts:
+    - `NEXTAUTH_URL`
+    - `STATUS_PIN_PEPPER`
+    - `TRUST_PROXY`
+    - `GOOGLE_CLIENT_ID`
+    - `GOOGLE_CLIENT_SECRET`
+    - `GOOGLE_REFRESH_TOKEN`
+    - `GOOGLE_EMAIL`
+    - `GOOGLE_REDIRECT_URI`
+- `scripts/setup-env.sh` (new)
+  - Added idempotent setup script that:
+    - creates root `.env` from `.env.example` if missing
+    - links `apps/api/.env -> ../../.env`
+    - links `apps/web/.env.local -> ../../.env` (copy fallback when symlinks are unavailable)
+- `scripts/verify-env-contract.sh` (new)
+  - Added env contract verification script that:
+    - ensures `.env.example` contains all env keys used by API/web env loaders and Prisma schema
+    - enforces direct `process.env` access centralization:
+      - allowed only in `apps/api/src/common/env.ts`
+      - allowed only in `apps/web/lib/env.ts`
+
+### Script wiring and runtime loading
+- `package.json`
+  - Added:
+    - `env:setup`
+    - `env:verify`
+  - Updated root `dev` script to run `env:setup` before concurrently launching workspaces.
+- `apps/api/package.json`
+  - Updated Nest start scripts to load root env explicitly using `--env-file ../../.env`:
+    - `start`
+    - `start:dev`
+    - `start:debug`
+
+### Web env consistency hardening
+- `apps/web/lib/env.ts`
+  - Added:
+    - `isWebProductionEnvironment()`
+    - `getNextAuthUrl()` (production-required validation with local fallback)
+- `apps/web/lib/logger.ts`
+  - Removed direct `process.env` usage; now consumes shared web env helper.
+- `apps/web/app/api/auth/[...nextauth]/route.ts`
+  - Added startup validation call for `NEXTAUTH_URL` through shared env helper.
+
+### Documentation updates
+- `docs/environment-setup.md` (new)
+  - Added canonical monorepo env workflow documentation, ownership matrix, and guardrail rules.
+- `apps/web/README.md`
+  - Added `env:setup` prerequisite note.
+- `apps/api/README.md`
+  - Added `env:setup` prerequisite note.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Marked/touched entries as `Sixty-sixth modernization pass`:
+    - `package.json`
+    - `apps/api/package.json`
+    - `apps/api/src/common/env.ts`
+    - `apps/web/lib/env.ts`
+    - `apps/web/lib/logger.ts`
+    - `apps/web/app/api/auth/[...nextauth]/route.ts`
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Sixty-sixth Implementation Pass”.
+  - Added env setup/verification + runtime loading completion bullets.
+
+### Verification run after edits
+- `npm run env:setup` ✅
+- `npm run env:verify` ✅
+- `npm run security:backend:guardrails` ✅
+- `npm run build -w api` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 67 (App-separated env files migration)
+
+### Requested env layout migration
+- Migrated from root-linked env approach to explicit app-separated runtime env files:
+  - `apps/web/.env`
+  - `apps/web/.env.local`
+  - `apps/web/.env.production`
+  - `apps/api/.env`
+  - `apps/api/.env.local`
+  - `apps/api/.env.production`
+
+### Setup/verification script rewrite
+- `scripts/setup-env.sh`
+  - Replaced link-based setup with file-based setup.
+  - Converts existing symlinked env files into regular files.
+  - Creates missing app env files from app-specific templates.
+- `scripts/verify-env-contract.sh`
+  - Reworked contract checks to app-scoped mode.
+  - Validates required templates:
+    - `apps/api/.env.example`
+    - `apps/api/.env.local.example`
+    - `apps/api/.env.production.example`
+    - `apps/web/.env.example`
+    - `apps/web/.env.local.example`
+    - `apps/web/.env.production.example`
+  - Ensures runtime app env files exist and are not symlinks.
+  - Keeps `process.env` centralization guardrails intact.
+
+### New app-specific env templates
+- `apps/api/.env.example` (new)
+- `apps/api/.env.local.example` (new)
+- `apps/api/.env.production.example` (new)
+- `apps/web/.env.example` (new)
+- `apps/web/.env.local.example` (new)
+- `apps/web/.env.production.example` (new)
+
+### Runtime loading and docs alignment
+- `apps/api/package.json`
+  - Updated env-file mapping:
+    - `start` -> `.env`
+    - `start:dev` -> `.env.local`
+    - `start:debug` -> `.env.local`
+- `.env.example`
+  - Converted root env example into a pointer/deprecation note to app-specific templates.
+- `docs/environment-setup.md`
+  - Rewritten for app-separated env workflow.
+- `apps/web/.gitignore`
+  - Added `.env`, `.env.local`, `.env.production` ignore entries.
+- `apps/api/.gitignore`
+  - Added `.env.local`, `.env.production` ignore entries.
+- `apps/web/README.md`, `apps/api/README.md`
+  - Updated wording from env links to env files.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Updated `apps/api/package.json` note to `Sixty-seventh modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Sixty-seventh Implementation Pass”.
+  - Added app-separated env migration completion bullets.
+
+### Verification run after edits
+- `npm run env:setup` ✅
+- `npm run env:verify` ✅
+- `npm run security:backend:guardrails` ✅
+- `npm run build -w api` ✅
+- `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 68 (Root env removal per app-scoped env policy)
+
+### Requested cleanup
+- `.env` (deleted)
+  - Removed root runtime env file to enforce app-scoped env ownership only.
+- `.gitignore`
+  - Added root `.env` ignore rule to prevent accidental re-addition.
+
+### Why this change
+- Runtime env has been intentionally migrated to app-local files (`apps/web/*` and `apps/api/*`).
+- Keeping root `.env` after migration causes ambiguity and misconfiguration risk.
+
+### Verification run after edits
+- `npm run env:verify` ✅
+- `npm run env:setup` ✅
+- `npm run security:backend:guardrails` ✅
+- `npm run refactor:manifest:verify` ✅
+- `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
+
+## 2026-03-04 — Pass 69 (Prisma root-command workflow fix + DB reachability diagnosis)
+
+### Root Prisma command usability fix
+- `package.json`
+  - Added monorepo-root Prisma scripts to avoid `schema.prisma not found` errors when running from repo root:
+    - `prisma:generate`
+    - `prisma:migrate:status`
+    - `prisma:migrate:deploy`
+    - `prisma:db:push`
+    - `prisma:seed`
+
+### Diagnosis outcome for current local environment
+- `npm run prisma:generate` ✅
+  - Works correctly from monorepo root through API workspace.
+- `npm run prisma:migrate:status` ❌
+  - Prisma now resolves schema/env correctly, but DB is unreachable at current configured target:
+    - host: `localhost`
+    - port: `5432`
+  - `pg_isready -h localhost -p 5432` reports `no response`, so migration cannot be applied until DB URL/availability is corrected.
+
+### Tracking updates
+- `docs/refactor-manifest.csv`
+  - Updated `package.json` note to `Sixty-ninth modernization pass`.
+- `docs/refactor-status.md`
+  - Updated checkpoint to “After Sixty-ninth Implementation Pass”.
+  - Added Prisma script pass/fail status notes.
 
 ## 2026-03-04 — Pass 59 (Backend security consistency hardening continuation)
 

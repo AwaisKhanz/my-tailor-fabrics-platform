@@ -31,6 +31,14 @@
 $ npm install
 ```
 
+Initialize environment files from repository root before running the API:
+
+```bash
+$ npm run env:setup
+```
+
+This creates/ensures `apps/api/.env`, `apps/api/.env.local`, and `apps/api/.env.production`.
+
 ## Compile and run the project
 
 ```bash

@@ -40,6 +40,12 @@ check_forbidden_pattern \
   apps/api/src \
   --glob '!apps/api/src/common/env.ts'
 
+check_forbidden_pattern \
+  "direct process.env access is not allowed outside common env helper" \
+  'process\.env\.' \
+  apps/api/src \
+  --glob '!apps/api/src/common/env.ts'
+
 if [[ "$FAILED" -ne 0 ]]; then
   echo ""
   echo "Backend security guardrails failed"

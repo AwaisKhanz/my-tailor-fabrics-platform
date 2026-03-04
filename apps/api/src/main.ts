@@ -8,6 +8,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import {
   assertSecurityEnvironment,
   getFrontendUrl,
+  getServerPort,
   getTrustProxyConfig,
 } from './common/env';
 
@@ -38,6 +39,6 @@ async function bootstrap() {
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
-  await app.listen(process.env.PORT ?? 5000);
+  await app.listen(getServerPort());
 }
 void bootstrap();

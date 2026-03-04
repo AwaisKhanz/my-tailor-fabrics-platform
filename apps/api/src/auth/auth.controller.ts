@@ -17,6 +17,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import type { CookieOptions, Response } from 'express';
 import { Public, Roles } from '../common/decorators/auth.decorators';
+import { isProductionEnvironment } from '../common/env';
 import { ALL_ROLES } from '@tbms/shared-constants';
 
 const REFRESH_COOKIE_NAME = 'Refresh-Token';
@@ -29,7 +30,7 @@ export class AuthController {
   private getRefreshCookieOptions(): CookieOptions {
     return {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProductionEnvironment(),
       sameSite: 'lax',
       maxAge: REFRESH_COOKIE_MAX_AGE_MS,
       path: '/',

@@ -33,7 +33,7 @@ Legend: `NS` (Not Started), `IP` (In Progress), `BL` (Blocked), `DN` (Done), `NJ
 ./scripts/verify-refactor-manifest.sh
 ```
 
-## Current Checkpoint (After Sixty-fourth Implementation Pass)
+## Current Checkpoint (After Sixty-ninth Implementation Pass)
 
 - `./scripts/verify-refactor-manifest.sh`: pass
 - `npx tsc -p apps/api/tsconfig.json --noEmit`: pass
@@ -66,7 +66,15 @@ Legend: `NS` (Not Started), `IP` (In Progress), `BL` (Blocked), `DN` (Done), `NJ
 - Guard consistency hardening (removed redundant controller-level `@UseGuards(JwtAuthGuard, RolesGuard, BranchGuard)`/`@UseGuards(JwtAuthGuard, RolesGuard)` and retained only route-specific refresh guard): pass
 - Security event observability hardening (structured `[SECURITY_EVENT]` logs for permission denials and auth/status abuse paths): pass
 - Security logging deduplication hardening (shared `emitSecurityEvent` utility now used across auth/status/permissions with additional role/branch/jwt guard denial telemetry): pass
-- Security regression guardrails (new backend scan script blocks `queryRawUnsafe`/`Prisma.raw` misuse, runtime `console.*`, and redundant class-level Jwt/Roles/Branch guard decorators): pass
+- Env-access consistency hardening (runtime `process.env` access centralized through `common/env.ts` for app bootstrap, cache config, auth cookies, exception filtering, and mail integration): pass
+- Security regression guardrails (new backend scan script blocks `queryRawUnsafe`/`Prisma.raw` misuse, runtime `console.*`, redundant class-level Jwt/Roles/Branch guard decorators, and direct `process.env` usage outside `common/env.ts`): pass
+- Monorepo env workflow hardening (added `env:setup` and `env:verify`, standardized app-scoped env templates, and automated creation of app-local runtime env files): pass
+- Runtime env loading hardening (`apps/api` Nest scripts use explicit app-local env files; web NextAuth route validates `NEXTAUTH_URL` through shared env helper): pass
+- App-scoped env hardening (migrated to separate regular env files per app: `apps/web/.env|.env.local|.env.production` and `apps/api/.env|.env.local|.env.production`, no runtime symlinks): pass
+- API env-file routing hardening (`apps/api` scripts now map `start -> .env`, `start:dev/start:debug -> .env.local` for explicit environment separation): pass
+- Prisma DX hardening (added root-level Prisma scripts to run API schema commands from monorepo root without schema-path errors): pass
+- Root env removal hardening (deleted root `.env`; app-scoped env files are now the only runtime source of configuration): pass
+- Root ignore hardening (added root `.env` to git ignore to prevent accidental reintroduction): pass
 - Global exception hardening (`AllExceptionsFilter` now masks internal 5xx details in production while preserving typed HTTP messages): pass
 - JWT guard hardening (`JwtAuthGuard.handleRequest` enforces explicit unauthorized errors and typed auth user flow): pass
 - Proxy trust hardening (`TRUST_PROXY` parsed/validated in env and wired into Express trust-proxy config; production now requires explicit setting): pass
@@ -75,11 +83,15 @@ Legend: `NS` (Not Started), `IP` (In Progress), `BL` (Blocked), `DN` (Done), `NJ
 - `npm run build -w api`: pass
 - `npm run security:backend:guardrails`: pass
 - `npm run security:guardrails -w api`: pass
+- `npm run env:setup`: pass
+- `npm run env:verify`: pass
+- `npm run prisma:generate`: pass
+- `npm run prisma:migrate:status`: fails in current local DB target (`localhost:5432` no response)
 - `npm run lint -w api`: fails in legacy pre-existing files (strict-eslint backlog), no blocker for this pass
 - `npm run test -w api -- --runInBand`: intentionally not run in this pass (per request to avoid test work)
 - `npm run build -w @tbms/shared-types`: pass
 - `npm run build -w @tbms/shared-constants`: pass
-- `npx tsc -p apps/web/tsconfig.json --noEmit`: fails on pre-existing duplicate default export in `apps/web/app/(dashboard)/settings/integrations/page.tsx`
+- `npx tsc -p apps/web/tsconfig.json --noEmit`: pass
 - `npm run lint -w web`: not rerun in this pass
 - `npm run build -w web`: blocked in this environment (`ENOTFOUND fonts.googleapis.com` for `next/font`)
 
@@ -93,6 +105,6 @@ Legend: `NS` (Not Started), `IP` (In Progress), `BL` (Blocked), `DN` (Done), `NJ
 | 4 | 6 | 34 | 0 | 1 | 0 |
 | 5 | 176 | 43 | 0 | 11 | 0 |
 | 6 | 43 | 19 | 0 | 9 | 0 |
-| 7 | 12 | 4 | 0 | 0 | 0 |
+| 7 | 13 | 3 | 0 | 0 | 0 |
 | 8 | 20 | 23 | 0 | 0 | 0 |
 | 9 | 0 | 2 | 0 | 0 | 0 |

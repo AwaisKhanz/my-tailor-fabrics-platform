@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -31,6 +31,9 @@ import { RatesModule } from './rates/rates.module';
 import { LedgerModule } from './ledger/ledger.module';
 import { DesignTypesModule } from './design-types/design-types.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
+import { getRedisUrl, isProductionEnvironment } from './common/env';
+
+const cacheLogger = new Logger('CacheModule');
 
 @Module({
   imports: [
@@ -46,8 +49,8 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => {
-        const isProduction = process.env.NODE_ENV === 'production';
-        const redisUrl = process.env.REDIS_URL;
+        const isProduction = isProductionEnvironment();
+        const redisUrl = getRedisUrl();
 
         if (!redisUrl || redisUrl.trim().length === 0) {
           if (isProduction) {
@@ -71,11 +74,25 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
           return { store: 'memory', ttl: 30000 };
         }
 
-        return {
-          store: await redisStore({
-            url: redisUrl,
-          }),
-        };
+        try {
+          return {
+            store: await redisStore({
+              url: redisUrl,
+            }),
+          };
+        } catch (error) {
+          if (isProduction) {
+            throw new Error('Failed to connect to Redis in production');
+          }
+
+          cacheLogger.warn(
+            'Redis is unreachable in development; falling back to in-memory cache.',
+          );
+          cacheLogger.warn(
+            error instanceof Error ? error.message : String(error),
+          );
+          return { store: 'memory', ttl: 30000 };
+        }
       },
     }),
     ScheduleModule.forRoot(),
