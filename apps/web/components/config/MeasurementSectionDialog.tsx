@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { type MeasurementSection } from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
@@ -22,6 +23,7 @@ interface MeasurementSectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   categoryId: string;
+  initialSection?: MeasurementSection | null;
   onSuccess: () => void;
 }
 
@@ -29,6 +31,7 @@ export function MeasurementSectionDialog({
   open,
   onOpenChange,
   categoryId,
+  initialSection,
   onSuccess,
 }: MeasurementSectionDialogProps) {
   const { toast } = useToast();
@@ -46,30 +49,42 @@ export function MeasurementSectionDialog({
       return;
     }
 
-    form.reset({ name: "" });
-  }, [form, open]);
+    form.reset({ name: initialSection?.name ?? "" });
+  }, [form, initialSection?.name, open]);
 
   const submitSection = useCallback(
     async (values: MeasurementSectionDialogFormValues) => {
       setLoading(true);
       try {
-        await configApi.addMeasurementSection(categoryId, {
-          name: values.name,
-        });
-        toast({ title: "Section added successfully" });
+        if (initialSection?.id) {
+          await configApi.updateMeasurementSection(initialSection.id, {
+            name: values.name,
+          });
+          toast({ title: "Section updated successfully" });
+        } else {
+          await configApi.addMeasurementSection(categoryId, {
+            name: values.name,
+          });
+          toast({ title: "Section added successfully" });
+        }
         onSuccess();
         onOpenChange(false);
       } catch (error) {
         toast({
           title: "Error",
-          description: getApiErrorMessageOrFallback(error, "Failed to add section. Please try again."),
+          description: getApiErrorMessageOrFallback(
+            error,
+            initialSection?.id
+              ? "Failed to update section. Please try again."
+              : "Failed to add section. Please try again.",
+          ),
           variant: "destructive",
         });
       } finally {
         setLoading(false);
       }
     },
-    [categoryId, onOpenChange, onSuccess, toast],
+    [categoryId, initialSection?.id, onOpenChange, onSuccess, toast],
   );
 
   const submitForm = form.handleSubmit(submitSection);
@@ -78,10 +93,10 @@ export function MeasurementSectionDialog({
     <DialogFormActions
       onCancel={() => onOpenChange(false)}
       submitFormId="measurement-section-form"
-      submitText="Add Section"
+      submitText={initialSection?.id ? "Save Section" : "Add Section"}
       submitting={loading}
       cancelVariant="outline"
-      submittingText="Adding Section..."
+      submittingText={initialSection?.id ? "Saving Section..." : "Adding Section..."}
       submitClassName="min-w-[130px]"
     />
   );
@@ -90,7 +105,7 @@ export function MeasurementSectionDialog({
     <ScrollableDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Add Measurement Section"
+      title={initialSection?.id ? "Edit Measurement Section" : "Add Measurement Section"}
       footerActions={footerActions}
       maxWidthClass="sm:max-w-md"
     >

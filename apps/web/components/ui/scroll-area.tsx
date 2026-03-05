@@ -11,7 +11,7 @@ const scrollAreaVariants = cva("relative overflow-hidden", {
     variant: {
       default: "",
       themed: "scrollbar-theme",
-      dialogBody: "scrollbar-theme flex-1 px-6",
+      dialogBody: "scrollbar-theme min-h-0 flex-1 px-6",
       commandResults: "max-h-[420px]",
     },
   },

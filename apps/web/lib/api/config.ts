@@ -16,6 +16,8 @@ import type {
   CreateMeasurementFieldInput,
   UpdateMeasurementFieldInput,
   CreateMeasurementSectionInput,
+  UpdateMeasurementSectionInput,
+  DeleteMeasurementSectionInput,
   CreateGarmentTypeInput,
   UpdateGarmentTypeInput,
   GarmentPriceLog,
@@ -104,6 +106,27 @@ export const configApi = {
       `/config/measurement-categories/${categoryId}/sections`,
       data,
     );
+    return response.data;
+  },
+  updateMeasurementSection: async (
+    sectionId: string,
+    data: UpdateMeasurementSectionInput,
+  ) => {
+    const response = await api.put<ApiResponse<MeasurementSection>>(
+      `/config/measurement-sections/${sectionId}`,
+      data,
+    );
+    return response.data;
+  },
+  deleteMeasurementSection: async (
+    sectionId: string,
+    data: DeleteMeasurementSectionInput = {},
+  ) => {
+    const response = await api.delete<
+      ApiResponse<{ deletedSectionId: string; movedFieldCount: number; targetSectionId: string | null }>
+    >(`/config/measurement-sections/${sectionId}`, {
+      data,
+    });
     return response.data;
   },
   addMeasurementField: async (

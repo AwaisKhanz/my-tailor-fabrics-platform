@@ -35,7 +35,7 @@ export function PageHeader({
         </Typography>
         {description ? (
           <Typography
-            as="p"
+            as="div"
             variant="lead"
             className={cn(density === "compact" ? "mt-0.5" : "mt-1")}
           >

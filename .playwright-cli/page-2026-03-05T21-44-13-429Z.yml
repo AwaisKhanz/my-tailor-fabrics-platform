@@ -1,0 +1,35 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - heading "Welcome Back" [level=2] [ref=e7]
+      - paragraph [ref=e8]: Sign in to manage your tailoring business operations.
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - text: Email Address
+          - generic [ref=e12]:
+            - img [ref=e13]
+            - textbox "Email Address" [ref=e16]:
+              - /placeholder: admin@mytailors.com
+        - generic [ref=e17]:
+          - text: Password
+          - generic [ref=e18]:
+            - img [ref=e19]
+            - textbox "Password" [ref=e22]:
+              - /placeholder: ••••••••
+            - button "Show password" [ref=e23] [cursor=pointer]:
+              - img [ref=e24]
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - checkbox "Stay signed in" [ref=e29] [cursor=pointer]
+          - checkbox
+          - generic [ref=e30] [cursor=pointer]: Stay signed in
+        - link "Need help?" [ref=e31] [cursor=pointer]:
+          - /url: mailto:support@mytailorandfabrics.com
+      - button "Sign In to Dashboard" [ref=e32] [cursor=pointer]
+    - paragraph [ref=e34]:
+      - text: © 2026 My Tailor & Fabrics. All rights reserved.
+      - text: Version 2.4.0 (Enterprise Edition)
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e35]

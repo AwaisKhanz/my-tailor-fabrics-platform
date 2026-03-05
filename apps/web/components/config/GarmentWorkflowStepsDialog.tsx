@@ -1,21 +1,25 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { configApi } from "@/lib/api/config";
+import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2 } from "lucide-react";
 import {
   garmentWorkflowStepsFormSchema,
   type WorkflowStepTemplate,
   type WorkflowStepTemplateInput,
 } from "@tbms/shared-types";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DialogFormActions,
+  DialogSection,
+  FormStack,
+} from "@/components/ui/form-layout";
+import { InfoTile } from "@/components/ui/info-tile";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { configApi } from "@/lib/api/config";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface GarmentWorkflowStepsDialogProps {
@@ -27,6 +31,25 @@ interface GarmentWorkflowStepsDialogProps {
   onSuccess: () => void;
 }
 
+interface WorkflowStepDraft extends WorkflowStepTemplateInput {
+  clientId: string;
+}
+
+function createClientId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `step_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function normalizeStepOrder(steps: WorkflowStepDraft[]): WorkflowStepDraft[] {
+  return steps.map((step, index) => ({
+    ...step,
+    sortOrder: index + 1,
+  }));
+}
+
 export function GarmentWorkflowStepsDialog({
   open,
   onOpenChange,
@@ -35,42 +58,91 @@ export function GarmentWorkflowStepsDialog({
   initialSteps,
   onSuccess,
 }: GarmentWorkflowStepsDialogProps) {
-  const [steps, setSteps] = useState<WorkflowStepTemplateInput[]>([]);
+  const [steps, setSteps] = useState<WorkflowStepDraft[]>([]);
+  const [draggingStepId, setDraggingStepId] = useState<string | null>(null);
+  const [dragOverStepId, setDragOverStepId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
       setSteps(
-        [...initialSteps]
-          .sort((a, b) => a.sortOrder - b.sortOrder)
-          .map((step) => ({
-            id: step.id,
-            stepKey: step.stepKey,
-            stepName: step.stepName,
-            sortOrder: step.sortOrder,
-            isRequired: step.isRequired,
-            isActive: step.isActive,
-          }))
+        normalizeStepOrder(
+          [...initialSteps]
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map((step) => ({
+              clientId: step.id ?? createClientId(),
+              id: step.id,
+              stepKey: step.stepKey,
+              stepName: step.stepName,
+              sortOrder: step.sortOrder,
+              isRequired: step.isRequired,
+              isActive: step.isActive,
+            })),
+        ),
       );
+    } else {
+      setDraggingStepId(null);
+      setDragOverStepId(null);
     }
   }, [open, initialSteps]);
 
+  const moveStep = (sourceId: string, targetId: string) => {
+    if (sourceId === targetId) {
+      return;
+    }
+
+    setSteps((current) => {
+      const sourceIndex = current.findIndex((step) => step.clientId === sourceId);
+      const targetIndex = current.findIndex((step) => step.clientId === targetId);
+
+      if (sourceIndex < 0 || targetIndex < 0) {
+        return current;
+      }
+
+      const reordered = [...current];
+      const [movedStep] = reordered.splice(sourceIndex, 1);
+      reordered.splice(targetIndex, 0, movedStep);
+
+      return normalizeStepOrder(reordered);
+    });
+  };
+
+  const moveStepByIndex = (index: number, direction: "up" | "down") => {
+    setSteps((current) => {
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= current.length) {
+        return current;
+      }
+
+      const reordered = [...current];
+      const [movedStep] = reordered.splice(index, 1);
+      reordered.splice(targetIndex, 0, movedStep);
+
+      return normalizeStepOrder(reordered);
+    });
+  };
+
   const handleAddStep = () => {
-    setSteps([
-      ...steps,
-      {
-        stepKey: "",
-        stepName: "",
-        sortOrder: steps.length + 1,
-        isRequired: true,
-        isActive: true,
-      },
-    ]);
+    setSteps((current) =>
+      normalizeStepOrder([
+        ...current,
+        {
+          clientId: createClientId(),
+          stepKey: "",
+          stepName: "",
+          sortOrder: current.length + 1,
+          isRequired: true,
+          isActive: true,
+        },
+      ]),
+    );
   };
 
   const handleRemoveStep = (index: number) => {
-    setSteps(steps.filter((_, i) => i !== index));
+    setSteps((current) =>
+      normalizeStepOrder(current.filter((_, currentIndex) => currentIndex !== index)),
+    );
   };
 
   const handleChange = <K extends keyof WorkflowStepTemplateInput>(
@@ -78,27 +150,88 @@ export function GarmentWorkflowStepsDialog({
     field: K,
     value: WorkflowStepTemplateInput[K],
   ) => {
-    const newSteps = [...steps];
-    
-    // Auto-generate stepKey from stepName if stepKey is empty and user is typing stepName
-    if (
-      field === "stepName" &&
-      typeof value === "string" &&
-      !newSteps[index].stepKey
-    ) {
-        newSteps[index] = { 
-            ...newSteps[index], 
-            stepName: value,
-            stepKey: value.toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_]/g, "")
+    setSteps((current) => {
+      const nextSteps = [...current];
+
+      if (
+        field === "stepName" &&
+        typeof value === "string" &&
+        !nextSteps[index].stepKey
+      ) {
+        nextSteps[index] = {
+          ...nextSteps[index],
+          stepName: value,
+          stepKey: value
+            .toUpperCase()
+            .replace(/\s+/g, "_")
+            .replace(/[^A-Z0-9_]/g, ""),
         };
-    } else {
-        newSteps[index] = { ...newSteps[index], [field]: value };
+      } else {
+        nextSteps[index] = { ...nextSteps[index], [field]: value };
+      }
+
+      return nextSteps;
+    });
+  };
+
+  const handleDragStart = (
+    event: React.DragEvent<HTMLDivElement>,
+    stepId: string,
+  ) => {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", stepId);
+    setDraggingStepId(stepId);
+    setDragOverStepId(stepId);
+  };
+
+  const handleDragOver = (
+    event: React.DragEvent<HTMLDivElement>,
+    targetId: string,
+  ) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+
+    if (dragOverStepId !== targetId) {
+      setDragOverStepId(targetId);
     }
-    setSteps(newSteps);
+  };
+
+  const handleDrop = (
+    event: React.DragEvent<HTMLDivElement>,
+    targetId: string,
+  ) => {
+    event.preventDefault();
+
+    const sourceId = event.dataTransfer.getData("text/plain") || draggingStepId;
+    if (!sourceId) {
+      setDraggingStepId(null);
+      setDragOverStepId(null);
+      return;
+    }
+
+    moveStep(sourceId, targetId);
+    setDraggingStepId(null);
+    setDragOverStepId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingStepId(null);
+    setDragOverStepId(null);
   };
 
   const onSubmit = async () => {
-    const parsedResult = garmentWorkflowStepsFormSchema.safeParse({ steps });
+    const payload = normalizeStepOrder(
+      steps.map((step) => ({
+        id: step.id,
+        stepKey: step.stepKey,
+        stepName: step.stepName,
+        sortOrder: step.sortOrder,
+        isRequired: step.isRequired,
+        isActive: step.isActive,
+      })),
+    );
+
+    const parsedResult = garmentWorkflowStepsFormSchema.safeParse({ steps: payload });
     if (!parsedResult.success) {
       toast({
         title: "Validation error",
@@ -110,20 +243,20 @@ export function GarmentWorkflowStepsDialog({
 
     try {
       setLoading(true);
+      await configApi.updateGarmentWorkflowSteps(garmentId, parsedResult.data.steps);
 
-      // Ensure correct sort order based on array position
-      const payload: WorkflowStepTemplateInput[] = parsedResult.data.steps.map((step, index) => ({
-          ...step,
-          sortOrder: index + 1,
-      }));
-
-      await configApi.updateGarmentWorkflowSteps(garmentId, payload);
-      
-      toast({ title: "Success", description: "Workflow steps updated successfully." });
+      toast({
+        title: "Success",
+        description: "Workflow steps updated successfully.",
+      });
       onSuccess();
       onOpenChange(false);
     } catch {
-      toast({ title: "Error", description: "Failed to update workflow steps.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to update workflow steps.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -149,60 +282,112 @@ export function GarmentWorkflowStepsDialog({
         />
       }
     >
-        <DialogSection className="pt-0">
-          <FormStack
-            as="form"
-            id="garment-workflow-steps-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void onSubmit();
-            }}
-          >
-            {steps.map((step, index) => (
-              <InfoTile key={index} padding="content" className="group flex items-center gap-3">
-                <div className="flex cursor-move flex-col items-center justify-center text-text-secondary hover:text-text-primary">
-                  <GripVertical className="h-4 w-4" />
-                  <span className="text-[10px] font-bold">{index + 1}</span>
-                </div>
+      <DialogSection className="pt-0">
+        <FormStack
+          as="form"
+          id="garment-workflow-steps-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onSubmit();
+          }}
+        >
+          {steps.map((step, index) => (
+            <InfoTile
+              tone="primarySoft"
+              key={step.clientId}
+              padding="content"
+              className={`group flex items-center gap-3 transition-colors ${
+                draggingStepId === step.clientId
+                  ? "border-primary/45 bg-primary/10"
+                  : dragOverStepId === step.clientId
+                    ? "border-primary/35 bg-primary/8"
+                    : ""
+              }`}
+              onDragOver={(event) => handleDragOver(event, step.clientId)}
+              onDrop={(event) => handleDrop(event, step.clientId)}
+            >
+              <div
+                draggable
+                onDragStart={(event) => handleDragStart(event, step.clientId)}
+                onDragEnd={handleDragEnd}
+                className="flex cursor-grab flex-col items-center justify-center text-text-secondary hover:text-text-primary active:cursor-grabbing"
+                title="Drag to reorder"
+              >
+                <GripVertical className="h-4 w-4" />
+                <span className="text-[10px] font-bold">{index + 1}</span>
+              </div>
 
-                <div className="grid flex-1 grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label variant="dashboard">Step Name</Label>
-                    <Input
-                      placeholder="e.g. Cutting"
-                      value={step.stepName || ""}
-                      onChange={(e) => handleChange(index, "stepName", e.target.value)}
-                      className="h-8"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label variant="dashboard">Unique Key</Label>
-                    <Input
-                      placeholder="e.g. CUTTING"
-                      value={step.stepKey || ""}
-                      onChange={(e) => handleChange(index, "stepKey", e.target.value.toUpperCase().replace(/\s+/g, "_"))}
-                      className="h-8 font-mono text-xs uppercase"
-                    />
-                  </div>
+              <div className="grid flex-1 grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label variant="dashboard">Step Name</Label>
+                  <Input
+                    placeholder="e.g. Cutting"
+                    value={step.stepName || ""}
+                    onChange={(event) =>
+                      handleChange(index, "stepName", event.target.value)
+                    }
+                    className="h-8"
+                  />
                 </div>
-
-                <div className="flex items-center gap-4 border-l border-r px-2">
-                   <div className="flex flex-col items-center gap-1">
-                      <Label variant="dashboard" className="text-text-secondary">Required</Label>
-                      <Switch
-                          checked={step.isRequired}
-                          onCheckedChange={(v) => handleChange(index, "isRequired", v)}
-                      />
-                   </div>
-                   <div className="flex flex-col items-center gap-1">
-                      <Label variant="dashboard" className="text-text-secondary">Active</Label>
-                      <Switch
-                          checked={step.isActive}
-                          onCheckedChange={(v) => handleChange(index, "isActive", v)}
-                      />
-                   </div>
+                <div className="space-y-1">
+                  <Label variant="dashboard">Unique Key</Label>
+                  <Input
+                    placeholder="e.g. CUTTING"
+                    value={step.stepKey || ""}
+                    onChange={(event) =>
+                      handleChange(
+                        index,
+                        "stepKey",
+                        event.target.value.toUpperCase().replace(/\s+/g, "_"),
+                      )
+                    }
+                    className="h-8 font-mono text-xs uppercase"
+                  />
                 </div>
+              </div>
 
+              <div className="flex items-center gap-4 border-l border-r px-2">
+                <div className="flex flex-col items-center gap-1">
+                  <Label variant="dashboard" className="text-text-secondary">
+                    Required
+                  </Label>
+                  <Switch
+                    checked={step.isRequired}
+                    onCheckedChange={(value) => handleChange(index, "isRequired", value)}
+                  />
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Label variant="dashboard" className="text-text-secondary">
+                    Active
+                  </Label>
+                  <Switch
+                    checked={step.isActive}
+                    onCheckedChange={(value) => handleChange(index, "isActive", value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={() => moveStepByIndex(index, "up")}
+                  disabled={index === 0}
+                  title="Move up"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="tableIcon"
+                  size="iconSm"
+                  onClick={() => moveStepByIndex(index, "down")}
+                  disabled={index === steps.length - 1}
+                  title="Move down"
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
                 <Button
                   type="button"
                   variant="tableDanger"
@@ -212,20 +397,30 @@ export function GarmentWorkflowStepsDialog({
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-              </InfoTile>
-            ))}
+              </div>
+            </InfoTile>
+          ))}
 
-            {steps.length === 0 ? (
-              <InfoTile borderStyle="dashedStrong" padding="none" className="py-8 text-center text-text-secondary">
-                No steps configured. Add your first step below.
-              </InfoTile>
-            ) : null}
+          {steps.length === 0 ? (
+            <InfoTile
+              borderStyle="dashedStrong"
+              padding="none"
+              className="py-8 text-center text-text-secondary"
+            >
+              No steps configured. Add your first step below.
+            </InfoTile>
+          ) : null}
 
-            <Button type="button" variant="outlineDashed" className="w-full" onClick={handleAddStep}>
-              <Plus className="mr-2 h-4 w-4" /> Add Step
-            </Button>
-          </FormStack>
-        </DialogSection>
+          <Button
+            type="button"
+            variant="outlineDashed"
+            className="w-full"
+            onClick={handleAddStep}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Add Step
+          </Button>
+        </FormStack>
+      </DialogSection>
     </ScrollableDialog>
   );
 }

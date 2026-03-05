@@ -16,6 +16,7 @@ interface MeasurementFieldDialogProps {
   categoryId: string;
   categoryName?: string;
   initialData?: MeasurementField | null;
+  initialSectionId?: string | null;
   existingFields?: MeasurementField[];
   existingSections?: MeasurementSection[];
   onSuccess: () => void;
@@ -27,6 +28,7 @@ export function MeasurementFieldDialog({
   categoryId,
   categoryName,
   initialData,
+  initialSectionId,
   existingFields = [],
   existingSections = [],
   onSuccess,
@@ -45,6 +47,7 @@ export function MeasurementFieldDialog({
     open,
     categoryId,
     initialData,
+    initialSectionId,
     existingFields,
     existingSections,
     onOpenChange,
@@ -76,7 +79,7 @@ export function MeasurementFieldDialog({
         <FormStack as="form" id="measurement-field-form" onSubmit={submitForm} density="relaxed">
           <MeasurementFieldDialogBasicFields
             form={form}
-            existingSectionNames={existingSections.map((section) => section.name)}
+            existingSections={existingSections}
           />
 
           <MeasurementFieldDialogDropdownOptions

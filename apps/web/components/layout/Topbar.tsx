@@ -32,14 +32,14 @@ export function Topbar() {
       <div className="flex h-16 w-full items-center gap-2 px-3 sm:gap-3 sm:px-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-2 md:pr-4">
           <MobileSidebarTrigger />
-          <div className="hidden min-w-0 flex-col leading-tight md:flex">
+          <div className="hidden min-w-0 flex-col  md:flex">
             <Label
               variant="dashboard"
               className="text-[10px] uppercase tracking-[0.12em] text-appBar-foreground/50"
             >
               Workspace
             </Label>
-            <span className="truncate text-sm font-semibold text-appBar-foreground">
+            <span className="truncate text-md font-semibold text-appBar-foreground">
               {siteConfig.shortName}
             </span>
           </div>

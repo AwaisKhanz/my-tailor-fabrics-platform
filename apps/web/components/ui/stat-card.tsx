@@ -131,7 +131,7 @@ export function StatCard({
       >
         <div className="flex items-center gap-2">
           <Typography
-            as="p"
+            as="div"
             variant="statValue"
             className={cn(
               statValueTone({ tone: resolvedValueTone }),

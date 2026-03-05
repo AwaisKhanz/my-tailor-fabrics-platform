@@ -52,6 +52,22 @@ export class CreateMeasurementSectionDto {
   sortOrder?: number;
 }
 
+export class UpdateMeasurementSectionDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsInt()
+  @IsOptional()
+  sortOrder?: number;
+}
+
+export class DeleteMeasurementSectionDto {
+  @IsString()
+  @IsOptional()
+  targetSectionId?: string;
+}
+
 export class CreateMeasurementFieldDto {
   @IsString()
   label!: string;

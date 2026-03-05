@@ -42,7 +42,7 @@ export function ScrollableDialog({
       <DialogContent
         size={contentSize}
         variant="flush"
-        className={cn(maxWidthClass, maxHeightClass, "flex flex-col")}
+        className={cn(maxWidthClass, maxHeightClass, "min-h-0 flex flex-col")}
       >
         <DialogHeader variant="section">
           <DialogTitle>{title}</DialogTitle>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type QueryPrimitive = string | number | null | undefined;
@@ -31,8 +31,14 @@ export function useUrlTableState({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const paramsSnapshot = searchParams.toString();
-  const paramsSnapshotRef = useRef(paramsSnapshot);
-  paramsSnapshotRef.current = paramsSnapshot;
+  const localParamsSnapshotRef = useRef(paramsSnapshot);
+  const [localParamsSnapshot, setLocalParamsSnapshot] = useState(paramsSnapshot);
+
+  useEffect(() => {
+    localParamsSnapshotRef.current = paramsSnapshot;
+    setLocalParamsSnapshot(paramsSnapshot);
+  }, [paramsSnapshot]);
+
   const defaultsSignature = createDefaultsSignature(defaults);
   const sortedDefaultEntries = useMemo<[string, string][]>(
     () => {
@@ -67,7 +73,7 @@ export function useUrlTableState({
   }, [sortedDefaultEntries]);
 
   const values = useMemo(() => {
-    const query = new URLSearchParams(paramsSnapshot);
+    const query = new URLSearchParams(localParamsSnapshot);
     const output: QueryDefaults = {};
 
     Object.keys(stableDefaults).forEach((key) => {
@@ -77,11 +83,11 @@ export function useUrlTableState({
     });
 
     return output;
-  }, [paramsSnapshot, prefix, stableDefaults]);
+  }, [localParamsSnapshot, prefix, stableDefaults]);
 
   const setValues = useCallback(
     (updates: Partial<Record<string, QueryPrimitive>>) => {
-      const currentQuery = paramsSnapshotRef.current;
+      const currentQuery = localParamsSnapshotRef.current;
       const nextParams = new URLSearchParams(currentQuery);
 
       Object.keys(updates).forEach((key) => {
@@ -103,6 +109,8 @@ export function useUrlTableState({
         return;
       }
 
+      localParamsSnapshotRef.current = query;
+      setLocalParamsSnapshot(query);
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
     [pathname, prefix, router, stableDefaults],

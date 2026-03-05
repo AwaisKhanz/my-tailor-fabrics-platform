@@ -1,5 +1,14 @@
+import { useMemo } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { type MeasurementSection } from "@tbms/shared-types";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -12,16 +21,25 @@ import { type FieldFormValues } from "@/hooks/use-measurement-field-dialog";
 
 interface MeasurementFieldDialogBasicFieldsProps {
   form: UseFormReturn<FieldFormValues>;
-  existingSectionNames: string[];
+  existingSections: MeasurementSection[];
 }
 
 export function MeasurementFieldDialogBasicFields({
   form,
-  existingSectionNames,
+  existingSections,
 }: MeasurementFieldDialogBasicFieldsProps) {
-  const sectionSuggestions = Array.from(
-    new Set(existingSectionNames.map((name) => name.trim()).filter(Boolean)),
+  const sortedSections = useMemo(
+    () =>
+      [...existingSections].sort((left, right) => {
+        if (left.sortOrder !== right.sortOrder) {
+          return left.sortOrder - right.sortOrder;
+        }
+        return left.name.localeCompare(right.name);
+      }),
+    [existingSections],
   );
+
+  const NEW_SECTION_VALUE = "__new_section__";
 
   return (
     <>
@@ -42,27 +60,73 @@ export function MeasurementFieldDialogBasicFields({
       <FormField
         control={form.control}
         name="sectionName"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel variant="dashboard">Section</FormLabel>
-            <FormControl>
-              <Input
-                variant="premium"
-                placeholder="e.g., Upper Body, Bottom, Extras"
-                list="measurement-section-suggestions"
-                {...field}
-              />
-            </FormControl>
-            {sectionSuggestions.length > 0 ? (
-              <datalist id="measurement-section-suggestions">
-                {sectionSuggestions.map((name) => (
-                  <option key={name} value={name} />
-                ))}
-              </datalist>
-            ) : null}
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const normalizedCurrentValue = (field.value ?? "")
+            .trim()
+            .toLowerCase();
+          const matchingSection = sortedSections.find(
+            (section) =>
+              section.name.trim().toLowerCase() === normalizedCurrentValue,
+          );
+          const isCustomSection =
+            sortedSections.length === 0 || !Boolean(matchingSection);
+
+          return (
+            <FormItem>
+              <FormLabel variant="dashboard">Section</FormLabel>
+              <div className="space-y-3">
+                <Select
+                  value={matchingSection?.id ?? NEW_SECTION_VALUE}
+                  onValueChange={(value) => {
+                    if (value === NEW_SECTION_VALUE) {
+                      if (matchingSection) {
+                        field.onChange("");
+                      }
+                      return;
+                    }
+
+                    const selectedSection = sortedSections.find(
+                      (section) => section.id === value,
+                    );
+                    if (selectedSection) {
+                      field.onChange(selectedSection.name);
+                    }
+                  }}
+                >
+                  <FormControl>
+                    <SelectTrigger variant="premium">
+                      <SelectValue placeholder="Select existing section" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sortedSections.map((section) => (
+                      <SelectItem key={section.id} value={section.id}>
+                        {section.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value={NEW_SECTION_VALUE}>
+                      + Create New Section
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {isCustomSection ? (
+                  <FormControl>
+                    <Input
+                      variant="premium"
+                      placeholder="Type a new section name"
+                      {...field}
+                    />
+                  </FormControl>
+                ) : null}
+              </div>
+              <FormDescription>
+                Select a section for this field, or create a new section name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          );
+        }}
       />
 
       <div className="grid grid-cols-2 gap-4">

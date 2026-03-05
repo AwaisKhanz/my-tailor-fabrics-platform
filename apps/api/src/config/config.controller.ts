@@ -19,6 +19,8 @@ import {
   CreateMeasurementCategoryDto,
   UpdateMeasurementCategoryDto,
   CreateMeasurementSectionDto,
+  UpdateMeasurementSectionDto,
+  DeleteMeasurementSectionDto,
   CreateMeasurementFieldDto,
   UpdateMeasurementFieldDto,
 } from './dto/measurement-category.dto';
@@ -209,6 +211,28 @@ export class ConfigController {
     @Body() dto: CreateMeasurementSectionDto,
   ) {
     const data = await this.configService.addMeasurementSection(categoryId, dto);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('measurements.manage')
+  @Put('measurement-sections/:id')
+  async updateMeasurementSection(
+    @Param('id') sectionId: string,
+    @Body() dto: UpdateMeasurementSectionDto,
+  ) {
+    const data = await this.configService.updateMeasurementSection(sectionId, dto);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('measurements.manage')
+  @Delete('measurement-sections/:id')
+  async deleteMeasurementSection(
+    @Param('id') sectionId: string,
+    @Body() dto: DeleteMeasurementSectionDto,
+  ) {
+    const data = await this.configService.deleteMeasurementSection(sectionId, dto);
     return success(data);
   }
 

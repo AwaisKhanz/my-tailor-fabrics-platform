@@ -63,6 +63,13 @@ export interface CreateMeasurementSectionInput {
     name: string;
     sortOrder?: number;
 }
+export interface UpdateMeasurementSectionInput {
+    name?: string;
+    sortOrder?: number;
+}
+export interface DeleteMeasurementSectionInput {
+    targetSectionId?: string;
+}
 export interface MeasurementStats {
     totalCategories: number;
     activeCategories: number;

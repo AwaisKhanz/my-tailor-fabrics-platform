@@ -23,6 +23,7 @@ interface UseMeasurementFieldDialogParams {
   open: boolean;
   categoryId: string;
   initialData?: MeasurementField | null;
+  initialSectionId?: string | null;
   existingFields: MeasurementField[];
   existingSections: MeasurementSection[];
   onOpenChange: (open: boolean) => void;
@@ -33,7 +34,7 @@ const DEFAULT_FORM_VALUES: FieldFormValues = {
   label: "",
   sectionName: "",
   fieldType: FieldType.NUMBER,
-  unit: "",
+  unit: "Inches",
   isRequired: false,
   dropdownOptions: [],
   sortOrder: 1,
@@ -43,6 +44,7 @@ export function useMeasurementFieldDialog({
   open,
   categoryId,
   initialData,
+  initialSectionId,
   existingFields,
   existingSections,
   onOpenChange,
@@ -53,7 +55,9 @@ export function useMeasurementFieldDialog({
   const [newOption, setNewOption] = useState("");
 
   const form = useForm<FieldFormValues>({
-    resolver: typedZodResolver<FieldFormValues>(measurementFieldDialogFormSchema),
+    resolver: typedZodResolver<FieldFormValues>(
+      measurementFieldDialogFormSchema,
+    ),
     defaultValues: DEFAULT_FORM_VALUES,
   });
 
@@ -76,15 +80,27 @@ export function useMeasurementFieldDialog({
         sortOrder: initialData.sortOrder ?? 1,
       });
     } else {
+      const preferredSectionName =
+        existingSections.find((section) => section.id === initialSectionId)
+          ?.name ??
+        existingSections[0]?.name ??
+        "General";
       form.reset({
         ...DEFAULT_FORM_VALUES,
-        sectionName: existingSections[0]?.name ?? "General",
+        sectionName: preferredSectionName,
         sortOrder: (existingFields.length ?? 0) + 1,
       });
     }
 
     setNewOption("");
-  }, [existingFields.length, existingSections, form, initialData, open]);
+  }, [
+    existingFields.length,
+    existingSections,
+    form,
+    initialData,
+    initialSectionId,
+    open,
+  ]);
 
   const addOption = useCallback(() => {
     const trimmedOption = newOption.trim();
@@ -115,7 +131,9 @@ export function useMeasurementFieldDialog({
     async (values: FieldFormValues) => {
       const normalizedLabel = values.label.trim().toLowerCase();
       const isDuplicate = existingFields.some(
-        (field) => field.label.trim().toLowerCase() === normalizedLabel && field.id !== initialData?.id,
+        (field) =>
+          field.label.trim().toLowerCase() === normalizedLabel &&
+          field.id !== initialData?.id,
       );
 
       if (isDuplicate) {
@@ -164,14 +182,25 @@ export function useMeasurementFieldDialog({
       } catch (error) {
         toast({
           title: "Error",
-          description: getApiErrorMessageOrFallback(error, "Failed to save field. Please try again."),
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to save field. Please try again.",
+          ),
           variant: "destructive",
         });
       } finally {
         setLoading(false);
       }
     },
-    [categoryId, existingFields, form, initialData?.id, onOpenChange, onSuccess, toast],
+    [
+      categoryId,
+      existingFields,
+      form,
+      initialData?.id,
+      onOpenChange,
+      onSuccess,
+      toast,
+    ],
   );
 
   return {

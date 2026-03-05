@@ -1,23 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type MeasurementCategory, type MeasurementField } from "@tbms/shared-types";
+import {
+  type MeasurementCategory,
+  type MeasurementField,
+  type MeasurementSection,
+} from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
-
-function getErrorStatusCode(error: unknown): number | null {
-  if (!error || typeof error !== "object" || !("response" in error)) {
-    return null;
-  }
-
-  const response = error.response;
-  if (!response || typeof response !== "object" || !("status" in response)) {
-    return null;
-  }
-
-  return typeof response.status === "number" ? response.status : null;
-}
+import {
+  getApiErrorMessageOrFallback,
+  getApiErrorStatus,
+} from "@/lib/utils/error";
 
 export function useMeasurementCategoryDetailPage(id: string) {
   const { toast } = useToast();
@@ -28,7 +23,13 @@ export function useMeasurementCategoryDetailPage(id: string) {
 
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<MeasurementField | null>(null);
+  const [preferredSectionId, setPreferredSectionId] = useState<string | null>(
+    null,
+  );
   const [isSectionDialogOpen, setIsSectionDialogOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<MeasurementSection | null>(
+    null,
+  );
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [fieldToDelete, setFieldToDelete] = useState<MeasurementField | null>(null);
@@ -43,7 +44,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
       }
     } catch (error) {
       logDevError("Failed to fetch category details:", error);
-      const statusCode = getErrorStatusCode(error) ?? 0;
+      const statusCode = getApiErrorStatus(error) ?? 0;
       if (statusCode === 404) {
         setCategory(null);
         setNotFound(true);
@@ -64,17 +65,25 @@ export function useMeasurementCategoryDetailPage(id: string) {
     void fetchCategory();
   }, [fetchCategory]);
 
-  const openAddFieldDialog = useCallback(() => {
+  const openAddFieldDialog = useCallback((sectionId?: string) => {
     setSelectedField(null);
+    setPreferredSectionId(sectionId ?? null);
     setIsFieldDialogOpen(true);
   }, []);
 
   const openAddSectionDialog = useCallback(() => {
+    setSelectedSection(null);
+    setIsSectionDialogOpen(true);
+  }, []);
+
+  const openEditSectionDialog = useCallback((section: MeasurementSection) => {
+    setSelectedSection(section);
     setIsSectionDialogOpen(true);
   }, []);
 
   const openEditFieldDialog = useCallback((field: MeasurementField) => {
     setSelectedField(field);
+    setPreferredSectionId(field.sectionId ?? null);
     setIsFieldDialogOpen(true);
   }, []);
 
@@ -82,11 +91,15 @@ export function useMeasurementCategoryDetailPage(id: string) {
     setIsFieldDialogOpen(open);
     if (!open) {
       setSelectedField(null);
+      setPreferredSectionId(null);
     }
   }, []);
 
   const closeSectionDialog = useCallback((open: boolean) => {
     setIsSectionDialogOpen(open);
+    if (!open) {
+      setSelectedSection(null);
+    }
   }, []);
 
   const requestDeleteField = useCallback((field: MeasurementField) => {
@@ -121,16 +134,77 @@ export function useMeasurementCategoryDetailPage(id: string) {
     }
   }, [fetchCategory, fieldToDelete, toast]);
 
+  const moveFieldToSection = useCallback(
+    async (field: MeasurementField, targetSectionId: string) => {
+      try {
+        await configApi.updateMeasurementField(field.id, {
+          sectionId: targetSectionId,
+        });
+        toast({
+          title: "Field moved",
+          description: `"${field.label}" moved to the selected section.`,
+        });
+        await fetchCategory();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to move field to the selected section.",
+          ),
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+    [fetchCategory, toast],
+  );
+
+  const deleteSection = useCallback(
+    async (sectionId: string, targetSectionId?: string) => {
+      try {
+        const response = await configApi.deleteMeasurementSection(sectionId, {
+          targetSectionId,
+        });
+
+        const movedCount = response.data.movedFieldCount;
+        toast({
+          title: "Section deleted",
+          description:
+            movedCount > 0
+              ? `${movedCount} field${movedCount === 1 ? "" : "s"} moved successfully.`
+              : "Section removed successfully.",
+        });
+
+        await fetchCategory();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to delete section. Please try again.",
+          ),
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+    [fetchCategory, toast],
+  );
+
   return {
     loading,
     category,
     notFound,
     isFieldDialogOpen,
     selectedField,
+    preferredSectionId,
     isSectionDialogOpen,
+    selectedSection,
     isConfirmOpen,
     fieldToDelete,
     openAddSectionDialog,
+    openEditSectionDialog,
     openAddFieldDialog,
     openEditFieldDialog,
     closeSectionDialog,
@@ -138,6 +212,8 @@ export function useMeasurementCategoryDetailPage(id: string) {
     requestDeleteField,
     closeDeleteConfirm,
     confirmDeleteField,
+    moveFieldToSection,
+    deleteSection,
     fetchCategory,
   };
 }

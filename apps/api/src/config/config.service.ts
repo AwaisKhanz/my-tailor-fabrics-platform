@@ -14,6 +14,8 @@ import {
   CreateMeasurementCategoryDto,
   UpdateMeasurementCategoryDto,
   CreateMeasurementSectionDto,
+  UpdateMeasurementSectionDto,
+  DeleteMeasurementSectionDto,
   CreateMeasurementFieldDto,
   UpdateMeasurementFieldDto,
 } from './dto/measurement-category.dto';
@@ -715,6 +717,132 @@ export class ConfigService {
         sortOrder: nextSortOrder,
       },
     });
+  }
+
+  async updateMeasurementSection(
+    sectionId: string,
+    dto: UpdateMeasurementSectionDto,
+  ) {
+    const section = await this.prisma.measurementSection.findUnique({
+      where: { id: sectionId },
+    });
+
+    if (!section) {
+      throw new NotFoundException('Measurement section not found.');
+    }
+
+    const data: Prisma.MeasurementSectionUpdateInput = {};
+
+    if (dto.name !== undefined) {
+      const normalizedName = dto.name.trim();
+      if (!normalizedName) {
+        throw new BadRequestException('Section name is required.');
+      }
+
+      const duplicate = await this.prisma.measurementSection.findFirst({
+        where: {
+          categoryId: section.categoryId,
+          id: { not: sectionId },
+          name: { equals: normalizedName, mode: 'insensitive' },
+        },
+      });
+
+      if (duplicate) {
+        throw new ConflictException(
+          `Section "${normalizedName}" already exists in this category.`,
+        );
+      }
+
+      data.name = normalizedName;
+    }
+
+    if (dto.sortOrder !== undefined) {
+      data.sortOrder = dto.sortOrder;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return section;
+    }
+
+    return this.prisma.measurementSection.update({
+      where: { id: sectionId },
+      data,
+    });
+  }
+
+  async deleteMeasurementSection(
+    sectionId: string,
+    dto: DeleteMeasurementSectionDto = {},
+  ) {
+    const section = await this.prisma.measurementSection.findUnique({
+      where: { id: sectionId },
+      include: {
+        category: {
+          select: {
+            id: true,
+            deletedAt: true,
+          },
+        },
+      },
+    });
+
+    if (!section || section.category.deletedAt) {
+      throw new NotFoundException('Measurement section not found.');
+    }
+
+    const activeFieldCount = await this.prisma.measurementField.count({
+      where: { sectionId, deletedAt: null },
+    });
+
+    const targetSectionId = dto.targetSectionId?.trim();
+
+    if (activeFieldCount > 0) {
+      if (!targetSectionId) {
+        throw new BadRequestException(
+          'Target section is required to move fields before deleting this section.',
+        );
+      }
+
+      if (targetSectionId === sectionId) {
+        throw new BadRequestException(
+          'Target section must be different from the section being deleted.',
+        );
+      }
+
+      const targetSection = await this.prisma.measurementSection.findUnique({
+        where: { id: targetSectionId },
+      });
+
+      if (!targetSection || targetSection.categoryId !== section.categoryId) {
+        throw new NotFoundException('Target measurement section not found.');
+      }
+
+      await this.prisma.$transaction([
+        this.prisma.measurementField.updateMany({
+          where: { sectionId, deletedAt: null },
+          data: { sectionId: targetSectionId },
+        }),
+        this.prisma.measurementSection.delete({
+          where: { id: sectionId },
+        }),
+      ]);
+
+      return {
+        deletedSectionId: sectionId,
+        movedFieldCount: activeFieldCount,
+        targetSectionId,
+      };
+    }
+
+    await this.prisma.measurementSection.delete({
+      where: { id: sectionId },
+    });
+
+    return {
+      deletedSectionId: sectionId,
+      movedFieldCount: 0,
+      targetSectionId: null,
+    };
   }
 
   async addMeasurementField(
