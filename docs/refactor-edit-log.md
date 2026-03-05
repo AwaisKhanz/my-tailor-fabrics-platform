@@ -5113,3 +5113,115 @@ This is the single source of truth for implementation edits and why they were ma
 - Skipped intentionally per request (`don't make build at end`).
 - Performed source audit only:
   - `rg "shadow-(2xl|xl|lg|md)" apps/web` → no matches.
+
+## 2026-03-05 — Pass 122 (Single-Theme Mode + Appearance Page Removal)
+
+### Goal
+- Enforce one-theme operation and remove the entire Appearance settings surface from the dashboard.
+
+### Routing/navigation cleanup completed
+- `apps/web/app/(dashboard)/settings/appearance/page.tsx`
+  - Removed route file (Appearance page removed from app route tree).
+- `apps/web/components/layout/Sidebar.tsx`
+  - Removed `Appearance` navigation item from Administration section.
+  - Removed unused `Palette` icon import.
+- `packages/shared-constants/src/authz.ts`
+  - Removed frontend route policy entry for `/settings/appearance`.
+
+### Appearance module removal completed
+- Removed obsolete Appearance module files:
+  - `apps/web/components/config/appearance/appearance-settings-page.tsx`
+  - `apps/web/components/config/appearance/appearance-mode-card.tsx`
+  - `apps/web/components/config/appearance/appearance-preset-directory.tsx`
+  - `apps/web/components/config/appearance/appearance-stats-grid.tsx`
+  - `apps/web/hooks/use-appearance-settings-page.ts`
+
+### Theme behavior simplification completed
+- `packages/shared-theme/src/theme-presets.ts`
+  - Reduced preset IDs to a single preset (`polar-authority`).
+  - Kept one canonical preset and applied inverse-shell dark behavior to that single preset.
+  - Preset typing remains strict (`ThemePreset.id: ThemePresetId`).
+- `apps/web/components/layout/ThemeToggle.tsx`
+  - Removed theme preset chooser UI from dropdown.
+  - Toggle now only handles Light/Dark mode.
+
+### Tooling/docs consistency updates
+- `apps/web/scripts/theme-audit.mjs`
+  - Removed deleted appearance route from expected route checks.
+  - Removed appearance-specific inline background allowlist entry.
+- `apps/web/docs/theme-consistency-tracker.md`
+  - Updated `/settings/appearance` row to `Removed` status.
+
+### Result
+- App now runs in single-theme mode with no Appearance settings page, no appearance nav entry, and no preset-switching UI.
+- Dark mode continues to use the selected opposite-shell behavior while keeping light mode intact.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Performed source/reference sweep only for deleted route/module references.
+
+## 2026-03-05 — Pass 123 (Polar Dark Reversion)
+
+### Goal
+- Revert dark mode from inverse-shell variant back to the original Polar Authority dark palette.
+
+### Theme update completed
+- `packages/shared-theme/src/theme-presets.ts`
+  - Removed the temporary `POLAR_AUTHORITY_OPPOSITE_DARK` override block.
+  - Switched single active preset dark palette back to `POLAR_AUTHORITY_DARK`.
+  - Restored preset description to original Polar Authority wording.
+
+### Result
+- Dark mode now uses the real Polar Authority values again (original shell/content mapping), not the inverse variant.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Performed source sweep only to confirm inverse override references were removed.
+
+## 2026-03-05 — Pass 124 (Table Border Token Alignment)
+
+### Goal
+- Fix visual inconsistency where table container borders looked lighter than neighboring premium cards.
+
+### Root cause confirmed
+- Premium cards use stronger border token: `border-borderStrong/70`.
+- Shared table wrappers were using lighter token: `border-divider`.
+
+### Shared primitive updates completed
+- `apps/web/components/ui/table-layout.tsx`
+  - Updated `TableSurface` outer border from `border-divider` to `border-borderStrong/70`.
+- `apps/web/components/ui/data-table.tsx`
+  - Updated framed `DataTable` wrapper border from `border-divider` to `border-borderStrong/70`.
+- `apps/web/components/ui/table-skeleton.tsx`
+  - Updated loading-state table wrapper border from `border-divider` to `border-borderStrong/70`.
+
+### Result
+- Table containers now match the border strength of adjacent premium cards, including loading states.
+- Border consistency is fixed at shared component level (not page-level overrides).
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Source check only: no remaining framed table wrappers using `border-divider` outer borders.
+
+## 2026-03-05 — Pass 125 (Global Frame Border Consistency Sweep)
+
+### Goal
+- Ensure border consistency across application-level framed surfaces, not only attendance tables.
+
+### Shared primitive alignment completed
+- `apps/web/components/ui/card.tsx`
+  - Updated base `Card` frame border token from `border-divider` to `border-borderStrong/70`.
+- `apps/web/components/ui/table-layout.tsx`
+  - (From prior pass) `TableSurface` frame border uses `border-borderStrong/70`.
+- `apps/web/components/ui/data-table.tsx`
+  - (From prior pass) framed `DataTable` wrapper uses `border-borderStrong/70`.
+- `apps/web/components/ui/table-skeleton.tsx`
+  - (From prior pass) loading table frame uses `border-borderStrong/70`.
+
+### Result
+- Core framed containers now share one border strength token across cards/tables/loading states.
+- Border appearance is consistently matched across pages that rely on shared UI primitives.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Source check only: confirmed `Card` + table wrappers all use `border-borderStrong/70`.

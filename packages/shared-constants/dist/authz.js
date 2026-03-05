@@ -130,7 +130,6 @@ exports.ROUTE_PERMISSION_POLICIES = [
     { pathnamePrefix: '/settings/integrations', requireAll: ['settings.read', 'mail.manage'] },
     { pathnamePrefix: '/settings/audit-logs', requireAll: ['settings.read', 'audit.read'] },
     { pathnamePrefix: '/settings/attendance', requireAll: ['settings.read', 'attendance.read'] },
-    { pathnamePrefix: '/settings/appearance', requireAll: ['settings.read', 'appearance.manage'] },
     { pathnamePrefix: '/settings/branches', requireAll: ['settings.read', 'branches.read'] },
     { pathnamePrefix: '/settings/garments', requireAll: ['settings.read', 'garments.read'] },
     { pathnamePrefix: '/settings/measurements', requireAll: ['settings.read', 'measurements.read'] },

@@ -9,9 +9,7 @@ const allowColorLiteralFiles = new Set([
   "../../packages/shared-theme/src/theme-presets.ts",
 ]);
 
-const allowInlineBackgroundStyleFiles = new Set([
-  "components/config/appearance/appearance-settings-page.tsx",
-]);
+const allowInlineBackgroundStyleFiles = new Set([]);
 
 const requiredCssTokenBlocks = [
   { selector: ":root,\n  :root[data-theme-preset=\"modern-minimal\"]", label: "Modern Minimal Light" },
@@ -88,7 +86,6 @@ const expectedRoutes = [
   "app/(dashboard)/settings/rates/page.tsx",
   "app/(dashboard)/settings/design-types/page.tsx",
   "app/(dashboard)/settings/users/page.tsx",
-  "app/(dashboard)/settings/appearance/page.tsx",
   "app/login/page.tsx",
   "app/status/[token]/page.tsx",
   "app/unauthorized/page.tsx",

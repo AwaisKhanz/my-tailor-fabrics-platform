@@ -59,14 +59,16 @@ export function OrderFormItemCard({
 }: OrderFormItemCardProps) {
   const watchedAddons = form.watch(`items.${index}.addons`) || [];
   const garmentTypeId = form.watch(`items.${index}.garmentTypeId`);
-  const selectedGarment = garmentTypes.find((garment) => garment.id === garmentTypeId);
+  const selectedGarment = garmentTypes.find(
+    (garment) => garment.id === garmentTypeId,
+  );
 
   return (
-    <InfoTile padding="none" radius="xl" className="space-y-5 p-4 sm:p-5">
+    <InfoTile padding="none" radius="xl" className="space-y-5 p-4 sm:p-5 ">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" size="xs">
+            <Badge variant="outline" size="xs" className="p-0">
               PIECE {index + 1}
             </Badge>
             {selectedGarment ? (
@@ -81,9 +83,14 @@ export function OrderFormItemCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <InfoTile tone="pending" padding="none" className="text-right px-3 py-1.5">
-            <p className="text-[10px] uppercase tracking-[0.08em] text-text-secondary">Piece Total</p>
-            <p className="text-sm font-semibold text-text-primary">{formatPKR(Math.round(lineTotal * 100))}</p>
+          <InfoTile
+            tone="pending"
+            padding="none"
+            className="text-right px-3 py-1.5"
+          >
+            <p className="text-sm font-semibold text-text-primary">
+              {formatPKR(Math.round(lineTotal * 100))}
+            </p>
           </InfoTile>
           <Button
             type="button"
@@ -112,7 +119,7 @@ export function OrderFormItemCard({
                   value={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger variant="premium">
+                    <SelectTrigger variant="appBar">
                       <SelectValue placeholder="Select garment" />
                     </SelectTrigger>
                   </FormControl>
@@ -138,7 +145,7 @@ export function OrderFormItemCard({
               <FormItem>
                 <FormLabel variant="dashboard">Quantity</FormLabel>
                 <FormControl>
-                  <Input type="number" min={1} variant="premium" {...field} />
+                  <Input type="number" min={1} variant="default" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -154,7 +161,7 @@ export function OrderFormItemCard({
               <FormItem>
                 <FormLabel variant="dashboard">Unit Price (Rs)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={0} variant="premium" {...field} />
+                  <Input type="number" min={0} variant="default" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -175,7 +182,7 @@ export function OrderFormItemCard({
                 value={field.value || "NONE"}
               >
                 <FormControl>
-                  <SelectTrigger variant="premium">
+                  <SelectTrigger variant="default">
                     <SelectValue placeholder="Standard/No design" />
                   </SelectTrigger>
                 </FormControl>
@@ -200,11 +207,13 @@ export function OrderFormItemCard({
             <FormItem className="md:col-span-4">
               <FormLabel variant="dashboard">Assigned Tailor</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(value === "UNASSIGNED" ? undefined : value)}
+                onValueChange={(value) =>
+                  field.onChange(value === "UNASSIGNED" ? undefined : value)
+                }
                 value={field.value || "UNASSIGNED"}
               >
                 <FormControl>
-                  <SelectTrigger variant="premium">
+                  <SelectTrigger variant="default">
                     <SelectValue placeholder="Optional" />
                   </SelectTrigger>
                 </FormControl>
@@ -230,13 +239,15 @@ export function OrderFormItemCard({
               <FormLabel variant="dashboard">Fabric Source</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger variant="premium">
+                  <SelectTrigger variant="default">
                     <SelectValue />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value={FabricSource.SHOP}>Shop</SelectItem>
-                  <SelectItem value={FabricSource.CUSTOMER}>Customer</SelectItem>
+                  <SelectItem value={FabricSource.CUSTOMER}>
+                    Customer
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -252,7 +263,7 @@ export function OrderFormItemCard({
               <FormLabel variant="dashboard">Notes</FormLabel>
               <FormControl>
                 <Input
-                  variant="premium"
+                  variant="default"
                   placeholder="Collar style, sleeve notes, etc."
                   {...field}
                 />
@@ -263,13 +274,8 @@ export function OrderFormItemCard({
         />
       </div>
 
-      <InfoTile
-        tone="pending"
-        borderStyle="dashed"
-        padding="content"
-        className="space-y-3 sm:p-4"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <InfoTile tone="pending" borderStyle="dashed" padding="none" className="">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <Label variant="dashboard">Addons & Custom Charges</Label>
           <Button
             type="button"
@@ -306,12 +312,16 @@ export function OrderFormItemCard({
                       );
                     }}
                   >
-                    <SelectTrigger variant="premium" className="h-8">
+                    <SelectTrigger variant="default" className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {(Object.entries(ADDON_TYPE_LABELS) as [AddonType, string][]).map(
-                        ([key, label]) => (
+                      {(
+                        Object.entries(ADDON_TYPE_LABELS) as [
+                          AddonType,
+                          string,
+                        ][]
+                      ).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
                           {label}
                         </SelectItem>
@@ -322,22 +332,27 @@ export function OrderFormItemCard({
 
                 <div className="md:col-span-6">
                   <Input
-                    variant="premium"
+                    variant="default"
                     className="h-8"
                     placeholder="Charge name"
-                    {...form.register(`items.${index}.addons.${addonIndex}.name` as const)}
+                    {...form.register(
+                      `items.${index}.addons.${addonIndex}.name` as const,
+                    )}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <Input
-                    variant="premium"
+                    variant="default"
                     type="number"
                     className="h-8"
                     placeholder="Amount"
-                    {...form.register(`items.${index}.addons.${addonIndex}.price` as const, {
-                      valueAsNumber: true,
-                    })}
+                    {...form.register(
+                      `items.${index}.addons.${addonIndex}.price` as const,
+                      {
+                        valueAsNumber: true,
+                      },
+                    )}
                   />
                 </div>
 

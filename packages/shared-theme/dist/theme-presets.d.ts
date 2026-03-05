@@ -1,4 +1,4 @@
-export declare const THEME_PRESET_IDS: readonly ["google-ai-studio-v2", "console-minimalist-xai"];
+export declare const THEME_PRESET_IDS: readonly ["polar-authority"];
 export type ThemePresetId = (typeof THEME_PRESET_IDS)[number];
 export interface ThemePaletteV2 {
     primary: string;
@@ -67,7 +67,7 @@ export interface ThemePaletteV2 {
 }
 export type ThemePalette = ThemePaletteV2;
 export interface ThemePreset {
-    id: any;
+    id: ThemePresetId;
     label: string;
     description: string;
     palette: {

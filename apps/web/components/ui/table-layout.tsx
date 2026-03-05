@@ -7,7 +7,7 @@ import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 const tableSurfaceVariants = cva(
-  "overflow-hidden rounded-xl border border-divider bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]",
+  "overflow-hidden rounded-xl border border-borderStrong/70 bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]",
   {
     variants: {
       variant: {
@@ -40,7 +40,11 @@ export type TableSearchProps = React.ComponentProps<typeof Input> & {
   icon?: React.ReactNode;
 };
 
-export function TableSurface({ children, className, variant }: TableSurfaceProps) {
+export function TableSurface({
+  children,
+  className,
+  variant,
+}: TableSurfaceProps) {
   return (
     <div className={cn(tableSurfaceVariants({ variant, className }))}>
       {children}
@@ -59,7 +63,12 @@ export function TableToolbar({
   const hasActiveFilters = Boolean(activeFilterCount && activeFilterCount > 0);
 
   return (
-    <div className={cn("border-b border-divider bg-surface-elevated px-6 py-5", className)}>
+    <div
+      className={cn(
+        "border-b border-divider bg-surface-elevated px-6 py-5",
+        className,
+      )}
+    >
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <Typography as="h2" variant="sectionTitle">
@@ -70,20 +79,28 @@ export function TableToolbar({
           </Badge>
           {hasActiveFilters ? (
             <Badge variant="outline" size="xs" className="font-bold">
-              {activeFilterCount} active filter{activeFilterCount && activeFilterCount > 1 ? "s" : ""}
+              {activeFilterCount} active filter
+              {activeFilterCount && activeFilterCount > 1 ? "s" : ""}
             </Badge>
           ) : null}
         </div>
 
         {controls ? (
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">{controls}</div>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            {controls}
+          </div>
         ) : null}
       </div>
     </div>
   );
 }
 
-export function TableSearch({ icon, className, variant = "table", ...props }: TableSearchProps) {
+export function TableSearch({
+  icon,
+  className,
+  variant = "table",
+  ...props
+}: TableSearchProps) {
   return (
     <div className="group relative w-full md:min-w-[280px] md:flex-1">
       <Input variant={variant} className={cn("pl-9", className)} {...props} />

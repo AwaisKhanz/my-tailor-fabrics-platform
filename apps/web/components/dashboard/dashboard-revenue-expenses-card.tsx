@@ -112,7 +112,7 @@ export function DashboardRevenueExpensesCard({
   const tooltipY = padTop + 10;
 
   return (
-    <Card variant="premium" className="h-full">
+    <Card variant="premium" className="flex h-full flex-col">
       <CardHeader variant="rowSection" align="start">
         <div className="space-y-1">
           <CardTitle variant="dashboardSection">
@@ -127,7 +127,7 @@ export function DashboardRevenueExpensesCard({
           <Clock className="ml-1 h-3 w-3" />
         </InfoTile>
       </CardHeader>
-      <CardContent spacing="section" className="space-y-4">
+      <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
         <div className="grid gap-3 sm:grid-cols-3">
           <InfoTile tone="elevatedSoft" padding="md">
             <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export function DashboardRevenueExpensesCard({
           <InfoTile
             borderStyle="dashed"
             padding="none"
-            className="relative flex h-[220px] w-full items-center justify-center"
+            className="relative flex h-full min-h-[220px] w-full flex-1 items-center justify-center"
           >
             <div className="flex max-w-md items-center gap-3 text-sm font-medium text-text-secondary/80">
               <BarChart className="h-10 w-10 opacity-20" />
@@ -176,7 +176,7 @@ export function DashboardRevenueExpensesCard({
             </div>
           </InfoTile>
         ) : (
-          <InfoTile padding="sm" className="overflow-hidden">
+          <InfoTile padding="sm" className="flex-1 overflow-hidden">
             <svg
               viewBox={`0 0 ${width} ${height}`}
               className="h-[200px] w-full sm:h-[214px]"

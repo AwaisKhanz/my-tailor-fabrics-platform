@@ -32,7 +32,7 @@ export function DashboardGarmentBreakdownCard({
   let offset = 0;
 
   return (
-    <Card variant="premium" className="h-full">
+    <Card variant="premium" className="flex h-full flex-col">
       <CardHeader variant="section" density="compact" className="space-y-2">
         <div className="flex items-center gap-2">
           <SectionIcon size="sm">
@@ -49,7 +49,7 @@ export function DashboardGarmentBreakdownCard({
         </p>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4">
+      <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
         <InfoTile tone="elevatedSoft" layout="between">
           <div>
             <Label variant="micro">
@@ -70,11 +70,15 @@ export function DashboardGarmentBreakdownCard({
         </InfoTile>
 
         {topGarments.length === 0 ? (
-          <InfoTile borderStyle="dashed" padding="none" className="py-10 text-center text-xs text-text-secondary">
+          <InfoTile
+            borderStyle="dashed"
+            padding="none"
+            className="flex flex-1 items-center justify-center px-4 py-10 text-center text-xs text-text-secondary"
+          >
             No garment data available
           </InfoTile>
         ) : (
-          <div className="space-y-4">
+          <div className="flex flex-1 flex-col gap-4">
             <div className="mx-auto w-full max-w-[180px]">
               <div className="relative">
                 <svg

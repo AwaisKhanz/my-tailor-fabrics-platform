@@ -49,7 +49,7 @@
 | 17 | `/settings/rates` | Done | Tokenized stats/table/dialog surfaces |
 | 18 | `/settings/design-types` | Done | Tokenized stats/table/dialog surfaces |
 | 19 | `/settings/users` | Done | Tokenized stats/table/dialog surfaces |
-| 20 | `/settings/appearance` | Done | Full semantic palette preview + apply |
+| 20 | `/settings/appearance` | Removed | Removed from app navigation and route tree (single-theme model) |
 | 21 | `/settings/branches/[id]` | Done | Tokenized detail cards and action bars |
 | 22 | `/settings/garments/[id]` | Done | Tokenized detail cards and side panels |
 | 23 | `/settings/measurements/[id]` | Done | Tokenized detail cards and table actions |

@@ -27,7 +27,13 @@ import {
 } from "@/components/ui/select";
 import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
 import {
@@ -66,10 +72,11 @@ export function AttendanceSettingsPage() {
   } = useAttendanceSettingsPage();
 
   const employeeOptions = useMemo(
-    () => activeEmployees.map((employee) => ({
-      id: employee.id,
-      label: `${employee.fullName} (${employee.employeeCode})`,
-    })),
+    () =>
+      activeEmployees.map((employee) => ({
+        id: employee.id,
+        label: `${employee.fullName} (${employee.employeeCode})`,
+      })),
     [activeEmployees],
   );
 
@@ -163,7 +170,7 @@ export function AttendanceSettingsPage() {
               <LogOut className="h-4 w-4" />
               Clock Out
             </Button>
-        ),
+          ),
       },
     ],
     [canManageAttendanceEntries, clockOut, clockingOutId],
@@ -191,7 +198,10 @@ export function AttendanceSettingsPage() {
         />
       </PageSection>
 
-      <PageSection spacing="compact" className="grid space-y-0 gap-4 md:grid-cols-3">
+      <PageSection
+        spacing="compact"
+        className="grid space-y-0 gap-4 md:grid-cols-3"
+      >
         <StatCard
           title="Attendance Records"
           subtitle="total matching"
@@ -227,7 +237,10 @@ export function AttendanceSettingsPage() {
                 Record an employee shift start directly from admin settings.
               </CardDescription>
             </CardHeader>
-            <CardContent spacing="section" className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end">
+            <CardContent
+              spacing="section"
+              className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end"
+            >
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
                   Employee
@@ -240,7 +253,9 @@ export function AttendanceSettingsPage() {
                   <SelectTrigger variant="table">
                     <SelectValue
                       placeholder={
-                        employeesLoading ? "Loading employees..." : "Select employee"
+                        employeesLoading
+                          ? "Loading employees..."
+                          : "Select employee"
                       }
                     />
                   </SelectTrigger>

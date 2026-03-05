@@ -23,7 +23,7 @@ export function DashboardProductivityCard({
     : 0;
 
   return (
-    <Card variant="premium" className="h-full">
+    <Card variant="premium" className="flex h-full flex-col">
       <CardHeader variant="rowSection" align="start">
         <CardTitle variant="dashboardSection">
           Employee Productivity
@@ -37,7 +37,7 @@ export function DashboardProductivityCard({
           <Label variant="dashboard">Avg Items / Tailor</Label>
         </div>
       </CardHeader>
-      <CardContent spacing="section" className="space-y-6">
+      <CardContent spacing="section" className="flex flex-1 flex-col gap-6">
         {loading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="space-y-2">
@@ -46,7 +46,11 @@ export function DashboardProductivityCard({
             </div>
           ))
         ) : productivity.length === 0 ? (
-          <InfoTile borderStyle="dashed" padding="none" className="py-10 text-center text-xs text-text-secondary">
+          <InfoTile
+            borderStyle="dashed"
+            padding="none"
+            className="flex flex-1 items-center justify-center px-4 py-10 text-center text-xs text-text-secondary"
+          >
             No productivity data for this period
           </InfoTile>
         ) : (

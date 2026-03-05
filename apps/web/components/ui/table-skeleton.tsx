@@ -61,7 +61,7 @@ export function TableSkeleton({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-divider bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
+    <div className="overflow-hidden rounded-xl border border-borderStrong/70 bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
       {table}
     </div>
   );

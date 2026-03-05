@@ -23,15 +23,15 @@ export function DashboardDesignPopularityCard({
   const activeDesign = designs.find((design) => design.name === hoveredDesignName) ?? designs[0];
 
   return (
-    <Card variant="premium">
+    <Card variant="premium" className="flex h-full flex-col">
       <CardHeader variant="section" density="compact">
         <CardTitle variant="dashboardSection">
           Design Popularity
         </CardTitle>
         <p className="text-xs text-text-secondary">Most requested designs in the selected period.</p>
       </CardHeader>
-      <CardContent spacing="section" className="space-y-3 pt-4">
-        <div className="space-y-4">
+      <CardContent spacing="section" className="flex flex-1 flex-col space-y-3 pt-4">
+        <div className="flex flex-1 flex-col space-y-4">
           {loading ? (
             Array.from({ length: 4 }).map((_, index) => (
               <div key={index} className="space-y-2">
@@ -40,7 +40,11 @@ export function DashboardDesignPopularityCard({
               </div>
             ))
           ) : designs.length === 0 ? (
-            <InfoTile borderStyle="dashed" padding="none" className="px-4 py-8 text-center text-xs text-text-secondary">
+            <InfoTile
+              borderStyle="dashed"
+              padding="none"
+              className="flex flex-1 items-center justify-center px-4 py-8 text-center text-xs text-text-secondary"
+            >
               No design data found for the selected period.
             </InfoTile>
           ) : (
