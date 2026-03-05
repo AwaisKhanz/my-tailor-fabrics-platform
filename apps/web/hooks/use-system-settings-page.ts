@@ -4,33 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SystemSettings } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
-
-type ApiError = {
-  response?: {
-    data?: {
-      message?: string | string[];
-    };
-  };
-};
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (!error || typeof error !== "object") {
-    return fallback;
-  }
-
-  const response = (error as ApiError).response;
-  const message = response?.data?.message;
-
-  if (Array.isArray(message) && message.length > 0) {
-    return message[0] ?? fallback;
-  }
-
-  if (typeof message === "string" && message.length > 0) {
-    return message;
-  }
-
-  return fallback;
-}
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
 function formatTimestamp(value?: string | Date): string {
   if (!value) {
@@ -64,7 +38,7 @@ export function useSystemSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to load system settings."),
+        description: getApiErrorMessageOrFallback(error, "Failed to load system settings."),
         variant: "destructive",
       });
     } finally {
@@ -123,7 +97,7 @@ export function useSystemSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to save system settings."),
+        description: getApiErrorMessageOrFallback(error, "Failed to save system settings."),
         variant: "destructive",
       });
     } finally {

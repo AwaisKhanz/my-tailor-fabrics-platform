@@ -1,22 +1,29 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
-import {
-  Order,
-  OrderStatus,
-  DashboardStats,
+import type {
+  ApiResponse,
+  AddOrderPaymentInput,
   CreateOrderInput,
-  UpdateOrderInput,
+  DashboardStats,
+  Order,
+  OrderItem,
   OrderItemTask,
+  OrdersListQueryInput,
+  OrdersListResult,
   OrdersListSummary,
+  OrdersSummaryQueryInput,
+  SharedOrderTokenPayload,
   TaskStatus,
+  UpdateOrderItemStatusInput,
+  UpdateOrderInput,
+  UpdateOrderStatusInput,
 } from '@tbms/shared-types';
 
 export const ordersApi = {
-  getOrders: async (params: { page?: number; limit?: number; status?: string; search?: string; from?: string; to?: string }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Order>>>('/orders', { params });
+  getOrders: async (params: OrdersListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<OrdersListResult>>('/orders', { params });
     return response.data;
   },
-  getOrdersSummary: async (params: { status?: string; search?: string; from?: string; to?: string }) => {
+  getOrdersSummary: async (params: OrdersSummaryQueryInput = {}) => {
     const response = await api.get<ApiResponse<OrdersListSummary>>('/orders/summary', { params });
     return response.data;
   },
@@ -25,10 +32,10 @@ export const ordersApi = {
     return response.data;
   },
   getReceiptPdf: async (id: string) => {
-    const response = await api.get(`/orders/${id}/receipt`, {
+    const response = await api.get<Blob>(`/orders/${id}/receipt`, {
       responseType: "blob",
     });
-    return response.data as Blob;
+    return response.data;
   },
   createOrder: async (data: CreateOrderInput) => {
     const response = await api.post<ApiResponse<Order>>('/orders', data);
@@ -38,20 +45,24 @@ export const ordersApi = {
     const response = await api.patch<ApiResponse<Order>>(`/orders/${id}`, data);
     return response.data;
   },
-  updateStatus: async (id: string, data: { status: OrderStatus; note?: string }) => {
+  updateStatus: async (id: string, data: UpdateOrderStatusInput) => {
     const response = await api.patch<ApiResponse<Order>>(`/orders/${id}/status`, data);
     return response.data;
   },
-  addPayment: async (id: string, data: { amount: number; note?: string }) => {
+  addPayment: async (id: string, data: AddOrderPaymentInput) => {
     const response = await api.post<ApiResponse<Order>>(`/orders/${id}/payment`, data);
     return response.data;
   },
   shareOrder: async (id: string) => {
-    const response = await api.post<ApiResponse<unknown>>(`/orders/${id}/share`);
+    const response = await api.post<ApiResponse<SharedOrderTokenPayload>>(`/orders/${id}/share`);
     return response.data;
   },
-  updateItem: async (orderId: string, itemId: string, data: { status?: string; employeeId?: string }) => {
-    const response = await api.patch<ApiResponse<unknown>>(`/orders/${orderId}/items/${itemId}`, data);
+  updateItem: async (
+    orderId: string,
+    itemId: string,
+    data: UpdateOrderItemStatusInput,
+  ) => {
+    const response = await api.patch<ApiResponse<OrderItem>>(`/orders/${orderId}/items/${itemId}`, data);
     return response.data;
   },
   removeItem: async (orderId: string, itemId: string) => {
@@ -77,8 +88,8 @@ export const ordersApi = {
     return response.data;
   },
 
-  getDashboardStats: async (): Promise<DashboardStats> => {
+  getDashboardStats: async (): Promise<ApiResponse<DashboardStats>> => {
     const response = await api.get<ApiResponse<DashboardStats>>('/reports/dashboard');
-    return response.data.data;
+    return response.data;
   },
 };

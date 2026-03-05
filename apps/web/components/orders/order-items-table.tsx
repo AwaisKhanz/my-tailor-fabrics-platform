@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { CalendarDays, Scissors } from "lucide-react";
 import { ItemStatus, OrderItem } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import {
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface EmployeeOption {
   id: string;
@@ -25,6 +26,8 @@ interface OrderItemsTableProps {
   onManageTasks: (item: OrderItem) => void;
   canManageTasks?: boolean;
 }
+
+const PAGE_SIZE = 8;
 
 function formatShortDate(value: string) {
   return new Date(value).toLocaleDateString("en-US", {
@@ -39,6 +42,34 @@ export function OrderItemsTable({
   onManageTasks,
   canManageTasks = true,
 }: OrderItemsTableProps) {
+  const { setValues, getPositiveInt } = useUrlTableState({
+    prefix: "items",
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+    },
+  });
+
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, setPage, totalPages]);
+
+  const pagedItems = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return items.slice(start, start + pageSize);
+  }, [items, page, pageSize]);
+
   const employeeMap = useMemo(
     () =>
       new Map(employees.map((employee) => [employee.id, employee.fullName])),
@@ -212,10 +243,14 @@ export function OrderItemsTable({
       <CardContent spacing="section" className="p-0">
         <DataTable
           columns={columns}
-          data={items}
+          data={pagedItems}
           itemLabel="pieces"
           emptyMessage="No pieces found for this order."
           chrome="flat"
+          page={page}
+          total={total}
+          limit={pageSize}
+          onPageChange={setPage}
         />
       </CardContent>
     </Card>

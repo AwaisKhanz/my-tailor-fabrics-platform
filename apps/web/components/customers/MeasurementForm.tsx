@@ -65,6 +65,61 @@ export function MeasurementForm({
     [selectedCategory],
   );
 
+  const groupedFields = useMemo(() => {
+    if (!selectedCategory) {
+      return [];
+    }
+
+    const groups = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        sortOrder: number;
+        fields: typeof selectedCategory.fields;
+      }
+    >();
+
+    (selectedCategory.sections || []).forEach((section) => {
+      groups.set(section.id, {
+        id: section.id,
+        name: section.name,
+        sortOrder: section.sortOrder,
+        fields: [],
+      });
+    });
+
+    const FALLBACK_SECTION_ID = "__general__";
+    if (!groups.has(FALLBACK_SECTION_ID)) {
+      groups.set(FALLBACK_SECTION_ID, {
+        id: FALLBACK_SECTION_ID,
+        name: "General",
+        sortOrder: Number.MAX_SAFE_INTEGER,
+        fields: [],
+      });
+    }
+
+    selectedCategory.fields.forEach((field) => {
+      const targetKey = field.sectionId && groups.has(field.sectionId)
+        ? field.sectionId
+        : FALLBACK_SECTION_ID;
+      groups.get(targetKey)?.fields.push(field);
+    });
+
+    return Array.from(groups.values())
+      .map((group) => ({
+        ...group,
+        fields: [...group.fields].sort((a, b) => a.sortOrder - b.sortOrder),
+      }))
+      .filter((group) => group.fields.length > 0)
+      .sort((a, b) => {
+        if (a.sortOrder !== b.sortOrder) {
+          return a.sortOrder - b.sortOrder;
+        }
+        return a.name.localeCompare(b.name);
+      });
+  }, [selectedCategory]);
+
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -109,7 +164,7 @@ export function MeasurementForm({
         if (typeof fieldId !== "string") {
           return;
         }
-        form.setError(fieldId as keyof MeasurementValues, {
+        form.setError(fieldId, {
           type: "manual",
           message: issue.message,
         });
@@ -125,9 +180,12 @@ export function MeasurementForm({
 
     setSubmitting(true);
     try {
-      const sanitizedValues = Object.fromEntries(
-        Object.entries(parsedResult.data).filter(([, value]) => value !== undefined),
-      ) as MeasurementValues;
+      const sanitizedValues: MeasurementValues = {};
+      Object.entries(parsedResult.data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          sanitizedValues[key] = value;
+        }
+      });
 
       await customerApi.upsertMeasurements(
         customerId,
@@ -171,49 +229,70 @@ export function MeasurementForm({
       {selectedCategory && (
         <Form {...form}>
           <FormStack as="form" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {selectedCategory.fields.sort((a, b) => a.sortOrder - b.sortOrder).map((field) => (
-                <FormField
-                  key={field.id}
-                  control={form.control}
-                  name={field.id as keyof MeasurementValues}
-                  render={({ field: formField }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {field.label} {field.unit && <span className="text-xs text-text-secondary">({field.unit})</span>}
-                        {field.isRequired && <span className="text-destructive">*</span>}
-                      </FormLabel>
-                      <FormControl>
-                        {field.fieldType === FieldType.DROPDOWN ? (
-                          <Select 
-                            onValueChange={formField.onChange} 
-                            defaultValue={formField.value as string}
-                            value={formField.value as string}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={`Select ${field.label}`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {field.dropdownOptions.map((opt) => (
-                                <SelectItem key={opt} value={opt}>
-                                  {opt}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Input
-                            placeholder={`Enter ${field.label.toLowerCase()}`}
-                            type={field.fieldType === FieldType.NUMBER ? "text" : "text"}
-                            {...formField}
-                            value={(formField.value as string | number) ?? ""}
-                          />
+            <div className="space-y-4">
+              {groupedFields.map((section) => (
+                <div key={section.id} className="rounded-xl border border-border/60 bg-surface/50 p-4">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h3 className="text-sm font-semibold text-text-primary">{section.name}</h3>
+                    <span className="text-xs text-text-secondary">
+                      {section.fields.length} field{section.fields.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {section.fields.map((field) => (
+                      <FormField
+                        key={field.id}
+                        control={form.control}
+                        name={field.id}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel>
+                              {field.label} {field.unit && <span className="text-xs text-text-secondary">({field.unit})</span>}
+                              {field.isRequired && <span className="text-destructive">*</span>}
+                            </FormLabel>
+                            <FormControl>
+                              {field.fieldType === FieldType.DROPDOWN ? (
+                                <Select
+                                  onValueChange={formField.onChange}
+                                  value={
+                                    typeof formField.value === "string"
+                                      ? formField.value
+                                      : ""
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder={`Select ${field.label}`} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {field.dropdownOptions.map((opt) => (
+                                      <SelectItem key={opt} value={opt}>
+                                        {opt}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input
+                                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                                  type={field.fieldType === FieldType.NUMBER ? "text" : "text"}
+                                  {...formField}
+                                  value={
+                                    typeof formField.value === "string" ||
+                                    typeof formField.value === "number"
+                                      ? formField.value
+                                      : ""
+                                  }
+                                />
+                              )}
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
             <FormActionRow>

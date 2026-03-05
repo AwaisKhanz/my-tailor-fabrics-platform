@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ordersApi } from "@/lib/api/orders";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { Order, orderPaymentFormSchema, OrderStatus } from "@tbms/shared-types";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
@@ -136,11 +137,9 @@ export function useOrderDetail(orderId: string | null) {
         await fetchOrder();
         return true;
       } catch (err: unknown) {
-        const errorResponse = err as { response?: { data?: { message?: string } } };
         toast({
           title: "Error",
-          description:
-            errorResponse?.response?.data?.message ?? "Failed to add payment",
+          description: getApiErrorMessageOrFallback(err, "Failed to add payment"),
           variant: "destructive",
         });
         return false;
@@ -163,7 +162,7 @@ export function useOrderDetail(orderId: string | null) {
         return null;
       }
 
-      const data = response.data as OrderShareData;
+      const data: OrderShareData = response.data;
       setShareData(data);
       return data;
     } catch {

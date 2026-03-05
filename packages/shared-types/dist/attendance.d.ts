@@ -1,3 +1,4 @@
+import { PaginatedResponse } from './common';
 export interface AttendanceRecord {
     id: string;
     employeeId: string;
@@ -20,3 +21,9 @@ export interface AttendanceSummary {
     currentlyIn: AttendanceRecord | null;
     records: AttendanceRecord[];
 }
+export interface AttendanceListQueryInput {
+    employeeId?: string;
+    page?: number;
+    limit?: number;
+}
+export type AttendanceListResult = PaginatedResponse<AttendanceRecord>;

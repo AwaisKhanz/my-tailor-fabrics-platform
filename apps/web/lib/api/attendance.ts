@@ -1,6 +1,11 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
-import type { AttendanceRecord, AttendanceSummary } from '@tbms/shared-types';
+import type {
+  ApiResponse,
+  AttendanceListQueryInput,
+  AttendanceListResult,
+  AttendanceRecord,
+  AttendanceSummary,
+} from '@tbms/shared-types';
 
 export const attendanceApi = {
   clockIn: async (employeeId: string, note?: string) => {
@@ -18,8 +23,11 @@ export const attendanceApi = {
     return response.data;
   },
 
-  getAttendance: async (params: { employeeId?: string; page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<AttendanceRecord>>>('/attendance', { params });
+  getAttendance: async (params: AttendanceListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<AttendanceListResult>>(
+      '/attendance',
+      { params },
+    );
     return response.data;
   },
 

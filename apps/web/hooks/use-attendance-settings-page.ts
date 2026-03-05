@@ -10,54 +10,41 @@ import {
 import { attendanceApi } from "@/lib/api/attendance";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 20;
 export const ALL_EMPLOYEES_FILTER = "all";
 
-type ApiError = {
-  response?: {
-    data?: {
-      message?: string | string[];
-    };
-  };
-};
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (!error || typeof error !== "object") {
-    return fallback;
-  }
-
-  const response = (error as ApiError).response;
-  const message = response?.data?.message;
-
-  if (Array.isArray(message) && message.length > 0) {
-    return message[0] ?? fallback;
-  }
-
-  if (typeof message === "string" && message.length > 0) {
-    return message;
-  }
-
-  return fallback;
-}
-
 export function useAttendanceSettingsPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      employeeId: ALL_EMPLOYEES_FILTER,
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [employeesLoading, setEmployeesLoading] = useState(true);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
 
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeeFilter, setEmployeeFilter] = useState(ALL_EMPLOYEES_FILTER);
+  const employeeFilter = values.employeeId || ALL_EMPLOYEES_FILTER;
 
   const [clockInEmployeeId, setClockInEmployeeId] = useState("");
   const [clockInNote, setClockInNote] = useState("");
   const [clockingIn, setClockingIn] = useState(false);
   const [clockingOutId, setClockingOutId] = useState<string | null>(null);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const fetchEmployees = useCallback(async () => {
     setEmployeesLoading(true);
@@ -69,7 +56,7 @@ export function useAttendanceSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to load employees."),
+        description: getApiErrorMessageOrFallback(error, "Failed to load employees."),
         variant: "destructive",
       });
     } finally {
@@ -82,7 +69,7 @@ export function useAttendanceSettingsPage() {
     try {
       const response = await attendanceApi.getAttendance({
         page,
-        limit: PAGE_SIZE,
+        limit: pageSize,
         employeeId:
           employeeFilter !== ALL_EMPLOYEES_FILTER ? employeeFilter : undefined,
       });
@@ -93,13 +80,13 @@ export function useAttendanceSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to load attendance records."),
+        description: getApiErrorMessageOrFallback(error, "Failed to load attendance records."),
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, [employeeFilter, page, toast]);
+  }, [employeeFilter, page, pageSize, toast]);
 
   useEffect(() => {
     void fetchEmployees();
@@ -131,14 +118,15 @@ export function useAttendanceSettingsPage() {
   }, [fetchAttendance, fetchEmployees]);
 
   const applyEmployeeFilter = useCallback((value: string) => {
-    setEmployeeFilter(value);
-    setPage(1);
-  }, []);
+    setValues({
+      employeeId: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setEmployeeFilter(ALL_EMPLOYEES_FILTER);
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
 
   const clockIn = useCallback(async () => {
     const parsedResult = attendanceClockInFormSchema.safeParse({
@@ -174,7 +162,7 @@ export function useAttendanceSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to clock in employee."),
+        description: getApiErrorMessageOrFallback(error, "Failed to clock in employee."),
         variant: "destructive",
       });
     } finally {
@@ -195,7 +183,7 @@ export function useAttendanceSettingsPage() {
       } catch (error) {
         toast({
           title: "Error",
-          description: getErrorMessage(error, "Failed to clock out employee."),
+          description: getApiErrorMessageOrFallback(error, "Failed to clock out employee."),
           variant: "destructive",
         });
       } finally {
@@ -211,7 +199,7 @@ export function useAttendanceSettingsPage() {
     records,
     total,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     employees,
     activeEmployees,
     employeesById,

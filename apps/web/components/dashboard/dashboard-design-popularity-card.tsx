@@ -72,7 +72,7 @@ export function DashboardDesignPopularityCard({
                   className={`space-y-1.5 rounded-lg border px-2.5 py-2 transition-colors ${
                     activeDesign?.name === design.name
                       ? "border-primary/35 bg-interaction-hover"
-                      : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+                      : "border-divider bg-surface-elevated/60 hover:border-divider"
                   }`}
                   onMouseEnter={() => setHoveredDesignName(design.name)}
                 >

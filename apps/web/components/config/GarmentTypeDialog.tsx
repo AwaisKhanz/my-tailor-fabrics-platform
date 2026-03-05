@@ -20,7 +20,10 @@ import { Filter, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
 import { typedZodResolver } from "@/lib/utils/form";
-import { garmentTypeSchema, GarmentTypeFormValues } from "@/types/config/schemas";
+import {
+  garmentTypeSchema,
+  GarmentTypeFormValues,
+} from "@/types/config/schemas";
 import type {
   CreateGarmentTypeInput,
   GarmentType,
@@ -59,7 +62,7 @@ export function GarmentTypeDialog({
     };
     if (open) fetchCategories();
   }, [open]);
-  
+
   const form = useForm<GarmentTypeFormValues>({
     resolver: typedZodResolver<GarmentTypeFormValues>(garmentTypeSchema),
     defaultValues: {
@@ -81,7 +84,9 @@ export function GarmentTypeDialog({
         employeeRate: initialData.employeeRate / 100,
         sortOrder: initialData.sortOrder,
         isActive: initialData.isActive,
-        measurementCategoryIds: (initialData.measurementCategories as MeasurementCategory[])?.map((c) => c.id) ?? [],
+        measurementCategoryIds:
+          initialData.measurementCategories?.map((category) => category.id) ??
+          [],
       });
     } else {
       form.reset({
@@ -113,9 +118,9 @@ export function GarmentTypeDialog({
         await configApi.createGarmentType(payload);
       }
 
-      toast({ 
-        title: "Success", 
-        description: "Garment updated successfully" 
+      toast({
+        title: "Success",
+        description: "Garment updated successfully",
       });
       onSuccess();
       onOpenChange(false);
@@ -148,7 +153,6 @@ export function GarmentTypeDialog({
       onOpenChange={onOpenChange}
       title={initialData ? "Edit Garment Type" : "Add Garment Type"}
       footerActions={footerActions}
-      maxWidthClass="sm:max-w-[380px]"
     >
       <Form {...form}>
         <FormStack
@@ -166,7 +170,12 @@ export function GarmentTypeDialog({
                 <FormItem>
                   <FormLabel variant="dashboard">Garment Name</FormLabel>
                   <FormControl>
-                    <Input variant="premium" className="h-9 text-sm" placeholder="e.g. Mens Shirt" {...field} />
+                    <Input
+                      variant="premium"
+                      className="h-9 text-sm"
+                      placeholder="e.g. Mens Shirt"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -177,9 +186,16 @@ export function GarmentTypeDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="dashboard">Description (Optional)</FormLabel>
+                  <FormLabel variant="dashboard">
+                    Description (Optional)
+                  </FormLabel>
                   <FormControl>
-                    <Input variant="premium" className="h-9 text-sm" placeholder="e.g. Standard fitting" {...field} />
+                    <Input
+                      variant="premium"
+                      className="h-9 text-sm"
+                      placeholder="e.g. Standard fitting"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,7 +206,9 @@ export function GarmentTypeDialog({
           <div className="space-y-3 pt-2">
             <div className="flex items-center gap-2">
               <Globe className="h-3 w-3 text-text-secondary" />
-              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">Global Base Pricing</span>
+              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">
+                Global Base Pricing
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <FormField
@@ -200,7 +218,12 @@ export function GarmentTypeDialog({
                   <FormItem>
                     <FormLabel variant="dashboard">Price (Rs)</FormLabel>
                     <FormControl>
-                      <Input variant="premium" className="h-9" type="number" {...field} />
+                      <Input
+                        variant="premium"
+                        className="h-9"
+                        type="number"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -213,7 +236,12 @@ export function GarmentTypeDialog({
                   <FormItem>
                     <FormLabel variant="dashboard">Rate (Rs)</FormLabel>
                     <FormControl>
-                      <Input variant="premium" className="h-9" type="number" {...field} />
+                      <Input
+                        variant="premium"
+                        className="h-9"
+                        type="number"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -225,20 +253,25 @@ export function GarmentTypeDialog({
           <div className="space-y-3 pt-3 border-t border-divider">
             <div className="flex items-center gap-2">
               <Filter className="h-3 w-3 text-text-secondary" />
-              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">Measurement Categories</span>
+              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">
+                Measurement Categories
+              </span>
             </div>
             <FormField
               control={form.control}
               name="measurementCategoryIds"
               render={({ field }) => (
                 <FormItem>
-                   <FormControl>
+                  <FormControl>
                     <MultiSelect
-                       className="min-h-9 py-1 text-sm pt-1.5"
-                       options={categories.map(c => ({ label: c.name, value: c.id }))}
-                       selected={field.value || []}
-                       onChange={field.onChange}
-                       placeholder="Select connected forms..."
+                      className="min-h-9 py-1 text-sm pt-1.5"
+                      options={categories.map((c) => ({
+                        label: c.name,
+                        value: c.id,
+                      }))}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Select connected forms..."
                     />
                   </FormControl>
                   <FormMessage />
@@ -247,21 +280,26 @@ export function GarmentTypeDialog({
             />
           </div>
 
-
           <div className="pt-2">
             <FormField
               control={form.control}
               name="isActive"
               render={({ field }) => (
                 <FormItem>
-                  <InfoTile layout="between" padding="none" className="h-[38px] px-2.5 py-0">
-                  <FormLabel variant="dashboard" className="cursor-pointer">Active</FormLabel>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
+                  <InfoTile
+                    layout="between"
+                    padding="none"
+                    className="h-[38px] px-2.5 py-0"
+                  >
+                    <FormLabel variant="dashboard" className="cursor-pointer">
+                      Active
+                    </FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
                   </InfoTile>
                 </FormItem>
               )}

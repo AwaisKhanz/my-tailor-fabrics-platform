@@ -10,7 +10,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { UserRound } from "lucide-react";
-import { Order } from "@tbms/shared-types";
+import { Order, type MeasurementValues } from "@tbms/shared-types";
 
 interface MeasurementDisplayItem {
   label: string;
@@ -30,14 +30,14 @@ function getMeasurementPreview(
   }
 
   const fields = measurementSet.category?.fields ?? [];
-  const values = measurementSet.values as Record<string, string>;
+  const values: MeasurementValues = measurementSet.values;
 
   return Object.entries(values)
     .map(([fieldId, value]) => {
       const matchedField = fields.find((field) => field.id === fieldId);
       return {
         label: matchedField?.label ?? fieldId,
-        value,
+        value: value === null ? "-" : String(value),
       };
     })
     .slice(0, 10);

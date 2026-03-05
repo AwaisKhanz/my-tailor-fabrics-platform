@@ -1,34 +1,32 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
-import {
+import type {
+  ApiResponse,
+  CustomerDetail,
+  CustomerMeasurement,
+  CustomerOrdersQueryInput,
+  CustomerOrdersResult,
   CreateCustomerInput,
   Customer,
-  CustomerMeasurement,
+  CustomersListQueryInput,
+  CustomersListResult,
   CustomersListSummary,
-  CustomerStatus,
-  Order,
+  CustomersSummaryQueryInput,
   UpdateCustomerInput,
   UpsertCustomerMeasurementInput,
 } from '@tbms/shared-types';
 
 export const customerApi = {
-  getCustomers: async (
-    page = 1,
-    limit = 20,
-    search?: string,
-    status?: CustomerStatus,
-  ) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Customer>>>('/customers', {
-      params: { page, limit, search, status },
-    });
+  getCustomers: async (params: CustomersListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<CustomersListResult>>(
+      '/customers',
+      {
+        params,
+      },
+    );
     return response.data;
   },
 
-  getCustomersSummary: async (params?: {
-    search?: string;
-    status?: CustomerStatus;
-    isVip?: boolean;
-  }) => {
+  getCustomersSummary: async (params: CustomersSummaryQueryInput = {}) => {
     const response = await api.get<ApiResponse<CustomersListSummary>>('/customers/summary', {
       params,
     });
@@ -36,12 +34,15 @@ export const customerApi = {
   },
 
   getCustomer: async (id: string) => {
-    const response = await api.get<ApiResponse<Customer & { measurements: CustomerMeasurement[] }>>(`/customers/${id}`);
+    const response = await api.get<ApiResponse<CustomerDetail>>(`/customers/${id}`);
     return response.data;
   },
 
-  getOrders: async (id: string, params?: { page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Order>>>(`/customers/${id}/orders`, { params });
+  getOrders: async (id: string, params: CustomerOrdersQueryInput = {}) => {
+    const response = await api.get<ApiResponse<CustomerOrdersResult>>(
+      `/customers/${id}/orders`,
+      { params },
+    );
     return response.data;
   },
 

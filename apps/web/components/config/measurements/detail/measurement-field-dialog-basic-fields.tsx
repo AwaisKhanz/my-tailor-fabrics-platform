@@ -12,11 +12,17 @@ import { type FieldFormValues } from "@/hooks/use-measurement-field-dialog";
 
 interface MeasurementFieldDialogBasicFieldsProps {
   form: UseFormReturn<FieldFormValues>;
+  existingSectionNames: string[];
 }
 
 export function MeasurementFieldDialogBasicFields({
   form,
+  existingSectionNames,
 }: MeasurementFieldDialogBasicFieldsProps) {
+  const sectionSuggestions = Array.from(
+    new Set(existingSectionNames.map((name) => name.trim()).filter(Boolean)),
+  );
+
   return (
     <>
       <FormField
@@ -28,6 +34,32 @@ export function MeasurementFieldDialogBasicFields({
             <FormControl>
               <Input variant="premium" placeholder="e.g., Shoulder, Chest, Collar" {...field} />
             </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="sectionName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel variant="dashboard">Section</FormLabel>
+            <FormControl>
+              <Input
+                variant="premium"
+                placeholder="e.g., Upper Body, Bottom, Extras"
+                list="measurement-section-suggestions"
+                {...field}
+              />
+            </FormControl>
+            {sectionSuggestions.length > 0 ? (
+              <datalist id="measurement-section-suggestions">
+                {sectionSuggestions.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+            ) : null}
             <FormMessage />
           </FormItem>
         )}

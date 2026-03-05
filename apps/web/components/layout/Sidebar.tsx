@@ -219,7 +219,7 @@ function NavList({
     const ItemIcon = item.icon;
 
     const baseClasses =
-      "group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all";
+      "group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all";
 
     const activeClasses =
       "border border-sidebar-border bg-sidebar-active text-sidebar-foreground shadow-sm";
@@ -281,7 +281,7 @@ export function Sidebar() {
   const sections = getVisibleNavSections(role);
 
   return (
-    <aside className="hidden h-full w-72 flex-shrink-0 flex-col border-r border-sidebar-border bg-sidebar/95 md:flex">
+    <aside className="hidden h-full w-72 flex-shrink-0 flex-col bg-sidebar md:flex">
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <NavList sections={sections} pathname={pathname} />
       </div>

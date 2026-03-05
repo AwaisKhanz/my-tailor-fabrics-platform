@@ -19,6 +19,7 @@ import {
   type TaskStatus,
 } from "@tbms/shared-types";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface EmployeeStatsSnapshot {
   totalEarned: number;
@@ -30,8 +31,32 @@ interface UseEmployeeDetailPageParams {
   employeeId: string | null;
 }
 
+function parseLedgerEntryType(value: string): LedgerEntryType | undefined {
+  switch (value) {
+    case LedgerEntryType.EARNING:
+    case LedgerEntryType.PAYOUT:
+    case LedgerEntryType.ADVANCE:
+    case LedgerEntryType.DEDUCTION:
+    case LedgerEntryType.ADJUSTMENT:
+    case LedgerEntryType.SALARY:
+      return value;
+    default:
+      return undefined;
+  }
+}
+
 export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParams) {
   const { toast } = useToast();
+  const { values, setValues, getPositiveInt } = useUrlTableState({
+    prefix: "ledger",
+    defaults: {
+      from: "",
+      to: "",
+      type: "all",
+      page: "1",
+      limit: "20",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [employee, setEmployee] = useState<EmployeeWithRelations | null>(null);
@@ -47,12 +72,12 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
 
   const [ledgerEntries, setLedgerEntries] = useState<EmployeeLedgerEntry[]>([]);
   const [ledgerLoading, setLedgerLoading] = useState(false);
-  const [ledgerFrom, setLedgerFrom] = useState("");
-  const [ledgerTo, setLedgerTo] = useState("");
-  const [ledgerType, setLedgerType] = useState<string>("all");
-  const [ledgerPage, setLedgerPage] = useState(1);
+  const ledgerFrom = values.from;
+  const ledgerTo = values.to;
+  const ledgerType = values.type || "all";
+  const ledgerPage = getPositiveInt("page", 1);
+  const ledgerLimit = getPositiveInt("limit", 20);
   const [ledgerTotal, setLedgerTotal] = useState(0);
-  const ledgerLimit = 20;
 
   const [accountDialogOpen, setAccountDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -121,7 +146,7 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   }, [employeeId, toast]);
 
   const fetchLedger = useCallback(
-    async (page = 1) => {
+    async (page = ledgerPage) => {
       if (!employeeId) {
         return;
       }
@@ -131,7 +156,7 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
         const response = await ledgerApi.getStatement(employeeId, {
           from: ledgerFrom || undefined,
           to: ledgerTo || undefined,
-          type: ledgerType === "all" ? undefined : (ledgerType as LedgerEntryType),
+          type: parseLedgerEntryType(ledgerType),
           page,
           limit: ledgerLimit,
         });
@@ -139,7 +164,9 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
         if (response.success) {
           setLedgerEntries(response.data.entries);
           setLedgerTotal(response.data.meta.total);
-          setLedgerPage(page);
+          if (page !== ledgerPage) {
+            setValues({ page: String(page) });
+          }
         }
       } catch {
         toast({
@@ -151,8 +178,29 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
         setLedgerLoading(false);
       }
     },
-    [employeeId, ledgerFrom, ledgerTo, ledgerType, toast],
+    [employeeId, ledgerFrom, ledgerPage, ledgerTo, ledgerType, ledgerLimit, setValues, toast],
   );
+
+  const setLedgerFrom = useCallback((value: string) => {
+    setValues({
+      from: value,
+      page: "1",
+    });
+  }, [setValues]);
+
+  const setLedgerTo = useCallback((value: string) => {
+    setValues({
+      to: value,
+      page: "1",
+    });
+  }, [setValues]);
+
+  const setLedgerType = useCallback((value: string) => {
+    setValues({
+      type: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const handleTaskStatusChange = useCallback(
     async (taskId: string, status: TaskStatus) => {

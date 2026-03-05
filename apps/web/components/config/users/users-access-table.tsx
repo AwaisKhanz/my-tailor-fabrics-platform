@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Pencil, Trash2, Users } from "lucide-react";
 import { ROLE_BADGE, ROLES } from "@tbms/shared-constants";
-import { Role, type UserAccount } from "@tbms/shared-types";
+import { type UserAccount } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
@@ -61,8 +61,8 @@ export function UsersAccessTable({
       {
         header: "Role",
         cell: (user) => (
-          <Badge variant={ROLE_BADGE[user.role as Role] ?? "outline"} size="xs">
-            {roleLabels.get(user.role as Role) ?? user.role.replaceAll("_", " ")}
+          <Badge variant={ROLE_BADGE[user.role] ?? "outline"} size="xs">
+            {roleLabels.get(user.role) ?? user.role.replaceAll("_", " ")}
           </Badge>
         ),
       },

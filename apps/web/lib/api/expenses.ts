@@ -1,10 +1,11 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
-
-import {
+import type {
+  ApiResponse,
   CreateExpenseCategoryInput,
+  ExpenseCategoryListResult,
   ExpenseCategoryListQueryInput,
-  ExpenseCategoryStatsSummary,
+  ExpenseListQueryInput,
+  ExpenseListResult,
   CreateExpenseInput,
   Expense,
   ExpenseCategory,
@@ -14,17 +15,9 @@ import {
 
 export type { Expense, ExpenseCategory };
 
-type PaginatedExpenseCategoriesResponse = PaginatedResponse<ExpenseCategory> & {
-  stats: ExpenseCategoryStatsSummary;
-  meta?: {
-    page: number;
-    lastPage: number;
-  };
-};
-
 export const expensesApi = {
-  getExpenses: async (params?: { categoryId?: string; from?: string; to?: string; search?: string; page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Expense>>>('/expenses', { params });
+  getExpenses: async (params?: ExpenseListQueryInput) => {
+    const response = await api.get<ApiResponse<ExpenseListResult>>('/expenses', { params });
     return response.data;
   },
 
@@ -39,7 +32,7 @@ export const expensesApi = {
       limit: query.limit,
       search: query.search?.trim() || undefined,
     };
-    const response = await api.get<ApiResponse<PaginatedExpenseCategoriesResponse>>(
+    const response = await api.get<ApiResponse<ExpenseCategoryListResult>>(
       '/expenses/categories/paginated',
       { params },
     );

@@ -70,7 +70,7 @@ export function OrderLifecycleCard({
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-3">
-        <p className="rounded-lg border border-divider/70 bg-surface-elevated/60 px-3 py-2 text-xs text-text-secondary">
+        <p className="rounded-lg border border-divider bg-surface-elevated/60 px-3 py-2 text-xs text-text-secondary">
           {nextConfig.helper}
         </p>
 

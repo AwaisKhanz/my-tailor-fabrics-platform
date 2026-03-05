@@ -1,9 +1,9 @@
-import { Role } from './common';
+import { PaginatedResponse, Role } from './common';
 export interface UserAccount {
     id: string;
     name: string;
     email: string;
-    role: string;
+    role: Role;
     isActive: boolean;
     branchId?: string | null;
     lastLoginAt?: string | null;
@@ -25,17 +25,18 @@ export interface UserAccountsQueryInput {
     role?: Role;
     branchId?: string;
 }
+export type UserAccountsListResult = PaginatedResponse<UserAccount>;
 export interface CreateUserInput {
     name: string;
     email: string;
     password?: string;
-    role: Role | string;
+    role: Role;
     branchId?: string;
 }
 export interface UpdateUserInput {
     name?: string;
     email?: string;
     password?: string;
-    role?: Role | string;
+    role?: Role;
     branchId?: string;
 }

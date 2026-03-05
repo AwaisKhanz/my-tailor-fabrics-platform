@@ -45,7 +45,9 @@ export function useDashboardPage() {
           return;
         }
 
-        setStats(statsData);
+        if (statsData.success) {
+          setStats(statsData.data);
+        }
         if (designsData.success) {
           setDesigns(designsData.data.slice(0, 5));
         }

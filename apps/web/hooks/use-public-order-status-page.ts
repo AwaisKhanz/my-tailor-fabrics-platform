@@ -2,9 +2,10 @@
 
 import { useCallback, useMemo, useState } from "react";
 import {
+  type ApiResponse,
   OrderStatus,
+  type PublicOrderStatusResult,
   publicStatusPinSchema,
-  type Order,
 } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import {
@@ -40,9 +41,23 @@ interface UsePublicOrderStatusPageParams {
   token: string;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function isPublicStatusResponse(
+  value: unknown,
+): value is ApiResponse<PublicOrderStatusResult | null> {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return typeof value.success === "boolean" && "data" in value;
+}
+
 export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPageParams) {
   const [pin, setPin] = useState("");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<PublicOrderStatusResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -64,14 +79,20 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
         const response = await fetch(
           `/api/status/${token}?pin=${parsedResult.data.pin}`,
         );
-        const payload = await response.json();
+        const payloadRaw: unknown = await response.json();
+        if (!isPublicStatusResponse(payloadRaw)) {
+          setError("Unexpected response received. Please try again.");
+          return;
+        }
+
+        const payload = payloadRaw;
 
         if (!response.ok || !payload.success) {
           setError(payload.message ?? "Invalid PIN or link. Please check and try again.");
           return;
         }
 
-        setOrder(payload.data as Order);
+        setOrder(payload.data);
         setSubmitted(true);
       } catch {
         setError("Something went wrong. Please try again.");
@@ -87,7 +108,7 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
       return null;
     }
 
-    const status = order.status as OrderStatus;
+    const status = order.status;
     const fallbackStatus = OrderStatus.NEW;
     const resolvedStatus = ORDER_STATUS_CONFIG[status] ? status : fallbackStatus;
 

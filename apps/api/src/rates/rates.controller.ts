@@ -18,7 +18,7 @@ import {
   resolveBranchScopeForRead,
   resolveBranchScopeForReadOrNull,
 } from '../common/utils/branch-resolution.util';
-import { success, successWithMeta } from '../common/utils/response.util';
+import { success } from '../common/utils/response.util';
 
 @Controller('rates')
 @RequirePermissions('rates.read')
@@ -32,26 +32,14 @@ export class RatesController {
     @Query() pagination: PaginationQueryDto,
     @Query('search') search?: string,
   ) {
-    const {
-      data,
-      total,
-      page: safePage,
-      lastPage,
-    } = await this.ratesService.findAll({
+    const data = await this.ratesService.findAll({
       branchId: resolveBranchScopeForReadOrNull(req),
       search,
       page: pagination.page,
       limit: pagination.limit,
     });
 
-    return successWithMeta(
-      { data, total },
-      {
-        total,
-        page: safePage,
-        lastPage,
-      },
-    );
+    return success(data);
   }
 
   @Get('stats')

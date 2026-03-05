@@ -1,4 +1,4 @@
-import { CalendarDays, Plus, Ruler, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, FolderPlus, Plus, Ruler, SlidersHorizontal } from "lucide-react";
 import { type MeasurementCategory } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,16 +10,19 @@ import { formatDate } from "@/lib/utils";
 
 interface MeasurementCategoryDetailHeaderProps {
   category: MeasurementCategory | null;
+  onAddSection: () => void;
   onAddField: () => void;
   canManageMeasurements?: boolean;
 }
 
 export function MeasurementCategoryDetailHeader({
   category,
+  onAddSection,
   onAddField,
   canManageMeasurements = true,
 }: MeasurementCategoryDetailHeaderProps) {
   const totalFields = category?.fields?.length ?? 0;
+  const totalSections = category?.sections?.length ?? 0;
   const requiredFields =
     category?.fields?.filter((field) => field.isRequired).length ?? 0;
   const optionalFields = Math.max(totalFields - requiredFields, 0);
@@ -53,6 +56,9 @@ export function MeasurementCategoryDetailHeader({
                 <span>{totalFields} total fields</span>
               </MetaPill>
               <MetaPill>
+                <span>{totalSections} sections</span>
+              </MetaPill>
+              <MetaPill>
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 <span>
                   {requiredFields} required / {optionalFields} optional
@@ -68,7 +74,16 @@ export function MeasurementCategoryDetailHeader({
           </div>
 
           {canManageMeasurements ? (
-            <div className="flex w-full justify-start lg:w-auto lg:justify-end">
+            <div className="flex w-full flex-col justify-start gap-2 sm:flex-row lg:w-auto lg:justify-end">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={onAddSection}
+              >
+                <FolderPlus className="mr-2 h-5 w-5" />
+                Add Section
+              </Button>
               <Button
                 variant="premium"
                 size="lg"

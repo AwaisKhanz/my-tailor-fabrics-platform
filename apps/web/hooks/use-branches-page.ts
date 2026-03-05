@@ -9,7 +9,9 @@ import {
 import { branchesApi } from "@/lib/api/branches";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -27,35 +29,25 @@ export const EMPTY_BRANCH_FORM: BranchFormState = {
   phone: "",
 };
 
-function parseApiErrorMessage(error: unknown): string | undefined {
-  if (!error || typeof error !== "object") {
-    return undefined;
-  }
-
-  const response = (error as { response?: { data?: { message?: string } } }).response;
-  return typeof response?.data?.message === "string" ? response.data.message : undefined;
-}
-
-function isLegacyBranchListResponse(value: unknown): value is { data: Branch[]; total: number } {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const maybeValue = value as { data?: unknown; total?: unknown };
-  return Array.isArray(maybeValue.data) && typeof maybeValue.total === "number";
-}
-
 export function useBranchesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(ITEMS_PER_PAGE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const [search, setSearch] = useState("");
+  const search = values.search;
   const debouncedSearch = useDebounce(search, 500);
-  const [currentPage, setCurrentPage] = useState(1);
+  const currentPage = getPositiveInt("page", 1);
+  const itemsPerPage = getPositiveInt("limit", ITEMS_PER_PAGE);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
@@ -70,18 +62,11 @@ export function useBranchesPage() {
       const response = await branchesApi.getBranches({
         search: debouncedSearch.trim() || undefined,
         page: currentPage,
-        limit: ITEMS_PER_PAGE,
+        limit: itemsPerPage,
       });
 
-      const payload = response.data as unknown;
-      if (isLegacyBranchListResponse(payload)) {
-        setBranches(payload.data);
-        setTotalCount(payload.total);
-      } else {
-        const currentPayload = response.data;
-        setBranches(currentPayload.data);
-        setTotalCount(currentPayload.total);
-      }
+      setBranches(response.data.data);
+      setTotalCount(response.data.total);
     } catch {
       toast({
         title: "Error",
@@ -91,7 +76,7 @@ export function useBranchesPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, debouncedSearch, toast]);
+  }, [currentPage, debouncedSearch, itemsPerPage, toast]);
 
   useEffect(() => {
     void fetchBranches();
@@ -125,14 +110,19 @@ export function useBranchesPage() {
   }, []);
 
   const updateSearch = useCallback((value: string) => {
-    setSearch(value);
-    setCurrentPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setCurrentPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setCurrentPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const updateFormField = useCallback(
     <K extends keyof BranchFormState>(field: K, value: BranchFormState[K]) => {
@@ -198,7 +188,7 @@ export function useBranchesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: parseApiErrorMessage(error) ?? "Failed to save",
+        description: getApiErrorMessage(error) ?? "Failed to save",
         variant: "destructive",
       });
     } finally {
@@ -228,7 +218,7 @@ export function useBranchesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: parseApiErrorMessage(error) ?? "Failed to delete branch",
+        description: getApiErrorMessage(error) ?? "Failed to delete branch",
         variant: "destructive",
       });
     }
@@ -257,7 +247,7 @@ export function useBranchesPage() {
     totalCount,
     search,
     currentPage,
-    itemsPerPage: ITEMS_PER_PAGE,
+    itemsPerPage,
     hasActiveFilters,
     dialogOpen,
     editingBranch,

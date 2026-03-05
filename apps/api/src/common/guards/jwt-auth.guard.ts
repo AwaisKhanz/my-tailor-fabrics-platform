@@ -53,7 +53,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         method: request?.method,
         ip: request?.ip,
       });
-      throw (err as Error) || new UnauthorizedException(info?.message || 'Unauthorized');
+      if (err instanceof Error) {
+        throw err;
+      }
+      throw new UnauthorizedException(info?.message || 'Unauthorized');
     }
     return user;
   }

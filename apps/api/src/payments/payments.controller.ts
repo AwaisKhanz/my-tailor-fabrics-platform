@@ -15,7 +15,7 @@ import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
-import { success, successSpread } from '../common/utils/response.util';
+import { success } from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 import { WeeklyPdfService } from './weekly-pdf.service';
@@ -80,7 +80,7 @@ export class PaymentsController {
       sortOrder,
       req.branchId,
     );
-    return successSpread(data);
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)

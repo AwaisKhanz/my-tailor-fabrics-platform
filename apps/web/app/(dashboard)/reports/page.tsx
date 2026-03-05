@@ -21,6 +21,12 @@ const REPORT_TABS = [
   { key: "exports", label: "Exports" },
 ] as const;
 
+function isReportTabKey(
+  value: string,
+): value is (typeof REPORT_TABS)[number]["key"] {
+  return REPORT_TABS.some((tab) => tab.key === value);
+}
+
 function ReportsPage() {
   const { canAll } = useAuthz();
   const canExportReports = canAll(["reports.export"]);
@@ -109,7 +115,14 @@ function ReportsPage() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            if (isReportTabKey(value)) {
+              setActiveTab(value);
+            }
+          }}
+        >
           <div className="overflow-x-auto pb-1">
             <TabsList variant="segmented">
               {REPORT_TABS.map((tab) => (

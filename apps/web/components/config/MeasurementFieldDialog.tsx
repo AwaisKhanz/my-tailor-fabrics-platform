@@ -3,7 +3,7 @@
 import { Form } from "@/components/ui/form";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { type MeasurementField } from "@tbms/shared-types";
+import { type MeasurementField, type MeasurementSection } from "@tbms/shared-types";
 import { useMeasurementFieldDialog } from "@/hooks/use-measurement-field-dialog";
 import { MeasurementFieldDialogCategoryNote } from "@/components/config/measurements/detail/measurement-field-dialog-category-note";
 import { MeasurementFieldDialogBasicFields } from "@/components/config/measurements/detail/measurement-field-dialog-basic-fields";
@@ -17,6 +17,7 @@ interface MeasurementFieldDialogProps {
   categoryName?: string;
   initialData?: MeasurementField | null;
   existingFields?: MeasurementField[];
+  existingSections?: MeasurementSection[];
   onSuccess: () => void;
 }
 
@@ -27,6 +28,7 @@ export function MeasurementFieldDialog({
   categoryName,
   initialData,
   existingFields = [],
+  existingSections = [],
   onSuccess,
 }: MeasurementFieldDialogProps) {
   const {
@@ -44,6 +46,7 @@ export function MeasurementFieldDialog({
     categoryId,
     initialData,
     existingFields,
+    existingSections,
     onOpenChange,
     onSuccess,
   });
@@ -71,7 +74,10 @@ export function MeasurementFieldDialog({
 
       <Form {...form}>
         <FormStack as="form" id="measurement-field-form" onSubmit={submitForm} density="relaxed">
-          <MeasurementFieldDialogBasicFields form={form} />
+          <MeasurementFieldDialogBasicFields
+            form={form}
+            existingSectionNames={existingSections.map((section) => section.name)}
+          />
 
           <MeasurementFieldDialogDropdownOptions
             fieldType={fieldType}

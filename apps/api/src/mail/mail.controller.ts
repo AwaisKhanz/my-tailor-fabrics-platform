@@ -10,13 +10,20 @@ import { MailService } from './mail.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { isPublicMailEndpointsEnabled } from '../common/env';
-import { success, successSpread } from '../common/utils/response.util';
+import { success } from '../common/utils/response.util';
 import { SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
 import { SendTestMailDto } from './dto/send-test-mail.dto';
 
 @Controller('mail')
 export class MailController {
   constructor(private readonly mailService: MailService) {}
+
+  private resolveErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+    return 'Unexpected mail integration error';
+  }
 
   private assertPublicAccessEnabled() {
     if (!isPublicMailEndpointsEnabled()) {
@@ -41,13 +48,13 @@ export class MailController {
     this.assertPublicAccessEnabled();
     try {
       const url = this.mailService.getAuthUrl();
-      return successSpread({
+      return success({
         message:
           'Visit this URL to generate an authorization code, then exchange that code in the OAuth2 Playground for a Refresh Token.',
         url,
       });
     } catch (error: unknown) {
-      throw new InternalServerErrorException((error as Error).message);
+      throw new InternalServerErrorException(this.resolveErrorMessage(error));
     }
   }
 
@@ -64,12 +71,12 @@ export class MailController {
         'Hello! This is a test email sent from the Gmail API integration using OAuth2 in NestJS.',
         '<h3>Hello!</h3><p>This is a test email sent from the <strong>Gmail API</strong> integration using OAuth2 in NestJS.</p>',
       );
-      return successSpread({
+      return success({
         message: 'Test email sent successfully!',
         result,
       });
     } catch (error: unknown) {
-      throw new InternalServerErrorException((error as Error).message);
+      throw new InternalServerErrorException(this.resolveErrorMessage(error));
     }
   }
 }

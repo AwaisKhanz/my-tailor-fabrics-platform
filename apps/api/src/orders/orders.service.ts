@@ -8,7 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import {
   Prisma,
-  FabricSource,
+  FabricSource as PrismaFabricSource,
   AddonType as PrismaAddonType,
   OrderStatus as PrismaOrderStatus,
 } from '@prisma/client';
@@ -25,6 +25,8 @@ import {
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
+  AddonType,
+  FabricSource as SharedFabricSource,
   OrderStatus,
   ItemStatus,
   DiscountType,
@@ -36,6 +38,10 @@ import { calculateDiscountAmount, calculateOrderTotals } from './money';
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
 import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 import { getStatusPinPepper } from '../common/env';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 type OrdersFindFilters = {
   status?: string;
@@ -45,6 +51,30 @@ type OrdersFindFilters = {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+};
+
+const ORDER_STATUS_TO_PRISMA: Record<OrderStatus, PrismaOrderStatus> = {
+  [OrderStatus.NEW]: PrismaOrderStatus.NEW,
+  [OrderStatus.IN_PROGRESS]: PrismaOrderStatus.IN_PROGRESS,
+  [OrderStatus.READY]: PrismaOrderStatus.READY,
+  [OrderStatus.OVERDUE]: PrismaOrderStatus.OVERDUE,
+  [OrderStatus.DELIVERED]: PrismaOrderStatus.DELIVERED,
+  [OrderStatus.COMPLETED]: PrismaOrderStatus.COMPLETED,
+  [OrderStatus.CANCELLED]: PrismaOrderStatus.CANCELLED,
+};
+
+const ADDON_TYPE_TO_PRISMA: Record<AddonType, PrismaAddonType> = {
+  [AddonType.EXTRA]: PrismaAddonType.EXTRA,
+  [AddonType.ALTERATION]: PrismaAddonType.ALTERATION,
+  [AddonType.DESIGN_CHARGE]: PrismaAddonType.DESIGN_CHARGE,
+};
+
+const FABRIC_SOURCE_TO_PRISMA: Record<
+  SharedFabricSource,
+  PrismaFabricSource
+> = {
+  [SharedFabricSource.SHOP]: PrismaFabricSource.SHOP,
+  [SharedFabricSource.CUSTOMER]: PrismaFabricSource.CUSTOMER,
 };
 
 @Injectable()
@@ -67,6 +97,29 @@ export class OrdersService {
       return false;
     }
     return timingSafeEqual(leftBuffer, rightBuffer);
+  }
+
+  private parseOrderStatus(rawStatus?: string): OrderStatus | undefined {
+    if (!rawStatus) {
+      return undefined;
+    }
+
+    const statuses = Object.values(OrderStatus);
+    return statuses.find((status) => status === rawStatus);
+  }
+
+  private toPrismaOrderStatus(status: OrderStatus): PrismaOrderStatus {
+    return ORDER_STATUS_TO_PRISMA[status];
+  }
+
+  private toPrismaAddonType(type: AddonType): PrismaAddonType {
+    return ADDON_TYPE_TO_PRISMA[type];
+  }
+
+  private toPrismaFabricSource(
+    source: SharedFabricSource,
+  ): PrismaFabricSource {
+    return FABRIC_SOURCE_TO_PRISMA[source];
   }
 
   private async generateOrderNumber(
@@ -131,7 +184,20 @@ export class OrdersService {
 
       // 2. Resolve Prices and compute item subtotals
       let subtotal = 0;
-      const resolvedItems = [];
+      const resolvedItems: Array<{
+        garmentTypeId: string;
+        garmentTypeName: string;
+        pieceNo: number;
+        employeeId: string | null;
+        quantity: number;
+        unitPrice: number;
+        employeeRate: number;
+        description: string | undefined;
+        fabricSource: SharedFabricSource;
+        dueDate: Date | null;
+        designTypeId: string | null;
+        addons: OrderItemAddonDto[];
+      }> = [];
       const pieceMap: Record<string, number> = {};
 
       for (const item of createOrderDto.items) {
@@ -196,7 +262,7 @@ export class OrdersService {
             unitPrice: customerPrice,
             employeeRate: employeeRate,
             description: item.description,
-            fabricSource: item.fabricSource || 'SHOP',
+            fabricSource: item.fabricSource ?? SharedFabricSource.SHOP,
             dueDate: item.dueDate ? new Date(item.dueDate) : null,
             designTypeId: item.designTypeId || null,
             addons: item.addons || [],
@@ -262,15 +328,14 @@ export class OrdersService {
               unitPrice: item.unitPrice,
               employeeRate: item.employeeRate,
               description: item.description,
-              fabricSource:
-                (item.fabricSource as FabricSource) ?? FabricSource.SHOP,
+              fabricSource: this.toPrismaFabricSource(item.fabricSource),
               dueDate: item.dueDate,
               garmentTypeName: item.garmentTypeName,
               garmentType: { connect: { id: item.garmentTypeId } },
               designTypeId: item.designTypeId,
               addons: {
                 create: (item.addons || []).map((a: OrderItemAddonDto) => ({
-                  type: a.type as PrismaAddonType,
+                  type: this.toPrismaAddonType(a.type),
                   name: a.name,
                   price: a.price,
                   cost: a.cost,
@@ -397,11 +462,9 @@ export class OrdersService {
       whereClause.branchId = branchId;
     }
 
-    if (
-      filters.status &&
-      Object.values(OrderStatus).includes(filters.status as OrderStatus)
-    ) {
-      whereClause.status = filters.status as OrderStatus;
+    const parsedStatus = this.parseOrderStatus(filters.status);
+    if (parsedStatus) {
+      whereClause.status = this.toPrismaOrderStatus(parsedStatus);
     }
 
     if (filters.from || filters.to) {
@@ -468,15 +531,15 @@ export class OrdersService {
     limit = 20,
     filters: OrdersFindFilters = {},
   ) {
-    const skip = (page - 1) * limit;
+    const pagination = normalizePagination({ page, limit, defaultLimit: 20 });
     const whereClause = this.buildOrdersWhereClause(branchId, filters);
     const orderBy = this.buildOrdersOrderBy(filters);
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
         where: whereClause,
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
         orderBy,
         include: {
           customer: { select: { fullName: true, phone: true } },
@@ -485,7 +548,7 @@ export class OrdersService {
       this.prisma.order.count({ where: whereClause }),
     ]);
 
-    return { data, total };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getSummary(
@@ -879,7 +942,7 @@ export class OrdersService {
                       deleteMany: {},
                       create: itemDto.addons.map(
                         (a: UpdateOrderItemAddonDto) => ({
-                          type: a.type as PrismaAddonType,
+                          type: this.toPrismaAddonType(a.type),
                           name: a.name,
                           price: a.price,
                           cost: a.cost,
@@ -1068,12 +1131,14 @@ export class OrdersService {
             unitPrice: customerPrice,
             employeeRate: employeeRate,
             description: itemDto.description,
-            fabricSource: itemDto.fabricSource || FabricSource.SHOP,
+            fabricSource: this.toPrismaFabricSource(
+              itemDto.fabricSource ?? SharedFabricSource.SHOP,
+            ),
             dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null,
             designTypeId: itemDto.designTypeId || null,
             addons: {
               create: (itemDto.addons || []).map((a) => ({
-                type: a.type as PrismaAddonType,
+                type: this.toPrismaAddonType(a.type),
                 name: a.name,
                 price: a.price,
                 cost: a.cost,
@@ -1108,7 +1173,7 @@ export class OrdersService {
     tx: Prisma.TransactionClient,
   ) {
     const templates = await tx.workflowStepTemplate.findMany({
-      where: { garmentTypeId, isActive: true },
+      where: { garmentTypeId, isActive: true, deletedAt: null },
       orderBy: { sortOrder: 'asc' },
     });
 
@@ -1131,14 +1196,21 @@ export class OrdersService {
       designTypeId?: string | null;
     }[] = [];
     for (const t of templates) {
+      // Optional steps are only auto-generated when we can infer applicability.
+      // For now, design-linked optional steps are included only when a design is selected.
+      const isDesignStep = t.stepKey.toUpperCase().includes('DESIGN');
+      const shouldCreateTask =
+        t.isRequired || (isDesignStep && Boolean(item?.designTypeId));
+
+      if (!shouldCreateTask) {
+        continue;
+      }
+
       const rateCard = await this.ratesService.findEffectiveRate(
         branchId,
         garmentTypeId,
         t.stepKey,
       );
-
-      // If it's a DESIGN task, link it to the item's designTypeId
-      const isDesignStep = t.stepKey.toUpperCase().includes('DESIGN');
 
       tasksToCreate.push({
         orderItemId,
@@ -1153,8 +1225,10 @@ export class OrdersService {
       });
     }
 
-    await tx.orderItemTask.createMany({
-      data: tasksToCreate,
-    });
+    if (tasksToCreate.length > 0) {
+      await tx.orderItemTask.createMany({
+        data: tasksToCreate,
+      });
+    }
   }
 }

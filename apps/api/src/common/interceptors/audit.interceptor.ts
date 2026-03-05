@@ -45,13 +45,6 @@ type ResolvedAuditActor = {
   actorEmail: string | null;
 };
 
-const MUTATION_METHODS: ReadonlySet<MutationMethod> = new Set([
-  'POST',
-  'PUT',
-  'PATCH',
-  'DELETE',
-]);
-
 const SENSITIVE_AUDIT_KEYS = [
   'password',
   'passwordhash',
@@ -79,9 +72,8 @@ export class AuditInterceptor implements NestInterceptor {
   ): Promise<Observable<unknown>> {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<AuditRequest>();
-    const method = (request.method ?? '').toUpperCase() as MutationMethod;
-
-    if (!MUTATION_METHODS.has(method)) {
+    const method = this.resolveMutationMethod(request.method);
+    if (!method) {
       return next.handle();
     }
 
@@ -126,7 +118,16 @@ export class AuditInterceptor implements NestInterceptor {
           }),
         ).pipe(concatMap(() => throwError(() => error))),
       ),
-    );
+      );
+  }
+
+  private resolveMutationMethod(method: string | undefined): MutationMethod | null {
+    const normalized = (method ?? '').toUpperCase();
+    if (normalized === 'POST') return 'POST';
+    if (normalized === 'PUT') return 'PUT';
+    if (normalized === 'PATCH') return 'PATCH';
+    if (normalized === 'DELETE') return 'DELETE';
+    return null;
   }
 
   private async safelyPersistAuditLog(input: PersistAuditLogInput) {
@@ -514,11 +515,60 @@ export class AuditInterceptor implements NestInterceptor {
       return Prisma.JsonNull;
     }
 
-    try {
-      return JSON.parse(JSON.stringify(sanitized)) as Prisma.InputJsonValue;
-    } catch {
-      return Prisma.JsonNull;
+    const converted = this.toPrismaJsonValue(sanitized, new WeakSet());
+    return converted ?? Prisma.JsonNull;
+  }
+
+  private toPrismaJsonValue(
+    value: unknown,
+    seen: WeakSet<object>,
+  ): Prisma.InputJsonValue | undefined {
+    if (value === null) {
+      return undefined;
     }
+
+    if (typeof value === 'string' || typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : undefined;
+    }
+
+    if (typeof value === 'bigint') {
+      return value.toString();
+    }
+
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
+    if (Array.isArray(value)) {
+      return value.reduce<Prisma.InputJsonArray>((acc, item) => {
+        const convertedItem = this.toPrismaJsonValue(item, seen);
+        return [...acc, convertedItem ?? null];
+      }, []);
+    }
+
+    if (!this.isRecord(value)) {
+      return undefined;
+    }
+
+    if (seen.has(value)) {
+      return '[Circular]';
+    }
+
+    seen.add(value);
+    return Object.entries(value).reduce<Prisma.InputJsonObject>(
+      (acc, [key, nestedValue]) => {
+        const convertedValue = this.toPrismaJsonValue(nestedValue, seen);
+        return {
+          ...acc,
+          [key]: convertedValue ?? null,
+        };
+      },
+      {},
+    );
   }
 
   private redactSensitiveFields(value: unknown, seen: WeakSet<object>): unknown {

@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 import type { Session } from 'next-auth';
 import { getSession, signOut } from 'next-auth/react';
 import { getWebApiBaseUrl } from './env';
@@ -12,6 +13,34 @@ let refreshSessionPromise: Promise<string | null> | null = null;
 let cachedSession: Session | null = null;
 let cachedSessionAt = 0;
 let pendingSessionRequest: Promise<Session | null> | null = null;
+const retriedRequestConfigs = new WeakSet<object>();
+
+function isSessionPayload(value: unknown): value is Session {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  if (!('user' in value)) {
+    return true;
+  }
+
+  return value.user === undefined || typeof value.user === 'object';
+}
+
+function setAuthorizationHeader(
+  headers: NonNullable<AxiosRequestConfig['headers']>,
+  token: string,
+) {
+  const authorization = `Bearer ${token}`;
+  if (headers instanceof AxiosHeaders) {
+    headers.set('Authorization', authorization);
+    return;
+  }
+
+  if (typeof headers === 'object' && headers !== null) {
+    Object.assign(headers, { Authorization: authorization });
+  }
+}
 
 async function fetchFreshSessionAccessToken(): Promise<string | null> {
   if (typeof window === 'undefined') {
@@ -33,18 +62,16 @@ async function fetchFreshSessionAccessToken(): Promise<string | null> {
       return null;
     }
 
-    const session = (await response.json()) as Session & {
-      accessToken?: unknown;
-      error?: unknown;
-    };
-    cachedSession = session as Session;
+    const payload: unknown = await response.json();
+    const session = isSessionPayload(payload) ? payload : null;
+    cachedSession = session;
     cachedSessionAt = Date.now();
 
-    if (typeof session.error === 'string' && session.error.length > 0) {
+    if (typeof session?.error === 'string' && session.error.length > 0) {
       return null;
     }
 
-    return typeof session.accessToken === 'string' && session.accessToken.length > 0
+    return typeof session?.accessToken === 'string' && session.accessToken.length > 0
       ? session.accessToken
       : null;
   } catch {
@@ -132,9 +159,7 @@ api.interceptors.request.use(
     // but most API calls in this app are currently from the client components.
     const session = await getCachedSession();
     const sessionError =
-      session && typeof (session as { error?: unknown }).error === 'string'
-        ? ((session as { error?: string }).error ?? null)
-        : null;
+      session && typeof session.error === 'string' ? session.error : null;
     const sessionAccessToken =
       session && typeof session.accessToken === 'string' && session.accessToken.length > 0
         ? session.accessToken
@@ -163,7 +188,8 @@ api.interceptors.request.use(
     }
 
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers = config.headers ?? {};
+      setAuthorizationHeader(config.headers, token);
     }
     
     // Auth role/branch info is now in session
@@ -203,22 +229,20 @@ api.interceptors.response.use(
 
     // Attempt one silent refresh + retry for expired/stale access tokens.
     if (error.response?.status === 401 && typeof window !== 'undefined' && error.config) {
-      const requestConfig = error.config as typeof error.config & {
-        _authRetry?: boolean;
-      };
+      const requestConfig = error.config;
       const requestUrl = requestConfig?.url ?? '';
       const isAuthCall =
         requestUrl.includes('/auth/') ||
         requestUrl.includes('/api/auth/') ||
         requestUrl.includes('session');
+      const alreadyRetried = retriedRequestConfigs.has(requestConfig);
 
-      if (!isAuthCall && !requestConfig._authRetry) {
-        requestConfig._authRetry = true;
+      if (!isAuthCall && !alreadyRetried) {
+        retriedRequestConfigs.add(requestConfig);
         const refreshedToken = await refreshAccessTokenWithLock();
         if (refreshedToken) {
           requestConfig.headers = requestConfig.headers ?? {};
-          (requestConfig.headers as Record<string, string>).Authorization =
-            `Bearer ${refreshedToken}`;
+          setAuthorizationHeader(requestConfig.headers, refreshedToken);
           return api.request(requestConfig);
         }
       }

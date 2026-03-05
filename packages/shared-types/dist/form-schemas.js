@@ -102,6 +102,7 @@ exports.measurementCategorySchema = zod_1.z.object({
 exports.measurementFieldDialogFormSchema = zod_1.z
     .object({
     label: zod_1.z.string().trim().min(1, "Label is required"),
+    sectionName: zod_1.z.string().trim().min(1, "Section is required"),
     fieldType: zod_1.z.nativeEnum(common_1.FieldType),
     unit: optionalTrimmedText,
     isRequired: zod_1.z.boolean().default(false),

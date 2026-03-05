@@ -93,7 +93,7 @@ export function useOrderFormPage() {
         const [garmentsResponse, customersResponse, employeesResponse, designTypesResponse] =
           await Promise.all([
             configApi.getGarmentTypes(),
-            customerApi.getCustomers(1, 100),
+            customerApi.getCustomers({ page: 1, limit: 100 }),
             employeesApi.getEmployees({ limit: 100 }),
             designTypesApi.findAll(),
           ]);

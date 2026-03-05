@@ -1,5 +1,9 @@
 const ACCESS_TOKEN_REFRESH_BUFFER_MS = 30_000;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
 function decodeBase64Url(value: string): string {
   if (typeof atob === "function") {
     const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -18,10 +22,13 @@ export function decodeJwtExpiryMs(jwtToken: string): number | null {
   }
 
   try {
-    const payload = JSON.parse(decodeBase64Url(parts[1])) as {
-      exp?: number;
-    };
-    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+    const payload: unknown = JSON.parse(decodeBase64Url(parts[1]));
+    if (!isRecord(payload)) {
+      return null;
+    }
+
+    const expiry = payload.exp;
+    return typeof expiry === "number" ? expiry * 1000 : null;
   } catch {
     return null;
   }

@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './common';
+
 export interface Branch {
   id: string;
   name: string;
@@ -49,3 +51,11 @@ export interface BranchStatsSummary {
   active: number;
   inactive: number;
 }
+
+export interface BranchListQueryInput {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export type BranchListResult = PaginatedResponse<Branch>;

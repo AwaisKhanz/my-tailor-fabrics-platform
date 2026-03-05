@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
 import { getJwtRefreshSecret } from '../../common/env';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
-import type { RefreshTokenClaims, Role } from '@tbms/shared-types';
+import type { RefreshTokenClaims } from '@tbms/shared-types';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -48,12 +48,15 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (user.email.toLowerCase() !== payload.email.toLowerCase()) {
       throw new UnauthorizedException('Token payload does not match user state');
     }
+    if (!isRole(user.role)) {
+      throw new UnauthorizedException('User has invalid role state');
+    }
 
     return {
       userId: user.id,
       email: user.email,
-      role: user.role as Role,
-      permissions: getRolePermissions(user.role as Role),
+      role: user.role,
+      permissions: getRolePermissions(user.role),
       branchId: user.branchId,
       employeeId: user.employeeId,
       refreshToken,

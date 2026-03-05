@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   rateCardCreateFormSchema,
   type Branch,
@@ -9,13 +9,13 @@ import {
   type RateCard,
   type RateStatsSummary,
 } from "@tbms/shared-types";
-import { STEP_KEYS } from "@tbms/shared-constants";
 import { branchesApi } from "@/lib/api/branches";
 import { configApi } from "@/lib/api/config";
 import { ratesApi } from "@/lib/api/rates";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 const EMPTY_RATE_STATS: RateStatsSummary = {
@@ -31,30 +31,51 @@ export type RateWithIncludes = RateCard & {
 
 export function useRatesPage() {
   const { toast } = useToast();
+  const { values, setValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [rates, setRates] = useState<RateWithIncludes[]>([]);
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<RateStatsSummary>(EMPTY_RATE_STATS);
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const search = values.search;
 
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
+  const stepKeysByGarmentId = useMemo(() => {
+    const map: Record<string, string[]> = {};
+
+    for (const garment of garmentTypes) {
+      map[garment.id] = (garment.workflowSteps ?? [])
+        .filter((step) => step.isActive)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((step) => step.stepKey);
+    }
+
+    return map;
+  }, [garmentTypes]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [ratesResponse, garmentsResponse, branchesResponse, statsResponse] = await Promise.all([
-        ratesApi.findAll({ search: search.trim() || undefined, page, limit: PAGE_SIZE }),
+        ratesApi.findAll({ search: search.trim() || undefined, page, limit: pageSize }),
         configApi.getGarmentTypes({ limit: 100 }),
         branchesApi.getBranches({ page: 1, limit: 100 }),
         ratesApi.getStats({ search: search.trim() || undefined }),
       ]);
 
       if (ratesResponse.success) {
-        setRates(ratesResponse.data.data as RateWithIncludes[]);
+        setRates(ratesResponse.data.data);
         setTotal(ratesResponse.data.total);
       }
 
@@ -79,7 +100,7 @@ export function useRatesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, toast]);
+  }, [page, pageSize, search, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,14 +113,22 @@ export function useRatesPage() {
   }, [fetchData]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const clearSearch = useCallback(() => {
-    setSearch("");
-    setPage(1);
-  }, []);
+    setValues({
+      search: "",
+      page: "1",
+    });
+  }, [setValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const createRate = useCallback(
     async (data: CreateRateCardInput) => {
@@ -131,13 +160,13 @@ export function useRatesPage() {
     total,
     stats,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     search,
     hasActiveFilters: Boolean(search.trim()),
     garmentTypes,
     branches,
     createDialogOpen,
-    stepKeys: Object.values(STEP_KEYS),
+    stepKeysByGarmentId,
     setPage,
     setSearchFilter,
     clearSearch,

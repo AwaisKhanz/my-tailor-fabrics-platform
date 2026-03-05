@@ -1,5 +1,5 @@
-import { ROLES } from "@tbms/shared-constants";
-import { Role, type UserAccount } from "@tbms/shared-types";
+import { isRole, ROLES } from "@tbms/shared-constants";
+import { type UserAccount } from "@tbms/shared-types";
 import { type Branch } from "@/lib/api/branches";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DialogActionRow, DialogFormActions, FormStack } from "@/components/ui/form-layout";
@@ -100,7 +100,11 @@ export function UserAccountDialog({
             </Label>
             <Select
               value={form.role}
-              onValueChange={(value) => onFormFieldChange("role", value as Role)}
+              onValueChange={(value) => {
+                if (isRole(value)) {
+                  onFormFieldChange("role", value);
+                }
+              }}
             >
               <SelectTrigger variant="premium">
                 <SelectValue />

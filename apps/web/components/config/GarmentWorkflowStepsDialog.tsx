@@ -14,7 +14,6 @@ import {
   type WorkflowStepTemplate,
   type WorkflowStepTemplateInput,
 } from "@tbms/shared-types";
-import { DEFAULT_WORKFLOW_STEP_PRESETS } from "@tbms/shared-constants";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
@@ -43,18 +42,16 @@ export function GarmentWorkflowStepsDialog({
   useEffect(() => {
     if (open) {
       setSteps(
-        initialSteps.length > 0
-          ? [...initialSteps]
-              .sort((a, b) => a.sortOrder - b.sortOrder)
-              .map((step) => ({
-                id: step.id,
-                stepKey: step.stepKey,
-                stepName: step.stepName,
-                sortOrder: step.sortOrder,
-                isRequired: step.isRequired,
-                isActive: step.isActive,
-              }))
-          : DEFAULT_WORKFLOW_STEP_PRESETS.map((step) => ({ ...step }))
+        [...initialSteps]
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map((step) => ({
+            id: step.id,
+            stepKey: step.stepKey,
+            stepName: step.stepName,
+            sortOrder: step.sortOrder,
+            isRequired: step.isRequired,
+            isActive: step.isActive,
+          }))
       );
     }
   }, [open, initialSteps]);

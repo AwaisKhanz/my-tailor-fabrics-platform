@@ -12,6 +12,10 @@ import {
   UpdateExpenseDto,
 } from './dto/expense.dto';
 import { requireBranchId } from '../common/utils/branch-scope.util';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -20,6 +24,15 @@ const MAX_LIMIT = 100;
 const EXPENSE_SORT_FIELDS: ReadonlyArray<
   keyof Prisma.ExpenseOrderByWithRelationInput
 > = ['expenseDate', 'amount', 'createdAt'];
+type ExpenseSortField = (typeof EXPENSE_SORT_FIELDS)[number];
+
+function isExpenseSortField(value?: string): value is ExpenseSortField {
+  if (!value) {
+    return false;
+  }
+
+  return EXPENSE_SORT_FIELDS.some((field) => field === value);
+}
 
 @Injectable()
 export class ExpensesService {
@@ -49,10 +62,8 @@ export class ExpensesService {
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
   ): Prisma.ExpenseOrderByWithRelationInput {
-    const field = EXPENSE_SORT_FIELDS.includes(
-      sortBy as keyof Prisma.ExpenseOrderByWithRelationInput,
-    )
-      ? (sortBy as keyof Prisma.ExpenseOrderByWithRelationInput)
+    const field: ExpenseSortField = isExpenseSortField(sortBy)
+      ? sortBy
       : 'expenseDate';
 
     return { [field]: sortOrder === 'asc' ? 'asc' : 'desc' };
@@ -70,13 +81,13 @@ export class ExpensesService {
     limit = DEFAULT_LIMIT,
     search?: string,
   ) {
-    const safePage =
-      Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
-    const safeLimit =
-      Number.isFinite(limit) && limit > 0
-        ? Math.min(Math.trunc(limit), MAX_LIMIT)
-        : DEFAULT_LIMIT;
-    const skip = (safePage - 1) * safeLimit;
+    const pagination = normalizePagination({
+      page,
+      limit,
+      defaultPage: DEFAULT_PAGE,
+      defaultLimit: DEFAULT_LIMIT,
+      maxLimit: MAX_LIMIT,
+    });
     const normalizedSearch = search?.trim();
 
     const where: Prisma.ExpenseCategoryWhereInput = {
@@ -94,8 +105,8 @@ export class ExpensesService {
     const [data, total, activeCount, inactiveCount] = await Promise.all([
       this.prisma.expenseCategory.findMany({
         where,
-        skip,
-        take: safeLimit,
+        skip: pagination.skip,
+        take: pagination.limit,
         orderBy: { name: 'asc' },
       }),
       this.prisma.expenseCategory.count({ where }),
@@ -114,16 +125,11 @@ export class ExpensesService {
     ]);
 
     return {
-      data,
-      total,
+      ...toPaginatedResponse(data, total, pagination),
       stats: {
         total: activeCount + inactiveCount,
         active: activeCount,
         inactive: inactiveCount,
-      },
-      meta: {
-        page: safePage,
-        lastPage: Math.max(1, Math.ceil(total / safeLimit)),
       },
     };
   }
@@ -242,13 +248,13 @@ export class ExpensesService {
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
   ) {
-    const safePage =
-      Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
-    const safeLimit =
-      Number.isFinite(limit) && limit > 0
-        ? Math.min(Math.trunc(limit), MAX_LIMIT)
-        : DEFAULT_LIMIT;
-    const skip = (safePage - 1) * safeLimit;
+    const pagination = normalizePagination({
+      page,
+      limit,
+      defaultPage: DEFAULT_PAGE,
+      defaultLimit: DEFAULT_LIMIT,
+      maxLimit: MAX_LIMIT,
+    });
 
     const orderBy = this.resolveOrderBy(sortBy, sortOrder);
     const fromDate = this.parseDateBoundary(from);
@@ -292,18 +298,15 @@ export class ExpensesService {
     const [data, total] = await Promise.all([
       this.prisma.expense.findMany({
         where,
-        skip,
-        take: safeLimit,
+        skip: pagination.skip,
+        take: pagination.limit,
         orderBy,
         include: { category: true },
       }),
       this.prisma.expense.count({ where }),
     ]);
 
-    return {
-      data,
-      meta: { total, page: safePage, lastPage: Math.ceil(total / safeLimit) },
-    };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async findOne(id: string, branchId: string | null) {

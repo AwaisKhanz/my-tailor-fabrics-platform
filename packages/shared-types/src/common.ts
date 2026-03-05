@@ -6,9 +6,15 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+export interface PaginationMeta {
+  page: number;
+  lastPage: number;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
+  meta: PaginationMeta;
 }
 
 // --- Prisma Enums (Synced) ---

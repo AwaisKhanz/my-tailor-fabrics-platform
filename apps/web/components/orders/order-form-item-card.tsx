@@ -44,6 +44,22 @@ interface OrderFormItemCardProps {
   onRemoveAddon: (itemIndex: number, addonIndex: number) => void;
 }
 
+const ADDON_TYPE_OPTIONS: Array<{ type: AddonType; label: string }> = [
+  { type: AddonType.EXTRA, label: ADDON_TYPE_LABELS[AddonType.EXTRA] },
+  {
+    type: AddonType.ALTERATION,
+    label: ADDON_TYPE_LABELS[AddonType.ALTERATION],
+  },
+  {
+    type: AddonType.DESIGN_CHARGE,
+    label: ADDON_TYPE_LABELS[AddonType.DESIGN_CHARGE],
+  },
+];
+
+function isAddonType(value: string): value is AddonType {
+  return ADDON_TYPE_OPTIONS.some((option) => option.type === value);
+}
+
 export function OrderFormItemCard({
   index,
   form,
@@ -319,25 +335,21 @@ export function OrderFormItemCard({
                   <Select
                     value={addon.type || AddonType.EXTRA}
                     onValueChange={(value) => {
-                      form.setValue(
-                        `items.${index}.addons.${addonIndex}.type`,
-                        value as AddonType,
-                        { shouldDirty: true },
-                      );
+                      if (!isAddonType(value)) {
+                        return;
+                      }
+                      form.setValue(`items.${index}.addons.${addonIndex}.type`, value, {
+                        shouldDirty: true,
+                      });
                     }}
                   >
                     <SelectTrigger variant="default" className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {(
-                        Object.entries(ADDON_TYPE_LABELS) as [
-                          AddonType,
-                          string,
-                        ][]
-                      ).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
+                      {ADDON_TYPE_OPTIONS.map((option) => (
+                        <SelectItem key={option.type} value={option.type}>
+                          {option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

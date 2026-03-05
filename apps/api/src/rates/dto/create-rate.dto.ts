@@ -1,12 +1,11 @@
 import {
   IsDateString,
-  IsIn,
   IsInt,
+  Matches,
   IsOptional,
   IsString,
   Min,
 } from 'class-validator';
-import { STEP_KEYS } from '@tbms/shared-constants';
 
 export class CreateRateDto {
   @IsOptional()
@@ -21,7 +20,7 @@ export class CreateRateDto {
   stepTemplateId?: string | null;
 
   @IsString()
-  @IsIn(Object.values(STEP_KEYS))
+  @Matches(/^[A-Z0-9_]+$/)
   stepKey!: string;
 
   @IsInt()

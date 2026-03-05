@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './common';
+
 export interface RateCard {
   id: string;
   branchId?: string | null;
@@ -27,4 +29,22 @@ export interface RateStatsSummary {
   total: number;
   global: number;
   branchScoped: number;
+}
+
+export interface RateCardsListQueryInput {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export type RateCardsListResult = PaginatedResponse<RateCard>;
+
+export interface RateStatsQueryInput {
+  search?: string;
+}
+
+export interface RateHistoryQueryInput {
+  garmentTypeId: string;
+  stepKey: string;
+  branchId?: string | null;
 }

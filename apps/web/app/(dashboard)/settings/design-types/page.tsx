@@ -17,9 +17,13 @@ function DesignTypesPage() {
   const {
     loading,
     designTypes,
+    pagedDesignTypes,
+    totalCount,
     garmentTypes,
     branches,
     search,
+    page,
+    pageSize,
     hasActiveFilters,
     createDialogOpen,
     selectedDesign,
@@ -28,6 +32,7 @@ function DesignTypesPage() {
     openCreateDialog,
     openEditDialog,
     closeCreateDialog,
+    setPage,
     setSearchFilter,
     resetFilters,
     saveDesignType,
@@ -55,11 +60,15 @@ function DesignTypesPage() {
       <PageSection spacing="compact">
         <DesignTypesTable
           loading={loading}
-          designTypes={designTypes}
+          designTypes={pagedDesignTypes}
+          total={totalCount}
+          page={page}
+          pageSize={pageSize}
           garmentTypes={garmentTypes}
           branches={branches}
           search={search}
           hasActiveFilters={hasActiveFilters}
+          onPageChange={setPage}
           onSearchChange={setSearchFilter}
           onResetFilters={resetFilters}
           onEdit={openEditDialog}

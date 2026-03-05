@@ -45,14 +45,6 @@ export function GarmentTypesInventoryTable({
         header: "Garment Name",
         cell: (item) => (
           <div className="group/row flex items-center gap-4">
-            <InfoTile
-              tone="surface"
-              padding="none"
-              interaction="interactivePrimary"
-              className="h-10 w-10 shrink-0 items-center justify-center"
-            >
-              <Shirt className="h-5 w-5 text-text-secondary transition-colors group-hover/row:text-primary" />
-            </InfoTile>
             <Link
               href={`/settings/garments/${item.id}`}
               className="group/link flex flex-col transition-opacity hover:opacity-80"
@@ -69,17 +61,27 @@ export function GarmentTypesInventoryTable({
       },
       {
         header: "Customer Price",
-        cell: (item) => <span className="text-sm font-bold text-text-primary">{formatPKR(item.customerPrice)}</span>,
+        cell: (item) => (
+          <span className="text-sm font-bold text-text-primary">
+            {formatPKR(item.customerPrice)}
+          </span>
+        ),
       },
       {
         header: "Employee Rate",
-        cell: (item) => <span className="text-sm font-bold text-text-primary">{formatPKR(item.employeeRate)}</span>,
+        cell: (item) => (
+          <span className="text-sm font-bold text-text-primary">
+            {formatPKR(item.employeeRate)}
+          </span>
+        ),
       },
       {
         header: "Status",
         cell: (item) => (
           <Badge variant={item.isActive ? "success" : "outline"} size="xs">
-            {item.isActive ? GARMENT_STATUS_LABELS.ACTIVE : GARMENT_STATUS_LABELS.INACTIVE}
+            {item.isActive
+              ? GARMENT_STATUS_LABELS.ACTIVE
+              : GARMENT_STATUS_LABELS.INACTIVE}
           </Badge>
         ),
       },

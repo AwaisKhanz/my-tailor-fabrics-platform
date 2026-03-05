@@ -9,6 +9,7 @@ import {
 } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
@@ -35,13 +36,6 @@ export interface ExpenseFormState {
   description: string;
 }
 
-const DEFAULT_FILTERS: ExpensesFilters = {
-  search: "",
-  categoryId: "all",
-  from: "",
-  to: "",
-};
-
 function getTodayDate() {
   return new Date().toISOString().split("T")[0] ?? "";
 }
@@ -57,14 +51,22 @@ function getDefaultFormState(): ExpenseFormState {
 
 export function useExpensesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+      categoryId: "all",
+      from: "",
+      to: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
-  const [filters, setFilters] = useState<ExpensesFilters>(DEFAULT_FILTERS);
 
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState<ExpenseFormState>(getDefaultFormState);
@@ -72,6 +74,21 @@ export function useExpensesPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const filters = useMemo<ExpensesFilters>(
+    () => ({
+      search: values.search,
+      categoryId: values.categoryId || "all",
+      from: values.from,
+      to: values.to,
+    }),
+    [values.categoryId, values.from, values.search, values.to],
+  );
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const fetchCategories = useCallback(async () => {
     setCategoriesLoading(true);
@@ -96,7 +113,7 @@ export function useExpensesPage() {
     try {
       const params: ExpensesFilterParams = {
         page,
-        limit: PAGE_SIZE,
+        limit: pageSize,
       };
 
       if (filters.categoryId !== "all") {
@@ -126,7 +143,7 @@ export function useExpensesPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters, page, toast]);
+  }, [filters, page, pageSize, toast]);
 
   useEffect(() => {
     void fetchCategories();
@@ -137,29 +154,36 @@ export function useExpensesPage() {
   }, [fetchExpenses]);
 
   const setCategoryFilter = useCallback((value: string) => {
-    setFilters((previous) => ({ ...previous, categoryId: value }));
-    setPage(1);
-  }, []);
+    setValues({
+      categoryId: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setFilters((previous) => ({ ...previous, search: value }));
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setFromFilter = useCallback((value: string) => {
-    setFilters((previous) => ({ ...previous, from: value }));
-    setPage(1);
-  }, []);
+    setValues({
+      from: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setToFilter = useCallback((value: string) => {
-    setFilters((previous) => ({ ...previous, to: value }));
-    setPage(1);
-  }, []);
+    setValues({
+      to: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setFilters(DEFAULT_FILTERS);
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
 
   const updateFormField = useCallback(
     <K extends keyof ExpenseFormState>(field: K, value: ExpenseFormState[K]) => {
@@ -251,7 +275,7 @@ export function useExpensesPage() {
       setDeleteTarget(null);
 
       if (expenses.length === 1 && page > 1) {
-        setPage((current) => current - 1);
+        setPage(page - 1);
       } else {
         await fetchExpenses();
       }
@@ -264,7 +288,7 @@ export function useExpensesPage() {
     } finally {
       setDeletingId(null);
     }
-  }, [deleteTarget, expenses?.length, fetchExpenses, page, toast]);
+  }, [deleteTarget, expenses?.length, fetchExpenses, page, setPage, toast]);
 
   const listedAmount = useMemo(
     () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
@@ -294,7 +318,7 @@ export function useExpensesPage() {
     expenses,
     total,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     categories,
     filters,
     activeFilterCount,

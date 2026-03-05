@@ -8,6 +8,10 @@ import { Prisma } from '@prisma/client';
 import { LedgerService } from '../ledger/ledger.service';
 import { LedgerEntryType, WeeklyPaymentReportRow } from '@tbms/shared-types';
 import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 const MAX_TRANSACTION_RETRIES = 3;
 const DEFAULT_HISTORY_PAGE = 1;
@@ -17,6 +21,15 @@ const MAX_HISTORY_LIMIT = 100;
 const PAYMENT_HISTORY_SORT_FIELDS: ReadonlyArray<
   keyof Prisma.PaymentOrderByWithRelationInput
 > = ['paidAt', 'createdAt', 'amount'];
+type PaymentSortField = (typeof PAYMENT_HISTORY_SORT_FIELDS)[number];
+
+function isPaymentSortField(value?: string): value is PaymentSortField {
+  if (!value) {
+    return false;
+  }
+
+  return PAYMENT_HISTORY_SORT_FIELDS.some((field) => field === value);
+}
 
 @Injectable()
 export class PaymentsService {
@@ -167,7 +180,7 @@ export class PaymentsService {
       typeof error === 'object' &&
       error !== null &&
       'code' in error &&
-      (error as { code?: string }).code === 'P2034'
+      error.code === 'P2034'
     );
   }
 
@@ -175,10 +188,8 @@ export class PaymentsService {
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
   ): Prisma.PaymentOrderByWithRelationInput {
-    const field = PAYMENT_HISTORY_SORT_FIELDS.includes(
-      sortBy as keyof Prisma.PaymentOrderByWithRelationInput,
-    )
-      ? (sortBy as keyof Prisma.PaymentOrderByWithRelationInput)
+    const field: PaymentSortField = isPaymentSortField(sortBy)
+      ? sortBy
       : 'paidAt';
     const direction: Prisma.SortOrder = sortOrder === 'asc' ? 'asc' : 'desc';
     return { [field]: direction };
@@ -196,15 +207,13 @@ export class PaymentsService {
   ) {
     await this.assertEmployeeScope(employeeId, actorBranchId);
 
-    const safePage =
-      Number.isFinite(page) && page > 0
-        ? Math.trunc(page)
-        : DEFAULT_HISTORY_PAGE;
-    const safeLimit =
-      Number.isFinite(limit) && limit > 0
-        ? Math.min(Math.trunc(limit), MAX_HISTORY_LIMIT)
-        : DEFAULT_HISTORY_LIMIT;
-    const skip = (safePage - 1) * safeLimit;
+    const pagination = normalizePagination({
+      page,
+      limit,
+      defaultPage: DEFAULT_HISTORY_PAGE,
+      defaultLimit: DEFAULT_HISTORY_LIMIT,
+      maxLimit: MAX_HISTORY_LIMIT,
+    });
 
     const fromDate = this.parseDateBoundary(from);
     const toDate = this.parseDateBoundary(to, true);
@@ -237,21 +246,14 @@ export class PaymentsService {
     const [data, total] = await Promise.all([
       this.prisma.payment.findMany({
         where,
-        skip,
-        take: safeLimit,
+        skip: pagination.skip,
+        take: pagination.limit,
         orderBy,
       }),
       this.prisma.payment.count({ where }),
     ]);
 
-    return {
-      data,
-      meta: {
-        total,
-        page: safePage,
-        lastPage: Math.ceil(total / safeLimit),
-      },
-    };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getWeeklyReport(

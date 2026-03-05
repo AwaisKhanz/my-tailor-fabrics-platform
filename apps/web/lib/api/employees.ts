@@ -1,16 +1,20 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
 import type {
+  ApiResponse,
   AddEmployeeDocumentInput,
   CreateEmployeeInput,
   CreateEmployeeUserAccountInput,
   CreateEmployeeUserAccountResult,
   Employee,
+  EmployeeAssignedItemsResult,
   EmployeeDocument,
+  EmployeeItemsQueryInput,
+  EmployeeItemsResult,
+  EmployeeListQueryInput,
+  EmployeeListResult,
   EmployeeStatsSummary,
   UpdateEmployeeInput,
   EmployeeWithRelations,
-  OrderItem,
 } from '@tbms/shared-types';
 
 export type { EmployeeWithRelations };
@@ -27,8 +31,11 @@ const normalizeEmployeeStats = (
 };
 
 export const employeesApi = {
-  getEmployees: async (params: { page?: number; limit?: number; search?: string }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Employee>>>('/employees', { params });
+  getEmployees: async (params: EmployeeListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<EmployeeListResult>>(
+      '/employees',
+      { params },
+    );
     return response.data;
   },
   getEmployee: async (id: string) => {
@@ -48,7 +55,9 @@ export const employeesApi = {
     return response.data;
   },
   getAssignedItems: async () => {
-    const response = await api.get<ApiResponse<PaginatedResponse<unknown>>>('/employees/my/items');
+    const response = await api.get<ApiResponse<EmployeeAssignedItemsResult>>(
+      '/employees/my/items',
+    );
     return response.data;
   },
   getMyProfile: async () => {
@@ -65,8 +74,11 @@ export const employeesApi = {
     response.data.data = normalizeEmployeeStats(response.data.data);
     return response.data;
   },
-  getItems: async (id: string, params: { page?: number; limit?: number } = {}) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<OrderItem & { order: { orderNumber: string } }>>>(`/employees/${id}/items`, { params });
+  getItems: async (id: string, params: EmployeeItemsQueryInput = {}) => {
+    const response = await api.get<ApiResponse<EmployeeItemsResult>>(
+      `/employees/${id}/items`,
+      { params },
+    );
     return response.data;
   },
   uploadDocument: async (id: string, data: AddEmployeeDocumentInput) => {

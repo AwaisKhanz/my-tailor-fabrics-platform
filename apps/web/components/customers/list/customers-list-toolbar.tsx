@@ -10,7 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
-import { type CustomerStatusTab } from "@/hooks/use-customers-page";
+import {
+  isCustomerStatusTab,
+  type CustomerStatusTab,
+} from "@/hooks/use-customers-page";
 
 const STATUS_TABS: { key: CustomerStatusTab; label: string }[] = [
   { key: "ALL", label: "All" },
@@ -57,7 +60,14 @@ export function CustomersListToolbar({
           />
 
           <div className="w-full md:w-52">
-            <Select value={statusTab} onValueChange={(value) => onStatusChange(value as CustomerStatusTab)}>
+            <Select
+              value={statusTab}
+              onValueChange={(value) => {
+                if (isCustomerStatusTab(value)) {
+                  onStatusChange(value);
+                }
+              }}
+            >
               <SelectTrigger variant="table" className="text-sm font-semibold">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>

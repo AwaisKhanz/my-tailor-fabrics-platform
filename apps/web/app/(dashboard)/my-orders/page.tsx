@@ -12,9 +12,13 @@ import { withRoleGuard } from "@/components/auth/with-role-guard";
 function MyOrdersPage() {
   const {
     loading,
+    page,
+    pageSize,
     search,
     items,
-    filteredItems,
+    filteredTotal,
+    pagedItems,
+    setPage,
     setSearchFilter,
     clearSearch,
   } = useMyOrdersPage();
@@ -34,11 +38,18 @@ function MyOrdersPage() {
           <MyOrdersToolbar
             search={search}
             totalCount={items.length}
-            filteredCount={filteredItems.length}
+            filteredCount={filteredTotal}
             onSearchChange={setSearchFilter}
             onClearSearch={clearSearch}
           />
-          <MyOrdersTable items={filteredItems} loading={loading} />
+          <MyOrdersTable
+            items={pagedItems}
+            loading={loading}
+            page={page}
+            total={filteredTotal}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
         </TableSurface>
       </PageSection>
     </PageShell>

@@ -129,6 +129,7 @@ export declare const measurementCategorySchema: z.ZodObject<{
 export type MeasurementCategoryFormValues = z.infer<typeof measurementCategorySchema>;
 export declare const measurementFieldDialogFormSchema: z.ZodObject<{
     label: z.ZodString;
+    sectionName: z.ZodString;
     fieldType: z.ZodEnum<typeof FieldType>;
     unit: z.ZodOptional<z.ZodString>;
     isRequired: z.ZodDefault<z.ZodBoolean>;

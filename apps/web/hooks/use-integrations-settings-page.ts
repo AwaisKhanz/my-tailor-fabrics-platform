@@ -7,6 +7,7 @@ import {
 } from "@tbms/shared-types";
 import { mailApi } from "@/lib/api/mail";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessageOrFallback, getApiErrorStatus } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const DEFAULT_STATUS: MailIntegrationStatus = {
@@ -22,39 +23,8 @@ const DEFAULT_STATUS: MailIntegrationStatus = {
   },
 };
 
-type ApiError = {
-  response?: {
-    status?: number;
-    data?: {
-      message?: string | string[];
-    };
-  };
-};
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (!error || typeof error !== "object") {
-    return fallback;
-  }
-
-  const response = (error as ApiError).response;
-  const message = response?.data?.message;
-
-  if (Array.isArray(message) && message.length > 0) {
-    return message[0] ?? fallback;
-  }
-
-  if (typeof message === "string" && message.length > 0) {
-    return message;
-  }
-
-  return fallback;
-}
-
 function isForbidden(error: unknown): boolean {
-  if (!error || typeof error !== "object") {
-    return false;
-  }
-  return (error as ApiError).response?.status === 403;
+  return getApiErrorStatus(error) === 403;
 }
 
 export function useIntegrationsSettingsPage() {
@@ -93,7 +63,7 @@ export function useIntegrationsSettingsPage() {
         }
         toast({
           title: "Error",
-          description: getErrorMessage(error, "Failed to load integration status."),
+          description: getApiErrorMessageOrFallback(error, "Failed to load integration status."),
           variant: "destructive",
         });
       } finally {
@@ -119,9 +89,9 @@ export function useIntegrationsSettingsPage() {
     setRequestingAuthUrl(true);
     try {
       const response = await mailApi.getAuthUrl();
-      if (response.success && response.url) {
-        setAuthUrl(response.url);
-        setAuthMessage(response.message ?? "Authorization URL generated.");
+      if (response.success && response.data.url) {
+        setAuthUrl(response.data.url);
+        setAuthMessage(response.data.message ?? "Authorization URL generated.");
         toast({
           title: "Generated",
           description: "Authorization URL is ready.",
@@ -130,7 +100,7 @@ export function useIntegrationsSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to generate authorization URL."),
+        description: getApiErrorMessageOrFallback(error, "Failed to generate authorization URL."),
         variant: "destructive",
       });
     } finally {
@@ -155,13 +125,13 @@ export function useIntegrationsSettingsPage() {
       if (response.success) {
         toast({
           title: "Sent",
-          description: response.message || "Test email sent successfully.",
+          description: response.data.message || "Test email sent successfully.",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to send test email."),
+        description: getApiErrorMessageOrFallback(error, "Failed to send test email."),
         variant: "destructive",
       });
     } finally {

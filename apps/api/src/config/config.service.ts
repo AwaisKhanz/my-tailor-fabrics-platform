@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -12,6 +13,7 @@ import {
 import {
   CreateMeasurementCategoryDto,
   UpdateMeasurementCategoryDto,
+  CreateMeasurementSectionDto,
   CreateMeasurementFieldDto,
   UpdateMeasurementFieldDto,
 } from './dto/measurement-category.dto';
@@ -22,6 +24,23 @@ import {
   FieldType,
   SystemSettings,
 } from '@tbms/shared-types';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
+
+const toSharedFieldType = (fieldType: string): FieldType => {
+  switch (fieldType) {
+    case 'NUMBER':
+      return FieldType.NUMBER;
+    case 'TEXT':
+      return FieldType.TEXT;
+    case 'DROPDOWN':
+      return FieldType.DROPDOWN;
+    default:
+      return FieldType.NUMBER;
+  }
+};
 
 @Injectable()
 export class ConfigService {
@@ -71,7 +90,12 @@ export class ConfigService {
     } = {},
   ) {
     const { search, page = 1, limit = 10 } = options;
-    const skip = (page - 1) * limit;
+    const pagination = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 10,
+      maxLimit: 100,
+    });
 
     const where: Prisma.GarmentTypeWhereInput = {
       isActive: true,
@@ -89,10 +113,14 @@ export class ConfigService {
       this.prisma.garmentType.findMany({
         where,
         orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
         include: {
           measurementCategories: true,
+          workflowSteps: {
+            where: { deletedAt: null },
+            orderBy: { sortOrder: 'asc' },
+          },
         },
       }),
     ]);
@@ -110,7 +138,7 @@ export class ConfigService {
       };
     });
 
-    return { data, total };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getGarmentType(id: string): Promise<GarmentTypeWithAnalytics> {
@@ -124,9 +152,15 @@ export class ConfigService {
         measurementCategories: {
           where: { deletedAt: null },
           include: {
+            sections: {
+              orderBy: { sortOrder: 'asc' },
+            },
             fields: {
               where: { deletedAt: null },
               orderBy: { sortOrder: 'asc' },
+              include: {
+                section: true,
+              },
             },
           },
         },
@@ -186,7 +220,7 @@ export class ConfigService {
       }),
     );
 
-    const result = {
+    const result: GarmentTypeWithAnalytics = {
       ...garment,
       marginAmount: garment.customerPrice - garment.employeeRate,
       marginPercentage:
@@ -206,8 +240,9 @@ export class ConfigService {
           ...cat,
           fields: (cat.fields || []).map((f) => ({
             ...f,
-            fieldType: f.fieldType as FieldType,
+            fieldType: toSharedFieldType(f.fieldType),
           })),
+          sections: cat.sections || [],
         }),
       ),
       workflowSteps: garment.workflowSteps || [],
@@ -224,7 +259,7 @@ export class ConfigService {
             : garment.customerPrice,
         topTailors,
       },
-    } as GarmentTypeWithAnalytics;
+    };
 
     return result;
   }
@@ -306,6 +341,45 @@ export class ConfigService {
       where: { id: garmentTypeId, deletedAt: null },
     });
 
+    const normalizedSteps = dto.steps.map((step, index) => {
+      const stepKey = step.stepKey.trim().toUpperCase();
+      const stepName = step.stepName.trim();
+
+      if (!/^[A-Z0-9_]+$/.test(stepKey)) {
+        throw new BadRequestException(
+          `Invalid stepKey at position ${index + 1}. Use only A-Z, 0-9, and _.`,
+        );
+      }
+
+      if (!stepName) {
+        throw new BadRequestException(
+          `stepName is required at position ${index + 1}.`,
+        );
+      }
+
+      if (!Number.isInteger(step.sortOrder) || step.sortOrder < 1) {
+        throw new BadRequestException(
+          `sortOrder must be a positive integer at position ${index + 1}.`,
+        );
+      }
+
+      return {
+        ...step,
+        stepKey,
+        stepName,
+      };
+    });
+
+    const seenStepKeys = new Set<string>();
+    for (const step of normalizedSteps) {
+      if (seenStepKeys.has(step.stepKey)) {
+        throw new BadRequestException(
+          `Duplicate stepKey "${step.stepKey}" is not allowed.`,
+        );
+      }
+      seenStepKeys.add(step.stepKey);
+    }
+
     return this.prisma.$transaction(async (tx) => {
       // Soft delete existing active steps not in the incoming payload (if needed, or just hard delete if they haven't been used, but soft delete is safer)
       await tx.workflowStepTemplate.updateMany({
@@ -314,7 +388,7 @@ export class ConfigService {
       });
 
       // Insert or Update the incoming steps
-      for (const step of dto.steps) {
+      for (const step of normalizedSteps) {
         await tx.workflowStepTemplate.upsert({
           where: {
             garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey },
@@ -380,11 +454,90 @@ export class ConfigService {
   }
 
   // --- Measurement Categories & Fields ---
+  private async getNextSectionSortOrder(categoryId: string) {
+    const aggregate = await this.prisma.measurementSection.aggregate({
+      where: { categoryId },
+      _max: { sortOrder: true },
+    });
+    return (aggregate._max.sortOrder ?? -1) + 1;
+  }
+
+  private async ensureDefaultMeasurementSection(categoryId: string) {
+    const existingDefault = await this.prisma.measurementSection.findFirst({
+      where: {
+        categoryId,
+        name: { equals: 'General', mode: 'insensitive' },
+      },
+    });
+
+    if (existingDefault) {
+      return existingDefault;
+    }
+
+    const nextSortOrder = await this.getNextSectionSortOrder(categoryId);
+    return this.prisma.measurementSection.create({
+      data: {
+        categoryId,
+        name: 'General',
+        sortOrder: nextSortOrder,
+      },
+    });
+  }
+
+  private async resolveMeasurementSection(
+    categoryId: string,
+    sectionId?: string,
+    sectionName?: string,
+  ) {
+    const normalizedSectionId = sectionId?.trim();
+    if (normalizedSectionId) {
+      const section = await this.prisma.measurementSection.findUnique({
+        where: { id: normalizedSectionId },
+      });
+
+      if (!section || section.categoryId !== categoryId) {
+        throw new NotFoundException('Measurement section not found.');
+      }
+
+      return section;
+    }
+
+    const normalizedSectionName = sectionName?.trim();
+    if (normalizedSectionName) {
+      const existing = await this.prisma.measurementSection.findFirst({
+        where: {
+          categoryId,
+          name: { equals: normalizedSectionName, mode: 'insensitive' },
+        },
+      });
+
+      if (existing) {
+        return existing;
+      }
+
+      const nextSortOrder = await this.getNextSectionSortOrder(categoryId);
+      return this.prisma.measurementSection.create({
+        data: {
+          categoryId,
+          name: normalizedSectionName,
+          sortOrder: nextSortOrder,
+        },
+      });
+    }
+
+    return this.ensureDefaultMeasurementSection(categoryId);
+  }
+
   async getMeasurementCategories(
     options: { search?: string; page?: number; limit?: number } = {},
   ) {
     const { search, page = 1, limit = 10 } = options;
-    const skip = (page - 1) * limit;
+    const pagination = normalizePagination({
+      page,
+      limit,
+      defaultLimit: 10,
+      maxLimit: 100,
+    });
 
     const where: Prisma.MeasurementCategoryWhereInput = {
       isActive: true,
@@ -399,24 +552,39 @@ export class ConfigService {
       this.prisma.measurementCategory.findMany({
         where,
         orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
         include: {
-          fields: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } },
+          sections: {
+            orderBy: { sortOrder: 'asc' },
+          },
+          fields: {
+            where: { deletedAt: null },
+            orderBy: { sortOrder: 'asc' },
+            include: {
+              section: true,
+            },
+          },
         },
       }),
     ]);
 
-    return { data, total };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getMeasurementCategory(id: string) {
     const category = await this.prisma.measurementCategory.findUnique({
       where: { id },
       include: {
+        sections: {
+          orderBy: { sortOrder: 'asc' },
+        },
         fields: {
           where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' },
+          include: {
+            section: true,
+          },
         },
       },
     });
@@ -480,9 +648,17 @@ export class ConfigService {
         : undefined,
     };
 
-    return this.prisma.measurementCategory.create({
+    const category = await this.prisma.measurementCategory.create({
       data: createData,
     });
+
+    const defaultSection = await this.ensureDefaultMeasurementSection(category.id);
+    await this.prisma.measurementField.updateMany({
+      where: { categoryId: category.id, sectionId: null, deletedAt: null },
+      data: { sectionId: defaultSection.id },
+    });
+
+    return this.getMeasurementCategory(category.id);
   }
 
   async updateMeasurementCategory(
@@ -494,9 +670,50 @@ export class ConfigService {
     // MeasurementCategoryDialog specifically handles CATEGORY edit,
     // and MeasurementCategoryDetail handles FIELD edits separately.
     // However, the user wants "Save Category" to work when fields are present.
-    return this.prisma.measurementCategory.update({
+    await this.prisma.measurementCategory.update({
       where: { id },
       data: dto,
+    });
+    return this.getMeasurementCategory(id);
+  }
+
+  async addMeasurementSection(
+    categoryId: string,
+    dto: CreateMeasurementSectionDto,
+  ) {
+    const category = await this.prisma.measurementCategory.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!category || category.deletedAt) {
+      throw new NotFoundException('Measurement category not found');
+    }
+
+    const normalizedName = dto.name.trim();
+    if (!normalizedName) {
+      throw new BadRequestException('Section name is required.');
+    }
+    const duplicate = await this.prisma.measurementSection.findFirst({
+      where: {
+        categoryId,
+        name: { equals: normalizedName, mode: 'insensitive' },
+      },
+    });
+
+    if (duplicate) {
+      throw new ConflictException(
+        `Section "${normalizedName}" already exists in this category.`,
+      );
+    }
+
+    const nextSortOrder =
+      dto.sortOrder ?? (await this.getNextSectionSortOrder(categoryId));
+    return this.prisma.measurementSection.create({
+      data: {
+        categoryId,
+        name: normalizedName,
+        sortOrder: nextSortOrder,
+      },
     });
   }
 
@@ -504,7 +721,10 @@ export class ConfigService {
     categoryId: string,
     dto: CreateMeasurementFieldDto,
   ) {
-    const label = dto.label;
+    const label = dto.label.trim();
+    if (!label) {
+      throw new BadRequestException('Field label is required.');
+    }
     const category = await this.prisma.measurementCategory.findUniqueOrThrow({
       where: { id: categoryId },
       include: { fields: { where: { deletedAt: null } } },
@@ -519,8 +739,20 @@ export class ConfigService {
       );
     }
 
+    const section = await this.resolveMeasurementSection(
+      categoryId,
+      dto.sectionId,
+      dto.sectionName,
+    );
+
+    const { sectionId: _sectionId, sectionName: _sectionName, ...rest } = dto;
     return this.prisma.measurementField.create({
-      data: { ...dto, categoryId },
+      data: {
+        ...rest,
+        label,
+        categoryId,
+        sectionId: section.id,
+      },
     });
   }
 
@@ -530,7 +762,10 @@ export class ConfigService {
     });
 
     if (dto.label) {
-      const label = dto.label;
+      const label = dto.label.trim();
+      if (!label) {
+        throw new BadRequestException('Field label is required.');
+      }
       const category = await this.prisma.measurementCategory.findUniqueOrThrow({
         where: { id: field.categoryId },
         include: { fields: { where: { deletedAt: null, NOT: { id } } } },
@@ -546,9 +781,24 @@ export class ConfigService {
       }
     }
 
+    let resolvedSectionId: string | undefined;
+    if (dto.sectionId !== undefined || dto.sectionName !== undefined) {
+      const section = await this.resolveMeasurementSection(
+        field.categoryId,
+        dto.sectionId,
+        dto.sectionName,
+      );
+      resolvedSectionId = section.id;
+    }
+
+    const { sectionId: _sectionId, sectionName: _sectionName, ...rest } = dto;
     return this.prisma.measurementField.update({
       where: { id },
-      data: dto,
+      data: {
+        ...rest,
+        ...(dto.label !== undefined ? { label: dto.label.trim() } : {}),
+        ...(resolvedSectionId ? { sectionId: resolvedSectionId } : {}),
+      },
     });
   }
 

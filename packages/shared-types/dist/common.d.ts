@@ -4,9 +4,14 @@ export interface ApiResponse<T> {
     message?: string;
     error?: string;
 }
+export interface PaginationMeta {
+    page: number;
+    lastPage: number;
+}
 export interface PaginatedResponse<T> {
     data: T[];
     total: number;
+    meta: PaginationMeta;
 }
 export declare enum Role {
     SUPER_ADMIN = "SUPER_ADMIN",

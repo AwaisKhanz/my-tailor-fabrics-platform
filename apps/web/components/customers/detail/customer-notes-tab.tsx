@@ -8,13 +8,12 @@ interface CustomerNotesTabProps {
 
 export function CustomerNotesTab({ notes }: CustomerNotesTabProps) {
   return (
-    <Card>
+    <Card variant={"elevatedPanel"}>
       <CardContent spacing="section" padding="inset" className="space-y-2">
-        <Label variant="microCaps">
-          Preferences & Internal Notes
-        </Label>
+        <Label variant="microCaps">Preferences & Internal Notes</Label>
         <Typography as="p" variant="lead" className="whitespace-pre-wrap">
-          {notes || "No special notes or preferences recorded for this customer."}
+          {notes ||
+            "No special notes or preferences recorded for this customer."}
         </Typography>
       </CardContent>
     </Card>

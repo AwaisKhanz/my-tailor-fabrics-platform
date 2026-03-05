@@ -91,7 +91,10 @@ export function GlobalSearchCommand({
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+      const normalizedKey =
+        typeof event.key === "string" ? event.key.toLowerCase() : "";
+
+      if (normalizedKey === "k" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         setOpen(true);
         window.requestAnimationFrame(() => {
@@ -116,7 +119,11 @@ export function GlobalSearchCommand({
         return;
       }
 
-      if (!containerRef.current.contains(event.target as Node)) {
+      if (!(event.target instanceof Node)) {
+        return;
+      }
+
+      if (!containerRef.current.contains(event.target)) {
         setOpen(false);
       }
     };
@@ -156,7 +163,11 @@ export function GlobalSearchCommand({
         const [ordersResponse, customersResponse, employeesResponse] =
           await Promise.all([
             ordersApi.getOrders({ page: 1, limit: SEARCH_LIMIT, search: term }),
-            customerApi.getCustomers(1, SEARCH_LIMIT, term),
+            customerApi.getCustomers({
+              page: 1,
+              limit: SEARCH_LIMIT,
+              search: term,
+            }),
             employeesApi.getEmployees({
               page: 1,
               limit: SEARCH_LIMIT,

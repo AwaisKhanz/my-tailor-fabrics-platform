@@ -52,7 +52,7 @@ export function ChartShell({
 
       <CardContent
         spacing="section"
-        className={cn("space-y-4", contentClassName)}
+        className={cn("space-y-4 h-full", contentClassName)}
       >
         {legend ? (
           <div className="flex flex-wrap items-center gap-2">{legend}</div>

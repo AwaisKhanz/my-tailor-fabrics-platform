@@ -605,8 +605,8 @@ export class ReportsService {
   ): Promise<ProductivityPoint[]> {
     const range = this.resolveOptionalDateRange(from, to);
     const safeLimit =
-      Number.isFinite(limit) && (limit as number) > 0
-        ? Math.min(Number(limit), 50)
+      typeof limit === 'number' && Number.isFinite(limit) && limit > 0
+        ? Math.min(limit, 50)
         : 10;
 
     const branchCondition = branchId

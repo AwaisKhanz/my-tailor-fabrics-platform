@@ -27,7 +27,7 @@ function RatesPage() {
     garmentTypes,
     branches,
     createDialogOpen,
-    stepKeys,
+    stepKeysByGarmentId,
     setPage,
     setSearchFilter,
     clearSearch,
@@ -79,7 +79,7 @@ function RatesPage() {
           onSubmit={createRate}
           garmentTypes={garmentTypes.map((garment) => ({ id: garment.id, name: garment.name }))}
           branches={branches.map((branch) => ({ id: branch.id, name: branch.name, code: branch.code }))}
-          steps={stepKeys}
+          stepsByGarmentTypeId={stepKeysByGarmentId}
         />
       ) : null}
     </PageShell>

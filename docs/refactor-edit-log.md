@@ -5,6 +5,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 3 (RBAC consolidation + UI consistency)
 
 ### Backend RBAC consolidation
+
 - `packages/shared-constants/src/rbac.ts`
   - Added `SUPER_ADMIN_ONLY_ROLES` and `ALL_ROLES` role groups to remove duplicated role arrays.
 - `apps/api/src/expenses/expenses.controller.ts`
@@ -27,6 +28,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced all explicit role lists with `ALL_ROLES`, `ADMIN_ROLES`, and `SUPER_ADMIN_ONLY_ROLES`.
 
 ### Frontend UI consistency (shared primitives)
+
 - `apps/web/components/config/BranchesTable.tsx`
   - Replaced custom top heading block with `PageHeader`.
   - Replaced section heading with `Typography` (`sectionTitle`).
@@ -44,6 +46,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced “Payment History” heading with `Typography` (`sectionTitle`).
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked files completed in this pass as `DN` with note `Third modernization pass`.
 - `docs/refactor-status.md`
@@ -52,6 +55,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Created this centralized per-file implementation log as requested.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
 - `npm run build -w @tbms/shared-constants` ✅
@@ -60,6 +64,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 4 (Detail pages + typography standardization)
 
 ### Frontend detail page consistency
+
 - `apps/web/app/(dashboard)/settings/design-types/page.tsx`
   - Replaced custom header block with `PageHeader` while preserving back navigation and add action.
   - Wrapped development-only debug logging guard around fetch error logging.
@@ -76,14 +81,17 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced “Verification Documents” and “No Portal Account” section headings with `Typography`.
 
 ### Shared UI primitive extension
+
 - `apps/web/components/ui/typography.tsx`
   - Added `statValue` variant for reusable metric/KPI number rendering.
 
 ### Config dashboard consistency follow-up
+
 - `apps/web/components/config/UsersTable.tsx`
   - Replaced stats card numeric `h3` headings with `Typography` (`statValue`) for consistency.
 
 ### Backend RBAC constants alignment (continued)
+
 - `packages/shared-constants/src/rbac.ts`
   - Reused in this pass; role groups remain canonical (`ADMIN_ROLES`, `SUPER_ADMIN_ONLY_ROLES`, etc.).
 - `apps/api/src/attendance/attendance.controller.ts`
@@ -98,12 +106,14 @@ This is the single source of truth for implementation edits and why they were ma
   - These files were touched in this pass and remain aligned to shared role groups.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked files completed in this pass as `DN` with note `Fourth modernization pass`.
 - `docs/refactor-status.md`
   - Updated Phase 5 DN/NS snapshot counts and moved checkpoint label to “After Fourth Implementation Pass”.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
 - `npm run build -w @tbms/shared-constants` ✅
@@ -112,6 +122,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 5 (Remaining dashboard/page heading normalization)
 
 ### Frontend page-level primitive adoption
+
 - `apps/web/app/login/page.tsx`
   - Replaced raw hero and form headings (`h1`, `h2`) with `Typography` variants.
 - `apps/web/app/status/[token]/page.tsx`
@@ -124,6 +135,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Wrapped fetch error logging in development-only guard.
 
 ### Config component primitive adoption
+
 - `apps/web/components/config/MeasurementCategoryDetail.tsx`
   - Replaced custom header block with `PageHeader`.
   - Wrapped fetch error logging in development-only guard.
@@ -133,19 +145,23 @@ This is the single source of truth for implementation edits and why they were ma
   - Wrapped fetch error logging in development-only guard.
 
 ### Shared UI primitive update
+
 - `apps/web/components/ui/typography.tsx`
   - Reused and confirmed `statValue` variant for KPI-style number consistency.
 
 ### Sweep result
+
 - `apps/web/app` + `apps/web/components/config` now contain no raw `h1/h2/h3` tags.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked files completed in this pass as `DN` with note `Fifth modernization pass`.
 - `docs/refactor-status.md`
   - Updated checkpoint label and manifest snapshot counts for Phase 5 and Phase 7.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
 - `npm run build -w @tbms/shared-constants` ✅
@@ -154,6 +170,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 6 (API test hardening + financial/idempotency coverage)
 
 ### Failing Nest spec stabilization (dependency-safe test modules)
+
 - `apps/api/src/auth/auth.controller.spec.ts`
   - Added `AuthService` mock provider to testing module so controller instantiation resolves constructor dependencies.
 - `apps/api/src/auth/auth.service.spec.ts`
@@ -174,12 +191,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `PrismaService` mock provider for service construction.
 
 ### New targeted backend correctness tests
+
 - `apps/api/src/orders/money.spec.ts` (new)
   - Added tests for fixed discount capping, percentage (basis points) discount math, missing discount behavior, and total/balance clamping invariants.
 - `apps/api/src/tasks/tasks.service.spec.ts` (new)
   - Added tests for earning-ledger idempotency on task completion, duplicate-entry prevention, already-completed no-op behavior, and employee assignment authorization enforcement.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated manifest to include new spec files and marked all Pass 6 edited backend spec files as `DN` with note `Sixth modernization pass`.
 - `docs/refactor-status.md`
@@ -190,11 +209,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 6 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run test -w api -- --runInBand` ✅ (`13/13` suites, `19/19` tests)
 
 ## 2026-03-03 — Pass 6A (Customer/public-status contract test expansion)
 
 ### Added contract-focused backend tests
+
 - `apps/api/src/customers/customers.service.spec.ts`
   - Added filter contract test to verify `findAll` applies `branchId`, `isVip`, and `status` conditions to Prisma queries.
   - Added search-path contract test to verify `findAll` delegates to `SearchService` and bypasses Prisma pagination queries when search text is provided.
@@ -202,6 +223,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added public status endpoint tests for missing/invalid PIN validation and valid token+PIN forwarding to `OrdersService`.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated manifest and marked new `apps/api/src/orders/status.controller.spec.ts` as `DN` with note `Sixth modernization pass`.
 - `docs/refactor-status.md`
@@ -210,17 +232,20 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 6A section to keep every edit listed in one file.
 
 ### Verification run after edits
+
 - `npm run test -w api -- --runInBand` ✅ (`14/14` suites, `24/24` tests)
 
 ## 2026-03-03 — Pass 7 (Frontend logging standardization + shared UI primitive consistency)
 
 ### Shared frontend logging utility
+
 - `apps/web/lib/logger.ts` (new)
   - Added `logDevError(message, error?)` helper to centralize development-only error logging and prevent production console noise.
 - `apps/web/lib/api.ts`
   - Replaced ad-hoc network diagnostics `console.error` call with `logDevError`.
 
 ### Replaced direct console logging in frontend modules
+
 - `apps/web/components/layout/BranchSelector.tsx`
   - Replaced local `process.env.NODE_ENV` + `console.error` block with `logDevError`.
 - `apps/web/components/customers/CustomerTable.tsx`
@@ -253,6 +278,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced fetch failure logging guard with `logDevError`.
 
 ### Shared UI primitive consistency updates
+
 - `apps/web/components/ui/empty-state.tsx`
   - Replaced raw `h3`/`p` tags with shared `Typography` variants for standardized typographic rendering.
 - `apps/web/components/ui/data-table.tsx`
@@ -260,10 +286,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced empty-state and pagination text blocks with `Typography` primitives for typography consistency.
 
 ### Sweep result
+
 - All direct `console.error(...)` calls under `apps/web/app`, `apps/web/components`, and `apps/web/lib` are now centralized through `apps/web/lib/logger.ts`.
 - No raw `h1/h2/h3` tags remain under `apps/web/app` and `apps/web/components`.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated manifest for the new logger file and marked all Pass 7 touched files as `DN` with note `Seventh modernization pass`.
 - `docs/refactor-status.md`
@@ -272,6 +300,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 7 section to keep all edits documented in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅ (after manifest regeneration)
@@ -279,6 +308,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 8 (Shared contracts/constants migration sweep)
 
 ### Shared-types contract expansion (canonical cross-app payloads)
+
 - `packages/shared-types/src/reports.ts` (new)
   - Added canonical report payload contracts: `DesignAnalytics`, `AddonAnalytics`, `ReportSummary`, `RevenueVsExpenses`, `GarmentRevenue`, and `EmployeeProductivity`.
 - `packages/shared-types/src/ledger.ts`
@@ -293,6 +323,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Exported the new `reports` contract module.
 
 ### Web API client migration (removed local duplicate interfaces)
+
 - `apps/web/lib/api/reports.ts`
   - Removed local report interface declarations and switched to shared report contracts from `@tbms/shared-types`.
   - Re-exported shared report types to preserve existing import paths in UI code.
@@ -308,12 +339,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced inline create/update/stats payload types with shared `CreateBranchInput`, `UpdateBranchInput`, and `BranchStatsSummary`.
 
 ### Backend service boundary alignment to shared contracts
+
 - `apps/api/src/reports/reports.service.ts`
   - Imported shared report payload types and used shared return signatures for analytics/report helper methods.
 - `apps/api/src/ledger/ledger.service.ts`
   - Replaced inline statement query options with shared `LedgerStatementParams` contract.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated and marked all Pass 8 touched files as `DN` with note `Eighth modernization pass`.
 - `docs/refactor-status.md`
@@ -322,6 +355,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 8 section so all changes remain tracked in one file.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
@@ -329,6 +363,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 9 (Complete remaining shared constants dedupe + remove created tests)
 
 ### Shared constants completion (remaining local workflow/rate duplicates)
+
 - `packages/shared-constants/src/rates.ts`
   - Added shared workflow presets and seed constants to eliminate remaining local duplicates:
     - `DEFAULT_WORKFLOW_STEP_PRESETS`
@@ -340,6 +375,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Kept existing `STEP_KEYS`, `STEP_KEY_LABELS`, currency helpers, and task-rate helper as canonical exports.
 
 ### Consumer migration to shared constants
+
 - `apps/web/components/config/GarmentWorkflowStepsDialog.tsx`
   - Replaced hardcoded default workflow-step array with `DEFAULT_WORKFLOW_STEP_PRESETS`.
 - `apps/api/prisma/seed.ts`
@@ -353,11 +389,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced hardcoded step split rules (`CUTTING/STITCHING/PRESSING`) with shared `RATE_SPLIT_HINTS`.
 
 ### Removed assistant-created test files (per explicit request)
+
 - `apps/api/src/orders/money.spec.ts` (deleted)
 - `apps/api/src/orders/status.controller.spec.ts` (deleted)
 - `apps/api/src/tasks/tasks.service.spec.ts` (deleted)
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated and marked pass-touched in-scope files as `DN` with note `Ninth modernization pass`.
   - Removed manifest rows for deleted test files (no longer present in repository scan).
@@ -367,6 +405,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 9 section to keep all edits documented in one file.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-constants` ✅
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w api` ✅
@@ -376,6 +415,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 10 (Frontend page decomposition: `orders/[id]` orchestration split)
 
 ### Reusable order detail sections/dialogs extracted
+
 - `apps/web/components/orders/order-detail-breadcrumb.tsx` (new)
   - Extracted breadcrumb/navigation block for order detail pages.
 - `apps/web/components/orders/order-detail-header-card.tsx` (new)
@@ -396,6 +436,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Extracted public status sharing dialog.
 
 ### Orchestrator page simplification
+
 - `apps/web/app/(dashboard)/orders/[id]/page.tsx`
   - Converted to orchestration-only structure:
     - data/status/payment/share behavior sourced from `useOrderDetail`
@@ -406,6 +447,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Adopted as the canonical data/action hook for order-detail orchestration.
 
 ### Tracking/coverage hardening for decomposition work
+
 - `scripts/generate-refactor-manifest.sh`
   - Added `apps/web/hooks` to manifest scope.
   - Added `apps/web/components/orders/*` and `apps/web/hooks/*` to Phase 5 (`web-domains`) classification.
@@ -420,6 +462,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 10 section to keep all edits listed in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ fails due pre-existing unrelated issues in `apps/web/app/(dashboard)/page.tsx`, `apps/web/components/ui/typography.tsx`, and `apps/web/middleware.ts`
@@ -427,6 +470,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 11 (Frontend page decomposition: `orders/new` + UX/design refinement)
 
 ### New order page orchestration and data hook extraction
+
 - `apps/web/hooks/use-order-form-page.ts` (new)
   - Added canonical order-form hook for:
     - edit-mode detection via URL search params
@@ -442,6 +486,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added top context strip (mode, piece count, due date) and standardized `PageHeader` copy/actions.
 
 ### Reusable order-form UI section extraction
+
 - `apps/web/components/orders/order-form-skeleton.tsx` (new)
   - Added structured loading skeleton for the full order form layout.
 - `apps/web/components/orders/order-form-customer-card.tsx` (new)
@@ -462,6 +507,7 @@ This is the single source of truth for implementation edits and why they were ma
     - consolidated submit action state.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated and marked all pass-touched `orders/new` decomposition files as `DN` with note `Eleventh modernization pass`.
 - `docs/refactor-status.md`
@@ -471,6 +517,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 11 section to keep all edits listed in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/app/(dashboard)/page.tsx`, `apps/web/components/ui/typography.tsx`, and `apps/web/middleware.ts`
@@ -478,6 +525,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 12 (Frontend page decomposition: `orders` list + decomposition task board)
 
 ### Orders list page orchestration/data split
+
 - `apps/web/hooks/use-orders-list-page.ts` (new)
   - Added canonical list-page hook for order fetching, debounced search, date/status filters, active-filter count, pagination, and reset behavior.
 - `apps/web/app/(dashboard)/orders/page.tsx`
@@ -485,6 +533,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Reduced route file complexity and centralized list state logic in hook.
 
 ### Reusable orders list UI extraction + UX refinement
+
 - `apps/web/components/orders/orders-list-toolbar.tsx` (new)
   - Extracted searchable/filterable toolbar with:
     - total results badge
@@ -496,11 +545,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Added receipt print action wiring for READY orders (`window.open` to receipt endpoint).
 
 ### Decomposition tracking task board
+
 - `docs/frontend-page-decomposition-tracker.md` (new)
   - Added explicit decomposition task tracker covering all frontend route pages with statuses (`DN`/`NS`/`NJ`) and a prioritized next-task queue.
   - Marked completed and remaining pages so progress is visible each pass.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated and marked pass-touched orders list decomposition files as `DN` with note `Twelfth modernization pass`.
 - `docs/refactor-status.md`
@@ -511,6 +562,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 12 section to keep all edits listed in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/app/(dashboard)/page.tsx`, `apps/web/components/ui/typography.tsx`, and `apps/web/middleware.ts` (no new `orders` list decomposition errors)
@@ -518,6 +570,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 13 (Frontend page decomposition: dashboard home + employee detail)
 
 ### Dashboard home decomposition (`apps/web/app/(dashboard)/page.tsx`)
+
 - `apps/web/hooks/use-dashboard-page.ts` (new)
   - Extracted dashboard data orchestration (stats, designs, productivity, garments, revenue-vs-expenses) and derived chart rows.
 - `apps/web/components/dashboard/dashboard-kpi-card.tsx` (new)
@@ -538,6 +591,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only dashboard composition using extracted hook and section components.
 
 ### Employee detail decomposition (`apps/web/app/(dashboard)/employees/[id]/page.tsx`)
+
 - `apps/web/hooks/use-employee-detail-page.ts` (new)
   - Extracted employee detail orchestration:
     - profile/stats/items/tasks/attendance/settings loading
@@ -562,6 +616,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition with reusable detail sections and dialogs.
 
 ### Tracking and planning updates
+
 - `scripts/generate-refactor-manifest.sh`
   - Added `apps/web/components/dashboard/*` classification to Phase 5 (`web-domains`).
 - `docs/frontend-page-decomposition-tracker.md` (new)
@@ -574,6 +629,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 13 section to keep all edits listed in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts` (no new dashboard/employee decomposition errors)
@@ -581,6 +637,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 14 (Frontend page decomposition: expenses + payments)
 
 ### Expenses page decomposition (`apps/web/app/(dashboard)/expenses/page.tsx`)
+
 - `apps/web/hooks/use-expenses-page.ts` (new)
   - Extracted expenses orchestration for:
     - expenses/category fetching
@@ -600,6 +657,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced browser `confirm()` flow with shared `ConfirmDialog` for consistent destructive-action UX.
 
 ### Payments page decomposition (`apps/web/app/(dashboard)/payments/page.tsx`)
+
 - `apps/web/hooks/use-payments-page.ts` (new)
   - Extracted payments orchestration for:
     - employee selection loading
@@ -620,6 +678,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Improved top-level action UX by showing a primary disburse CTA only when payable balance exists.
 
 ### Tracking + manifest updates
+
 - `scripts/generate-refactor-manifest.sh`
   - Added `apps/web/components/expenses/*` and `apps/web/components/payments/*` to Phase 5 (`web-domains`) classification.
 - `docs/frontend-page-decomposition-tracker.md`
@@ -632,6 +691,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 14 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts`
@@ -640,6 +700,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 15 (Frontend page decomposition: customer detail + garment detail)
 
 ### Customer detail decomposition (`apps/web/app/(dashboard)/customers/[id]/page.tsx`)
+
 - `apps/web/hooks/use-customer-detail-page.ts` (new)
   - Extracted customer detail orchestration for:
     - customer/profile/orders/categories loading
@@ -667,6 +728,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added explicit not-found empty state instead of rendering `null`.
 
 ### Garment detail decomposition (`apps/web/app/(dashboard)/settings/garments/[id]/page.tsx`)
+
 - `apps/web/hooks/use-garment-detail-page.ts` (new)
   - Extracted garment detail orchestration for:
     - garment + branches loading
@@ -694,6 +756,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only page composing extracted detail sections.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Marked customer detail and garment detail routes as `DN` and moved queue to next pending pages.
 - `docs/refactor-manifest.csv`
@@ -704,6 +767,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 15 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts`
@@ -712,6 +776,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 16 (Frontend page decomposition: employees list + reports)
 
 ### Employees list decomposition (`apps/web/app/(dashboard)/employees/page.tsx`)
+
 - `apps/web/hooks/use-employees-page.ts` (new)
   - Extracted employees list orchestration for:
     - paginated/searchable employee fetching
@@ -726,6 +791,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted route to orchestration-only composition using extracted hook + toolbar/table sections.
 
 ### Reports decomposition (`apps/web/app/(dashboard)/reports/page.tsx`)
+
 - `apps/web/hooks/use-reports-page.ts` (new)
   - Extracted reports orchestration for:
     - summary loading for date range
@@ -744,6 +810,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted route to orchestration-only composition with extracted report sections.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Marked employees list and reports routes as `DN` and advanced queue to remaining pending pages.
 - `docs/refactor-manifest.csv`
@@ -754,6 +821,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 16 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts`
@@ -762,6 +830,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 17 (Frontend page decomposition: my-orders + login)
 
 ### My-orders decomposition (`apps/web/app/(dashboard)/my-orders/page.tsx`)
+
 - `apps/web/hooks/use-my-orders-page.ts` (new)
   - Extracted my-orders orchestration for:
     - assigned-items fetching
@@ -776,6 +845,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted route to orchestration-only composition using extracted hook + toolbar/table sections.
 
 ### Login decomposition (`apps/web/app/login/page.tsx`)
+
 - `apps/web/hooks/use-login-page.ts` (new)
   - Extracted login orchestration for:
     - session redirect handling
@@ -791,6 +861,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted route to orchestration-only composition using extracted auth panels + hook.
 
 ### Tracking + manifest updates
+
 - `scripts/generate-refactor-manifest.sh`
   - Added `apps/web/components/auth/*` to Phase 5 (`web-domains`) classification.
 - `docs/frontend-page-decomposition-tracker.md`
@@ -803,6 +874,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 17 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts`
@@ -811,6 +883,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 18 (Frontend page decomposition: public status + design types)
 
 ### Public order status decomposition (`apps/web/app/status/[token]/page.tsx`)
+
 - `apps/web/hooks/use-public-order-status-page.ts` (new)
   - Extracted public status orchestration for:
     - PIN state + validation
@@ -829,6 +902,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted route to orchestration-only composition using extracted hook + status sections.
 
 ### Design types decomposition (`apps/web/app/(dashboard)/settings/design-types/page.tsx`)
+
 - `apps/web/hooks/use-design-types-page.ts` (new)
   - Extracted design-types orchestration for:
     - design types/garments/branches loading
@@ -844,6 +918,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced browser `confirm()` delete flow with shared `ConfirmDialog` for consistent destructive-action UX.
 
 ### Tracking + manifest updates
+
 - `scripts/generate-refactor-manifest.sh`
   - Added `apps/web/components/status/*` and `apps/web/hooks/use-public-order-status-page.ts` to Phase 7 (`reporting-public-status`) classification.
 - `docs/frontend-page-decomposition-tracker.md`
@@ -856,6 +931,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 18 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts`
@@ -864,6 +940,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 19 (Frontend page decomposition: rates + unauthorized)
 
 ### Rates decomposition (`apps/web/app/(dashboard)/settings/rates/page.tsx`)
+
 - `apps/web/hooks/use-rates-page.ts` (new)
   - Extracted rates page orchestration for:
     - paginated/searchable rates loading
@@ -880,12 +957,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted route to orchestration-only composition using extracted hook + reusable sections.
 
 ### Unauthorized page standardization (`apps/web/app/unauthorized/page.tsx`)
+
 - `apps/web/components/auth/auth-state-card.tsx` (new)
   - Added reusable auth-state primitive for access and permission boundary pages.
 - `apps/web/app/unauthorized/page.tsx`
   - Replaced standalone markup with `AuthStateCard` composition for consistent auth-state UX.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Marked rates and unauthorized pages as `DN`; decomposition queue now fully cleared.
 - `docs/refactor-manifest.csv`
@@ -896,6 +975,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 19 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ⚠️ still reports only pre-existing unrelated type issues in `apps/web/components/ui/typography.tsx` and `apps/web/middleware.ts`
@@ -904,6 +984,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 20 (TypeScript stabilization + users module decomposition)
 
 ### Frontend TypeScript stabilization
+
 - `apps/web/middleware.ts`
   - Replaced tuple-based admin `includes` check with explicit role guards (`isKnownRole`, `isAdminRole`) so middleware role handling remains type-safe while preserving existing route behavior.
   - Removed unsafe casts when resolving `DEFAULT_HOME_BY_ROLE`.
@@ -911,6 +992,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Restricted polymorphic `as` prop to supported text-oriented HTML tags to avoid SVG intrinsic prop incompatibilities in strict TypeScript mode.
 
 ### Users settings module decomposition (`apps/web/components/config/UsersTable.tsx`)
+
 - `apps/web/hooks/use-users-page.ts` (new)
   - Extracted full user-management orchestration for:
     - users/branches/stats loading
@@ -932,6 +1014,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable sections/dialog.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/users note to reflect Pass 20 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -942,6 +1025,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 20 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -950,6 +1034,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 21 (Branches module decomposition)
 
 ### Branch settings module decomposition (`apps/web/components/config/BranchesTable.tsx`)
+
 - `apps/web/hooks/use-branches-page.ts` (new)
   - Extracted branches-page orchestration for:
     - debounced search and pagination state
@@ -971,6 +1056,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable branches sections/dialogs.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/branches note to reflect Pass 21 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -981,6 +1067,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 21 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -989,6 +1076,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 22 (Customer module decomposition)
 
 ### Customer settings/list module decomposition (`apps/web/components/customers/CustomerTable.tsx`)
+
 - `apps/web/hooks/use-customers-page.ts` (new)
   - Extracted customers-page orchestration for:
     - debounced fetch lifecycle
@@ -1005,10 +1093,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable customer list sections.
 
 ### UX consistency updates
+
 - Customer row click now opens customer detail directly, with action buttons preserving explicit view/edit controls.
 - Filter reset button is now disabled unless a non-default filter is active.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated customers page note to reflect Pass 22 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1019,6 +1109,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 22 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1027,6 +1118,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 23 (Garments module decomposition)
 
 ### Garments settings/list module decomposition (`apps/web/components/config/GarmentTypesTable.tsx`)
+
 - `apps/web/hooks/use-garment-types-page.ts` (new)
   - Extracted garments-page orchestration for:
     - debounced search and pagination state
@@ -1044,10 +1136,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable list sections.
 
 ### UX + correctness improvements
+
 - Fixed delete-confirm messaging to use the actual deletion target (`typeToDelete`) so the confirmation text always matches the selected garment.
 - Added filter reset disabling when no filter is active for clearer interaction feedback.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/garments note to reflect Pass 23 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1058,6 +1152,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 23 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1066,6 +1161,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 24 (Measurement categories module decomposition)
 
 ### Measurement settings/list module decomposition (`apps/web/components/config/MeasurementCategoriesTable.tsx`)
+
 - `apps/web/hooks/use-measurement-categories-page.ts` (new)
   - Extracted measurement-categories page orchestration for:
     - debounced search and pagination state
@@ -1082,10 +1178,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable list sections.
 
 ### UX + correctness improvements
+
 - Fixed delete confirmation text source to use the actual delete target (`categoryToDelete`) instead of the currently selected edit item.
 - Added reset button disable behavior when no search filter is active.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/measurements note to reflect Pass 24 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1096,6 +1194,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 24 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1104,6 +1203,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 25 (Measurement detail module decomposition)
 
 ### Measurement detail module decomposition (`apps/web/components/config/MeasurementCategoryDetail.tsx`)
+
 - `apps/web/hooks/use-measurement-category-detail-page.ts` (new)
   - Extracted measurement-category detail orchestration for:
     - category detail loading
@@ -1119,6 +1219,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable detail sections.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/measurements/[id] note to reflect Pass 25 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1131,6 +1232,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 26 (Branch hub module decomposition)
 
 ### Branch hub module decomposition (`apps/web/components/config/BranchHubConfig.tsx`)
+
 - `apps/web/hooks/use-branch-hub-config-page.ts` (new)
   - Extracted branch-hub orchestration for branch loading and error handling.
 - `apps/web/components/config/branches/hub/branch-hub-breadcrumbs.tsx` (new)
@@ -1147,9 +1249,11 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable hub sections.
 
 ### UX consistency updates
+
 - Replaced remaining raw paragraph text in branch hub pricing panel with shared `Typography` primitive for design-system consistency.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/branches/[id] note to reflect Pass 26 backing-module decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1160,6 +1264,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 26 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1168,6 +1273,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 27 (Measurement field dialog decomposition)
 
 ### Measurement field dialog decomposition (`apps/web/components/config/MeasurementFieldDialog.tsx`)
+
 - `apps/web/hooks/use-measurement-field-dialog.ts` (new)
   - Extracted dialog orchestration for:
     - form reset and defaulting for create/edit flows
@@ -1186,10 +1292,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
 
 ### UX consistency updates
+
 - Replaced raw informational paragraph text with shared `Typography` primitives in dialog sections.
 - Preserved inline “add option” UX while moving it into reusable dialog-section composition.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/measurements/[id] note to include Pass 27 dialog decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1200,6 +1308,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 27 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1208,6 +1317,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 28 (Employee dialog consistency decomposition)
 
 ### Employee dialog decomposition (`apps/web/components/employees/EmployeeDialog.tsx`)
+
 - `apps/web/hooks/use-employee-dialog.ts` (new)
   - Extracted employee dialog orchestration for:
     - create/edit form reset behavior
@@ -1223,10 +1333,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
 
 ### Consistency improvements across app patterns
+
 - Standardized employee dialog form controls to shared premium variants (`Input`, `SelectTrigger`, labels) to match other recently modernized dialogs.
 - Replaced ad-hoc section heading markup with shared `Typography` primitive in dialog sections.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated employees page note to include Pass 28 dialog decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1237,6 +1349,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 28 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1245,6 +1358,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 29 (Customer dialog consistency decomposition)
 
 ### Customer dialog decomposition (`apps/web/components/customers/CustomerDialog.tsx`)
+
 - `apps/web/hooks/use-customer-dialog.ts` (new)
   - Extracted customer dialog orchestration for:
     - create/edit form reset behavior
@@ -1260,12 +1374,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
 
 ### Consistency + type-safety follow-ups in touched areas
+
 - `apps/web/hooks/use-order-form-page.ts`
   - Replaced tuple `includes` cast with explicit admin-role type guard for strict typing consistency with middleware role-check pattern.
 - `apps/web/lib/api/payments.ts`
   - Added explicit legacy-payment-history type guard and narrowed normalization return typing for consistent API client contract handling.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated customers page note to include Pass 29 dialog decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1276,6 +1392,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 29 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1284,6 +1401,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 30 (Design-type dialog consistency decomposition)
 
 ### Design-type dialog decomposition (`apps/web/components/design-types/CreateDesignTypeDialog.tsx`)
+
 - `apps/web/hooks/use-design-type-dialog.ts` (new)
   - Extracted design-type dialog orchestration for:
     - create/edit form reset behavior
@@ -1299,11 +1417,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable dialog sections.
 
 ### Consistency improvements across the app
+
 - Migrated design-type dialog to shared `ScrollableDialog` pattern used by other modernized dialogs.
 - Standardized form controls to premium variants and shared form primitives (`FormLabel`, `SelectTrigger`, `Input`) for cross-module visual/behavior consistency.
 - Replaced ad-hoc description markup with shared `Typography` primitive.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated design-types page note to include Pass 30 dialog decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1314,6 +1434,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 30 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1322,6 +1443,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 31 (Task assignment dialog consistency decomposition)
 
 ### Task-assignment dialog decomposition (`apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx`)
+
 - `apps/web/hooks/use-task-assignment-dialog.ts` (new)
   - Extracted task-assignment orchestration for:
     - task sorting
@@ -1335,10 +1457,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Standardized dialog shell to shared `ScrollableDialog` for consistent modal structure.
 
 ### Shared-type consistency improvements
+
 - Switched `employees` prop typing from local inline shape to shared type composition: `Array<Pick<Employee, "id" | "fullName">>`.
 - Kept task/status typing fully canonical through `@tbms/shared-types` and shared status labels from `@tbms/shared-constants`.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated orders detail note to include Pass 31 task-assignment decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1349,6 +1473,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 31 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1357,6 +1482,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 32 (Measurement category dialog consistency decomposition)
 
 ### Measurement category dialog decomposition (`apps/web/components/config/MeasurementCategoryDialog.tsx`)
+
 - `apps/web/hooks/use-measurement-category-dialog.ts` (new)
   - Extracted dialog orchestration for:
     - create/edit form reset behavior
@@ -1369,6 +1495,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Converted to orchestration-only composition using extracted hook + reusable dialog section.
 
 ### Consistency improvements across app patterns
+
 - Standardized measurement category dialog to the same lightweight modern dialog pattern used in recent passes:
   - shared `ScrollableDialog` shell
   - shared `Form` primitives
@@ -1376,6 +1503,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Kept implementation intentionally simple (single hook + single field section) to avoid over-complexity while preserving consistency.
 
 ### Tracking + manifest updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated settings/measurements note to include Pass 32 category-dialog decomposition completion.
 - `docs/refactor-manifest.csv`
@@ -1386,6 +1514,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 32 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1394,6 +1523,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 33 (Reports analytics decomposition + Phase 5 manifest closure)
 
 ### Reports analytics decomposition (`apps/web/components/reports/DesignAnalyticsCharts.tsx`)
+
 - `apps/web/components/reports/reports-design-popularity-card.tsx` (new)
   - Extracted reusable design popularity card section with shared `Typography`/`Label` primitives and progress-bar visualization.
 - `apps/web/components/reports/reports-addon-categories-card.tsx` (new)
@@ -1408,6 +1538,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Applied a lint-gate consistency fix by wiring `totalCount` into `TableToolbar` (`visibleCount`) so the prop is no longer dead and toolbar count semantics stay correct when filters are active.
 
 ### Phase 5 manifest completion (`docs/refactor-manifest.csv`)
+
 - Marked reports analytics files as `DN` with note `Thirty-third modernization pass`.
 - Marked `apps/web/components/orders/my-orders-toolbar.tsx` as `DN` with note `Thirty-third modernization pass` for the lint-driven follow-up.
 - Reviewed and marked thin wrapper pages as `NJ` with explicit reasons:
@@ -1426,6 +1557,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Result: Phase 5 manifest rows are now fully covered as `DN`/`NJ` with `NS=0`.
 
 ### Tracking updates
+
 - `docs/frontend-page-decomposition-tracker.md`
   - Updated reports page note to include Pass 33 insights-chart decomposition completion.
 - `docs/refactor-status.md`
@@ -1435,6 +1567,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 33 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1443,6 +1576,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 34 (Backend payroll disbursement hardening)
 
 ### Payments domain hardening (`apps/api/src/payments/*`)
+
 - `apps/api/src/payments/payments.service.ts`
   - Refactored `disbursePay` to enforce branch-safe behavior and atomic payroll mutation:
     - validates target employee exists and is not soft-deleted
@@ -1457,10 +1591,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Fixed branch context source for disbursement by passing `req.branchId` (BranchGuard-scoped context) instead of `req.user.branchId`.
 
 ### Ledger integration update
+
 - `apps/api/src/ledger/ledger.service.ts`
   - Extended `createEntry` to accept an optional transaction client so payment + ledger writes can be committed atomically in one database transaction.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked backend hardening files as `DN` with note `Thirty-fourth modernization pass`:
   - `apps/api/src/payments/payments.service.ts`
   - `apps/api/src/payments/payments.controller.ts`
@@ -1470,6 +1606,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/payments/payments.module.ts` (`Module wiring remains correct after service/controller hardening`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Thirty-fourth Implementation Pass”.
   - Updated Phase 6 note and refreshed manifest snapshot counts.
@@ -1477,6 +1614,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 34 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1485,6 +1623,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 41 (Backend RBAC explicitness and secure endpoint hardening)
 
 ### Explicit role coverage and guard hardening
+
 - `apps/api/src/common/guards/roles.guard.ts`
   - Changed non-public default from allow to deny when no `@Roles(...)` metadata exists.
   - Result: every protected handler must now declare explicit role policy.
@@ -1494,6 +1633,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `@Roles(...ALL_ROLES)` to authenticated identity endpoints (`POST /auth/logout`, `GET /auth/me`) so policy is explicit instead of implied by guard-only protection.
 
 ### Controller policy completion for previously implicit endpoints
+
 - `apps/api/src/config/config.controller.ts`
   - Added explicit role decorators to previously implicit reads:
     - `GET /config/settings` -> `OPERATOR_ROLES`
@@ -1508,6 +1648,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `GET /design-types/:id` -> `OPERATOR_ROLES`
 
 ### Mail endpoint security tightening
+
 - `apps/api/src/mail/mail.controller.ts`
   - Removed public access for mail integration endpoints by replacing `@Public()` with `@Roles(...SUPER_ADMIN_ONLY_ROLES)`:
     - `GET /mail/auth-url`
@@ -1515,6 +1656,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Existing env gate (`isPublicMailEndpointsEnabled`) remains as a second control, now behind authenticated super-admin authorization.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Regenerated manifest to include newly added tracked files and restore full file-coverage verification.
   - Marked touched files as `DN` with note `Forty-first modernization pass`:
@@ -1526,6 +1668,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/mail/mail.controller.ts`
 
 ### Verification run after edits
+
 - Explicit RBAC scan script (`controller handlers must have @Roles/@Public`) ✅
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
@@ -1534,17 +1677,20 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 42 (RBAC escalation fix in role evaluation)
 
 ### Authorization correctness hardening
+
 - `apps/api/src/common/guards/roles.guard.ts`
   - Replaced role-hierarchy comparison with strict explicit role-membership check (`requiredRoles.includes(user.role)`).
   - Security impact: prevents implicit privilege crossover into disjoint role scopes (for example, `EMPLOYEE_SELF_ROLES` no longer allows admin/operator/viewer access).
   - Maintains current policy model because controller decorators already use shared role-group constants (`ADMIN_ROLES`, `OPERATOR_ROLES`, `DASHBOARD_READ_ROLES`, etc.) to include intended elevated roles explicitly.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Updated touched guard file tracking note to `Forty-second modernization pass`:
     - `apps/api/src/common/guards/roles.guard.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - Explicit RBAC scan script (`controller handlers must have @Roles/@Public`) ✅
 - `npm run refactor:manifest:verify` ✅
@@ -1553,11 +1699,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 43 (Branch-scope enforcement for financial endpoints)
 
 ### Branch guard normalization
+
 - `apps/api/src/common/guards/branch.guard.ts`
   - Normalized `x-branch-id` header parsing for super-admin (`string | string[]` safe handling + trim).
   - Prevents malformed/array header values from leaking downstream as invalid branch scope.
 
 ### Ledger endpoint branch protection completion
+
 - `apps/api/src/ledger/ledger.controller.ts`
   - Added `BranchGuard` so ledger endpoints now receive enforced branch scope.
   - Scoped read endpoints by active/request branch context:
@@ -1574,6 +1722,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Hardened `remove` to scope by branch when provided and return deterministic `NotFoundException` when out-of-scope.
 
 ### Payments endpoint branch protection completion
+
 - `apps/api/src/payments/payments.controller.ts`
   - Passed active/request branch scope into branch-sensitive reads:
     - `GET /payments/employee/:id/summary`
@@ -1590,6 +1739,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated ledger calls to pass branch scope context consistently.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Marked touched files as `DN` with note `Forty-third modernization pass`:
     - `apps/api/src/common/guards/branch.guard.ts`
@@ -1599,6 +1749,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/payments/payments.service.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -1606,6 +1757,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 44 (Design-types branch-scope hardening + compile guardrail fix)
 
 ### Design-types branch policy completion
+
 - `apps/api/src/design-types/design-types.controller.ts`
   - Added `BranchGuard` to design-types routes to enforce active branch context.
   - Scoped `findAll` branch resolution:
@@ -1621,11 +1773,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Preserved super-admin global behavior when no branch scope is selected.
 
 ### Compile guardrail fix discovered during hardening
+
 - `apps/api/src/customers/customers.controller.ts`
   - Fixed method signatures causing TS1016 (`required parameter cannot follow optional parameter`) by replacing optional decorator params with explicit union type (`string | undefined`) in customer list/summary filters.
   - No runtime behavior change; this was a type-level ordering fix to keep API compile gate green.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Marked touched files as `DN` with note `Forty-fourth modernization pass`:
     - `apps/api/src/design-types/design-types.controller.ts`
@@ -1633,6 +1787,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/customers/customers.controller.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -1640,6 +1795,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 45 (Branch-required mutation policy for core branch domains)
 
 ### Explicit branch-scope requirement for mutation endpoints
+
 - `apps/api/src/customers/customers.controller.ts`
   - Added controller-level `requireBranchScope` helper to fail fast when branch context is missing.
   - Applied branch-required guardrail to mutation endpoints:
@@ -1671,6 +1827,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Behavior change: super-admin calls without `x-branch-id` now receive explicit `400` for these branch-bound mutations instead of implicit cross-branch mutation capability.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Marked touched files as `DN` with note `Forty-fifth modernization pass`:
     - `apps/api/src/customers/customers.controller.ts`
@@ -1678,6 +1835,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/orders/orders.controller.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -1685,6 +1843,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 46 (Branch-required mutation policy extension)
 
 ### Extended branch-required mutation enforcement
+
 - `apps/api/src/expenses/expenses.controller.ts`
   - Added controller-level `requireBranchScope` helper for explicit branch context validation.
   - Applied branch-required guardrail to mutation endpoints:
@@ -1703,9 +1862,11 @@ This is the single source of truth for implementation edits and why they were ma
     - `POST /payments` (salary disbursement)
 
 ### Security outcome
+
 - Super-admin mutation calls on these branch-bound APIs now require explicit `x-branch-id` and fail with a clear `400` error when missing, instead of relying on implicit/null branch behavior.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Marked touched files as `DN` with note `Forty-sixth modernization pass`:
     - `apps/api/src/expenses/expenses.controller.ts`
@@ -1713,6 +1874,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/payments/payments.controller.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -1720,6 +1882,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 47 (Attendance mutation branch-scope enforcement)
 
 ### Attendance mutation hardening
+
 - `apps/api/src/attendance/attendance.controller.ts`
   - Added controller-level `requireBranchScope` helper for explicit branch context validation.
   - Applied branch-required guardrail to mutation endpoints:
@@ -1728,11 +1891,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Security outcome: super-admin mutation calls now require `x-branch-id` instead of implicitly deriving attendance branch from employee context.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Marked touched file as `DN` with note `Forty-seventh modernization pass`:
     - `apps/api/src/attendance/attendance.controller.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -1740,6 +1905,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 35 (Backend expenses hardening)
 
 ### Expenses domain hardening (`apps/api/src/expenses/expenses.service.ts`)
+
 - Added strict branch validation for branch-bound mutations:
   - `create` now requires a concrete branch context and fails fast with a clear `x-branch-id` requirement error when missing.
 - Added safer query normalization in `findAll`:
@@ -1753,6 +1919,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Kept response shape backward-compatible (`{ data, meta }` for list endpoints) while making page metadata deterministic from normalized pagination inputs.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked service as `DN` with note `Thirty-fifth modernization pass`:
   - `apps/api/src/expenses/expenses.service.ts`
 - Reviewed and marked unchanged files as `NJ` with explicit reasons:
@@ -1760,6 +1927,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/expenses/expenses.module.ts` (`Module wiring is correct; no structural change needed for this pass`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Thirty-fifth Implementation Pass”.
   - Updated Phase 6 notes and refreshed manifest snapshot counts.
@@ -1767,6 +1935,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 35 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1775,6 +1944,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 36 (Backend rates hardening)
 
 ### Rates domain hardening (`apps/api/src/rates/*`)
+
 - `apps/api/src/rates/rates.controller.ts`
   - Added `BranchGuard` to align rates endpoints with global branch-scoping policy.
   - Switched request typing to `AuthenticatedRequest` and fixed actor identity source from `req.user.id` to `req.user.userId`.
@@ -1791,6 +1961,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced empty file with explicit shared-contract alias export (`CreateRateDto` -> `CreateRateCardInput`) for maintainable DTO intent.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked as `DN` with note `Thirty-sixth modernization pass`:
   - `apps/api/src/rates/rates.controller.ts`
   - `apps/api/src/rates/rates.service.ts`
@@ -1799,6 +1970,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/rates/rates.module.ts` (`Module wiring remains correct after controller/service hardening`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Thirty-sixth Implementation Pass”.
   - Updated Phase 6 notes and refreshed manifest snapshot counts.
@@ -1806,6 +1978,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 36 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1814,6 +1987,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 37 (Backend search hardening)
 
 ### Search domain hardening (`apps/api/src/search/*`)
+
 - `apps/api/src/search/search.service.ts`
   - Added defensive query normalization helpers:
     - minimum query-length guard
@@ -1830,10 +2004,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Kept branch scope source as BranchGuard-injected `req.branchId` and normalized nullable handling.
 
 ### Verification-driven lint cleanup
+
 - `apps/web/components/employees/AccountCreationDialog.tsx`
   - Removed unused `Button` import to satisfy lint gate.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked as `DN` with note `Thirty-seventh modernization pass`:
   - `apps/api/src/search/search.service.ts`
   - `apps/api/src/search/search.controller.ts`
@@ -1843,6 +2019,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/components/ui/form-layout.tsx` (`Shared form-layout primitive reviewed; no additional refactor required in this pass`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Thirty-seventh Implementation Pass”.
   - Updated Phase 6 notes and refreshed manifest snapshot counts.
@@ -1850,6 +2027,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 37 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `./scripts/generate-refactor-manifest.sh` ✅
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
@@ -1859,6 +2037,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 38 (Backend employees consistency + shared-calculation reuse)
 
 ### Employees domain hardening (`apps/api/src/employees/*`)
+
 - `apps/api/src/employees/employees.service.ts`
   - Reused canonical ledger calculation source instead of duplicating earning/payment math:
     - `getStats` now delegates to `ledgerService.getBalance` and maps response to existing employee stats shape (`totalEarned`, `totalPaid`, `balance`, `currentBalance`).
@@ -1872,10 +2051,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Imported `LedgerModule` so employees service can consume shared ledger summary logic instead of maintaining a duplicate calculation path.
 
 ### Shared-contract consistency rationale
+
 - This pass intentionally removed a second independent earnings/balance implementation and aligned employee stats to the same ledger source used by the payments domain.
 - Result: one financial source of truth for employee balance calculations across backend services.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked as `DN` with note `Thirty-eighth modernization pass`:
   - `apps/api/src/employees/employees.service.ts`
   - `apps/api/src/employees/employees.module.ts`
@@ -1883,6 +2064,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/employees/dto/create-employee.dto.ts` (`DTO already uses shared enums and strict validation; no extra change needed`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Thirty-eighth Implementation Pass”.
   - Updated Phase 6 notes and refreshed manifest snapshot counts.
@@ -1890,6 +2072,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 38 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1898,6 +2081,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 39 (Backend users shared-contract cleanup)
 
 ### Users domain hardening (`apps/api/src/users/users.service.ts`)
+
 - Centralized repeated user-service logic into reusable private helpers:
   - `normalizeEmail`
   - `ensureEmailAvailable` (single conflict behavior for create/update/setup)
@@ -1910,12 +2094,14 @@ This is the single source of truth for implementation edits and why they were ma
   - `ADMIN_ROLES` from `@tbms/shared-constants` now drives privileged-user counting, removing local duplicate role lists.
 
 ### Verification-driven lint cleanup (web)
+
 - `apps/web/components/expenses/expense-create-dialog.tsx`
   - Removed unused `Button` import.
 - `apps/web/components/payments/payments-disburse-dialog.tsx`
   - Removed unused `Button` import.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked as `DN` with note `Thirty-ninth modernization pass`:
   - `apps/api/src/users/users.service.ts`
   - `apps/web/components/expenses/expense-create-dialog.tsx`
@@ -1924,6 +2110,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/users/users.module.ts` (`Module wiring remains correct after shared-logic service refactor`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Thirty-ninth Implementation Pass”.
   - Updated Phase 6 notes and refreshed manifest snapshot counts.
@@ -1931,6 +2118,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 39 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1939,11 +2127,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-03 — Pass 40 (Branches + shared order-status constant unification)
 
 ### Shared constants cleanup (`packages/shared-constants/src/orders.ts`)
+
 - Added canonical `OPEN_ORDER_STATUSES` constant for statuses representing active pipeline work:
   - `NEW`, `IN_PROGRESS`, `READY`, `OVERDUE`.
 - Purpose: remove repeated local active-status arrays and ensure one shared source across backend/frontend consumers.
 
 ### Branches domain hardening (`apps/api/src/branches/branches.service.ts`)
+
 - Replaced local inline active-order status list in branch deletion guard with shared `OPEN_ORDER_STATUSES`.
 - Added normalized helper logic to reduce repeated ad-hoc handling:
   - `normalizeCode`
@@ -1957,6 +2147,7 @@ This is the single source of truth for implementation edits and why they were ma
   - code is normalized once and validated through shared conflict helper.
 
 ### Manifest updates (`docs/refactor-manifest.csv`)
+
 - Marked as `DN` with note `Fortieth modernization pass`:
   - `apps/api/src/branches/branches.service.ts`
   - `packages/shared-constants/src/orders.ts`
@@ -1964,6 +2155,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/branches/branches.module.ts` (`Module wiring remains correct after service hardening`)
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Fortieth Implementation Pass”.
   - Updated Phase 3/6 notes and refreshed manifest snapshot counts.
@@ -1971,6 +2163,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Appended this Pass 40 section so every edit remains centralized in one file.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run lint -w web` ✅
 - `./scripts/verify-refactor-manifest.sh` ✅
@@ -1979,12 +2172,14 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 48 (Backend branch-scope helper deduplication)
 
 ### Shared branch-scope utility extraction
+
 - Added `apps/api/src/common/utils/branch-scope.util.ts` as the single reusable source for branch-required mutation validation:
   - `requireBranchScope(req)`
   - canonical error message constant `BRANCH_SCOPE_REQUIRED_MESSAGE`
 - Purpose: remove repeated controller-local implementations and keep branch-scope failure semantics identical everywhere.
 
 ### Controller cleanup (duplicate helper removal)
+
 - Replaced local `private requireBranchScope(...)` methods with shared utility usage in:
   - `apps/api/src/customers/customers.controller.ts`
   - `apps/api/src/employees/employees.controller.ts`
@@ -1996,6 +2191,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Result: one policy implementation, no repeated helper logic, and cleaner controller classes.
 
 ### Nullable branch-scope typing alignment
+
 - Updated `apps/api/src/common/interfaces/request.interface.ts`:
   - `AuthenticatedRequest.branchId` now correctly reflects guard behavior as `string | null`.
 - Updated read-path services/controllers to handle nullable branch context explicitly (instead of relying on implicit runtime behavior):
@@ -2012,6 +2208,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Super-admin no-branch context is handled explicitly and type-safely.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Added new tracked file:
     - `apps/api/src/common/utils/branch-scope.util.ts` (`DN`, `Forty-eighth modernization pass`)
@@ -2034,11 +2231,13 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/design-types/design-types.controller.ts`
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Forty-eighth Implementation Pass”.
   - Updated Phase 2 note and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2046,6 +2245,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 49 (Backend branch-resolution logic centralization)
 
 ### Shared branch-resolution utility
+
 - Added `apps/api/src/common/utils/branch-resolution.util.ts` with reusable branch-scope helpers:
   - `resolveBranchScopeForRead`
   - `resolveBranchScopeForReadOrNull`
@@ -2053,6 +2253,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Purpose: remove repeated super-admin/non-super-admin branch resolution logic and standardize handling of `all` and active branch context.
 
 ### Controller consistency refactor
+
 - `apps/api/src/reports/reports.controller.ts`
   - Replaced local `resolveBranch` method and inline branch-scoping logic with shared utility calls.
   - Preserved existing `branchId=all` behavior for super-admin reads/exports through centralized option handling.
@@ -2066,6 +2267,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced direct `req.branchId ?? null` usage with shared nullable read-scope helper.
 
 ### Consistency outcome
+
 - One canonical implementation now governs:
   - active branch fallback
   - super-admin request-branch override
@@ -2074,6 +2276,7 @@ This is the single source of truth for implementation edits and why they were ma
 - This removes duplicated branching rules and reduces drift risk across controllers.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Added new tracked utility file:
     - `apps/api/src/common/utils/branch-resolution.util.ts` (`DN`, `Forty-ninth modernization pass`)
@@ -2084,6 +2287,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/search/search.controller.ts`
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2091,12 +2295,14 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 50 (Controller query parsing consistency sweep)
 
 ### Shared query parsing utility
+
 - Added `apps/api/src/common/utils/query-parsing.util.ts` with reusable numeric query parsers:
   - `parsePositiveInt(value, defaultValue)`
   - `parseOptionalPositiveInt(value)`
 - Purpose: replace repeated ad-hoc numeric parsing (`Number(...) || ...`, `parseInt(...)`) with one canonical implementation for safer, consistent behavior.
 
 ### Controller consistency refactor
+
 - Replaced repeated page/limit/number query parsing with shared utility usage in:
   - `apps/api/src/attendance/attendance.controller.ts`
   - `apps/api/src/config/config.controller.ts`
@@ -2116,12 +2322,14 @@ This is the single source of truth for implementation edits and why they were ma
   - removed controller-level parsing drift between `Number(...)` and `parseInt(...)` patterns.
 
 ### Verification-driven type stability fixes
+
 - `apps/api/src/customers/customers.service.ts`
   - Reworked `toPrismaMeasurementValues` conversion to avoid mutating `Prisma.InputJsonObject` (readonly index signature), using `Object.fromEntries` with explicit `Prisma.JsonValue` casting.
 - `apps/api/src/orders/receipt.service.tsx`
   - Restored explicit `renderToStream` cast workaround (`element as never`) to keep React PDF typing compatible under current toolchain.
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Added new tracked utility file:
     - `apps/api/src/common/utils/query-parsing.util.ts` (`DN`, `Fiftieth modernization pass`)
@@ -2142,11 +2350,13 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/orders/receipt.service.tsx`
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Fiftieth Implementation Pass”.
   - Updated Phase 8 note and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2154,6 +2364,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 51 (Controller response-envelope consistency sweep)
 
 ### Shared response utility
+
 - Added `apps/api/src/common/utils/response.util.ts` with reusable response envelope helpers:
   - `success(data)`
   - `successOnly()`
@@ -2162,6 +2373,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Purpose: remove repeated inline `return { success: true, ... }` boilerplate and enforce one consistent success-response construction pattern.
 
 ### Controller consistency refactor
+
 - Replaced repeated inline success envelopes with shared helpers in:
   - `apps/api/src/branches/branches.controller.ts`
   - `apps/api/src/attendance/attendance.controller.ts`
@@ -2182,6 +2394,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Response shapes remain backward-compatible (same field names and structure).
 
 ### Manifest/coverage tracking alignment
+
 - `docs/refactor-manifest.csv`
   - Added new tracked utility file:
     - `apps/api/src/common/utils/response.util.ts` (`DN`, `Fifty-first modernization pass`)
@@ -2199,11 +2412,13 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/api/src/reports/reports.controller.ts`
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Fifty-first Implementation Pass”.
   - Updated Phase 8 note and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2211,11 +2426,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 52 (Shared query DTO normalization sweep)
 
 ### Shared query DTO introduction
+
 - Added reusable pagination query DTO:
   - `apps/api/src/common/dto/pagination-query.dto.ts`
 - Purpose: standardize `page`/`limit` query normalization through one validated DTO shape (with transform support) instead of ad-hoc per-handler parsing.
 
 ### Controller adoption
+
 - Switched paginated handlers to consume `PaginationQueryDto` and use normalized numeric values directly (`query.page ?? default`, `query.limit ?? default`) in:
   - `apps/api/src/branches/branches.controller.ts`
   - `apps/api/src/attendance/attendance.controller.ts`
@@ -2231,10 +2448,12 @@ This is the single source of truth for implementation edits and why they were ma
 - Kept existing behavior-compatible defaults in controllers/services while removing manual repeated parsing logic.
 
 ### Cleanup
+
 - Removed unused temporary DTO file:
   - `apps/api/src/common/dto/limit-query.dto.ts`
 
 ### Manifest coverage hardening
+
 - Added missing tracked files discovered during verification:
   - `apps/api/src/common/dto/pagination-query.dto.ts` (`DN`, `Fifty-second modernization pass`)
   - `apps/web/app/(dashboard)/settings/system/page.tsx` (`NS`, unassigned)
@@ -2242,11 +2461,13 @@ This is the single source of truth for implementation edits and why they were ma
 - Updated touched API controller notes to `Fifty-second modernization pass`.
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Fifty-second Implementation Pass”.
   - Updated Phase 8 note and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2254,6 +2475,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 53 (Inline request-body DTO normalization)
 
 ### Task/attendance/mail body-contract hardening
+
 - Replaced inline ad-hoc body parsing with validated DTO contracts:
   - `apps/api/src/tasks/dto/create-task.dto.ts`
     - added `AssignTaskDto` with required `employeeId` validation.
@@ -2270,6 +2492,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/mail/mail.controller.ts`
 
 ### Order item assignment DTO alignment
+
 - Added dedicated DTO for order-item patch operations:
   - `apps/api/src/orders/dto/update-order.dto.ts`
     - added `UpdateOrderItemAssignmentDto` (`status` enum + optional `employeeId`).
@@ -2278,11 +2501,13 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/orders/orders.service.ts`
 
 ### Additional query DTO consistency extension
+
 - Expanded reusable pagination DTO to carry shared query keys used by controller `@Query()` usage:
   - `apps/api/src/common/dto/pagination-query.dto.ts`
 - This keeps global validation/whitelisting safe when `@Query()` DTOs are combined with additional query params in controllers.
 
 ### Manifest coverage hardening
+
 - Added newly introduced backend files to manifest:
   - `apps/api/src/attendance/dto/clock-in.dto.ts` (`DN`, `Fifty-third modernization pass`)
   - `apps/api/src/mail/dto/send-test-mail.dto.ts` (`DN`, `Fifty-third modernization pass`)
@@ -2305,11 +2530,13 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/src/common/dto/pagination-query.dto.ts`
 
 ### Tracking updates
+
 - `docs/refactor-status.md`
   - Updated checkpoint to “After Fifty-third Implementation Pass”.
   - Updated Phase 6/7 notes and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npx tsc -p apps/api/tsconfig.json --noEmit` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2317,6 +2544,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 54 (Backend auth/security and branch-integrity hardening)
 
 ### Auth refresh flow correctness + consistency
+
 - `apps/api/src/auth/auth.service.ts`
   - Re-enabled real refresh-token lifecycle: login now issues refresh token, stores a hashed copy, and refresh endpoint rotates tokens with hash update.
   - Added shared token payload/token issuance helpers to remove duplicated JWT signing logic.
@@ -2332,6 +2560,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `getJwtRefreshExpiresIn()` for explicit refresh-token TTL management (`JWT_REFRESH_EXPIRES_IN`, default `30d`).
 
 ### Public status and global API protection hardening
+
 - `apps/api/src/orders/orders.service.ts`
   - Replaced `Math.random()` share token/PIN generation with cryptographically secure `randomBytes` + `randomInt`.
   - Fixed `removeItem` integrity by validating the item belongs to the target order before soft-delete.
@@ -2339,12 +2568,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Added global `ThrottlerGuard` provider so throttling config is actively enforced at runtime.
 
 ### Branch ownership enforcement hardening
+
 - `apps/api/src/attendance/attendance.service.ts`
   - Enforced active-employee-only clock-in and strict employee-branch ownership validation before creating attendance records.
 - `apps/api/src/tasks/tasks.service.ts`
   - Enforced assignment-only-to-active-employee and same-branch employee validation in task assignment path.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated manifest after verifier detected untracked files, preserving existing statuses/notes and adding new `NS` entries for:
     - `apps/api/src/audit-logs/audit-logs.controller.ts`
@@ -2375,15 +2606,18 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated Phase 1/6/7/8 notes and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 
 ## 2026-03-04 — Pass 76 (Auth stability fix: access-token auto-refresh in NextAuth)
 
 ### Root-cause addressed
+
 - API logs confirmed repeated `jwt expired` from `JwtAuthGuard` while `/api/auth/session` was still valid.
 - Cause: web session lifetime and access token lifetime drift (`session` remained active while API JWT expired), with no automatic refresh path.
 
 ### Web auth refresh implementation
+
 - `apps/web/app/api/auth/[...nextauth]/route.ts`
   - Removed hardcoded access-token expiry assumption.
   - Added JWT `exp` decoding utility and now derives `accessTokenExpires` from the real API-issued token.
@@ -2397,11 +2631,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Increased NextAuth session `maxAge` to 30 days so session wrapper stays stable while access tokens rotate transparently.
 
 ### Shared auth typing alignment
+
 - `apps/web/types/next-auth.d.ts`
   - Added `refreshToken` + `error` fields where needed.
   - Relaxed `next-auth/jwt` field optionality to match pre-sign-in token lifecycle and refresh callback behavior.
 
 ### Verification run after edits
+
 - `npm run lint -w web` ✅
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run build -w web` ⚠️ blocked by offline font fetch (`fonts.googleapis.com` DNS/network in current environment), not by auth code changes.
@@ -2409,14 +2645,17 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 77 (Auth stability hardening: legacy session self-heal + 401 retry recovery)
 
 ### Why this pass
+
 - Logs still showed `jwt expired` bursts because some existing sessions had stale `accessTokenExpires` metadata from earlier logic, and multiple page-load API calls raced before refresh.
 
 ### Session self-heal for old tokens
+
 - `apps/web/app/api/auth/[...nextauth]/route.ts`
   - In `jwt` callback, always reconcile `accessTokenExpires` from real JWT `exp` when `accessToken` exists.
   - This repairs previously-issued NextAuth JWTs that had mismatched long expiry metadata without requiring manual cookie surgery.
 
 ### Client API retry recovery
+
 - `apps/web/lib/api.ts`
   - Added token-expiry parsing and proactive near-expiry refresh check before each request (30s buffer).
   - Added shared refresh lock to prevent parallel refresh storms.
@@ -2427,12 +2666,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Kept branch-header behavior unchanged.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 
 ## 2026-03-04 — Pass 78 (Auth architecture decision and long-term consistency baseline)
 
 ### Documentation baseline (single source auth model)
+
 - `docs/auth-architecture.md` (new)
   - Documented long-term decision:
     - backend is single auth authority
@@ -2444,27 +2685,32 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 79 (Refresh-token contract fix + stale-session flood protection)
 
 ### Root issue observed
+
 - `/api/auth/session` payload showed `error: "MissingRefreshToken"` while API calls failed with `jwt expired`.
 - This indicates refresh flow had no usable refresh token in the web session state.
 
 ### Backend auth contract hardening
+
 - `apps/api/src/auth/auth.controller.ts`
   - Updated `POST /auth/login` response to include `refreshToken` in `data`.
   - Updated `POST /auth/refresh` response to include rotated `refreshToken` in `data`.
   - Cookie behavior remains unchanged; this adds deterministic body contract for server-to-server/BFF consumers.
 
 ### Web NextAuth token source hardening
+
 - `apps/web/app/api/auth/[...nextauth]/route.ts`
   - Login path now reads `refreshToken` from response body first, then falls back to `Set-Cookie` parsing.
   - Refresh path now reads rotated `refreshToken` from response body first, then falls back to `Set-Cookie` parsing.
   - This removes dependency on runtime-specific `set-cookie` header accessibility.
 
 ### Stale-session request storm protection
+
 - `apps/web/lib/api.ts`
   - Added early request guard: if session error is `MissingRefreshToken`, stop API request and force redirect to login.
   - Prevents repeated backend 401 floods from known invalid auth session state.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
@@ -2472,6 +2718,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 80 (Shared auth contract extraction for multi-portal consistency)
 
 ### Shared auth contracts
+
 - `packages/shared-types/src/auth.ts` (new)
   - Added canonical auth payload contracts:
     - `AuthenticatedUserSnapshot`
@@ -2481,6 +2728,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Exported shared auth contracts from package entrypoint.
 
 ### API/Web adoption
+
 - `apps/api/src/auth/auth.controller.ts`
   - Adopted shared auth response contracts via typed `ApiResponse<AuthLoginResponseData>` and `ApiResponse<AuthRefreshResponseData>`.
   - Normalized role casting at response boundary to match shared `Role` enum contract.
@@ -2489,6 +2737,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Keeps refresh-token body-first extraction logic for runtime consistency.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-types` ✅
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run build -w api` ✅
@@ -2497,10 +2746,12 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 81 (Auth-expired redirect loop fix + scope alignment)
 
 ### Issue addressed
+
 - After introducing stale-session protection, login redirect loops were observed (`/login?expired=1` and `/api/auth/session` repeating rapidly).
 - Root cause: session could remain `authenticated` while carrying auth error state, causing dashboard/login guards to bounce.
 
 ### Loop-prevention and invalid-session handling
+
 - `apps/web/hooks/use-login-page.ts`
   - Updated authenticated redirect logic:
     - if `session.error` exists, clear session via `signOut({ redirect: false })`
@@ -2516,12 +2767,14 @@ This is the single source of truth for implementation edits and why they were ma
     - prevent API-request flood + repeated navigation loops.
 
 ### Scope correction per request
+
 - Removed in-progress Google sign-in additions (not requested in this workstream):
   - `apps/api/src/auth/dto/google-login.dto.ts` deleted
   - Removed temporary Google-login endpoint/service logic that had been started.
 - Kept only shared-auth/session consistency work relevant to current issue.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w api` ✅
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
@@ -2530,6 +2783,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 76 (Customers/global search SQL parameter typing fix)
 
 ### Backend search hardening for customer/employee raw queries
+
 - `apps/api/src/search/search.service.ts`
   - Replaced branch-scope SQL pattern:
     - from: `("branchId" = ${branchId} OR ${branchId} IS NULL)`
@@ -2539,15 +2793,18 @@ This is the single source of truth for implementation edits and why they were ma
   - Applied this change across all customer and employee raw-search query branches (prefix, full-text, fallback ILIKE).
 
 ### Why this fixes the reported error
+
 - The previous query shape could leave one prepared-statement parameter only used in `IS NULL` context, which PostgreSQL can treat as untyped (`42P18`, “could not determine data type of parameter ...”) for specific search inputs/paths.
 - Conditional SQL fragments remove the untyped-null placeholder pattern entirely.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 
 ## 2026-03-04 — Pass 75 (Staff Access Directory API pagination/search/filter parity)
 
 ### Backend users query contract hardening
+
 - `apps/api/src/users/dto/user.dto.ts`
   - Added `ListUsersQueryDto` (extends `PaginationQueryDto`) with explicit optional `role` and `branchId`.
 - `apps/api/src/users/users.controller.ts`
@@ -2561,10 +2818,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Added bounded pagination (`limit` capped to `100`) and deterministic `{ data, total, page, limit }` response payload.
 
 ### Shared contract migration for users list filters
+
 - `packages/shared-types/src/users.ts`
   - Added canonical `UserAccountsQueryInput` for cross-app users list querying.
 
 ### Frontend users page parity with orders/customers pattern
+
 - `apps/web/lib/api/users.ts`
   - Migrated `getUsers` from `branchId`-only to canonical query object (`page`, `limit`, `search`, `role`, `branchId`).
 - `apps/web/hooks/use-users-page.ts`
@@ -2582,6 +2841,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Connected page state and total count through toolbar and table components.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w api` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
@@ -2590,6 +2850,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 74 (Login-path fix: web API target + deterministic admin credential reset)
 
 ### Authentication path fix
+
 - `apps/web/.env`
   - Updated local API endpoints used by web/NextAuth server route:
     - `NEXT_PUBLIC_API_URL=http://localhost:3001`
@@ -2602,6 +2863,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated template defaults for local API endpoints to `http://localhost:3001`.
 
 ### Deterministic admin login credential fix
+
 - `apps/api/prisma/seed.ts`
   - Updated super-admin upsert behavior:
     - existing `admin@tbms.com` record is now actively normalized on seed (`name`, `role`, `isActive`, `branchId`, `deletedAt`).
@@ -2609,12 +2871,14 @@ This is the single source of truth for implementation edits and why they were ma
   - This removes stale-password drift when admin user already exists in DB.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run env:verify` ✅
 
 ## 2026-03-04 — Pass 73 (Redis dev-start resilience hardening)
 
 ### Backend runtime hardening
+
 - `apps/api/src/app.module.ts`
   - Added guarded Redis-store initialization in cache module setup.
   - New behavior:
@@ -2623,6 +2887,7 @@ This is the single source of truth for implementation edits and why they were ma
   - This prevents local-dev startup crashes when Redis is not running.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run start:dev -w api` ✅ cache-layer fallback observed
   - Redis unavailable warning emitted from `CacheModule`.
@@ -2632,6 +2897,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 72 (Admin-only default seed mode for end-to-end flow testing)
 
 ### Seed behavior refinement (default to admin-only)
+
 - `apps/api/prisma/seed.ts`
   - Added `SEED_CORE_DATA` toggle and effective core gating logic:
     - `SEED_CORE_DATA=true` seeds settings/catalog templates.
@@ -2649,6 +2915,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added clear seed-mode logs for admin/core/demo behavior.
 
 ### Seed command and env template updates
+
 - `package.json`
   - Added `prisma:seed:core`:
     - `SEED_CORE_DATA=true npm exec -w api prisma db seed`
@@ -2662,11 +2929,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `SEED_CORE_DATA=false` and `SEED_DEMO_DATA=false` defaults for explicitness.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 
 ## 2026-03-04 — Pass 71 (Core-only seed mode for flow testing)
 
 ### Seed behavior hardening (default to non-demo data)
+
 - `apps/api/prisma/seed.ts`
   - Added `SEED_DEMO_DATA` toggle support.
   - Default behavior now seeds only core baseline data:
@@ -2681,6 +2950,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added explicit logs that indicate whether demo transactional data is enabled or skipped.
 
 ### Developer workflow updates
+
 - `package.json`
   - Added `prisma:seed:demo` script:
     - `SEED_DEMO_DATA=true npm exec -w api prisma db seed`
@@ -2690,6 +2960,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `SEED_DEMO_DATA=false` documentation default.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run prisma:seed` ❌ (local runtime DB unreachable at `localhost:5432` in this environment)
   - Confirmed seed mode log before DB connect: `Demo transactional data seeding: disabled`
@@ -2697,12 +2968,14 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 70 (Root Prisma schema-path fix for direct `npx prisma` usage)
 
 ### Developer-experience fix
+
 - `package.json`
   - Added root Prisma CLI mapping:
     - `"prisma": { "schema": "apps/api/prisma/schema.prisma" }`
   - This makes direct root commands like `npx prisma generate` resolve the monorepo schema without requiring `--schema`.
 
 ### Verification run after edits
+
 - `npx prisma generate` ✅
   - Prisma schema resolved from `apps/api/prisma/schema.prisma`.
   - Prisma client generated successfully.
@@ -2710,6 +2983,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Blocked by DB connectivity: datasource points to `localhost:5432/tbms`, but host/port is unreachable in the current environment.
 
 ### Operational note
+
 - Schema creation on a new empty database should be run after database connectivity is available:
   - `npm run prisma:migrate:deploy` (preferred, applies migration history)
   - optional: `npm run prisma:seed` (if seed data is needed)
@@ -2717,6 +2991,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 63 (Controller guard deduplication + policy consistency)
 
 ### Backend guard consistency cleanup
+
 - `apps/api/src/attendance/attendance.controller.ts`
 - `apps/api/src/audit-logs/audit-logs.controller.ts`
 - `apps/api/src/branches/branches.controller.ts`
@@ -2737,15 +3012,18 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed now-unused explicit guard imports from these controllers to reduce policy duplication noise at endpoint layer.
 
 ### Auth controller alignment
+
 - `apps/api/src/auth/auth.controller.ts`
   - Removed redundant method-level `@UseGuards(JwtAuthGuard)` on `POST /auth/logout` and `GET /auth/me` (covered by global JWT guard + role metadata).
   - Kept route-specific `@UseGuards(AuthGuard('jwt-refresh'))` on `POST /auth/refresh` (special strategy requirement).
 
 ### Why this change
+
 - Authorization policy is now easier to audit: controller endpoints declare `@Roles`/`@RequirePermissions`, while shared global guards enforce authentication/role/permission/branch consistently.
 - This reduces repeated decorator/config drift and avoids partial guard changes between controllers.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked/touched entries as `Sixty-third modernization pass` for all updated backend controllers and `auth.controller`.
 - `docs/refactor-status.md`
@@ -2753,6 +3031,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added explicit guard-dedup completion bullet under backend hardening checklist.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -2760,6 +3039,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 64 (Backend security guardrails automation)
 
 ### New backend guardrail script
+
 - `scripts/security-backend-guardrails.sh` (new)
   - Added explicit repository guardrails to fail fast when backend runtime code introduces:
     - unsafe SQL primitives (`$queryRawUnsafe`, `$executeRawUnsafe`, `Prisma.raw(...)`)
@@ -2768,12 +3048,14 @@ This is the single source of truth for implementation edits and why they were ma
     - `dev-only-*` secret placeholder leakage outside `apps/api/src/common/env.ts`
 
 ### Script wiring
+
 - `package.json`
   - Added root script: `security:backend:guardrails`.
 - `apps/api/package.json`
   - Added workspace script: `security:guardrails`.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Updated touched package manifest entries as `Sixty-fourth modernization pass`:
     - `apps/api/package.json`
@@ -2783,6 +3065,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added guardrail verification entries and hardening bullet.
 
 ### Verification run after edits
+
 - `npm run security:backend:guardrails` ✅
 - `npm run security:guardrails -w api` ✅
 - `npm run build -w api` ✅
@@ -2792,6 +3075,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 65 (Env-access centralization + guardrail expansion)
 
 ### Shared env helper expansion
+
 - `apps/api/src/common/env.ts`
   - Added reusable runtime helpers:
     - `isProductionEnvironment()`
@@ -2802,6 +3086,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Included `getServerPort()` in startup env assertion flow.
 
 ### Direct `process.env` usage removal from backend runtime modules
+
 - `apps/api/src/app.module.ts`
   - Replaced direct `process.env.NODE_ENV` and `process.env.REDIS_URL` reads with shared env helpers.
 - `apps/api/src/main.ts`
@@ -2814,10 +3099,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced repeated direct Google env reads with `getGoogleMailEnvironment()` in both status and client init paths.
 
 ### Guardrail expansion
+
 - `scripts/security-backend-guardrails.sh`
   - Added new failing check for direct `process.env` usage outside `apps/api/src/common/env.ts`.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked touched backend files as `Sixty-fifth modernization pass`:
     - `apps/api/src/common/env.ts`
@@ -2833,6 +3120,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated manifest snapshot counts for Phase 7.
 
 ### Verification run after edits
+
 - `npm run security:backend:guardrails` ✅
 - `npm run build -w api` ✅
 - `npm run refactor:manifest:verify` ✅
@@ -2841,6 +3129,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 66 (Monorepo env contract standardization + setup automation)
 
 ### Environment contract and setup automation
+
 - `.env.example`
   - Reworked into explicit monorepo env contract sections (core runtime, DB, cache/proxy, API security, web auth/routing, mail, storage).
   - Added missing production-relevant keys consumed by runtime/contracts:
@@ -2865,6 +3154,7 @@ This is the single source of truth for implementation edits and why they were ma
       - allowed only in `apps/web/lib/env.ts`
 
 ### Script wiring and runtime loading
+
 - `package.json`
   - Added:
     - `env:setup`
@@ -2877,6 +3167,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `start:debug`
 
 ### Web env consistency hardening
+
 - `apps/web/lib/env.ts`
   - Added:
     - `isWebProductionEnvironment()`
@@ -2887,6 +3178,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added startup validation call for `NEXTAUTH_URL` through shared env helper.
 
 ### Documentation updates
+
 - `docs/environment-setup.md` (new)
   - Added canonical monorepo env workflow documentation, ownership matrix, and guardrail rules.
 - `apps/web/README.md`
@@ -2895,6 +3187,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `env:setup` prerequisite note.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked/touched entries as `Sixty-sixth modernization pass`:
     - `package.json`
@@ -2908,6 +3201,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added env setup/verification + runtime loading completion bullets.
 
 ### Verification run after edits
+
 - `npm run env:setup` ✅
 - `npm run env:verify` ✅
 - `npm run security:backend:guardrails` ✅
@@ -2919,6 +3213,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 67 (App-separated env files migration)
 
 ### Requested env layout migration
+
 - Migrated from root-linked env approach to explicit app-separated runtime env files:
   - `apps/web/.env`
   - `apps/web/.env.local`
@@ -2928,6 +3223,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/api/.env.production`
 
 ### Setup/verification script rewrite
+
 - `scripts/setup-env.sh`
   - Replaced link-based setup with file-based setup.
   - Converts existing symlinked env files into regular files.
@@ -2945,6 +3241,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Keeps `process.env` centralization guardrails intact.
 
 ### New app-specific env templates
+
 - `apps/api/.env.example` (new)
 - `apps/api/.env.local.example` (new)
 - `apps/api/.env.production.example` (new)
@@ -2953,6 +3250,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/.env.production.example` (new)
 
 ### Runtime loading and docs alignment
+
 - `apps/api/package.json`
   - Updated env-file mapping:
     - `start` -> `.env`
@@ -2970,6 +3268,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated wording from env links to env files.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Updated `apps/api/package.json` note to `Sixty-seventh modernization pass`.
 - `docs/refactor-status.md`
@@ -2977,6 +3276,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added app-separated env migration completion bullets.
 
 ### Verification run after edits
+
 - `npm run env:setup` ✅
 - `npm run env:verify` ✅
 - `npm run security:backend:guardrails` ✅
@@ -2988,16 +3288,19 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 68 (Root env removal per app-scoped env policy)
 
 ### Requested cleanup
+
 - `.env` (deleted)
   - Removed root runtime env file to enforce app-scoped env ownership only.
 - `.gitignore`
   - Added root `.env` ignore rule to prevent accidental re-addition.
 
 ### Why this change
+
 - Runtime env has been intentionally migrated to app-local files (`apps/web/*` and `apps/api/*`).
 - Keeping root `.env` after migration causes ambiguity and misconfiguration risk.
 
 ### Verification run after edits
+
 - `npm run env:verify` ✅
 - `npm run env:setup` ✅
 - `npm run security:backend:guardrails` ✅
@@ -3007,6 +3310,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 69 (Prisma root-command workflow fix + DB reachability diagnosis)
 
 ### Root Prisma command usability fix
+
 - `package.json`
   - Added monorepo-root Prisma scripts to avoid `schema.prisma not found` errors when running from repo root:
     - `prisma:generate`
@@ -3016,6 +3320,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `prisma:seed`
 
 ### Diagnosis outcome for current local environment
+
 - `npm run prisma:generate` ✅
   - Works correctly from monorepo root through API workspace.
 - `npm run prisma:migrate:status` ❌
@@ -3025,6 +3330,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `pg_isready -h localhost -p 5432` reports `no response`, so migration cannot be applied until DB URL/availability is corrected.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Updated `package.json` note to `Sixty-ninth modernization pass`.
 - `docs/refactor-status.md`
@@ -3034,6 +3340,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 59 (Backend security consistency hardening continuation)
 
 ### Public status endpoint hardening
+
 - `apps/api/src/orders/status.controller.ts`
   - Reworked public status anti-bruteforce flow to avoid trusting raw `x-forwarded-for` parsing and rely on request IP abstraction.
   - Added token-level + token+IP failed-attempt throttling state (both dimensions must now pass).
@@ -3042,11 +3349,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Preserved existing public API shape (`GET /status/:token?pin=XXXX`) while tightening abuse controls.
 
 ### Production cache/throttle safety
+
 - `apps/api/src/app.module.ts`
   - Enforced fail-fast behavior in production when `REDIS_URL` is missing/invalid.
   - Kept in-memory cache fallback only for non-production local/dev usage.
 
 ### Branch-scope financial/history correctness
+
 - `apps/api/src/ledger/ledger.service.ts`
   - Added branch filters to ledger balance, statement, and earnings-by-period calculations when a branch scope is present.
 - `apps/api/src/payments/payments.service.ts`
@@ -3057,6 +3366,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added branch scoping to employee item-history queries.
 
 ### Reusability and duplication cleanup
+
 - `apps/api/src/common/utils/branch-scope.util.ts`
   - Added reusable `requireBranchId(...)` utility.
   - Refactored `requireBranchScope(req)` to delegate to the shared helper.
@@ -3064,6 +3374,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed duplicated local branch-require helper and reused shared `requireBranchId(...)`.
 
 ### Shared email normalization consistency
+
 - `apps/api/src/common/utils/email.util.ts` (new)
   - Added canonical `normalizeEmailAddress(...)` helper.
 - `apps/api/src/users/users.service.ts`
@@ -3074,12 +3385,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Added deleted-user collision handling so account creation returns explicit conflict messaging instead of DB unique-index failure noise.
 
 ### Raw SQL safety cleanup
+
 - `apps/api/src/reports/reports.service.ts`
   - Removed generic column-name SQL interpolation pattern and replaced with enum-backed static SQL fragment mapping.
   - Removed remaining `Prisma.raw(...)` usage in trend/date-condition helpers.
   - Kept query behavior/response shapes unchanged while reducing injection-risk surface.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w @tbms/shared-constants` ✅
 - `npm run build -w api` ✅
@@ -3087,6 +3400,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 60 (Proxy/IP trust hardening + email uniqueness guardrail)
 
 ### Proxy trust hardening
+
 - `apps/api/src/common/env.ts`
   - Added `getTrustProxyConfig()` with strict parsing for `TRUST_PROXY` values (`true/false`, numeric hop count, CSV trusted proxies, or named presets).
   - Enforced explicit `TRUST_PROXY` in production via `assertSecurityEnvironment()`.
@@ -3094,6 +3408,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Wired Express `trust proxy` setting from `getTrustProxyConfig()` before middleware stack to ensure `req.ip` behavior follows explicit deployment policy.
 
 ### Database guardrail for email uniqueness
+
 - `apps/api/prisma/migrations/20260304201500_user_email_case_insensitive_unique/migration.sql` (new)
   - Added migration to enforce case-insensitive uniqueness for user emails with:
     - duplicate-detection precheck
@@ -3101,6 +3416,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Keeps API response contracts unchanged while preventing case-only account duplication at DB layer.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w @tbms/shared-constants` ✅
 - `npm run build -w api` ✅
@@ -3109,11 +3425,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 62 (Security-event logging deduplication + guard observability)
 
 ### Reusable security-event logging utility
+
 - `apps/api/src/common/utils/security-event.util.ts` (new)
   - Added shared `emitSecurityEvent(...)` helper for consistent structured security log emission.
   - Standardizes event payload shape (`event`, `at`, additional metadata) and avoids repeated inline logger JSON formatting.
 
 ### Auth/status/permissions deduplication
+
 - `apps/api/src/auth/auth.service.ts`
   - Replaced local `logSecurityEvent(...)` implementation with shared `emitSecurityEvent(...)`.
 - `apps/api/src/orders/status.controller.ts`
@@ -3122,6 +3440,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced inline security-event logging formatter with shared utility.
 
 ### Guard-level deny observability improvements
+
 - `apps/api/src/common/guards/roles.guard.ts`
   - Added structured deny logs for:
     - missing authorization metadata
@@ -3135,12 +3454,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Added structured auth-failure logs (`jwt_auth_failed`) with request metadata in `handleRequest(...)`.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run refactor:manifest:verify` ✅
 
 ## 2026-03-04 — Pass 60 (Security-first backend hardening implementation)
 
 ### Phase 1 — Immediate security correctness
+
 - `apps/api/src/auth/strategies/jwt.strategy.ts`
   - Switched request principal enrichment to source `role`, `branchId`, `employeeId`, and permission set from current DB user record (not token role/branch claims).
   - Added token payload email consistency check against current DB user email.
@@ -3160,6 +3481,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added early `assertSecurityEnvironment()` call during bootstrap to fail fast on missing security-critical envs.
 
 ### Phase 2 — Public status PIN hardening with backward compatibility
+
 - `apps/api/prisma/schema.prisma`
   - Added `Order.sharePinHash` and `Order.sharePinMigratedAt`.
 - `apps/api/prisma/migrations/20260304170000_security_hardening_auth_status_audit/migration.sql` (new)
@@ -3178,6 +3500,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added structured security-event logging for blocked and invalid status attempts.
 
 ### Phase 3 — Authorization consistency / reuse
+
 - `apps/api/src/tasks/tasks.service.ts`
   - Removed duplicate service-layer permission gate checks for assignment/rate override where controller decorators already enforce capability.
 - `apps/api/src/tasks/tasks.controller.ts`
@@ -3186,6 +3509,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added structured security-event logs on permission-denied decisions for better centralized observability.
 
 ### Phase 4 — Audit completeness + observability
+
 - `apps/api/prisma/schema.prisma`
   - Made `AuditLog.userId` nullable and relation optional.
   - Added `AuditLog.actorEmail` for unknown-actor auth events.
@@ -3203,6 +3527,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added structured security-event logs for failed login and failed refresh conditions.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked/touched entries as `Sixtieth modernization pass`:
     - `apps/api/src/common/env.ts`
@@ -3222,6 +3547,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/web/components/config/audit-logs/audit-logs-page.tsx`
 
 ### Verification run after edits
+
 - `npm run prisma:generate -w api` ✅
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w @tbms/shared-constants` ✅
@@ -3231,6 +3557,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 59 (Audit action coverage and entity mapping completeness)
 
 ### Shared audit contract expansion
+
 - `packages/shared-constants/src/audit.ts`
   - Expanded canonical audit actions to include auth lifecycle coverage:
     - `LOGIN_FAILED`
@@ -3239,6 +3566,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `ExpenseCategory` to canonical audit entities so expense-category mutations are classified explicitly (instead of generic `Expense`/`Unknown`).
 
 ### Backend audit interceptor hardening
+
 - `apps/api/src/common/interceptors/audit.interceptor.ts`
   - Extended action resolver:
     - `POST /auth/logout` -> `LOGOUT`
@@ -3252,12 +3580,14 @@ This is the single source of truth for implementation edits and why they were ma
     - `LOGIN_FAILED` now follows same actor-resolution path as `LOGIN` (existing-user email lookup), improving failed-login event capture for known accounts.
 
 ### Frontend audit UX consistency
+
 - `apps/web/components/config/audit-logs/audit-logs-page.tsx`
   - Added dedicated badge variants/summaries for new auth actions (`TOKEN_REFRESH`, `LOGOUT`, `LOGIN_FAILED`) for clearer audit readability.
 - `apps/web/hooks/use-audit-logs-page.ts`
   - Exported `ALL_FILTER` to align hook exports with consumer imports and keep type-check clean.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked/touched entries as `Fifty-ninth modernization pass`:
     - `apps/api/src/common/interceptors/audit.interceptor.ts`
@@ -3270,6 +3600,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `apps/web/components/auth/with-role-guard.tsx`
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-constants` ✅
 - `npm run build -w api` ✅
 - `npx tsc -p apps/web/tsconfig.json --noEmit` ✅
@@ -3280,11 +3611,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 55 (Order assignment integrity + shared backend validation consistency)
 
 ### Shared employee-scope validation utility
+
 - `apps/api/src/common/utils/employee-scope.util.ts` (new)
   - Added canonical helper `requireEmployeeInScope(...)` for employee existence, branch ownership, and optional active-status enforcement.
   - Added configurable violation messaging and inactive-violation mode (`bad_request` / `forbidden`) so domains can keep behavior-appropriate HTTP semantics while reusing one validation flow.
 
 ### Backend service hardening using shared validator
+
 - `apps/api/src/orders/orders.service.ts`
   - Replaced local employee-branch validation with shared `requireEmployeeInScope`.
   - Hardened order flows to prevent cross-order item updates by validating `itemDto.id` ownership (`orderId`) before update.
@@ -3302,6 +3635,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced duplicated employee scope lookup logic with shared employee-scope helper.
 
 ### Response envelope consistency sweep
+
 - `apps/api/src/users/users.controller.ts`
   - Standardized all responses to shared response helpers (`success`, `successOnly`) instead of ad-hoc inline objects.
 - `apps/api/src/design-types/design-types.controller.ts`
@@ -3310,6 +3644,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Standardized all config endpoints (settings/garment/measurement CRUD and stats/history flows) to shared response helpers.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked/touched entries as `Fifty-fifth modernization pass`:
     - `apps/api/src/common/utils/employee-scope.util.ts`
@@ -3325,6 +3660,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated phase notes for Phase 6/8 and refreshed manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -3332,6 +3668,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 56 (Cross-cutting audit/guard/scheduler hardening)
 
 ### Audit interceptor hardening (security + type safety)
+
 - `apps/api/src/common/interceptors/audit.interceptor.ts`
   - Replaced dynamic unsafe `prisma[model]` lookup (`@ts-ignore` path) with explicit entity-to-model lookup switch.
   - Added strict request typing for interceptor input to reduce unsafe access paths.
@@ -3342,21 +3679,25 @@ This is the single source of truth for implementation edits and why they were ma
   - Added structured audit-write failure logging with context.
 
 ### Guard typing consistency hardening
+
 - `apps/api/src/common/guards/roles.guard.ts`
   - Added typed request contract for role extraction, removing implicit `any` user-role access.
 - `apps/api/src/common/guards/branch.guard.ts`
   - Added typed request contract and safer `x-branch-id` parsing for super-admin branch selection.
 
 ### Audit logs branch-scope parity
+
 - `apps/api/src/audit-logs/audit-logs.controller.ts`
   - Added optional `branchId` query support and normalized scoping through shared `resolveBranchScopeForReadOrNull(...)` (including super-admin `all` behavior), aligning with report/rates branch-resolution style.
 
 ### Scheduler typing cleanup
+
 - `apps/api/src/scheduler/scheduler.service.ts`
   - Replaced ad-hoc inline transaction-client type import with `Prisma.TransactionClient`.
   - Normalized error logging for cron failures to structured stack/message output.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Regenerated manifest after verifier detected additional untracked files, preserving prior statuses and adding new `NS` coverage entries for:
     - `apps/web/components/config/appearance/appearance-stats-grid.tsx`
@@ -3377,6 +3718,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated Phase 2/8 notes and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 - `npm run refactor:manifest:verify` ✅
 - `npm run test -w api -- --runInBand` intentionally not run in this pass (per request to avoid test work)
@@ -3384,6 +3726,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 57 (Shared audit constants + exception/auth guard hardening)
 
 ### Shared audit constants canonicalization
+
 - `packages/shared-constants/src/audit.ts` (new)
   - Added canonical audit constants:
     - `AUDIT_ACTIONS`
@@ -3394,10 +3737,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Exported new audit constants module from shared constants entrypoint.
 
 ### Shared type contract alignment
+
 - `packages/shared-types/src/audit.ts`
   - Added optional `branchId` to `AuditLogsQueryInput` for frontend/backend filter contract parity.
 
 ### Backend audit/security hardening
+
 - `apps/api/src/audit-logs/audit-logs.service.ts`
   - Normalized and whitelisted `action`/`entity` filter inputs using shared constants.
   - Added user-id normalization before query composition.
@@ -3415,10 +3760,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Kept public-route bypass behavior unchanged.
 
 ### Frontend audit filter consistency
+
 - `apps/web/hooks/use-audit-logs-page.ts`
   - Replaced local hardcoded audit action/entity lists with shared constants (`AUDIT_ACTIONS`, `AUDIT_FILTER_ENTITIES`) so UI filter options match backend canonical values.
 
 ### Tracking updates
+
 - `docs/refactor-manifest.csv`
   - Marked/touched entries as `Fifty-seventh modernization pass`:
     - `apps/api/src/common/guards/jwt-auth.guard.ts`
@@ -3434,6 +3781,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated Phase 2/3/5/8 notes and manifest snapshot counts.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-constants` ✅
 - `npm run build -w @tbms/shared-types` ✅
 - `npm run build -w api` ✅
@@ -3443,6 +3791,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 58 (Audit persistence reliability for complete event capture)
 
 ### Backend audit reliability fix
+
 - `apps/api/src/common/interceptors/audit.interceptor.ts`
   - Replaced fire-and-forget audit writes (`void persistAuditLog`) with awaited RxJS flow so request success/failure paths both wait for audit persistence attempt.
   - Added `PersistAuditLogInput` typed payload for consistent audit write arguments.
@@ -3450,15 +3799,18 @@ This is the single source of truth for implementation edits and why they were ma
   - Kept existing success/error audit capture behavior and sensitive-field redaction intact.
 
 ### Why this change
+
 - Audit writes were previously asynchronous side effects in `tap/catchError`, which could make logs appear missing or delayed under rapid client refresh/load.
 - Persisting within the request observable flow improves deterministic save behavior for mutation events.
 
 ### Verification run after edits
+
 - `npm run build -w api` ✅
 
 ## 2026-03-04 — Pass 82 (Comprehensive auth hardening + redirect-loop elimination)
 
 ### Web auth/session robustness
+
 - `apps/web/app/api/auth/[...nextauth]/route.ts`
   - Hardened refresh failure handling:
     - on missing/failed refresh, clears `accessToken` and expiry metadata (prevents stale-expired token reuse).
@@ -3485,11 +3837,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Disabled `SessionProvider` focus/offline refetch behavior to reduce noisy/redundant `/api/auth/session` churn during normal usage/devtools focus shifts.
 
 ### Backend auth refresh hardening
+
 - `apps/api/src/auth/auth.service.ts`
   - Tightened refresh path: inactive users can no longer refresh tokens (`user.isActive` required).
   - Added explicit security-event reason mapping for not-found/inactive/missing-refresh-token states.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run build -w api` ✅
@@ -3497,6 +3851,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 83 (Auth lifecycle stabilization + expiry-loop fix)
 
 ### Backend auth refresh stabilization
+
 - `apps/api/src/auth/auth.service.ts`
   - Removed per-refresh refresh-token rotation to eliminate concurrent refresh race invalidation.
   - Refresh flow now:
@@ -3506,11 +3861,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Login flow still issues and stores hashed refresh token at session start.
 
 ### Backend auth logging signal cleanup
+
 - `apps/api/src/common/filters/all-exceptions.filter.ts`
   - Changed non-5xx exception logging from `error` stack traces to `warn` messages.
   - Keeps 5xx as full error logs, reducing noise from expected auth 401 events while preserving security-event logs.
 
 ### Web auth/session invalid-state hardening
+
 - `apps/web/app/api/auth/[...nextauth]/route.ts`
   - Replaced invalid-role throw path with deterministic invalid-session state (`InvalidSessionRole`), clearing token auth fields.
   - Added strict guards for missing refresh/access tokens:
@@ -3536,6 +3893,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Protected routes now also require token `accessToken` presence (in addition to token existence and no token error).
 
 ### Local env alignment for auth correctness
+
 - `apps/web/.env`
 - `apps/web/.env.local`
   - Corrected `NEXTAUTH_URL` to `http://localhost:3000` (web origin).
@@ -3546,6 +3904,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `JWT_EXPIRES_IN=15m`
 
 ### Architecture notes updated
+
 - `docs/auth-architecture.md`
   - Updated to match implemented strategy:
     - backend remains auth authority
@@ -3553,6 +3912,7 @@ This is the single source of truth for implementation edits and why they were ma
     - avoids concurrent refresh self-revocation in NextAuth multi-request scenarios.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run build -w web` ⚠️ blocked in current environment by offline Google Fonts fetch (`fonts.googleapis.com` DNS), not by auth code
@@ -3564,10 +3924,12 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 84 (API env loading consistency for mail/auth config)
 
 ### Problem addressed
+
 - Mail status endpoint reported all Google configuration flags as `false` even when values existed in `apps/api/.env`.
 - Root cause: dev runtime was started with only `--env-file .env.local`, where Google values were empty.
 
 ### Fix implemented
+
 - `apps/api/package.json`
   - Updated dev/debug start scripts to load env files in layered order:
     - base: `.env`
@@ -3582,11 +3944,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Added inline note: define `GOOGLE_*` in `.env.local` only when intentionally overriding.
 
 ### Verification run after edits
+
 - `npm run start:dev -w api -- --help` ✅ (confirmed multi `--env-file` parsing and script validity)
 
 ## 2026-03-04 — Pass 85 (Theme Token V2 migration foundation)
 
 ### Phase 0 baseline + tracking controls
+
 - `docs/theme-token-migration.csv` (new)
   - Added full migration inventory for Theme Token V2 scope.
   - Columns: `path,module,phase,status,notes`.
@@ -3606,6 +3970,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added phase ledger and current rollout snapshot.
 
 ### Phase 1 shared contract upgrade
+
 - `packages/shared-theme/src/theme-presets.ts`
   - Replaced legacy palette with canonical `ThemePaletteV2` field contract.
   - Fixed `ThemePreset.id` typing from `any` to `ThemePresetId`.
@@ -3618,6 +3983,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Marked as `NJ` in migration manifest (no code change needed; canonical re-export remains correct).
 
 ### Phase 2/3 token surface and compatibility layer
+
 - `apps/web/lib/theme-css.ts`
   - Migrated generator input type to `ThemePaletteV2`.
   - Added CSS variable output for full V2 token set:
@@ -3635,6 +4001,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `bg-app-bar`, `bg-sidebar-surface`, `bg-surface-elevated`, `code-surface`, `scrollbar-theme`.
 
 ### Phase 4 shell migration (in progress)
+
 - `apps/web/app/(dashboard)/layout.tsx`
   - Applied tokenized shell classes (`surface`, `text-secondary`, `scrollbar-theme`) for consistent app shell behavior.
 - `apps/web/app/login/page.tsx`
@@ -3656,6 +4023,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Marked as `NJ` in migration manifest because it delegates shell/layout rendering to `AuthStateCard` (already migrated).
 
 ### Phase 5 primitive migration (in progress)
+
 - Updated core UI primitives to consume semantic tokens consistently:
   - `apps/web/components/ui/button.tsx`
   - `apps/web/components/ui/badge.tsx`
@@ -3676,6 +4044,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Result: removed overloaded generic muted/accent usage across these primitives and replaced with explicit semantic layout/form/interaction/semantic-muted tokens.
 
 ### Phase 7 guardrails bootstrap
+
 - `scripts/audit-theme-usage.mjs` (new)
   - Added non-tokenized color audit for app/component code paths to detect raw color usage patterns.
 - `package.json`
@@ -3684,12 +4053,14 @@ This is the single source of truth for implementation edits and why they were ma
     - `theme:usage:audit`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Marked this pass completed files as `DN` for Phases 4 and 5 with explicit migration notes.
 - `docs/theme-token-migration-status.md`
   - Updated phase ledger and completion snapshot.
 
 ### Verification run after edits
+
 - `npm run build -w @tbms/shared-theme` ✅
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
@@ -3700,6 +4071,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 86 (Theme Token V2 Phase 5 completion + Phase 6 Wave 1)
 
 ### Phase 5 primitive migration completed
+
 - Migrated remaining token-bearing UI primitives:
   - `apps/web/components/ui/avatar.tsx`
   - `apps/web/components/ui/chart-empty-state.tsx`
@@ -3725,6 +4097,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/components/ui/toaster.tsx`
 
 ### Phase 6 domain migration wave 1 (dashboard/orders/reports route orchestrators)
+
 - Updated route-level semantic token usage in:
   - `apps/web/app/(dashboard)/page.tsx`
   - `apps/web/app/(dashboard)/orders/page.tsx`
@@ -3734,6 +4107,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Changes include replacing broad card/muted/background usages with semantic surface/divider/input/interaction/error-muted/info-muted/warning-muted token classes.
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated Phase 5 to fully complete (`33 DN`, `4 NJ`).
   - Marked Phase 6 Wave 1 files as `DN`.
@@ -3741,6 +4115,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated phase ledger and coverage snapshot.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -3749,6 +4124,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-04 — Pass 87 (Theme Token V2 Phase 6 Wave 1 component sweep)
 
 ### Scope completed in this pass
+
 - Migrated token usage from broad legacy classes to semantic V2 tokens in wave-1 domain components (dashboard/payments/reports + related order list/task tables).
 - Standardized classes toward:
   - `bg-surface` / `bg-surface-elevated`
@@ -3758,6 +4134,7 @@ This is the single source of truth for implementation edits and why they were ma
   - semantic muted tracks (`bg-pending-muted`) and semantic alert surfaces (`bg-error-muted`, `bg-success-muted`).
 
 ### Files updated
+
 - `apps/web/components/dashboard/dashboard-design-popularity-card.tsx`
 - `apps/web/components/dashboard/dashboard-garment-breakdown-card.tsx`
 - `apps/web/components/dashboard/dashboard-kpi-card.tsx`
@@ -3784,12 +4161,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/orders/task-assignment/task-assignment-table.tsx`
 
 ### Migration tracker updates
+
 - `docs/theme-token-migration.csv`
   - Marked above files as `DN` in Phase 6 with note: `Phase 6 domain token migration wave 1 component sweep`.
 - `docs/theme-token-migration-status.md`
   - Updated phase 6 note and coverage snapshot to current manifest state (`DN=74`, `NS=173`, `NJ=6`).
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -3798,6 +4177,7 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 88 (Theme Token V2 Phase 6 Orders detail/form sweep)
 
 ### Scope completed in this pass
+
 - Continued Phase 6 domain migration for the Orders module by converting local component styles from broad legacy classes to semantic V2 tokens.
 - Standardized this batch to:
   - `bg-surface` / `bg-surface-elevated`
@@ -3807,6 +4187,7 @@ This is the single source of truth for implementation edits and why they were ma
   - semantic info/success/error muted surfaces where appropriate.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/orders/order-customer-insight-card.tsx`
 - `apps/web/components/orders/order-detail-header-card.tsx`
 - `apps/web/components/orders/order-financial-summary-card.tsx`
@@ -3821,6 +4202,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/orders/order-timeline-card.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/components/orders/my-orders-toolbar.tsx`
   - No direct color semantics; fully delegates styling to tokenized table primitives.
 - `apps/web/components/orders/orders-list-toolbar.tsx`
@@ -3829,12 +4211,14 @@ This is the single source of truth for implementation edits and why they were ma
   - Structural loading layout; color semantics delegated to tokenized `Card` and `Skeleton` primitives.
 
 ### Migration tracker updates
+
 - `docs/theme-token-migration.csv`
   - Updated above files to `DN`/`NJ` for Phase 6 with explicit notes.
 - `docs/theme-token-migration-status.md`
   - Updated phase note and coverage snapshot.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `86`
 - `NS`: `158`
@@ -3842,6 +4226,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=41`, `NS=156`, `NJ=3`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -3850,11 +4235,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 89 (Theme Token V2 Phase 6 Customers sweep)
 
 ### Scope completed in this pass
+
 - Completed the Customers domain migration sweep for Phase 6.
 - Replaced broad token usage with semantic V2 tokens in customer list/detail/profile/measurement UI.
 - Marked wrapper/structural files as `NJ` where no direct color semantics existed.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/customers/CustomerTable.tsx`
 - `apps/web/components/customers/MeasurementForm.tsx`
 - `apps/web/components/customers/detail/customer-detail-breadcrumb.tsx`
@@ -3866,6 +4253,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/customers/list/customers-directory-table.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/customers/[id]/page.tsx`
 - `apps/web/app/(dashboard)/customers/page.tsx`
 - `apps/web/components/customers/CustomerDialog.tsx`
@@ -3879,12 +4267,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/customers/list/customers-page-header.tsx`
 
 ### Migration tracker updates
+
 - `docs/theme-token-migration.csv`
   - Updated all customer domain rows to `DN`/`NJ` with explicit notes.
 - `docs/theme-token-migration-status.md`
   - Updated phase note and coverage snapshot.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `95`
 - `NS`: `138`
@@ -3892,6 +4282,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=50`, `NS=136`, `NJ=14`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -3900,11 +4291,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 90 (Theme Token V2 Phase 6 Employees sweep)
 
 ### Scope completed in this pass
+
 - Completed the Employees domain migration sweep for Phase 6.
 - Replaced remaining broad token classes in employee detail/list/contact surfaces with semantic V2 tokens.
 - Marked orchestrator/wrapper-only employee files as `NJ` where styles are delegated to shared primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/app/(dashboard)/employees/page.tsx`
 - `apps/web/components/employees/AccountCreationDialog.tsx`
 - `apps/web/components/employees/detail/employee-detail-breadcrumb.tsx`
@@ -3916,6 +4309,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/employees/list/employees-list-table.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/employees/[id]/page.tsx`
 - `apps/web/components/employees/EmployeeDialog.tsx`
 - `apps/web/components/employees/detail/employee-detail-skeleton.tsx`
@@ -3926,12 +4320,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/employees/list/employees-list-toolbar.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated all employee rows in Phase 6 to `DN`/`NJ` with explicit notes.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `104`
 - `NS`: `121`
@@ -3939,6 +4335,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=59`, `NS=119`, `NJ=22`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -3947,26 +4344,31 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 91 (Theme Token V2 Phase 6 Expenses sweep)
 
 ### Scope completed in this pass
+
 - Completed the Expenses domain migration sweep for Phase 6.
 - Replaced remaining broad token classes in expense dialogs/tables with semantic V2 tokens.
 - Marked filters/overview components as `NJ` where styling already delegates to shared tokenized primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/app/(dashboard)/expenses/page.tsx`
 - `apps/web/components/expenses/expense-create-dialog.tsx`
 - `apps/web/components/expenses/expenses-table.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/components/expenses/expenses-filters-card.tsx`
 - `apps/web/components/expenses/expenses-overview-cards.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated all expenses rows to `DN`/`NJ` with explicit notes.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass section.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `107`
 - `NS`: `116`
@@ -3976,28 +4378,33 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 92 (Theme Token V2 Phase 6 Users settings sweep)
 
 ### Scope completed in this pass
+
 - Completed the Settings Users subdomain migration for Phase 6.
 - Replaced remaining broad token usage in the users access directory with semantic V2 tokens.
 - Marked route/header/stats wrappers as `NJ` where visuals are delegated to shared primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/config/UsersTable.tsx`
 - `apps/web/components/config/users/user-account-dialog.tsx`
 - `apps/web/components/config/users/users-access-table.tsx`
 - `apps/web/components/config/users/users-list-toolbar.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/settings/users/page.tsx`
 - `apps/web/components/config/users/users-page-header.tsx`
 - `apps/web/components/config/users/users-stats-grid.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated settings users rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `111`
 - `NS`: `109`
@@ -4005,6 +4412,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=66`, `NS=107`, `NJ=27`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4013,11 +4421,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 93 (Theme Token V2 Phase 6 Branches sweep)
 
 ### Scope completed in this pass
+
 - Completed the Settings Branches subdomain migration for Phase 6.
 - Replaced broad token usage in branch directory, branch hub cards, and destructive summaries with semantic V2 tokens.
 - Marked route/orchestrator/stat/skeleton wrappers as `NJ` where visuals are delegated to shared primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/config/BranchesTable.tsx`
 - `apps/web/components/config/branches/branch-delete-summary.tsx`
 - `apps/web/components/config/branches/branch-form-dialog.tsx`
@@ -4028,6 +4438,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/branches/hub/branch-hub-overview-header.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/settings/branches/page.tsx`
 - `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx`
 - `apps/web/components/config/BranchHubConfig.tsx`
@@ -4037,12 +4448,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/branches/hub/branch-hub-skeleton.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated settings branches rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `119`
 - `NS`: `94`
@@ -4050,6 +4463,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=74`, `NS=92`, `NJ=34`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4058,11 +4472,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 94 (Theme Token V2 Phase 6 Platform settings sweep)
 
 ### Scope completed in this pass
+
 - Completed the platform settings domain sweep for appearance, attendance, audit logs, integrations, and system settings.
 - Replaced broad legacy token usage in settings cards/tables/panels with semantic V2 tokens.
 - Marked route wrappers and stat/orchestrator components as `NJ` where they delegate all visuals to shared primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/config/appearance/appearance-mode-card.tsx`
 - `apps/web/components/config/appearance/appearance-preset-directory.tsx`
 - `apps/web/components/config/attendance/attendance-settings-page.tsx`
@@ -4072,6 +4488,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/system/system-settings-workflow-card.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/settings/appearance/page.tsx`
 - `apps/web/app/(dashboard)/settings/attendance/page.tsx`
 - `apps/web/app/(dashboard)/settings/audit-logs/page.tsx`
@@ -4083,12 +4500,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/system/system-settings-stats-grid.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated platform settings rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `126`
 - `NS`: `78`
@@ -4096,6 +4515,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=81`, `NS=76`, `NJ=43`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4104,14 +4524,17 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 95 (Theme Token V2 Phase 6 Design Types sweep)
 
 ### Scope completed in this pass
+
 - Completed the Design Types settings subdomain sweep for Phase 6.
 - Migrated the remaining token-drift in the design types directory table to semantic V2 tokens.
 - Marked all route/dialog/header/stats orchestration files as `NJ` where they already relied on shared tokenized primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/design-types/design-types-table.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/settings/design-types/page.tsx`
 - `apps/web/components/design-types/CreateDesignTypeDialog.tsx`
 - `apps/web/components/design-types/design-types-page-header.tsx`
@@ -4121,12 +4544,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/design-types/dialog/design-type-dialog-sort-field.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated design types rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `127`
 - `NS`: `70`
@@ -4134,6 +4559,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=82`, `NS=68`, `NJ=50`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4142,28 +4568,33 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 96 (Theme Token V2 Phase 6 Rates sweep)
 
 ### Scope completed in this pass
+
 - Completed the Rates settings subdomain sweep for Phase 6.
 - Replaced remaining broad token usage in rates list/table/dialog with semantic V2 tokens.
 - Marked rates header/search/stats components as `NJ` where visuals are already delegated to shared primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/app/(dashboard)/settings/rates/page.tsx`
 - `apps/web/components/rates/CreateRateDialog.tsx`
 - `apps/web/components/rates/RatesList.tsx`
 - `apps/web/components/rates/rates-table.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/components/rates/rates-page-header.tsx`
 - `apps/web/components/rates/rates-search-stats.tsx`
 - `apps/web/components/rates/rates-stats-grid.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated rates rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `131`
 - `NS`: `63`
@@ -4171,6 +4602,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=86`, `NS=61`, `NJ=53`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4179,11 +4611,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 97 (Theme Token V2 Phase 6 Garments + Measurements + Expense Categories sweep)
 
 ### Scope completed in this pass
+
 - Completed the largest remaining settings-domain sweep for garments, measurements, and expense categories.
 - Migrated legacy broad token usage (`foreground/muted/card/background/border`) to semantic V2 tokens across detail/list/dialog surfaces.
 - Marked route wrappers, stat cards, and form shell components as `NJ` where visual semantics are delegated to shared tokenized primitives.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/config/GarmentPriceHistoryDialog.tsx`
 - `apps/web/components/config/GarmentTypeDialog.tsx`
 - `apps/web/components/config/GarmentWorkflowStepsDialog.tsx`
@@ -4205,6 +4639,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/measurements/list/measurement-categories-inventory-table.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/settings/expense-categories/page.tsx`
 - `apps/web/app/(dashboard)/settings/garments/page.tsx`
 - `apps/web/app/(dashboard)/settings/garments/[id]/page.tsx`
@@ -4229,12 +4664,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/measurements/list/measurement-categories-stats-grid.tsx`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated garments/measurements/expense-category rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase note, coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `150`
 - `NS`: `22`
@@ -4242,6 +4679,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=105`, `NS=20`, `NJ=75`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4250,11 +4688,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 98 (Theme Token V2 Final NS closure sweep)
 
 ### Scope completed in this pass
+
 - Completed the last unreviewed (`NS`) files in the theme migration manifest.
 - Migrated remaining token drift in auth/search/status components to semantic V2 tokens.
 - Closed all remaining manifest rows as `DN` or `NJ`, including phase-2 helper/re-export files.
 
 ### Files migrated (`DN`)
+
 - `apps/web/components/auth/login-form-panel.tsx`
 - `apps/web/components/layout/BranchSelector.tsx`
 - `apps/web/components/layout/GlobalSearchCommand.tsx`
@@ -4262,6 +4702,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/status/status-pin-gate-card.tsx`
 
 ### Files reviewed as no-change justified (`NJ`)
+
 - `apps/web/app/(dashboard)/my-orders/page.tsx`
 - `apps/web/app/(dashboard)/orders/[id]/TaskAssignmentDialog.tsx`
 - `apps/web/app/(dashboard)/payments/page.tsx`
@@ -4281,12 +4722,14 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/lib/theme-presets.ts`
 
 ### Tracking updates
+
 - `docs/theme-token-migration.csv`
   - Updated final `NS` rows to `DN`/`NJ` with explicit reasons.
 - `docs/theme-token-migration-status.md`
   - Updated phase ledger (`Phase 2` and `Phase 6` to `DN`), coverage snapshot, and latest-pass list.
 
 ### Snapshot after this pass
+
 - Total scoped files: `253`
 - `DN`: `155`
 - `NS`: `0`
@@ -4294,6 +4737,7 @@ This is the single source of truth for implementation edits and why they were ma
 - Phase 6 breakdown: `DN=110`, `NS=0`, `NJ=90`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4302,10 +4746,12 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 99 (Component-first theme consistency refactor)
 
 ### Why this pass
+
 - Repeated theme classes were being passed at callsites (`Card` / `TableSurface`) instead of being owned by shared UI primitives.
 - Standardized design should be controlled from component variants, not per-page class duplication.
 
 ### Primitive-level centralization
+
 - `apps/web/components/ui/card.tsx`
   - Made divider/surface shell the canonical base.
   - Added reusable semantic variants:
@@ -4319,6 +4765,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed need for repeated table border/background classes at usage sites.
 
 ### App-wide callsite cleanup
+
 - Removed duplicated `TableSurface` style props in all usages (`className="border-divider bg-surface"` removed globally).
 - Replaced repeated `Card` class bundles with variants across domain/shell pages.
 - Current centralized usage footprint:
@@ -4326,6 +4773,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `TableSurface` now has clean default usage everywhere, with one explicit `variant="flat"` callsite for task-assignment table.
 
 ### Representative migrated callsites
+
 - `apps/web/components/employees/detail/employee-detail-tabs.tsx` (`shellFlat`, `successSoft`)
 - `apps/web/components/reports/reports-export-grid.tsx` (`shellFlat`)
 - `apps/web/components/customers/detail/customer-measurements-tab.tsx` (`shell`)
@@ -4335,6 +4783,7 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/orders/order-form-summary-card.tsx` (moved from class override to canonical `Card`)
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4343,9 +4792,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 100 (Full shared-component consistency sweep)
 
 ### Goal
+
 - Move remaining design-token styling out of page/component callsites and into shared UI primitives for consistent, component-first theming.
 
 ### Shared primitive upgrades
+
 - `apps/web/components/ui/button.tsx`
   - Added variants to remove per-callsite theme classes:
     - `tablePrimary`, `tableSuccess`, `infoGhost`, `outlinePrimary`, `outlineDashed`, `sidebarIcon`, `sidebarIconMuted`
@@ -4368,6 +4819,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `readOnlyCode`, `premiumSuccess`
 
 ### Callsite refactors (component-first)
+
 - Replaced repeated `Card` surface/border/shadow class bundles with variants in domain modules.
 - Replaced repeated `TableSurface` border/background class bundles with default variant usage.
 - Updated button usages to new variants in:
@@ -4388,11 +4840,13 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/components/orders/order-form-summary-card.tsx`
 
 ### Audit results after this pass
+
 - No remaining `Card/CardHeader/CardContent/CardFooter` callsites with `bg-*`, `border-*`, `shadow-*` classes.
 - No remaining `TableSurface` callsites with `bg-*`, `border-*`, `shadow-*` classes.
 - No remaining `Button`/`Input`/`SelectTrigger`/`TabsList`/`TabsTrigger` callsites with `bg-*`, `border-*`, `shadow-*` classes.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4401,9 +4855,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 101 (InfoTile Primitive + App-wide Tile Consistency Sweep)
 
 ### Goal
+
 - Remove remaining repeated `border/bg/padding` tile classes from page-level callsites and centralize them in one shared UI primitive.
 
 ### New reusable primitive
+
 - `apps/web/components/ui/info-tile.tsx` (`DN`)
   - Added canonical `InfoTile` component for semantic tile surfaces.
   - Added exported `infoTileVariants` helper for non-`div` elements (`button`, `a`, `Link`) that need the same semantic tile styling.
@@ -4415,6 +4871,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `radius`: `lg`, `xl`
 
 ### Component-first migration coverage (this pass)
+
 - Orders:
   - `apps/web/components/orders/order-customer-insight-card.tsx`
   - `apps/web/components/orders/order-form-customer-card.tsx`
@@ -4457,6 +4914,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/components/payments/payments-employee-selector-card.tsx`
 
 ### Migration manifest updates
+
 - `docs/theme-token-migration.csv`
   - Added missing scoped primitive rows:
     - `apps/web/components/ui/info-tile.tsx` (`DN`)
@@ -4464,12 +4922,14 @@ This is the single source of truth for implementation edits and why they were ma
   - This fixed `theme:migration:verify` coverage failure.
 
 ### Consistency audit result after this pass
+
 - App callsites now have no remaining direct `border-divider + bg-surface-elevated` tile bundles outside shared UI primitives.
 - Remaining matches are intentionally inside shared primitives only:
   - `apps/web/components/ui/data-table.tsx`
   - `apps/web/components/ui/empty-state.tsx`
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4478,9 +4938,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 102 (SectionIcon Primitive + Header/Icon Shell Centralization)
 
 ### Goal
+
 - Eliminate the repeated header/icon container class bundles (`bg-sidebar-active`, `bg-primary/10`, ring styles, rounded sizes) and centralize them in a single reusable primitive.
 
 ### New reusable primitive
+
 - `apps/web/components/ui/section-icon.tsx` (`DN`)
   - Added `SectionIcon` with semantic variants:
     - `tone`: `sidebar`, `primary`, `info`, `infoSoft`, `warningSoft`, `errorSoft`
@@ -4489,10 +4951,12 @@ This is the single source of truth for implementation edits and why they were ma
   - This replaces repeated inline icon-shell wrappers across pages and components.
 
 ### Primitive extensions in this pass
+
 - `apps/web/components/ui/info-tile.tsx`
   - Added `tone="inputSurface"` for workflow-step and form-side info tiles.
 
 ### Migration coverage (callsites)
+
 - UI shell:
   - `apps/web/components/ui/chart-shell.tsx`
 - Orders flow:
@@ -4528,11 +4992,13 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/components/config/garments/detail/garment-rates-section.tsx`
 
 ### Migration manifest updates
+
 - `docs/theme-token-migration.csv`
   - Added coverage row for:
     - `apps/web/components/ui/section-icon.tsx` (`DN`)
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4541,9 +5007,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 103 (Residual Drift Cleanup + Shared Variant Reuse)
 
 ### Goal
+
 - Remove remaining feature-level style drift that was still bypassing shared variants after Pass 102.
 
 ### Changes completed
+
 - Replaced ad-hoc dashed add-option button with shared button variant:
   - `apps/web/components/config/measurements/detail/measurement-field-dialog-dropdown-options.tsx`
   - Migrated to `Button variant="outlineDashed"` (removed raw dashed/hover color classes)
@@ -4555,6 +5023,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced `bg-sidebar-active` entry with semantic primary tint
 
 ### Residual scope status
+
 - Remaining `bg-sidebar-active` usage is now intentionally constrained to:
   - Shell/navigation primitives (`Sidebar`, `Topbar`)
   - Shared UI primitives (`avatar`, `button`, `badge`, `table`, `skeleton`, `empty/chart-empty`, etc.)
@@ -4562,6 +5031,7 @@ This is the single source of truth for implementation edits and why they were ma
 - No remaining repeated icon-shell or tile-shell class bundles in feature callsites outside shared primitives.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4570,9 +5040,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 104 (Feature Wrapper Drift Elimination + Primitive Variant Expansion)
 
 ### Goal
+
 - Remove remaining feature-level wrappers that still hardcoded shared visual bundles (`rounded + border + bg + shadow`) and route them through reusable UI primitives.
 
 ### Shared primitive updates
+
 - `apps/web/components/ui/info-tile.tsx`
   - Added semantic tones:
     - `info`
@@ -4589,6 +5061,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `tone="timelinePrimary"` for timeline marker/icon shells.
 
 ### Feature/component migrations in this pass
+
 - `apps/web/components/status/status-pin-gate-card.tsx`
   - Replaced raw outer shell with `Card variant="premium"` + `CardContent`.
   - Replaced logo wrapper shell with `InfoTile`.
@@ -4620,11 +5093,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced hover border/bg classes with `InfoTile interaction="interactivePrimary"`.
 
 ### Residual drift status (post-pass scan)
+
 - Feature-level `rounded + border + bg` wrapper bundles are now removed from domain/components scope.
 - Remaining `border + bg` wrappers are intentionally layout-shell structures:
   - top app shell/login brand shell/sidebar/topbar wrappers.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4633,9 +5108,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 105 (Cross-Domain Breadcrumb Consolidation)
 
 ### Goal
+
 - Eliminate duplicated breadcrumb structure/styles across detail pages and enforce one reusable breadcrumb primitive.
 
 ### Shared primitive added
+
 - `apps/web/components/ui/entity-breadcrumb.tsx`
   - New reusable breadcrumb primitive with:
     - `sectionLabel`
@@ -4645,6 +5122,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Centralizes shared breadcrumb classes and focus/hover behavior.
 
 ### Migrations completed
+
 - `apps/web/components/orders/order-detail-breadcrumb.tsx`
 - `apps/web/components/customers/detail/customer-detail-breadcrumb.tsx`
 - `apps/web/components/employees/detail/employee-detail-breadcrumb.tsx`
@@ -4653,11 +5131,13 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/components/config/branches/hub/branch-hub-breadcrumbs.tsx`
 
 ### Manifest update
+
 - `docs/theme-token-migration.csv`
   - Added:
     - `apps/web/components/ui/entity-breadcrumb.tsx` (`DN`)
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4666,23 +5146,28 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 106 (Order Detail Page Metrics Standardization)
 
 ### Goal
+
 - Remove remaining hand-written metric card blocks from a route page and enforce one reusable metric primitive pattern.
 
 ### Shared primitive refinements
+
 - `apps/web/components/ui/stat-card.tsx`
   - Added `iconTone` and `valueTone` props so icon and value semantics can be controlled independently.
   - Updated primary icon tone to semantic primary tint (`bg-primary/10`) instead of sidebar-active.
   - Switched shell styling to component-level card variant (`Card variant="elevatedPanel"`) and removed direct raw border/background shell classes.
 
 ### Page migration completed
+
 - `apps/web/app/(dashboard)/orders/[id]/page.tsx`
   - Replaced four custom metric card blocks (Pieces, Assigned Tailors, Active Tasks, Balance Due) with shared `StatCard` usage.
   - Removed local metric shell styling and icon container duplication from page code.
 
 ### Result
+
 - `/orders/[id]` now uses a fully reusable metric-card abstraction and no longer defines custom card-shell metric structures inline.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4691,9 +5176,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 107 (Complete Page Recheck + Route-Level Consistency)
 
 ### Goal
+
 - Recheck route pages and remove remaining per-page UI drift by preferring shared primitives in page files.
 
 ### Route/page consistency updates
+
 - `apps/web/app/(dashboard)/employees/[id]/page.tsx`
   - Replaced custom “employee not found” fallback section with shared `EmptyState`.
   - Aligned route-level empty/error rendering with customer/order detail pages.
@@ -4702,10 +5189,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Kept existing `InfoTile` and `Card` structure while removing direct raw text tag styling from page code.
 
 ### Result
+
 - Detail route not-found behavior is now consistent across domains using one empty-state primitive.
 - Order create route page text styling now follows shared typography component policy.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4714,15 +5203,18 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 108 (Stats Grid Primitive Rollout Across Pages)
 
 ### Goal
+
 - Remove repeated route-level and domain-level stat grid class bundles and enforce a shared responsive metric-grid primitive.
 
 ### Shared primitive added
+
 - `apps/web/components/ui/stats-grid.tsx`
   - New reusable stat-grid wrapper with semantic column variants:
     - `columns="two" | "three" | "four" | "threeMd"`
     - `flushSectionSpacing` toggle for page-section contexts.
 
 ### Page migrations completed
+
 - `apps/web/app/(dashboard)/employees/page.tsx`
 - `apps/web/app/(dashboard)/orders/page.tsx`
 - `apps/web/app/(dashboard)/customers/[id]/page.tsx`
@@ -4731,20 +5223,24 @@ This is the single source of truth for implementation edits and why they were ma
 - `apps/web/app/(dashboard)/page.tsx`
 
 ### Domain component migrations completed
+
 - `apps/web/components/employees/detail/employee-financial-cards.tsx`
 - `apps/web/components/payments/payments-summary-cards.tsx`
 - `apps/web/components/expenses/expenses-overview-cards.tsx`
 
 ### Manifest updates
+
 - `docs/theme-token-migration.csv`
   - Added:
     - `apps/web/components/ui/stats-grid.tsx` (`DN`)
 
 ### Result
+
 - Metric card grids now use one shared layout contract instead of repeated local class strings.
 - Route pages and domain summary components share consistent responsive stat-grid behavior.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4753,9 +5249,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 109 (Dashboard Section Layout Unification)
 
 ### Goal
+
 - Remove duplicated dashboard section grid wrappers and align dashboard split layouts to one shared layout primitive.
 
 ### Page migration completed
+
 - `apps/web/app/(dashboard)/page.tsx`
   - Replaced two repeated manual `PageSection` grid wrappers with shared `DetailSplit`.
   - Preserved visual order and responsive behavior:
@@ -4763,9 +5261,11 @@ This is the single source of truth for implementation edits and why they were ma
     - Operations insights: `ratio="2-1"` with explicit mobile ordering to keep design card before productivity card.
 
 ### Result
+
 - Dashboard section layout now follows the same shared split-layout pattern used elsewhere in the app, reducing per-page layout duplication.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4774,11 +5274,13 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 110 (Next 2 Pages: Status + Reports Consistency)
 
 ### Goal
+
 - Refactor the next two route pages with component-first consistency:
   1. `apps/web/app/status/[token]/page.tsx`
   2. `apps/web/app/(dashboard)/reports/page.tsx`
 
 ### Shared primitive updates
+
 - `apps/web/components/status/status-page-frame.tsx` (new)
   - Added reusable public-status route shell wrapper with semantic layout variants:
     - `layout="centered"` for PIN gate state
@@ -4790,6 +5292,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `none`
 
 ### Page migrations completed
+
 - `apps/web/app/status/[token]/page.tsx`
   - Replaced duplicated `PageShell`/`PageSection` wrappers with shared `StatusPageFrame`.
   - Unified submitted/not-submitted/error route-state layout handling under one shell contract.
@@ -4799,11 +5302,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced duplicated tab-content blocks with tab-config-driven rendering to keep structure consistent.
 
 ### Manifest update
+
 - `docs/theme-token-migration.csv`
   - Added:
     - `apps/web/components/status/status-page-frame.tsx` (`DN`)
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4812,9 +5317,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 111 (Next 3 Pages: Payments + Expenses + My Orders)
 
 ### Goal
+
 - Apply another route-level consistency pass on the next three pages by standardizing page structure and reducing duplicated page logic patterns.
 
 ### Page updates completed
+
 - `apps/web/app/(dashboard)/payments/page.tsx`
   - Removed duplicated `PageSection` branches by unifying selected/non-selected employee content into one section.
   - Added explicit `hasSelectedEmployee` flag for clearer page-level render flow.
@@ -4826,9 +5333,11 @@ This is the single source of truth for implementation edits and why they were ma
   - Set `PageHeader density="compact"` for consistency with other dashboard routes.
 
 ### Result
+
 - These three pages now follow the same route-shell rhythm and avoid duplicated conditional wrappers at page level.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4837,9 +5346,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 112 (Dashboard Route Header Structure Alignment)
 
 ### Goal
+
 - Align remaining top-level dashboard routes to one route-shell structure pattern by placing page headers inside `PageSection` blocks consistently.
 
 ### Page updates completed
+
 - `apps/web/app/(dashboard)/employees/page.tsx`
   - Wrapped `PageHeader` in `PageSection spacing="compact"`.
   - Set `density="compact"` for header rhythm parity with other dashboard routes.
@@ -4851,11 +5362,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Set `density="compact"` while preserving existing actions and role badge behavior.
 
 ### Result
+
 - Top-level dashboard routes now follow the same page-shell hierarchy:
   - `PageShell` → `PageSection` (header) → `PageSection` (content).
 - Reduced remaining route-level structural drift in core dashboard pages.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4864,9 +5377,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 113 (Settings Detail Review Sweep)
 
 ### Goal
+
 - Continue the next-page decomposition/consistency pass in settings detail routes and verify whether additional code changes were still required.
 
 ### Review coverage completed (`NJ`)
+
 - `apps/web/app/(dashboard)/settings/branches/[id]/page.tsx`
   - Reviewed and confirmed no additional change required in this pass.
 - `apps/web/app/(dashboard)/settings/measurements/[id]/page.tsx`
@@ -4877,9 +5392,11 @@ This is the single source of truth for implementation edits and why they were ma
   - Reviewed and confirmed no additional change required in this pass.
 
 ### Result
+
 - These settings detail pages were already aligned with the current consistency baseline; no code delta was necessary.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4888,9 +5405,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 114 (Next Pages: Config Component Consistency Cleanup)
 
 ### Goal
+
 - Continue the page-by-page consistency/decomposition effort by removing duplicated local logic in the next settings page components.
 
 ### Page/component updates completed
+
 - `apps/web/components/config/audit-logs/audit-logs-page.tsx`
   - Replaced long action `if` chains with centralized maps:
     - `ACTION_SUMMARY_MAP`
@@ -4907,9 +5426,11 @@ This is the single source of truth for implementation edits and why they were ma
   - Aligns with the same page-level permission-gated action pattern used across other settings modules.
 
 ### Result
+
 - The next settings pages now have less repeated UI/logic wiring and stronger local consistency without changing behavior.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4918,9 +5439,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 115 (Next Pages: Measurement/Branch/Garment Guard Consolidation)
 
 ### Goal
+
 - Continue next-page consistency by removing repeated permission-guard blocks in core configuration pages.
 
 ### Page/component updates completed
+
 - `apps/web/components/config/MeasurementCategoriesTable.tsx`
   - Consolidated duplicated `canManageMeasurements` wrappers into one guarded fragment containing:
     - `MeasurementCategoryDialog`
@@ -4941,9 +5464,11 @@ This is the single source of truth for implementation edits and why they were ma
   - Preserved `GarmentPriceHistoryDialog` outside management guard (view flow remains unchanged).
 
 ### Result
+
 - These settings modules now follow a single permission-gated action pattern per page component, reducing repeated control flow and keeping action dialogs colocated.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4952,9 +5477,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 116 (Next Pages: Shared Typography + Detail Route Cleanup)
 
 ### Goal
+
 - Continue consistency work by replacing remaining raw detail-header page titles with shared `Typography` and tightening detail-route orchestration patterns.
 
 ### Page/component updates completed
+
 - `apps/web/components/employees/detail/employee-detail-header.tsx`
   - Replaced raw `<h1>` with shared `Typography` (`as="h1"`, `variant="pageTitle"`).
 - `apps/web/components/config/measurements/detail/measurement-category-detail-header.tsx`
@@ -4975,10 +5502,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Added shared `refreshCustomerData` callback to reduce repeated success-refresh logic.
 
 ### Result
+
 - Header typography now follows one design-system primitive in key detail surfaces.
 - Detail route orchestration is cleaner and more consistent around route param handling and post-dialog refresh flows.
 
 ### Verification run after edits
+
 - `npx tsc --noEmit -p apps/web/tsconfig.json` ✅
 - `npm run lint -w web` ✅
 - `npm run theme:migration:verify` ✅
@@ -4987,9 +5516,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 117 (Next Pages: Orders Detail Route Consistency)
 
 ### Goal
+
 - Continue consistency/decomposition in the orders detail route by standardizing route param handling, reducing inline callback drift, and normalizing action rendering.
 
 ### Page/component updates completed
+
 - `apps/web/app/(dashboard)/orders/[id]/page.tsx`
   - Switched to typed route params: `useParams<{ id: string }>()` with array-safe normalization.
   - Added `refreshOrder` helper and reused it for task dialog success refresh.
@@ -5000,17 +5531,21 @@ This is the single source of truth for implementation edits and why they were ma
   - Preserved all existing visibility and disabled-state behavior (`share`, `cancel`, etc.) while reducing duplicated markup.
 
 ### Result
+
 - Orders detail flow now follows cleaner route/component boundaries with less repeated UI control logic and more consistent page-shell structure.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 
 ## 2026-03-05 — Pass 118 (Next Pages: Branch/System/Appearance Component Consistency)
 
 ### Goal
+
 - Continue consistency migration by reducing raw text style drift and duplicated action markup in branch/system/appearance components.
 
 ### Page/component updates completed
+
 - `apps/web/components/config/branches/hub/branch-global-pricing-card.tsx`
   - Replaced raw text blocks in stats/info tiles with shared `Typography` primitives for tokenized text styling.
 - `apps/web/components/config/branches/hub/branch-hub-meta-card.tsx`
@@ -5023,17 +5558,21 @@ This is the single source of truth for implementation edits and why they were ma
   - Replaced duplicated light/dark button blocks with mapped `modeOptions` config-driven rendering for one consistent button structure.
 
 ### Result
+
 - These components now rely more consistently on shared typography/UI patterns and contain less repeated presentation markup.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 
 ## 2026-03-05 — Pass 119 (Global Card Shadow Softening)
 
 ### Goal
+
 - Address excessive shadow depth by reducing elevation at shared UI primitive level instead of per-page overrides.
 
 ### Primitive updates completed
+
 - `apps/web/components/ui/card.tsx`
   - Softened base card elevation from `shadow-sm shadow-shadowColor/10` to a lower custom shadow token.
   - Reduced `premium` variant shadow intensity.
@@ -5046,17 +5585,21 @@ This is the single source of truth for implementation edits and why they were ma
   - Softened framed table-skeleton wrapper shadow for loading-state consistency.
 
 ### Result
+
 - Card-like surfaces now use noticeably lighter elevation across the app with consistent depth behavior between normal and loading table/card containers.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 
 ## 2026-03-05 — Pass 120 (Global Shadow Calibration: Overlay + Buttons)
 
 ### Goal
+
 - Continue shadow cleanup by reducing remaining strong elevation sources outside cards, with consistent depth tokens across overlays, sidebar drawer, and button variants.
 
 ### Primitive/layout updates completed
+
 - `apps/web/app/globals.css`
   - Reduced `shadow-theme-elevated` intensity.
   - Reduced `shadow-theme-soft` intensity.
@@ -5072,17 +5615,21 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed unnecessary shadows from `outline`, `outlineDashed`, and `muted` variants.
 
 ### Result
+
 - Elevation is now flatter and more controlled across cards, dialogs/sheets, drawer, and buttons, reducing the heavy-shadow feel while preserving visual hierarchy.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 
 ## 2026-03-05 — Pass 121 (Residual Shadow Outlier Cleanup + Avatar Variant Centralization)
 
 ### Goal
+
 - Continue the consistency sweep by removing remaining non-tokenized heavy shadows and moving repeated avatar surface styling into shared UI variants.
 
 ### Shared/component updates completed
+
 - `apps/web/components/ui/avatar.tsx`
   - Added centralized `Avatar` variants:
     - `size`: `default | md | sm`
@@ -5105,11 +5652,13 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed one-off `shadow-sm` override from branch impact metric tiles.
 
 ### Result
+
 - Remaining hard elevation outliers were eliminated from frontend feature code.
 - Avatar visual styling is now controlled at primitive level through variants, reducing repeated class-level styling in page/domain components.
 - Shadow behavior is flatter and more consistent across interactive cards, chips, and timeline markers.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 - Performed source audit only:
   - `rg "shadow-(2xl|xl|lg|md)" apps/web` → no matches.
@@ -5117,9 +5666,11 @@ This is the single source of truth for implementation edits and why they were ma
 ## 2026-03-05 — Pass 122 (Single-Theme Mode + Appearance Page Removal)
 
 ### Goal
+
 - Enforce one-theme operation and remove the entire Appearance settings surface from the dashboard.
 
 ### Routing/navigation cleanup completed
+
 - `apps/web/app/(dashboard)/settings/appearance/page.tsx`
   - Removed route file (Appearance page removed from app route tree).
 - `apps/web/components/layout/Sidebar.tsx`
@@ -5129,6 +5680,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed frontend route policy entry for `/settings/appearance`.
 
 ### Appearance module removal completed
+
 - Removed obsolete Appearance module files:
   - `apps/web/components/config/appearance/appearance-settings-page.tsx`
   - `apps/web/components/config/appearance/appearance-mode-card.tsx`
@@ -5137,6 +5689,7 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/hooks/use-appearance-settings-page.ts`
 
 ### Theme behavior simplification completed
+
 - `packages/shared-theme/src/theme-presets.ts`
   - Reduced preset IDs to a single preset (`polar-authority`).
   - Kept one canonical preset and applied inverse-shell dark behavior to that single preset.
@@ -5146,6 +5699,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Toggle now only handles Light/Dark mode.
 
 ### Tooling/docs consistency updates
+
 - `apps/web/scripts/theme-audit.mjs`
   - Removed deleted appearance route from expected route checks.
   - Removed appearance-specific inline background allowlist entry.
@@ -5153,85 +5707,102 @@ This is the single source of truth for implementation edits and why they were ma
   - Updated `/settings/appearance` row to `Removed` status.
 
 ### Result
+
 - App now runs in single-theme mode with no Appearance settings page, no appearance nav entry, and no preset-switching UI.
 - Dark mode continues to use the selected opposite-shell behavior while keeping light mode intact.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 - Performed source/reference sweep only for deleted route/module references.
 
 ## 2026-03-05 — Pass 123 (Polar Dark Reversion)
 
 ### Goal
+
 - Revert dark mode from inverse-shell variant back to the original Polar Authority dark palette.
 
 ### Theme update completed
+
 - `packages/shared-theme/src/theme-presets.ts`
   - Removed the temporary `POLAR_AUTHORITY_OPPOSITE_DARK` override block.
   - Switched single active preset dark palette back to `POLAR_AUTHORITY_DARK`.
   - Restored preset description to original Polar Authority wording.
 
 ### Result
+
 - Dark mode now uses the real Polar Authority values again (original shell/content mapping), not the inverse variant.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 - Performed source sweep only to confirm inverse override references were removed.
 
 ## 2026-03-05 — Pass 124 (Table Border Token Alignment)
 
 ### Goal
+
 - Fix visual inconsistency where table container borders looked lighter than neighboring premium cards.
 
 ### Root cause confirmed
-- Premium cards use stronger border token: `border-borderStrong/70`.
+
+- Premium cards use stronger border token: `border-divider`.
 - Shared table wrappers were using lighter token: `border-divider`.
 
 ### Shared primitive updates completed
+
 - `apps/web/components/ui/table-layout.tsx`
-  - Updated `TableSurface` outer border from `border-divider` to `border-borderStrong/70`.
+  - Updated `TableSurface` outer border from `border-divider` to `border-divider`.
 - `apps/web/components/ui/data-table.tsx`
-  - Updated framed `DataTable` wrapper border from `border-divider` to `border-borderStrong/70`.
+  - Updated framed `DataTable` wrapper border from `border-divider` to `border-divider`.
 - `apps/web/components/ui/table-skeleton.tsx`
-  - Updated loading-state table wrapper border from `border-divider` to `border-borderStrong/70`.
+  - Updated loading-state table wrapper border from `border-divider` to `border-divider`.
 
 ### Result
+
 - Table containers now match the border strength of adjacent premium cards, including loading states.
 - Border consistency is fixed at shared component level (not page-level overrides).
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 - Source check only: no remaining framed table wrappers using `border-divider` outer borders.
 
 ## 2026-03-05 — Pass 125 (Global Frame Border Consistency Sweep)
 
 ### Goal
+
 - Ensure border consistency across application-level framed surfaces, not only attendance tables.
 
 ### Shared primitive alignment completed
+
 - `apps/web/components/ui/card.tsx`
-  - Updated base `Card` frame border token from `border-divider` to `border-borderStrong/70`.
+  - Updated base `Card` frame border token from `border-divider` to `border-divider`.
 - `apps/web/components/ui/table-layout.tsx`
-  - (From prior pass) `TableSurface` frame border uses `border-borderStrong/70`.
+  - (From prior pass) `TableSurface` frame border uses `border-divider`.
 - `apps/web/components/ui/data-table.tsx`
-  - (From prior pass) framed `DataTable` wrapper uses `border-borderStrong/70`.
+  - (From prior pass) framed `DataTable` wrapper uses `border-divider`.
 - `apps/web/components/ui/table-skeleton.tsx`
-  - (From prior pass) loading table frame uses `border-borderStrong/70`.
+  - (From prior pass) loading table frame uses `border-divider`.
 
 ### Result
+
 - Core framed containers now share one border strength token across cards/tables/loading states.
 - Border appearance is consistently matched across pages that rely on shared UI primitives.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
-- Source check only: confirmed `Card` + table wrappers all use `border-borderStrong/70`.
+- Source check only: confirmed `Card` + table wrappers all use `border-divider`.
 
 ## 2026-03-05 — Pass 126 (Zod Phase 1: Shared Schema Foundation + Submit-Boundary Validation)
 
 ### Goal
+
 - Start the Zod modernization phase with shared schema definitions and practical validation rollout using maintainable, non-breaking patterns.
 
 ### Shared schema foundation completed
+
 - `packages/shared-types/src/form-schemas.ts` (new)
   - Added canonical shared Zod schemas and inferred types for existing form domains:
     - Customers, Employees, Accounts, Orders, Config (garments/measurements)
@@ -5246,6 +5817,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added `zod` runtime dependency for shared schema exports.
 
 ### Web schema migration to shared source completed
+
 - Replaced local schema definitions with shared re-exports:
   - `apps/web/types/customers/schemas.ts`
   - `apps/web/types/employees/schemas.ts`
@@ -5254,6 +5826,7 @@ This is the single source of truth for implementation edits and why they were ma
 - This keeps existing imports stable while shifting authority to shared contracts.
 
 ### Validation boundary hardening completed (manual-submit flows)
+
 - Added common Zod error helper:
   - `apps/web/lib/utils/zod.ts` (new)
 - Integrated shared Zod validation before API mutation calls:
@@ -5265,20 +5838,24 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/hooks/use-rates-page.ts` (defensive re-validation at mutation boundary)
 
 ### Result
+
 - Form schema logic is now centralized in shared package and consumed consistently by web forms.
 - Several high-traffic non-resolver submit paths now enforce structured validation before API requests.
 - Migration is additive and backward compatible with existing form components/hooks.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 - Performed source-level reference and integration sweep only.
 
 ## 2026-03-05 — Pass 127 (Zod Phase 2: Auth + Public Access Forms)
 
 ### Goal
+
 - Continue Zod migration with shared schema coverage for authentication/public flows and integrate validation into runtime submit handlers.
 
 ### Shared schema expansion completed
+
 - `packages/shared-types/src/form-schemas.ts`
   - Added:
     - `loginFormSchema`
@@ -5290,6 +5867,7 @@ This is the single source of truth for implementation edits and why they were ma
     - `ConfirmPasswordFormValues`
 
 ### Runtime integration completed
+
 - `apps/web/hooks/use-login-page.ts`
   - Added shared Zod validation before `signIn` request.
   - Uses shared error extraction helper for toast messages.
@@ -5301,31 +5879,38 @@ This is the single source of truth for implementation edits and why they were ma
   - Standardized validation error feedback.
 
 ### Result
+
 - Auth/public forms now follow the same shared-schema validation contract as domain forms.
 - Validation rules are centralized and reusable, reducing duplicated ad-hoc checks.
 
 ### Verification run after edits
+
 - Skipped intentionally per request (`don't make build at end`).
 - Performed source-level schema/reference sweep only.
 
 ## 2026-03-05 — Pass 127A (Dependency Lock Sync)
 
 ### Goal
+
 - Keep workspace dependency metadata consistent after introducing shared `zod` dependency in `@tbms/shared-types`.
 
 ### Update completed
+
 - `package-lock.json`
   - Refreshed lockfile using `npm install --package-lock-only --ignore-scripts`.
 
 ### Result
+
 - Workspace lock metadata now matches package manifests for deterministic installs.
 
 ## 2026-03-05 — Pass 128 (Zod Coverage Recheck + Remaining Manual Flow Migration)
 
 ### Goal
+
 - Recheck frontend validation coverage completely and remove remaining ad-hoc form validation paths by standardizing on shared Zod schemas.
 
 ### Shared schema contract expansion completed
+
 - `packages/shared-types/src/form-schemas.ts`
   - Added new shared schemas/types for remaining uncovered form flows:
     - `expenseCategoryFormSchema`
@@ -5343,6 +5928,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Added inferred types for each new schema (and input aliases) to keep forms strongly typed at the boundary.
 
 ### Runtime submit-boundary migrations completed
+
 - `apps/web/hooks/use-payments-page.ts`
   - Replaced manual amount parsing with `paymentDisbursementFormSchema.safeParse`.
 - `apps/web/hooks/use-expense-categories-page.ts`
@@ -5364,6 +5950,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Validation issues now map to field-level errors plus unified validation toast.
 
 ### React Hook Form resolver migrations completed
+
 - `apps/web/hooks/use-design-type-dialog.ts`
   - Added `typedZodResolver(designTypeFormSchema)`.
   - Removed number coercion in submit payload construction (already validated/coerced by schema).
@@ -5372,6 +5959,7 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed manual dropdown-option validation branch and routed to shared schema + standardized error messaging.
 
 ### UI submit gating alignment completed
+
 - `apps/web/components/payments/payments-disburse-dialog.tsx`
   - Submit-disabled state now derived from `paymentDisbursementFormSchema.safeParse`.
 - `apps/web/components/expenses/expense-create-dialog.tsx`
@@ -5385,26 +5973,31 @@ This is the single source of truth for implementation edits and why they were ma
   - `apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx`
 
 ### Result
+
 - A full re-sweep removed remaining manual validation hotspots identified in hooks/components.
 - Validation logic is now centralized in shared contracts and consumed consistently at submit boundaries and UI disabled states.
 - Duplicate ad-hoc parse/required checks are reduced, improving maintainability and consistency.
 
 ### Verification run after edits
+
 - `npm exec -w web tsc --noEmit --pretty false` ✅
 - `npm exec -w @tbms/shared-types tsc --noEmit --pretty false` ✅
 
 ## 2026-03-05 — Pass 129 (Dialog Submit UX Consistency: Always-Enabled Submit)
 
 ### Goal
+
 - Remove mixed dialog submit behaviors and enforce one pattern across the app:
   - Submit button remains enabled by default.
   - Validation occurs on submit.
   - Buttons disable only for runtime state (`submitting/loading`) handled by `DialogFormActions`.
 
 ### Decision applied
+
 - Chosen UX pattern: **button enabled** + submit-time validation feedback.
 
 ### Files updated
+
 - `apps/web/components/expenses/expense-create-dialog.tsx`
   - Removed schema-based pre-submit disable gating.
 - `apps/web/components/employees/detail/employee-document-upload-dialog.tsx`
@@ -5422,18 +6015,22 @@ This is the single source of truth for implementation edits and why they were ma
   - Removed submit disable rule based on amount presence.
 
 ### Consistency result
+
 - No remaining `submitDisabled` usage in `apps/web`.
 - Dialog forms now follow one interaction model consistently.
 
 ### Verification run after edits
+
 - `npm exec -w web tsc --noEmit --pretty false` ✅
 
 ## 2026-03-05 — Pass 130 (Expense Categories: API-Driven Search + Pagination)
 
 ### Goal
+
 - Bring `/settings/expense-categories` in line with other admin tables by removing local-only filtering and using backend pagination/search.
 
 ### Backend changes
+
 - `apps/api/src/expenses/expenses.controller.ts`
   - Added `GET /expenses/categories/paginated` with `page`, `limit`, `search` query support.
 - `apps/api/src/expenses/expenses.service.ts`
@@ -5444,11 +6041,13 @@ This is the single source of truth for implementation edits and why they were ma
     - `meta` (`page`, `lastPage`)
 
 ### Shared contract changes
+
 - `packages/shared-types/src/expenses.ts`
   - Added `ExpenseCategoryListQueryInput`.
   - Added `ExpenseCategoryStatsSummary`.
 
 ### Frontend API + hook + table wiring
+
 - `apps/web/lib/api/expenses.ts`
   - Added `getCategoriesPaginated(query)` client method for new backend endpoint.
 - `apps/web/hooks/use-expense-categories-page.ts`
@@ -5465,10 +6064,12 @@ This is the single source of truth for implementation edits and why they were ma
   - Switched table data source from local `filteredCategories` to API `categories`.
 
 ### Result
+
 - Expense Categories table now supports real API-backed search and pagination, consistent with other tables.
 - Stats cards remain accurate from backend summary data.
 
 ### Verification run after edits
+
 - `npm exec -w web tsc --noEmit --pretty false` ✅
 - `npm exec -w @tbms/shared-types tsc --noEmit --pretty false` ✅
 - `npm exec -w api -- tsc -p tsconfig.build.json --noEmit --pretty false` ✅

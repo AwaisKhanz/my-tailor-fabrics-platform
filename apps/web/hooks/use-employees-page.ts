@@ -4,17 +4,26 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Employee } from "@tbms/shared-types";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
 export function useEmployeesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const search = values.search;
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
@@ -24,7 +33,7 @@ export function useEmployeesPage() {
       const response = await employeesApi.getEmployees({
         search: search.trim() || undefined,
         page,
-        limit: PAGE_SIZE,
+        limit: pageSize,
       });
 
       if (response.success) {
@@ -40,7 +49,7 @@ export function useEmployeesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, toast]);
+  }, [page, pageSize, search, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -53,14 +62,19 @@ export function useEmployeesPage() {
   }, [fetchEmployees]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const openAddDialog = useCallback(() => {
     setAddDialogOpen(true);
@@ -77,7 +91,7 @@ export function useEmployeesPage() {
     employees,
     total,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     search,
     addDialogOpen,
     hasActiveFilters,

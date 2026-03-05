@@ -1,4 +1,4 @@
-import { CustomerStatus } from './common';
+import { CustomerStatus, PaginatedResponse } from './common';
 export type MeasurementValue = string | number | boolean | null;
 export type MeasurementValues = Record<string, MeasurementValue>;
 export interface Customer {
@@ -35,6 +35,9 @@ export interface CustomerMeasurement {
         fields: import('./config').MeasurementField[];
     };
 }
+export interface CustomerDetail extends Customer {
+    measurements: CustomerMeasurement[];
+}
 export interface CreateCustomerInput {
     fullName: string;
     phone: string;
@@ -59,3 +62,21 @@ export interface CustomersListSummary {
     whatsappConnectedCount: number;
     vipCustomersCount: number;
 }
+export interface CustomersListQueryInput {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: CustomerStatus;
+    isVip?: boolean;
+}
+export interface CustomersSummaryQueryInput {
+    search?: string;
+    status?: CustomerStatus;
+    isVip?: boolean;
+}
+export interface CustomerOrdersQueryInput {
+    page?: number;
+    limit?: number;
+}
+export type CustomersListResult = PaginatedResponse<Customer>;
+export type CustomerOrdersResult = PaginatedResponse<import('./orders').Order>;

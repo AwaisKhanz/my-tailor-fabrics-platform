@@ -43,9 +43,26 @@ export class UpdateMeasurementCategoryDto {
   isActive?: boolean;
 }
 
+export class CreateMeasurementSectionDto {
+  @IsString()
+  name!: string;
+
+  @IsInt()
+  @IsOptional()
+  sortOrder?: number;
+}
+
 export class CreateMeasurementFieldDto {
   @IsString()
   label!: string;
+
+  @IsString()
+  @IsOptional()
+  sectionId?: string;
+
+  @IsString()
+  @IsOptional()
+  sectionName?: string;
 
   @IsEnum(FieldType)
   @IsOptional()
@@ -73,6 +90,14 @@ export class UpdateMeasurementFieldDto {
   @IsString()
   @IsOptional()
   label?: string;
+
+  @IsString()
+  @IsOptional()
+  sectionId?: string;
+
+  @IsString()
+  @IsOptional()
+  sectionName?: string;
 
   @IsEnum(FieldType)
   @IsOptional()

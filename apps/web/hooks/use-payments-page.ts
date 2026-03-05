@@ -9,8 +9,10 @@ import {
 import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { type Employee } from "@/types/employees";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
@@ -36,21 +38,36 @@ const DEFAULT_DISBURSEMENT_FORM: PaymentDisbursementForm = {
 
 export function usePaymentsPage() {
   const { toast } = useToast();
+  const { values, setValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      employeeId: "",
+      page: "1",
+      limit: String(PAGE_SIZE),
+      from: DEFAULT_HISTORY_FILTERS.from,
+      to: DEFAULT_HISTORY_FILTERS.to,
+    },
+  });
 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeesLoading, setEmployeesLoading] = useState(true);
 
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const selectedEmployeeId = values.employeeId;
 
   const [summary, setSummary] = useState<PaymentSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
   const [history, setHistory] = useState<Payment[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [historyPage, setHistoryPage] = useState(1);
+  const historyPage = getPositiveInt("page", 1);
+  const historyPageSize = getPositiveInt("limit", PAGE_SIZE);
   const [historyTotal, setHistoryTotal] = useState(0);
-  const [historyFilters, setHistoryFilters] =
-    useState<PaymentHistoryFilters>(DEFAULT_HISTORY_FILTERS);
+  const historyFilters = useMemo<PaymentHistoryFilters>(
+    () => ({
+      from: values.from,
+      to: values.to,
+    }),
+    [values.from, values.to],
+  );
 
   const [disburseOpen, setDisburseOpen] = useState(false);
   const [disburseForm, setDisburseForm] =
@@ -108,7 +125,7 @@ export function usePaymentsPage() {
       try {
         const response = await paymentsApi.getPaymentHistory(selectedEmployeeId, {
           page: targetPage,
-          limit: PAGE_SIZE,
+          limit: historyPageSize,
           from: historyFilters.from || undefined,
           to: historyFilters.to || undefined,
         });
@@ -127,7 +144,7 @@ export function usePaymentsPage() {
         setHistoryLoading(false);
       }
     },
-    [historyFilters.from, historyFilters.to, historyPage, selectedEmployeeId, toast],
+    [historyFilters.from, historyFilters.to, historyPage, historyPageSize, selectedEmployeeId, toast],
   );
 
   useEffect(() => {
@@ -151,30 +168,44 @@ export function usePaymentsPage() {
   }, [fetchHistory, selectedEmployeeId]);
 
   const handleEmployeeChange = useCallback((employeeId: string) => {
-    setSelectedEmployeeId(employeeId);
+    setValues({
+      employeeId,
+      page: "1",
+      from: DEFAULT_HISTORY_FILTERS.from,
+      to: DEFAULT_HISTORY_FILTERS.to,
+    });
     setSummary(null);
     setHistory([]);
     setHistoryTotal(0);
-    setHistoryPage(1);
-    setHistoryFilters(DEFAULT_HISTORY_FILTERS);
     setDisburseOpen(false);
     setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
-  }, []);
+  }, [setValues]);
 
   const setHistoryFrom = useCallback((value: string) => {
-    setHistoryFilters((previous) => ({ ...previous, from: value }));
-    setHistoryPage(1);
-  }, []);
+    setValues({
+      from: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setHistoryTo = useCallback((value: string) => {
-    setHistoryFilters((previous) => ({ ...previous, to: value }));
-    setHistoryPage(1);
-  }, []);
+    setValues({
+      to: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetHistoryFilters = useCallback(() => {
-    setHistoryFilters(DEFAULT_HISTORY_FILTERS);
-    setHistoryPage(1);
-  }, []);
+    setValues({
+      from: DEFAULT_HISTORY_FILTERS.from,
+      to: DEFAULT_HISTORY_FILTERS.to,
+      page: "1",
+    });
+  }, [setValues]);
+
+  const setHistoryPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const openDisburseDialog = useCallback(() => {
     setDisburseOpen(true);
@@ -237,17 +268,14 @@ export function usePaymentsPage() {
 
       await fetchSummary(selectedEmployeeId);
       if (historyPage !== 1) {
-        setHistoryPage(1);
+        setValues({ page: "1" });
       } else {
         await fetchHistory(1);
       }
     } catch (error: unknown) {
-      const responseMessage = (error as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message;
-
       toast({
         title: "Error",
-        description: responseMessage ?? "Failed to disburse payment",
+        description: getApiErrorMessageOrFallback(error, "Failed to disburse payment"),
         variant: "destructive",
       });
     } finally {
@@ -260,6 +288,7 @@ export function usePaymentsPage() {
     fetchHistory,
     fetchSummary,
     historyPage,
+    setValues,
     selectedEmployeeId,
     toast,
   ]);
@@ -293,7 +322,7 @@ export function usePaymentsPage() {
     historyTotal,
     historyFilters,
     historyFilterCount,
-    historyPageSize: PAGE_SIZE,
+    historyPageSize,
     disburseOpen,
     disburseForm,
     disbursing,

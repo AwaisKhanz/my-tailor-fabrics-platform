@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ROLES } from "@tbms/shared-constants";
+import { isRole, ROLES } from "@tbms/shared-constants";
 import {
   Role,
   userAccountCreateFormSchema,
@@ -13,7 +13,9 @@ import { type Branch, branchesApi } from "@/lib/api/branches";
 import { usersApi } from "@/lib/api/users";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
@@ -43,17 +45,24 @@ export const EMPTY_USER_FORM: UserFormState = {
   branchId: USERS_ALL_BRANCHES_VALUE,
 };
 
-function parseApiErrorMessage(error: unknown): string | undefined {
-  if (!error || typeof error !== "object") {
-    return undefined;
+function parseUserRoleFilter(value: string): UserRoleFilter {
+  if (value === USERS_ALL_ROLES_FILTER_VALUE) {
+    return USERS_ALL_ROLES_FILTER_VALUE;
   }
 
-  const response = (error as { response?: { data?: { message?: string } } }).response;
-  return typeof response?.data?.message === "string" ? response.data.message : undefined;
+  return isRole(value) ? value : USERS_ALL_ROLES_FILTER_VALUE;
 }
 
 export function useUsersPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+      role: USERS_ALL_ROLES_FILTER_VALUE,
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,9 +75,10 @@ export function useUsersPage() {
     privileged: 0,
   });
 
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [roleFilter, setRoleFilter] = useState<UserRoleFilter>(USERS_ALL_ROLES_FILTER_VALUE);
+  const search = values.search;
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const roleFilter = parseUserRoleFilter(values.role);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserAccount | null>(null);
@@ -82,7 +92,7 @@ export function useUsersPage() {
     try {
       const usersQuery = {
         page,
-        limit: PAGE_SIZE,
+        limit: pageSize,
         search: search.trim() || undefined,
         role: roleFilter === USERS_ALL_ROLES_FILTER_VALUE ? undefined : roleFilter,
       };
@@ -115,7 +125,7 @@ export function useUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, roleFilter, search, toast]);
+  }, [page, pageSize, roleFilter, search, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -144,7 +154,7 @@ export function useUsersPage() {
       name: user.name,
       email: user.email,
       password: "",
-      role: user.role as Role,
+      role: user.role,
       branchId: user.branchId ?? USERS_ALL_BRANCHES_VALUE,
     });
     setDialogOpen(true);
@@ -159,22 +169,28 @@ export function useUsersPage() {
   }, []);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const setRoleFilterValue = useCallback((value: string) => {
     if (value === USERS_ALL_ROLES_FILTER_VALUE || ROLES.some((role) => role.value === value)) {
-      setRoleFilter(value as UserRoleFilter);
-      setPage(1);
+      setValues({
+        role: value,
+        page: "1",
+      });
     }
-  }, []);
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setPage(1);
-    setRoleFilter(USERS_ALL_ROLES_FILTER_VALUE);
-  }, []);
+    resetValues();
+  }, [resetValues]);
 
   const updateFormField = useCallback<UpdateUserFormField>((field, value) => {
     setForm((previous) => ({ ...previous, [field]: value }));
@@ -223,7 +239,7 @@ export function useUsersPage() {
       const fallback = editingUser ? "Failed to update user" : "Failed to create user";
       toast({
         title: "Error",
-        description: parseApiErrorMessage(error) ?? fallback,
+        description: getApiErrorMessage(error) ?? fallback,
         variant: "destructive",
       });
     } finally {
@@ -283,7 +299,7 @@ export function useUsersPage() {
     totalUsersCount: total,
     search,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     roleFilter,
     hasActiveFilters,
     branches,

@@ -37,6 +37,11 @@ interface EmployeeLedgerEntryDialogProps {
   onSubmit: () => void;
 }
 
+function isLedgerEntryType(value: string): value is LedgerEntryType {
+  const types = Object.values(LedgerEntryType);
+  return types.some((type) => type === value);
+}
+
 export function EmployeeLedgerEntryDialog({
   open,
   onOpenChange,
@@ -78,7 +83,14 @@ export function EmployeeLedgerEntryDialog({
           >
             <div className="space-y-2">
               <Label>Entry Type</Label>
-              <Select value={entryType} onValueChange={(value) => onEntryTypeChange(value as LedgerEntryType)}>
+              <Select
+                value={entryType}
+                onValueChange={(value) => {
+                  if (isLedgerEntryType(value)) {
+                    onEntryTypeChange(value);
+                  }
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

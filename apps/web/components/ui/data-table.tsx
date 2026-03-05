@@ -41,6 +41,26 @@ interface DataTableProps<T> {
   chrome?: "framed" | "flat";
 }
 
+function renderAccessorValue(value: unknown): React.ReactNode {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+
+  if (React.isValidElement(value)) {
+    return value;
+  }
+
+  return null;
+}
+
 export function DataTable<T extends { id: string | number }>({
   columns,
   data = [],
@@ -87,7 +107,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableHead
                   key={idx}
                   className={cn(
-                    "whitespace-nowrap px-4 py-3 border-b border-borderStrong/70 text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary",
+                    "whitespace-nowrap px-4 py-4 bg-surface-elevated border-b border-divider text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary",
                     column.align === "right" && "text-right",
                     column.align === "center" && "text-center",
                     column.headerClassName,
@@ -115,7 +135,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableRow
                   key={item.id}
                   className={cn(
-                    "hover:bg-interaction-hover/60 transition-colors group bg-surface-elevated border-b border-borderStrong/70",
+                    "hover:bg-interaction-hover/10 transition-colors group bg-surface-elevated !border-b !border-divider",
                     onRowClick && "cursor-pointer",
                   )}
                   onClick={() => onRowClick?.(item)}
@@ -133,7 +153,7 @@ export function DataTable<T extends { id: string | number }>({
                       {column.cell
                         ? column.cell(item)
                         : column.accessorKey
-                          ? (item[column.accessorKey] as React.ReactNode)
+                          ? renderAccessorValue(item[column.accessorKey])
                           : null}
                     </TableCell>
                   ))}
@@ -146,7 +166,7 @@ export function DataTable<T extends { id: string | number }>({
 
       {/* Pagination Footer */}
       {totalPages > 0 && onPageChange && page && (
-        <div className="flex items-center justify-between border-t border-borderStrong/70 bg-surface-elevated px-5 py-3.5">
+        <div className="flex items-center justify-between bg-surface-elevated px-5 py-3.5">
           <Typography as="p" variant="muted">
             Showing <span className="font-bold text-text-primary">{from}</span>{" "}
             to <span className="font-bold text-text-primary">{to}</span> of{" "}
@@ -180,7 +200,11 @@ export function DataTable<T extends { id: string | number }>({
                   key={p}
                   variant={page === p ? "default" : "outline"}
                   size="icon"
-                  onClick={() => onPageChange(p as number)}
+                  onClick={() => {
+                    if (typeof p === "number") {
+                      onPageChange(p);
+                    }
+                  }}
                   className={cn(
                     "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
                     page === p
@@ -213,7 +237,7 @@ export function DataTable<T extends { id: string | number }>({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-borderStrong/70 bg-surface-elevated shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
+    <div className="overflow-hidden rounded-xl border border-divider bg-surface-elevated shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
       {tableContent}
     </div>
   );

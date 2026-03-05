@@ -147,12 +147,27 @@ model MeasurementCategory {
   updatedAt    DateTime              @updatedAt
   measurements CustomerMeasurement[]
   fields       MeasurementField[]
+  sections     MeasurementSection[]
   garmentTypes GarmentType[]         @relation("GarmentTypeToMeasurementCategory")
+}
+
+model MeasurementSection {
+  id         String              @id @default(cuid())
+  categoryId String
+  name       String
+  sortOrder  Int                 @default(0)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  category   MeasurementCategory @relation(fields: [categoryId], references: [id])
+  fields     MeasurementField[]
+
+  @@index([categoryId, sortOrder])
 }
 
 model MeasurementField {
   id              String              @id @default(cuid())
   categoryId      String
+  sectionId       String?
   label           String
   fieldType       FieldType           @default(NUMBER)
   unit            String?
@@ -163,6 +178,9 @@ model MeasurementField {
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   category        MeasurementCategory @relation(fields: [categoryId], references: [id])
+  section         MeasurementSection? @relation(fields: [sectionId], references: [id])
+
+  @@index([sectionId])
 }
 
 model CustomerMeasurement {

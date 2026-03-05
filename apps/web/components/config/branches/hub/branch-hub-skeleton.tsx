@@ -9,7 +9,10 @@ export function BranchHubSkeleton() {
         <Skeleton className="h-40 rounded-xl" />
       </PageSection>
 
-      <PageSection spacing="compact" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <PageSection
+        spacing="compact"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
         {[1, 2, 3, 4].map((item) => (
           <Skeleton key={item} className="h-32 rounded-xl" />
         ))}

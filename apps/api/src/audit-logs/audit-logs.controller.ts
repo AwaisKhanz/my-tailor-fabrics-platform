@@ -4,7 +4,7 @@ import { AuditLogsService } from './audit-logs.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { success, successSpread } from '../common/utils/response.util';
+import { success } from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import { resolveBranchScopeForReadOrNull } from '../common/utils/branch-resolution.util';
 
@@ -40,7 +40,7 @@ export class AuditLogsController {
       from,
       to,
     });
-    return successSpread(data);
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)

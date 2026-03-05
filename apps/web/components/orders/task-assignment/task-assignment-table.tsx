@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Check, Edit2, X } from "lucide-react";
 import {
   type BadgeVariant,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { TableSurface } from "@/components/ui/table-layout";
 import { formatPKR } from "@/lib/utils";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface TaskAssignmentTableProps {
   tasks: OrderItemTask[];
@@ -35,12 +36,26 @@ interface TaskAssignmentTableProps {
   onRateUpdate: (taskId: string) => void;
 }
 
+const PAGE_SIZE = 10;
+
 const STATUS_VARIANTS: Record<TaskStatus, BadgeVariant> = {
   [TaskStatus.PENDING]: "outline",
   [TaskStatus.IN_PROGRESS]: "default",
   [TaskStatus.DONE]: "success",
   [TaskStatus.CANCELLED]: "destructive",
 };
+
+function isTaskStatus(value: string): value is TaskStatus {
+  switch (value) {
+    case TaskStatus.PENDING:
+    case TaskStatus.IN_PROGRESS:
+    case TaskStatus.DONE:
+    case TaskStatus.CANCELLED:
+      return true;
+    default:
+      return false;
+  }
+}
 
 export function TaskAssignmentTable({
   tasks,
@@ -55,6 +70,34 @@ export function TaskAssignmentTable({
   onCancelRateEdit,
   onRateUpdate,
 }: TaskAssignmentTableProps) {
+  const { setValues, getPositiveInt } = useUrlTableState({
+    prefix: "tasks",
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+    },
+  });
+
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const total = tasks.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, setPage, totalPages]);
+
+  const pagedTasks = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return tasks.slice(start, start + pageSize);
+  }, [tasks, page, pageSize]);
+
   const columns = useMemo<ColumnDef<OrderItemTask>[]>(
     () => [
       {
@@ -103,7 +146,11 @@ export function TaskAssignmentTable({
             <Select
               disabled={loadingId === task.id}
               value={task.status}
-              onValueChange={(value) => onStatusChange(task.id, value as TaskStatus)}
+              onValueChange={(value) => {
+                if (isTaskStatus(value)) {
+                  onStatusChange(task.id, value);
+                }
+              }}
             >
               <SelectTrigger variant="inlineGhost" className="h-8 p-0">
                 <Badge variant={STATUS_VARIANTS[task.status] || "outline"} className="w-full justify-center uppercase">
@@ -221,11 +268,15 @@ export function TaskAssignmentTable({
     <TableSurface variant="flat">
       <DataTable
         columns={columns}
-        data={tasks}
+        data={pagedTasks}
         loading={false}
         itemLabel="tasks"
         emptyMessage="No tasks found. Was the workflow enabled when this order was placed?"
         chrome="flat"
+        page={page}
+        total={total}
+        limit={pageSize}
+        onPageChange={setPage}
       />
     </TableSurface>
   );

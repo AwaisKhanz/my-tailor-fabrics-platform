@@ -35,9 +35,8 @@ export class CustomersController {
       return undefined;
     }
 
-    return Object.values(CustomerStatus).includes(value as CustomerStatus)
-      ? (value as CustomerStatus)
-      : undefined;
+    const statuses = Object.values(CustomerStatus);
+    return statuses.find((status) => status === value);
   }
 
   @Roles(...OPERATOR_ROLES)
@@ -64,13 +63,15 @@ export class CustomersController {
     @Query('status') status: string | undefined,
     @Req() req: AuthenticatedRequest,
   ) {
+    const vipFilter =
+      isVip === 'true' ? true : isVip === 'false' ? false : undefined;
     const parsedStatus = this.parseStatus(status);
     const data = await this.customersService.findAll(
       req.branchId,
       pagination.page ?? 1,
       pagination.limit ?? 20,
       search,
-      isVip === 'true' ? true : undefined,
+      vipFilter,
       parsedStatus,
     );
     return success(data);

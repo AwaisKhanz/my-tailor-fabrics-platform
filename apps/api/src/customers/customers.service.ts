@@ -8,6 +8,11 @@ import {
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
 import { SearchService } from '../search/search.service';
 import { CustomerStatus, CustomersListSummary } from '@tbms/shared-types';
+import {
+  buildPaginationMeta,
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 interface CustomersListFilters {
   search?: string;
@@ -18,12 +23,13 @@ interface CustomersListFilters {
 function toPrismaMeasurementValues(
   values: UpsertMeasurementDto['values'],
 ): Prisma.InputJsonObject {
-  return Object.fromEntries(
-    Object.entries(values).map(([key, value]) => [
-      key,
-      value as Prisma.JsonValue,
-    ]),
-  ) as Prisma.InputJsonObject;
+  return Object.entries(values).reduce<Prisma.InputJsonObject>(
+    (acc, [key, value]) => ({
+      ...acc,
+      [key]: value === null ? null : value,
+    }),
+    {},
+  );
 }
 
 @Injectable()
@@ -95,19 +101,25 @@ export class CustomersService {
     isVip?: boolean,
     status?: CustomerStatus,
   ) {
+    const pagination = normalizePagination({ page, limit, defaultLimit: 20 });
+    const { limit: safeLimit } = pagination;
+
     if (search && search.trim().length >= 2) {
       const results = await this.searchService.searchCustomers(
         search,
         branchId,
-        limit,
+        safeLimit,
       );
       return {
         data: results,
-        meta: { total: results.length, page: 1, lastPage: 1 },
+        total: results.length,
+        meta: buildPaginationMeta(results.length, {
+          page: 1,
+          limit: safeLimit,
+        }),
       };
     }
 
-    const skip = (page - 1) * limit;
     const where = this.buildCustomersWhereClause(
       branchId,
       {
@@ -120,14 +132,14 @@ export class CustomersService {
     const [data, total] = await Promise.all([
       this.prisma.customer.findMany({
         where,
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: safeLimit,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.customer.count({ where }),
     ]);
 
-    return { data, meta: { total, page, lastPage: Math.ceil(total / limit) } };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getSummary(
@@ -223,7 +235,7 @@ export class CustomersService {
 
   async getOrders(id: string, branchId: string | null, page = 1, limit = 20) {
     await this.findOne(id, branchId);
-    const skip = (page - 1) * limit;
+    const pagination = normalizePagination({ page, limit, defaultLimit: 20 });
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
@@ -232,8 +244,8 @@ export class CustomersService {
           deletedAt: null,
           ...(branchId ? { branchId } : {}),
         },
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
         orderBy: { orderDate: 'desc' },
         include: { items: true },
       }),
@@ -246,7 +258,7 @@ export class CustomersService {
       }),
     ]);
 
-    return { data, total };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async upsertMeasurement(

@@ -1,10 +1,11 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
 import type {
+  ApiResponse,
   EmployeeLedgerEntry,
   LedgerSummary,
   EarningsByPeriod,
   CreateManualLedgerEntryInput,
+  LedgerEarningsQueryInput,
   LedgerStatement,
   LedgerStatementParams,
 } from '@tbms/shared-types';
@@ -32,9 +33,10 @@ export const ledgerApi = {
 
   /** Get earnings grouped by week for the last N weeks. */
   getEarnings: async (employeeId: string, weeksBack = 12) => {
+    const params: LedgerEarningsQueryInput = { weeksBack };
     const response = await api.get<ApiResponse<EarningsByPeriod[]>>(
       `/ledger/${employeeId}/earnings`,
-      { params: { weeksBack } }
+      { params }
     );
     return response.data;
   },

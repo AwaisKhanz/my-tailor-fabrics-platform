@@ -22,11 +22,11 @@ import {
   isProductionEnvironment,
 } from '../common/env';
 import { ALL_ROLES } from '@tbms/shared-constants';
+import { success } from '../common/utils/response.util';
 import type {
   ApiResponse,
   AuthLoginResponseData,
   AuthRefreshResponseData,
-  Role,
 } from '@tbms/shared-types';
 
 const REFRESH_COOKIE_NAME = 'Refresh-Token';
@@ -76,10 +76,7 @@ export class AuthController {
       success: true,
       data: {
         accessToken: result.accessToken,
-        user: {
-          ...result.user,
-          role: result.user.role as Role,
-        },
+        user: result.user,
       },
     };
 
@@ -123,17 +120,11 @@ export class AuthController {
   async logout(@Req() req: AuthenticatedRequest, @Res() res: Response) {
     await this.authService.logout(req.user.userId);
     this.clearRefreshCookie(res);
-    return res.json({
-      success: true,
-      data: { message: 'Logged out successfully' },
-    });
+    return res.json(success({ message: 'Logged out successfully' }));
   }
   @Roles(...ALL_ROLES)
   @Get('me')
   getProfile(@Req() req: AuthenticatedRequest) {
-    return {
-      success: true,
-      data: req.user,
-    };
+    return success(req.user);
   }
 }

@@ -10,10 +10,42 @@ import {
   Prisma,
   LedgerEntryType as PrismaLedgerEntryType,
 } from '@prisma/client';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
+
+const LEDGER_ENTRY_TYPE_TO_PRISMA: Record<
+  LedgerEntryType,
+  PrismaLedgerEntryType
+> = {
+  [LedgerEntryType.EARNING]: PrismaLedgerEntryType.EARNING,
+  [LedgerEntryType.PAYOUT]: PrismaLedgerEntryType.PAYOUT,
+  [LedgerEntryType.ADVANCE]: PrismaLedgerEntryType.ADVANCE,
+  [LedgerEntryType.DEDUCTION]: PrismaLedgerEntryType.DEDUCTION,
+  [LedgerEntryType.ADJUSTMENT]: PrismaLedgerEntryType.ADJUSTMENT,
+  [LedgerEntryType.SALARY]: PrismaLedgerEntryType.SALARY,
+};
 
 @Injectable()
 export class LedgerService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private parseLedgerEntryType(
+    rawType?: string,
+  ): LedgerEntryType | undefined {
+    if (!rawType) {
+      return undefined;
+    }
+    const types = Object.values(LedgerEntryType);
+    return types.find((type) => type === rawType);
+  }
+
+  private toPrismaLedgerEntryType(
+    type: LedgerEntryType,
+  ): PrismaLedgerEntryType {
+    return LEDGER_ENTRY_TYPE_TO_PRISMA[type];
+  }
 
   private async assertEmployeeScope(
     employeeId: string,
@@ -51,7 +83,7 @@ export class LedgerService {
       data: {
         employeeId: dto.employeeId,
         branchId: dto.branchId,
-        type: dto.type as PrismaLedgerEntryType,
+        type: this.toPrismaLedgerEntryType(dto.type),
         amount: dto.amount,
         orderItemTaskId: dto.orderItemTaskId ?? null,
         paymentId: dto.paymentId ?? null,
@@ -105,8 +137,13 @@ export class LedgerService {
   ) {
     await this.assertEmployeeScope(employeeId, branchId);
 
-    const { from, to, type, page = 1, limit = 20 } = options;
-    const skip = (page - 1) * limit;
+    const { from, to } = options;
+    const type = this.parseLedgerEntryType(options.type);
+    const pagination = normalizePagination({
+      page: options.page,
+      limit: options.limit,
+      defaultLimit: 20,
+    });
 
     const where: Prisma.EmployeeLedgerEntryWhereInput = {
       employeeId,
@@ -120,15 +157,15 @@ export class LedgerService {
             },
           }
         : {}),
-      ...(type ? { type: type as PrismaLedgerEntryType } : {}),
+      ...(type ? { type: this.toPrismaLedgerEntryType(type) } : {}),
     };
 
     const [entries, total, summary] = await Promise.all([
       this.prisma.employeeLedgerEntry.findMany({
         where,
         orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
         include: {
           employee: { select: { id: true, fullName: true } },
           branch: { select: { id: true, name: true, code: true } },
@@ -152,13 +189,14 @@ export class LedgerService {
       this.getBalance(employeeId, branchId),
     ]);
 
+    const statement = toPaginatedResponse(entries, total, pagination);
     return {
-      entries,
+      entries: statement.data,
       summary,
       meta: {
-        total,
-        page,
-        lastPage: Math.ceil(total / limit),
+        total: statement.total,
+        page: statement.meta.page,
+        lastPage: statement.meta.lastPage,
       },
     };
   }

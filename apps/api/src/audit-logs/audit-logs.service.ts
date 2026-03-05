@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '@tbms/shared-constants';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -52,18 +56,13 @@ export class AuditLogsService {
   }
 
   private normalizePagination(page = DEFAULT_PAGE, limit = DEFAULT_LIMIT) {
-    const safePage =
-      Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
-    const safeLimit =
-      Number.isFinite(limit) && limit > 0
-        ? Math.min(Math.trunc(limit), MAX_LIMIT)
-        : DEFAULT_LIMIT;
-
-    return {
-      page: safePage,
-      limit: safeLimit,
-      skip: (safePage - 1) * safeLimit,
-    };
+    return normalizePagination({
+      page,
+      limit,
+      defaultPage: DEFAULT_PAGE,
+      defaultLimit: DEFAULT_LIMIT,
+      maxLimit: MAX_LIMIT,
+    });
   }
 
   private parseDateBoundary(
@@ -149,7 +148,7 @@ export class AuditLogsService {
       this.prisma.auditLog.count({ where }),
     ]);
 
-    return { data, total };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getStats(filters: Omit<AuditLogsFilters, 'page' | 'limit'>) {

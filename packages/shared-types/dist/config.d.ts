@@ -1,4 +1,12 @@
-import { FieldType } from './common';
+import { FieldType, PaginatedResponse } from './common';
+export interface MeasurementSection {
+    id: string;
+    name: string;
+    sortOrder: number;
+    categoryId: string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
 export interface MeasurementField {
     id: string;
     label: string;
@@ -7,6 +15,8 @@ export interface MeasurementField {
     isRequired: boolean;
     sortOrder: number;
     dropdownOptions: string[];
+    sectionId?: string | null;
+    section?: MeasurementSection | null;
 }
 export interface CreateMeasurementFieldInput {
     label: string;
@@ -15,6 +25,8 @@ export interface CreateMeasurementFieldInput {
     isRequired?: boolean;
     sortOrder?: number;
     dropdownOptions?: string[];
+    sectionId?: string;
+    sectionName?: string;
 }
 export interface UpdateMeasurementFieldInput {
     label?: string;
@@ -23,6 +35,8 @@ export interface UpdateMeasurementFieldInput {
     isRequired?: boolean;
     sortOrder?: number;
     dropdownOptions?: string[];
+    sectionId?: string;
+    sectionName?: string;
 }
 export interface CreateMeasurementCategoryInput {
     name: string;
@@ -41,8 +55,13 @@ export interface MeasurementCategory {
     sortOrder: number;
     isActive: boolean;
     fields: MeasurementField[];
+    sections: MeasurementSection[];
     createdAt: Date | string;
     updatedAt?: Date | string;
+}
+export interface CreateMeasurementSectionInput {
+    name: string;
+    sortOrder?: number;
 }
 export interface MeasurementStats {
     totalCategories: number;
@@ -50,6 +69,12 @@ export interface MeasurementStats {
     totalFields: number;
     requiredFields: number;
 }
+export interface MeasurementCategoryListQueryInput {
+    search?: string;
+    page?: number;
+    limit?: number;
+}
+export type MeasurementCategoryListResult = PaginatedResponse<MeasurementCategory>;
 export interface GarmentType {
     id: string;
     name: string;
@@ -61,6 +86,7 @@ export interface GarmentType {
     createdAt: Date | string;
     updatedAt: Date | string;
     measurementCategories?: MeasurementCategory[];
+    workflowSteps?: import('./orders').WorkflowStepTemplate[];
 }
 export interface CreateGarmentTypeInput {
     name: string;
@@ -73,6 +99,12 @@ export interface CreateGarmentTypeInput {
 }
 export interface UpdateGarmentTypeInput extends Partial<CreateGarmentTypeInput> {
 }
+export interface GarmentTypeListQueryInput {
+    search?: string;
+    page?: number;
+    limit?: number;
+}
+export type GarmentTypeListResult = PaginatedResponse<GarmentType>;
 export interface GarmentPriceLog {
     id: string;
     action: string;
@@ -99,6 +131,11 @@ export interface GarmentTypeAnalytics {
         name: string;
         count: number;
     }[];
+}
+export interface GarmentStatsSummary {
+    totalCount: number;
+    avgRetailPrice: number;
+    activeProduction: number;
 }
 export interface GarmentTypeWithAnalytics extends GarmentType {
     marginAmount: number;

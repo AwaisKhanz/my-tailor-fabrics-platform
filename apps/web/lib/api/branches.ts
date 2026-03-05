@@ -1,9 +1,10 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
-
 import type {
+  ApiResponse,
   Branch,
   BranchDetail,
+  BranchListQueryInput,
+  BranchListResult,
   BranchStatsSummary,
   CreateBranchInput,
   UpdateBranchInput,
@@ -12,8 +13,11 @@ import type {
 export type { Branch };
 
 export const branchesApi = {
-  getBranches: async (params?: { search?: string; page?: number; limit?: number }) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Branch>>>('/branches', { params });
+  getBranches: async (params?: BranchListQueryInput) => {
+    const response = await api.get<ApiResponse<BranchListResult>>(
+      '/branches',
+      { params },
+    );
     return response.data;
   },
   

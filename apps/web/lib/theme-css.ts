@@ -51,7 +51,9 @@ function parseHexColor(value: string): RgbColor | null {
 function parseRgbColor(value: string): RgbColor | null {
   const match = value
     .trim()
-    .match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*(\d*\.?\d+))?\s*\)$/i);
+    .match(
+      /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*(\d*\.?\d+))?\s*\)$/i,
+    );
 
   if (!match) {
     return null;
@@ -60,7 +62,10 @@ function parseRgbColor(value: string): RgbColor | null {
   const r = clamp(Number.parseInt(match[1], 10), 0, 255);
   const g = clamp(Number.parseInt(match[2], 10), 0, 255);
   const b = clamp(Number.parseInt(match[3], 10), 0, 255);
-  const a = match[4] !== undefined ? clamp(Number.parseFloat(match[4]), 0, 1) : undefined;
+  const a =
+    match[4] !== undefined
+      ? clamp(Number.parseFloat(match[4]), 0, 1)
+      : undefined;
 
   if ([r, g, b].some((channel) => Number.isNaN(channel))) {
     return null;
@@ -81,7 +86,12 @@ function parseColor(value: string): RgbColor | null {
   return null;
 }
 
-function rgbToHsl(color: RgbColor): { h: number; s: number; l: number; a?: number } {
+function rgbToHsl(color: RgbColor): {
+  h: number;
+  s: number;
+  l: number;
+  a?: number;
+} {
   const r = color.r / 255;
   const g = color.g / 255;
   const b = color.b / 255;
@@ -150,7 +160,11 @@ function contrastRatio(a: RgbColor, b: RgbColor): number {
   return (brighter + 0.05) / (darker + 0.05);
 }
 
-function pickReadableForeground(background: string, optionA: string, optionB: string): string {
+function pickReadableForeground(
+  background: string,
+  optionA: string,
+  optionB: string,
+): string {
   const bgColor = parseColor(background);
   const aColor = parseColor(optionA);
   const bColor = parseColor(optionB);
@@ -159,7 +173,9 @@ function pickReadableForeground(background: string, optionA: string, optionB: st
     return optionA;
   }
 
-  return contrastRatio(bgColor, aColor) >= contrastRatio(bgColor, bColor) ? optionA : optionB;
+  return contrastRatio(bgColor, aColor) >= contrastRatio(bgColor, bColor)
+    ? optionA
+    : optionB;
 }
 
 function buildMuted(baseColor: string, mode: ThemeMode): string {
@@ -265,7 +281,8 @@ export function createThemeCssVariables(
     palette.textPrimary,
   );
 
-  const mutedSurface = palette.pendingMuted ?? buildMuted(palette.background, mode);
+  const mutedSurface =
+    palette.pendingMuted ?? buildMuted(palette.background, mode);
   const accentSurface = palette.hover ?? buildAccent(palette.accent, mode);
 
   return {
@@ -274,8 +291,8 @@ export function createThemeCssVariables(
     "--foreground": colorToHslVarValue(palette.textPrimary),
     "--card": colorToHslVarValue(palette.surface),
     "--card-foreground": colorToHslVarValue(palette.textPrimary),
-    "--popover": colorToHslVarValue(palette.surface),
-    "--popover-foreground": colorToHslVarValue(palette.textPrimary),
+    "--popover": colorToHslVarValue(palette.popover),
+    "--popover-foreground": colorToHslVarValue(palette.popoverForeground),
     "--primary": colorToHslVarValue(palette.primary),
     "--primary-foreground": colorToHslVarValue(primaryForeground),
     "--secondary": colorToHslVarValue(palette.secondary),
@@ -353,15 +370,5 @@ export function createThemeCssVariables(
     "--chart-6": colorToHslVarValue(palette.chart6),
     "--chart-7": colorToHslVarValue(palette.chart7),
     "--chart-8": colorToHslVarValue(palette.chart8),
-
-    // Compatibility aliases (temporary during migration cycle)
-    "--legacy-surface": colorToHslVarValue(palette.surface),
-    "--legacy-text-primary": colorToHslVarValue(palette.textPrimary),
-    "--legacy-text-secondary": colorToHslVarValue(palette.textSecondary),
-    "--legacy-border": colorToHslVarValue(palette.border),
-    "--legacy-overlay": colorToHslVarValue(palette.overlay),
-    "--legacy-overlay-strong": colorToHslVarValue(palette.overlayStrong),
-    "--legacy-pending": colorToHslVarValue(palette.pending),
-    "--legacy-ready": colorToHslVarValue(palette.ready),
   };
 }

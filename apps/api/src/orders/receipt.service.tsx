@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as React from 'react';
-import { Document, Page, Text, View, StyleSheet, renderToStream } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { renderPdfStream } from '../common/utils/pdf-render.util';
 
 const styles = StyleSheet.create({
   page: { flexDirection: 'column', backgroundColor: '#FFFFFF', padding: 30 },
@@ -214,10 +215,9 @@ export class ReceiptService {
 
     const receiptOrder = this.toReceiptOrder(order);
 
-    // Workaround for React 18 / React PDF typings issue
     const element = React.createElement(ReceiptDocument, {
       order: receiptOrder,
-    }) as React.ReactElement;
-    return renderToStream(element as never);
+    });
+    return renderPdfStream(element);
   }
 }

@@ -10,6 +10,10 @@ import { type MyAssignedWorkItem } from "@/hooks/use-my-orders-page";
 interface MyOrdersTableProps {
   items: MyAssignedWorkItem[];
   loading: boolean;
+  page: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
 }
 
 const ITEM_STATUS_BADGE: Record<ItemStatus, "default" | "secondary" | "outline" | "destructive"> = {
@@ -19,7 +23,27 @@ const ITEM_STATUS_BADGE: Record<ItemStatus, "default" | "secondary" | "outline" 
   [ItemStatus.CANCELLED]: "destructive",
 };
 
-export function MyOrdersTable({ items, loading }: MyOrdersTableProps) {
+function parseItemStatus(value: string): ItemStatus {
+  switch (value) {
+    case ItemStatus.PENDING:
+    case ItemStatus.IN_PROGRESS:
+    case ItemStatus.COMPLETED:
+    case ItemStatus.CANCELLED:
+      return value;
+    default:
+      return ItemStatus.PENDING;
+  }
+}
+
+export function MyOrdersTable({
+  items,
+  loading,
+  page,
+  total,
+  pageSize,
+  onPageChange,
+}: MyOrdersTableProps) {
+
   const columns = useMemo<ColumnDef<MyAssignedWorkItem>[]>(
     () => [
       {
@@ -34,21 +58,22 @@ export function MyOrdersTable({ items, loading }: MyOrdersTableProps) {
               {item.garmentTypeName}
             </span>
             <Label variant="dashboard" className="mt-0.5">
-              {item.description}
+              {item.description || "—"}
             </Label>
           </div>
         ),
       },
       {
         header: "Due Date",
-        cell: (item) => (
-          <Label variant="dashboard">{formatDate(item.dueDate || item.order.dueDate)}</Label>
-        ),
+        cell: (item) => {
+          const dueDate = item.dueDate ?? item.order.dueDate ?? "";
+          return <Label variant="dashboard">{formatDate(dueDate)}</Label>;
+        },
       },
       {
         header: "Status",
         cell: (item) => {
-          const status = (item.status as ItemStatus) || ItemStatus.PENDING;
+          const status = parseItemStatus(item.status);
           return (
             <Badge variant={ITEM_STATUS_BADGE[status]} size="xs">
               {ITEM_STATUS_LABELS[status] || ITEM_STATUS_LABELS[ItemStatus.PENDING]}
@@ -77,6 +102,10 @@ export function MyOrdersTable({ items, loading }: MyOrdersTableProps) {
       itemLabel="items"
       emptyMessage="You don't have any orders assigned to you at the moment."
       chrome="flat"
+      page={page}
+      total={total}
+      limit={pageSize}
+      onPageChange={onPageChange}
     />
   );
 }

@@ -19,9 +19,13 @@ export function ReportsProductivityChart({
   points,
 }: ReportsProductivityChartProps) {
   const topPoints = points.slice(0, 10);
-  const [hoveredEmployeeId, setHoveredEmployeeId] = useState<string | null>(topPoints[0]?.employeeId ?? null);
+  const [hoveredEmployeeId, setHoveredEmployeeId] = useState<string | null>(
+    topPoints[0]?.employeeId ?? null,
+  );
   const activePoint = useMemo(
-    () => topPoints.find((entry) => entry.employeeId === hoveredEmployeeId) ?? topPoints[0],
+    () =>
+      topPoints.find((entry) => entry.employeeId === hoveredEmployeeId) ??
+      topPoints[0],
     [topPoints, hoveredEmployeeId],
   );
   const maxTotal = Math.max(
@@ -57,18 +61,26 @@ export function ReportsProductivityChart({
         <div className="space-y-3">
           {activePoint ? (
             <InfoTile tone="elevatedSoft" padding="md">
-              <p className="text-xs font-semibold text-text-primary">{activePoint.employeeName}</p>
+              <p className="text-xs font-semibold text-text-primary">
+                {activePoint.employeeName}
+              </p>
               <p className="mt-1 text-[11px] text-text-secondary">
-                {activePoint.totalCompleted} completed • {formatPKR(activePoint.payout)}
+                {activePoint.totalCompleted} completed •{" "}
+                {formatPKR(activePoint.payout)}
               </p>
             </InfoTile>
           ) : null}
 
           {topPoints.map((point) => {
             const total = point.totalCompleted;
-            const totalWidth = Math.max(2, Math.round((total / maxTotal) * 100));
+            const totalWidth = Math.max(
+              2,
+              Math.round((total / maxTotal) * 100),
+            );
             const itemsWidth =
-              total > 0 ? Math.round((point.completedItems / total) * totalWidth) : 0;
+              total > 0
+                ? Math.round((point.completedItems / total) * totalWidth)
+                : 0;
             const tasksWidth = Math.max(0, totalWidth - itemsWidth);
             const isActive = point.employeeId === activePoint?.employeeId;
 
@@ -78,21 +90,33 @@ export function ReportsProductivityChart({
                 className={`space-y-1.5 rounded-lg border px-3 py-2.5 transition-colors ${
                   isActive
                     ? "border-primary/40 bg-interaction-hover"
-                    : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+                    : "border-divider bg-surface-elevated/60 hover:border-divider"
                 }`}
                 onMouseEnter={() => setHoveredEmployeeId(point.employeeId)}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-text-primary">{point.employeeName}</p>
+                  <p className="text-sm font-medium text-text-primary">
+                    {point.employeeName}
+                  </p>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-text-secondary">{total} completed</p>
-                    <p className="text-xs text-text-secondary">{formatPKR(point.payout)}</p>
+                    <p className="text-xs font-semibold text-text-secondary">
+                      {total} completed
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {formatPKR(point.payout)}
+                    </p>
                   </div>
                 </div>
 
                 <ProgressTrack size="md" className="flex">
-                  <div className="bg-chart-1" style={{ width: `${itemsWidth}%` }} />
-                  <div className="bg-chart-2" style={{ width: `${tasksWidth}%` }} />
+                  <div
+                    className="bg-chart-1"
+                    style={{ width: `${itemsWidth}%` }}
+                  />
+                  <div
+                    className="bg-chart-2"
+                    style={{ width: `${tasksWidth}%` }}
+                  />
                 </ProgressTrack>
 
                 <div className="flex items-center justify-between text-[11px] text-text-secondary">

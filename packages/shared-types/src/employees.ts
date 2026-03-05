@@ -1,4 +1,9 @@
-import { EmployeeStatus, PaymentType } from './common';
+import {
+  EmployeeStatus,
+  OrderStatus,
+  PaginatedResponse,
+  PaymentType,
+} from './common';
 
 export interface EmployeeLinkedUserAccount {
   id: string;
@@ -43,6 +48,33 @@ export interface EmployeeWithRelations extends Employee {
   userAccount?: EmployeeLinkedUserAccount | null;
   documents: EmployeeDocument[];
 }
+
+export interface EmployeeListQueryInput {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export type EmployeeListResult = PaginatedResponse<Employee>;
+
+export interface EmployeeItemsQueryInput {
+  page?: number;
+  limit?: number;
+}
+
+export interface EmployeeOrderReference {
+  orderNumber: string;
+  dueDate?: string | null;
+  status?: OrderStatus | string;
+}
+
+export type EmployeeOrderItem = Omit<import('./orders').OrderItem, 'order'> & {
+  order: EmployeeOrderReference;
+};
+
+export type EmployeeItemsResult = PaginatedResponse<EmployeeOrderItem>;
+
+export type EmployeeAssignedItemsResult = EmployeeItemsResult;
 
 export interface CreateEmployeeInput {
   fullName: string;

@@ -63,6 +63,7 @@ export function ReportsFinancialTrendChart({
       description={description}
       icon={<AreaChart className="h-4 w-4" />}
       actions={actions}
+      className="h-full"
       legend={
         <ReportsChartLegend
           items={[
@@ -102,7 +103,11 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
   const plotWidth = width - padLeft - padRight;
   const plotHeight = height - padTop - padBottom;
 
-  const allValues = trend.points.flatMap((point) => [point.revenue, point.expenses, point.net]);
+  const allValues = trend.points.flatMap((point) => [
+    point.revenue,
+    point.expenses,
+    point.net,
+  ]);
   const minValue = Math.min(0, ...allValues);
   let maxValue = Math.max(0, ...allValues, 1);
   if (maxValue === minValue) {
@@ -110,7 +115,8 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
   }
 
   const valueRange = maxValue - minValue;
-  const mapY = (value: number) => padTop + ((maxValue - value) / valueRange) * plotHeight;
+  const mapY = (value: number) =>
+    padTop + ((maxValue - value) / valueRange) * plotHeight;
   const zeroY = mapY(0);
 
   const dataPoints: ChartPoint[] = trend.points.map((point, index) => {
@@ -133,9 +139,15 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
     };
   });
 
-  const revenuePath = pointsToPath(dataPoints.map((point) => ({ x: point.x, y: point.revenueY })));
-  const expensesPath = pointsToPath(dataPoints.map((point) => ({ x: point.x, y: point.expensesY })));
-  const netPath = pointsToPath(dataPoints.map((point) => ({ x: point.x, y: point.netY })));
+  const revenuePath = pointsToPath(
+    dataPoints.map((point) => ({ x: point.x, y: point.revenueY })),
+  );
+  const expensesPath = pointsToPath(
+    dataPoints.map((point) => ({ x: point.x, y: point.expensesY })),
+  );
+  const netPath = pointsToPath(
+    dataPoints.map((point) => ({ x: point.x, y: point.netY })),
+  );
 
   const areaPath =
     dataPoints.length > 1
@@ -152,9 +164,12 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
 
   const hitAreas = dataPoints.map((point, index) => {
     const previousX = dataPoints[index - 1]?.x ?? padLeft;
-    const nextX = dataPoints[index + 1]?.x ?? (width - padRight);
+    const nextX = dataPoints[index + 1]?.x ?? width - padRight;
     const leftBoundary = index === 0 ? padLeft : (previousX + point.x) / 2;
-    const rightBoundary = index === dataPoints.length - 1 ? width - padRight : (point.x + nextX) / 2;
+    const rightBoundary =
+      index === dataPoints.length - 1
+        ? width - padRight
+        : (point.x + nextX) / 2;
 
     return {
       leftBoundary,
@@ -166,20 +181,30 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
   const tooltipWidth = 220;
   const tooltipHeight = 72;
   const tooltipX = activePoint
-    ? clamp(activePoint.x - tooltipWidth / 2, padLeft, width - padRight - tooltipWidth)
+    ? clamp(
+        activePoint.x - tooltipWidth / 2,
+        padLeft,
+        width - padRight - tooltipWidth,
+      )
     : 0;
   const tooltipY = padTop + 10;
 
   return (
-    <InfoTile padding="sm" radius="xl" className="overflow-hidden">
+    <InfoTile padding="sm" radius="xl" className="overflow-hidden h-full">
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="h-[290px] w-full"
+        className="min-h-[290px] w-full h-full"
         role="img"
         aria-label="Financial trend chart"
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        <line x1={padLeft} y1={zeroY} x2={width - padRight} y2={zeroY} className="stroke-border" />
+        <line
+          x1={padLeft}
+          y1={zeroY}
+          x2={width - padRight}
+          y2={zeroY}
+          className="stroke-border"
+        />
 
         {yAxisTicks.map((tick) => (
           <g key={tick.y}>
@@ -191,7 +216,11 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               className="stroke-divider"
               strokeDasharray="3 4"
             />
-            <text x={8} y={tick.y + 4} className="fill-text-secondary text-[10px]">
+            <text
+              x={8}
+              y={tick.y + 4}
+              className="fill-text-secondary text-[10px]"
+            >
               {formatNumber(tick.value)}
             </text>
           </g>
@@ -199,9 +228,28 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
 
         {areaPath ? <path d={areaPath} className="fill-chart-1/15" /> : null}
 
-        <path d={revenuePath} className="stroke-chart-1" strokeWidth="3" fill="none" strokeLinecap="round" />
-        <path d={expensesPath} className="stroke-chart-2" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        <path d={netPath} className="stroke-chart-3" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
+        <path
+          d={revenuePath}
+          className="stroke-chart-1"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d={expensesPath}
+          className="stroke-chart-2"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d={netPath}
+          className="stroke-chart-3"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray="5 4"
+        />
 
         {activePoint ? (
           <line
@@ -235,7 +283,12 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               className="fill-chart-3"
             />
             {index % labelStep === 0 || index === dataPoints.length - 1 ? (
-              <text x={point.x} y={height - 10} textAnchor="middle" className="fill-text-secondary text-[10px]">
+              <text
+                x={point.x}
+                y={height - 10}
+                textAnchor="middle"
+                className="fill-text-secondary text-[10px]"
+              >
                 {point.label}
               </text>
             ) : null}
@@ -264,10 +317,14 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               width={tooltipWidth}
               height={tooltipHeight}
               rx="8"
-              className="fill-popover stroke-borderStrong/50"
+              className="fill-popover stroke-divider/50"
               strokeWidth="1"
             />
-            <text x="12" y="18" className="fill-text-primary text-[11px] font-semibold">
+            <text
+              x="12"
+              y="18"
+              className="fill-text-primary text-[11px] font-semibold"
+            >
               {activePoint.label}
             </text>
             <text x="12" y="35" className="fill-chart-1 text-[10px]">

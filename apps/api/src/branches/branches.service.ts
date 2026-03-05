@@ -12,6 +12,10 @@ import {
 } from '@prisma/client';
 import { CreateBranchInput, UpdateBranchInput } from '@tbms/shared-types';
 import { OPEN_ORDER_STATUSES } from '@tbms/shared-constants';
+import {
+  buildPaginationMeta,
+  normalizePagination as normalizePaginationParams,
+} from '../common/utils/pagination.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -30,14 +34,13 @@ export class BranchesService {
       return null;
     }
 
-    const safePage =
-      Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
-    const safeLimit = Math.min(Math.trunc(limit as number), MAX_LIMIT);
-    return {
-      page: safePage,
-      limit: safeLimit || DEFAULT_LIMIT,
-      skip: (safePage - 1) * (safeLimit || DEFAULT_LIMIT),
-    };
+    return normalizePaginationParams({
+      page,
+      limit,
+      defaultPage: DEFAULT_PAGE,
+      defaultLimit: DEFAULT_LIMIT,
+      maxLimit: MAX_LIMIT,
+    });
   }
 
   private async ensureCodeAvailable(code: string, excludingId?: string) {
@@ -78,7 +81,7 @@ export class BranchesService {
     }
 
     if (pagination) {
-      const { skip, limit: safeLimit } = pagination;
+      const { page: safePage, skip, limit: safeLimit } = pagination;
       const [data, total] = await Promise.all([
         this.prisma.branch.findMany({
           where,
@@ -97,7 +100,11 @@ export class BranchesService {
         }),
         this.prisma.branch.count({ where }),
       ]);
-      return { data, total };
+      return {
+        data,
+        total,
+        meta: buildPaginationMeta(total, { page: safePage, limit: safeLimit }),
+      };
     }
 
     const data = await this.prisma.branch.findMany({
@@ -114,7 +121,11 @@ export class BranchesService {
       },
     });
 
-    return { data, total: data.length };
+    return {
+      data,
+      total: data.length,
+      meta: { page: 1, lastPage: 1 },
+    };
   }
 
   async findOne(id: string) {

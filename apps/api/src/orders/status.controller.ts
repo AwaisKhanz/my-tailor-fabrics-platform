@@ -18,6 +18,7 @@ import type { Request } from 'express';
 import { createHash } from 'crypto';
 import { Public } from '../common/decorators/auth.decorators';
 import { emitSecurityEvent } from '../common/utils/security-event.util';
+import { success } from '../common/utils/response.util';
 import { OrdersService } from './orders.service';
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -110,7 +111,7 @@ export class StatusController {
         this.cache.del(tokenAttemptKey),
         this.cache.del(tokenBlockKey),
       ]);
-      return { success: true, data };
+      return success(data);
     } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         const [previousIpAttempts, previousTokenAttempts] = await Promise.all([

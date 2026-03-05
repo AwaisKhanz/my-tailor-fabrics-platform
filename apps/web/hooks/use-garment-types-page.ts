@@ -6,6 +6,7 @@ import { configApi } from "@/lib/api/config";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
@@ -27,15 +28,23 @@ const EMPTY_GARMENT_STATS: GarmentTypesStats = {
 
 export function useGarmentTypesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [garmentTypes, setGarmentTypes] = useState<GarmentTypeWithWorkflow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [stats, setStats] = useState<GarmentTypesStats>(EMPTY_GARMENT_STATS);
 
-  const [search, setSearch] = useState("");
+  const search = values.search;
   const debouncedSearch = useDebounce(search, 500);
-  const [currentPage, setCurrentPage] = useState(1);
+  const currentPage = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
 
   const [selectedType, setSelectedType] = useState<GarmentTypeWithWorkflow | null>(null);
   const [typeToDelete, setTypeToDelete] = useState<GarmentTypeWithWorkflow | null>(null);
@@ -52,13 +61,13 @@ export function useGarmentTypesPage() {
         configApi.getGarmentTypes({
           search: debouncedSearch.trim() || undefined,
           page: currentPage,
-          limit: PAGE_SIZE,
+          limit: pageSize,
         }),
         configApi.getGarmentStats(),
       ]);
 
       if (listResponse.success) {
-        setGarmentTypes(listResponse.data.data as GarmentTypeWithWorkflow[]);
+        setGarmentTypes(listResponse.data.data);
         setTotalCount(listResponse.data.total);
       }
 
@@ -70,7 +79,7 @@ export function useGarmentTypesPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, debouncedSearch]);
+  }, [currentPage, debouncedSearch, pageSize]);
 
   useEffect(() => {
     void fetchGarmentTypes();
@@ -79,14 +88,19 @@ export function useGarmentTypesPage() {
   const hasActiveFilters = useMemo(() => search.trim().length > 0, [search]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setCurrentPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setCurrentPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setCurrentPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const openCreateDialog = useCallback(() => {
     setSelectedType(null);
@@ -171,7 +185,7 @@ export function useGarmentTypesPage() {
     stats,
     search,
     currentPage,
-    pageSize: PAGE_SIZE,
+    pageSize,
     hasActiveFilters,
     selectedType,
     typeToDelete,

@@ -39,10 +39,16 @@ const ACTION_BADGE_VARIANT_MAP: Record<string, "success" | "info" | "destructive
 };
 
 function toRecord(value: JsonValue | null | undefined): Record<string, JsonValue> | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
+  if (isJsonRecord(value)) {
+    return value;
   }
-  return value as Record<string, JsonValue>;
+  return null;
+}
+
+function isJsonRecord(
+  value: JsonValue | null | undefined,
+): value is Record<string, JsonValue> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function getChangeSummary(record: AuditLogEntry): string {

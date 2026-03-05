@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { MeasurementFieldDialog } from "@/components/config/MeasurementFieldDialog";
+import { MeasurementSectionDialog } from "@/components/config/MeasurementSectionDialog";
 import { MeasurementCategoryBreadcrumbs } from "@/components/config/measurements/detail/measurement-category-breadcrumbs";
 import { MeasurementCategoryDetailHeader } from "@/components/config/measurements/detail/measurement-category-detail-header";
 import { MeasurementFieldsStatsGrid } from "@/components/config/measurements/detail/measurement-fields-stats-grid";
@@ -25,10 +26,13 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
     notFound,
     isFieldDialogOpen,
     selectedField,
+    isSectionDialogOpen,
     isConfirmOpen,
     fieldToDelete,
+    openAddSectionDialog,
     openAddFieldDialog,
     openEditFieldDialog,
+    closeSectionDialog,
     closeFieldDialog,
     requestDeleteField,
     closeDeleteConfirm,
@@ -72,6 +76,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
 
         <MeasurementCategoryDetailHeader
           category={category}
+          onAddSection={openAddSectionDialog}
           onAddField={openAddFieldDialog}
           canManageMeasurements={canManageMeasurements}
         />
@@ -100,6 +105,16 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
             categoryName={category?.name}
             initialData={selectedField}
             existingFields={category?.fields || []}
+            existingSections={category?.sections || []}
+            onSuccess={() => {
+              void fetchCategory();
+            }}
+          />
+
+          <MeasurementSectionDialog
+            open={isSectionDialogOpen}
+            onOpenChange={closeSectionDialog}
+            categoryId={id}
             onSuccess={() => {
               void fetchCategory();
             }}

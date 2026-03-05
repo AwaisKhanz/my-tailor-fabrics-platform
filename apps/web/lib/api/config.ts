@@ -1,14 +1,21 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
-import { 
+import type { 
+  ApiResponse,
+  GarmentStatsSummary,
+  GarmentTypeListQueryInput,
+  GarmentTypeListResult,
   GarmentType, 
   MeasurementCategory, 
+  MeasurementCategoryListQueryInput,
+  MeasurementCategoryListResult,
   MeasurementStats,
   MeasurementField,
+  MeasurementSection,
   CreateMeasurementCategoryInput, 
   UpdateMeasurementCategoryInput,
   CreateMeasurementFieldInput,
   UpdateMeasurementFieldInput,
+  CreateMeasurementSectionInput,
   CreateGarmentTypeInput,
   UpdateGarmentTypeInput,
   GarmentPriceLog,
@@ -21,13 +28,11 @@ import {
 
 export const configApi = {
   // Garment Types
-  getGarmentTypes: async (params: { search?: string; page?: number; limit?: number } = {}) => {
-    const query = new URLSearchParams();
-    if (params.search) query.append('search', params.search);
-    if (params.page) query.append('page', params.page.toString());
-    if (params.limit) query.append('limit', params.limit.toString());
-    
-    const response = await api.get<ApiResponse<{ data: GarmentType[]; total: number }>>(`/config/garment-types?${query.toString()}`);
+  getGarmentTypes: async (params: GarmentTypeListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<GarmentTypeListResult>>(
+      '/config/garment-types',
+      { params },
+    );
     return response.data;
   },
   getGarmentType: async (id: string) => {
@@ -47,7 +52,7 @@ export const configApi = {
     return response.data;
   },
   getGarmentStats: async () => {
-    const response = await api.get<ApiResponse<{ totalCount: number; avgRetailPrice: number; activeProduction: number }>>('/config/garment-stats');
+    const response = await api.get<ApiResponse<GarmentStatsSummary>>('/config/garment-stats');
     return response.data;
   },
   updateGarmentWorkflowSteps: async (
@@ -68,13 +73,11 @@ export const configApi = {
   },
 
   // Measurement Categories
-  getMeasurementCategories: async (params: { search?: string; page?: number; limit?: number } = {}) => {
-    const query = new URLSearchParams();
-    if (params.search) query.append('search', params.search);
-    if (params.page) query.append('page', params.page.toString());
-    if (params.limit) query.append('limit', params.limit.toString());
-    
-    const response = await api.get<ApiResponse<{ data: MeasurementCategory[]; total: number }>>(`/config/measurement-categories?${query.toString()}`);
+  getMeasurementCategories: async (params: MeasurementCategoryListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<MeasurementCategoryListResult>>(
+      '/config/measurement-categories',
+      { params },
+    );
     return response.data;
   },
   getMeasurementCategory: async (id: string) => {
@@ -91,6 +94,16 @@ export const configApi = {
   },
   updateMeasurementCategory: async (id: string, data: UpdateMeasurementCategoryInput) => {
     const response = await api.put<ApiResponse<MeasurementCategory>>(`/config/measurement-categories/${id}`, data);
+    return response.data;
+  },
+  addMeasurementSection: async (
+    categoryId: string,
+    data: CreateMeasurementSectionInput,
+  ) => {
+    const response = await api.post<ApiResponse<MeasurementSection>>(
+      `/config/measurement-categories/${categoryId}/sections`,
+      data,
+    );
     return response.data;
   },
   addMeasurementField: async (

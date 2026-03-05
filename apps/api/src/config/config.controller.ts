@@ -18,6 +18,7 @@ import {
 import {
   CreateMeasurementCategoryDto,
   UpdateMeasurementCategoryDto,
+  CreateMeasurementSectionDto,
   CreateMeasurementFieldDto,
   UpdateMeasurementFieldDto,
 } from './dto/measurement-category.dto';
@@ -197,6 +198,17 @@ export class ConfigController {
     @Body() dto: UpdateMeasurementCategoryDto,
   ) {
     const data = await this.configService.updateMeasurementCategory(id, dto);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('measurements.manage')
+  @Post('measurement-categories/:id/sections')
+  async addMeasurementSection(
+    @Param('id') categoryId: string,
+    @Body() dto: CreateMeasurementSectionDto,
+  ) {
+    const data = await this.configService.addMeasurementSection(categoryId, dto);
     return success(data);
   }
 

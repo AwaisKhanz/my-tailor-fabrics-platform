@@ -1,13 +1,14 @@
 import { api } from '../api';
-import {
-  DesignType,
+import type {
   ApiResponse,
   CreateDesignTypeInput,
+  DesignType,
+  DesignTypesQueryInput,
   UpdateDesignTypeInput,
 } from '@tbms/shared-types';
 
 export const designTypesApi = {
-  findAll: async (params?: { branchId?: string; garmentTypeId?: string; search?: string }) => {
+  findAll: async (params: DesignTypesQueryInput = {}) => {
     const response = await api.get<ApiResponse<DesignType[]>>('/design-types', { params });
     return response.data;
   },

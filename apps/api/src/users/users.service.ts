@@ -15,6 +15,10 @@ import { ADMIN_ROLES } from '@tbms/shared-constants';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { normalizeEmailAddress } from '../common/utils/email.util';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 const PASSWORD_HASH_ROUNDS = 12;
 
@@ -30,9 +34,21 @@ const USER_SELECT = {
   branch: { select: { name: true, code: true } },
 } satisfies Prisma.UserSelect;
 
+const ROLE_TO_PRISMA_ROLE: Record<Role, PrismaRole> = {
+  [Role.SUPER_ADMIN]: PrismaRole.SUPER_ADMIN,
+  [Role.ADMIN]: PrismaRole.ADMIN,
+  [Role.ENTRY_OPERATOR]: PrismaRole.ENTRY_OPERATOR,
+  [Role.VIEWER]: PrismaRole.VIEWER,
+  [Role.EMPLOYEE]: PrismaRole.EMPLOYEE,
+};
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private toPrismaRole(role: Role): PrismaRole {
+    return ROLE_TO_PRISMA_ROLE[role];
+  }
 
   async markLastLogin(userId: string, at: Date = new Date()) {
     return this.prisma.user.update({
@@ -128,15 +144,18 @@ export class UsersService {
   }
 
   async findAll(options: UserAccountsQueryInput = {}) {
-    const page = options.page && options.page > 0 ? options.page : 1;
-    const limit =
-      options.limit && options.limit > 0 ? Math.min(options.limit, 100) : 10;
+    const pagination = normalizePagination({
+      page: options.page,
+      limit: options.limit,
+      defaultLimit: 10,
+      maxLimit: 100,
+    });
     const search = options.search?.trim();
 
     const where: Prisma.UserWhereInput = {
       deletedAt: null,
       ...(options.branchId ? { branchId: options.branchId } : {}),
-      ...(options.role ? { role: options.role as unknown as PrismaRole } : {}),
+      ...(options.role ? { role: this.toPrismaRole(options.role) } : {}),
     };
 
     if (search) {
@@ -156,19 +175,18 @@ export class UsersService {
       ];
     }
 
-    const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
         select: USER_SELECT,
         orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
       }),
       this.prisma.user.count({ where }),
     ]);
 
-    return { data, total, page, limit };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async setupInitialSuperAdmin(data: CreateUserInput) {
@@ -186,7 +204,7 @@ export class UsersService {
         name: data.name,
         email: normalizedEmail,
         passwordHash: hashedPassword,
-        role: data.role as Role,
+        role: this.toPrismaRole(data.role),
         branchId: this.resolveBranchId(data.branchId),
         isActive: true,
       },
@@ -205,7 +223,7 @@ export class UsersService {
         name: data.name,
         email: normalizedEmail,
         passwordHash,
-        role: data.role as Role,
+        role: this.toPrismaRole(data.role),
         branchId: this.resolveBranchId(data.branchId),
       },
       select: USER_SELECT,
@@ -241,7 +259,7 @@ export class UsersService {
     const data: Prisma.UserUncheckedUpdateInput = {
       name: dataParams.name,
       email: normalizedEmail,
-      role: dataParams.role as Role | undefined,
+      role: dataParams.role ? this.toPrismaRole(dataParams.role) : undefined,
       branchId: this.resolveBranchId(dataParams.branchId),
     };
 

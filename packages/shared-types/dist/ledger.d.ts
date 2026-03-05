@@ -81,6 +81,9 @@ export interface LedgerStatementParams {
     page?: number;
     limit?: number;
 }
+export interface LedgerEarningsQueryInput {
+    weeksBack?: number;
+}
 export interface EarningsByPeriod {
     period: string;
     earned: number;

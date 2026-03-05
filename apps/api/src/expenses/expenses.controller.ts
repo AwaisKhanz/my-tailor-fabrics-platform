@@ -24,7 +24,6 @@ import { requireBranchScope } from '../common/utils/branch-scope.util';
 import {
   success,
   successOnly,
-  successSpread,
 } from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
@@ -70,7 +69,7 @@ export class ExpensesController {
       sortBy,
       sortOrder,
     );
-    return successSpread(data);
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)

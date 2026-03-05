@@ -15,16 +15,6 @@ import { decodeJwtExpiryMs } from "@/lib/auth/jwt";
 const REFRESH_COOKIE_NAME = "Refresh-Token";
 const ACCESS_TOKEN_REFRESH_BUFFER_MS = 30_000;
 
-type JwtWithAuth = JWT & {
-  accessToken?: string;
-  refreshToken?: string;
-  accessTokenExpires?: number;
-  role?: unknown;
-  id?: string;
-  branchId?: string | null;
-  error?: string;
-};
-
 function extractCookieValue(
   setCookieHeader: string[] | string | undefined,
   cookieName: string,
@@ -56,7 +46,7 @@ function extractCookieValue(
 
 async function refreshAccessToken(
   apiBaseUrl: string,
-  token: JwtWithAuth,
+  token: JWT,
 ): Promise<JWT> {
   if (!token.refreshToken) {
     return {
@@ -164,7 +154,7 @@ function createAuthHandler() {
     ],
     callbacks: {
       async jwt({ token, user: nextAuthUser }) {
-        const tokenWithAuth = token as JwtWithAuth;
+        const tokenWithAuth = token;
 
         // On initial sign-in, persist user data and token expiry into the JWT
         if (nextAuthUser) {
@@ -235,7 +225,7 @@ function createAuthHandler() {
         return refreshedToken;
       },
       async session({ session, token }) {
-        const tokenWithAuth = token as JwtWithAuth;
+        const tokenWithAuth = token;
 
         if (token && session.user) {
           if (!isRole(tokenWithAuth.role)) {
@@ -248,7 +238,12 @@ function createAuthHandler() {
             session.accessToken = undefined;
             return session;
           }
-          session.user.id = tokenWithAuth.id as string;
+          if (typeof tokenWithAuth.id !== "string" || tokenWithAuth.id.length === 0) {
+            session.error = tokenWithAuth.error ?? "InvalidSessionUserId";
+            session.accessToken = undefined;
+            return session;
+          }
+          session.user.id = tokenWithAuth.id;
           session.user.role = tokenWithAuth.role;
           session.user.permissions = getRolePermissions(tokenWithAuth.role);
           session.user.branchId = tokenWithAuth.branchId ?? null;

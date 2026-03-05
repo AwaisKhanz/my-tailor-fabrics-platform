@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const cardVariants = cva(
-  "rounded-xl border border-borderStrong/70 bg-card text-card-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]",
+  "rounded-xl border border-divider bg-card text-card-foreground shadow-[0_2px_8px_hsl(var(--shadow-color))]",
   {
     variants: {
       variant: {
@@ -19,9 +19,9 @@ const cardVariants = cva(
         success: "border-success/45 bg-success-muted",
         error: "border-error/45 bg-error-muted",
         premium:
-          "border-borderStrong/70 bg-card shadow-[0_6px_16px_hsl(var(--shadow-color)/0.12)]",
+          "border-divider bg-card shadow-[0_6px_16px_hsl(var(--shadow-color))]",
         interactive:
-          "cursor-pointer transition-all duration-200 hover:border-borderStrong hover:bg-surface-elevated hover:shadow-[0_4px_12px_hsl(var(--shadow-color)/0.12)]",
+          "cursor-pointer transition-all duration-200 hover:border-divider hover:bg-surface-elevated hover:shadow-[0_4px_12px_hsl(var(--shadow-color))]",
       },
     },
     defaultVariants: {
@@ -49,13 +49,13 @@ Card.displayName = "Card";
 const cardHeaderVariants = cva("flex flex-col", {
   variants: {
     variant: {
-      default: "space-y-1.5 !rounded-b-none p-6",
+      default: "space-y-1.5 p-6",
       section:
         "border-b !rounded-b-none  border-divider bg-surface-elevated px-6 py-4",
       sectionSoft:
         "border-b !rounded-b-none border-divider bg-surface-elevated/80 px-6 py-4",
       rowSection:
-        "flex-row items-center !rounded-b-none justify-between gap-3 border-b border-borderStrong/70 bg-surface-elevated px-6 py-4",
+        "flex-row items-center !rounded-b-none justify-between gap-3 border-b border-divider bg-surface-elevated px-6 py-4",
     },
     density: {
       default: "",

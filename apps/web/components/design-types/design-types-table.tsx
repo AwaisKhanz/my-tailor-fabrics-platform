@@ -10,10 +10,14 @@ import { formatPKR } from "@/lib/utils";
 interface DesignTypesTableProps {
   loading: boolean;
   designTypes: DesignType[];
+  total: number;
+  page: number;
+  pageSize: number;
   garmentTypes: GarmentType[];
   branches: Branch[];
   search: string;
   hasActiveFilters: boolean;
+  onPageChange: (page: number) => void;
   onSearchChange: (value: string) => void;
   onResetFilters: () => void;
   onEdit: (designType: DesignType) => void;
@@ -24,10 +28,14 @@ interface DesignTypesTableProps {
 export function DesignTypesTable({
   loading,
   designTypes,
+  total,
+  page,
+  pageSize,
   garmentTypes,
   branches,
   search,
   hasActiveFilters,
+  onPageChange,
   onSearchChange,
   onResetFilters,
   onEdit,
@@ -130,7 +138,7 @@ export function DesignTypesTable({
     <TableSurface>
       <TableToolbar
         title="Design Type Directory"
-        total={designTypes.length}
+        total={total}
         totalLabel="types"
         activeFilterCount={hasActiveFilters ? 1 : 0}
         controls={
@@ -161,6 +169,10 @@ export function DesignTypesTable({
         itemLabel="design types"
         emptyMessage="No design types have been defined yet."
         chrome="flat"
+        page={page}
+        total={total}
+        limit={pageSize}
+        onPageChange={onPageChange}
         onRowClick={canManageDesignTypes ? onEdit : undefined}
       />
     </TableSurface>

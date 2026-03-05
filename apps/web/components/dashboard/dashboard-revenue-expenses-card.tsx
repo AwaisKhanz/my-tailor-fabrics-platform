@@ -164,7 +164,7 @@ export function DashboardRevenueExpensesCard({
               <Label variant="micro">Expenses</Label>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-2">
-              {formatPKR(totalExpenses)}evenue vs. Expenses
+              {formatPKR(totalExpenses)}
             </p>
           </InfoTile>
           <InfoTile tone="inputSurface" padding="md">
@@ -318,7 +318,7 @@ export function DashboardRevenueExpensesCard({
                     width={tooltipWidth}
                     height={tooltipHeight}
                     rx="8"
-                    className="fill-popover stroke-borderStrong/50"
+                    className="fill-popover stroke-divider/50"
                     strokeWidth="1"
                   />
                   <text

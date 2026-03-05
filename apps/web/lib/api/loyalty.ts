@@ -1,11 +1,16 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
+import type {
+  ApiResponse,
+  Customer,
+  ToggleCustomerVipInput,
+} from '@tbms/shared-types';
 
 export const customerLoyaltyApi = {
   toggleVip: async (customerId: string, isVip: boolean) => {
-    const response = await api.patch<ApiResponse<{ id: string; isVip: boolean }>>(
+    const payload: ToggleCustomerVipInput = { isVip };
+    const response = await api.patch<ApiResponse<Customer>>(
       `/customers/${customerId}/vip`,
-      { isVip },
+      payload,
     );
     return response.data;
   },

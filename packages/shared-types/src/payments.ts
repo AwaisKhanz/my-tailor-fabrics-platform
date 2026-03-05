@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './common';
+
 export interface Payment {
   id: string;
   employeeId: string;
@@ -24,6 +26,17 @@ export interface DisbursePaymentInput {
   amount: number;
   note?: string;
 }
+
+export interface PaymentHistoryQueryInput {
+  page?: number;
+  limit?: number;
+  from?: string;
+  to?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export type PaymentHistoryResult = PaginatedResponse<Payment>;
 
 export interface WeeklyPaymentReportRow {
   employeeId: string;

@@ -9,12 +9,16 @@ import {
 import { HttpAdapterHost } from '@nestjs/core';
 import { isProductionEnvironment } from '../env';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object';
+}
+
 function getUnknownErrorMessage(exception: unknown): string | null {
-  if (!exception || typeof exception !== 'object') {
+  if (!isRecord(exception)) {
     return null;
   }
 
-  const maybeMessage = (exception as { message?: unknown }).message;
+  const maybeMessage = exception.message;
   return typeof maybeMessage === 'string' ? maybeMessage : null;
 }
 
@@ -26,7 +30,7 @@ function getHttpExceptionMessage(exception: HttpException): string {
   }
 
   if (response && typeof response === 'object') {
-    const responseMessage = (response as { message?: unknown }).message;
+    const responseMessage = isRecord(response) ? response.message : undefined;
     if (Array.isArray(responseMessage)) {
       const first = responseMessage.find(
         (value): value is string => typeof value === 'string' && value.length > 0,
@@ -39,7 +43,7 @@ function getHttpExceptionMessage(exception: HttpException): string {
       return responseMessage;
     }
 
-    const errorText = (response as { error?: unknown }).error;
+    const errorText = isRecord(response) ? response.error : undefined;
     if (typeof errorText === 'string' && errorText.length > 0) {
       return errorText;
     }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as React from 'react';
-import { Document, Page, Text, View, StyleSheet, renderToStream } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type {
   Branch,
   Customer,
@@ -12,6 +12,7 @@ import type {
   Prisma,
   User,
 } from '@prisma/client';
+import { renderPdfStream } from '../common/utils/pdf-render.util';
 
 type OrdersPdfRow = Order & { customer: Customer; branch: Branch };
 type PaymentsPdfRow = Payment & { employee: Employee; processedBy: User };
@@ -157,7 +158,7 @@ export class PdfExportService {
       orders,
       title: 'Order Report Ledger',
     });
-    return renderToStream(element as never);
+    return renderPdfStream(element);
   }
 
   async exportPaymentsPdf(branchId?: string, from?: string, to?: string): Promise<NodeJS.ReadableStream> {
@@ -180,7 +181,7 @@ export class PdfExportService {
       payments,
       title: 'Employee Payroll Report',
     });
-    return renderToStream(element as never);
+    return renderPdfStream(element);
   }
 
   async exportExpensesPdf(branchId?: string, from?: string, to?: string): Promise<NodeJS.ReadableStream> {
@@ -204,6 +205,6 @@ export class PdfExportService {
       expenses,
       title: 'Expense Audit Log',
     });
-    return renderToStream(element as never);
+    return renderPdfStream(element);
   }
 }

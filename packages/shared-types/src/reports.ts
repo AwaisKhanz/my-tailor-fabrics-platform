@@ -14,6 +14,47 @@ export interface AddonAnalytics {
 }
 
 export type TrendGranularity = 'day' | 'week' | 'month';
+export type ReportExportType = 'orders' | 'payments' | 'expenses' | 'employees';
+export type ReportExportFormat = 'pdf' | 'excel';
+
+export interface ReportsRangeQueryInput {
+  from?: string;
+  to?: string;
+  branchId?: string;
+}
+
+export interface DashboardStatsQueryInput {
+  branchId?: string;
+}
+
+export type DesignsAnalyticsQueryInput = ReportsRangeQueryInput;
+
+export type AddonsAnalyticsQueryInput = ReportsRangeQueryInput;
+
+export interface SummaryQueryInput extends ReportsRangeQueryInput {}
+
+export interface FinancialTrendQueryInput extends ReportsRangeQueryInput {
+  granularity?: TrendGranularity;
+}
+
+export type DistributionsQueryInput = ReportsRangeQueryInput;
+
+export interface RevenueVsExpensesQueryInput {
+  months?: number;
+  branchId?: string;
+}
+
+export type GarmentRevenueQueryInput = ReportsRangeQueryInput;
+
+export interface ProductivityQueryInput extends ReportsRangeQueryInput {
+  limit?: number;
+}
+
+export interface ReportExportQueryInput {
+  format: ReportExportFormat;
+  from?: string;
+  to?: string;
+}
 
 export interface FinancialTrendPoint {
   periodStart: string;

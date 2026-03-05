@@ -156,7 +156,7 @@ export function DashboardGarmentBreakdownCard({
                     className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${
                       isActive
                         ? "border-primary/40 bg-interaction-hover"
-                        : "border-divider/70 bg-surface-elevated/60 hover:border-borderStrong/70"
+                        : "border-divider bg-surface-elevated/60 hover:border-divider"
                     }`}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}

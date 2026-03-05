@@ -7,11 +7,13 @@ import {
   measurementFieldDialogFormSchema,
   type MeasurementFieldDialogFormValues,
   type MeasurementField,
+  type MeasurementSection,
   type CreateMeasurementFieldInput,
   type UpdateMeasurementFieldInput,
 } from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { typedZodResolver } from "@/lib/utils/form";
 
@@ -22,12 +24,14 @@ interface UseMeasurementFieldDialogParams {
   categoryId: string;
   initialData?: MeasurementField | null;
   existingFields: MeasurementField[];
+  existingSections: MeasurementSection[];
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
 
 const DEFAULT_FORM_VALUES: FieldFormValues = {
   label: "",
+  sectionName: "",
   fieldType: FieldType.NUMBER,
   unit: "",
   isRequired: false,
@@ -35,20 +39,12 @@ const DEFAULT_FORM_VALUES: FieldFormValues = {
   sortOrder: 1,
 };
 
-function parseApiErrorMessage(error: unknown): string {
-  if (!error || typeof error !== "object") {
-    return "Failed to save field. Please try again.";
-  }
-
-  const response = (error as { response?: { data?: { message?: string } } }).response;
-  return response?.data?.message || "Failed to save field. Please try again.";
-}
-
 export function useMeasurementFieldDialog({
   open,
   categoryId,
   initialData,
   existingFields,
+  existingSections,
   onOpenChange,
   onSuccess,
 }: UseMeasurementFieldDialogParams) {
@@ -72,6 +68,7 @@ export function useMeasurementFieldDialog({
     if (initialData) {
       form.reset({
         label: initialData.label ?? "",
+        sectionName: initialData.section?.name ?? "General",
         fieldType: initialData.fieldType ?? FieldType.NUMBER,
         unit: initialData.unit ?? "",
         isRequired: initialData.isRequired ?? false,
@@ -81,12 +78,13 @@ export function useMeasurementFieldDialog({
     } else {
       form.reset({
         ...DEFAULT_FORM_VALUES,
+        sectionName: existingSections[0]?.name ?? "General",
         sortOrder: (existingFields.length ?? 0) + 1,
       });
     }
 
     setNewOption("");
-  }, [existingFields.length, form, initialData, open]);
+  }, [existingFields.length, existingSections, form, initialData, open]);
 
   const addOption = useCallback(() => {
     const trimmedOption = newOption.trim();
@@ -143,6 +141,7 @@ export function useMeasurementFieldDialog({
       try {
         const basePayload = {
           ...validated,
+          sectionName: validated.sectionName.trim(),
           unit: validated.unit || undefined,
           dropdownOptions:
             validated.fieldType === FieldType.DROPDOWN
@@ -165,7 +164,7 @@ export function useMeasurementFieldDialog({
       } catch (error) {
         toast({
           title: "Error",
-          description: parseApiErrorMessage(error),
+          description: getApiErrorMessageOrFallback(error, "Failed to save field. Please try again."),
           variant: "destructive",
         });
       } finally {

@@ -6,6 +6,19 @@ import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 
+function getErrorStatusCode(error: unknown): number | null {
+  if (!error || typeof error !== "object" || !("response" in error)) {
+    return null;
+  }
+
+  const response = error.response;
+  if (!response || typeof response !== "object" || !("status" in response)) {
+    return null;
+  }
+
+  return typeof response.status === "number" ? response.status : null;
+}
+
 export function useMeasurementCategoryDetailPage(id: string) {
   const { toast } = useToast();
 
@@ -15,6 +28,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
 
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<MeasurementField | null>(null);
+  const [isSectionDialogOpen, setIsSectionDialogOpen] = useState(false);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [fieldToDelete, setFieldToDelete] = useState<MeasurementField | null>(null);
@@ -29,8 +43,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
       }
     } catch (error) {
       logDevError("Failed to fetch category details:", error);
-      const statusCode =
-        (error as { response?: { status?: number } })?.response?.status ?? 0;
+      const statusCode = getErrorStatusCode(error) ?? 0;
       if (statusCode === 404) {
         setCategory(null);
         setNotFound(true);
@@ -56,6 +69,10 @@ export function useMeasurementCategoryDetailPage(id: string) {
     setIsFieldDialogOpen(true);
   }, []);
 
+  const openAddSectionDialog = useCallback(() => {
+    setIsSectionDialogOpen(true);
+  }, []);
+
   const openEditFieldDialog = useCallback((field: MeasurementField) => {
     setSelectedField(field);
     setIsFieldDialogOpen(true);
@@ -66,6 +83,10 @@ export function useMeasurementCategoryDetailPage(id: string) {
     if (!open) {
       setSelectedField(null);
     }
+  }, []);
+
+  const closeSectionDialog = useCallback((open: boolean) => {
+    setIsSectionDialogOpen(open);
   }, []);
 
   const requestDeleteField = useCallback((field: MeasurementField) => {
@@ -106,10 +127,13 @@ export function useMeasurementCategoryDetailPage(id: string) {
     notFound,
     isFieldDialogOpen,
     selectedField,
+    isSectionDialogOpen,
     isConfirmOpen,
     fieldToDelete,
+    openAddSectionDialog,
     openAddFieldDialog,
     openEditFieldDialog,
+    closeSectionDialog,
     closeFieldDialog,
     requestDeleteField,
     closeDeleteConfirm,

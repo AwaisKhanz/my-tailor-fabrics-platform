@@ -10,9 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
-import type {
-  OrdersDateRange,
-  OrdersStatusFilter,
+import {
+  isOrdersDateRange,
+  isOrdersStatusFilter,
+  type OrdersDateRange,
+  type OrdersStatusFilter,
 } from "@/hooks/use-orders-list-page";
 
 interface OrdersListToolbarProps {
@@ -32,6 +34,16 @@ const DATE_RANGE_OPTIONS: Array<{ value: OrdersDateRange; label: string }> = [
   { value: "30", label: "Last 30 Days" },
   { value: "90", label: "Last 3 Months" },
   { value: "all", label: "All Time" },
+];
+
+const ORDER_STATUS_OPTIONS: OrderStatus[] = [
+  OrderStatus.NEW,
+  OrderStatus.IN_PROGRESS,
+  OrderStatus.READY,
+  OrderStatus.OVERDUE,
+  OrderStatus.DELIVERED,
+  OrderStatus.COMPLETED,
+  OrderStatus.CANCELLED,
 ];
 
 export function OrdersListToolbar({
@@ -66,7 +78,11 @@ export function OrdersListToolbar({
             <div className="w-full sm:w-44">
               <Select
                 value={statusFilter}
-                onValueChange={(value) => onStatusChange(value as OrdersStatusFilter)}
+                onValueChange={(value) => {
+                  if (isOrdersStatusFilter(value)) {
+                    onStatusChange(value);
+                  }
+                }}
               >
                 <SelectTrigger variant="table" className="text-xs font-bold">
                   <SelectValue placeholder="All Statuses" />
@@ -75,7 +91,7 @@ export function OrdersListToolbar({
                   <SelectItem value="ALL" className="text-xs font-medium">
                     All Statuses
                   </SelectItem>
-                  {(Object.keys(ORDER_STATUS_CONFIG) as OrderStatus[]).map((status) => (
+                  {ORDER_STATUS_OPTIONS.map((status) => (
                     <SelectItem key={status} value={status} className="text-xs font-medium">
                       {ORDER_STATUS_CONFIG[status].label}
                     </SelectItem>
@@ -87,7 +103,11 @@ export function OrdersListToolbar({
             <div className="w-full sm:w-44">
               <Select
                 value={dateRange}
-                onValueChange={(value) => onDateRangeChange(value as OrdersDateRange)}
+                onValueChange={(value) => {
+                  if (isOrdersDateRange(value)) {
+                    onDateRangeChange(value);
+                  }
+                }}
               >
                 <SelectTrigger variant="table" className="text-xs font-bold">
                   <SelectValue />

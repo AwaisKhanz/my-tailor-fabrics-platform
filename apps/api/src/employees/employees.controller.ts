@@ -24,7 +24,7 @@ import {
 } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
-import { success, successSpread } from '../common/utils/response.util';
+import { success } from '../common/utils/response.util';
 import {
   ADMIN_ROLES,
   EMPLOYEE_SELF_ROLES,
@@ -116,7 +116,7 @@ export class EmployeesController {
       dto.password,
     );
     const result = { id: data.id, email: data.email };
-    return successSpread({ data: result, user: result });
+    return success(result);
   }
 
   @Roles(...OPERATOR_ROLES)

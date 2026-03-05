@@ -8,15 +8,15 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-transparent placeholder:text-inputSurface-placeholder hover:border-borderStrong/80 focus-visible:border-primary/50",
+          "bg-transparent placeholder:text-inputSurface-placeholder hover:border-divider/80 focus-visible:border-primary/50",
         premium:
-          "h-11 border-borderStrong/70 bg-transparent hover:border-borderStrong focus-visible:border-primary/60 focus-visible:ring-interaction-focus/30",
+          "h-10 border-divider bg-transparent hover:border-divider focus-visible:border-primary/60 focus-visible:ring-interaction-focus/30",
         premiumSuccess:
-          "h-11 border-success/35 bg-success-muted/30 font-semibold text-success hover:border-success/55 focus-visible:border-success/70 focus-visible:ring-success/30",
+          "h-10 border-success/35 bg-success-muted/30 font-semibold text-success hover:border-success/55 focus-visible:border-success/70 focus-visible:ring-success/30",
         table:
-          "h-10 rounded-md border-borderStrong/70 bg-surface shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
+          "h-9 rounded-md border-divider bg-surface-elevated  shadow-none hover:border-divider focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         searchCommand:
-          "h-9 rounded-md border-borderStrong/70 bg-transparent shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
+          "h-10 rounded-md border-divider bg-surface-elevated shadow-none hover:border-divider focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         readOnlyCode:
           "border-divider bg-code-background font-mono text-xs text-code-text shadow-none",
         inlineChip:

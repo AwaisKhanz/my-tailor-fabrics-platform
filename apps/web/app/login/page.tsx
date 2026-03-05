@@ -1,6 +1,5 @@
 "use client";
 
-import { LoginBrandPanel } from "@/components/auth/login-brand-panel";
 import { LoginFormPanel } from "@/components/auth/login-form-panel";
 import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/ui/page-shell";
@@ -28,26 +27,19 @@ export default function LoginPage() {
       className="relative flex min-h-screen w-full items-center justify-center bg-background px-4 py-6 sm:px-6 sm:py-10"
     >
       <div className="pointer-events-none absolute inset-0 bg-theme-radial-top" />
-      <Card
-        variant="elevatedPanel"
-        className="relative w-full max-w-6xl overflow-hidden"
-      >
-        <div className="grid min-h-[640px] grid-cols-1 md:grid-cols-[1.05fr_0.95fr]">
-          <LoginBrandPanel />
-
-          <LoginFormPanel
-            email={email}
-            password={password}
-            showPassword={showPassword}
-            staySignedIn={staySignedIn}
-            isLoading={isLoading}
-            onEmailChange={setEmail}
-            onPasswordChange={setPassword}
-            onTogglePassword={togglePasswordVisibility}
-            onStaySignedInChange={setStaySignedIn}
-            onSubmit={handleSubmit}
-          />
-        </div>
+      <Card className="relative w-full max-w-md overflow-hidden">
+        <LoginFormPanel
+          email={email}
+          password={password}
+          showPassword={showPassword}
+          staySignedIn={staySignedIn}
+          isLoading={isLoading}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onTogglePassword={togglePasswordVisibility}
+          onStaySignedInChange={setStaySignedIn}
+          onSubmit={handleSubmit}
+        />
       </Card>
     </PageShell>
   );

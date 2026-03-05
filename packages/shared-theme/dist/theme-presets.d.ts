@@ -10,6 +10,8 @@ export interface ThemePaletteV2 {
     background: string;
     surface: string;
     surfaceElevated: string;
+    popover: string;
+    popoverForeground: string;
     brandDark: string;
     appBar: string;
     appBarText: string;

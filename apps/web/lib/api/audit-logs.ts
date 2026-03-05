@@ -6,17 +6,14 @@ import type {
   AuditLogsStats,
 } from '@tbms/shared-types';
 
-interface AuditLogsListApiResponse {
-  success: boolean;
-  data: AuditLogsListResult['data'];
-  total: number;
-}
-
 export const auditLogsApi = {
   getLogs: async (params: AuditLogsQueryInput = {}) => {
-    const response = await api.get<AuditLogsListApiResponse>('/audit-logs', {
+    const response = await api.get<ApiResponse<AuditLogsListResult>>(
+      '/audit-logs',
+      {
       params,
-    });
+      },
+    );
     return response.data;
   },
 

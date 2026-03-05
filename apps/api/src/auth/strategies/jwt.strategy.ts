@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { getJwtSecret } from '../../common/env';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
-import type { AccessTokenClaims, Role } from '@tbms/shared-types';
+import type { AccessTokenClaims } from '@tbms/shared-types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -32,13 +32,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (user.email.toLowerCase() !== payload.email.toLowerCase()) {
       throw new UnauthorizedException('Token payload does not match user state');
     }
+    if (!isRole(user.role)) {
+      throw new UnauthorizedException('User has invalid role state');
+    }
 
     // returning what gets attached to req.user
     return {
       userId: user.id,
       email: user.email,
-      role: user.role as Role,
-      permissions: getRolePermissions(user.role as Role),
+      role: user.role,
+      permissions: getRolePermissions(user.role),
       branchId: user.branchId,
       employeeId: user.employeeId,
     };

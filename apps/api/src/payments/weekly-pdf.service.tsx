@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as React from 'react';
-import { renderToStream } from '@react-pdf/renderer';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { WeeklyPaymentReportRow } from '@tbms/shared-types';
+import { renderPdfStream } from '../common/utils/pdf-render.util';
 
 const styles = StyleSheet.create({
     page: { padding: 30, fontSize: 12, fontFamily: 'Helvetica' },
@@ -70,6 +70,6 @@ export class WeeklyPdfService {
         }
 
         const element = React.createElement(WeeklyPaymentDocument, { data });
-        return renderToStream(element as never);
+        return renderPdfStream(element);
     }
 }

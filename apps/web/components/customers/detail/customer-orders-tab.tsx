@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Clock3, History } from "lucide-react";
 import { type Order, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
@@ -8,16 +8,61 @@ import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
+
+const PAGE_SIZE = 10;
 
 interface CustomerOrdersTabProps {
   orders: Order[];
   onOpenOrder: (orderId: string) => void;
 }
 
+function parseOrderStatus(value: string): OrderStatus {
+  switch (value) {
+    case OrderStatus.NEW:
+    case OrderStatus.IN_PROGRESS:
+    case OrderStatus.READY:
+    case OrderStatus.OVERDUE:
+    case OrderStatus.DELIVERED:
+    case OrderStatus.COMPLETED:
+    case OrderStatus.CANCELLED:
+      return value;
+    default:
+      return OrderStatus.NEW;
+  }
+}
+
 export function CustomerOrdersTab({
   orders,
   onOpenOrder,
 }: CustomerOrdersTabProps) {
+  const { setValues, getPositiveInt } = useUrlTableState({
+    prefix: "customerOrders",
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+    },
+  });
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const total = orders.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, setPage, totalPages]);
+
+  const pagedOrders = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return orders.slice(start, start + pageSize);
+  }, [orders, page, pageSize]);
+
   const columns = useMemo<ColumnDef<Order>[]>(
     () => [
       {
@@ -54,9 +99,7 @@ export function CustomerOrdersTab({
         header: "Status",
         align: "right",
         cell: (order) => {
-          const statusConfig =
-            ORDER_STATUS_CONFIG[order.status as OrderStatus] ??
-            ORDER_STATUS_CONFIG[OrderStatus.NEW];
+          const statusConfig = ORDER_STATUS_CONFIG[parseOrderStatus(order.status)];
 
           return (
             <Badge
@@ -90,7 +133,7 @@ export function CustomerOrdersTab({
       </CardHeader>
 
       <CardContent spacing="section" className="p-0">
-        {orders.length === 0 ? (
+        {total === 0 ? (
           <div className="p-6">
             <EmptyState
               icon={History}
@@ -101,11 +144,15 @@ export function CustomerOrdersTab({
         ) : (
           <DataTable
             columns={columns}
-            data={orders}
+            data={pagedOrders}
             itemLabel="orders"
             emptyMessage="No orders found."
             onRowClick={(order) => onOpenOrder(order.id)}
             chrome="flat"
+            page={page}
+            total={total}
+            limit={pageSize}
+            onPageChange={setPage}
           />
         )}
       </CardContent>

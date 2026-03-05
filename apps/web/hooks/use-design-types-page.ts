@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type Branch,
   type DesignType,
@@ -13,15 +13,27 @@ import { type DesignTypeSubmitPayload } from "@/hooks/use-design-type-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import { logDevError } from "@/lib/logger";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
+
+const PAGE_SIZE = 10;
 
 export function useDesignTypesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [designTypes, setDesignTypes] = useState<DesignType[]>([]);
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [search, setSearch] = useState("");
+  const search = values.search;
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const debouncedSearch = useDebounce(search, 350);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -66,6 +78,20 @@ export function useDesignTypesPage() {
     void fetchData();
   }, [fetchData]);
 
+  const totalCount = designTypes.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setValues({ page: String(totalPages) });
+    }
+  }, [page, setValues, totalPages]);
+
+  const pagedDesignTypes = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return designTypes.slice(start, start + pageSize);
+  }, [designTypes, page, pageSize]);
+
   const openCreateDialog = useCallback(() => {
     setSelectedDesign(null);
     setCreateDialogOpen(true);
@@ -81,12 +107,19 @@ export function useDesignTypesPage() {
   }, []);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const saveDesignType = useCallback(
     async (payload: DesignTypeSubmitPayload) => {
@@ -159,9 +192,13 @@ export function useDesignTypesPage() {
   return {
     loading,
     designTypes,
+    pagedDesignTypes,
+    totalCount,
     garmentTypes,
     branches,
     search,
+    page,
+    pageSize,
     hasActiveFilters: Boolean(search.trim()),
     createDialogOpen,
     selectedDesign,
@@ -170,6 +207,7 @@ export function useDesignTypesPage() {
     openCreateDialog,
     openEditDialog,
     closeCreateDialog,
+    setPage,
     setSearchFilter,
     resetFilters,
     saveDesignType,

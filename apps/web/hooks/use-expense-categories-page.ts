@@ -9,7 +9,9 @@ import {
 } from "@tbms/shared-types";
 import { expensesApi } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 type CategoryFormState = ExpenseCategoryFormValues;
 const PAGE_SIZE = 10;
@@ -24,35 +26,15 @@ const DEFAULT_FORM_STATE: CategoryFormState = {
   isActive: true,
 };
 
-type ApiError = {
-  response?: {
-    data?: {
-      message?: string | string[];
-    };
-  };
-};
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (!error || typeof error !== "object") {
-    return fallback;
-  }
-
-  const response = (error as ApiError).response;
-  const message = response?.data?.message;
-
-  if (Array.isArray(message) && message.length > 0) {
-    return message[0] ?? fallback;
-  }
-
-  if (typeof message === "string" && message.length > 0) {
-    return message;
-  }
-
-  return fallback;
-}
-
 export function useExpenseCategoriesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,8 +43,9 @@ export function useExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<ExpenseCategoryStatsSummary>(EMPTY_STATS);
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const search = values.search;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null);
@@ -70,12 +53,16 @@ export function useExpenseCategoriesPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<ExpenseCategory | null>(null);
 
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
+
   const fetchCategories = useCallback(async (targetPage = page) => {
     setLoading(true);
     try {
       const response = await expensesApi.getCategoriesPaginated({
         page: targetPage,
-        limit: PAGE_SIZE,
+        limit: pageSize,
         search: search.trim() || undefined,
       });
       if (response.success) {
@@ -94,13 +81,13 @@ export function useExpenseCategoriesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to load expense categories."),
+        description: getApiErrorMessageOrFallback(error, "Failed to load expense categories."),
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, [page, search, toast]);
+  }, [page, pageSize, search, setPage, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -192,7 +179,7 @@ export function useExpenseCategoriesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to save expense category."),
+        description: getApiErrorMessageOrFallback(error, "Failed to save expense category."),
         variant: "destructive",
       });
     } finally {
@@ -216,7 +203,7 @@ export function useExpenseCategoriesPage() {
       } catch (error) {
         toast({
           title: "Error",
-          description: getErrorMessage(error, "Failed to update category status."),
+          description: getApiErrorMessageOrFallback(error, "Failed to update category status."),
           variant: "destructive",
         });
       }
@@ -251,7 +238,7 @@ export function useExpenseCategoriesPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getErrorMessage(error, "Failed to delete expense category."),
+        description: getApiErrorMessageOrFallback(error, "Failed to delete expense category."),
         variant: "destructive",
       });
     } finally {
@@ -260,14 +247,15 @@ export function useExpenseCategoriesPage() {
   }, [deleteTarget, fetchCategories, page, toast]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
 
   return {
     loading,
@@ -276,7 +264,7 @@ export function useExpenseCategoriesPage() {
     categories,
     total,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     stats,
     search,
     hasActiveFilters,

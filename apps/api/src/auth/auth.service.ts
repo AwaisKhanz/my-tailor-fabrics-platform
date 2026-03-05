@@ -14,7 +14,6 @@ import type {
   AccessTokenClaims,
   AuthTokenClaims,
   AuthTokenPair,
-  AuthenticatedUserSnapshot,
   RefreshTokenClaims,
 } from '@tbms/shared-types';
 
@@ -59,6 +58,9 @@ export class AuthService {
       });
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (!isRole(user.role)) {
+      throw new UnauthorizedException('Invalid user role state');
+    }
 
     const tokenPair = await this.issueTokenPair(user);
     await this.storeRefreshTokenHash(user.id, tokenPair.refreshToken);
@@ -70,7 +72,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role as AuthenticatedUserSnapshot['role'],
+        role: user.role,
         branchId: user.branchId,
         employeeId: user.employeeId,
       },

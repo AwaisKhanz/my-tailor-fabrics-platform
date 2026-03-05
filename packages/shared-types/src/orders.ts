@@ -1,4 +1,12 @@
-import { OrderStatus, ItemStatus, DiscountType, TaskStatus, FabricSource, AddonType } from './common';
+import {
+  OrderStatus,
+  ItemStatus,
+  DiscountType,
+  TaskStatus,
+  FabricSource,
+  AddonType,
+  PaginatedResponse,
+} from './common';
 import { EmployeeLedgerEntry } from './ledger';
 
 export interface OrderItemInput {
@@ -28,6 +36,54 @@ export interface CreateOrderInput {
   advancePayment?: number;
   notes?: string;
 }
+
+export interface OrdersListQueryInput {
+  page?: number;
+  limit?: number;
+  status?: OrderStatus | string;
+  search?: string;
+  from?: string;
+  to?: string;
+  employeeId?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface OrdersSummaryQueryInput {
+  status?: OrderStatus | string;
+  search?: string;
+  from?: string;
+  to?: string;
+  employeeId?: string;
+}
+
+export type OrdersListResult = PaginatedResponse<Order>;
+
+export interface UpdateOrderStatusInput {
+  status: OrderStatus;
+  note?: string;
+}
+
+export interface AddOrderPaymentInput {
+  amount: number;
+  note?: string;
+}
+
+export interface UpdateOrderItemStatusInput {
+  status?: string;
+  employeeId?: string;
+}
+
+export interface SharedOrderTokenPayload {
+  token: string;
+  pin: string;
+}
+
+export interface PublicOrderStatusQueryInput {
+  pin: string;
+}
+
+export type PublicOrderStatusResult = Order;
 
 export interface UpdateOrderItemInput extends Partial<OrderItemInput> {
   id?: string;
@@ -202,6 +258,12 @@ export interface UpdateDesignTypeInput {
   defaultRate?: number;
   sortOrder?: number;
   isActive?: boolean;
+}
+
+export interface DesignTypesQueryInput {
+  branchId?: string;
+  garmentTypeId?: string;
+  search?: string;
 }
 
 export interface OrderItemAddon {

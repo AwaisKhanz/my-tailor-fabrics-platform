@@ -28,9 +28,9 @@ export function Topbar() {
   const canAccessSettings = canAll(["users.manage"]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-sidebar-border bg-appBar/95 text-appBar-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-appBar/90">
+    <header className="sticky top-0 z-40 bg-background sm:bg-appBar text-appBar-foreground ">
       <div className="flex h-16 w-full items-center gap-2 px-3 sm:gap-3 sm:px-4 lg:px-6">
-        <div className="flex min-w-0 items-center gap-2 md:w-72 md:pr-4">
+        <div className="flex min-w-0 items-center gap-2 md:pr-4">
           <MobileSidebarTrigger />
           <div className="hidden min-w-0 flex-col leading-tight md:flex">
             <Label
@@ -45,8 +45,8 @@ export function Topbar() {
           </div>
         </div>
 
-        <div className="hidden min-w-0 flex-1 items-center md:flex">
-          <GlobalSearchCommand className="w-full max-w-3xl" />
+        <div className="hidden min-w-0 flex-1 self-center justify-center items-center md:flex">
+          <GlobalSearchCommand className="w-full max-w-3xl " />
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -54,11 +54,7 @@ export function Topbar() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="sidebarIcon"
-                size="icon"
-                className="h-9 w-9 p-0"
-              >
+              <Button variant="sidebarIcon" size="icon" className="h-9 w-9 p-0">
                 <div className="flex h-full w-full items-center justify-center rounded-[7px] bg-sidebar-active text-sm font-bold text-appBar-foreground">
                   {(user?.email || "U")[0].toUpperCase()}
                 </div>
@@ -70,7 +66,9 @@ export function Topbar() {
                   <p className="truncate text-sm font-semibold text-text-primary">
                     {user?.email || "User Account"}
                   </p>
-                  <Label variant="dashboard">{role?.replace("_", " ") || "Member"}</Label>
+                  <Label variant="dashboard">
+                    {role?.replace("_", " ") || "Member"}
+                  </Label>
                 </div>
               </DropdownMenuLabel>
               <div className="px-2 pb-2 empty:hidden">
@@ -80,7 +78,10 @@ export function Topbar() {
                 >
                   Active Branch
                 </Label>
-                <BranchSelector triggerVariant="default" className="h-8 text-xs" />
+                <BranchSelector
+                  triggerVariant="default"
+                  className="h-8 text-xs"
+                />
               </div>
               <DropdownMenuSeparator />
               {canAccessSettings && (

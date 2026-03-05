@@ -1,8 +1,8 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium leading-none transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interaction-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:saturate-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -16,16 +16,18 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.16)] hover:bg-destructive/90 hover:shadow-[0_2px_8px_hsl(var(--shadow-color)/0.16)] active:bg-destructive/84",
         outline:
-          "border border-inputSurface-border bg-inputSurface-background text-text-primary hover:border-borderStrong hover:bg-interaction-hover hover:text-text-primary",
+          "border border-inputSurface-border bg-inputSurface-background text-text-primary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
         outlineDashed:
-          "border border-dashed border-inputSurface-border bg-inputSurface-background text-text-primary hover:border-borderStrong hover:bg-interaction-hover hover:text-text-primary",
+          "border border-dashed border-inputSurface-border bg-inputSurface-background text-text-primary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
         secondary:
           "bg-secondary text-secondary-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.14)] hover:bg-secondary/85 hover:shadow-[0_2px_8px_hsl(var(--shadow-color)/0.14)] active:bg-secondary/78",
-        ghost: "text-text-secondary hover:bg-interaction-hover hover:text-text-primary",
+        ghost:
+          "text-text-secondary hover:bg-interaction-hover hover:text-text-primary",
         link: "text-primary underline-offset-4 hover:underline",
         muted:
-          "border border-divider bg-surface-elevated text-text-secondary hover:border-borderStrong hover:bg-interaction-hover hover:text-text-primary",
-        dashboard: "border border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-active ",
+          "border border-divider bg-surface-elevated text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
+        dashboard:
+          "border border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-active ",
         tableIcon:
           "border border-transparent text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
         tableDanger:
@@ -33,11 +35,10 @@ const buttonVariants = cva(
         tableReset:
           "h-10 border border-transparent text-xs font-semibold text-text-secondary hover:border-divider hover:bg-interaction-hover hover:text-text-primary",
         tablePrimary:
-          "border border-divider bg-surface-elevated text-text-primary hover:border-borderStrong hover:bg-interaction-hover",
+          "border border-divider bg-surface-elevated text-text-primary hover:border-divider hover:bg-interaction-hover",
         tableSuccess:
           "border border-transparent text-success hover:border-success/25 hover:bg-success-muted hover:text-success",
-        infoGhost:
-          "text-info hover:bg-info-muted hover:text-info",
+        infoGhost: "text-info hover:bg-info-muted hover:text-info",
         outlinePrimary:
           "border border-primary/30 bg-transparent text-primary hover:bg-interaction-hover hover:text-primary",
         sidebarIcon:
@@ -59,27 +60,28 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot : "button";
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       />
-    )
-  }
-)
-Button.displayName = "Button"
+    );
+  },
+);
+Button.displayName = "Button";
 
-export { Button, buttonVariants }
+export { Button, buttonVariants };

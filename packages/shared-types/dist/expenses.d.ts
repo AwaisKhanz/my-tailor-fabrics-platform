@@ -1,3 +1,4 @@
+import { PaginatedResponse } from './common';
 export interface Expense {
     id: string;
     branchId: string;
@@ -37,6 +38,20 @@ export interface ExpenseCategoryStatsSummary {
     active: number;
     inactive: number;
 }
+export interface ExpenseListQueryInput {
+    page?: number;
+    limit?: number;
+    search?: string;
+    categoryId?: string;
+    from?: string;
+    to?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+}
+export type ExpenseListResult = PaginatedResponse<Expense>;
+export type ExpenseCategoryListResult = PaginatedResponse<ExpenseCategory> & {
+    stats: ExpenseCategoryStatsSummary;
+};
 export interface CreateExpenseInput {
     categoryId: string;
     amount: number;

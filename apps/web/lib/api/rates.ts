@@ -1,36 +1,45 @@
 import { api } from '../api';
-import { ApiResponse } from '@/types/common';
-import {
-  RateCard,
+import type {
+  ApiResponse,
   CreateRateCardInput,
-  PaginatedResponse,
+  RateCard,
+  RateCardsListQueryInput,
+  RateCardsListResult,
+  RateHistoryQueryInput,
   RateStatsSummary,
+  RateStatsQueryInput,
 } from '@tbms/shared-types';
 
 export const ratesApi = {
-  findAll: async (params: { search?: string; page?: number; limit?: number } = {}) => {
-    const query = new URLSearchParams();
-    if (params.search) query.append('search', params.search);
-    if (params.page) query.append('page', params.page.toString());
-    if (params.limit) query.append('limit', params.limit.toString());
-    
-    const response = await api.get<ApiResponse<PaginatedResponse<RateCard>>>(`/rates?${query.toString()}`);
+  findAll: async (params: RateCardsListQueryInput = {}) => {
+    const response = await api.get<ApiResponse<RateCardsListResult>>('/rates', {
+      params,
+    });
     return response.data;
   },
-  getHistory: async (garmentTypeId: string, stepKey: string, branchId?: string | null) => {
-    const query = new URLSearchParams();
-    query.append('garmentTypeId', garmentTypeId);
-    query.append('stepKey', stepKey);
-    if (branchId) query.append('branchId', branchId);
-    
-    const response = await api.get<ApiResponse<RateCard[]>>(`/rates/history?${query.toString()}`);
+  getHistory: async (
+    garmentTypeId: string,
+    stepKey: string,
+    branchId?: string | null,
+  ) => {
+    const request: RateHistoryQueryInput = {
+      garmentTypeId,
+      stepKey,
+      branchId,
+    };
+    const response = await api.get<ApiResponse<RateCard[]>>('/rates/history', {
+      params: {
+        garmentTypeId: request.garmentTypeId,
+        stepKey: request.stepKey,
+        branchId: request.branchId ?? undefined,
+      },
+    });
     return response.data;
   },
-  getStats: async (params: { search?: string } = {}) => {
-    const query = new URLSearchParams();
-    if (params.search) query.append('search', params.search);
-
-    const response = await api.get<ApiResponse<RateStatsSummary>>(`/rates/stats?${query.toString()}`);
+  getStats: async (params: RateStatsQueryInput = {}) => {
+    const response = await api.get<ApiResponse<RateStatsSummary>>('/rates/stats', {
+      params,
+    });
     return response.data;
   },
   create: async (data: CreateRateCardInput) => {

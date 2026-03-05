@@ -2,6 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRateCardInput } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
@@ -66,17 +70,39 @@ export class RatesService {
 
   async create(dto: CreateRateCardInput & { createdById: string }) {
     const effectiveFrom = new Date(dto.effectiveFrom);
+    const stepKey = dto.stepKey.trim().toUpperCase();
     if (Number.isNaN(effectiveFrom.getTime())) {
       throw new BadRequestException('Invalid effectiveFrom date');
     }
 
     return this.prisma.$transaction(async (tx) => {
+      const stepTemplate = await tx.workflowStepTemplate.findFirst({
+        where: {
+          garmentTypeId: dto.garmentTypeId,
+          stepKey,
+          deletedAt: null,
+          isActive: true,
+        },
+      });
+
+      if (!stepTemplate) {
+        throw new BadRequestException(
+          `Invalid stepKey "${stepKey}" for this garment.`,
+        );
+      }
+
+      if (dto.stepTemplateId && dto.stepTemplateId !== stepTemplate.id) {
+        throw new BadRequestException(
+          'stepTemplateId does not match the selected garment step.',
+        );
+      }
+
       // Close previous rate if it exists and has no effectiveTo
       const previousRate = await tx.rateCard.findFirst({
         where: {
           branchId: dto.branchId ?? null,
           garmentTypeId: dto.garmentTypeId,
-          stepKey: dto.stepKey,
+          stepKey,
           effectiveTo: null,
           deletedAt: null,
         },
@@ -100,10 +126,10 @@ export class RatesService {
         data: {
           branchId: dto.branchId,
           garmentTypeId: dto.garmentTypeId,
-          stepKey: dto.stepKey,
+          stepKey,
           amount: dto.amount,
           effectiveFrom,
-          stepTemplateId: dto.stepTemplateId,
+          stepTemplateId: dto.stepTemplateId ?? stepTemplate.id,
           createdById: dto.createdById,
         },
       });
@@ -131,15 +157,13 @@ export class RatesService {
     } = {},
   ) {
     const { branchId, search } = options;
-    const page =
-      Number.isFinite(options.page) && (options.page ?? 0) > 0
-        ? Math.trunc(options.page as number)
-        : DEFAULT_PAGE;
-    const limit =
-      Number.isFinite(options.limit) && (options.limit ?? 0) > 0
-        ? Math.min(Math.trunc(options.limit as number), MAX_LIMIT)
-        : DEFAULT_LIMIT;
-    const skip = (page - 1) * limit;
+    const pagination = normalizePagination({
+      page: options.page,
+      limit: options.limit,
+      defaultPage: DEFAULT_PAGE,
+      defaultLimit: DEFAULT_LIMIT,
+      maxLimit: MAX_LIMIT,
+    });
     const where: Prisma.RateCardWhereInput = {
       deletedAt: null,
       ...(branchId ? { branchId } : {}),
@@ -159,12 +183,12 @@ export class RatesService {
           { stepKey: 'asc' },
           { effectiveFrom: 'desc' },
         ],
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
       }),
     ]);
 
-    return { data, total, page, limit, lastPage: Math.ceil(total / limit) };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getStats(options: { branchId?: string | null; search?: string } = {}) {

@@ -68,6 +68,10 @@ export interface LedgerStatementParams {
   limit?: number;
 }
 
+export interface LedgerEarningsQueryInput {
+  weeksBack?: number;
+}
+
 export interface EarningsByPeriod {
   period: string;     // ISO date string of period start
   earned: number;

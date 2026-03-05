@@ -4,11 +4,50 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
 import { Order, OrdersListSummary, OrderStatus } from "@tbms/shared-types";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
 export type OrdersStatusFilter = OrderStatus | "ALL";
 export type OrdersDateRange = "7" | "30" | "90" | "all";
+
+const ORDER_STATUS_FILTER_VALUES: readonly OrdersStatusFilter[] = [
+  "ALL",
+  OrderStatus.NEW,
+  OrderStatus.IN_PROGRESS,
+  OrderStatus.READY,
+  OrderStatus.OVERDUE,
+  OrderStatus.DELIVERED,
+  OrderStatus.COMPLETED,
+  OrderStatus.CANCELLED,
+];
+
+const ORDER_DATE_RANGE_VALUES: readonly OrdersDateRange[] = [
+  "7",
+  "30",
+  "90",
+  "all",
+];
+
+export function isOrdersStatusFilter(value: string): value is OrdersStatusFilter {
+  return ORDER_STATUS_FILTER_VALUES.some((status) => status === value);
+}
+
+export function isOrdersDateRange(value: string): value is OrdersDateRange {
+  return ORDER_DATE_RANGE_VALUES.some((range) => range === value);
+}
+
+function parseOrdersStatusFilter(value: string): OrdersStatusFilter {
+  if (value === "ALL") {
+    return "ALL";
+  }
+
+  return isOrdersStatusFilter(value) ? value : "ALL";
+}
+
+function parseOrdersDateRange(value: string): OrdersDateRange {
+  return isOrdersDateRange(value) ? value : "30";
+}
 
 function getFromIsoByRange(range: OrdersDateRange): string | undefined {
   if (range === "all") {
@@ -24,21 +63,31 @@ function getFromIsoByRange(range: OrdersDateRange): string | undefined {
 
 export function useOrdersListPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+      status: "ALL",
+      range: "30",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] =
-    useState<OrdersStatusFilter>("ALL");
-  const [dateRange, setDateRange] = useState<OrdersDateRange>("30");
-  const [search, setSearch] = useState("");
   const [summary, setSummary] = useState<OrdersListSummary>({
     totalValue: 0,
     dueSoonCount: 0,
     overdueCount: 0,
     completedCount: 0,
   });
+
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const search = values.search;
+  const statusFilter = parseOrdersStatusFilter(values.status);
+  const dateRange = parseOrdersDateRange(values.range);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -52,8 +101,8 @@ export function useOrdersListPage() {
       const [listResponse, summaryResponse] = await Promise.all([
         ordersApi.getOrders({
           ...baseFilters,
-        page,
-        limit: PAGE_SIZE,
+          page,
+          limit: pageSize,
         }),
         ordersApi.getOrdersSummary(baseFilters),
       ]);
@@ -74,7 +123,7 @@ export function useOrdersListPage() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, page, search, statusFilter, toast]);
+  }, [dateRange, page, pageSize, search, statusFilter, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,26 +133,33 @@ export function useOrdersListPage() {
   }, [fetchOrders]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setStatus = useCallback((value: OrdersStatusFilter) => {
-    setStatusFilter(value);
-    setPage(1);
-  }, []);
+    setValues({
+      status: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setDate = useCallback((value: OrdersDateRange) => {
-    setDateRange(value);
-    setPage(1);
-  }, []);
+    setValues({
+      range: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setStatusFilter("ALL");
-    setDateRange("30");
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -124,7 +180,7 @@ export function useOrdersListPage() {
     orders,
     total,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     search,
     statusFilter,
     dateRange,

@@ -12,56 +12,11 @@ const allowColorLiteralFiles = new Set([
 const allowInlineBackgroundStyleFiles = new Set([]);
 
 const requiredCssTokenBlocks = [
-  { selector: ":root,\n  :root[data-theme-preset=\"modern-minimal\"]", label: "Modern Minimal Light" },
-  { selector: ".dark,\n  .dark[data-theme-preset=\"modern-minimal\"]", label: "Modern Minimal Dark" },
-  { selector: ":root[data-theme-preset=\"heritage-craft\"]", label: "Heritage Craft Light" },
-  { selector: ".dark[data-theme-preset=\"heritage-craft\"]", label: "Heritage Craft Dark" },
-  { selector: ":root[data-theme-preset=\"royal-atelier\"]", label: "Royal Atelier Light" },
-  { selector: ".dark[data-theme-preset=\"royal-atelier\"]", label: "Royal Atelier Dark" },
+  { selector: ":root", label: "Fallback Light Tokens" },
+  { selector: ".dark", label: "Fallback Dark Tokens" },
 ];
 
-const requiredCssTokens = [
-  "--background",
-  "--foreground",
-  "--card",
-  "--card-foreground",
-  "--popover",
-  "--popover-foreground",
-  "--primary",
-  "--primary-foreground",
-  "--secondary",
-  "--secondary-foreground",
-  "--muted",
-  "--muted-foreground",
-  "--accent",
-  "--accent-foreground",
-  "--destructive",
-  "--destructive-foreground",
-  "--border",
-  "--input",
-  "--ring",
-  "--success",
-  "--success-foreground",
-  "--warning",
-  "--warning-foreground",
-  "--info",
-  "--info-foreground",
-  "--pending",
-  "--pending-foreground",
-  "--ready",
-  "--ready-foreground",
-  "--brand-dark",
-  "--overlay",
-  "--overlay-strong",
-  "--chart-1",
-  "--chart-2",
-  "--chart-3",
-  "--chart-4",
-  "--chart-5",
-  "--chart-6",
-  "--chart-7",
-  "--chart-8",
-];
+const allowedGlobalOnlyTokens = new Set(["--radius"]);
 
 const expectedRoutes = [
   "app/(dashboard)/page.tsx",
@@ -173,6 +128,14 @@ function readTokenBlock(content, selector) {
   return match?.[1] ?? null;
 }
 
+function extractCssVariableDeclarations(content) {
+  return new Set([...content.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1]));
+}
+
+function extractThemeCssTokens(content) {
+  return new Set([...content.matchAll(/"(--[a-z0-9-]+)"\s*:/g)].map((match) => match[1]));
+}
+
 async function main() {
   const issues = [];
 
@@ -210,6 +173,21 @@ async function main() {
 
   const globalsCssPath = path.join(ROOT, "app/globals.css");
   const globalsCss = await fs.readFile(globalsCssPath, "utf8");
+  const themeCssPath = path.join(ROOT, "lib/theme-css.ts");
+  const themeCssContent = await fs.readFile(themeCssPath, "utf8");
+  const themeCssTokens = extractThemeCssTokens(themeCssContent);
+
+  if (themeCssTokens.size === 0) {
+    issues.push({
+      rule: "Missing theme CSS variable mappings",
+      file: "lib/theme-css.ts",
+      line: 1,
+      sample: "createThemeCssVariables return map",
+    });
+  }
+
+  const requiredGlobalTokens = new Set(themeCssTokens);
+  const allowedGlobalTokens = new Set([...requiredGlobalTokens, ...allowedGlobalOnlyTokens]);
 
   for (const block of requiredCssTokenBlocks) {
     const tokenBlock = readTokenBlock(globalsCss, block.selector);
@@ -223,15 +201,32 @@ async function main() {
       continue;
     }
 
-    for (const token of requiredCssTokens) {
-      if (!tokenBlock.includes(`${token}:`)) {
-        issues.push({
-          rule: "Missing token in theme block",
-          file: "app/globals.css",
-          line: 1,
-          sample: `${block.label} -> ${token}`,
-        });
+    const blockTokens = extractCssVariableDeclarations(tokenBlock);
+
+    for (const token of requiredGlobalTokens) {
+      if (blockTokens.has(token)) {
+        continue;
       }
+
+      issues.push({
+        rule: "Missing token in theme block",
+        file: "app/globals.css",
+        line: 1,
+        sample: `${block.label} -> ${token}`,
+      });
+    }
+
+    for (const token of blockTokens) {
+      if (allowedGlobalTokens.has(token)) {
+        continue;
+      }
+
+      issues.push({
+        rule: "Unexpected token in theme block",
+        file: "app/globals.css",
+        line: 1,
+        sample: `${block.label} -> ${token}`,
+      });
     }
   }
 

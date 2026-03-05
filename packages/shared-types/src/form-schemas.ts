@@ -140,6 +140,7 @@ export type MeasurementCategoryFormValues = z.infer<
 export const measurementFieldDialogFormSchema = z
   .object({
     label: z.string().trim().min(1, "Label is required"),
+    sectionName: z.string().trim().min(1, "Section is required"),
     fieldType: z.nativeEnum(FieldType),
     unit: optionalTrimmedText,
     isRequired: z.boolean().default(false),

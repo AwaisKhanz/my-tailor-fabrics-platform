@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -16,8 +16,8 @@ import type {
   OrderItem,
   OrderItemTask,
   SystemSettings,
-  TaskStatus,
 } from "@tbms/shared-types";
+import { TaskStatus } from "@tbms/shared-types";
 import {
   LEDGER_ENTRY_TYPE_BADGE,
   LEDGER_ENTRY_TYPE_LABELS,
@@ -47,7 +47,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { cn, formatDate, formatDateTime, formatPKR } from "@/lib/utils";
+
+const DEFAULT_TABLE_PAGE_SIZE = 10;
 
 interface EmployeeDetailTabsProps {
   loading: boolean;
@@ -166,6 +169,18 @@ function EmployeeSection({
   );
 }
 
+function isTaskStatus(value: string): value is TaskStatus {
+  switch (value) {
+    case TaskStatus.PENDING:
+    case TaskStatus.IN_PROGRESS:
+    case TaskStatus.DONE:
+    case TaskStatus.CANCELLED:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function EmployeeDetailTabs({
   loading,
   employee,
@@ -196,6 +211,88 @@ export function EmployeeDetailTabs({
   canManageDocuments = true,
   canManageAccount = true,
 }: EmployeeDetailTabsProps) {
+  const { setValues: setTaskValues, getPositiveInt: getTaskInt } = useUrlTableState({
+    prefix: "employeeTasks",
+    defaults: {
+      page: "1",
+      limit: String(DEFAULT_TABLE_PAGE_SIZE),
+    },
+  });
+  const { setValues: setHistoryValues, getPositiveInt: getHistoryInt } = useUrlTableState({
+    prefix: "employeeHistory",
+    defaults: {
+      page: "1",
+      limit: String(DEFAULT_TABLE_PAGE_SIZE),
+    },
+  });
+  const { setValues: setAttendanceValues, getPositiveInt: getAttendanceInt } = useUrlTableState({
+    prefix: "employeeAttendance",
+    defaults: {
+      page: "1",
+      limit: String(DEFAULT_TABLE_PAGE_SIZE),
+    },
+  });
+
+  const taskPage = getTaskInt("page", 1);
+  const taskLimit = getTaskInt("limit", DEFAULT_TABLE_PAGE_SIZE);
+  const taskTotal = tasks.length;
+  const taskTotalPages = Math.max(1, Math.ceil(taskTotal / taskLimit));
+
+  const historyPage = getHistoryInt("page", 1);
+  const historyLimit = getHistoryInt("limit", DEFAULT_TABLE_PAGE_SIZE);
+  const historyTotal = items.length;
+  const historyTotalPages = Math.max(1, Math.ceil(historyTotal / historyLimit));
+
+  const attendancePage = getAttendanceInt("page", 1);
+  const attendanceLimit = getAttendanceInt("limit", DEFAULT_TABLE_PAGE_SIZE);
+  const attendanceTotal = attendance.length;
+  const attendanceTotalPages = Math.max(1, Math.ceil(attendanceTotal / attendanceLimit));
+
+  const setTaskPage = useCallback((nextPage: number) => {
+    setTaskValues({ page: String(nextPage) });
+  }, [setTaskValues]);
+
+  const setHistoryPage = useCallback((nextPage: number) => {
+    setHistoryValues({ page: String(nextPage) });
+  }, [setHistoryValues]);
+
+  const setAttendancePage = useCallback((nextPage: number) => {
+    setAttendanceValues({ page: String(nextPage) });
+  }, [setAttendanceValues]);
+
+  useEffect(() => {
+    if (taskPage > taskTotalPages) {
+      setTaskPage(taskTotalPages);
+    }
+  }, [setTaskPage, taskPage, taskTotalPages]);
+
+  useEffect(() => {
+    if (historyPage > historyTotalPages) {
+      setHistoryPage(historyTotalPages);
+    }
+  }, [historyPage, historyTotalPages, setHistoryPage]);
+
+  useEffect(() => {
+    if (attendancePage > attendanceTotalPages) {
+      setAttendancePage(attendanceTotalPages);
+    }
+  }, [attendancePage, attendanceTotalPages, setAttendancePage]);
+
+  const pagedTasks = useMemo(() => {
+    const start = (taskPage - 1) * taskLimit;
+    return tasks.slice(start, start + taskLimit);
+  }, [taskLimit, taskPage, tasks]);
+
+  const pagedItems = useMemo(() => {
+    const start = (historyPage - 1) * historyLimit;
+    return items.slice(start, start + historyLimit);
+  }, [historyLimit, historyPage, items]);
+
+  const pagedAttendance = useMemo(() => {
+    const start = (attendancePage - 1) * attendanceLimit;
+    return attendance.slice(start, start + attendanceLimit);
+  }, [attendance, attendanceLimit, attendancePage]);
+
   const historyColumns: ColumnDef<OrderItem>[] = [
     {
       header: "Order #",
@@ -315,9 +412,11 @@ export function EmployeeDetailTabs({
       cell: (task) => (
         <Select
           value={task.status}
-          onValueChange={(value) =>
-            onTaskStatusChange(task.id, value as TaskStatus)
-          }
+          onValueChange={(value) => {
+            if (isTaskStatus(value)) {
+              onTaskStatusChange(task.id, value);
+            }
+          }}
           disabled={!canManageTaskStatus}
         >
           <SelectTrigger className="h-7 w-[130px] text-[10px] font-bold uppercase">
@@ -368,7 +467,7 @@ export function EmployeeDetailTabs({
       header: "Date",
       cell: (entry) => (
         <span className="whitespace-nowrap text-xs text-text-secondary">
-          {formatDateTime(entry.createdAt as string)}
+          {formatDateTime(entry.createdAt)}
         </span>
       ),
     },
@@ -487,10 +586,14 @@ export function EmployeeDetailTabs({
         >
           <DataTable
             columns={taskColumns}
-            data={tasks}
+            data={pagedTasks}
             loading={loading}
             emptyMessage="No assigned tasks found."
             chrome="flat"
+            page={taskPage}
+            total={taskTotal}
+            limit={taskLimit}
+            onPageChange={setTaskPage}
           />
         </EmployeeSection>
       ) : null}
@@ -508,10 +611,14 @@ export function EmployeeDetailTabs({
       >
         <DataTable
           columns={historyColumns}
-          data={items}
+          data={pagedItems}
           loading={loading}
           emptyMessage="No work items found."
           chrome="flat"
+          page={historyPage}
+          total={historyTotal}
+          limit={historyLimit}
+          onPageChange={setHistoryPage}
         />
       </EmployeeSection>
 
@@ -594,37 +701,11 @@ export function EmployeeDetailTabs({
             loading={ledgerLoading}
             emptyMessage="No ledger entries found."
             chrome="flat"
+            page={ledgerPage}
+            total={ledgerTotal}
+            limit={ledgerLimit}
+            onPageChange={(nextPage) => onFetchLedger(nextPage)}
           />
-
-          {ledgerTotal > ledgerLimit ? (
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-text-secondary">
-                Showing {(ledgerPage - 1) * ledgerLimit + 1}-
-                {Math.min(ledgerPage * ledgerLimit, ledgerTotal)} of{" "}
-                {ledgerTotal}
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs"
-                  disabled={ledgerPage <= 1}
-                  onClick={() => onFetchLedger(ledgerPage - 1)}
-                >
-                  Prev
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs"
-                  disabled={ledgerPage * ledgerLimit >= ledgerTotal}
-                  onClick={() => onFetchLedger(ledgerPage + 1)}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          ) : null}
         </div>
       </EmployeeSection>
 
@@ -641,10 +722,14 @@ export function EmployeeDetailTabs({
       >
         <DataTable
           columns={attendanceColumns}
-          data={attendance}
+          data={pagedAttendance}
           loading={loading}
           emptyMessage="No attendance records found."
           chrome="flat"
+          page={attendancePage}
+          total={attendanceTotal}
+          limit={attendanceLimit}
+          onPageChange={setAttendancePage}
         />
       </EmployeeSection>
 

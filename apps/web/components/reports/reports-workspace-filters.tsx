@@ -11,7 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { DateRangeValue, ReportDatePreset } from "@/lib/reports-date";
+import {
+  isReportDatePreset,
+  isTrendGranularity,
+  type DateRangeValue,
+  type ReportDatePreset,
+} from "@/lib/reports-date";
 
 interface ReportsWorkspaceFiltersProps {
   preset: ReportDatePreset;
@@ -59,9 +64,11 @@ export function ReportsWorkspaceFilters({
               <Label variant="dashboard">Date Range</Label>
               <Select
                 value={preset}
-                onValueChange={(value) =>
-                  onPresetChange(value as ReportDatePreset)
-                }
+                onValueChange={(value) => {
+                  if (isReportDatePreset(value)) {
+                    onPresetChange(value);
+                  }
+                }}
                 disabled={loading}
               >
                 <SelectTrigger variant="table" className="h-9">
@@ -81,9 +88,11 @@ export function ReportsWorkspaceFilters({
               <Label variant="dashboard">Granularity</Label>
               <Select
                 value={granularity}
-                onValueChange={(value) =>
-                  onGranularityChange(value as TrendGranularity)
-                }
+                onValueChange={(value) => {
+                  if (isTrendGranularity(value)) {
+                    onGranularityChange(value);
+                  }
+                }}
                 disabled={loading}
               >
                 <SelectTrigger variant="table" className="h-9">

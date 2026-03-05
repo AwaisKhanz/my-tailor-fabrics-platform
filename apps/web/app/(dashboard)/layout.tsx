@@ -55,11 +55,11 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
+    <div className="flex h-screen flex-col overflow-hidden bg-background sm:bg-sidebar">
       <Topbar />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <Sidebar />
-        <main className="scrollbar-theme flex-1 overflow-y-auto bg-surface px-3 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6">
+        <main className="scrollbar-theme flex-1 overflow-y-auto bg-surface px-3 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6 sm:rounded-lg sm:!m-4">
           {children}
         </main>
       </div>

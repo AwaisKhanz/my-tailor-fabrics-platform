@@ -6,6 +6,10 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
+import {
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 @Injectable()
 export class AttendanceService {
@@ -81,7 +85,7 @@ export class AttendanceService {
     page = 1,
     limit = 20,
   ) {
-    const skip = (page - 1) * limit;
+    const pagination = normalizePagination({ page, limit, defaultLimit: 20 });
     const where: Prisma.AttendanceRecordWhereInput = {
       ...(branchId ? { branchId } : {}),
       deletedAt: null,
@@ -91,8 +95,8 @@ export class AttendanceService {
     const [data, total] = await Promise.all([
       this.prisma.attendanceRecord.findMany({
         where,
-        skip,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
         orderBy: { clockIn: 'desc' },
         include: {
           employee: {
@@ -103,7 +107,7 @@ export class AttendanceService {
       this.prisma.attendanceRecord.count({ where }),
     ]);
 
-    return { data, total };
+    return toPaginatedResponse(data, total, pagination);
   }
 
   async getEmployeeSummary(employeeId: string, branchId: string | null) {

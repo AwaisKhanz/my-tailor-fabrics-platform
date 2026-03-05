@@ -1,8 +1,8 @@
 import { api } from '../api';
-import { ApiResponse, PaginatedResponse } from '@/types/common';
-
 import type {
+  ApiResponse,
   CreateUserInput,
+  UserAccountsListResult,
   UserAccountsQueryInput,
   UpdateUserInput,
   UserAccount,
@@ -20,9 +20,12 @@ export const usersApi = {
       role: query.role,
       branchId: query.branchId,
     };
-    const response = await api.get<ApiResponse<PaginatedResponse<UserAccount>>>('/users', {
+    const response = await api.get<ApiResponse<UserAccountsListResult>>(
+      '/users',
+      {
       params,
-    });
+      },
+    );
     return response.data;
   },
 

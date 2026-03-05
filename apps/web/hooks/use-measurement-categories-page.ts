@@ -6,6 +6,7 @@ import { configApi } from "@/lib/api/config";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 const EMPTY_MEASUREMENT_STATS: MeasurementStats = {
@@ -17,15 +18,23 @@ const EMPTY_MEASUREMENT_STATS: MeasurementStats = {
 
 export function useMeasurementCategoriesPage() {
   const { toast } = useToast();
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+    },
+  });
 
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<MeasurementCategory[]>([]);
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<MeasurementStats>(EMPTY_MEASUREMENT_STATS);
 
-  const [search, setSearch] = useState("");
+  const search = values.search;
   const debouncedSearch = useDebounce(search, 500);
-  const [page, setPage] = useState(1);
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<MeasurementCategory | null>(null);
@@ -40,7 +49,7 @@ export function useMeasurementCategoriesPage() {
         configApi.getMeasurementCategories({
           search: debouncedSearch.trim() || undefined,
           page,
-          limit: PAGE_SIZE,
+          limit: pageSize,
         }),
         configApi.getMeasurementStats(),
       ]);
@@ -58,7 +67,7 @@ export function useMeasurementCategoriesPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, page]);
+  }, [debouncedSearch, page, pageSize]);
 
   useEffect(() => {
     void fetchCategories();
@@ -67,14 +76,19 @@ export function useMeasurementCategoriesPage() {
   const hasActiveFilters = useMemo(() => search.trim().length > 0, [search]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const openCreateDialog = useCallback(() => {
     setSelectedCategory(null);
@@ -132,7 +146,7 @@ export function useMeasurementCategoriesPage() {
     stats,
     search,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     hasActiveFilters,
     isDialogOpen,
     selectedCategory,

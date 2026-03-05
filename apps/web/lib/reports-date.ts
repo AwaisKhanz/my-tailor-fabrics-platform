@@ -7,6 +7,32 @@ export interface DateRangeValue {
   to: string;
 }
 
+const REPORT_DATE_PRESET_VALUES: readonly ReportDatePreset[] = [
+  "7d",
+  "30d",
+  "90d",
+  "mtd",
+  "qtd",
+  "ytd",
+  "custom",
+];
+
+const TREND_GRANULARITY_VALUES: readonly TrendGranularity[] = [
+  "day",
+  "week",
+  "month",
+];
+
+export function isReportDatePreset(value: string): value is ReportDatePreset {
+  return REPORT_DATE_PRESET_VALUES.some((preset) => preset === value);
+}
+
+export function isTrendGranularity(value: string): value is TrendGranularity {
+  return TREND_GRANULARITY_VALUES.some(
+    (granularity) => granularity === value,
+  );
+}
+
 function formatDateInput(date: Date): string {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, "0");

@@ -13,6 +13,11 @@ import { LedgerService } from '../ledger/ledger.service';
 import * as bcrypt from 'bcrypt';
 import { Role, Prisma } from '@prisma/client';
 import { normalizeEmailAddress } from '../common/utils/email.util';
+import {
+  buildPaginationMeta,
+  normalizePagination,
+  toPaginatedResponse,
+} from '../common/utils/pagination.util';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -28,17 +33,13 @@ export class EmployeesService {
   ) {}
 
   private normalizePagination(page = DEFAULT_PAGE, limit = DEFAULT_LIMIT) {
-    const safePage =
-      Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
-    const safeLimit =
-      Number.isFinite(limit) && limit > 0
-        ? Math.min(Math.trunc(limit), MAX_LIMIT)
-        : DEFAULT_LIMIT;
-    return {
-      page: safePage,
-      limit: safeLimit,
-      skip: (safePage - 1) * safeLimit,
-    };
+    return normalizePagination({
+      page,
+      limit,
+      defaultPage: DEFAULT_PAGE,
+      defaultLimit: DEFAULT_LIMIT,
+      maxLimit: MAX_LIMIT,
+    });
   }
 
   private parseOptionalDate(value?: string): Date | null | undefined {
@@ -105,7 +106,11 @@ export class EmployeesService {
         branchId,
         safeLimit,
       );
-      return { data: results, total: results.length };
+      return {
+        data: results,
+        total: results.length,
+        meta: buildPaginationMeta(results.length, { page: 1, limit: safeLimit }),
+      };
     }
 
     // Default to active employees in list view
@@ -129,8 +134,10 @@ export class EmployeesService {
       }),
     ]);
 
-    // Maintain existing response shape expected by callers.
-    return { data, total, page: safePage };
+    return toPaginatedResponse(data, total, {
+      page: safePage,
+      limit: safeLimit,
+    });
   }
 
   async findOne(id: string, branchId: string | null) {
@@ -243,7 +250,10 @@ export class EmployeesService {
   async getItems(id: string, branchId: string | null, page = 1, limit = 20) {
     await this.findOne(id, branchId);
 
-    const { limit: safeLimit, skip } = this.normalizePagination(page, limit);
+    const { page: safePage, limit: safeLimit, skip } = this.normalizePagination(
+      page,
+      limit,
+    );
     const [data, total] = await Promise.all([
       this.prisma.orderItem.findMany({
         where: {
@@ -274,7 +284,10 @@ export class EmployeesService {
       }),
     ]);
 
-    return { data, total };
+    return toPaginatedResponse(data, total, {
+      page: safePage,
+      limit: safeLimit,
+    });
   }
 
   async addDocument(

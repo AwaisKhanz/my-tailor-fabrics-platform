@@ -4,13 +4,42 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Customer, CustomersListSummary, CustomerStatus } from "@tbms/shared-types";
 import { customerApi } from "@/lib/api/customers";
 import { logDevError } from "@/lib/logger";
+import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 const DEFAULT_STATUS_TAB: CustomerStatusTab = CustomerStatus.ACTIVE;
 
 export type CustomerStatusTab = CustomerStatus | "ALL";
 
+const CUSTOMER_STATUS_TAB_VALUES: readonly CustomerStatusTab[] = [
+  "ALL",
+  CustomerStatus.ACTIVE,
+  CustomerStatus.INACTIVE,
+  CustomerStatus.BLACKLISTED,
+];
+
+export function isCustomerStatusTab(value: string): value is CustomerStatusTab {
+  return CUSTOMER_STATUS_TAB_VALUES.some((status) => status === value);
+}
+
+function parseCustomerStatusTab(value: string): CustomerStatusTab {
+  if (value === "ALL") {
+    return "ALL";
+  }
+
+  return isCustomerStatusTab(value) ? value : DEFAULT_STATUS_TAB;
+}
+
 export function useCustomersPage() {
+  const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
+    defaults: {
+      page: "1",
+      limit: String(PAGE_SIZE),
+      search: "",
+      status: DEFAULT_STATUS_TAB,
+    },
+  });
+
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [total, setTotal] = useState(0);
@@ -19,9 +48,10 @@ export function useCustomersPage() {
     whatsappConnectedCount: 0,
     vipCustomersCount: 0,
   });
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [statusTab, setStatusTab] = useState<CustomerStatusTab>(DEFAULT_STATUS_TAB);
+  const page = getPositiveInt("page", 1);
+  const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const search = values.search;
+  const statusTab = parseCustomerStatusTab(values.status);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -35,12 +65,12 @@ export function useCustomersPage() {
       };
 
       const [listResponse, summaryResponse] = await Promise.all([
-        customerApi.getCustomers(
+        customerApi.getCustomers({
           page,
-          PAGE_SIZE,
-          filters.search,
-          filters.status,
-        ),
+          limit: pageSize,
+          search: filters.search,
+          status: filters.status,
+        }),
         customerApi.getCustomersSummary(filters),
       ]);
 
@@ -57,7 +87,7 @@ export function useCustomersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusTab]);
+  }, [page, pageSize, search, statusTab]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,20 +100,26 @@ export function useCustomersPage() {
   }, [fetchCustomers]);
 
   const setSearchFilter = useCallback((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
+    setValues({
+      search: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const setStatusFilter = useCallback((value: CustomerStatusTab) => {
-    setStatusTab(value);
-    setPage(1);
-  }, []);
+    setValues({
+      status: value,
+      page: "1",
+    });
+  }, [setValues]);
 
   const resetFilters = useCallback(() => {
-    setSearch("");
-    setStatusTab(DEFAULT_STATUS_TAB);
-    setPage(1);
-  }, []);
+    resetValues();
+  }, [resetValues]);
+
+  const setPage = useCallback((nextPage: number) => {
+    setValues({ page: String(nextPage) });
+  }, [setValues]);
 
   const openCreateDialog = useCallback(() => {
     setSelectedCustomer(null);
@@ -114,7 +150,7 @@ export function useCustomersPage() {
     summary,
     search,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     statusTab,
     isDialogOpen,
     selectedCustomer,

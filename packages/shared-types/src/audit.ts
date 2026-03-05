@@ -1,4 +1,4 @@
-import { Role } from './common';
+import { PaginationMeta, Role } from './common';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
@@ -39,6 +39,7 @@ export interface AuditLogsQueryInput {
 export interface AuditLogsListResult {
   data: AuditLogEntry[];
   total: number;
+  meta?: PaginationMeta;
 }
 
 export interface AuditLogsStats {
