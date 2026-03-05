@@ -1,4 +1,4 @@
-import { Filter, RotateCcw } from "lucide-react";
+import { Filter, RotateCcw, Search } from "lucide-react";
 import { type ExpenseCategory } from "@/lib/api/expenses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TableToolbar } from "@/components/ui/table-layout";
+import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import { type ExpensesFilters } from "@/hooks/use-expenses-page";
 
 interface ExpensesFiltersCardProps {
@@ -19,6 +19,7 @@ interface ExpensesFiltersCardProps {
   categoriesLoading: boolean;
   filters: ExpensesFilters;
   activeFilterCount: number;
+  onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
@@ -31,6 +32,7 @@ export function ExpensesFiltersCard({
   categoriesLoading,
   filters,
   activeFilterCount,
+  onSearchChange,
   onCategoryChange,
   onFromChange,
   onToChange,
@@ -46,6 +48,13 @@ export function ExpensesFiltersCard({
       activeFilterCount={activeFilterCount}
       controls={
         <>
+          <TableSearch
+            icon={<Search className="h-4 w-4" />}
+            placeholder="Search by category or description..."
+            value={filters.search}
+            onChange={(event) => onSearchChange(event.target.value)}
+          />
+
           <div className="w-full sm:w-[220px]">
             <Label variant="dashboard" className="mb-2 block">
               <span className="inline-flex items-center gap-1.5">
@@ -60,7 +69,11 @@ export function ExpensesFiltersCard({
             >
               <SelectTrigger variant="table">
                 <SelectValue
-                  placeholder={categoriesLoading ? "Loading categories..." : "All Categories"}
+                  placeholder={
+                    categoriesLoading
+                      ? "Loading categories..."
+                      : "All Categories"
+                  }
                 />
               </SelectTrigger>
               <SelectContent>

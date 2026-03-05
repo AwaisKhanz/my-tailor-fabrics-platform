@@ -1,10 +1,23 @@
 "use client";
 
 import { useCallback } from "react";
-import { Copy, ExternalLink, Mail, RefreshCcw, ShieldCheck, Zap } from "lucide-react";
+import {
+  Copy,
+  ExternalLink,
+  Mail,
+  RefreshCcw,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,7 +129,10 @@ export function IntegrationsSettingsPage() {
         </PageSection>
       ) : null}
 
-      <PageSection spacing="compact" className="grid space-y-0 gap-4 md:grid-cols-3">
+      <PageSection
+        spacing="compact"
+        className="grid space-y-0 gap-4 md:grid-cols-3"
+      >
         <StatCard
           title="Public Endpoints"
           subtitle="mail endpoint policy"
@@ -140,8 +156,11 @@ export function IntegrationsSettingsPage() {
         />
       </PageSection>
 
-      <PageSection spacing="compact" className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <Card variant="premium">
+      <PageSection
+        spacing="compact"
+        className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
+      >
+        <Card variant="elevatedPanel">
           <CardHeader variant="section" className="space-y-1">
             <CardTitle variant="section">Gmail Integration Status</CardTitle>
             <CardDescription>
@@ -151,8 +170,14 @@ export function IntegrationsSettingsPage() {
           <CardContent spacing="section" className="space-y-3 p-5">
             <div className="grid gap-2 sm:grid-cols-2">
               {credentialStatusItems.map((item) => (
-                <InfoTile key={item.label} layout="betweenGap" className="rounded-md">
-                  <span className="text-sm text-text-secondary">{item.label}</span>
+                <InfoTile
+                  key={item.label}
+                  layout="betweenGap"
+                  className="rounded-md"
+                >
+                  <span className="text-sm text-text-secondary">
+                    {item.label}
+                  </span>
                   <Badge variant={statusVariant(item.configured)} size="xs">
                     {item.configured ? "Configured" : "Missing"}
                   </Badge>
@@ -180,19 +205,23 @@ export function IntegrationsSettingsPage() {
           </CardContent>
         </Card>
 
-        <Card variant="premium">
+        <Card variant="elevatedPanel">
           <CardHeader variant="section" className="space-y-1">
             <CardTitle variant="section">Integration Actions</CardTitle>
             <CardDescription>
-              Generate OAuth authorization URL and validate delivery with a test email.
+              Generate OAuth authorization URL and validate delivery with a test
+              email.
             </CardDescription>
           </CardHeader>
           <CardContent spacing="section" className="space-y-5 p-5">
             <InfoTile padding="contentLg" className="space-y-3">
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-text-primary">Authorization URL</p>
+                <p className="text-sm font-semibold text-text-primary">
+                  Authorization URL
+                </p>
                 <p className="text-xs text-text-secondary">
-                  Use this URL to complete OAuth consent and refresh token exchange.
+                  Use this URL to complete OAuth consent and refresh token
+                  exchange.
                 </p>
               </div>
 
@@ -214,7 +243,12 @@ export function IntegrationsSettingsPage() {
                 <div className="space-y-2">
                   <Input value={authUrl} readOnly variant="table" />
                   <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => void copyAuthUrl()}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void copyAuthUrl()}
+                    >
                       <Copy className="h-4 w-4" />
                       Copy
                     </Button>

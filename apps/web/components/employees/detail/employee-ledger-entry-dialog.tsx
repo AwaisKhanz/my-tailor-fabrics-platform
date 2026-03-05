@@ -124,7 +124,6 @@ export function EmployeeLedgerEntryDialog({
             submittingText="Recording..."
             submitting={submitting}
             submitFormId="employee-ledger-form"
-            submitDisabled={!amount}
             submitVariant="premium"
           />
         </DialogActionRow>

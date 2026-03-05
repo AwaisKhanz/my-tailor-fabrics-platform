@@ -9,8 +9,12 @@ interface StatusOrderDetailsCardProps {
 
 export function StatusOrderDetailsCard({ order }: StatusOrderDetailsCardProps) {
   return (
-    <Card variant="premium" className="space-y-3 p-6">
-      <Typography as="h2" variant="muted" className="font-semibold uppercase tracking-wide">
+    <Card variant="elevatedPanel" className="space-y-3 p-6">
+      <Typography
+        as="h2"
+        variant="muted"
+        className="font-semibold uppercase tracking-wide"
+      >
         Details
       </Typography>
 

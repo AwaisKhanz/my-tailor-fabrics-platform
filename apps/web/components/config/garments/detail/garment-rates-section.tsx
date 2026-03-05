@@ -1,7 +1,17 @@
 import { Banknote, Settings } from "lucide-react";
-import { type Branch, type CreateRateCardInput, type GarmentTypeWithAnalytics } from "@tbms/shared-types";
+import {
+  type Branch,
+  type CreateRateCardInput,
+  type GarmentTypeWithAnalytics,
+} from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
@@ -28,7 +38,7 @@ export function GarmentRatesSection({
 
   return (
     <>
-      <Card variant="premium">
+      <Card variant="elevatedPanel">
         <CardHeader variant="rowSection" align="startResponsive" gap="sm">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">

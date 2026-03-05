@@ -13,7 +13,6 @@ export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicField
       <FormField
         control={form.control}
         name="name"
-        rules={{ required: true }}
         render={({ field }) => (
           <FormItem>
             <FormLabel variant="dashboard">Design Name</FormLabel>
@@ -33,7 +32,6 @@ export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicField
         <FormField
           control={form.control}
           name="defaultPrice"
-          rules={{ required: true, min: 0 }}
           render={({ field }) => (
             <FormItem>
               <FormLabel variant="dashboard">Customer Price (Rs)</FormLabel>
@@ -47,7 +45,6 @@ export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicField
         <FormField
           control={form.control}
           name="defaultRate"
-          rules={{ required: true, min: 0 }}
           render={({ field }) => (
             <FormItem>
               <FormLabel variant="dashboard">Employee Rate (Rs)</FormLabel>

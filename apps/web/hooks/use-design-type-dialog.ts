@@ -3,22 +3,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  designTypeFormSchema,
   type DesignType,
   type CreateDesignTypeInput,
+  type DesignTypeFormValues,
   type UpdateDesignTypeInput,
 } from "@tbms/shared-types";
+import { typedZodResolver } from "@/lib/utils/form";
 
 export const DESIGN_TYPE_ALL_SCOPE = "ALL";
 
-export interface DesignTypeFormValues {
-  name: string;
-  defaultPrice: number;
-  defaultRate: number;
-  garmentTypeId: string;
-  branchId: string;
-  sortOrder: number;
-  isActive: boolean;
-}
+export type { DesignTypeFormValues };
 
 interface UseDesignTypeDialogParams {
   open: boolean;
@@ -50,6 +45,7 @@ export function useDesignTypeDialog({
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<DesignTypeFormValues>({
+    resolver: typedZodResolver<DesignTypeFormValues>(designTypeFormSchema),
     defaultValues: DEFAULT_VALUES,
   });
 
@@ -79,9 +75,9 @@ export function useDesignTypeDialog({
       try {
         const basePayload = {
           name: values.name,
-          defaultPrice: Number(values.defaultPrice),
-          defaultRate: Number(values.defaultRate),
-          sortOrder: Number(values.sortOrder),
+          defaultPrice: values.defaultPrice,
+          defaultRate: values.defaultRate,
+          sortOrder: values.sortOrder,
           isActive: values.isActive,
         };
 

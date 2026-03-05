@@ -2,11 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ROLES } from "@tbms/shared-constants";
-import { Role, type UserAccount, type UserStatsSummary } from "@tbms/shared-types";
+import {
+  Role,
+  userAccountCreateFormSchema,
+  userAccountUpdateFormSchema,
+  type UserAccount,
+  type UserStatsSummary,
+} from "@tbms/shared-types";
 import { type Branch, branchesApi } from "@/lib/api/branches";
 import { usersApi } from "@/lib/api/users";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const PAGE_SIZE = 10;
 
@@ -174,17 +181,32 @@ export function useUsersPage() {
   }, []);
 
   const saveUser = useCallback(async () => {
+    const parsedResult = editingUser
+      ? userAccountUpdateFormSchema.safeParse(form)
+      : userAccountCreateFormSchema.safeParse(form);
+
+    if (!parsedResult.success) {
+      toast({
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validated = parsedResult.data;
+
     setSaving(true);
     try {
       const payload = {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password.trim() || undefined,
-        role: form.role,
+        name: validated.name,
+        email: validated.email,
+        password: validated.password?.trim() || undefined,
+        role: validated.role,
         branchId:
-          form.branchId === USERS_ALL_BRANCHES_VALUE || !form.branchId
+          validated.branchId === USERS_ALL_BRANCHES_VALUE || !validated.branchId
             ? undefined
-            : form.branchId,
+            : validated.branchId,
       };
 
       if (editingUser) {

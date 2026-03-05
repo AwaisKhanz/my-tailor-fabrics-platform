@@ -80,7 +80,6 @@ export function EmployeeDocumentUploadDialog({
             submittingText="Saving..."
             submitting={uploading}
             submitFormId="employee-document-form"
-            submitDisabled={!label || !url}
           />
         </DialogActionRow>
       </DialogContent>

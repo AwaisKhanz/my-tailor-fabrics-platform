@@ -51,7 +51,7 @@ export function ReportsWorkspaceFilters({
   })}`;
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardContent className="space-y-3 p-4">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
@@ -59,7 +59,9 @@ export function ReportsWorkspaceFilters({
               <Label variant="dashboard">Date Range</Label>
               <Select
                 value={preset}
-                onValueChange={(value) => onPresetChange(value as ReportDatePreset)}
+                onValueChange={(value) =>
+                  onPresetChange(value as ReportDatePreset)
+                }
                 disabled={loading}
               >
                 <SelectTrigger variant="table" className="h-9">
@@ -79,7 +81,9 @@ export function ReportsWorkspaceFilters({
               <Label variant="dashboard">Granularity</Label>
               <Select
                 value={granularity}
-                onValueChange={(value) => onGranularityChange(value as TrendGranularity)}
+                onValueChange={(value) =>
+                  onGranularityChange(value as TrendGranularity)
+                }
                 disabled={loading}
               >
                 <SelectTrigger variant="table" className="h-9">

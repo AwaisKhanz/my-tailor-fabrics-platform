@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  createMeasurementValuesFormSchema,
   type MeasurementCategory,
   type MeasurementValues,
   FieldType,
@@ -32,6 +33,7 @@ import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { logDevError } from "@/lib/logger";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface MeasurementFormProps {
   customerId: string;
@@ -55,6 +57,13 @@ export function MeasurementForm({
   const form = useForm<MeasurementValues>({
     defaultValues: initialValues ?? {},
   });
+  const measurementValuesSchema = useMemo(
+    () =>
+      selectedCategory
+        ? createMeasurementValuesFormSchema(selectedCategory.fields)
+        : null,
+    [selectedCategory],
+  );
 
   useEffect(() => {
     async function loadCategories() {
@@ -81,6 +90,7 @@ export function MeasurementForm({
     const cat = categories.find((c) => c.id === categoryId);
     if (cat) {
       setSelectedCategory(cat);
+      form.clearErrors();
       if (categoryId === initialCategoryId) {
         form.reset(initialValues || {});
       } else {
@@ -90,10 +100,40 @@ export function MeasurementForm({
   };
 
   async function onSubmit(values: MeasurementValues) {
-    if (!selectedCategory) return;
+    if (!selectedCategory || !measurementValuesSchema) return;
+
+    const parsedResult = measurementValuesSchema.safeParse(values);
+    if (!parsedResult.success) {
+      parsedResult.error.issues.forEach((issue) => {
+        const fieldId = issue.path[0];
+        if (typeof fieldId !== "string") {
+          return;
+        }
+        form.setError(fieldId as keyof MeasurementValues, {
+          type: "manual",
+          message: issue.message,
+        });
+      });
+
+      toast({
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await customerApi.upsertMeasurements(customerId, selectedCategory.id, values);
+      const sanitizedValues = Object.fromEntries(
+        Object.entries(parsedResult.data).filter(([, value]) => value !== undefined),
+      ) as MeasurementValues;
+
+      await customerApi.upsertMeasurements(
+        customerId,
+        selectedCategory.id,
+        sanitizedValues,
+      );
       toast({ title: "Measurements saved successfully" });
       onSuccess();
     } catch (error) {

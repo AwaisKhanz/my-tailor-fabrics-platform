@@ -1,18 +1,14 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { type OrderItem, type TaskStatus } from "@tbms/shared-types";
+import {
+  taskRateOverrideFormSchema,
+  type OrderItem,
+  type TaskStatus,
+} from "@tbms/shared-types";
 import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
-
-function toPaisas(value: string): number | null {
-  const parsed = parseFloat(value);
-  if (Number.isNaN(parsed)) {
-    return null;
-  }
-
-  return Math.round(parsed * 100);
-}
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 export function useTaskAssignmentDialog(orderItem: OrderItem | null, onSuccess: () => void) {
   const { toast } = useToast();
@@ -82,10 +78,18 @@ export function useTaskAssignmentDialog(orderItem: OrderItem | null, onSuccess: 
 
   const updateTaskRate = useCallback(
     async (taskId: string) => {
-      const paisas = toPaisas(tempRate);
-      if (paisas === null) {
+      const parsedResult = taskRateOverrideFormSchema.safeParse({
+        amount: tempRate,
+      });
+      if (!parsedResult.success) {
+        toast({
+          title: "Validation error",
+          description: getFirstZodErrorMessage(parsedResult.error),
+          variant: "destructive",
+        });
         return;
       }
+      const paisas = Math.round(parsedResult.data.amount * 100);
 
       setLoadingId(taskId);
       try {

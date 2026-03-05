@@ -1,21 +1,22 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 
 const inputVariants = cva(
   "flex h-10 w-full rounded-lg border border-inputSurface-border bg-inputSurface-background px-3 py-2 text-sm text-inputSurface-text shadow-sm shadow-shadowColor/5 transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-text-primary placeholder:text-inputSurface-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interaction-focus/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "hover:border-borderStrong/80 focus-visible:border-primary/50",
+        default:
+          "bg-transparent placeholder:text-inputSurface-placeholder hover:border-borderStrong/80 focus-visible:border-primary/50",
         premium:
-          "h-11 border-divider bg-inputSurface-background hover:border-borderStrong focus-visible:border-primary/60 focus-visible:ring-interaction-focus/30",
+          "h-11 border-borderStrong/70 bg-transparent hover:border-borderStrong focus-visible:border-primary/60 focus-visible:ring-interaction-focus/30",
         premiumSuccess:
           "h-11 border-success/35 bg-success-muted/30 font-semibold text-success hover:border-success/55 focus-visible:border-success/70 focus-visible:ring-success/30",
         table:
-          "h-10 rounded-md border-divider bg-inputSurface-background shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
+          "h-10 rounded-md border-borderStrong/70 bg-surface shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         searchCommand:
-          "h-9 rounded-md border-borderStrong/70 bg-surface-elevated shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
+          "h-9 rounded-md border-borderStrong/70 bg-surface shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         readOnlyCode:
           "border-divider bg-code-background font-mono text-xs text-code-text shadow-none",
         inlineChip:
@@ -25,12 +26,11 @@ const inputVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
-)
+  },
+);
 
 export interface InputProps
-  extends React.ComponentProps<"input">,
-    VariantProps<typeof inputVariants> {}
+  extends React.ComponentProps<"input">, VariantProps<typeof inputVariants> {}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, variant, ...props }, ref) => {
@@ -41,9 +41,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         {...props}
       />
-    )
-  }
-)
-Input.displayName = "Input"
+    );
+  },
+);
+Input.displayName = "Input";
 
-export { Input }
+export { Input };

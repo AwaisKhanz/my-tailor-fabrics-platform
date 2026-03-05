@@ -65,7 +65,7 @@ export function TableToolbar({
   return (
     <div
       className={cn(
-        "border-b border-divider bg-surface-elevated px-6 py-5",
+        "border-b border-divider bg-surface-elevated px-4 py-5",
         className,
       )}
     >

@@ -18,19 +18,25 @@ export function DashboardDesignPopularityCard({
   designs,
   onViewAnalytics,
 }: DashboardDesignPopularityCardProps) {
-  const [hoveredDesignName, setHoveredDesignName] = useState<string | null>(designs[0]?.name ?? null);
+  const [hoveredDesignName, setHoveredDesignName] = useState<string | null>(
+    designs[0]?.name ?? null,
+  );
   const maxCount = Math.max(...designs.map((design) => design.count), 1);
-  const activeDesign = designs.find((design) => design.name === hoveredDesignName) ?? designs[0];
+  const activeDesign =
+    designs.find((design) => design.name === hoveredDesignName) ?? designs[0];
 
   return (
-    <Card variant="premium" className="flex h-full flex-col">
+    <Card variant="elevatedPanel" className="flex h-full flex-col">
       <CardHeader variant="section" density="compact">
-        <CardTitle variant="dashboardSection">
-          Design Popularity
-        </CardTitle>
-        <p className="text-xs text-text-secondary">Most requested designs in the selected period.</p>
+        <CardTitle variant="dashboardSection">Design Popularity</CardTitle>
+        <p className="text-xs text-text-secondary">
+          Most requested designs in the selected period.
+        </p>
       </CardHeader>
-      <CardContent spacing="section" className="flex flex-1 flex-col space-y-3 pt-4">
+      <CardContent
+        spacing="section"
+        className="flex flex-1 flex-col space-y-3 pt-4"
+      >
         <div className="flex flex-1 flex-col space-y-4">
           {loading ? (
             Array.from({ length: 4 }).map((_, index) => (
@@ -51,8 +57,12 @@ export function DashboardDesignPopularityCard({
             <>
               {activeDesign ? (
                 <InfoTile tone="elevatedSoft" padding="md">
-                  <p className="text-xs font-semibold text-text-primary">{activeDesign.name}</p>
-                  <p className="mt-1 text-[11px] text-text-secondary">{activeDesign.count} requests</p>
+                  <p className="text-xs font-semibold text-text-primary">
+                    {activeDesign.name}
+                  </p>
+                  <p className="mt-1 text-[11px] text-text-secondary">
+                    {activeDesign.count} requests
+                  </p>
                 </InfoTile>
               ) : null}
 
@@ -68,7 +78,9 @@ export function DashboardDesignPopularityCard({
                 >
                   <div className="flex items-center justify-between text-[11px]">
                     <Label variant="dashboard">{design.name}</Label>
-                    <span className="font-medium text-text-secondary">{design.count}</span>
+                    <span className="font-medium text-text-secondary">
+                      {design.count}
+                    </span>
                   </div>
                   <ProgressBar
                     value={design.count}

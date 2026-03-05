@@ -1,6 +1,9 @@
 import { CalendarDays, Edit2, MapPin, Phone, UserPlus } from "lucide-react";
 import type { EmployeeWithRelations } from "@/lib/api/employees";
-import { EMPLOYEE_STATUS_BADGE, EMPLOYEE_STATUS_LABELS } from "@tbms/shared-constants";
+import {
+  EMPLOYEE_STATUS_BADGE,
+  EMPLOYEE_STATUS_LABELS,
+} from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,16 +31,18 @@ export function EmployeeDetailHeader({
   const hasAccount = Boolean(employee.userAccount);
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3 lg:max-w-[70%]">
-            <Label variant="microStrong">
-              Employee Command
-            </Label>
+            <Label variant="microStrong">Employee Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
+              <Typography
+                as="h1"
+                variant="pageTitle"
+                className="font-semibold sm:text-4xl"
+              >
                 {employee.fullName}
               </Typography>
               <Badge

@@ -55,7 +55,11 @@ export function DashboardRevenueExpensesCard({
   const plotWidth = width - padLeft - padRight;
   const plotHeight = height - padTop - padBottom;
 
-  const allValues = rows.flatMap((row) => [row.revenue, row.expenses, row.revenue - row.expenses]);
+  const allValues = rows.flatMap((row) => [
+    row.revenue,
+    row.expenses,
+    row.revenue - row.expenses,
+  ]);
   const minValue = Math.min(0, ...allValues);
   let maxValue = Math.max(0, ...allValues, 1);
   if (maxValue === minValue) {
@@ -63,14 +67,16 @@ export function DashboardRevenueExpensesCard({
   }
 
   const valueRange = maxValue - minValue;
-  const mapY = (value: number) => padTop + ((maxValue - value) / valueRange) * plotHeight;
+  const mapY = (value: number) =>
+    padTop + ((maxValue - value) / valueRange) * plotHeight;
   const zeroY = mapY(0);
 
   const points: ChartPoint[] = rows.map((row, index) => {
     const denominator = Math.max(1, rows.length - 1);
-    const x = rows.length === 1
-      ? padLeft + plotWidth / 2
-      : padLeft + (index / denominator) * plotWidth;
+    const x =
+      rows.length === 1
+        ? padLeft + plotWidth / 2
+        : padLeft + (index / denominator) * plotWidth;
     const netValue = row.revenue - row.expenses;
 
     return {
@@ -83,9 +89,15 @@ export function DashboardRevenueExpensesCard({
     };
   });
 
-  const revenuePath = pointsToPath(points.map((point) => ({ x: point.x, y: point.revenueY })));
-  const expensesPath = pointsToPath(points.map((point) => ({ x: point.x, y: point.expensesY })));
-  const netPath = pointsToPath(points.map((point) => ({ x: point.x, y: point.netY })));
+  const revenuePath = pointsToPath(
+    points.map((point) => ({ x: point.x, y: point.revenueY })),
+  );
+  const expensesPath = pointsToPath(
+    points.map((point) => ({ x: point.x, y: point.expensesY })),
+  );
+  const netPath = pointsToPath(
+    points.map((point) => ({ x: point.x, y: point.netY })),
+  );
   const areaPath =
     points.length > 1
       ? `${revenuePath} L ${points[points.length - 1]?.x} ${zeroY} L ${points[0]?.x} ${zeroY} Z`
@@ -95,7 +107,8 @@ export function DashboardRevenueExpensesCard({
     const previousX = points[index - 1]?.x ?? padLeft;
     const nextX = points[index + 1]?.x ?? width - padRight;
     const leftBoundary = index === 0 ? padLeft : (previousX + point.x) / 2;
-    const rightBoundary = index === points.length - 1 ? width - padRight : (point.x + nextX) / 2;
+    const rightBoundary =
+      index === points.length - 1 ? width - padRight : (point.x + nextX) / 2;
 
     return {
       leftBoundary,
@@ -107,54 +120,61 @@ export function DashboardRevenueExpensesCard({
   const tooltipWidth = 190;
   const tooltipHeight = 66;
   const tooltipX = activePoint
-    ? clamp(activePoint.x - tooltipWidth / 2, padLeft, width - padRight - tooltipWidth)
+    ? clamp(
+        activePoint.x - tooltipWidth / 2,
+        padLeft,
+        width - padRight - tooltipWidth,
+      )
     : 0;
   const tooltipY = padTop + 10;
 
   return (
-    <Card variant="premium" className="flex h-full flex-col">
+    <Card variant="elevatedPanel" className="flex h-full flex-col">
       <CardHeader variant="rowSection" align="start">
         <div className="space-y-1">
-          <CardTitle variant="dashboardSection">
-            Revenue vs. Expenses
-          </CardTitle>
+          <CardTitle variant="dashboardSection">Revenue vs. Expenses</CardTitle>
           <p className="text-xs text-text-secondary">
             Monthly trend powered by backend report totals.
           </p>
         </div>
-        <InfoTile tone="elevatedSoft" layout="row" padding="xs" className="rounded-md gap-1">
+        <InfoTile
+          tone="elevatedSoft"
+          layout="row"
+          padding="xs"
+          className="rounded-md gap-1"
+        >
           <Label variant="dashboard">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
         </InfoTile>
       </CardHeader>
       <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
         <div className="grid gap-3 sm:grid-cols-3">
-          <InfoTile tone="elevatedSoft" padding="md">
+          <InfoTile tone="inputSurface" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
-              <Label variant="micro">
-                Revenue
-              </Label>
+              <Label variant="micro">Revenue</Label>
             </div>
-            <p className="mt-1 text-lg font-bold text-chart-1">{formatPKR(totalRevenue)}</p>
+            <p className="mt-1 text-lg font-bold text-chart-1">
+              {formatPKR(totalRevenue)}
+            </p>
           </InfoTile>
-          <InfoTile tone="elevatedSoft" padding="md">
+          <InfoTile tone="inputSurface" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
-              <Label variant="micro">
-                Expenses
-              </Label>
+              <Label variant="micro">Expenses</Label>
             </div>
-            <p className="mt-1 text-lg font-bold text-chart-2">{formatPKR(totalExpenses)}</p>
+            <p className="mt-1 text-lg font-bold text-chart-2">
+              {formatPKR(totalExpenses)}
+            </p>
           </InfoTile>
-          <InfoTile tone="elevatedSoft" padding="md">
+          <InfoTile tone="inputSurface" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
-              <Label variant="micro">
-                Net
-              </Label>
+              <Label variant="micro">Net</Label>
             </div>
-            <p className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-chart-3"}`}>
+            <p
+              className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-chart-3"}`}
+            >
               {formatPKR(net)}
             </p>
           </InfoTile>
@@ -199,13 +219,40 @@ export function DashboardRevenueExpensesCard({
                 );
               })}
 
-              <line x1={padLeft} y1={zeroY} x2={width - padRight} y2={zeroY} className="stroke-border" />
+              <line
+                x1={padLeft}
+                y1={zeroY}
+                x2={width - padRight}
+                y2={zeroY}
+                className="stroke-border"
+              />
 
-              {areaPath ? <path d={areaPath} className="fill-chart-1/15" /> : null}
+              {areaPath ? (
+                <path d={areaPath} className="fill-chart-1/15" />
+              ) : null}
 
-              <path d={revenuePath} className="stroke-chart-1" strokeWidth="3" fill="none" strokeLinecap="round" />
-              <path d={expensesPath} className="stroke-chart-2" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-              <path d={netPath} className="stroke-chart-3" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="5 4" />
+              <path
+                d={revenuePath}
+                className="stroke-chart-1"
+                strokeWidth="3"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <path
+                d={expensesPath}
+                className="stroke-chart-2"
+                strokeWidth="2.5"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <path
+                d={netPath}
+                className="stroke-chart-3"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray="5 4"
+              />
 
               {activePoint ? (
                 <line
@@ -220,10 +267,30 @@ export function DashboardRevenueExpensesCard({
 
               {points.map((point) => (
                 <g key={point.month}>
-                  <circle cx={point.x} cy={point.revenueY} r="2.8" className="fill-chart-1" />
-                  <circle cx={point.x} cy={point.expensesY} r="2.4" className="fill-chart-2" />
-                  <circle cx={point.x} cy={point.netY} r="2.1" className="fill-chart-3" />
-                  <text x={point.x} y={height - 10} textAnchor="middle" className="fill-text-secondary text-[10px]">
+                  <circle
+                    cx={point.x}
+                    cy={point.revenueY}
+                    r="2.8"
+                    className="fill-chart-1"
+                  />
+                  <circle
+                    cx={point.x}
+                    cy={point.expensesY}
+                    r="2.4"
+                    className="fill-chart-2"
+                  />
+                  <circle
+                    cx={point.x}
+                    cy={point.netY}
+                    r="2.1"
+                    className="fill-chart-3"
+                  />
+                  <text
+                    x={point.x}
+                    y={height - 10}
+                    textAnchor="middle"
+                    className="fill-text-secondary text-[10px]"
+                  >
                     {point.month}
                   </text>
                 </g>
@@ -254,7 +321,11 @@ export function DashboardRevenueExpensesCard({
                     className="fill-popover stroke-borderStrong/50"
                     strokeWidth="1"
                   />
-                  <text x="10" y="17" className="fill-text-primary text-[11px] font-semibold">
+                  <text
+                    x="10"
+                    y="17"
+                    className="fill-text-primary text-[11px] font-semibold"
+                  >
                     {activePoint.month}
                   </text>
                   <text x="10" y="33" className="fill-chart-1 text-[10px]">

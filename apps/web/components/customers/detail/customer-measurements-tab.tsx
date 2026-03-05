@@ -21,7 +21,7 @@ export function CustomerMeasurementsTab({
   canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -31,11 +31,16 @@ export function CustomerMeasurementsTab({
             </Badge>
           </div>
           <Typography as="p" variant="muted">
-            Keep sizing data updated for better fit accuracy and quicker order entry.
+            Keep sizing data updated for better fit accuracy and quicker order
+            entry.
           </Typography>
         </div>
         {canUpdateMeasurements ? (
-          <Button size="sm" className="w-full sm:w-auto" onClick={onUpdateMeasurements}>
+          <Button
+            size="sm"
+            className="w-full sm:w-auto"
+            onClick={onUpdateMeasurements}
+          >
             <Ruler className="mr-2 h-4 w-4" />
             Update Measurements
           </Button>
@@ -50,8 +55,12 @@ export function CustomerMeasurementsTab({
                 <CardHeader variant="sectionSoft" density="compact">
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
-                    <Label variant="dashboard" className="font-normal opacity-60">
-                      Updated: {new Date(measurement.updatedAt).toLocaleDateString()}
+                    <Label
+                      variant="dashboard"
+                      className="font-normal opacity-60"
+                    >
+                      Updated:{" "}
+                      {new Date(measurement.updatedAt).toLocaleDateString()}
                     </Label>
                   </CardTitle>
                 </CardHeader>
@@ -63,7 +72,11 @@ export function CustomerMeasurementsTab({
                         <Label variant="dashboard" className="mb-0.5 block">
                           {getMeasurementLabel(measurement.categoryId, key)}
                         </Label>
-                        <Typography as="p" variant="body" className="font-semibold">
+                        <Typography
+                          as="p"
+                          variant="body"
+                          className="font-semibold"
+                        >
                           {String(value)}
                         </Typography>
                       </div>

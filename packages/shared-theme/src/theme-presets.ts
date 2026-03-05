@@ -97,44 +97,44 @@ const POLAR_AUTHORITY_LIGHT: ThemePaletteV2 = {
   primary: "#000000",
   primaryForeground: "#FFFFFF",
 
-  secondary: "#404040",
+  secondary: "#4D4D4D",
   secondaryForeground: "#FFFFFF",
 
   accent: "#000000",
   accentForeground: "#FFFFFF",
 
-  background: "#FFFFFF",
-  surface: "#FFFFFF",
-  surfaceElevated: "#F5F5F5",
-  brandDark: "#000000",
+  background: "#F5F5F5",
+  surface: "#F5F5F5",
+  surfaceElevated: "#FFFFFF",
+  brandDark: "#FFFFFF",
 
-  appBar: "#F5F5F5",
+  appBar: "#FFFFFF",
   appBarText: "#000000",
 
-  sidebar: "#F5F5F5",
-  sidebarText: "#404040",
+  sidebar: "#FFFFFF",
+  sidebarText: "#000000",
   sidebarActive: "#FFFFFF",
   sidebarBorder: "#E5E5E5",
 
   textPrimary: "#000000",
-  textSecondary: "#525252",
-  textDisabled: "#A3A3A3",
+  textSecondary: "#4D4D4D",
+  textDisabled: "#999999",
   textInverse: "#FFFFFF",
 
   border: "#E5E5E5",
   borderStrong: "#D4D4D4",
-  divider: "#EFEFEF",
+  divider: "#F0F0F0",
 
   hover: "#F5F5F5",
   active: "#EAEAEA",
   focusRing: "#000000",
 
-  overlay: "rgba(0,0,0,0.35)",
-  overlayStrong: "rgba(0,0,0,0.6)",
+  overlay: "rgba(0,0,0,0.25)",
+  overlayStrong: "rgba(0,0,0,0.45)",
 
   inputBackground: "#FFFFFF",
   inputText: "#000000",
-  inputPlaceholder: "#9CA3AF",
+  inputPlaceholder: "#999999",
   inputBorder: "#D4D4D4",
 
   success: "#166534",
@@ -143,7 +143,7 @@ const POLAR_AUTHORITY_LIGHT: ThemePaletteV2 = {
   warningForeground: "#FFFFFF",
   error: "#991B1B",
   errorForeground: "#FFFFFF",
-  info: "#000000",
+  info: "#2D2D2D",
   infoForeground: "#FFFFFF",
   pending: "#404040",
   pendingForeground: "#FFFFFF",

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  rateCardCreateFormSchema,
   type Branch,
   type CreateRateCardInput,
   type GarmentType,
@@ -14,6 +15,7 @@ import { configApi } from "@/lib/api/config";
 import { ratesApi } from "@/lib/api/rates";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const PAGE_SIZE = 10;
 const EMPTY_RATE_STATS: RateStatsSummary = {
@@ -101,6 +103,17 @@ export function useRatesPage() {
 
   const createRate = useCallback(
     async (data: CreateRateCardInput) => {
+      const parsedResult = rateCardCreateFormSchema.safeParse({
+        branchId: data.branchId ?? "GLOBAL",
+        garmentTypeId: data.garmentTypeId,
+        stepKey: data.stepKey,
+        amount: data.amount / 100,
+        effectiveFrom: data.effectiveFrom,
+      });
+      if (!parsedResult.success) {
+        throw new Error(getFirstZodErrorMessage(parsedResult.error));
+      }
+
       const response = await ratesApi.create(data);
       if (!response.success) {
         throw new Error("Failed to create rate card");

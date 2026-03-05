@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type Payment, type PaymentSummary } from "@tbms/shared-types";
+import {
+  paymentDisbursementFormSchema,
+  type Payment,
+  type PaymentSummary,
+} from "@tbms/shared-types";
 import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { type Employee } from "@/types/employees";
 
 const PAGE_SIZE = 10;
@@ -197,17 +202,17 @@ export function usePaymentsPage() {
       return;
     }
 
-    const amountInRupees = Number.parseFloat(disburseForm.amount);
-    const amountInPaisa = Math.round(amountInRupees * 100);
-
-    if (Number.isNaN(amountInRupees) || amountInPaisa <= 0) {
+    const parsedResult = paymentDisbursementFormSchema.safeParse(disburseForm);
+    if (!parsedResult.success) {
       toast({
-        title: "Invalid amount",
-        description: "Please enter a valid positive amount.",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;
     }
+
+    const amountInPaisa = Math.round(parsedResult.data.amount * 100);
 
     if (amountInPaisa > currentBalance) {
       toast({
@@ -223,7 +228,7 @@ export function usePaymentsPage() {
       await paymentsApi.disburse({
         employeeId: selectedEmployeeId,
         amount: amountInPaisa,
-        note: disburseForm.note || undefined,
+        note: parsedResult.data.note || undefined,
       });
 
       toast({ title: "Payment disbursed successfully" });

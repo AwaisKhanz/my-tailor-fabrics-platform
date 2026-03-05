@@ -15,3 +15,4 @@ export * from './audit';
 export * from './integrations';
 export * from './auth';
 export * from './authz';
+export * from './form-schemas';

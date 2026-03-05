@@ -19,9 +19,13 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Banknote, Calendar } from "lucide-react";
-import type { CreateRateCardInput } from "@tbms/shared-types";
+import {
+  rateCardCreateFormSchema,
+  type CreateRateCardInput,
+} from "@tbms/shared-types";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface CreateRateDialogProps {
   open: boolean;
@@ -51,30 +55,26 @@ export function CreateRateDialog({
   });
 
   const handleSubmit = async () => {
-    const amount = Number.parseFloat(formData.amount);
-    if (!formData.garmentTypeId || !formData.stepKey || !formData.effectiveFrom) {
+    const parsedResult = rateCardCreateFormSchema.safeParse(formData);
+    if (!parsedResult.success) {
       toast({
-        title: "Missing fields",
-        description: "Please select garment type, step, and effective date.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!Number.isFinite(amount) || amount < 0) {
-      toast({
-        title: "Invalid rate",
-        description: "Rate must be a valid non-negative number.",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;
     }
 
+    const validated = parsedResult.data;
+
     setLoading(true);
     try {
       await onSubmit({
-        ...formData,
-        branchId: formData.branchId === "GLOBAL" ? null : formData.branchId,
-        amount: Math.round(amount * 100)
+        garmentTypeId: validated.garmentTypeId,
+        stepKey: validated.stepKey,
+        effectiveFrom: validated.effectiveFrom,
+        branchId: validated.branchId === "GLOBAL" ? null : validated.branchId,
+        amount: Math.round(validated.amount * 100)
       });
       onOpenChange(false);
     } catch (err) {

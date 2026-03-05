@@ -30,7 +30,7 @@ export function TableSkeleton({
   chrome = "framed",
 }: TableSkeletonProps) {
   const table = (
-    <Table>
+    <Table className="bg-card">
       {showHeader && (
         <TableHeader>
           <TableRow>

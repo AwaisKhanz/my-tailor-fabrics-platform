@@ -63,6 +63,7 @@ export class ExpensesController {
       req.branchId,
       pagination.page ?? 1,
       pagination.limit ?? 20,
+      pagination.search,
       categoryId,
       from,
       to,
@@ -70,6 +71,18 @@ export class ExpensesController {
       sortOrder,
     );
     return successSpread(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('expenses.read')
+  @Get('categories/paginated')
+  async findAllCategoriesPaginated(@Query() pagination: PaginationQueryDto) {
+    const data = await this.expensesService.findAllCategoriesPaginated(
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
+      pagination.search,
+    );
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)

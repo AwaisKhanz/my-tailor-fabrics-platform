@@ -38,23 +38,29 @@ const statValueTone = cva("text-3xl", {
   },
 });
 
-const statIconTone = cva("flex h-10 w-10 items-center justify-center rounded-lg border", {
-  variants: {
-    tone: {
-      default: "border-divider bg-muted text-muted-foreground",
-      primary: "border-primary/20 bg-primary/10 text-primary",
-      success: "border-success/20 bg-success-muted text-success",
-      warning: "border-warning/20 bg-warning-muted text-warning",
-      destructive: "border-destructive/20 bg-error-muted text-destructive",
-      info: "border-info/20 bg-info-muted text-info",
+const statIconTone = cva(
+  "flex h-10 w-10 items-center justify-center rounded-lg border",
+  {
+    variants: {
+      tone: {
+        default: "border-divider bg-muted text-muted-foreground",
+        primary: "border-primary/20 bg-primary/10 text-primary",
+        success: "border-success/20 bg-success-muted text-success",
+        warning: "border-warning/20 bg-warning-muted text-warning",
+        destructive: "border-destructive/20 bg-error-muted text-destructive",
+        info: "border-info/20 bg-info-muted text-info",
+      },
+    },
+    defaultVariants: {
+      tone: "default",
     },
   },
-  defaultVariants: {
-    tone: "default",
-  },
-});
+);
 
-const statBadgeTone: Record<NonNullable<StatCardProps["tone"]>, NonNullable<React.ComponentProps<typeof Badge>["variant"]>> = {
+const statBadgeTone: Record<
+  NonNullable<StatCardProps["tone"]>,
+  NonNullable<React.ComponentProps<typeof Badge>["variant"]>
+> = {
   default: "outline",
   primary: "info",
   success: "success",
@@ -98,23 +104,40 @@ export function StatCard({
   const resolvedValueTone = valueTone ?? resolvedTone;
 
   return (
-    <Card variant="premium" className={cn("overflow-hidden", statCardTone({ tone: resolvedTone }), className)}>
+    <Card
+      variant="elevatedPanel"
+      className={cn(
+        "overflow-hidden",
+        statCardTone({ tone: resolvedTone }),
+        className,
+      )}
+    >
       <CardHeader variant="rowSection" density="compact" align="start" gap="sm">
         <div className="space-y-1">
           <CardTitle variant="dashboard" className="text-base">
             {title}
           </CardTitle>
-          {subtitle ? (
-            <Label variant="micro">{subtitle}</Label>
-          ) : null}
+          {subtitle ? <Label variant="micro">{subtitle}</Label> : null}
         </div>
 
-        {icon ? <div className={statIconTone({ tone: resolvedIconTone })}>{icon}</div> : null}
+        {icon ? (
+          <div className={statIconTone({ tone: resolvedIconTone })}>{icon}</div>
+        ) : null}
       </CardHeader>
 
-      <CardContent spacing="section" className={cn("space-y-2 p-5", contentClassName)}>
+      <CardContent
+        spacing="section"
+        className={cn("space-y-2 p-5", contentClassName)}
+      >
         <div className="flex items-center gap-2">
-          <Typography as="p" variant="statValue" className={cn(statValueTone({ tone: resolvedValueTone }), valueClassName)}>
+          <Typography
+            as="p"
+            variant="statValue"
+            className={cn(
+              statValueTone({ tone: resolvedValueTone }),
+              valueClassName,
+            )}
+          >
             {value}
           </Typography>
           {badgeText ? (

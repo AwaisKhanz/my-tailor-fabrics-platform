@@ -28,6 +28,18 @@ export interface UpdateExpenseCategoryInput {
   isActive?: boolean;
 }
 
+export interface ExpenseCategoryListQueryInput {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export interface ExpenseCategoryStatsSummary {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
 export interface CreateExpenseInput {
   categoryId: string;
   amount: number;

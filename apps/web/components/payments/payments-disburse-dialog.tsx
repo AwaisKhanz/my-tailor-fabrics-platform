@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
+import { paymentDisbursementFormSchema } from "@tbms/shared-types";
 import { type PaymentDisbursementForm } from "@/hooks/use-payments-page";
 
 interface PaymentsDisburseDialogProps {
@@ -41,9 +42,9 @@ export function PaymentsDisburseDialog({
   onNoteChange,
   onSubmit,
 }: PaymentsDisburseDialogProps) {
-  const amountValue = Number.parseFloat(form.amount);
-  const isAmountMissing = !form.amount || Number.isNaN(amountValue) || amountValue <= 0;
-  const exceedsBalance = !Number.isNaN(amountValue) && Math.round(amountValue * 100) > currentBalance;
+  const parsedResult = paymentDisbursementFormSchema.safeParse(form);
+  const parsedAmount = parsedResult.success ? parsedResult.data.amount : 0;
+  const exceedsBalance = parsedResult.success && Math.round(parsedAmount * 100) > currentBalance;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -113,7 +114,6 @@ export function PaymentsDisburseDialog({
             submittingText="Processing…"
             submitting={loading}
             submitFormId="payments-disburse-form"
-            submitDisabled={isAmountMissing || exceedsBalance}
             submitSize="lg"
           />
         </DialogActionRow>

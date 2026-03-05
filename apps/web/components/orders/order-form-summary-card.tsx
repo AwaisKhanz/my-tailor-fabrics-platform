@@ -60,7 +60,7 @@ export function OrderFormSummaryCard({
   isEditMode,
 }: OrderFormSummaryCardProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="flex items-center gap-3">
           <SectionIcon tone="infoSoft">
@@ -95,7 +95,9 @@ export function OrderFormSummaryCard({
               <CalendarDays className="h-3.5 w-3.5" />
               Due Date
             </span>
-            <p className="text-sm font-semibold text-text-primary">{dueDate || "-"}</p>
+            <p className="text-sm font-semibold text-text-primary">
+              {dueDate || "-"}
+            </p>
           </InfoTile>
         </div>
 
@@ -121,8 +123,12 @@ export function OrderFormSummaryCard({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={DiscountType.FIXED}>Flat (Rs)</SelectItem>
-                      <SelectItem value={DiscountType.PERCENTAGE}>Percent (%)</SelectItem>
+                      <SelectItem value={DiscountType.FIXED}>
+                        Flat (Rs)
+                      </SelectItem>
+                      <SelectItem value={DiscountType.PERCENTAGE}>
+                        Percent (%)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -137,7 +143,12 @@ export function OrderFormSummaryCard({
                 <FormItem>
                   <FormLabel variant="dashboard">Discount Value</FormLabel>
                   <FormControl>
-                    <Input variant="premium" type="number" className="h-9" {...field} />
+                    <Input
+                      variant="premium"
+                      type="number"
+                      className="h-9"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,11 +181,7 @@ export function OrderFormSummaryCard({
               <FormItem>
                 <FormLabel variant="dashboard">Advance Payment</FormLabel>
                 <FormControl>
-                  <Input
-                    variant="premiumSuccess"
-                    type="number"
-                    {...field}
-                  />
+                  <Input variant="premiumSuccess" type="number" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

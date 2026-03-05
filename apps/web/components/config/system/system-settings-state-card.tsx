@@ -18,7 +18,7 @@ export function SystemSettingsStateCard({
   lastUpdatedText,
 }: SystemSettingsStateCardProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="section" className="space-y-1">
         <CardTitle variant="section" className="flex items-center gap-2">
           <Workflow className="h-4 w-4 text-primary" />
@@ -37,7 +37,9 @@ export function SystemSettingsStateCard({
         </InfoTile>
         <InfoTile layout="betweenGap" padding="md" className="rounded-md">
           <span className="text-text-secondary">Last updated</span>
-          <span className="font-medium text-text-primary">{lastUpdatedText}</span>
+          <span className="font-medium text-text-primary">
+            {lastUpdatedText}
+          </span>
         </InfoTile>
       </CardContent>
     </Card>

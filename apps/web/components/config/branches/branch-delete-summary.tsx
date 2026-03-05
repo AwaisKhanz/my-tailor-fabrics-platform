@@ -10,7 +10,7 @@ interface BranchDeleteSummaryProps {
 
 function ImpactMetric({ label, value }: { label: string; value: number }) {
   return (
-    <InfoTile tone="surface" padding="xs" className="flex-col rounded-md">
+    <InfoTile tone="inputSurface" padding="xs" className="flex-col rounded-md">
       <span className="text-xs font-bold text-text-primary">{value}</span>
       <Label variant="dashboard" className="text-[9px]">
         {label}
@@ -26,11 +26,17 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
 
   return (
     <div className="space-y-4 pt-2">
-      <Typography as="p" variant="body" className="font-medium leading-relaxed text-text-secondary">
+      <Typography
+        as="p"
+        variant="body"
+        className="font-medium leading-relaxed text-text-secondary"
+      >
         Are you sure you want to delete{" "}
-        <strong className="text-text-primary">&quot;{branch?.name}&quot;</strong>? This action will hide
-        the branch and deactivate it. Historic data will be preserved, but new operations will be
-        blocked.
+        <strong className="text-text-primary">
+          &quot;{branch?.name}&quot;
+        </strong>
+        ? This action will hide the branch and deactivate it. Historic data will
+        be preserved, but new operations will be blocked.
       </Typography>
 
       <InfoTile padding="content" className="space-y-2">
@@ -50,8 +56,8 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
             className="flex items-start gap-1.5 text-xs font-bold leading-snug text-warning"
           >
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Warning: this branch has active orders. The system will block deletion until they are
-            completed or cancelled.
+            Warning: this branch has active orders. The system will block
+            deletion until they are completed or cancelled.
           </Typography>
         </InfoTile>
       ) : null}

@@ -9,14 +9,21 @@ interface StatusOrderItemsCardProps {
 
 export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
   return (
-    <Card variant="premium" className="space-y-3 p-6">
-      <Typography as="h2" variant="muted" className="font-semibold uppercase tracking-wide">
+    <Card variant="elevatedPanel" className="space-y-3 p-6">
+      <Typography
+        as="h2"
+        variant="muted"
+        className="font-semibold uppercase tracking-wide"
+      >
         Items
       </Typography>
 
       <div className="divide-y">
         {order.items.map((item) => (
-          <div key={item.id} className="flex flex-col gap-2 py-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div
+            key={item.id}
+            className="flex flex-col gap-2 py-2 text-sm sm:flex-row sm:items-center sm:justify-between"
+          >
             <div className="min-w-0">
               <Typography as="p" variant="body" className="font-medium">
                 {item.garmentTypeName}

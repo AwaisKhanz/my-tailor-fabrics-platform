@@ -17,7 +17,7 @@ export function StatusOrderHeaderCard({
   icon: Icon,
 }: StatusOrderHeaderCardProps) {
   return (
-    <Card variant="premium" className="p-6 text-center">
+    <Card variant="elevatedPanel" className="p-6 text-center">
       <Typography as="p" variant="muted" className="mb-1 text-xs">
         Order Number
       </Typography>
@@ -26,7 +26,10 @@ export function StatusOrderHeaderCard({
       </Typography>
 
       <div className="mt-3 flex justify-center">
-        <Badge variant={variant} className="px-4 py-1.5 text-sm font-semibold uppercase tracking-wider">
+        <Badge
+          variant={variant}
+          className="px-4 py-1.5 text-sm font-semibold uppercase tracking-wider"
+        >
           <Icon className="mr-1.5 h-4 w-4" />
           {label}
         </Badge>

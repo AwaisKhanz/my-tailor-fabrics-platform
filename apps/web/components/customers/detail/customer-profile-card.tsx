@@ -1,6 +1,15 @@
-import { Banknote, MapPin, Phone, ShoppingBag, UserSquare2 } from "lucide-react";
+import {
+  Banknote,
+  MapPin,
+  Phone,
+  ShoppingBag,
+  UserSquare2,
+} from "lucide-react";
 import { type Customer } from "@tbms/shared-types";
-import { CUSTOMER_STATUS_BADGE, CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
+import {
+  CUSTOMER_STATUS_BADGE,
+  CUSTOMER_STATUS_LABELS,
+} from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
@@ -14,10 +23,12 @@ interface CustomerProfileCardProps {
 }
 
 export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
-  const addressLine = [customer.address, customer.city].filter(Boolean).join(", ");
+  const addressLine = [customer.address, customer.city]
+    .filter(Boolean)
+    .join(", ");
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
           <SectionIcon tone="infoSoft">
@@ -25,7 +36,10 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
           </SectionIcon>
           <CardTitle variant="section">Customer Profile</CardTitle>
         </div>
-        <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} size="xs">
+        <Badge
+          variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
+          size="xs"
+        >
           {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
         </Badge>
       </CardHeader>
@@ -33,7 +47,9 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="elevatedSoft">
           <Label variant="micro">Size Number</Label>
-          <p className="mt-1 text-sm font-semibold text-text-primary">{customer.sizeNumber}</p>
+          <p className="mt-1 text-sm font-semibold text-text-primary">
+            {customer.sizeNumber}
+          </p>
         </InfoTile>
 
         <div className="flex items-center gap-3 text-sm">

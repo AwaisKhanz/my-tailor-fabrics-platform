@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AlertTriangle, CheckCircle2, Clock3, Plus, Wallet } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+  Plus,
+  Wallet,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Can } from "@/components/auth/can";
 import { StatCard } from "@/components/ui/stat-card";
@@ -121,7 +127,9 @@ function OrdersPage() {
             limit={pageSize}
             onPageChange={setPage}
             onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
-            onEditOrder={(orderId) => router.push(`/orders/new?edit=${orderId}`)}
+            onEditOrder={(orderId) =>
+              router.push(`/orders/new?edit=${orderId}`)
+            }
             canEditOrder={canEditOrder}
             canPrintReceipt={canPrintReceipt}
           />

@@ -32,7 +32,7 @@ export function SystemSettingsWorkflowCard({
   onSave,
 }: SystemSettingsWorkflowCardProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="section" className="space-y-1">
         <div className="flex items-center justify-between gap-2">
           <CardTitle variant="section" className="flex items-center gap-2">
@@ -52,10 +52,18 @@ export function SystemSettingsWorkflowCard({
         <InfoTile padding="contentLg">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <Typography as="p" variant="body" className="text-sm font-semibold text-text-primary">
+              <Typography
+                as="p"
+                variant="body"
+                className="text-sm font-semibold text-text-primary"
+              >
                 Enable Task Workflow
               </Typography>
-              <Typography as="p" variant="lead" className="text-sm text-text-secondary">
+              <Typography
+                as="p"
+                variant="lead"
+                className="text-sm text-text-secondary"
+              >
                 When enabled, newly created order items generate step-based
                 tasks using garment workflow templates.
               </Typography>

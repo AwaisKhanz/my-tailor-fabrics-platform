@@ -50,11 +50,6 @@ export function ExpenseCreateDialog({
   onFormChange,
   onSubmit,
 }: ExpenseCreateDialogProps) {
-  const amountValue = Number.parseFloat(form.amount);
-  const amountInvalid = Number.isNaN(amountValue) || amountValue <= 0;
-  const saveDisabled =
-    saving || categoriesLoading || !form.categoryId || !form.amount || amountInvalid;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="md">
@@ -159,7 +154,6 @@ export function ExpenseCreateDialog({
             submittingText="Saving…"
             submitting={saving}
             submitFormId="expense-create-form"
-            submitDisabled={saveDisabled}
             submitSize="lg"
           />
         </DialogActionRow>

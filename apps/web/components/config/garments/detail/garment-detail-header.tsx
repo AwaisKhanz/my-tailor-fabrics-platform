@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { CalendarDays, ClipboardList, Settings, SlidersHorizontal } from "lucide-react";
+import {
+  CalendarDays,
+  ClipboardList,
+  Settings,
+  SlidersHorizontal,
+} from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,19 +30,24 @@ export function GarmentDetailHeader({
   const workflowStepsCount = garment.workflowSteps?.length ?? 0;
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3 lg:max-w-[70%]">
-            <Label variant="microStrong">
-              Garment Command
-            </Label>
+            <Label variant="microStrong">Garment Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
+              <Typography
+                as="h1"
+                variant="pageTitle"
+                className="font-semibold sm:text-4xl"
+              >
                 {garment.name}
               </Typography>
-              <Badge variant={garment.isActive ? "success" : "outline"} size="xs">
+              <Badge
+                variant={garment.isActive ? "success" : "outline"}
+                size="xs"
+              >
                 {garment.isActive ? "Active" : "Inactive"}
               </Badge>
               <Badge variant="outline" size="xs" className="font-semibold">
@@ -49,13 +59,15 @@ export function GarmentDetailHeader({
               <MetaPill>
                 <ClipboardList className="h-3.5 w-3.5" />
                 <span>
-                  {measurementFormsCount} measurement form{measurementFormsCount === 1 ? "" : "s"}
+                  {measurementFormsCount} measurement form
+                  {measurementFormsCount === 1 ? "" : "s"}
                 </span>
               </MetaPill>
               <MetaPill>
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 <span>
-                  {workflowStepsCount} workflow step{workflowStepsCount === 1 ? "" : "s"}
+                  {workflowStepsCount} workflow step
+                  {workflowStepsCount === 1 ? "" : "s"}
                 </span>
               </MetaPill>
               <MetaPill>

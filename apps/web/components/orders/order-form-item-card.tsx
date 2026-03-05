@@ -64,13 +64,22 @@ export function OrderFormItemCard({
   );
 
   return (
-    <InfoTile padding="none" radius="xl" className="space-y-5 p-4 sm:p-5 ">
+    <InfoTile
+      padding="none"
+      tone={"surface"}
+      radius="xl"
+      className="space-y-5 p-4 sm:p-5"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" size="xs" className="p-0">
+            <InfoTile
+              tone="elevated"
+              padding="none"
+              className="text-right !text-xs p-1"
+            >
               PIECE {index + 1}
-            </Badge>
+            </InfoTile>
             {selectedGarment ? (
               <Badge variant="info" size="xs" className="font-bold">
                 {selectedGarment.name}
@@ -84,11 +93,11 @@ export function OrderFormItemCard({
 
         <div className="flex items-center gap-2">
           <InfoTile
-            tone="pending"
+            tone="elevated"
             padding="none"
-            className="text-right px-3 py-1.5"
+            className="text-right p-1 !text-xs "
           >
-            <p className="text-sm font-semibold text-text-primary">
+            <p className=" text-text-primary">
               {formatPKR(Math.round(lineTotal * 100))}
             </p>
           </InfoTile>
@@ -119,7 +128,7 @@ export function OrderFormItemCard({
                   value={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger variant="appBar">
+                    <SelectTrigger variant="default">
                       <SelectValue placeholder="Select garment" />
                     </SelectTrigger>
                   </FormControl>
@@ -274,12 +283,17 @@ export function OrderFormItemCard({
         />
       </div>
 
-      <InfoTile tone="pending" borderStyle="dashed" padding="none" className="">
+      <InfoTile
+        tone="elevatedSoft"
+        borderStyle="dashed"
+        padding="xs"
+        className=""
+      >
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <Label variant="dashboard">Addons & Custom Charges</Label>
           <Button
             type="button"
-            variant="outline"
+            variant="dashboard"
             size="sm"
             className="h-7 gap-1 text-[10px] font-semibold"
             onClick={() => onAddAddon(index)}

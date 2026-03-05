@@ -82,12 +82,12 @@ export function DataTable<T extends { id: string | number }>({
       <div className="overflow-x-auto">
         <Table className="text-sm">
           <TableHeader>
-            <TableRow className="border-b border-divider bg-surface-elevated">
+            <TableRow className="bg-surface-elevated ">
               {columns.map((column, idx) => (
                 <TableHead
                   key={idx}
                   className={cn(
-                    "whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary",
+                    "whitespace-nowrap px-4 py-3 border-b border-borderStrong/70 text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary",
                     column.align === "right" && "text-right",
                     column.align === "center" && "text-center",
                     column.headerClassName,
@@ -103,7 +103,7 @@ export function DataTable<T extends { id: string | number }>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="px-5 py-16 text-center"
+                  className="px-5 py-16 text-center bg-surface-elevated"
                 >
                   <Typography as="p" variant="lead">
                     {emptyMessage}
@@ -115,7 +115,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableRow
                   key={item.id}
                   className={cn(
-                    "hover:bg-interaction-hover transition-colors group",
+                    "hover:bg-interaction-hover/60 transition-colors group bg-surface-elevated border-b border-borderStrong/70",
                     onRowClick && "cursor-pointer",
                   )}
                   onClick={() => onRowClick?.(item)}
@@ -146,7 +146,7 @@ export function DataTable<T extends { id: string | number }>({
 
       {/* Pagination Footer */}
       {totalPages > 0 && onPageChange && page && (
-        <div className="flex items-center justify-between border-t border-divider bg-surface-elevated px-5 py-3.5">
+        <div className="flex items-center justify-between border-t border-borderStrong/70 bg-surface-elevated px-5 py-3.5">
           <Typography as="p" variant="muted">
             Showing <span className="font-bold text-text-primary">{from}</span>{" "}
             to <span className="font-bold text-text-primary">{to}</span> of{" "}
@@ -213,7 +213,7 @@ export function DataTable<T extends { id: string | number }>({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-borderStrong/70 bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
+    <div className="overflow-hidden rounded-xl border border-borderStrong/70 bg-surface-elevated shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]">
       {tableContent}
     </div>
   );

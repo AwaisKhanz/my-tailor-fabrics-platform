@@ -1,24 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { expenseCreateFormSchema } from "@tbms/shared-types";
 import {
   expensesApi,
   type Expense,
   type ExpenseCategory,
 } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const PAGE_SIZE = 10;
 
 interface ExpensesFilterParams {
   page: number;
   limit: number;
+  search?: string;
   categoryId?: string;
   from?: string;
   to?: string;
 }
 
 export interface ExpensesFilters {
+  search: string;
   categoryId: string;
   from: string;
   to: string;
@@ -32,6 +36,7 @@ export interface ExpenseFormState {
 }
 
 const DEFAULT_FILTERS: ExpensesFilters = {
+  search: "",
   categoryId: "all",
   from: "",
   to: "",
@@ -97,6 +102,9 @@ export function useExpensesPage() {
       if (filters.categoryId !== "all") {
         params.categoryId = filters.categoryId;
       }
+      if (filters.search.trim()) {
+        params.search = filters.search.trim();
+      }
       if (filters.from) {
         params.from = filters.from;
       }
@@ -130,6 +138,11 @@ export function useExpensesPage() {
 
   const setCategoryFilter = useCallback((value: string) => {
     setFilters((previous) => ({ ...previous, categoryId: value }));
+    setPage(1);
+  }, []);
+
+  const setSearchFilter = useCallback((value: string) => {
+    setFilters((previous) => ({ ...previous, search: value }));
     setPage(1);
   }, []);
 
@@ -171,24 +184,26 @@ export function useExpensesPage() {
   }, []);
 
   const submitCreateExpense = useCallback(async () => {
-    const amountInRupees = Number.parseFloat(form.amount);
-    const amountInPaisa = Math.round(amountInRupees * 100);
-
-    if (!form.categoryId || Number.isNaN(amountInRupees) || amountInPaisa <= 0 || !form.expenseDate) {
+    const parsedResult = expenseCreateFormSchema.safeParse(form);
+    if (!parsedResult.success) {
       toast({
-        title: "Please fill all required fields",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;
     }
 
+    const data = parsedResult.data;
+    const amountInPaisa = Math.round(data.amount * 100);
+
     setSaving(true);
     try {
       const payload: Parameters<typeof expensesApi.createExpense>[0] = {
-        categoryId: form.categoryId,
+        categoryId: data.categoryId,
         amount: amountInPaisa,
-        description: form.description || undefined,
-        expenseDate: new Date(form.expenseDate).toISOString(),
+        description: data.description || undefined,
+        expenseDate: new Date(data.expenseDate).toISOString(),
       };
 
       await expensesApi.createExpense(payload);
@@ -258,6 +273,9 @@ export function useExpensesPage() {
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
+    if (filters.search.trim()) {
+      count += 1;
+    }
     if (filters.categoryId !== "all") {
       count += 1;
     }
@@ -287,6 +305,7 @@ export function useExpensesPage() {
     deleteTarget,
     deletingId,
     setPage,
+    setSearchFilter,
     setCategoryFilter,
     setFromFilter,
     setToFilter,

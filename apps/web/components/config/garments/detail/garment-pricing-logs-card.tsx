@@ -14,15 +14,13 @@ interface GarmentPricingLogsCardProps {
 
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
         <div className="flex items-center gap-2">
           <SectionIcon tone="primary">
             <History className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle variant="section">
-            Recent Pricing Logs
-          </CardTitle>
+          <CardTitle variant="section">Recent Pricing Logs</CardTitle>
         </div>
         <Badge variant="secondary" size="xs">
           {logs.length} entries
@@ -54,7 +52,10 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
 
                 <InfoTile padding="content" className="space-y-2">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <Label variant="dashboard" className="flex shrink-0 items-center gap-1.5">
+                    <Label
+                      variant="dashboard"
+                      className="flex shrink-0 items-center gap-1.5"
+                    >
                       <Users className="h-3 w-3" />
                       {log.changedBy.name}
                     </Label>
@@ -64,10 +65,18 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                     <div>
                       <Label variant="dashboard">Customer Price</Label>
                       <div className="flex items-center gap-2">
-                        <Typography as="span" variant="muted" className="text-xs line-through opacity-50">
+                        <Typography
+                          as="span"
+                          variant="muted"
+                          className="text-xs line-through opacity-50"
+                        >
                           {formatPKR(log.oldCustomerPrice || 0)}
                         </Typography>
-                        <Typography as="span" variant="body" className="text-xs font-bold">
+                        <Typography
+                          as="span"
+                          variant="body"
+                          className="text-xs font-bold"
+                        >
                           {formatPKR(log.newCustomerPrice || 0)}
                         </Typography>
                       </div>
@@ -76,10 +85,18 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                     <div>
                       <Label variant="dashboard">Employee Rate</Label>
                       <div className="flex items-center gap-2">
-                        <Typography as="span" variant="muted" className="text-xs line-through opacity-50">
+                        <Typography
+                          as="span"
+                          variant="muted"
+                          className="text-xs line-through opacity-50"
+                        >
                           {formatPKR(log.oldEmployeeRate || 0)}
                         </Typography>
-                        <Typography as="span" variant="body" className="text-xs font-bold">
+                        <Typography
+                          as="span"
+                          variant="body"
+                          className="text-xs font-bold"
+                        >
                           {formatPKR(log.newEmployeeRate || 0)}
                         </Typography>
                       </div>

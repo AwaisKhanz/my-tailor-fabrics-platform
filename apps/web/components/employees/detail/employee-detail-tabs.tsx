@@ -27,7 +27,13 @@ import {
 import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
@@ -141,7 +147,12 @@ function EmployeeSection({
             aria-controls={`${id}-content`}
             onClick={handleToggle}
           >
-            <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 transition-transform",
+                isOpen && "rotate-180",
+              )}
+            />
           </Button>
         </div>
       </CardHeader>
@@ -188,7 +199,9 @@ export function EmployeeDetailTabs({
   const historyColumns: ColumnDef<OrderItem>[] = [
     {
       header: "Order #",
-      cell: (item) => <span className="font-bold">{item.order?.orderNumber || "-"}</span>,
+      cell: (item) => (
+        <span className="font-bold">{item.order?.orderNumber || "-"}</span>
+      ),
     },
     {
       header: "Garment",
@@ -196,7 +209,9 @@ export function EmployeeDetailTabs({
         <div className="flex flex-col">
           <span className="font-medium">{item.garmentTypeName}</span>
           <span className="text-[10px] text-text-secondary">
-            {item.completedAt ? `Completed: ${formatDate(item.completedAt)}` : "Pending"}
+            {item.completedAt
+              ? `Completed: ${formatDate(item.completedAt)}`
+              : "Pending"}
           </span>
         </div>
       ),
@@ -213,14 +228,20 @@ export function EmployeeDetailTabs({
       header: "Rate",
       align: "right",
       cell: (item) => (
-        <span className="text-right font-bold text-primary">{formatPKR(item.employeeRate)}</span>
+        <span className="text-right font-bold text-primary">
+          {formatPKR(item.employeeRate)}
+        </span>
       ),
     },
     {
       header: "",
       align: "right",
       cell: (item) => (
-        <Button variant="tableIcon" size="iconSm" onClick={() => onViewOrder(item.orderId)}>
+        <Button
+          variant="tableIcon"
+          size="iconSm"
+          onClick={() => onViewOrder(item.orderId)}
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
       ),
@@ -230,7 +251,9 @@ export function EmployeeDetailTabs({
   const attendanceColumns: ColumnDef<AttendanceRecord>[] = [
     {
       header: "Date",
-      cell: (record) => <span className="font-medium">{formatDate(record.date)}</span>,
+      cell: (record) => (
+        <span className="font-medium">{formatDate(record.date)}</span>
+      ),
     },
     {
       header: "Clock In",
@@ -259,20 +282,28 @@ export function EmployeeDetailTabs({
     {
       header: "Hours",
       align: "right",
-      cell: (record) => <span className="font-bold">{record.hoursWorked?.toFixed(1) || "0.0"}h</span>,
+      cell: (record) => (
+        <span className="font-bold">
+          {record.hoursWorked?.toFixed(1) || "0.0"}h
+        </span>
+      ),
     },
   ];
 
   const taskColumns: ColumnDef<OrderItemTask>[] = [
     {
       header: "Order #",
-      cell: (task) => <span className="font-bold">{task.item?.order.orderNumber || "-"}</span>,
+      cell: (task) => (
+        <span className="font-bold">{task.item?.order.orderNumber || "-"}</span>
+      ),
     },
     {
       header: "Item/Step",
       cell: (task) => (
         <div className="flex flex-col">
-          <span className="font-medium">{task.item?.garmentTypeName || "-"}</span>
+          <span className="font-medium">
+            {task.item?.garmentTypeName || "-"}
+          </span>
           <Label variant="dashboard" className="font-mono">
             {task.stepName}
           </Label>
@@ -284,7 +315,9 @@ export function EmployeeDetailTabs({
       cell: (task) => (
         <Select
           value={task.status}
-          onValueChange={(value) => onTaskStatusChange(task.id, value as TaskStatus)}
+          onValueChange={(value) =>
+            onTaskStatusChange(task.id, value as TaskStatus)
+          }
           disabled={!canManageTaskStatus}
         >
           <SelectTrigger className="h-7 w-[130px] text-[10px] font-bold uppercase">
@@ -292,7 +325,11 @@ export function EmployeeDetailTabs({
           </SelectTrigger>
           <SelectContent>
             {Object.entries(TASK_STATUS_LABELS).map(([key, label]) => (
-              <SelectItem key={key} value={key} className="text-[10px] font-bold uppercase">
+              <SelectItem
+                key={key}
+                value={key}
+                className="text-[10px] font-bold uppercase"
+              >
                 {label}
               </SelectItem>
             ))}
@@ -305,7 +342,13 @@ export function EmployeeDetailTabs({
       align: "right",
       cell: (task) => (
         <span className="font-bold text-primary">
-          {formatPKR(getEffectiveTaskRate(task.rateSnapshot, task.rateOverride, task.designType?.defaultRate))}
+          {formatPKR(
+            getEffectiveTaskRate(
+              task.rateSnapshot,
+              task.rateOverride,
+              task.designType?.defaultRate,
+            ),
+          )}
         </span>
       ),
     },
@@ -313,7 +356,9 @@ export function EmployeeDetailTabs({
       header: "Last Update",
       align: "right",
       cell: (task) => (
-        <span className="text-[10px] text-text-secondary">{formatDateTime(task.updatedAt)}</span>
+        <span className="text-[10px] text-text-secondary">
+          {formatDateTime(task.updatedAt)}
+        </span>
       ),
     },
   ];
@@ -339,7 +384,9 @@ export function EmployeeDetailTabs({
       header: "Amount",
       align: "right",
       cell: (entry) => (
-        <span className={`text-sm font-bold ${entry.amount >= 0 ? "text-ready" : "text-error"}`}>
+        <span
+          className={`text-sm font-bold ${entry.amount >= 0 ? "text-ready" : "text-error"}`}
+        >
           {entry.amount >= 0 ? "+" : ""}
           {formatPKR(Math.abs(entry.amount))}
         </span>
@@ -351,10 +398,15 @@ export function EmployeeDetailTabs({
         <div className="flex max-w-xs flex-col">
           {entry.orderItemTask ? (
             <span className="text-xs font-semibold">
-              {entry.orderItemTask.stepName} - {entry.orderItemTask.orderItem?.garmentTypeName}
+              {entry.orderItemTask.stepName} -{" "}
+              {entry.orderItemTask.orderItem?.garmentTypeName}
             </span>
           ) : null}
-          {entry.note ? <span className="text-[10px] text-text-secondary">{entry.note}</span> : null}
+          {entry.note ? (
+            <span className="text-[10px] text-text-secondary">
+              {entry.note}
+            </span>
+          ) : null}
         </div>
       ),
     },
@@ -369,7 +421,7 @@ export function EmployeeDetailTabs({
     {
       header: "Action",
       align: "right",
-      cell: (entry) => (
+      cell: (entry) =>
         canManageLedger ? (
           <Button
             variant="tableDanger"
@@ -379,8 +431,7 @@ export function EmployeeDetailTabs({
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-        ) : null
-      ),
+        ) : null,
     },
   ];
 
@@ -400,14 +451,16 @@ export function EmployeeDetailTabs({
 
   return (
     <div className="space-y-6">
-      <Card variant="premium">
-        <CardContent spacing="section" className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <Card variant="elevatedPanel">
+        <CardContent
+          spacing="section"
+          className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div className="space-y-1">
-            <Label variant="microCaps">
-              Workspace Sections
-            </Label>
+            <Label variant="microCaps">Workspace Sections</Label>
             <Typography as="p" variant="muted">
-              Jump between work logs, ledger, attendance, documents, and account controls.
+              Jump between work logs, ledger, attendance, documents, and account
+              controls.
             </Typography>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -473,7 +526,12 @@ export function EmployeeDetailTabs({
         }
         action={
           canManageLedger ? (
-            <Button size="sm" variant="premium" className="h-8 w-full sm:w-auto" onClick={onOpenLedgerDialog}>
+            <Button
+              size="sm"
+              variant="premium"
+              className="h-8 w-full sm:w-auto"
+              onClick={onOpenLedgerDialog}
+            >
               <Plus className="h-4 w-4" />
               Add Entry
             </Button>
@@ -503,19 +561,29 @@ export function EmployeeDetailTabs({
               onChange={(event) => setLedgerTo(event.target.value)}
             />
             <Select value={ledgerType} onValueChange={setLedgerType}>
-              <SelectTrigger variant="table" className="h-8 w-full text-xs md:w-[140px]">
+              <SelectTrigger
+                variant="table"
+                className="h-8 w-full text-xs md:w-[140px]"
+              >
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {Object.entries(LEDGER_ENTRY_TYPE_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
-                  </SelectItem>
-                ))}
+                {Object.entries(LEDGER_ENTRY_TYPE_LABELS).map(
+                  ([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
-            <Button size="sm" variant="outline" className="h-8 w-full md:w-auto" onClick={() => onFetchLedger(1)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 w-full md:w-auto"
+              onClick={() => onFetchLedger(1)}
+            >
               Filter
             </Button>
           </div>
@@ -532,7 +600,8 @@ export function EmployeeDetailTabs({
             <div className="flex items-center justify-between pt-2">
               <span className="text-xs text-text-secondary">
                 Showing {(ledgerPage - 1) * ledgerLimit + 1}-
-                {Math.min(ledgerPage * ledgerLimit, ledgerTotal)} of {ledgerTotal}
+                {Math.min(ledgerPage * ledgerLimit, ledgerTotal)} of{" "}
+                {ledgerTotal}
               </span>
               <div className="flex gap-2">
                 <Button
@@ -590,7 +659,12 @@ export function EmployeeDetailTabs({
         }
         action={
           canManageDocuments ? (
-            <Button size="sm" variant="outline" className="h-8 w-full sm:w-auto" onClick={onOpenDocumentDialog}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 w-full sm:w-auto"
+              onClick={onOpenDocumentDialog}
+            >
               <Plus className="h-4 w-4" />
               Add Document
             </Button>
@@ -635,7 +709,9 @@ export function EmployeeDetailTabs({
               className="col-span-1 flex flex-col items-center justify-center py-14 text-text-secondary sm:col-span-2"
             >
               <FileText className="mb-3 h-12 w-12 opacity-20" />
-              <p className="text-sm font-medium">No documentation uploaded yet.</p>
+              <p className="text-sm font-medium">
+                No documentation uploaded yet.
+              </p>
             </InfoTile>
           ) : null}
         </div>
@@ -646,7 +722,11 @@ export function EmployeeDetailTabs({
         title="Portal Account"
         description="Provision and review employee login access to the system."
         badge={
-          <Badge variant={employee.userAccount ? "success" : "outline"} size="xs" className="font-semibold">
+          <Badge
+            variant={employee.userAccount ? "success" : "outline"}
+            size="xs"
+            className="font-semibold"
+          >
             {employee.userAccount ? "ACTIVE" : "NOT PROVISIONED"}
           </Badge>
         }
@@ -657,18 +737,25 @@ export function EmployeeDetailTabs({
             <Card variant="successSoft">
               <CardHeader variant="sectionSoft" density="compact">
                 <CardTitle className="flex items-center gap-2 text-sm">
-                  <ShieldCheck className="h-5 w-5 text-success" /> System Access Enabled
+                  <ShieldCheck className="h-5 w-5 text-success" /> System Access
+                  Enabled
                 </CardTitle>
-                <CardDescription>This employee has an active portal account.</CardDescription>
+                <CardDescription>
+                  This employee has an active portal account.
+                </CardDescription>
               </CardHeader>
               <CardContent spacing="section" className="space-y-4">
                 <div className="flex items-center justify-between border-b border-divider py-2 text-sm">
                   <span className="text-text-secondary">Login Email</span>
-                  <span className="font-bold tracking-tight">{employee.userAccount.email}</span>
+                  <span className="font-bold tracking-tight">
+                    {employee.userAccount.email}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between border-b border-divider py-2 text-sm">
                   <span className="text-text-secondary">Status</span>
-                  <Badge variant="outline">{employee.userAccount.isActive ? "ACTIVE" : "INACTIVE"}</Badge>
+                  <Badge variant="outline">
+                    {employee.userAccount.isActive ? "ACTIVE" : "INACTIVE"}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
@@ -690,7 +777,11 @@ export function EmployeeDetailTabs({
                 </p>
               </div>
               {canManageAccount ? (
-                <Button size="lg" className="rounded-full px-8" onClick={onOpenAccountDialog}>
+                <Button
+                  size="lg"
+                  className="rounded-full px-8"
+                  onClick={onOpenAccountDialog}
+                >
                   Provision Account Now
                 </Button>
               ) : null}

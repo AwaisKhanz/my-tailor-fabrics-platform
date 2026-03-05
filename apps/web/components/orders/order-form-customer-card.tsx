@@ -1,6 +1,12 @@
 import { Customer } from "@tbms/shared-types";
 import { UserRound } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   FormControl,
   FormField,
@@ -37,8 +43,12 @@ export function OrderFormCustomerCard({
   selectedCustomer,
 }: OrderFormCustomerCardProps) {
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
+    <Card variant="elevatedPanel">
+      <CardHeader
+        variant="rowSection"
+        density="comfortable"
+        align="startResponsive"
+      >
         <div className="flex items-center gap-3">
           <SectionIcon tone="infoSoft" size="lg">
             <UserRound className="h-4 w-4" />
@@ -62,7 +72,7 @@ export function OrderFormCustomerCard({
                 <FormLabel variant="dashboard">Customer</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger variant="premium" disabled={loading}>
+                    <SelectTrigger variant="default" disabled={loading}>
                       <SelectValue
                         placeholder={
                           loading ? "Loading customers..." : "Select customer"
@@ -90,7 +100,7 @@ export function OrderFormCustomerCard({
               <FormItem>
                 <FormLabel variant="dashboard">Order Completion Date</FormLabel>
                 <FormControl>
-                  <Input variant="premium" type="date" {...field} />
+                  <Input variant="default" type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -101,16 +111,22 @@ export function OrderFormCustomerCard({
         <div className="grid gap-3 sm:grid-cols-3">
           <InfoTile tone="elevatedSoft">
             <Label variant="micro">Size Number</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{selectedCustomer?.sizeNumber || "-"}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">
+              {selectedCustomer?.sizeNumber || "-"}
+            </p>
           </InfoTile>
           <InfoTile tone="elevatedSoft">
             <Label variant="micro">City</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{selectedCustomer?.city || "-"}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">
+              {selectedCustomer?.city || "-"}
+            </p>
           </InfoTile>
           <InfoTile tone="elevatedSoft">
             <Label variant="micro">Lifetime Value</Label>
             <p className="mt-1 text-sm font-semibold text-text-primary">
-              {selectedCustomer ? formatPKR(selectedCustomer.lifetimeValue) : "-"}
+              {selectedCustomer
+                ? formatPKR(selectedCustomer.lifetimeValue)
+                : "-"}
             </p>
           </InfoTile>
         </div>

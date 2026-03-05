@@ -1,5 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -15,7 +21,9 @@ interface OrderCustomerInsightCardProps {
   customer: Order["customer"];
 }
 
-function getMeasurementPreview(customer: Order["customer"]): MeasurementDisplayItem[] {
+function getMeasurementPreview(
+  customer: Order["customer"],
+): MeasurementDisplayItem[] {
   const measurementSet = customer.measurements?.[0];
   if (!measurementSet?.values) {
     return [];
@@ -41,18 +49,28 @@ export function OrderCustomerInsightCard({
   const measurementPreview = getMeasurementPreview(customer);
 
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
+    <Card variant="elevatedPanel">
+      <CardHeader
+        variant="rowSection"
+        density="comfortable"
+        align="startResponsive"
+      >
         <div className="flex items-center gap-3">
           <SectionIcon tone="infoSoft" size="lg">
             <UserRound className="h-4 w-4 text-primary" />
           </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Customer Profile</CardTitle>
-            <CardDescription variant="header">Contact details and saved measurements.</CardDescription>
+            <CardDescription variant="header">
+              Contact details and saved measurements.
+            </CardDescription>
           </div>
         </div>
-        <Badge variant="outline" size="xs" className="font-bold uppercase tracking-[0.08em]">
+        <Badge
+          variant="outline"
+          size="xs"
+          className="font-bold uppercase tracking-[0.08em]"
+        >
           {customer.sizeNumber}
         </Badge>
       </CardHeader>
@@ -61,24 +79,32 @@ export function OrderCustomerInsightCard({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <InfoTile tone="elevatedSoft">
             <Label variant="micro">Full Name</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{customer.fullName}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">
+              {customer.fullName}
+            </p>
           </InfoTile>
           <InfoTile tone="elevatedSoft">
             <Label variant="micro">Phone</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{customer.phone || "-"}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">
+              {customer.phone || "-"}
+            </p>
           </InfoTile>
           <InfoTile tone="elevatedSoft">
             <Label variant="micro">City</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{customer.city || "-"}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">
+              {customer.city || "-"}
+            </p>
           </InfoTile>
         </div>
 
         <InfoTile tone="elevatedSoft" padding="contentLg">
           <div className="mb-3 flex items-center justify-between">
-            <Label variant="micro">
-              Measurement Snapshot
-            </Label>
-            <Badge variant="info" size="xs" className="font-bold uppercase tracking-[0.08em]">
+            <Label variant="micro">Measurement Snapshot</Label>
+            <Badge
+              variant="info"
+              size="xs"
+              className="font-bold uppercase tracking-[0.08em]"
+            >
               Synced
             </Badge>
           </div>
@@ -90,8 +116,13 @@ export function OrderCustomerInsightCard({
           ) : (
             <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
               {measurementPreview.map((item) => (
-                <div key={item.label} className="flex items-center justify-between gap-3">
-                  <span className="truncate text-xs text-text-secondary">{item.label}</span>
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="truncate text-xs text-text-secondary">
+                    {item.label}
+                  </span>
                   <span className="shrink-0 text-xs font-semibold tabular-nums text-text-primary">
                     {item.value}
                   </span>

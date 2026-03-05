@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  attendanceClockInFormSchema,
   EmployeeStatus,
   type AttendanceRecord,
   type Employee,
@@ -9,6 +10,7 @@ import {
 import { attendanceApi } from "@/lib/api/attendance";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const PAGE_SIZE = 20;
 export const ALL_EMPLOYEES_FILTER = "all";
@@ -139,10 +141,15 @@ export function useAttendanceSettingsPage() {
   }, []);
 
   const clockIn = useCallback(async () => {
-    if (!clockInEmployeeId) {
+    const parsedResult = attendanceClockInFormSchema.safeParse({
+      employeeId: clockInEmployeeId,
+      note: clockInNote,
+    });
+
+    if (!parsedResult.success) {
       toast({
-        title: "Validation",
-        description: "Select an employee to clock in.",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;
@@ -150,7 +157,10 @@ export function useAttendanceSettingsPage() {
 
     setClockingIn(true);
     try {
-      await attendanceApi.clockIn(clockInEmployeeId, clockInNote.trim() || undefined);
+      await attendanceApi.clockIn(
+        parsedResult.data.employeeId,
+        parsedResult.data.note || undefined,
+      );
       toast({
         title: "Clock-In Recorded",
         description: "Attendance entry created successfully.",

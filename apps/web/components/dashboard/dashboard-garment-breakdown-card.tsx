@@ -32,17 +32,13 @@ export function DashboardGarmentBreakdownCard({
   let offset = 0;
 
   return (
-    <Card variant="premium" className="flex h-full flex-col">
+    <Card variant="elevatedPanel" className="flex h-full flex-col">
       <CardHeader variant="section" density="compact" className="space-y-2">
         <div className="flex items-center gap-2">
           <SectionIcon size="sm">
             <PieChart className="h-4 w-4" />
           </SectionIcon>
-          <CardTitle
-            variant="dashboardSection"
-          >
-            Garment Mix
-          </CardTitle>
+          <CardTitle variant="dashboardSection">Garment Mix</CardTitle>
         </div>
         <p className="text-xs text-text-secondary">
           Contribution split across garment categories.
@@ -50,19 +46,15 @@ export function DashboardGarmentBreakdownCard({
       </CardHeader>
 
       <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
-        <InfoTile tone="elevatedSoft" layout="between">
+        <InfoTile tone="inputSurface" layout="between">
           <div>
-            <Label variant="micro">
-              Total Value
-            </Label>
+            <Label variant="micro">Total Value</Label>
             <p className="mt-1 text-lg font-bold text-text-primary">
               {formatPKR(totalItems)}
             </p>
           </div>
           <div className="text-right">
-            <Label variant="micro">
-              Active Types
-            </Label>
+            <Label variant="micro">Active Types</Label>
             <p className="mt-1 text-lg font-bold text-text-primary">
               {topGarments.length}
             </p>

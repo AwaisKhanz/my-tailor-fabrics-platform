@@ -34,11 +34,6 @@ export function UserAccountDialog({
   onSave,
 }: UserAccountDialogProps) {
   const isCreateMode = !editingUser;
-  const isSubmitDisabled =
-    saving ||
-    !form.name.trim() ||
-    !form.email.trim() ||
-    (isCreateMode && !form.password.trim());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -147,7 +142,6 @@ export function UserAccountDialog({
             submittingText={editingUser ? "Updating..." : "Creating..."}
             submitting={saving}
             submitFormId="user-account-form"
-            submitDisabled={isSubmitDisabled}
           />
         </DialogActionRow>
       </DialogContent>

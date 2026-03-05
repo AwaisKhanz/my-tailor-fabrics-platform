@@ -4,7 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
 import { Typography } from "@/components/ui/typography";
-import { CalendarDays, Clock3, Pencil, Printer, Share2, XCircle } from "lucide-react";
+import {
+  CalendarDays,
+  Clock3,
+  Pencil,
+  Printer,
+  Share2,
+  XCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OrderDetailHeaderCardProps {
@@ -88,16 +95,18 @@ export function OrderDetailHeaderCard({
   ].filter((action): action is NonNullable<typeof action> => action !== null);
 
   return (
-    <Card variant="shell">
+    <Card variant="elevatedPanel">
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <Label variant="microStrong">
-              Order Command
-            </Label>
+            <Label variant="microStrong">Order Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
+              <Typography
+                as="h1"
+                variant="pageTitle"
+                className="font-semibold sm:text-4xl"
+              >
                 {orderNumber}
               </Typography>
               <Badge

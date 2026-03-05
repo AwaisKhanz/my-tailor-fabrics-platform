@@ -1,7 +1,13 @@
 import { CreditCard } from "lucide-react";
 import { Order } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -19,15 +25,21 @@ export function OrderFinancialSummaryCard({
   canCapturePayment = true,
 }: OrderFinancialSummaryCardProps) {
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
+    <Card variant="elevatedPanel">
+      <CardHeader
+        variant="rowSection"
+        density="comfortable"
+        align="startResponsive"
+      >
         <div className="flex items-center gap-3">
           <SectionIcon tone="infoSoft" size="lg">
             <CreditCard className="h-4 w-4 text-primary" />
           </SectionIcon>
           <div>
             <CardTitle variant="dashboard">Financial Summary</CardTitle>
-            <CardDescription variant="header">Invoice, received payments, and pending balance.</CardDescription>
+            <CardDescription variant="header">
+              Invoice, received payments, and pending balance.
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -35,37 +47,46 @@ export function OrderFinancialSummaryCard({
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="elevatedSoft" padding="contentLg" className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label variant="micro">
-              Subtotal
-            </Label>
-            <span className="text-sm font-semibold text-text-primary">{formatPKR(order.subtotal)}</span>
+            <Label variant="micro">Subtotal</Label>
+            <span className="text-sm font-semibold text-text-primary">
+              {formatPKR(order.subtotal)}
+            </span>
           </div>
 
           {order.discountAmount > 0 ? (
             <div className="flex items-center justify-between">
               <Label variant="micro">
-                Discount {order.discountType === "PERCENTAGE" ? `(${order.discountValue}%)` : ""}
+                Discount{" "}
+                {order.discountType === "PERCENTAGE"
+                  ? `(${order.discountValue}%)`
+                  : ""}
               </Label>
-              <span className="text-sm font-semibold text-success">- {formatPKR(order.discountAmount)}</span>
+              <span className="text-sm font-semibold text-success">
+                - {formatPKR(order.discountAmount)}
+              </span>
             </div>
           ) : null}
 
           <div className="flex items-center justify-between border-t border-divider pt-3">
-            <Label variant="micro">
-              Net Invoice
-            </Label>
-            <span className="text-lg font-bold text-text-primary">{formatPKR(order.totalAmount)}</span>
+            <Label variant="micro">Net Invoice</Label>
+            <span className="text-lg font-bold text-text-primary">
+              {formatPKR(order.totalAmount)}
+            </span>
           </div>
         </InfoTile>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoTile tone="success">
             <Label variant="micro">Paid</Label>
-            <p className="mt-1 text-lg font-bold text-success">{formatPKR(order.totalPaid)}</p>
+            <p className="mt-1 text-lg font-bold text-success">
+              {formatPKR(order.totalPaid)}
+            </p>
           </InfoTile>
           <InfoTile tone="error">
             <Label variant="micro">Balance</Label>
-            <p className="mt-1 text-lg font-bold text-destructive">{formatPKR(order.balanceDue)}</p>
+            <p className="mt-1 text-lg font-bold text-destructive">
+              {formatPKR(order.balanceDue)}
+            </p>
           </InfoTile>
         </div>
 

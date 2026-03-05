@@ -1,9 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { MailIntegrationStatus } from "@tbms/shared-types";
+import {
+  integrationTestEmailFormSchema,
+  type MailIntegrationStatus,
+} from "@tbms/shared-types";
 import { mailApi } from "@/lib/api/mail";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const DEFAULT_STATUS: MailIntegrationStatus = {
   publicEndpointsEnabled: false,
@@ -135,11 +139,11 @@ export function useIntegrationsSettingsPage() {
   }, [toast]);
 
   const sendTestMail = useCallback(async () => {
-    const target = testEmail.trim();
-    if (!target) {
+    const parsedResult = integrationTestEmailFormSchema.safeParse({ to: testEmail });
+    if (!parsedResult.success) {
       toast({
-        title: "Validation",
-        description: "Recipient email is required.",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;
@@ -147,7 +151,7 @@ export function useIntegrationsSettingsPage() {
 
     setSendingTest(true);
     try {
-      const response = await mailApi.sendTestMail({ to: target });
+      const response = await mailApi.sendTestMail({ to: parsedResult.data.to });
       if (response.success) {
         toast({
           title: "Sent",

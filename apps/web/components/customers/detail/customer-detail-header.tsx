@@ -1,6 +1,9 @@
 import { CalendarDays, Edit2, MapPin, Phone } from "lucide-react";
 import { type Customer } from "@tbms/shared-types";
-import { CUSTOMER_STATUS_BADGE, CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
+import {
+  CUSTOMER_STATUS_BADGE,
+  CUSTOMER_STATUS_LABELS,
+} from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,16 +25,18 @@ export function CustomerDetailHeader({
   const createdAtLabel = new Date(customer.createdAt).toLocaleDateString();
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <Label variant="microStrong">
-              Customer Command
-            </Label>
+            <Label variant="microStrong">Customer Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
+              <Typography
+                as="h1"
+                variant="pageTitle"
+                className="font-semibold sm:text-4xl"
+              >
                 {customer.fullName}
               </Typography>
               <Badge
@@ -65,7 +70,12 @@ export function CustomerDetailHeader({
 
           {canEditProfile ? (
             <div className="flex w-full justify-start lg:w-auto lg:justify-end">
-              <Button variant="premium" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[180px]" onClick={onEdit}>
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+                onClick={onEdit}
+              >
                 <Edit2 className="h-4 w-4" />
                 Edit Profile
               </Button>

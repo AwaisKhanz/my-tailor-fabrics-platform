@@ -74,8 +74,12 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
   const timelineSteps = buildTimeline(status);
 
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
+    <Card variant="elevatedPanel">
+      <CardHeader
+        variant="rowSection"
+        density="comfortable"
+        align="startResponsive"
+      >
         <div className="flex items-center gap-3">
           <SectionIcon tone="infoSoft" size="lg">
             <Clock3 className="h-4 w-4 text-primary" />
@@ -93,7 +97,8 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         <div className="space-y-3">
           {timelineSteps.map((step, index) => {
             const isLast = index === timelineSteps.length - 1;
-            let markerClass = "border-divider bg-pending-muted text-text-secondary";
+            let markerClass =
+              "border-divider bg-pending-muted text-text-secondary";
             let markerIcon: ReactNode = <Dot className="h-4 w-4" />;
 
             if (step.done) {
@@ -112,16 +117,22 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
                   />
                 ) : null}
 
-                <div className={`z-10 flex h-6 w-6 items-center justify-center rounded-full border ${markerClass}`}>
+                <div
+                  className={`z-10 flex h-6 w-6 items-center justify-center rounded-full border ${markerClass}`}
+                >
                   {markerIcon}
                 </div>
 
                 <div className="pt-0.5">
-                  <p className={`text-xs font-semibold ${step.active ? "text-primary" : "text-text-primary"}`}>
+                  <p
+                    className={`text-xs font-semibold ${step.active ? "text-primary" : "text-text-primary"}`}
+                  >
                     {step.key}
                   </p>
                   {step.active ? (
-                    <p className="mt-0.5 text-[11px] text-text-secondary">Current stage</p>
+                    <p className="mt-0.5 text-[11px] text-text-secondary">
+                      Current stage
+                    </p>
                   ) : null}
                 </div>
               </div>
@@ -133,16 +144,25 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
           <Label variant="micro">Recent Events</Label>
           <div className="mt-2 space-y-2">
             {history.slice(0, 4).map((entry) => (
-              <InfoTile key={entry.id} tone="surface" padding="sm" className="rounded-md">
+              <InfoTile
+                key={entry.id}
+                tone="surface"
+                padding="sm"
+                className="rounded-md"
+              >
                 <p className="text-xs font-semibold text-text-primary">
                   {entry.toStatus.replace("_", " ")}
                 </p>
-                <p className="text-[11px] text-text-secondary">{formatHistoryTime(entry.createdAt)}</p>
+                <p className="text-[11px] text-text-secondary">
+                  {formatHistoryTime(entry.createdAt)}
+                </p>
               </InfoTile>
             ))}
 
             {history.length === 0 ? (
-              <p className="text-xs text-text-secondary">No status history found.</p>
+              <p className="text-xs text-text-secondary">
+                No status history found.
+              </p>
             ) : null}
           </div>
         </InfoTile>

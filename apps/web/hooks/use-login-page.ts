@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { loginFormSchema } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 export function useLoginPage() {
   const router = useRouter();
@@ -47,12 +49,24 @@ export function useLoginPage() {
   const handleSubmit = useCallback(
     async (event: React.FormEvent) => {
       event.preventDefault();
+
+      const parsedResult = loginFormSchema.safeParse({ email, password });
+      if (!parsedResult.success) {
+        toast({
+          variant: "destructive",
+          title: "Validation error",
+          description: getFirstZodErrorMessage(parsedResult.error),
+        });
+        return;
+      }
+
+      const data = parsedResult.data;
       setIsLoading(true);
 
       try {
         const result = await signIn("credentials", {
-          email,
-          password,
+          email: data.email,
+          password: data.password,
           redirect: false,
         });
 

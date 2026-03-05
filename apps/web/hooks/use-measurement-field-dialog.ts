@@ -4,21 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   FieldType,
+  measurementFieldDialogFormSchema,
+  type MeasurementFieldDialogFormValues,
   type MeasurementField,
   type CreateMeasurementFieldInput,
   type UpdateMeasurementFieldInput,
 } from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { typedZodResolver } from "@/lib/utils/form";
 
-export interface FieldFormValues {
-  label: string;
-  fieldType: FieldType;
-  unit: string;
-  isRequired: boolean;
-  dropdownOptions: string[];
-  sortOrder: number;
-}
+export type FieldFormValues = MeasurementFieldDialogFormValues;
 
 interface UseMeasurementFieldDialogParams {
   open: boolean;
@@ -60,6 +57,7 @@ export function useMeasurementFieldDialog({
   const [newOption, setNewOption] = useState("");
 
   const form = useForm<FieldFormValues>({
+    resolver: typedZodResolver<FieldFormValues>(measurementFieldDialogFormSchema),
     defaultValues: DEFAULT_FORM_VALUES,
   });
 
@@ -130,26 +128,25 @@ export function useMeasurementFieldDialog({
         return;
       }
 
-      if (
-        values.fieldType === FieldType.DROPDOWN &&
-        values.dropdownOptions.length === 0
-      ) {
+      const parsedResult = measurementFieldDialogFormSchema.safeParse(values);
+      if (!parsedResult.success) {
         toast({
-          title: "Validation Error",
-          description: "Please add at least one dropdown option.",
+          title: "Validation error",
+          description: getFirstZodErrorMessage(parsedResult.error),
           variant: "destructive",
         });
         return;
       }
+      const validated = parsedResult.data;
 
       setLoading(true);
       try {
         const basePayload = {
-          ...values,
-          unit: values.unit || undefined,
+          ...validated,
+          unit: validated.unit || undefined,
           dropdownOptions:
-            values.fieldType === FieldType.DROPDOWN
-              ? values.dropdownOptions
+            validated.fieldType === FieldType.DROPDOWN
+              ? validated.dropdownOptions
               : undefined,
         };
 

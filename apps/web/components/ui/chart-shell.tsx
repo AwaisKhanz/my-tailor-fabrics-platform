@@ -1,6 +1,12 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { SectionIcon } from "@/components/ui/section-icon";
 
 interface ChartShellProps {
@@ -27,14 +33,10 @@ export function ChartShell({
   contentClassName,
 }: ChartShellProps) {
   return (
-    <Card variant="premium" className={cn("overflow-hidden", className)}>
+    <Card variant="elevatedPanel" className={cn("overflow-hidden", className)}>
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="flex items-center gap-3">
-          {icon ? (
-            <SectionIcon size="lg">
-              {icon}
-            </SectionIcon>
-          ) : null}
+          {icon ? <SectionIcon size="lg">{icon}</SectionIcon> : null}
           <div>
             <CardTitle variant="section">{title}</CardTitle>
             {description ? (
@@ -43,15 +45,24 @@ export function ChartShell({
           </div>
         </div>
 
-        {actions ? <div className="ml-auto w-full sm:w-auto">{actions}</div> : null}
+        {actions ? (
+          <div className="ml-auto w-full sm:w-auto">{actions}</div>
+        ) : null}
       </CardHeader>
 
-      <CardContent spacing="section" className={cn("space-y-4", contentClassName)}>
-        {legend ? <div className="flex flex-wrap items-center gap-2">{legend}</div> : null}
+      <CardContent
+        spacing="section"
+        className={cn("space-y-4", contentClassName)}
+      >
+        {legend ? (
+          <div className="flex flex-wrap items-center gap-2">{legend}</div>
+        ) : null}
         {children}
       </CardContent>
 
-      {footer ? <div className="border-t border-divider px-6 py-4">{footer}</div> : null}
+      {footer ? (
+        <div className="border-t border-divider px-6 py-4">{footer}</div>
+      ) : null}
     </Card>
   );
 }

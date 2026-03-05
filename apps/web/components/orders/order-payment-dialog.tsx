@@ -108,7 +108,6 @@ export function OrderPaymentDialog({
             submittingText="Syncing..."
             submitting={processing}
             submitFormId="order-payment-form"
-            submitDisabled={!amount}
             submitSize="lg"
           />
         </DialogActionRow>

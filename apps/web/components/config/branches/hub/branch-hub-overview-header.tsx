@@ -11,20 +11,26 @@ interface BranchHubOverviewHeaderProps {
   branch: BranchDetail | null;
 }
 
-export function BranchHubOverviewHeader({ branch }: BranchHubOverviewHeaderProps) {
-  const createdAtLabel = branch?.createdAt ? formatDate(branch.createdAt) : undefined;
+export function BranchHubOverviewHeader({
+  branch,
+}: BranchHubOverviewHeaderProps) {
+  const createdAtLabel = branch?.createdAt
+    ? formatDate(branch.createdAt)
+    : undefined;
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <Label variant="microStrong">
-              Branch Command
-            </Label>
+            <Label variant="microStrong">Branch Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Typography as="h1" variant="pageTitle" className="font-semibold sm:text-4xl">
+              <Typography
+                as="h1"
+                variant="pageTitle"
+                className="font-semibold sm:text-4xl"
+              >
                 {branch?.name || "Branch Overview"}
               </Typography>
               <Badge
@@ -34,7 +40,11 @@ export function BranchHubOverviewHeader({ branch }: BranchHubOverviewHeaderProps
                 {branch?.isActive ? "Active" : "Inactive"}
               </Badge>
               {branch?.code ? (
-                <Badge variant="outline" size="xs" className="font-semibold uppercase">
+                <Badge
+                  variant="outline"
+                  size="xs"
+                  className="font-semibold uppercase"
+                >
                   {branch.code}
                 </Badge>
               ) : null}

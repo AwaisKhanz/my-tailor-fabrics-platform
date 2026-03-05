@@ -65,6 +65,69 @@ export class ExpensesService {
     });
   }
 
+  async findAllCategoriesPaginated(
+    page = DEFAULT_PAGE,
+    limit = DEFAULT_LIMIT,
+    search?: string,
+  ) {
+    const safePage =
+      Number.isFinite(page) && page > 0 ? Math.trunc(page) : DEFAULT_PAGE;
+    const safeLimit =
+      Number.isFinite(limit) && limit > 0
+        ? Math.min(Math.trunc(limit), MAX_LIMIT)
+        : DEFAULT_LIMIT;
+    const skip = (safePage - 1) * safeLimit;
+    const normalizedSearch = search?.trim();
+
+    const where: Prisma.ExpenseCategoryWhereInput = {
+      deletedAt: null,
+      ...(normalizedSearch
+        ? {
+            name: {
+              contains: normalizedSearch,
+              mode: 'insensitive',
+            },
+          }
+        : {}),
+    };
+
+    const [data, total, activeCount, inactiveCount] = await Promise.all([
+      this.prisma.expenseCategory.findMany({
+        where,
+        skip,
+        take: safeLimit,
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.expenseCategory.count({ where }),
+      this.prisma.expenseCategory.count({
+        where: {
+          deletedAt: null,
+          isActive: true,
+        },
+      }),
+      this.prisma.expenseCategory.count({
+        where: {
+          deletedAt: null,
+          isActive: false,
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      total,
+      stats: {
+        total: activeCount + inactiveCount,
+        active: activeCount,
+        inactive: inactiveCount,
+      },
+      meta: {
+        page: safePage,
+        lastPage: Math.max(1, Math.ceil(total / safeLimit)),
+      },
+    };
+  }
+
   private async assertCategoryNameAvailable(
     name: string,
     excludeId?: string,
@@ -172,6 +235,7 @@ export class ExpensesService {
     branchId: string | null,
     page = 1,
     limit = 20,
+    search?: string,
     categoryId?: string,
     from?: string,
     to?: string,
@@ -189,10 +253,31 @@ export class ExpensesService {
     const orderBy = this.resolveOrderBy(sortBy, sortOrder);
     const fromDate = this.parseDateBoundary(from);
     const toDate = this.parseDateBoundary(to, true);
+    const normalizedSearch = search?.trim();
 
     const where: Prisma.ExpenseWhereInput = {
       deletedAt: null,
       ...(branchId ? { branchId } : {}),
+      ...(normalizedSearch
+        ? {
+            OR: [
+              {
+                description: {
+                  contains: normalizedSearch,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                category: {
+                  name: {
+                    contains: normalizedSearch,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
       ...(categoryId ? { categoryId } : {}),
       ...(fromDate || toDate
         ? {

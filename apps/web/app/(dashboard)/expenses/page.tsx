@@ -35,6 +35,7 @@ function ExpensesPage() {
     deleteTarget,
     deletingId,
     setPage,
+    setSearchFilter,
     setCategoryFilter,
     setFromFilter,
     setToFilter,
@@ -87,6 +88,7 @@ function ExpensesPage() {
             categoriesLoading={categoriesLoading}
             filters={filters}
             activeFilterCount={activeFilterCount}
+            onSearchChange={setSearchFilter}
             onCategoryChange={setCategoryFilter}
             onFromChange={setFromFilter}
             onToChange={setToFilter}

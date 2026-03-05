@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { OrderStatus, type Order } from "@tbms/shared-types";
+import {
+  OrderStatus,
+  publicStatusPinSchema,
+  type Order,
+} from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import {
   AlertCircle,
@@ -47,8 +51,9 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
     async (event: React.FormEvent) => {
       event.preventDefault();
 
-      if (!/^\d{4}$/.test(pin)) {
-        setError("Please enter your 4-digit PIN.");
+      const parsedResult = publicStatusPinSchema.safeParse({ pin });
+      if (!parsedResult.success) {
+        setError(parsedResult.error.issues[0]?.message ?? "Invalid PIN.");
         return;
       }
 
@@ -56,7 +61,9 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
       setError("");
 
       try {
-        const response = await fetch(`/api/status/${token}?pin=${pin}`);
+        const response = await fetch(
+          `/api/status/${token}?pin=${parsedResult.data.pin}`,
+        );
         const payload = await response.json();
 
         if (!response.ok || !payload.success) {

@@ -1,14 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { type ExpenseCategory } from "@tbms/shared-types";
+import { useCallback, useEffect, useState } from "react";
+import {
+  expenseCategoryFormSchema,
+  type ExpenseCategoryFormValues,
+  type ExpenseCategory,
+  type ExpenseCategoryStatsSummary,
+} from "@tbms/shared-types";
 import { expensesApi } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
-interface CategoryFormState {
-  name: string;
-  isActive: boolean;
-}
+type CategoryFormState = ExpenseCategoryFormValues;
+const PAGE_SIZE = 10;
+const EMPTY_STATS: ExpenseCategoryStatsSummary = {
+  total: 0,
+  active: 0,
+  inactive: 0,
+};
 
 const DEFAULT_FORM_STATE: CategoryFormState = {
   name: "",
@@ -50,6 +59,9 @@ export function useExpenseCategoriesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<ExpenseCategoryStatsSummary>(EMPTY_STATS);
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,12 +70,26 @@ export function useExpenseCategoriesPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<ExpenseCategory | null>(null);
 
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = useCallback(async (targetPage = page) => {
     setLoading(true);
     try {
-      const response = await expensesApi.getCategories();
+      const response = await expensesApi.getCategoriesPaginated({
+        page: targetPage,
+        limit: PAGE_SIZE,
+        search: search.trim() || undefined,
+      });
       if (response.success) {
-        setCategories(response.data ?? []);
+        const payload = response.data;
+        if (targetPage > 1 && payload.data.length === 0 && payload.total > 0) {
+          setPage(targetPage - 1);
+          return;
+        }
+        setCategories(payload.data ?? []);
+        setTotal(payload.total ?? 0);
+        setStats(payload.stats ?? EMPTY_STATS);
+        if (page !== targetPage) {
+          setPage(targetPage);
+        }
       }
     } catch (error) {
       toast({
@@ -74,31 +100,17 @@ export function useExpenseCategoriesPage() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [page, search, toast]);
 
   useEffect(() => {
-    void fetchCategories();
-  }, [fetchCategories]);
+    const timer = setTimeout(() => {
+      void fetchCategories(page);
+    }, 300);
 
-  const filteredCategories = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) {
-      return categories;
-    }
-
-    return categories.filter((category) =>
-      category.name.toLowerCase().includes(term),
-    );
-  }, [categories, search]);
-
-  const stats = useMemo(() => {
-    const active = categories.filter((category) => category.isActive).length;
-    return {
-      total: categories.length,
-      active,
-      inactive: Math.max(0, categories.length - active),
+    return () => {
+      clearTimeout(timer);
     };
-  }, [categories]);
+  }, [fetchCategories, page]);
 
   const hasActiveFilters = Boolean(search.trim());
 
@@ -139,22 +151,24 @@ export function useExpenseCategoriesPage() {
   );
 
   const saveCategory = useCallback(async () => {
-    const normalizedName = form.name.trim();
-    if (!normalizedName) {
+    const parsedResult = expenseCategoryFormSchema.safeParse(form);
+    if (!parsedResult.success) {
       toast({
-        title: "Validation",
-        description: "Category name is required.",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;
     }
 
+    const validated = parsedResult.data;
+
     setSaving(true);
     try {
       if (editingCategory) {
         await expensesApi.updateCategory(editingCategory.id, {
-          name: normalizedName,
-          isActive: form.isActive,
+          name: validated.name,
+          isActive: validated.isActive,
         });
         toast({
           title: "Updated",
@@ -162,8 +176,8 @@ export function useExpenseCategoriesPage() {
         });
       } else {
         await expensesApi.createCategory({
-          name: normalizedName,
-          isActive: form.isActive,
+          name: validated.name,
+          isActive: validated.isActive,
         });
         toast({
           title: "Created",
@@ -174,7 +188,7 @@ export function useExpenseCategoriesPage() {
       setDialogOpen(false);
       setEditingCategory(null);
       setForm(DEFAULT_FORM_STATE);
-      await fetchCategories();
+      await fetchCategories(page);
     } catch (error) {
       toast({
         title: "Error",
@@ -184,7 +198,7 @@ export function useExpenseCategoriesPage() {
     } finally {
       setSaving(false);
     }
-  }, [editingCategory, fetchCategories, form.isActive, form.name, toast]);
+  }, [editingCategory, fetchCategories, form, page, toast]);
 
   const toggleCategoryStatus = useCallback(
     async (category: ExpenseCategory) => {
@@ -198,7 +212,7 @@ export function useExpenseCategoriesPage() {
             category.isActive ? "inactive" : "active"
           }.`,
         });
-        await fetchCategories();
+        await fetchCategories(page);
       } catch (error) {
         toast({
           title: "Error",
@@ -207,7 +221,7 @@ export function useExpenseCategoriesPage() {
         });
       }
     },
-    [fetchCategories, toast],
+    [fetchCategories, page, toast],
   );
 
   const requestDeleteCategory = useCallback((category: ExpenseCategory) => {
@@ -233,7 +247,7 @@ export function useExpenseCategoriesPage() {
         description: "Expense category removed.",
       });
       setDeleteTarget(null);
-      await fetchCategories();
+      await fetchCategories(page);
     } catch (error) {
       toast({
         title: "Error",
@@ -243,10 +257,16 @@ export function useExpenseCategoriesPage() {
     } finally {
       setDeletingId(null);
     }
-  }, [deleteTarget, fetchCategories, toast]);
+  }, [deleteTarget, fetchCategories, page, toast]);
+
+  const setSearchFilter = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
 
   const resetFilters = useCallback(() => {
     setSearch("");
+    setPage(1);
   }, []);
 
   return {
@@ -254,7 +274,9 @@ export function useExpenseCategoriesPage() {
     saving,
     deletingId,
     categories,
-    filteredCategories,
+    total,
+    page,
+    pageSize: PAGE_SIZE,
     stats,
     search,
     hasActiveFilters,
@@ -262,7 +284,8 @@ export function useExpenseCategoriesPage() {
     editingCategory,
     form,
     deleteTarget,
-    setSearch,
+    setSearch: setSearchFilter,
+    setPage,
     resetFilters,
     openCreateDialog,
     openEditDialog,

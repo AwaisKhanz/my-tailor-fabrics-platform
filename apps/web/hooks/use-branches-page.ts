@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type Branch } from "@tbms/shared-types";
+import {
+  branchCreateFormSchema,
+  branchUpdateFormSchema,
+  type Branch,
+} from "@tbms/shared-types";
 import { branchesApi } from "@/lib/api/branches";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -140,21 +145,50 @@ export function useBranchesPage() {
   );
 
   const saveBranch = useCallback(async () => {
+    let createData: ReturnType<typeof branchCreateFormSchema.parse> | null =
+      null;
+    let updateData: ReturnType<typeof branchUpdateFormSchema.parse> | null =
+      null;
+
+    if (editingBranch) {
+      const parsedUpdate = branchUpdateFormSchema.safeParse(form);
+      if (!parsedUpdate.success) {
+        toast({
+          title: "Validation error",
+          description: getFirstZodErrorMessage(parsedUpdate.error),
+          variant: "destructive",
+        });
+        return;
+      }
+      updateData = parsedUpdate.data;
+    } else {
+      const parsedCreate = branchCreateFormSchema.safeParse(form);
+      if (!parsedCreate.success) {
+        toast({
+          title: "Validation error",
+          description: getFirstZodErrorMessage(parsedCreate.error),
+          variant: "destructive",
+        });
+        return;
+      }
+      createData = parsedCreate.data;
+    }
+
     setSaving(true);
     try {
-      if (editingBranch) {
+      if (editingBranch && updateData) {
         await branchesApi.updateBranch(editingBranch.id, {
-          name: form.name.trim(),
-          address: form.address.trim() || undefined,
-          phone: form.phone.trim() || undefined,
+          name: updateData.name,
+          address: updateData.address || undefined,
+          phone: updateData.phone || undefined,
         });
         toast({ title: "Branch updated" });
-      } else {
+      } else if (createData) {
         await branchesApi.createBranch({
-          code: form.code.trim().toUpperCase(),
-          name: form.name.trim(),
-          address: form.address.trim() || undefined,
-          phone: form.phone.trim() || undefined,
+          code: createData.code.toUpperCase(),
+          name: createData.name,
+          address: createData.address || undefined,
+          phone: createData.phone || undefined,
         });
         toast({ title: "Branch created" });
       }

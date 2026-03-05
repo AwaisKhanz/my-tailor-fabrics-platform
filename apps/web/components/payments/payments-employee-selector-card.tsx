@@ -36,7 +36,7 @@ export function PaymentsEmployeeSelectorCard({
   onEmployeeChange,
 }: PaymentsEmployeeSelectorCardProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="flex items-center gap-3">
           <SectionIcon size="lg">
@@ -63,7 +63,11 @@ export function PaymentsEmployeeSelectorCard({
             disabled={loading}
           >
             <SelectTrigger variant="table" className="h-10">
-              <SelectValue placeholder={loading ? "Loading employees..." : "Choose an employee…"} />
+              <SelectValue
+                placeholder={
+                  loading ? "Loading employees..." : "Choose an employee…"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {employees.map((employee) => (

@@ -3,7 +3,13 @@ import { ChevronRight, ClipboardList, Scale, Settings } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -20,19 +26,18 @@ export function GarmentMeasurementFormsCard({
   const categories = garment.measurementCategories ?? [];
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <SectionIcon tone="primary">
               <ClipboardList className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle variant="section">
-              Connected Measurement Forms
-            </CardTitle>
+            <CardTitle variant="section">Connected Measurement Forms</CardTitle>
           </div>
           <CardDescription variant="compact">
-            These forms are shown when an order item is created for this garment.
+            These forms are shown when an order item is created for this
+            garment.
           </CardDescription>
         </div>
 
@@ -57,7 +62,10 @@ export function GarmentMeasurementFormsCard({
                 key={category.id}
                 href={`/settings/measurements/${category.id}`}
                 className={cn(
-                  infoTileVariants({ padding: "content", layout: "betweenGap" }),
+                  infoTileVariants({
+                    padding: "content",
+                    layout: "betweenGap",
+                  }),
                   "group transition-all hover:border-primary/30 hover:bg-primary/5",
                 )}
               >
@@ -70,7 +78,11 @@ export function GarmentMeasurementFormsCard({
                     <Scale className="h-4 w-4 text-primary" />
                   </SectionIcon>
                   <div>
-                    <Typography as="p" variant="body" className="font-bold transition-colors group-hover:text-primary">
+                    <Typography
+                      as="p"
+                      variant="body"
+                      className="font-bold transition-colors group-hover:text-primary"
+                    >
                       {category.name}
                     </Typography>
                     <Label variant="dashboard">
@@ -92,7 +104,10 @@ export function GarmentMeasurementFormsCard({
             <Typography as="p" variant="lead">
               No measurement forms attached.
             </Typography>
-            <Label variant="dashboard" className="mt-1 block text-text-secondary">
+            <Label
+              variant="dashboard"
+              className="mt-1 block text-text-secondary"
+            >
               Attach forms from garment management settings.
             </Label>
           </InfoTile>

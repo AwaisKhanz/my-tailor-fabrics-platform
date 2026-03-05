@@ -1,5 +1,11 @@
 import { FileDown, FileText } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { type ReportExportType } from "@/hooks/use-reports-workspace";
 
@@ -45,8 +51,13 @@ export function ReportsExportGrid({
         const pdfKey = `${card.type}:pdf`;
 
         return (
-          <Card key={card.type} variant="premium">
-            <CardHeader variant="rowSection" density="compact" align="startResponsive" gap="md">
+          <Card key={card.type} variant="elevatedPanel">
+            <CardHeader
+              variant="rowSection"
+              density="compact"
+              align="startResponsive"
+              gap="md"
+            >
               <div>
                 <CardTitle variant="section">{card.title}</CardTitle>
                 <CardDescription variant="finePrint">
@@ -55,7 +66,10 @@ export function ReportsExportGrid({
               </div>
             </CardHeader>
 
-            <CardContent spacing="section" className="flex flex-col gap-2 sm:flex-row">
+            <CardContent
+              spacing="section"
+              className="flex flex-col gap-2 sm:flex-row"
+            >
               <Button
                 variant="outline"
                 size="sm"

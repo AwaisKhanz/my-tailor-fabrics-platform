@@ -17,7 +17,11 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { StatCard } from "@/components/ui/stat-card";
 import { Switch } from "@/components/ui/switch";
-import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-layout";
+import {
+  TableSearch,
+  TableSurface,
+  TableToolbar,
+} from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useExpenseCategoriesPage } from "@/hooks/use-expense-categories-page";
 
@@ -29,7 +33,10 @@ export function ExpenseCategoriesPage() {
     loading,
     saving,
     deletingId,
-    filteredCategories,
+    categories,
+    total,
+    page,
+    pageSize,
     stats,
     search,
     hasActiveFilters,
@@ -38,6 +45,7 @@ export function ExpenseCategoriesPage() {
     form,
     deleteTarget,
     setSearch,
+    setPage,
     resetFilters,
     openCreateDialog,
     openEditDialog,
@@ -55,7 +63,9 @@ export function ExpenseCategoriesPage() {
       {
         header: "Category Name",
         cell: (category) => (
-          <span className="font-semibold text-text-primary">{category.name}</span>
+          <span className="font-semibold text-text-primary">
+            {category.name}
+          </span>
         ),
       },
       {
@@ -109,7 +119,9 @@ export function ExpenseCategoriesPage() {
                 </Button>
               </>
             ) : (
-              <span className="text-xs font-medium text-text-secondary">Read only</span>
+              <span className="text-xs font-medium text-text-secondary">
+                Read only
+              </span>
             )}
           </div>
         ),
@@ -131,22 +143,27 @@ export function ExpenseCategoriesPage() {
           title="Expense Categories"
           description="Manage reusable spending categories for branch expense logging."
           density="compact"
-          actions={canManageExpenseCategories ? (
-            <Button
-              type="button"
-              variant="premium"
-              size="lg"
-              onClick={openCreateDialog}
-              className="w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4" />
-              Add Category
-            </Button>
-          ) : null}
+          actions={
+            canManageExpenseCategories ? (
+              <Button
+                type="button"
+                variant="premium"
+                size="lg"
+                onClick={openCreateDialog}
+                className="w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4" />
+                Add Category
+              </Button>
+            ) : null
+          }
         />
       </PageSection>
 
-      <PageSection spacing="compact" className="grid gap-4 md:grid-cols-3">
+      <PageSection
+        spacing="compact"
+        className="grid space-y-0 gap-4 md:grid-cols-3"
+      >
         <StatCard
           title="Total Categories"
           subtitle="configured"
@@ -171,7 +188,7 @@ export function ExpenseCategoriesPage() {
         <TableSurface>
           <TableToolbar
             title="Category Directory"
-            total={filteredCategories.length}
+            total={total}
             totalLabel="categories"
             activeFilterCount={hasActiveFilters ? 1 : 0}
             controls={
@@ -199,11 +216,15 @@ export function ExpenseCategoriesPage() {
 
           <DataTable
             columns={columns}
-            data={filteredCategories}
+            data={categories}
             loading={loading}
             itemLabel="categories"
             emptyMessage="No expense categories found."
             chrome="flat"
+            page={page}
+            total={total}
+            limit={pageSize}
+            onPageChange={setPage}
             onRowClick={canManageExpenseCategories ? openEditDialog : undefined}
           />
         </TableSurface>
@@ -214,13 +235,19 @@ export function ExpenseCategoriesPage() {
           <ScrollableDialog
             open={dialogOpen}
             onOpenChange={closeDialog}
-            title={editingCategory ? "Edit Expense Category" : "Create Expense Category"}
+            title={
+              editingCategory
+                ? "Edit Expense Category"
+                : "Create Expense Category"
+            }
             footerActions={
               <DialogFormActions
                 onCancel={() => closeDialog(false)}
                 submitFormId="expense-category-form"
                 submitting={saving}
-                submitText={editingCategory ? "Save Changes" : "Create Category"}
+                submitText={
+                  editingCategory ? "Save Changes" : "Create Category"
+                }
                 submitVariant="premium"
               />
             }
@@ -233,47 +260,42 @@ export function ExpenseCategoriesPage() {
                 void saveCategory();
               }}
             >
-              <Card variant="elevatedPanel">
-                <CardHeader variant="section" className="space-y-1">
-                  <CardTitle className="text-sm font-semibold">
-                    Category Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent spacing="section" className="space-y-4 p-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expense-category-name" variant="dashboard">
-                      Name
-                    </Label>
-                    <Input
-                      id="expense-category-name"
-                      variant="table"
-                      value={form.name}
-                      onChange={(event) =>
-                        updateFormField("name", event.target.value)
-                      }
-                      placeholder="e.g. Utilities"
-                      disabled={saving}
-                    />
-                  </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="expense-category-name" variant="dashboard">
+                    Name
+                  </Label>
+                  <Input
+                    id="expense-category-name"
+                    variant="table"
+                    value={form.name}
+                    onChange={(event) =>
+                      updateFormField("name", event.target.value)
+                    }
+                    placeholder="e.g. Utilities"
+                    disabled={saving}
+                  />
+                </div>
 
-                  <InfoTile layout="betweenGap" className="rounded-md">
-                    <div>
-                      <p className="text-sm font-medium text-text-primary">Active</p>
-                      <p className="text-xs text-text-secondary">
-                        Active categories are available in expense entry forms.
-                      </p>
-                    </div>
-                    <Switch
-                      variant="premium"
-                      checked={form.isActive}
-                      onCheckedChange={(checked) =>
-                        updateFormField("isActive", checked)
-                      }
-                      disabled={saving}
-                    />
-                  </InfoTile>
-                </CardContent>
-              </Card>
+                <InfoTile layout="betweenGap" className="rounded-md">
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">
+                      Active
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      Active categories are available in expense entry forms.
+                    </p>
+                  </div>
+                  <Switch
+                    variant="premium"
+                    checked={form.isActive}
+                    onCheckedChange={(checked) =>
+                      updateFormField("isActive", checked)
+                    }
+                    disabled={saving}
+                  />
+                </InfoTile>
+              </div>
             </FormStack>
           </ScrollableDialog>
 

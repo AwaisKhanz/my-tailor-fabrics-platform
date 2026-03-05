@@ -14,13 +14,20 @@ interface CustomerOrdersTabProps {
   onOpenOrder: (orderId: string) => void;
 }
 
-export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProps) {
+export function CustomerOrdersTab({
+  orders,
+  onOpenOrder,
+}: CustomerOrdersTabProps) {
   const columns = useMemo<ColumnDef<Order>[]>(
     () => [
       {
         header: "Order #",
         cell: (order) => (
-          <Typography as="p" variant="body" className="font-semibold text-primary">
+          <Typography
+            as="p"
+            variant="body"
+            className="font-semibold text-primary"
+          >
             {order.orderNumber}
           </Typography>
         ),
@@ -52,7 +59,11 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
             ORDER_STATUS_CONFIG[OrderStatus.NEW];
 
           return (
-            <Badge variant={statusConfig.variant} size="xs" className="font-bold">
+            <Badge
+              variant={statusConfig.variant}
+              size="xs"
+              className="font-bold"
+            >
               {statusConfig.label}
             </Badge>
           );
@@ -63,7 +74,7 @@ export function CustomerOrdersTab({ orders, onOpenOrder }: CustomerOrdersTabProp
   );
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
         <div className="space-y-1">
           <div className="flex items-center gap-2">

@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Customer, Employee, Order } from "@tbms/shared-types";
-import { ClipboardList, Loader2, Search, UserSquare2, Users, X } from "lucide-react";
+import {
+  ClipboardList,
+  Loader2,
+  Search,
+  UserSquare2,
+  Users,
+  X,
+} from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { customerApi } from "@/lib/api/customers";
 import { employeesApi } from "@/lib/api/employees";
@@ -150,7 +157,11 @@ export function GlobalSearchCommand({
           await Promise.all([
             ordersApi.getOrders({ page: 1, limit: SEARCH_LIMIT, search: term }),
             customerApi.getCustomers(1, SEARCH_LIMIT, term),
-            employeesApi.getEmployees({ page: 1, limit: SEARCH_LIMIT, search: term }),
+            employeesApi.getEmployees({
+              page: 1,
+              limit: SEARCH_LIMIT,
+              search: term,
+            }),
           ]);
 
         if (cancelled) {
@@ -159,8 +170,12 @@ export function GlobalSearchCommand({
 
         setResults({
           orders: ordersResponse.success ? ordersResponse.data.data : [],
-          customers: customersResponse.success ? customersResponse.data.data : [],
-          employees: employeesResponse.success ? employeesResponse.data.data : [],
+          customers: customersResponse.success
+            ? customersResponse.data.data
+            : [],
+          employees: employeesResponse.success
+            ? employeesResponse.data.data
+            : [],
         });
       } catch {
         if (cancelled) {
@@ -196,12 +211,21 @@ export function GlobalSearchCommand({
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={(event) => {
-          if (event.key === "Enter" && firstResultPath && hasMinimumQuery && !loading) {
+          if (
+            event.key === "Enter" &&
+            firstResultPath &&
+            hasMinimumQuery &&
+            !loading
+          ) {
             event.preventDefault();
             navigate(firstResultPath);
           }
         }}
-        placeholder={compact ? "Search orders, customers..." : "Search orders, customers, and staff..."}
+        placeholder={
+          compact
+            ? "Search orders, customers..."
+            : "Search orders, customers, and staff..."
+        }
         className={cn(
           "w-full pl-10",
           query ? "pr-9" : !compact ? "pr-24" : undefined,
@@ -229,7 +253,10 @@ export function GlobalSearchCommand({
       ) : null}
 
       {open ? (
-        <Card variant="premium" className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[70] overflow-hidden">
+        <Card
+          variant="elevatedPanel"
+          className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[70] overflow-hidden"
+        >
           <CardHeader variant="rowSection" density="compact">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
               Global Search
@@ -243,29 +270,47 @@ export function GlobalSearchCommand({
             </p>
           </CardHeader>
 
-          <ScrollArea variant="commandResults">
-            <div className="space-y-3 p-3">
+          <ScrollArea variant="default">
+            <div className="space-y-3 py-3 px-2">
               {loading ? (
-                <InfoTile tone="elevatedMuted" padding="md" layout="row" className="text-sm text-text-secondary">
+                <InfoTile
+                  tone="elevatedMuted"
+                  padding="md"
+                  layout="row"
+                  className="text-sm text-text-secondary"
+                >
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Searching orders, customers, and employees...
                 </InfoTile>
               ) : null}
 
               {!loading && error ? (
-                <InfoTile tone="error" padding="md" className="text-sm text-error">
+                <InfoTile
+                  tone="error"
+                  padding="md"
+                  className="text-sm text-error"
+                >
                   {error}
                 </InfoTile>
               ) : null}
 
               {!loading && !error && !hasMinimumQuery ? (
-                <InfoTile tone="elevatedMuted" padding="md" className="text-sm text-text-secondary">
-                  Start typing to search order number, customer, phone, or employee code.
+                <InfoTile
+                  tone="elevatedMuted"
+                  padding="md"
+                  className="text-sm text-text-secondary"
+                >
+                  Start typing to search order number, customer, phone, or
+                  employee code.
                 </InfoTile>
               ) : null}
 
               {!loading && !error && hasMinimumQuery && resultCount === 0 ? (
-                <InfoTile tone="elevatedMuted" padding="md" className="text-sm text-text-secondary">
+                <InfoTile
+                  tone="elevatedMuted"
+                  padding="md"
+                  className="text-sm text-text-secondary"
+                >
                   No matching records found.
                 </InfoTile>
               ) : null}
@@ -287,7 +332,10 @@ export function GlobalSearchCommand({
                   ) : null}
 
                   {results.customers.length > 0 ? (
-                    <ResultGroup title="Customers" count={results.customers.length}>
+                    <ResultGroup
+                      title="Customers"
+                      count={results.customers.length}
+                    >
                       {results.customers.map((customer) => (
                         <ResultItem
                           key={customer.id}
@@ -301,7 +349,10 @@ export function GlobalSearchCommand({
                   ) : null}
 
                   {results.employees.length > 0 ? (
-                    <ResultGroup title="Employees" count={results.employees.length}>
+                    <ResultGroup
+                      title="Employees"
+                      count={results.employees.length}
+                    >
                       {results.employees.map((employee) => (
                         <ResultItem
                           key={employee.id}
@@ -373,8 +424,12 @@ function ResultItem({
         <Icon className="h-4 w-4" />
       </SectionIcon>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-text-primary">{title}</span>
-        <span className="block truncate text-xs text-text-secondary">{subtitle}</span>
+        <span className="block truncate text-sm font-semibold text-text-primary">
+          {title}
+        </span>
+        <span className="block truncate text-xs text-text-secondary">
+          {subtitle}
+        </span>
       </span>
     </button>
   );

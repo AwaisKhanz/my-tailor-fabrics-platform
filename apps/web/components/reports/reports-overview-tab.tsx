@@ -21,7 +21,10 @@ interface ReportsOverviewTabProps {
   productivity: ProductivityPoint[];
 }
 
-function getDeltaBadge(delta?: number): { label: string; variant: "success" | "destructive" | "outline" } {
+function getDeltaBadge(delta?: number): {
+  label: string;
+  variant: "success" | "destructive" | "outline";
+} {
   if (delta === undefined) {
     return { label: "No comparison", variant: "outline" };
   }
@@ -63,7 +66,11 @@ export function ReportsOverviewTab({
           helperText={`${summary?.totalOrders ?? 0} orders in period`}
           tone="success"
           icon={<Banknote className="h-4 w-4" />}
-          badgeText={revenueDeltaBadge.variant === "outline" ? undefined : revenueDeltaBadge.label}
+          badgeText={
+            revenueDeltaBadge.variant === "outline"
+              ? undefined
+              : revenueDeltaBadge.label
+          }
         />
 
         <StatCard
@@ -73,7 +80,11 @@ export function ReportsOverviewTab({
           helperText={`${summary?.totalCustomers ?? 0} tracked customers`}
           tone="destructive"
           icon={<ReceiptText className="h-4 w-4" />}
-          badgeText={expensesDeltaBadge.variant === "outline" ? undefined : expensesDeltaBadge.label}
+          badgeText={
+            expensesDeltaBadge.variant === "outline"
+              ? undefined
+              : expensesDeltaBadge.label
+          }
         />
 
         <StatCard
@@ -113,17 +124,22 @@ export function ReportsOverviewTab({
             valueFormatter={(value) => formatPKR(value)}
           />
 
-          <Card variant="premium">
+          <Card variant="elevatedPanel">
             <CardHeader variant="rowSection">
               <CardTitle variant="section">Top Performers</CardTitle>
             </CardHeader>
             <CardContent spacing="section" className="space-y-2">
               {loading ? (
                 Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="h-8 animate-pulse rounded bg-muted" />
+                  <div
+                    key={index}
+                    className="h-8 animate-pulse rounded bg-muted"
+                  />
                 ))
               ) : productivity.length === 0 ? (
-                <p className="py-6 text-center text-sm text-text-secondary">No productivity records for this range.</p>
+                <p className="py-6 text-center text-sm text-text-secondary">
+                  No productivity records for this range.
+                </p>
               ) : (
                 productivity.slice(0, 5).map((entry, index) => (
                   <InfoTile
@@ -137,7 +153,9 @@ export function ReportsOverviewTab({
                       <Badge variant="outline" size="xs">
                         #{index + 1}
                       </Badge>
-                      <span className="text-sm text-text-primary">{entry.employeeName}</span>
+                      <span className="text-sm text-text-primary">
+                        {entry.employeeName}
+                      </span>
                     </div>
                     <span className="text-xs font-semibold text-text-secondary">
                       {entry.totalCompleted} completed

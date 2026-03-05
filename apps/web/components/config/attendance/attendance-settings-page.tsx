@@ -227,7 +227,7 @@ export function AttendanceSettingsPage() {
 
       {canManageAttendanceEntries ? (
         <PageSection spacing="compact">
-          <Card variant="premium">
+          <Card variant="elevatedPanel">
             <CardHeader variant="section" className="space-y-1">
               <CardTitle variant="section" className="flex items-center gap-2">
                 <UserCheck className="h-4 w-4 text-primary" />

@@ -17,16 +17,17 @@ export function DashboardOverdueOrdersCard({
   onOpenOrder,
 }: DashboardOverdueOrdersCardProps) {
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="rowSection">
-        <CardTitle variant="dashboardSection">
-          Recent Overdue Orders
-        </CardTitle>
+        <CardTitle variant="dashboardSection">Recent Overdue Orders</CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
           View all
         </Button>
       </CardHeader>
-      <CardContent spacing="section" className="overflow-hidden rounded-b-xl p-0">
+      <CardContent
+        spacing="section"
+        className="overflow-hidden rounded-b-xl p-0"
+      >
         <div className="divide-y divide-divider border-t border-divider">
           {orders.slice(0, 4).map((order) => (
             <div

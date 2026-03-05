@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -23,7 +22,8 @@ export default function DashboardLayout({
     }
 
     const hasAccessToken =
-      typeof session?.accessToken === "string" && session.accessToken.length > 0;
+      typeof session?.accessToken === "string" &&
+      session.accessToken.length > 0;
 
     if (
       status === "authenticated" &&

@@ -15,19 +15,24 @@ export function DashboardProductivityCard({
   loading,
   productivity,
 }: DashboardProductivityCardProps) {
-  const [hoveredEmployee, setHoveredEmployee] = useState<string | null>(productivity[0]?.label ?? null);
+  const [hoveredEmployee, setHoveredEmployee] = useState<string | null>(
+    productivity[0]?.label ?? null,
+  );
   const maxValue = Math.max(...productivity.map((item) => item.value), 1);
-  const activeEmployee = productivity.find((item) => item.label === hoveredEmployee) ?? productivity[0];
+  const activeEmployee =
+    productivity.find((item) => item.label === hoveredEmployee) ??
+    productivity[0];
   const average = productivity.length
-    ? Math.round(productivity.reduce((sum, item) => sum + item.value, 0) / productivity.length)
+    ? Math.round(
+        productivity.reduce((sum, item) => sum + item.value, 0) /
+          productivity.length,
+      )
     : 0;
 
   return (
-    <Card variant="premium" className="flex h-full flex-col">
+    <Card variant="elevatedPanel" className="flex h-full flex-col">
       <CardHeader variant="rowSection" align="start">
-        <CardTitle variant="dashboardSection">
-          Employee Productivity
-        </CardTitle>
+        <CardTitle variant="dashboardSection">Employee Productivity</CardTitle>
         <div className="flex flex-col items-end">
           {loading ? (
             <Skeleton className="h-6 w-16" />
@@ -57,8 +62,12 @@ export function DashboardProductivityCard({
           <>
             {activeEmployee ? (
               <InfoTile tone="elevatedSoft" padding="md">
-                <p className="text-xs font-semibold text-text-primary">{activeEmployee.label}</p>
-                <p className="mt-1 text-[11px] text-text-secondary">{activeEmployee.value} completed</p>
+                <p className="text-xs font-semibold text-text-primary">
+                  {activeEmployee.label}
+                </p>
+                <p className="mt-1 text-[11px] text-text-secondary">
+                  {activeEmployee.value} completed
+                </p>
               </InfoTile>
             ) : null}
 
@@ -82,7 +91,9 @@ export function DashboardProductivityCard({
                   onMouseEnter={() => setHoveredEmployee(employee.label)}
                 >
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-bold text-text-primary">{employee.label}</span>
+                    <span className="font-bold text-text-primary">
+                      {employee.label}
+                    </span>
                     <Label variant="dashboard">{employee.value} Items</Label>
                   </div>
                   <ProgressBar

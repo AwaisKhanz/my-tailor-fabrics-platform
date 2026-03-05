@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { ordersApi } from "@/lib/api/orders";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
-import { Order, OrderStatus } from "@tbms/shared-types";
+import { Order, orderPaymentFormSchema, OrderStatus } from "@tbms/shared-types";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 export interface OrderEmployeeOption {
   id: string;
@@ -105,23 +106,32 @@ export function useOrderDetail(orderId: string | null) {
 
   const addPayment = useCallback(
     async (amountInput: string, note: string) => {
-      if (!order || !amountInput) {
+      if (!order) {
         return false;
       }
 
-      const amount = Math.round(parseFloat(amountInput) * 100);
-      if (Number.isNaN(amount) || amount <= 0) {
+      const parsedResult = orderPaymentFormSchema.safeParse({
+        amount: amountInput,
+        note,
+      });
+
+      if (!parsedResult.success) {
         toast({
-          title: "Error",
-          description: "Invalid payment amount",
+          title: "Validation error",
+          description: getFirstZodErrorMessage(parsedResult.error),
           variant: "destructive",
         });
         return false;
       }
 
+      const amount = Math.round(parsedResult.data.amount * 100);
+
       setProcessingPayment(true);
       try {
-        await ordersApi.addPayment(order.id, { amount, note });
+        await ordersApi.addPayment(order.id, {
+          amount,
+          note: parsedResult.data.note || "",
+        });
         toast({ title: "Payment Added" });
         await fetchOrder();
         return true;

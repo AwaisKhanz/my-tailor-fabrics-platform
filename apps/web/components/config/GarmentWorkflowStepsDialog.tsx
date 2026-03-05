@@ -10,12 +10,14 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
 import {
+  garmentWorkflowStepsFormSchema,
   type WorkflowStepTemplate,
   type WorkflowStepTemplateInput,
 } from "@tbms/shared-types";
 import { DEFAULT_WORKFLOW_STEP_PRESETS } from "@tbms/shared-constants";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface GarmentWorkflowStepsDialogProps {
   open: boolean;
@@ -99,24 +101,21 @@ export function GarmentWorkflowStepsDialog({
   };
 
   const onSubmit = async () => {
-    // Validation
-    if (steps.some(s => !s.stepKey || !s.stepName)) {
-        toast({ title: "Validation Error", description: "All steps must have a Key and Name.", variant: "destructive" });
-        return;
-    }
-    
-    // Check duplicate keys
-    const keys = steps.map((step) => step.stepKey);
-    if (new Set(keys).size !== keys.length) {
-        toast({ title: "Validation Error", description: "Step Keys must be unique.", variant: "destructive" });
-        return;
+    const parsedResult = garmentWorkflowStepsFormSchema.safeParse({ steps });
+    if (!parsedResult.success) {
+      toast({
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
       setLoading(true);
-      
+
       // Ensure correct sort order based on array position
-      const payload: WorkflowStepTemplateInput[] = steps.map((step, index) => ({
+      const payload: WorkflowStepTemplateInput[] = parsedResult.data.steps.map((step, index) => ({
           ...step,
           sortOrder: index + 1,
       }));

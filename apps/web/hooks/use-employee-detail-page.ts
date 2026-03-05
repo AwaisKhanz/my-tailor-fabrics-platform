@@ -8,6 +8,8 @@ import { ordersApi } from "@/lib/api/orders";
 import { configApi } from "@/lib/api/config";
 import { ledgerApi } from "@/lib/api/ledger";
 import {
+  employeeDocumentUploadFormSchema,
+  employeeLedgerEntryFormSchema,
   type AttendanceRecord,
   LedgerEntryType,
   type EmployeeLedgerEntry,
@@ -16,6 +18,7 @@ import {
   type SystemSettings,
   type TaskStatus,
 } from "@tbms/shared-types";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface EmployeeStatsSnapshot {
   totalEarned: number;
@@ -165,18 +168,28 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   );
 
   const submitLedgerEntry = useCallback(async () => {
-    if (!employeeId || !newEntryAmount) {
+    if (!employeeId) {
+      return;
+    }
+
+    const parsedResult = employeeLedgerEntryFormSchema.safeParse({
+      type: newEntryType,
+      amount: newEntryAmount,
+      note: newEntryNote,
+    });
+
+    if (!parsedResult.success) {
+      toast({
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
+        variant: "destructive",
+      });
       return;
     }
 
     setSubmittingLedgerEntry(true);
     try {
-      const amountInRupees = parseFloat(newEntryAmount);
-      if (Number.isNaN(amountInRupees)) {
-        return;
-      }
-
-      const amountInPaisa = Math.round(amountInRupees * 100);
+      const amountInPaisa = Math.round(parsedResult.data.amount * 100);
       const isNegativeType = [
         LedgerEntryType.PAYOUT,
         LedgerEntryType.ADVANCE,
@@ -191,7 +204,7 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
         employeeId,
         type: newEntryType,
         amount: finalAmount,
-        note: newEntryNote,
+        note: parsedResult.data.note || undefined,
       });
 
       if (response.success) {
@@ -235,16 +248,29 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   );
 
   const uploadDocument = useCallback(async () => {
-    if (!employeeId || !docLabel || !docUrl) {
+    if (!employeeId) {
+      return;
+    }
+
+    const parsedResult = employeeDocumentUploadFormSchema.safeParse({
+      label: docLabel,
+      url: docUrl,
+    });
+    if (!parsedResult.success) {
+      toast({
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
+        variant: "destructive",
+      });
       return;
     }
 
     setUploadingDocument(true);
     try {
       await employeesApi.uploadDocument(employeeId, {
-        label: docLabel,
-        fileUrl: docUrl,
-        fileType: docUrl.toLowerCase().endsWith(".pdf")
+        label: parsedResult.data.label,
+        fileUrl: parsedResult.data.url,
+        fileType: parsedResult.data.url.toLowerCase().endsWith(".pdf")
           ? "application/pdf"
           : "image/jpeg",
       });

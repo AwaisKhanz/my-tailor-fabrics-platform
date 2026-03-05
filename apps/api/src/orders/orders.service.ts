@@ -255,7 +255,9 @@ export class OrdersService {
           items: {
             create: resolvedItems.map((item) => ({
               pieceNo: item.pieceNo,
-              employeeId: item.employeeId,
+              employee: item.employeeId
+                ? { connect: { id: item.employeeId } }
+                : undefined,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
               employeeRate: item.employeeRate,

@@ -3,7 +3,13 @@ import { CalendarDays, Scissors } from "lucide-react";
 import { ItemStatus, OrderItem } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
@@ -34,13 +40,18 @@ export function OrderItemsTable({
   canManageTasks = true,
 }: OrderItemsTableProps) {
   const employeeMap = useMemo(
-    () => new Map(employees.map((employee) => [employee.id, employee.fullName])),
+    () =>
+      new Map(employees.map((employee) => [employee.id, employee.fullName])),
     [employees],
   );
 
   const summary = useMemo(() => {
-    const completed = items.filter((item) => item.status === ItemStatus.COMPLETED).length;
-    const inProgress = items.filter((item) => item.status === ItemStatus.IN_PROGRESS).length;
+    const completed = items.filter(
+      (item) => item.status === ItemStatus.COMPLETED,
+    ).length;
+    const inProgress = items.filter(
+      (item) => item.status === ItemStatus.IN_PROGRESS,
+    ).length;
     return {
       total: items.length,
       completed,
@@ -51,7 +62,9 @@ export function OrderItemsTable({
   const columns: ColumnDef<OrderItem>[] = [
     {
       header: "Piece",
-      cell: (item) => <span className="font-semibold text-text-primary">#{item.pieceNo}</span>,
+      cell: (item) => (
+        <span className="font-semibold text-text-primary">#{item.pieceNo}</span>
+      ),
     },
     {
       header: "Item",
@@ -59,7 +72,9 @@ export function OrderItemsTable({
         <div className="flex min-w-[180px] items-start gap-2">
           <Scissors className="mt-0.5 h-3.5 w-3.5 text-text-secondary" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-text-primary">{item.garmentTypeName}</p>
+            <p className="truncate text-sm font-semibold text-text-primary">
+              {item.garmentTypeName}
+            </p>
             {item.designType ? (
               <Label variant="dashboard" className="mt-0.5 text-primary">
                 {item.designType.name}
@@ -86,10 +101,14 @@ export function OrderItemsTable({
         }
 
         const employeeName = item.employeeId
-          ? employeeMap.get(item.employeeId) ?? "Assigned"
+          ? (employeeMap.get(item.employeeId) ?? "Assigned")
           : "Unassigned";
 
-        return <span className="text-xs font-medium text-text-secondary">{employeeName}</span>;
+        return (
+          <span className="text-xs font-medium text-text-secondary">
+            {employeeName}
+          </span>
+        );
       },
     },
     {
@@ -111,7 +130,11 @@ export function OrderItemsTable({
               ? "info"
               : "outline";
         return (
-          <Badge variant={statusVariant} size="xs" className="uppercase tracking-[0.08em]">
+          <Badge
+            variant={statusVariant}
+            size="xs"
+            className="uppercase tracking-[0.08em]"
+          >
             {item.status.replace("_", " ")}
           </Badge>
         );
@@ -133,7 +156,9 @@ export function OrderItemsTable({
 
         return (
           <div className="text-right">
-            <p className="text-sm font-semibold text-text-primary">{formatPKR(total)}</p>
+            <p className="text-sm font-semibold text-text-primary">
+              {formatPKR(total)}
+            </p>
             {addonsTotal > 0 || designPrice > 0 ? (
               <p className="text-[10px] text-text-secondary">
                 +{formatPKR(addonsTotal + designPrice)} extras
@@ -146,8 +171,12 @@ export function OrderItemsTable({
   ];
 
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" align="startResponsive">
+    <Card variant="elevatedPanel">
+      <CardHeader
+        variant="rowSection"
+        density="comfortable"
+        align="startResponsive"
+      >
         <div>
           <CardTitle variant="dashboard">Order Items</CardTitle>
           <CardDescription variant="header">
@@ -156,13 +185,25 @@ export function OrderItemsTable({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" size="xs" className="font-bold uppercase tracking-[0.08em]">
+          <Badge
+            variant="secondary"
+            size="xs"
+            className="font-bold uppercase tracking-[0.08em]"
+          >
             {summary.total} pieces
           </Badge>
-          <Badge variant="info" size="xs" className="font-bold uppercase tracking-[0.08em]">
+          <Badge
+            variant="info"
+            size="xs"
+            className="font-bold uppercase tracking-[0.08em]"
+          >
             {summary.inProgress} in progress
           </Badge>
-          <Badge variant="success" size="xs" className="font-bold uppercase tracking-[0.08em]">
+          <Badge
+            variant="success"
+            size="xs"
+            className="font-bold uppercase tracking-[0.08em]"
+          >
             {summary.completed} completed
           </Badge>
         </div>

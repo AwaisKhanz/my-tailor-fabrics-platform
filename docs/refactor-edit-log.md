@@ -5225,3 +5225,251 @@ This is the single source of truth for implementation edits and why they were ma
 ### Verification run after edits
 - Skipped intentionally per request (`don't make build at end`).
 - Source check only: confirmed `Card` + table wrappers all use `border-borderStrong/70`.
+
+## 2026-03-05 — Pass 126 (Zod Phase 1: Shared Schema Foundation + Submit-Boundary Validation)
+
+### Goal
+- Start the Zod modernization phase with shared schema definitions and practical validation rollout using maintainable, non-breaking patterns.
+
+### Shared schema foundation completed
+- `packages/shared-types/src/form-schemas.ts` (new)
+  - Added canonical shared Zod schemas and inferred types for existing form domains:
+    - Customers, Employees, Accounts, Orders, Config (garments/measurements)
+    - Branch create/update
+    - User account create/update
+    - Expense create
+    - Rate card create
+    - Order payment
+- `packages/shared-types/src/index.ts`
+  - Exported `form-schemas` from shared-types public entry.
+- `packages/shared-types/package.json`
+  - Added `zod` runtime dependency for shared schema exports.
+
+### Web schema migration to shared source completed
+- Replaced local schema definitions with shared re-exports:
+  - `apps/web/types/customers/schemas.ts`
+  - `apps/web/types/employees/schemas.ts`
+  - `apps/web/types/orders/schemas.ts`
+  - `apps/web/types/config/schemas.ts`
+- This keeps existing imports stable while shifting authority to shared contracts.
+
+### Validation boundary hardening completed (manual-submit flows)
+- Added common Zod error helper:
+  - `apps/web/lib/utils/zod.ts` (new)
+- Integrated shared Zod validation before API mutation calls:
+  - `apps/web/hooks/use-branches-page.ts` (`branchCreateFormSchema` / `branchUpdateFormSchema`)
+  - `apps/web/hooks/use-users-page.ts` (`userAccountCreateFormSchema` / `userAccountUpdateFormSchema`)
+  - `apps/web/hooks/use-expenses-page.ts` (`expenseCreateFormSchema`)
+  - `apps/web/hooks/use-order-detail.ts` (`orderPaymentFormSchema`)
+  - `apps/web/components/rates/CreateRateDialog.tsx` (`rateCardCreateFormSchema`)
+  - `apps/web/hooks/use-rates-page.ts` (defensive re-validation at mutation boundary)
+
+### Result
+- Form schema logic is now centralized in shared package and consumed consistently by web forms.
+- Several high-traffic non-resolver submit paths now enforce structured validation before API requests.
+- Migration is additive and backward compatible with existing form components/hooks.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Performed source-level reference and integration sweep only.
+
+## 2026-03-05 — Pass 127 (Zod Phase 2: Auth + Public Access Forms)
+
+### Goal
+- Continue Zod migration with shared schema coverage for authentication/public flows and integrate validation into runtime submit handlers.
+
+### Shared schema expansion completed
+- `packages/shared-types/src/form-schemas.ts`
+  - Added:
+    - `loginFormSchema`
+    - `publicStatusPinSchema`
+    - `confirmPasswordSchema`
+  - Added inferred types:
+    - `LoginFormValues`
+    - `PublicStatusPinFormValues`
+    - `ConfirmPasswordFormValues`
+
+### Runtime integration completed
+- `apps/web/hooks/use-login-page.ts`
+  - Added shared Zod validation before `signIn` request.
+  - Uses shared error extraction helper for toast messages.
+- `apps/web/hooks/use-public-order-status-page.ts`
+  - Replaced regex-only PIN validation with shared `publicStatusPinSchema` validation.
+  - Uses validated PIN value for API status request.
+- `apps/web/components/common/ConfirmPasswordDialog.tsx`
+  - Replaced manual empty check with shared `confirmPasswordSchema` validation.
+  - Standardized validation error feedback.
+
+### Result
+- Auth/public forms now follow the same shared-schema validation contract as domain forms.
+- Validation rules are centralized and reusable, reducing duplicated ad-hoc checks.
+
+### Verification run after edits
+- Skipped intentionally per request (`don't make build at end`).
+- Performed source-level schema/reference sweep only.
+
+## 2026-03-05 — Pass 127A (Dependency Lock Sync)
+
+### Goal
+- Keep workspace dependency metadata consistent after introducing shared `zod` dependency in `@tbms/shared-types`.
+
+### Update completed
+- `package-lock.json`
+  - Refreshed lockfile using `npm install --package-lock-only --ignore-scripts`.
+
+### Result
+- Workspace lock metadata now matches package manifests for deterministic installs.
+
+## 2026-03-05 — Pass 128 (Zod Coverage Recheck + Remaining Manual Flow Migration)
+
+### Goal
+- Recheck frontend validation coverage completely and remove remaining ad-hoc form validation paths by standardizing on shared Zod schemas.
+
+### Shared schema contract expansion completed
+- `packages/shared-types/src/form-schemas.ts`
+  - Added new shared schemas/types for remaining uncovered form flows:
+    - `expenseCategoryFormSchema`
+    - `paymentDisbursementFormSchema`
+    - `taskRateOverrideFormSchema`
+    - `attendanceClockInFormSchema`
+    - `employeeLedgerEntryFormSchema`
+    - `employeeDocumentUploadFormSchema`
+    - `workflowStepInputFormSchema`
+    - `garmentWorkflowStepsFormSchema`
+    - `integrationTestEmailFormSchema`
+    - `designTypeFormSchema`
+    - `measurementFieldDialogFormSchema`
+    - Dynamic helper: `createMeasurementValuesFormSchema(fields)`
+  - Added inferred types for each new schema (and input aliases) to keep forms strongly typed at the boundary.
+
+### Runtime submit-boundary migrations completed
+- `apps/web/hooks/use-payments-page.ts`
+  - Replaced manual amount parsing with `paymentDisbursementFormSchema.safeParse`.
+- `apps/web/hooks/use-expense-categories-page.ts`
+  - Replaced manual category-name validation with `expenseCategoryFormSchema`.
+- `apps/web/hooks/use-integrations-settings-page.ts`
+  - Replaced manual recipient check with `integrationTestEmailFormSchema`.
+- `apps/web/hooks/use-attendance-settings-page.ts`
+  - Replaced manual clock-in employee check with `attendanceClockInFormSchema`.
+- `apps/web/hooks/use-employee-detail-page.ts`
+  - Added schema validation for ledger entry submission and document upload:
+    - `employeeLedgerEntryFormSchema`
+    - `employeeDocumentUploadFormSchema`
+- `apps/web/components/config/GarmentWorkflowStepsDialog.tsx`
+  - Replaced inline workflow validation (required fields + duplicate keys) with `garmentWorkflowStepsFormSchema`.
+- `apps/web/hooks/use-task-assignment-dialog.ts`
+  - Replaced manual rate parsing with `taskRateOverrideFormSchema`.
+- `apps/web/components/customers/MeasurementForm.tsx`
+  - Added dynamic submit-boundary validation using shared `createMeasurementValuesFormSchema(...)`.
+  - Validation issues now map to field-level errors plus unified validation toast.
+
+### React Hook Form resolver migrations completed
+- `apps/web/hooks/use-design-type-dialog.ts`
+  - Added `typedZodResolver(designTypeFormSchema)`.
+  - Removed number coercion in submit payload construction (already validated/coerced by schema).
+- `apps/web/hooks/use-measurement-field-dialog.ts`
+  - Added `typedZodResolver(measurementFieldDialogFormSchema)`.
+  - Removed manual dropdown-option validation branch and routed to shared schema + standardized error messaging.
+
+### UI submit gating alignment completed
+- `apps/web/components/payments/payments-disburse-dialog.tsx`
+  - Submit-disabled state now derived from `paymentDisbursementFormSchema.safeParse`.
+- `apps/web/components/expenses/expense-create-dialog.tsx`
+  - Submit-disabled state now derived from `expenseCreateFormSchema.safeParse`.
+- `apps/web/components/employees/detail/employee-ledger-entry-dialog.tsx`
+  - Submit-disabled state now derived from `employeeLedgerEntryFormSchema.safeParse`.
+- `apps/web/components/employees/detail/employee-document-upload-dialog.tsx`
+  - Submit-disabled state now derived from `employeeDocumentUploadFormSchema.safeParse`.
+- Removed field-level inline `rules` from schema-backed forms:
+  - `apps/web/components/design-types/dialog/design-type-dialog-basic-fields.tsx`
+  - `apps/web/components/config/measurements/detail/measurement-field-dialog-basic-fields.tsx`
+
+### Result
+- A full re-sweep removed remaining manual validation hotspots identified in hooks/components.
+- Validation logic is now centralized in shared contracts and consumed consistently at submit boundaries and UI disabled states.
+- Duplicate ad-hoc parse/required checks are reduced, improving maintainability and consistency.
+
+### Verification run after edits
+- `npm exec -w web tsc --noEmit --pretty false` ✅
+- `npm exec -w @tbms/shared-types tsc --noEmit --pretty false` ✅
+
+## 2026-03-05 — Pass 129 (Dialog Submit UX Consistency: Always-Enabled Submit)
+
+### Goal
+- Remove mixed dialog submit behaviors and enforce one pattern across the app:
+  - Submit button remains enabled by default.
+  - Validation occurs on submit.
+  - Buttons disable only for runtime state (`submitting/loading`) handled by `DialogFormActions`.
+
+### Decision applied
+- Chosen UX pattern: **button enabled** + submit-time validation feedback.
+
+### Files updated
+- `apps/web/components/expenses/expense-create-dialog.tsx`
+  - Removed schema-based pre-submit disable gating.
+- `apps/web/components/employees/detail/employee-document-upload-dialog.tsx`
+  - Removed pre-submit disable gating and local validation-derived disabled state.
+- `apps/web/components/employees/detail/employee-ledger-entry-dialog.tsx`
+  - Removed pre-submit disable gating and local validation-derived disabled state.
+- `apps/web/components/payments/payments-disburse-dialog.tsx`
+  - Removed submit disable condition (`invalid amount` / `exceeds balance`) from button state.
+  - Kept inline balance warning display.
+- `apps/web/components/config/branches/branch-form-dialog.tsx`
+  - Removed submit disable rule based on incomplete required fields.
+- `apps/web/components/config/users/user-account-dialog.tsx`
+  - Removed submit disable rule based on incomplete required fields.
+- `apps/web/components/orders/order-payment-dialog.tsx`
+  - Removed submit disable rule based on amount presence.
+
+### Consistency result
+- No remaining `submitDisabled` usage in `apps/web`.
+- Dialog forms now follow one interaction model consistently.
+
+### Verification run after edits
+- `npm exec -w web tsc --noEmit --pretty false` ✅
+
+## 2026-03-05 — Pass 130 (Expense Categories: API-Driven Search + Pagination)
+
+### Goal
+- Bring `/settings/expense-categories` in line with other admin tables by removing local-only filtering and using backend pagination/search.
+
+### Backend changes
+- `apps/api/src/expenses/expenses.controller.ts`
+  - Added `GET /expenses/categories/paginated` with `page`, `limit`, `search` query support.
+- `apps/api/src/expenses/expenses.service.ts`
+  - Added `findAllCategoriesPaginated(page, limit, search)` returning:
+    - paginated `data`
+    - `total` for filtered rows
+    - `stats` summary (`total`, `active`, `inactive`) for cards
+    - `meta` (`page`, `lastPage`)
+
+### Shared contract changes
+- `packages/shared-types/src/expenses.ts`
+  - Added `ExpenseCategoryListQueryInput`.
+  - Added `ExpenseCategoryStatsSummary`.
+
+### Frontend API + hook + table wiring
+- `apps/web/lib/api/expenses.ts`
+  - Added `getCategoriesPaginated(query)` client method for new backend endpoint.
+- `apps/web/hooks/use-expense-categories-page.ts`
+  - Switched from local `getCategories()` + client filtering to server-driven fetch using:
+    - `page`
+    - `limit`
+    - `search`
+  - Added hook state for `total`, `page`, `pageSize`, and server `stats`.
+  - Reset page on search/filter reset and handle empty-page fallback after delete.
+- `apps/web/components/config/expenses/expense-categories-page.tsx`
+  - Wired `DataTable` pagination props:
+    - `page`, `total`, `limit`, `onPageChange`
+  - Wired toolbar total to server `total`.
+  - Switched table data source from local `filteredCategories` to API `categories`.
+
+### Result
+- Expense Categories table now supports real API-backed search and pagination, consistent with other tables.
+- Stats cards remain accurate from backend summary data.
+
+### Verification run after edits
+- `npm exec -w web tsc --noEmit --pretty false` ✅
+- `npm exec -w @tbms/shared-types tsc --noEmit --pretty false` ✅
+- `npm exec -w api -- tsc -p tsconfig.build.json --noEmit --pretty false` ✅
+- Note: `npm exec -w api tsc --noEmit --pretty false` still reports existing spec-file typing issues unrelated to this change.

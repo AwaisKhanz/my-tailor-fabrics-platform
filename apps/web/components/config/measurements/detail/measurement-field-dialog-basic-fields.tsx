@@ -22,7 +22,6 @@ export function MeasurementFieldDialogBasicFields({
       <FormField
         control={form.control}
         name="label"
-        rules={{ required: "Label is required" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel variant="dashboard">Label</FormLabel>

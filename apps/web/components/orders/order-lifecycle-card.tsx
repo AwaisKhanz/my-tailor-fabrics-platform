@@ -61,7 +61,7 @@ export function OrderLifecycleCard({
   }
 
   return (
-    <Card variant="premium">
+    <Card variant="elevatedPanel">
       <CardHeader variant="section" density="comfortable">
         <CardTitle variant="dashboard">Lifecycle Action</CardTitle>
         <p className="text-xs text-text-secondary">

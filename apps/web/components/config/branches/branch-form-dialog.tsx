@@ -25,14 +25,12 @@ export function BranchFormDialog({
   onFieldChange,
   onSubmit,
 }: BranchFormDialogProps) {
-  const isCreateMode = !editingBranch;
   const footerActions = (
     <DialogFormActions
       onCancel={() => onOpenChange(false)}
       submitFormId="branch-form"
       submitText={editingBranch ? "Save Changes" : "Create Branch"}
       submitting={saving}
-      submitDisabled={!form.name.trim() || (isCreateMode && !form.code.trim())}
       cancelVariant="outline"
     />
   );

@@ -23,7 +23,7 @@ export function StatusPinGateCard({
   onSubmit,
 }: StatusPinGateCardProps) {
   return (
-    <Card variant="premium" className="w-full max-w-sm">
+    <Card variant="elevatedPanel" className="w-full max-w-sm">
       <CardContent spacing="section" className="space-y-6 p-6 sm:p-8">
         <div className="text-center">
           <InfoTile
@@ -45,7 +45,8 @@ export function StatusPinGateCard({
             Track Your Order
           </Typography>
           <Typography as="p" variant="lead" className="mt-1 text-sm">
-            Enter the 4-digit PIN from {siteConfig.shortName} to view your order status.
+            Enter the 4-digit PIN from {siteConfig.shortName} to view your order
+            status.
           </Typography>
         </div>
 
@@ -59,24 +60,36 @@ export function StatusPinGateCard({
               pattern="\d{4}"
               placeholder="Enter PIN (e.g. 1234)"
               value={pin}
-              onChange={(event) => onPinChange(event.target.value.replace(/\D/g, ""))}
+              onChange={(event) =>
+                onPinChange(event.target.value.replace(/\D/g, ""))
+              }
               className="h-14 text-center text-2xl font-bold tracking-widest"
               autoFocus
             />
             {error ? (
-              <Typography as="p" variant="muted" className="mt-1.5 text-xs text-error">
+              <Typography
+                as="p"
+                variant="muted"
+                className="mt-1.5 text-xs text-error"
+              >
                 {error}
               </Typography>
             ) : null}
           </div>
 
-          <Button type="submit" variant="premium" className="h-12 w-full" disabled={loading}>
+          <Button
+            type="submit"
+            variant="premium"
+            className="h-12 w-full"
+            disabled={loading}
+          >
             {loading ? "Verifying..." : "View Order Status"}
           </Button>
         </FormStack>
 
         <Typography as="p" variant="muted" className="text-center text-xs">
-          This link was shared by the tailor shop. It expires when the order is completed.
+          This link was shared by the tailor shop. It expires when the order is
+          completed.
         </Typography>
       </CardContent>
     </Card>

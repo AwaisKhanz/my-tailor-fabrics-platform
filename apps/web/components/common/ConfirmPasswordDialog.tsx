@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { confirmPasswordSchema } from "@tbms/shared-types";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface ConfirmPasswordDialogProps {
   open: boolean;
@@ -34,10 +36,11 @@ export function ConfirmPasswordDialog({
   const { toast } = useToast();
 
   const handleConfirm = async () => {
-    if (!password) {
+    const parsedResult = confirmPasswordSchema.safeParse({ password });
+    if (!parsedResult.success) {
       toast({
-        title: "Password Required",
-        description: "Please enter your password to proceed.",
+        title: "Validation error",
+        description: getFirstZodErrorMessage(parsedResult.error),
         variant: "destructive",
       });
       return;

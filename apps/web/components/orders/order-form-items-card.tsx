@@ -38,8 +38,13 @@ export function OrderFormItemsCard({
   getItemLineTotal,
 }: OrderFormItemsCardProps) {
   return (
-    <Card variant="premium">
-      <CardHeader variant="rowSection" density="comfortable" align="startResponsive" gap="md">
+    <Card variant="elevatedPanel">
+      <CardHeader
+        variant="rowSection"
+        density="comfortable"
+        align="startResponsive"
+        gap="md"
+      >
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <CardTitle variant="section">Order Items</CardTitle>
@@ -79,7 +84,9 @@ export function OrderFormItemsCard({
               form={form}
               garmentTypes={garmentTypes}
               tailors={tailors}
-              designTypeOptions={getDesignTypeOptions(currentItem.garmentTypeId)}
+              designTypeOptions={getDesignTypeOptions(
+                currentItem.garmentTypeId,
+              )}
               lineTotal={getItemLineTotal(currentItem)}
               canRemove={fields.length > 1}
               onSelectGarmentType={onSelectGarmentType}

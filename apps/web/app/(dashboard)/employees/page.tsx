@@ -46,7 +46,12 @@ function EmployeesPage() {
           density="compact"
           actions={
             canManageEmployees ? (
-              <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={openAddDialog}
+              >
                 <Plus className="h-4 w-4" />
                 New Employee
               </Button>
@@ -75,7 +80,9 @@ function EmployeesPage() {
 
           <StatCard
             title="Filters"
-            subtitle={hasActiveFilters ? "Search applied" : "No filters applied"}
+            subtitle={
+              hasActiveFilters ? "Search applied" : "No filters applied"
+            }
             value={hasActiveFilters ? "Active" : "Default"}
             tone="warning"
             icon={<Filter className="h-4 w-4" />}
@@ -101,7 +108,9 @@ function EmployeesPage() {
             total={total}
             pageSize={pageSize}
             onPageChange={setPage}
-            onViewEmployee={(employee) => router.push(`/employees/${employee.id}`)}
+            onViewEmployee={(employee) =>
+              router.push(`/employees/${employee.id}`)
+            }
           />
         </TableSurface>
       </PageSection>
