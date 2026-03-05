@@ -11,7 +11,7 @@ const cardVariants = cva(
         panel: "shadow-none",
         shell: "overflow-hidden",
         shellFlat: "overflow-hidden shadow-none",
-        elevatedPanel: "bg-surface-elevated shadow-none",
+        elevatedPanel: "bg-surface-elevated shadow-none ",
         elevatedShell: "overflow-hidden bg-surface-elevated shadow-none",
         successSoft: "border-success/30 bg-success-muted/70 shadow-none",
         warningSoft: "border-warning/30 bg-warning-muted/70 shadow-none",
@@ -49,11 +49,13 @@ Card.displayName = "Card";
 const cardHeaderVariants = cva("flex flex-col", {
   variants: {
     variant: {
-      default: "space-y-1.5 p-6",
-      section: "border-b border-divider bg-surface-elevated px-6 py-4",
-      sectionSoft: "border-b border-divider bg-surface-elevated/80 px-6 py-4",
+      default: "space-y-1.5 !rounded-b-none p-6",
+      section:
+        "border-b !rounded-b-none  border-divider bg-surface-elevated px-6 py-4",
+      sectionSoft:
+        "border-b !rounded-b-none border-divider bg-surface-elevated/80 px-6 py-4",
       rowSection:
-        "flex-row items-center justify-between gap-3 border-b border-divider bg-surface-elevated px-6 py-4",
+        "flex-row items-center !rounded-b-none justify-between gap-3 border-b border-borderStrong/70 bg-surface-elevated px-6 py-4",
     },
     density: {
       default: "",
@@ -90,6 +92,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
       ref={ref}
       className={cn(
         cardHeaderVariants({ variant, density, align, gap, className }),
+        "rounded-xl",
       )}
       {...props}
     />

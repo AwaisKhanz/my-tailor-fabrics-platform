@@ -113,7 +113,7 @@ const POLAR_AUTHORITY_LIGHT: ThemePaletteV2 = {
 
   sidebar: "#FFFFFF",
   sidebarText: "#000000",
-  sidebarActive: "#FFFFFF",
+  sidebarActive: "#E5E5E5",
   sidebarBorder: "#E5E5E5",
 
   textPrimary: "#000000",

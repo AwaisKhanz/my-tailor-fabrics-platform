@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useAuthz } from "@/hooks/use-authz";
+import { siteConfig } from "@/lib/config";
 
 export function Topbar() {
   const { data: session } = useSession();
@@ -28,16 +29,24 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-sidebar-border bg-appBar/95 text-appBar-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-appBar/90">
-      <div className="flex h-16 w-full items-center gap-3 px-3 sm:px-4 lg:px-6">
-        <MobileSidebarTrigger />
-        <div className="min-w-0 flex-1 md:flex-none">
-          <BranchSelector />
+      <div className="flex h-16 w-full items-center gap-2 px-3 sm:gap-3 sm:px-4 lg:px-6">
+        <div className="flex min-w-0 items-center gap-2 md:w-72 md:pr-4">
+          <MobileSidebarTrigger />
+          <div className="hidden min-w-0 flex-col leading-tight md:flex">
+            <Label
+              variant="dashboard"
+              className="text-[10px] uppercase tracking-[0.12em] text-appBar-foreground/50"
+            >
+              Workspace
+            </Label>
+            <span className="truncate text-sm font-semibold text-appBar-foreground">
+              {siteConfig.shortName}
+            </span>
+          </div>
         </div>
 
-        <div className="hidden flex-1 items-center justify-center lg:flex">
-          <div className="w-full max-w-2xl">
-            <GlobalSearchCommand />
-          </div>
+        <div className="hidden min-w-0 flex-1 items-center md:flex">
+          <GlobalSearchCommand className="w-full max-w-3xl" />
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -64,6 +73,15 @@ export function Topbar() {
                   <Label variant="dashboard">{role?.replace("_", " ") || "Member"}</Label>
                 </div>
               </DropdownMenuLabel>
+              <div className="px-2 pb-2 empty:hidden">
+                <Label
+                  variant="dashboard"
+                  className="mb-1 block text-[10px] uppercase tracking-[0.12em]"
+                >
+                  Active Branch
+                </Label>
+                <BranchSelector triggerVariant="default" className="h-8 text-xs" />
+              </div>
               <DropdownMenuSeparator />
               {canAccessSettings && (
                 <DropdownMenuItem asChild className="cursor-pointer py-2.5">
@@ -91,7 +109,7 @@ export function Topbar() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="border-t border-sidebar-border px-3 py-2 lg:hidden">
+      <div className="border-t border-sidebar-border px-3 py-2 md:hidden">
         <GlobalSearchCommand compact enableHotkeys={false} />
       </div>
     </header>

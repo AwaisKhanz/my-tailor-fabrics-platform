@@ -29,7 +29,8 @@ const pageShellVariants = cva("mx-auto w-full", {
 });
 
 interface PageShellProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof pageShellVariants> {}
 
 export function PageShell({
@@ -62,7 +63,8 @@ const pageSectionVariants = cva("w-full", {
 });
 
 interface PageSectionProps
-  extends React.HTMLAttributes<HTMLElement>,
+  extends
+    React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof pageSectionVariants> {
   as?: React.ElementType;
 }
@@ -123,7 +125,7 @@ export function DetailSplit({
   return (
     <div
       className={cn(
-        "grid grid-cols-1",
+        "grid grid-cols-1 ",
         gap === "spacious" ? "gap-8" : "gap-6",
         detailGridByRatio[ratio],
         className,
@@ -131,7 +133,9 @@ export function DetailSplit({
       {...props}
     >
       <div className={cn(detailMainByRatio[ratio], mainClassName)}>{main}</div>
-      <aside className={cn(detailSideByRatio[ratio], sideClassName)}>{side}</aside>
+      <aside className={cn(detailSideByRatio[ratio], sideClassName)}>
+        {side}
+      </aside>
     </div>
   );
 }

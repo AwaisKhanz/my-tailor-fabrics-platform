@@ -21,7 +21,7 @@ const POLAR_AUTHORITY_LIGHT = {
     appBarText: "#000000",
     sidebar: "#FFFFFF",
     sidebarText: "#000000",
-    sidebarActive: "#FFFFFF",
+    sidebarActive: "#E5E5E5",
     sidebarBorder: "#E5E5E5",
     textPrimary: "#000000",
     textSecondary: "#4D4D4D",

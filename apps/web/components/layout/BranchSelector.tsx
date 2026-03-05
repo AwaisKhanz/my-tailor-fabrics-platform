@@ -9,13 +9,23 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  type SelectTriggerProps,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import Cookies from "js-cookie";
 import { useAuthz } from "@/hooks/use-authz";
+import { cn } from "@/lib/utils";
 
-export function BranchSelector() {
+interface BranchSelectorProps {
+  className?: string;
+  triggerVariant?: SelectTriggerProps["variant"];
+}
+
+export function BranchSelector({
+  className,
+  triggerVariant = "appBar",
+}: BranchSelectorProps) {
   const router = useRouter();
   const { canAll } = useAuthz();
   const canSwitchBranch = canAll(["branch.switch"]);
@@ -64,8 +74,11 @@ export function BranchSelector() {
       }}
     >
       <SelectTrigger
-        variant="appBar"
-        className="h-9 w-[170px] text-xs font-semibold tracking-wide sm:w-[230px] sm:text-sm"
+        variant={triggerVariant}
+        className={cn(
+          "h-9 w-full text-xs font-semibold tracking-wide sm:text-sm",
+          className,
+        )}
       >
         <SelectValue placeholder="Select Branch" />
       </SelectTrigger>

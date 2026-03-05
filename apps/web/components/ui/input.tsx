@@ -16,7 +16,7 @@ const inputVariants = cva(
         table:
           "h-10 rounded-md border-borderStrong/70 bg-surface shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         searchCommand:
-          "h-9 rounded-md border-borderStrong/70 bg-surface shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
+          "h-9 rounded-md border-borderStrong/70 bg-transparent shadow-none hover:border-borderStrong focus-visible:border-primary/55 focus-visible:ring-interaction-focus/25",
         readOnlyCode:
           "border-divider bg-code-background font-mono text-xs text-code-text shadow-none",
         inlineChip:

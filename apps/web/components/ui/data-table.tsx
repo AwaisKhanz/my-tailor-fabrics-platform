@@ -79,7 +79,7 @@ export function DataTable<T extends { id: string | number }>({
 
   const tableContent = (
     <>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto ">
         <Table className="text-sm">
           <TableHeader>
             <TableRow className="bg-surface-elevated ">

@@ -22,7 +22,11 @@ import {
   OVERDUE_ORDERS_QUERY,
 } from "@/components/dashboard/dashboard-overdue-orders-card";
 import { DashboardProductivityCard } from "@/components/dashboard/dashboard-productivity-card";
-import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
+import {
+  DetailSplit,
+  PageShell,
+  PageSection,
+} from "@/components/ui/page-shell";
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { Typography } from "@/components/ui/typography";
 import { Can } from "@/components/auth/can";
@@ -176,7 +180,7 @@ function DashboardPage() {
         <DetailSplit
           ratio="3-2"
           mainClassName="h-full"
-          sideClassName="h-full"
+          sideClassName="h-full "
           main={<DashboardRevenueExpensesCard rows={revenueExpenseRows} />}
           side={
             <DashboardGarmentBreakdownCard
@@ -189,7 +193,7 @@ function DashboardPage() {
 
       <PageSection>
         <DetailSplit
-          ratio="2-1"
+          ratio="3-2"
           mainClassName="order-2 lg:order-none h-full"
           sideClassName="order-1 lg:order-none h-full"
           main={

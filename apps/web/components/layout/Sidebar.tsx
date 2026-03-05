@@ -280,27 +280,8 @@ export function Sidebar() {
   const { role } = useAuthz();
   const sections = getVisibleNavSections(role);
 
-  // const BrandHeader = () => (
-  //   <div className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border bg-sidebar/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-sidebar/90">
-  //     <Image
-  //       src={siteConfig.branding.logo}
-  //       alt={siteConfig.name}
-  //       width={32}
-  //       height={32}
-  //       className="rounded-md object-contain"
-  //     />
-  //     <div className="flex min-w-0 flex-col">
-  //       <span className="truncate text-sm font-semibold text-sidebar-foreground">{siteConfig.name}</span>
-  //       <Label variant="dashboard" className="mt-0.5">
-  //         {siteConfig.branding.edition}
-  //       </Label>
-  //     </div>
-  //   </div>
-  // );
-
   return (
     <aside className="hidden h-full w-72 flex-shrink-0 flex-col border-r border-sidebar-border bg-sidebar/95 md:flex">
-      {/* <BrandHeader /> */}
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <NavList sections={sections} pathname={pathname} />
       </div>
