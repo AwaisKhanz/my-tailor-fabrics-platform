@@ -349,18 +349,18 @@ export function CreateRateDialog({
               <p className="text-xs text-destructive">{fieldErrors.stepKey}</p>
             ) : null}
             {!hasGarmentSelected ? (
-              <p className="text-xs text-text-secondary">
+              <p className="text-xs text-muted-foreground">
                 Select a garment type first to load workflow steps.
               </p>
             ) : null}
             {noStepsConfigured ? (
-              <p className="text-xs text-warning">
+              <p className="text-xs text-secondary-foreground">
                 No active workflow steps are configured for this garment. Add
                 and save workflow steps first.
               </p>
             ) : null}
             {isAdjustMode ? (
-              <p className="text-xs text-text-secondary">
+              <p className="text-xs text-muted-foreground">
                 Scope and step are locked. Saving creates a new version of this
                 rate card.
               </p>
@@ -371,7 +371,7 @@ export function CreateRateDialog({
             <div className="space-y-2">
               <Label htmlFor="rate">Rate (Rs.)</Label>
               <div className="relative">
-                <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+                <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="rate"
                   type="number"
@@ -396,7 +396,7 @@ export function CreateRateDialog({
             <div className="space-y-2">
               <Label htmlFor="effectiveFrom">Effective From</Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="effectiveFrom"
                   type="date"

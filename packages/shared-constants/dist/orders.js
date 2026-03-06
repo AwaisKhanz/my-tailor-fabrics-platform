@@ -5,7 +5,7 @@ const shared_types_1 = require("@tbms/shared-types");
 exports.ORDER_STATUS_CONFIG = {
     [shared_types_1.OrderStatus.NEW]: { label: "NEW", variant: "outline" },
     [shared_types_1.OrderStatus.IN_PROGRESS]: { label: "IN PROGRESS", variant: "warning" },
-    [shared_types_1.OrderStatus.READY]: { label: "READY", variant: "ready" },
+    [shared_types_1.OrderStatus.READY]: { label: "READY", variant: "success" },
     [shared_types_1.OrderStatus.OVERDUE]: { label: "OVERDUE", variant: "destructive" },
     [shared_types_1.OrderStatus.DELIVERED]: { label: "DELIVERED", variant: "info" },
     [shared_types_1.OrderStatus.COMPLETED]: { label: "COMPLETED", variant: "success" },

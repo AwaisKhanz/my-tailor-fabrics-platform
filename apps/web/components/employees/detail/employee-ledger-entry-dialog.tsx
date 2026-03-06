@@ -115,7 +115,7 @@ export function EmployeeLedgerEntryDialog({
               {fieldErrors.type ? (
                 <p className="text-xs text-destructive">{fieldErrors.type}</p>
               ) : null}
-              <p className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
+              <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
                 {reducesBalance
                   ? "This entry will decrease employee balance"
                   : "This entry will increase employee balance"}
@@ -138,7 +138,7 @@ export function EmployeeLedgerEntryDialog({
             <div className="space-y-2">
               <Label>Note / Description</Label>
               <Textarea
-                variant="default"
+               
                 className="min-h-[90px] resize-y"
                 placeholder="e.g. Advance for medical bill"
                 value={note}
@@ -158,7 +158,7 @@ export function EmployeeLedgerEntryDialog({
             submittingText="Recording..."
             submitting={submitting}
             submitFormId="employee-ledger-form"
-            submitVariant="premium"
+            submitVariant="default"
           />
         </DialogActionRow>
       </DialogContent>

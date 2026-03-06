@@ -1,71 +1,64 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
-// import { Manrope } from "next/font/google";
-// import { Sora } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemePresetProvider } from "@/components/ThemePresetProvider";
 import { Toaster } from "@/components/ui/toaster";
 
-// const appFont = Plus_Jakarta_Sans({
-//   subsets: ["latin"],
-//   weight: ["400", "500", "600", "700", "800"],
-//   display: "swap",
-//   variable: "--font-schibsted",
-//   fallback: ["system-ui", "-apple-system", "Segoe UI", "Arial", "sans-serif"],
-// });
-
-// Option 2 (replace `appFont` above):
-const appFont = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-  variable: "--font-schibsted",
-  fallback: ["system-ui", "-apple-system", "Segoe UI", "Arial", "sans-serif"],
-});
-
-// Option 3 (replace `appFont` above):
-// const appFont = Sora({
-//   subsets: ["latin"],
-//   weight: ["400", "500", "600", "700", "800"],
-//   display: "swap",
-//   variable: "--font-schibsted",
-//   fallback: ["system-ui", "-apple-system", "Segoe UI", "Arial", "sans-serif"],
-// });
-
 import { siteConfig } from "@/lib/config";
+import {
+  THEME_COOKIE_KEY,
+  THEME_STORAGE_KEY,
+  type AppTheme,
+} from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: `${siteConfig.name} - ${siteConfig.description}`,
   description: siteConfig.description,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const cookieTheme = cookieStore.get(THEME_COOKIE_KEY)?.value;
+  const serverTheme: AppTheme | null =
+    cookieTheme === "dark" || cookieTheme === "light" ? cookieTheme : null;
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={serverTheme === "dark" ? "dark" : undefined}
+      style={serverTheme ? { colorScheme: serverTheme } : undefined}
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+              try {
+                const stored = window.localStorage.getItem("${THEME_STORAGE_KEY}");
+                const resolved = stored === "light" || stored === "dark"
+                  ? stored
+                  : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+                document.documentElement.classList.toggle("dark", resolved === "dark");
+                document.documentElement.style.colorScheme = resolved;
+                document.cookie = "${THEME_COOKIE_KEY}=" + resolved + "; path=/; max-age=31536000; samesite=lax";
+              } catch {}
+            })();`,
+          }}
+        />
+      </head>
       <body
-        className={`
-          ${appFont.variable} 
-          font-schibsted
-          antialiased
-        `}
+        suppressHydrationWarning
+        className="font-sans min-h-screen bg-background text-foreground antialiased"
       >
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            <ThemePresetProvider>
-              {children}
-              <Toaster />
-            </ThemePresetProvider>
+          <ThemeProvider initialTheme={serverTheme ?? undefined}>
+            {children}
+            <Toaster />
           </ThemeProvider>
         </AuthProvider>
       </body>

@@ -42,18 +42,14 @@ export function OrderFormCustomerCard({
   selectedCustomer,
 }: OrderFormCustomerCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader
-        variant="rowSection"
-        density="comfortable"
-        align="startResponsive"
-      >
+    <Card>
+      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Customer Information"
           titleVariant="dashboard"
           description="Select the customer and set a delivery timeline."
           icon={
-            <SectionIcon tone="infoSoft" size="lg">
+            <SectionIcon tone="info" size="lg">
               <UserRound className="h-4 w-4" />
             </SectionIcon>
           }
@@ -67,10 +63,10 @@ export function OrderFormCustomerCard({
             name="customerId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Customer</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Customer</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger variant="default" disabled={loading}>
+                    <SelectTrigger disabled={loading}>
                       <SelectValue
                         placeholder={
                           loading ? "Loading customers..." : "Select customer"
@@ -96,9 +92,9 @@ export function OrderFormCustomerCard({
             name="dueDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Order Completion Date</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Order Completion Date</FormLabel>
                 <FormControl>
-                  <Input variant="default" type="date" {...field} />
+                  <Input type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,21 +103,21 @@ export function OrderFormCustomerCard({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <InfoTile tone="elevatedSoft">
-            <Label variant="micro">Size Number</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+          <InfoTile tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.sizeNumber || "-"}
             </p>
           </InfoTile>
-          <InfoTile tone="elevatedSoft">
-            <Label variant="micro">City</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+          <InfoTile tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.city || "-"}
             </p>
           </InfoTile>
-          <InfoTile tone="elevatedSoft">
-            <Label variant="micro">Lifetime Value</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+          <InfoTile tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Lifetime Value</Label>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer
                 ? formatPKR(selectedCustomer.lifetimeValue)
                 : "-"}

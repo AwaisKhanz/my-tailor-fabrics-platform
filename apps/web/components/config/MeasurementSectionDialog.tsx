@@ -116,10 +116,10 @@ export function MeasurementSectionDialog({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Section Name</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Section Name</FormLabel>
                 <FormControl>
                   <Input
-                    variant="premium"
+                   
                     placeholder="e.g., Upper Body, Lower Body, Extras"
                     {...field}
                   />

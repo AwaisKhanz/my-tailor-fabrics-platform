@@ -54,10 +54,10 @@ export function MyOrdersTable({
         header: "Garment Type",
         cell: (item) => (
           <div className="flex flex-col">
-            <span className="text-sm font-semibold leading-tight text-text-primary">
+            <span className="text-sm font-semibold leading-tight text-foreground">
               {item.garmentTypeName}
             </span>
-            <Label variant="dashboard" className="mt-0.5">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
               {item.description || "—"}
             </Label>
           </div>
@@ -67,7 +67,7 @@ export function MyOrdersTable({
         header: "Due Date",
         cell: (item) => {
           const dueDate = item.dueDate ?? item.order.dueDate ?? "";
-          return <Label variant="dashboard">{formatDate(dueDate)}</Label>;
+          return <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{formatDate(dueDate)}</Label>;
         },
       },
       {

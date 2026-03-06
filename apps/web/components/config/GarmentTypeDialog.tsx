@@ -162,10 +162,10 @@ export function GarmentTypeDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="dashboard">Garment Name</FormLabel>
+                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Garment Name</FormLabel>
                   <FormControl>
                     <Input
-                      variant="premium"
+                     
                       className="h-9 text-sm"
                       placeholder="e.g. Mens Shirt"
                       {...field}
@@ -180,12 +180,11 @@ export function GarmentTypeDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="dashboard">
+                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                     Description (Optional)
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      variant="premium"
                       className="min-h-[92px] text-sm"
                       placeholder="e.g. Standard fitting"
                       {...field}
@@ -203,10 +202,10 @@ export function GarmentTypeDialog({
               name="customerPrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="dashboard">Price (Rs)</FormLabel>
+                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Price (Rs)</FormLabel>
                   <FormControl>
                     <Input
-                      variant="premium"
+                     
                       className="h-9"
                       type="number"
                       {...field}
@@ -220,8 +219,8 @@ export function GarmentTypeDialog({
 
           <div className="space-y-3 pt-3">
             <div className="flex items-center gap-2">
-              <Filter className="h-3 w-3 text-text-secondary" />
-              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">
+              <Filter className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                 Measurement Categories
               </span>
             </div>
@@ -259,7 +258,7 @@ export function GarmentTypeDialog({
                     padding="none"
                     className="h-[38px] px-2.5 py-0"
                   >
-                    <FormLabel variant="dashboard" className="cursor-pointer">
+                    <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground cursor-pointer">
                       Active
                     </FormLabel>
                     <FormControl>

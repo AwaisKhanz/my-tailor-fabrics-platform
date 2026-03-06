@@ -24,9 +24,9 @@ export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel variant="dashboard">Email (opt.)</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Email (opt.)</FormLabel>
             <FormControl>
-              <Input variant="premium" placeholder="john@example.com" {...field} />
+              <Input placeholder="john@example.com" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -39,9 +39,9 @@ export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps
           name="city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">City</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">City</FormLabel>
               <FormControl>
-                <Input variant="premium" placeholder="e.g. Lahore" {...field} />
+                <Input placeholder="e.g. Lahore" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -53,10 +53,10 @@ export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Status</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Status</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger variant="premium">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                 </FormControl>

@@ -99,10 +99,10 @@ export function OrdersListTable({
               </AvatarFallback>
             </Avatar>
             <div className="flex min-w-0 flex-col">
-              <span className="truncate text-sm font-semibold leading-tight text-text-primary">
+              <span className="truncate text-sm font-semibold leading-tight text-foreground">
                 {order.customer.fullName}
               </span>
-              <Label variant="dashboard" className="mt-0.5">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
                 {order.customer.phone}
               </Label>
             </div>
@@ -112,7 +112,7 @@ export function OrdersListTable({
       {
         header: "Order Date",
         cell: (order) => (
-          <span className="whitespace-nowrap text-sm text-text-secondary">
+          <span className="whitespace-nowrap text-sm text-muted-foreground">
             {formatShortDate(order.createdAt)}
           </span>
         ),
@@ -127,18 +127,17 @@ export function OrdersListTable({
           return (
             <div className="flex flex-col items-start gap-0.5">
               <span
-                className={`whitespace-nowrap text-sm font-medium ${isOverdue ? "font-bold text-destructive" : "text-text-secondary"}`}
+                className={`whitespace-nowrap text-sm font-medium ${isOverdue ? "font-bold text-destructive" : "text-muted-foreground"}`}
               >
                 {formatShortDate(order.dueDate)}
               </span>
               <Label
-                variant="dashboard"
                 className={
                   isOverdue
-                    ? "text-destructive"
+                    ? "text-sm font-bold uppercase tracking-tight text-destructive"
                     : isCompleted
-                      ? "text-success"
-                      : "text-text-secondary"
+                      ? "text-sm font-bold uppercase tracking-tight text-primary"
+                      : "text-sm font-bold uppercase tracking-tight text-muted-foreground"
                 }
               >
                 {isOverdue ? "Overdue" : isCompleted ? "Closed" : "Scheduled"}
@@ -150,7 +149,7 @@ export function OrdersListTable({
       {
         header: "Total Amount",
         cell: (order) => (
-          <span className="whitespace-nowrap text-sm font-semibold text-text-primary">
+          <span className="whitespace-nowrap text-sm font-semibold text-foreground">
             {formatPKR(order.totalAmount)}
           </span>
         ),
@@ -183,8 +182,8 @@ export function OrdersListTable({
             <div className="flex items-center justify-end gap-1.5">
               <Button
                 type="button"
-                variant="tableIcon"
-                size="iconSm"
+                variant="ghost"
+                size="icon"
                 onClick={(event) => {
                   event.stopPropagation();
                   onViewOrder(order.id);
@@ -197,8 +196,8 @@ export function OrdersListTable({
               {!isDelivered && canEditOrder ? (
                 <Button
                   type="button"
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
                     onEditOrder(order.id);
@@ -212,8 +211,8 @@ export function OrdersListTable({
               {isReady && canPrintReceipt ? (
                 <Button
                   type="button"
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
                     void handlePrintReceipt(order.id);
@@ -227,8 +226,8 @@ export function OrdersListTable({
               {isDelivered ? (
                 <Button
                   type="button"
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
                     onViewOrder(order.id);

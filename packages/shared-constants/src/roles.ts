@@ -9,9 +9,9 @@ export const ROLES: { value: Role; label: string }[] = [
 ];
 
 export const ROLE_BADGE: Record<Role, BadgeVariant> = {
-  [Role.SUPER_ADMIN]: 'royal',
-  [Role.ADMIN]: 'admin',
-  [Role.ENTRY_OPERATOR]: 'amber',
+  [Role.SUPER_ADMIN]: 'default',
+  [Role.ADMIN]: 'secondary',
+  [Role.ENTRY_OPERATOR]: 'warning',
   [Role.VIEWER]: 'outline',
   [Role.EMPLOYEE]: 'success',
 };

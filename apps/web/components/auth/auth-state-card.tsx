@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 
 interface AuthStateAction {
   label: string;
@@ -31,23 +31,22 @@ export function AuthStateCard({
       inset="none"
       className="relative flex min-h-screen items-center justify-center bg-background px-4 py-8"
     >
-      <div className="pointer-events-none absolute inset-0 bg-theme-radial-top" />
       <PageSection spacing="compact" className="relative w-full max-w-xl">
-        <Card variant="elevatedPanel">
+        <Card>
           <CardContent
             spacing="section"
             className="space-y-5 py-8 text-center sm:py-10"
           >
-            <div className="mx-auto w-fit rounded-full bg-error-muted p-5">
+            <div className="mx-auto w-fit rounded-full bg-destructive/10 p-5">
               <Icon className="h-10 w-10 text-destructive" />
             </div>
 
-            <Typography as="h1" variant="pageTitle">
+            <Heading as="h1"  variant="page">
               {title}
-            </Typography>
-            <Typography as="p" variant="lead" className="mx-auto max-w-[440px]">
+            </Heading>
+            <Text as="p"  variant="lead" className="mx-auto max-w-[440px]">
               {description}
-            </Typography>
+            </Text>
 
             <div className="flex w-full flex-col gap-2 pt-2 sm:flex-row sm:justify-center">
               {actions.map((action) => (

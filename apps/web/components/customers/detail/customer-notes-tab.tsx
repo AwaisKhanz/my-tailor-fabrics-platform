@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 interface CustomerNotesTabProps {
   notes?: string | null;
@@ -8,13 +8,13 @@ interface CustomerNotesTabProps {
 
 export function CustomerNotesTab({ notes }: CustomerNotesTabProps) {
   return (
-    <Card variant={"elevatedPanel"}>
+    <Card>
       <CardContent spacing="section" padding="inset" className="space-y-2">
-        <Label variant="microCaps">Preferences & Internal Notes</Label>
-        <Typography as="p" variant="lead" className="whitespace-pre-wrap">
+        <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Preferences & Internal Notes</Label>
+        <Text as="p"  variant="lead" className="whitespace-pre-wrap">
           {notes ||
             "No special notes or preferences recorded for this customer."}
-        </Typography>
+        </Text>
       </CardContent>
     </Card>
   );

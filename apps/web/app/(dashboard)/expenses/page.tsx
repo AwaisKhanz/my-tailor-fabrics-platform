@@ -64,7 +64,7 @@ function ExpensesPage() {
           density="compact"
           actions={
             canManageExpenses ? (
-              <Button variant="premium" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
+              <Button variant="default" size="lg" className="w-full sm:w-auto" onClick={openAddDialog}>
                 <Plus className="h-4 w-4" />
                 Add Expense
               </Button>

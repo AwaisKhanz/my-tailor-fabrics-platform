@@ -32,7 +32,7 @@ export function RatesTable({
         {
           header: "Garment Type",
           cell: (rate) => (
-            <div className="font-medium text-text-primary">{rate.garmentType?.name || "Unknown"}</div>
+            <div className="font-medium text-foreground">{rate.garmentType?.name || "Unknown"}</div>
           ),
         },
         {
@@ -49,7 +49,7 @@ export function RatesTable({
                 {rate.branch?.code || "Branch"}
               </Badge>
             ) : (
-              <Badge variant="secondary" size="xs">
+              <Badge variant="default" size="xs">
                 Global
               </Badge>
             ),
@@ -57,19 +57,19 @@ export function RatesTable({
         {
           header: "Rate",
           align: "right",
-          cell: (rate) => <span className="font-bold text-ready">{formatPKR(rate.amount)}</span>,
+          cell: (rate) => <span className="font-bold text-primary">{formatPKR(rate.amount)}</span>,
         },
         {
           header: "Effective",
           align: "right",
           cell: (rate) => (
             <div className="flex flex-col items-end whitespace-nowrap">
-              <Label variant="dashboard" className="flex items-center gap-1">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground flex items-center gap-1">
                 <Clock className="h-2.5 w-2.5" />
                 {new Date(rate.effectiveFrom).toLocaleDateString()}
               </Label>
               {rate.effectiveTo ? (
-                <Label variant="dashboard">until {new Date(rate.effectiveTo).toLocaleDateString()}</Label>
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">until {new Date(rate.effectiveTo).toLocaleDateString()}</Label>
               ) : null}
             </div>
           ),
@@ -88,8 +88,8 @@ export function RatesTable({
           cell: (rate) => (
             <Button
               type="button"
-              variant="tableIcon"
-              size="iconSm"
+              variant="ghost"
+              size="icon"
               className="h-8 w-8 rounded-lg"
               onClick={(event) => {
                 event.stopPropagation();

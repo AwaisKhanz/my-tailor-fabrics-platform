@@ -39,12 +39,19 @@ export default function DashboardLayout({
     }
   }, [router, session?.accessToken, session?.error, status]);
 
+  useEffect(() => {
+    document.body.classList.add("dashboard-liquid");
+    return () => {
+      document.body.classList.remove("dashboard-liquid");
+    };
+  }, []);
+
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="mt-4 text-text-secondary">Loading application...</p>
+          <p className="mt-4 text-muted-foreground">Loading application...</p>
         </div>
       </div>
     );
@@ -55,14 +62,12 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background sm:bg-sidebar">
+    <div className="dashboard-liquid-shell">
       <Topbar />
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="scrollbar-theme flex-1 overflow-y-auto bg-surface px-3 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6 sm:rounded-lg sm:!m-4">
-          {children}
-        </main>
-      </div>
+      <Sidebar />
+      <main className="dashboard-liquid-scroll">
+        <div className="dashboard-liquid-workspace">{children}</div>
+      </main>
     </div>
   );
 }

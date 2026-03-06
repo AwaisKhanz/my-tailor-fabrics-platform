@@ -17,7 +17,7 @@ const avatarVariants = cva(
       },
       tone: {
         default: "",
-        framed: "border border-divider shadow-[0_1px_2px_hsl(var(--shadow-color)/0.1)]",
+        framed: "border border-border shadow-sm",
       },
     },
     defaultVariants: {
@@ -67,7 +67,7 @@ const AvatarFallback = React.forwardRef<
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full border border-divider bg-muted text-muted-foreground",
+      "flex h-full w-full items-center justify-center rounded-full border border-border bg-muted text-muted-foreground",
       className
     )}
     {...props}

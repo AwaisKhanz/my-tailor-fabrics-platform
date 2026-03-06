@@ -26,10 +26,10 @@ export function DashboardDesignPopularityCard({
     designs.find((design) => design.name === hoveredDesignName) ?? designs[0];
 
   return (
-    <Card variant="elevatedPanel" className="flex h-full flex-col">
-      <CardHeader variant="section" density="compact">
-        <CardTitle variant="dashboardSection">Design Popularity</CardTitle>
-        <p className="text-xs text-text-secondary">
+    <Card className="flex h-full flex-col">
+      <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+        <CardTitle className="text-base font-bold normal-case tracking-tight">Design Popularity</CardTitle>
+        <p className="text-xs text-muted-foreground">
           Most requested designs in the selected period.
         </p>
       </CardHeader>
@@ -49,18 +49,18 @@ export function DashboardDesignPopularityCard({
             <InfoTile
               borderStyle="dashed"
               padding="none"
-              className="flex flex-1 items-center justify-center px-4 py-8 text-center text-xs text-text-secondary"
+              className="flex flex-1 items-center justify-center px-4 py-8 text-center text-xs text-muted-foreground"
             >
               No design data found for the selected period.
             </InfoTile>
           ) : (
             <>
               {activeDesign ? (
-                <InfoTile tone="elevatedSoft" padding="md">
-                  <p className="text-xs font-semibold text-text-primary">
+                <InfoTile tone="secondary" padding="md">
+                  <p className="text-xs font-semibold text-foreground">
                     {activeDesign.name}
                   </p>
-                  <p className="mt-1 text-[11px] text-text-secondary">
+                  <p className="mt-1 text-[11px] text-muted-foreground">
                     {activeDesign.count} requests
                   </p>
                 </InfoTile>
@@ -71,14 +71,14 @@ export function DashboardDesignPopularityCard({
                   key={design.name}
                   className={`space-y-1.5 rounded-lg border px-2.5 py-2 transition-colors ${
                     activeDesign?.name === design.name
-                      ? "border-primary/35 bg-interaction-hover"
-                      : "border-divider bg-surface-elevated/60 hover:border-divider"
+                      ? "border-primary/35 bg-accent"
+                      : "border-border bg-card/60 hover:border-border"
                   }`}
                   onMouseEnter={() => setHoveredDesignName(design.name)}
                 >
                   <div className="flex items-center justify-between text-[11px]">
-                    <Label variant="dashboard">{design.name}</Label>
-                    <span className="font-medium text-text-secondary">
+                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{design.name}</Label>
+                    <span className="font-medium text-muted-foreground">
                       {design.count}
                     </span>
                   </div>
@@ -95,7 +95,7 @@ export function DashboardDesignPopularityCard({
         </div>
 
         <Button
-          variant="outlinePrimary"
+          variant="outline"
           size="sm"
           className="mt-1 h-9 w-full"
           onClick={onViewAnalytics}

@@ -103,7 +103,7 @@ export function AuditLogsPage() {
       {
         header: "Timestamp",
         cell: (record) => (
-          <span className="text-sm font-medium text-text-primary">
+          <span className="text-sm font-medium text-foreground">
             {formatDateTime(record.createdAt)}
           </span>
         ),
@@ -120,8 +120,8 @@ export function AuditLogsPage() {
         header: "Entity",
         cell: (record) => (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-text-primary">{record.entity}</p>
-            <p className="text-xs text-text-secondary">{record.entityId}</p>
+            <p className="text-sm font-semibold text-foreground">{record.entity}</p>
+            <p className="text-xs text-muted-foreground">{record.entityId}</p>
           </div>
         ),
       },
@@ -129,10 +129,10 @@ export function AuditLogsPage() {
         header: "Actor",
         cell: (record) => (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-text-primary">
+            <p className="text-sm font-semibold text-foreground">
               {record.user?.name || (record.actorEmail ? "Unknown account" : "Unknown user")}
             </p>
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-muted-foreground">
               {record.user?.email || record.actorEmail || "—"}
             </p>
           </div>
@@ -141,7 +141,7 @@ export function AuditLogsPage() {
       {
         header: "Change Summary",
         cell: (record) => (
-          <span className="line-clamp-2 text-sm text-text-secondary">
+          <span className="line-clamp-2 text-sm text-muted-foreground">
             {getChangeSummary(record)}
           </span>
         ),
@@ -150,8 +150,8 @@ export function AuditLogsPage() {
         header: "Source",
         cell: (record) => (
           <div className="space-y-0.5 text-right">
-            <p className="text-sm font-medium text-text-primary">{record.ipAddress || "Unknown IP"}</p>
-            <p className="line-clamp-1 max-w-[240px] text-xs text-text-secondary">
+            <p className="text-sm font-medium text-foreground">{record.ipAddress || "Unknown IP"}</p>
+            <p className="line-clamp-1 max-w-[240px] text-xs text-muted-foreground">
               {record.userAgent || "User agent unavailable"}
             </p>
           </div>
@@ -249,7 +249,7 @@ export function AuditLogsPage() {
                     value={filters.action}
                     onValueChange={(value) => setFilter("action", value)}
                   >
-                    <SelectTrigger variant="table">
+                    <SelectTrigger>
                       <SelectValue placeholder="Action" />
                     </SelectTrigger>
                     <SelectContent>
@@ -267,7 +267,7 @@ export function AuditLogsPage() {
                     value={filters.entity}
                     onValueChange={(value) => setFilter("entity", value)}
                   >
-                    <SelectTrigger variant="table">
+                    <SelectTrigger>
                       <SelectValue placeholder="Entity" />
                     </SelectTrigger>
                     <SelectContent>
@@ -282,21 +282,21 @@ export function AuditLogsPage() {
                 </div>
                 <Input
                   type="date"
-                  variant="table"
+                 
                   className="w-full md:w-[170px]"
                   value={filters.from}
                   onChange={(event) => setFilter("from", event.target.value)}
                 />
                 <Input
                   type="date"
-                  variant="table"
+                 
                   className="w-full md:w-[170px]"
                   value={filters.to}
                   onChange={(event) => setFilter("to", event.target.value)}
                 />
                 <Button
                   type="button"
-                  variant="tableReset"
+                  variant="ghost"
                   size="sm"
                   className="md:ml-auto"
                   onClick={resetFilters}

@@ -118,13 +118,13 @@ export function IntegrationsSettingsPage() {
 
       {forbidden ? (
         <PageSection spacing="compact">
-          <Card variant="warningSoft">
-            <CardHeader variant="section">
+          <Card className="bg-muted/40 shadow-sm">
+            <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
               <SectionHeader
                 title="Access Restricted"
                 description="Integration controls are available to super admins only."
                 icon={
-                  <SectionIcon tone="warningSoft" size="sm">
+                  <SectionIcon tone="warning" size="sm">
                     <ShieldCheck className="h-4 w-4" />
                   </SectionIcon>
                 }
@@ -165,9 +165,9 @@ export function IntegrationsSettingsPage() {
         spacing="compact"
         className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
       >
-        <Card variant="elevatedPanel">
-          <CardHeader variant="section" className="space-y-1">
-            <CardTitle variant="section">Gmail Integration Status</CardTitle>
+        <Card>
+          <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4 space-y-1">
+            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Gmail Integration Status</CardTitle>
             <CardDescription>
               Verify required OAuth credentials and sender metadata.
             </CardDescription>
@@ -180,7 +180,7 @@ export function IntegrationsSettingsPage() {
                   layout="betweenGap"
                   className="rounded-md"
                 >
-                  <span className="text-sm text-text-secondary">
+                  <span className="text-sm text-muted-foreground">
                     {item.label}
                   </span>
                   <Badge variant={statusVariant(item.configured)} size="xs">
@@ -191,28 +191,28 @@ export function IntegrationsSettingsPage() {
             </div>
 
             <InfoTile padding="content" className="rounded-md">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Sender
               </p>
-              <p className="mt-1 text-sm font-medium text-text-primary">
+              <p className="mt-1 text-sm font-medium text-foreground">
                 {status.senderEmail || "Not configured"}
               </p>
             </InfoTile>
 
             <InfoTile padding="content" className="rounded-md">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Redirect URI
               </p>
-              <p className="mt-1 break-all text-sm text-text-primary">
+              <p className="mt-1 break-all text-sm text-foreground">
                 {status.redirectUri || "Not configured"}
               </p>
             </InfoTile>
           </CardContent>
         </Card>
 
-        <Card variant="elevatedPanel">
-          <CardHeader variant="section" className="space-y-1">
-            <CardTitle variant="section">Integration Actions</CardTitle>
+        <Card>
+          <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4 space-y-1">
+            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Integration Actions</CardTitle>
             <CardDescription>
               Generate OAuth authorization URL and validate delivery with a test
               email.
@@ -221,10 +221,10 @@ export function IntegrationsSettingsPage() {
           <CardContent spacing="section" className="space-y-5 p-5">
             <InfoTile padding="contentLg" className="space-y-3">
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-text-primary">
+                <p className="text-sm font-semibold text-foreground">
                   Authorization URL
                 </p>
-                <p className="text-xs text-text-secondary">
+                <p className="text-xs text-muted-foreground">
                   Use this URL to complete OAuth consent and refresh token
                   exchange.
                 </p>
@@ -232,7 +232,7 @@ export function IntegrationsSettingsPage() {
 
               <Button
                 type="button"
-                variant="premium"
+                variant="default"
                 onClick={() => void requestAuthUrl()}
                 disabled={requestingAuthUrl || !status.publicEndpointsEnabled}
                 className="w-full sm:w-auto"
@@ -241,12 +241,12 @@ export function IntegrationsSettingsPage() {
               </Button>
 
               {authMessage ? (
-                <p className="text-xs text-text-secondary">{authMessage}</p>
+                <p className="text-xs text-muted-foreground">{authMessage}</p>
               ) : null}
 
               {authUrl ? (
                 <div className="space-y-2">
-                  <Input value={authUrl} readOnly variant="table" />
+                  <Input value={authUrl} readOnly />
                   <div className="flex flex-wrap gap-2">
                     <Button
                       type="button"
@@ -270,13 +270,13 @@ export function IntegrationsSettingsPage() {
 
             <InfoTile padding="contentLg" className="space-y-3">
               <div className="space-y-1">
-                <Label htmlFor="integration-test-email" variant="dashboard">
+                <Label htmlFor="integration-test-email" className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                   Test recipient email
                 </Label>
                 <Input
                   id="integration-test-email"
                   type="email"
-                  variant="table"
+                 
                   placeholder="name@example.com"
                   value={testEmail}
                   onChange={(event) => setTestEmail(event.target.value)}
@@ -289,7 +289,7 @@ export function IntegrationsSettingsPage() {
               </div>
               <Button
                 type="button"
-                variant="premium"
+                variant="default"
                 className="w-full sm:w-auto"
                 onClick={() => void sendTestMail()}
                 disabled={sendingTest || !canRunMailActions}
@@ -297,7 +297,7 @@ export function IntegrationsSettingsPage() {
                 {sendingTest ? "Sending..." : "Send Test Email"}
               </Button>
               {!status.publicEndpointsEnabled ? (
-                <p className="text-xs text-warning">
+                <p className="text-xs text-secondary-foreground">
                   Public mail endpoints are disabled in this environment.
                 </p>
               ) : null}

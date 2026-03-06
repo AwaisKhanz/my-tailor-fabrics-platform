@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { type Employee } from "@/types/employees";
 
 interface PaymentsEmployeeSelectorCardProps {
@@ -35,8 +35,8 @@ export function PaymentsEmployeeSelectorCard({
   onEmployeeChange,
 }: PaymentsEmployeeSelectorCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Employee Scope"
           description="Select an employee to load payroll summary and ledger."
@@ -46,20 +46,20 @@ export function PaymentsEmployeeSelectorCard({
             </SectionIcon>
           }
         />
-        <Badge variant="secondary" size="xs">
+        <Badge variant="default" size="xs">
           {employees.length} employees
         </Badge>
       </CardHeader>
 
       <CardContent spacing="section" className="space-y-4">
         <div className="max-w-xl space-y-2">
-          <Label variant="dashboard">Select Tailor / Staff</Label>
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Select Tailor / Staff</Label>
           <Select
             value={selectedEmployeeId}
             onValueChange={onEmployeeChange}
             disabled={loading}
           >
-            <SelectTrigger variant="table" className="h-10">
+            <SelectTrigger className="h-10">
               <SelectValue
                 placeholder={
                   loading ? "Loading employees..." : "Choose an employee…"
@@ -70,7 +70,7 @@ export function PaymentsEmployeeSelectorCard({
               {employees.map((employee) => (
                 <SelectItem key={employee.id} value={employee.id}>
                   {employee.fullName}
-                  <span className="ml-1 text-text-secondary opacity-60">
+                  <span className="ml-1 text-muted-foreground opacity-60">
                     ({employee.employeeCode})
                   </span>
                 </SelectItem>
@@ -82,28 +82,28 @@ export function PaymentsEmployeeSelectorCard({
         {selectedEmployee ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <InfoTile>
-              <Label variant="micro">Employee</Label>
-              <Typography as="p" variant="body" className="mt-1 font-semibold">
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Employee</Label>
+              <Text as="p"  variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.fullName}
-              </Typography>
+              </Text>
             </InfoTile>
             <InfoTile>
-              <Label variant="micro">Code</Label>
-              <Typography as="p" variant="body" className="mt-1 font-semibold">
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Code</Label>
+              <Text as="p"  variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.employeeCode}
-              </Typography>
+              </Text>
             </InfoTile>
             <InfoTile>
-              <Label variant="micro">Role</Label>
-              <Typography as="p" variant="body" className="mt-1 font-semibold">
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Role</Label>
+              <Text as="p"  variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.designation || "Staff"}
-              </Typography>
+              </Text>
             </InfoTile>
           </div>
         ) : (
-          <Typography as="p" variant="muted">
+          <Text as="p"  variant="muted">
             No employee selected yet.
-          </Typography>
+          </Text>
         )}
       </CardContent>
     </Card>

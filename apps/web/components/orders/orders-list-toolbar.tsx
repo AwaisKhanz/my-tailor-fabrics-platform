@@ -84,7 +84,7 @@ export function OrdersListToolbar({
                   }
                 }}
               >
-                <SelectTrigger variant="table" className="text-xs font-bold">
+                <SelectTrigger className="text-xs font-bold">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -109,7 +109,7 @@ export function OrdersListToolbar({
                   }
                 }}
               >
-                <SelectTrigger variant="table" className="text-xs font-bold">
+                <SelectTrigger className="text-xs font-bold">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -129,7 +129,7 @@ export function OrdersListToolbar({
 
           <div className="flex w-full justify-end lg:ml-auto lg:w-auto">
             <Button
-              variant="tableReset"
+              variant="ghost"
               size="sm"
               onClick={onReset}
               disabled={!hasActiveFilters}

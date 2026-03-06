@@ -1,31 +1,14 @@
 import * as React from "react";
 import { Search } from "lucide-react";
-import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Typography } from "@/components/ui/typography";
+import { Heading } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
-
-const tableSurfaceVariants = cva(
-  "overflow-hidden rounded-xl border border-divider bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.08)]",
-  {
-    variants: {
-      variant: {
-        default: "",
-        flat: "shadow-none",
-        elevated: "bg-surface-elevated shadow-none",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  },
-);
 
 export type TableSurfaceProps = {
   children: React.ReactNode;
   className?: string;
-} & VariantProps<typeof tableSurfaceVariants>;
+};
 
 export type TableToolbarProps = {
   title: string;
@@ -43,10 +26,9 @@ export type TableSearchProps = React.ComponentProps<typeof Input> & {
 export function TableSurface({
   children,
   className,
-  variant,
 }: TableSurfaceProps) {
   return (
-    <div className={cn(tableSurfaceVariants({ variant, className }))}>
+    <div className={cn("overflow-hidden rounded-xl border border-border bg-card shadow-sm", className)}>
       {children}
     </div>
   );
@@ -65,16 +47,16 @@ export function TableToolbar({
   return (
     <div
       className={cn(
-        "border-b border-divider bg-surface-elevated px-4 py-5",
+        "border-b border-border bg-muted/40 px-4 py-5",
         className,
       )}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          <Typography as="h2" variant="sectionTitle">
+          <Heading as="h2"  variant="section">
             {title}
-          </Typography>
-          <Badge variant="secondary" size="xs" className="ring-1 ring-divider">
+          </Heading>
+          <Badge variant="secondary" size="xs">
             {total} {totalLabel}
           </Badge>
           {hasActiveFilters ? (
@@ -98,13 +80,12 @@ export function TableToolbar({
 export function TableSearch({
   icon,
   className,
-  variant = "table",
   ...props
 }: TableSearchProps) {
   return (
     <div className="group relative w-full md:min-w-[280px] md:flex-1">
-      <Input variant={variant} className={cn("pl-9", className)} {...props} />
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary transition-colors group-hover:text-primary">
+      <Input className={cn("pl-9", className)} {...props} />
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-hover:text-primary">
         {icon ?? <Search className="h-4 w-4" />}
       </span>
     </div>

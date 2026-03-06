@@ -80,7 +80,7 @@ export function OrderFormItemCard({
   return (
     <InfoTile
       padding="none"
-      tone={"surface"}
+      tone="default"
       radius="xl"
       className="space-y-5 p-4 sm:p-5"
     >
@@ -88,7 +88,7 @@ export function OrderFormItemCard({
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <InfoTile
-              tone="elevated"
+              tone="default"
               padding="none"
               className="text-right !text-xs p-1"
             >
@@ -100,25 +100,25 @@ export function OrderFormItemCard({
               </Badge>
             ) : null}
           </div>
-          <p className="text-xs text-text-secondary">
+          <p className="text-xs text-muted-foreground">
             Configure garment, quantity, pricing, and production details.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <InfoTile
-            tone="elevated"
+            tone="default"
             padding="none"
             className="text-right p-1 !text-xs "
           >
-            <p className=" text-text-primary">
+            <p className=" text-foreground">
               {formatPKR(Math.round(lineTotal * 100))}
             </p>
           </InfoTile>
           <Button
             type="button"
-            variant="tableDanger"
-            size="iconSm"
+            variant="outline"
+            size="icon"
             onClick={() => onRemoveItem(index)}
             disabled={!canRemove}
             aria-label={`Remove piece ${index + 1}`}
@@ -136,13 +136,13 @@ export function OrderFormItemCard({
             name={`items.${index}.garmentTypeId`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Garment Type</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Garment Type</FormLabel>
                 <Select
                   onValueChange={(value) => onSelectGarmentType(index, value)}
                   value={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger variant="default">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select garment" />
                     </SelectTrigger>
                   </FormControl>
@@ -166,9 +166,9 @@ export function OrderFormItemCard({
             name={`items.${index}.quantity`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Quantity</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Quantity</FormLabel>
                 <FormControl>
-                  <Input type="number" min={1} variant="default" {...field} />
+                  <Input type="number" min={1} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -182,9 +182,9 @@ export function OrderFormItemCard({
             name={`items.${index}.unitPrice`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Unit Price (Rs)</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Unit Price (Rs)</FormLabel>
                 <FormControl>
-                  <Input type="number" min={0} variant="default" {...field} />
+                  <Input type="number" min={0} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -197,7 +197,7 @@ export function OrderFormItemCard({
           name={`items.${index}.designTypeId`}
           render={({ field }) => (
             <FormItem className="md:col-span-8">
-              <FormLabel variant="dashboard">Design Type</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Design Type</FormLabel>
               <Select
                 onValueChange={(value) => {
                   field.onChange(value === "NONE" ? undefined : value);
@@ -205,7 +205,7 @@ export function OrderFormItemCard({
                 value={field.value || "NONE"}
               >
                 <FormControl>
-                  <SelectTrigger variant="default">
+                  <SelectTrigger>
                     <SelectValue placeholder="Standard/No design" />
                   </SelectTrigger>
                 </FormControl>
@@ -228,10 +228,10 @@ export function OrderFormItemCard({
           name={`items.${index}.fabricSource`}
           render={({ field }) => (
             <FormItem className="md:col-span-4">
-              <FormLabel variant="dashboard">Fabric Source</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Fabric Source</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger variant="default">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                 </FormControl>
@@ -252,10 +252,9 @@ export function OrderFormItemCard({
           name={`items.${index}.description`}
           render={({ field }) => (
             <FormItem className="md:col-span-6">
-              <FormLabel variant="dashboard">Notes</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Notes</FormLabel>
               <FormControl>
                 <Textarea
-                  variant="default"
                   className="min-h-[84px] resize-y"
                   placeholder="Collar style, sleeve notes, etc."
                   {...field}
@@ -268,16 +267,16 @@ export function OrderFormItemCard({
       </div>
 
       <InfoTile
-        tone="elevatedSoft"
+        tone="secondary"
         borderStyle="dashed"
         padding="xs"
         className=""
       >
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <Label variant="dashboard">Addons & Custom Charges</Label>
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Addons & Custom Charges</Label>
           <Button
             type="button"
-            variant="dashboard"
+            variant="secondary"
             size="sm"
             className="h-7 gap-1 text-[10px] font-semibold"
             onClick={() => onAddAddon(index)}
@@ -287,7 +286,7 @@ export function OrderFormItemCard({
         </div>
 
         {watchedAddons.length === 0 ? (
-          <p className="px-1 text-xs text-text-secondary">
+          <p className="px-1 text-xs text-muted-foreground">
             No addon charges for this piece.
           </p>
         ) : (
@@ -295,7 +294,7 @@ export function OrderFormItemCard({
             {watchedAddons.map((addon, addonIndex) => (
               <InfoTile
                 key={`${index}-${addonIndex}`}
-                tone="surface"
+                tone="default"
                 padding="none"
                 className="grid grid-cols-1 items-end gap-2 rounded-md p-2 md:grid-cols-12"
               >
@@ -311,7 +310,7 @@ export function OrderFormItemCard({
                       });
                     }}
                   >
-                    <SelectTrigger variant="default" className="h-8">
+                    <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -326,7 +325,7 @@ export function OrderFormItemCard({
 
                 <div className="md:col-span-6">
                   <Input
-                    variant="default"
+                   
                     className="h-8"
                     placeholder="Charge name"
                     {...form.register(
@@ -337,7 +336,7 @@ export function OrderFormItemCard({
 
                 <div className="md:col-span-2">
                   <Input
-                    variant="default"
+                   
                     type="number"
                     className="h-8"
                     placeholder="Amount"
@@ -353,8 +352,8 @@ export function OrderFormItemCard({
                 <div className="flex md:col-span-1 md:justify-end">
                   <Button
                     type="button"
-                    variant="tableDanger"
-                    size="iconSm"
+                    variant="outline"
+                    size="icon"
                     onClick={() => onRemoveAddon(index, addonIndex)}
                     aria-label={`Remove addon ${addonIndex + 1}`}
                   >

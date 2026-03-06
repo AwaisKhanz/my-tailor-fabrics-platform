@@ -161,14 +161,14 @@ export function MeasurementSectionsManager({
             <Badge variant="outline" size="xs">
               #{row.section.sortOrder + 1}
             </Badge>
-            <span className="font-semibold text-text-primary">{row.section.name}</span>
+            <span className="font-semibold text-foreground">{row.section.name}</span>
           </div>
         ),
       },
       {
         header: "Fields",
         cell: (row) => (
-          <Badge variant="secondary" size="xs">
+          <Badge variant="default" size="xs">
             {row.fieldCount} field{row.fieldCount === 1 ? "" : "s"}
           </Badge>
         ),
@@ -184,7 +184,7 @@ export function MeasurementSectionsManager({
       {
         header: "Sort",
         cell: (row) => (
-          <Label variant="micro" className="text-text-secondary">
+          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             {row.section.sortOrder}
           </Label>
         ),
@@ -199,7 +199,7 @@ export function MeasurementSectionsManager({
                 {row.section.deletedAt ? (
                   onRestoreSection ? (
                     <Button
-                      variant="tablePrimary"
+                      variant="outline"
                       size="sm"
                       onClick={() => onRestoreSection(row.section)}
                       aria-label={`Restore section ${row.section.name}`}
@@ -211,7 +211,7 @@ export function MeasurementSectionsManager({
                 ) : (
                   <>
                     <Button
-                      variant="tablePrimary"
+                      variant="outline"
                       size="sm"
                       onClick={() => onAddFieldToSection(row.section.id)}
                     >
@@ -219,16 +219,16 @@ export function MeasurementSectionsManager({
                       Add Field
                     </Button>
                     <Button
-                      variant="tableIcon"
-                      size="iconSm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => onEditSection(row.section)}
                       aria-label={`Edit section ${row.section.name}`}
                     >
                       <PencilLine className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="tableDanger"
-                      size="iconSm"
+                      variant="outline"
+                      size="icon"
                       onClick={() => onDeleteSection(row.section)}
                       aria-label={`Delete section ${row.section.name}`}
                     >
@@ -248,7 +248,7 @@ export function MeasurementSectionsManager({
                 ) : null}
               </>
             ) : (
-              <span className="text-xs font-medium text-text-secondary">Read only</span>
+              <span className="text-xs font-medium text-muted-foreground">Read only</span>
             )}
           </div>
         ),
@@ -280,7 +280,7 @@ export function MeasurementSectionsManager({
             />
 
             <Button
-              variant="tableReset"
+              variant="ghost"
               size="sm"
               className="md:ml-auto"
               onClick={resetFilters}
@@ -291,7 +291,7 @@ export function MeasurementSectionsManager({
             </Button>
 
             {canManageSections ? (
-              <Button variant="tablePrimary" size="sm" onClick={onAddSection}>
+              <Button variant="outline" size="sm" onClick={onAddSection}>
                 <FolderPlus className="h-4 w-4" />
                 Add Section
               </Button>

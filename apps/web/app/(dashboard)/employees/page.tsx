@@ -47,7 +47,7 @@ function EmployeesPage() {
           actions={
             canManageEmployees ? (
               <Button
-                variant="premium"
+                variant="default"
                 size="lg"
                 className="w-full sm:w-auto"
                 onClick={openAddDialog}

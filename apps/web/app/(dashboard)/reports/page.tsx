@@ -124,12 +124,11 @@ function ReportsPage() {
           }}
         >
           <div className="overflow-x-auto pb-1">
-            <TabsList variant="segmented">
+            <TabsList>
               {REPORT_TABS.map((tab) => (
                 <TabsTrigger
                   key={tab.key}
                   value={tab.key}
-                  variant="segmented"
                 >
                   {tab.label}
                 </TabsTrigger>

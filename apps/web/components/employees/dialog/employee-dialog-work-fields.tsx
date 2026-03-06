@@ -28,9 +28,9 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
           name="designation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Designation</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Designation</FormLabel>
               <FormControl>
-                <Input variant="premium" placeholder="e.g. Master Tailor" {...field} />
+                <Input placeholder="e.g. Master Tailor" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -41,10 +41,10 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Status</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Status</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger variant="premium">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                 </FormControl>
@@ -68,10 +68,10 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
           name="paymentType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Payment Model</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Payment Model</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger variant="premium">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select Model" />
                   </SelectTrigger>
                 </FormControl>
@@ -92,9 +92,9 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
           name="dateOfJoining"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Date of Joining</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Date of Joining</FormLabel>
               <FormControl>
-                <Input variant="premium" type="date" {...field} value={field.value ?? ""} />
+                <Input type="date" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -108,10 +108,10 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
           name="monthlySalary"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Monthly Salary (Rs.)</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Monthly Salary (Rs.)</FormLabel>
               <FormControl>
                 <Input
-                  variant="premium"
+                 
                   type="number"
                   min={0}
                   step="0.01"
@@ -132,9 +132,9 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
           name="employmentEndDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Employment End Date</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Employment End Date</FormLabel>
               <FormControl>
-                <Input variant="premium" type="date" {...field} />
+                <Input type="date" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

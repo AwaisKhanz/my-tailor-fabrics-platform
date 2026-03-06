@@ -46,19 +46,18 @@ export function OrderShareDialog({
         {shareData ? (
           <DialogSection density="relaxed">
             <div className="space-y-2">
-              <Label variant="tightCaps">
+              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
                 Public URL
               </Label>
               <div className="flex gap-2">
                 <Input
-                  variant="readOnlyCode"
                   readOnly
                   value={publicUrl}
-                  className="flex-1"
+                  className="flex-1 rounded-xl border-border bg-foreground font-mono text-xs text-background shadow-none"
                 />
                 <Button
                   size="icon"
-                  variant="outline"
+                 
                   onClick={() => onCopy(publicUrl)}
                 >
                   <Copy className="h-4 w-4" />
@@ -68,16 +67,16 @@ export function OrderShareDialog({
 
             <InfoTile tone="info" padding="contentLg" layout="betweenGap" radius="xl">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-tight text-info/70">
+                <p className="text-[10px] font-bold uppercase tracking-tight text-primary/70">
                   Access PIN
                 </p>
-                <p className="text-3xl font-bold tracking-tight text-info">
+                <p className="text-3xl font-bold tracking-tight text-primary">
                   {shareData.pin}
                 </p>
               </div>
               <Button
                 size="sm"
-                variant="infoGhost"
+                variant="ghost"
                 className="font-bold"
                 onClick={() => onCopy(shareData.pin)}
               >
@@ -85,7 +84,7 @@ export function OrderShareDialog({
               </Button>
             </InfoTile>
 
-            <p className="text-center text-[10px] font-bold text-text-secondary">
+            <p className="text-center text-[10px] font-bold text-muted-foreground">
               * Customers will need the 4-digit PIN to access their order
               details.
             </p>

@@ -1,301 +1,306 @@
-import { promises as fs } from "node:fs";
+#!/usr/bin/env node
+
+import fs from "node:fs/promises";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const TARGET_DIRS = ["app", "components", "lib"];
-const FILE_EXTENSIONS = new Set([".ts", ".tsx", ".css"]);
 
-const allowColorLiteralFiles = new Set([
-  "../../packages/shared-theme/src/theme-presets.ts",
-]);
-
-const allowInlineBackgroundStyleFiles = new Set([]);
-
-const requiredCssTokenBlocks = [
-  { selector: ":root", label: "Fallback Light Tokens" },
-  { selector: ".dark", label: "Fallback Dark Tokens" },
+const REQUIRED_ROOT_TOKENS = [
+  "--background",
+  "--foreground",
+  "--card",
+  "--card-foreground",
+  "--popover",
+  "--popover-foreground",
+  "--primary",
+  "--primary-foreground",
+  "--secondary",
+  "--secondary-foreground",
+  "--muted",
+  "--muted-foreground",
+  "--accent",
+  "--accent-foreground",
+  "--destructive",
+  "--destructive-foreground",
+  "--border",
+  "--input",
+  "--ring",
+  "--sidebar",
+  "--sidebar-foreground",
+  "--sidebar-border",
+  "--radius",
+  "--shadow-sm",
+  "--shadow",
 ];
 
-const allowedGlobalOnlyTokens = new Set(["--radius"]);
+const REQUIRED_DARK_TOKENS = REQUIRED_ROOT_TOKENS.filter(
+  (token) => token !== "--radius",
+);
 
-const expectedRoutes = [
-  "app/(dashboard)/page.tsx",
-  "app/(dashboard)/my-orders/page.tsx",
-  "app/(dashboard)/orders/page.tsx",
-  "app/(dashboard)/orders/new/page.tsx",
-  "app/(dashboard)/orders/[id]/page.tsx",
-  "app/(dashboard)/customers/page.tsx",
-  "app/(dashboard)/customers/[id]/page.tsx",
-  "app/(dashboard)/employees/page.tsx",
-  "app/(dashboard)/employees/[id]/page.tsx",
-  "app/(dashboard)/payments/page.tsx",
-  "app/(dashboard)/expenses/page.tsx",
-  "app/(dashboard)/reports/page.tsx",
-  "app/(dashboard)/settings/page.tsx",
-  "app/(dashboard)/settings/branches/page.tsx",
-  "app/(dashboard)/settings/branches/[id]/page.tsx",
-  "app/(dashboard)/settings/garments/page.tsx",
-  "app/(dashboard)/settings/garments/[id]/page.tsx",
-  "app/(dashboard)/settings/measurements/page.tsx",
-  "app/(dashboard)/settings/measurements/[id]/page.tsx",
-  "app/(dashboard)/settings/rates/page.tsx",
-  "app/(dashboard)/settings/design-types/page.tsx",
-  "app/(dashboard)/settings/users/page.tsx",
-  "app/login/page.tsx",
-  "app/status/[token]/page.tsx",
-  "app/unauthorized/page.tsx",
+const REQUIRED_GLOBAL_CLASSES = [
+  ".container",
+  ".card",
+  ".glass",
+  ".meta",
+  ".error",
 ];
 
-const rules = [
-  {
-    name: "Hardcoded hex color",
-    regex: /#[0-9A-Fa-f]{3,8}\b/g,
-    allow: (relativePath) => allowColorLiteralFiles.has(relativePath),
-  },
-  {
-    name: "Hardcoded rgba/rgb color",
-    regex: /rgba?\(/g,
-    allow: (relativePath) => allowColorLiteralFiles.has(relativePath),
-  },
-  {
-    name: "Raw black/white utility class",
-    regex: /\b(?:bg|text|border|ring|from|to|via|shadow)-(?:black|white)(?:\/\d{1,3})?\b/g,
-    allow: () => false,
-  },
-  {
-    name: "Raw Tailwind palette utility class",
-    regex:
-      /\b(?:bg|text|border|ring|from|to|via|stroke|fill|shadow)-(?:black|white|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone)(?:-\d{1,3})?(?:\/\d{1,3})?\b/g,
-    allow: () => false,
-  },
-  {
-    name: "Inline background/backgroundColor style",
-    regex: /style=\{\{[\s\S]*?background(?:Color)?\s*:/g,
-    allow: (relativePath) => allowInlineBackgroundStyleFiles.has(relativePath),
-  },
+const BANNED_GLOBAL_CLASSES = [
+  ".page-container",
+  ".section-gap",
+  ".glass-panel",
+  ".screen-title",
+  ".subtitle",
+  ".page-hero",
+  ".workspace-bar-surface",
+  ".sidebar-shell",
+  ".stagger-1",
+  ".stagger-2",
+  ".stagger-3",
 ];
 
-async function* walkFiles(dir) {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
+const BANNED_THEME_TOKENS = [
+  "--font-ui",
+  "--primary-strong",
+  "--primary-soft",
+  "--secondary-soft",
+  "--secondary-border",
+  "--surface",
+  "--surface-soft",
+  "--surface-strong",
+  "--surface-muted",
+  "--surface-panel",
+  "--surface-input",
+  "--panel-border",
+  "--panel-border-strong",
+  "--nav-surface",
+  "--nav-border",
+  "--code-bg",
+  "--code-foreground",
+  "--highlight-ring",
+  "--sidebar-muted",
+  "--sidebar-surface",
+  "--sidebar-active",
+  "--sidebar-active-foreground",
+  "--status-ok",
+  "--status-info",
+  "--status-success-bg",
+  "--status-success-border",
+  "--status-success-foreground",
+  "--status-warning-bg",
+  "--status-warning-border",
+  "--status-warning-foreground",
+  "--status-danger-bg",
+  "--status-danger-border",
+  "--status-danger-foreground",
+  "--bg-glow-cool",
+  "--bg-glow-warm",
+  "--bg-overlay-start",
+  "--bg-overlay-end",
+  "--elevation-shadow",
+  "--card-shadow",
+  "--button-shadow",
+  "--soft-shadow",
+  "--text-primary",
+  "--text-secondary",
+  "--text-disabled",
+  "--text-inverse",
+  "--divider",
+  "--surface-elevated",
+  "--app-bar",
+  "--app-bar-foreground",
+  "--overlay",
+  "--overlay-strong",
+];
 
-  for (const entry of entries) {
-    if (entry.name === "node_modules" || entry.name === ".next" || entry.name === ".git") {
-      continue;
-    }
+const DELETED_PATHS = [
+  "lib/theme-css.ts",
+  "lib/theme-presets.ts",
+  "components/ThemePresetProvider.tsx",
+  "../../packages/shared-theme",
+];
 
-    const fullPath = path.join(dir, entry.name);
+const REQUIRED_TAILWIND_SNIPPETS = [
+  'ui: ["Avenir Next", "Segoe UI", "sans-serif"]',
+  'sans: ["Avenir Next", "Segoe UI", "sans-serif"]',
+  'background: "hsl(var(--background) / <alpha-value>)"',
+  'foreground: "hsl(var(--foreground) / <alpha-value>)"',
+  'border: "hsl(var(--border) / <alpha-value>)"',
+  'input: "hsl(var(--input) / <alpha-value>)"',
+  'ring: "hsl(var(--ring) / <alpha-value>)"',
+  'card: {',
+  'popover: {',
+  'primary: {',
+  'secondary: {',
+  'muted: {',
+  'accent: {',
+  'destructive: {',
+  'sidebar: {',
+  'lg: "var(--radius)"',
+  'sm: "var(--shadow-sm)"',
+  'DEFAULT: "var(--shadow)"',
+];
 
-    if (entry.isDirectory()) {
-      yield* walkFiles(fullPath);
-      continue;
-    }
+const BANNED_TAILWIND_SNIPPETS = [
+  "var(--font-ui)",
+  "surface: {",
+  "panel: {",
+  "nav: {",
+  "code: {",
+  "highlight: {",
+  "status: {",
+  "appBar:",
+  "text:",
+  "divider:",
+  "inputSurface:",
+  "interaction:",
+  "pending:",
+  "ready:",
+  "overlay:",
+  "soft-shadow",
+  "card-shadow",
+  "button-shadow",
+];
 
-    if (!entry.isFile()) {
-      continue;
-    }
-
-    const extension = path.extname(entry.name);
-    if (!FILE_EXTENSIONS.has(extension)) {
-      continue;
-    }
-
-    yield fullPath;
-  }
-}
-
-function getLineNumber(content, index) {
-  let line = 1;
-  for (let i = 0; i < index; i += 1) {
-    if (content[i] === "\n") {
-      line += 1;
-    }
-  }
-  return line;
-}
-
-function relativeFromRoot(fullPath) {
-  return path.relative(ROOT, fullPath).split(path.sep).join("/");
-}
-
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function readTokenBlock(content, selector) {
-  const escaped = escapeRegExp(selector);
-  const pattern = new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\n\\s*\\}`, "m");
-  const match = content.match(pattern);
+function extractBlock(content, selector) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = content.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\n\\s*\\}`, "m"));
   return match?.[1] ?? null;
 }
 
-function extractCssVariableDeclarations(content) {
-  return new Set([...content.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1]));
+function extractTokens(block) {
+  return new Set([...block.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1]));
 }
 
-function extractThemeCssTokens(content) {
-  return new Set([...content.matchAll(/"(--[a-z0-9-]+)"\s*:/g)].map((match) => match[1]));
+function diffTokens(actual, expected) {
+  const missing = expected.filter((token) => !actual.has(token));
+  const unexpected = [...actual].filter((token) => !expected.includes(token));
+  return { missing, unexpected };
+}
+
+async function pathExists(relativePath) {
+  try {
+    await fs.access(path.join(ROOT, relativePath));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function main() {
   const issues = [];
 
-  for (const targetDir of TARGET_DIRS) {
-    const absoluteDir = path.join(ROOT, targetDir);
-    try {
-      await fs.access(absoluteDir);
-    } catch {
-      continue;
-    }
+  const globalsPath = path.join(ROOT, "app/globals.css");
+  const tailwindPath = path.join(ROOT, "tailwind.config.ts");
+  const themeContractPath = path.join(ROOT, "lib/theme.ts");
+  const packageJsonPath = path.join(ROOT, "package.json");
 
-    for await (const filePath of walkFiles(absoluteDir)) {
-      const relativePath = relativeFromRoot(filePath);
-      const content = await fs.readFile(filePath, "utf8");
+  const [globalsCss, tailwindConfig, themeContractSource, packageJsonSource] =
+    await Promise.all([
+      fs.readFile(globalsPath, "utf8"),
+      fs.readFile(tailwindPath, "utf8"),
+      fs.readFile(themeContractPath, "utf8"),
+      fs.readFile(packageJsonPath, "utf8"),
+    ]);
 
-      for (const rule of rules) {
-        if (rule.allow(relativePath)) {
-          continue;
-        }
+  const rootBlock = extractBlock(globalsCss, ":root");
+  const darkBlock = extractBlock(globalsCss, ".dark");
 
-        const matches = [...content.matchAll(rule.regex)];
-        for (const match of matches) {
-          const index = match.index ?? 0;
-          const line = getLineNumber(content, index);
-          issues.push({
-            rule: rule.name,
-            file: relativePath,
-            line,
-            sample: match[0],
-          });
-        }
-      }
-    }
+  if (!rootBlock) {
+    issues.push("Missing :root theme token block in app/globals.css");
   }
 
-  const globalsCssPath = path.join(ROOT, "app/globals.css");
-  const globalsCss = await fs.readFile(globalsCssPath, "utf8");
-  const themeCssPath = path.join(ROOT, "lib/theme-css.ts");
-  const themeCssContent = await fs.readFile(themeCssPath, "utf8");
-  const themeCssTokens = extractThemeCssTokens(themeCssContent);
-
-  if (themeCssTokens.size === 0) {
-    issues.push({
-      rule: "Missing theme CSS variable mappings",
-      file: "lib/theme-css.ts",
-      line: 1,
-      sample: "createThemeCssVariables return map",
-    });
+  if (!darkBlock) {
+    issues.push("Missing .dark theme token block in app/globals.css");
   }
 
-  const requiredGlobalTokens = new Set(themeCssTokens);
-  const allowedGlobalTokens = new Set([...requiredGlobalTokens, ...allowedGlobalOnlyTokens]);
-
-  for (const block of requiredCssTokenBlocks) {
-    const tokenBlock = readTokenBlock(globalsCss, block.selector);
-    if (!tokenBlock) {
-      issues.push({
-        rule: "Missing theme token block",
-        file: "app/globals.css",
-        line: 1,
-        sample: block.label,
-      });
-      continue;
+  if (rootBlock) {
+    const diff = diffTokens(extractTokens(rootBlock), REQUIRED_ROOT_TOKENS);
+    if (diff.missing.length > 0) {
+      issues.push(`Missing light theme tokens: ${diff.missing.join(", ")}`);
     }
-
-    const blockTokens = extractCssVariableDeclarations(tokenBlock);
-
-    for (const token of requiredGlobalTokens) {
-      if (blockTokens.has(token)) {
-        continue;
-      }
-
-      issues.push({
-        rule: "Missing token in theme block",
-        file: "app/globals.css",
-        line: 1,
-        sample: `${block.label} -> ${token}`,
-      });
-    }
-
-    for (const token of blockTokens) {
-      if (allowedGlobalTokens.has(token)) {
-        continue;
-      }
-
-      issues.push({
-        rule: "Unexpected token in theme block",
-        file: "app/globals.css",
-        line: 1,
-        sample: `${block.label} -> ${token}`,
-      });
+    if (diff.unexpected.length > 0) {
+      issues.push(`Unexpected light theme tokens: ${diff.unexpected.join(", ")}`);
     }
   }
 
-  for (const routePath of expectedRoutes) {
-    const fullRoutePath = path.join(ROOT, routePath);
-    try {
-      await fs.access(fullRoutePath);
-    } catch {
-      issues.push({
-        rule: "Missing expected route page file",
-        file: routePath,
-        line: 1,
-        sample: routePath,
-      });
+  if (darkBlock) {
+    const diff = diffTokens(extractTokens(darkBlock), REQUIRED_DARK_TOKENS);
+    if (diff.missing.length > 0) {
+      issues.push(`Missing dark theme tokens: ${diff.missing.join(", ")}`);
+    }
+    if (diff.unexpected.length > 0) {
+      issues.push(`Unexpected dark theme tokens: ${diff.unexpected.join(", ")}`);
     }
   }
 
-  const presetsPath = path.join(ROOT, "../../packages/shared-theme/src/theme-presets.ts");
-  const presetsContent = await fs.readFile(presetsPath, "utf8");
-
-  const presetIdsBlockMatch = presetsContent.match(
-    /THEME_PRESET_IDS\s*=\s*\[([\s\S]*?)\]\s*as const;/m,
-  );
-
-  if (!presetIdsBlockMatch) {
-    issues.push({
-      rule: "Missing theme preset IDs declaration",
-      file: "packages/shared-theme/src/theme-presets.ts",
-      line: 1,
-      sample: "THEME_PRESET_IDS",
-    });
+  for (const token of BANNED_THEME_TOKENS) {
+    if (globalsCss.includes(token)) {
+      issues.push(`Banned theme token still present in app/globals.css: ${token}`);
+    }
   }
 
-  const expectedPresetIds = presetIdsBlockMatch
-    ? [...presetIdsBlockMatch[1].matchAll(/"([^"]+)"/g)].map((match) => match[1])
-    : [];
-
-  if (expectedPresetIds.length === 0) {
-    issues.push({
-      rule: "No theme preset IDs declared",
-      file: "packages/shared-theme/src/theme-presets.ts",
-      line: 1,
-      sample: "THEME_PRESET_IDS",
-    });
+  for (const selector of REQUIRED_GLOBAL_CLASSES) {
+    if (!globalsCss.includes(selector)) {
+      issues.push(`Missing global utility class in app/globals.css: ${selector}`);
+    }
   }
 
-  for (const presetId of expectedPresetIds) {
-    if (!presetsContent.includes(`id: "${presetId}"`)) {
-      issues.push({
-        rule: "Missing expected theme preset",
-        file: "packages/shared-theme/src/theme-presets.ts",
-        line: 1,
-        sample: presetId,
-      });
+  for (const selector of BANNED_GLOBAL_CLASSES) {
+    if (globalsCss.includes(selector)) {
+      issues.push(`Deleted global utility class still present in app/globals.css: ${selector}`);
+    }
+  }
+
+  for (const snippet of REQUIRED_TAILWIND_SNIPPETS) {
+    if (!tailwindConfig.includes(snippet)) {
+      issues.push(`Missing Tailwind semantic mapping snippet: ${snippet}`);
+    }
+  }
+
+  for (const snippet of BANNED_TAILWIND_SNIPPETS) {
+    if (tailwindConfig.includes(snippet)) {
+      issues.push(`Banned Tailwind mapping still present: ${snippet}`);
+    }
+  }
+
+  if (!themeContractSource.includes('export type AppTheme = "light" | "dark"')) {
+    issues.push('lib/theme.ts must export AppTheme = "light" | "dark"');
+  }
+  if (!themeContractSource.includes('THEME_STORAGE_KEY = "masi-lite-theme"')) {
+    issues.push('lib/theme.ts must export THEME_STORAGE_KEY = "masi-lite-theme"');
+  }
+  if (!themeContractSource.includes('THEME_COOKIE_KEY = "masi-lite-theme"')) {
+    issues.push('lib/theme.ts must export THEME_COOKIE_KEY = "masi-lite-theme"');
+  }
+
+  const packageJson = JSON.parse(packageJsonSource);
+  const dependencies = {
+    ...(packageJson.dependencies ?? {}),
+    ...(packageJson.devDependencies ?? {}),
+  };
+
+  for (const dependency of ["next-themes", "@tbms/shared-theme"]) {
+    if (dependency in dependencies) {
+      issues.push(`Banned dependency still present in apps/web/package.json: ${dependency}`);
+    }
+  }
+
+  for (const relativePath of DELETED_PATHS) {
+    if (await pathExists(relativePath)) {
+      issues.push(`Deleted theme path still exists: ${relativePath}`);
     }
   }
 
   if (issues.length > 0) {
-    console.error("Theme audit failed. Violations found:\n");
+    console.error("Theme audit failed.\n");
     for (const issue of issues) {
-      console.error(`- [${issue.rule}] ${issue.file}:${issue.line} -> ${issue.sample}`);
+      console.error(`- ${issue}`);
     }
     process.exit(1);
   }
 
-  console.log("Theme audit passed. No violations found.");
-  console.log(
-    `Validated ${requiredCssTokenBlocks.length} theme blocks, ${expectedPresetIds.length} presets, and ${expectedRoutes.length} routes.`,
-  );
+  console.log("Theme audit passed.");
 }
 
 main().catch((error) => {

@@ -60,11 +60,11 @@ export function ReportsProductivityChart({
       {!loading && topPoints.length > 0 ? (
         <div className="space-y-3">
           {activePoint ? (
-            <InfoTile tone="elevatedSoft" padding="md">
-              <p className="text-xs font-semibold text-text-primary">
+            <InfoTile tone="secondary" padding="md">
+              <p className="text-xs font-semibold text-foreground">
                 {activePoint.employeeName}
               </p>
-              <p className="mt-1 text-[11px] text-text-secondary">
+              <p className="mt-1 text-[11px] text-muted-foreground">
                 {activePoint.totalCompleted} completed •{" "}
                 {formatPKR(activePoint.payout)}
               </p>
@@ -89,20 +89,20 @@ export function ReportsProductivityChart({
                 key={point.employeeId}
                 className={`space-y-1.5 rounded-lg border px-3 py-2.5 transition-colors ${
                   isActive
-                    ? "border-primary/40 bg-interaction-hover"
-                    : "border-divider bg-surface-elevated/60 hover:border-divider"
+                    ? "border-primary/40 bg-accent"
+                    : "border-border bg-card/60 hover:border-border"
                 }`}
                 onMouseEnter={() => setHoveredEmployeeId(point.employeeId)}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-text-primary">
+                  <p className="text-sm font-medium text-foreground">
                     {point.employeeName}
                   </p>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-text-secondary">
+                    <p className="text-xs font-semibold text-muted-foreground">
                       {total} completed
                     </p>
-                    <p className="text-xs text-text-secondary">
+                    <p className="text-xs text-muted-foreground">
                       {formatPKR(point.payout)}
                     </p>
                   </div>
@@ -119,7 +119,7 @@ export function ReportsProductivityChart({
                   />
                 </ProgressTrack>
 
-                <div className="flex items-center justify-between text-[11px] text-text-secondary">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>Items: {point.completedItems}</span>
                   <span>Tasks: {point.completedTasks}</span>
                 </div>

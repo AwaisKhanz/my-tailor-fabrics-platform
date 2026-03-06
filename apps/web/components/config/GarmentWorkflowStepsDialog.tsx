@@ -279,7 +279,7 @@ export function GarmentWorkflowStepsDialog({
           submittingText="Saving..."
           submitting={loading}
           submitFormId="garment-workflow-steps-form"
-          submitVariant="premium"
+          submitVariant="default"
         />
       }
     >
@@ -297,7 +297,7 @@ export function GarmentWorkflowStepsDialog({
           ) : null}
           {steps.map((step, index) => (
             <InfoTile
-              tone="primarySoft"
+              tone="info"
               key={step.clientId}
               padding="content"
               className={`group flex items-center gap-3 transition-colors ${
@@ -314,7 +314,7 @@ export function GarmentWorkflowStepsDialog({
                 draggable
                 onDragStart={(event) => handleDragStart(event, step.clientId)}
                 onDragEnd={handleDragEnd}
-                className="flex cursor-grab flex-col items-center justify-center text-text-secondary hover:text-text-primary active:cursor-grabbing"
+                className="flex cursor-grab flex-col items-center justify-center text-muted-foreground hover:text-foreground active:cursor-grabbing"
                 title="Drag to reorder"
               >
                 <GripVertical className="h-4 w-4" />
@@ -323,7 +323,7 @@ export function GarmentWorkflowStepsDialog({
 
               <div className="grid flex-1 grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label variant="dashboard">Step Name</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Step Name</Label>
                   <Input
                     placeholder="e.g. Cutting"
                     value={step.stepName || ""}
@@ -334,7 +334,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label variant="dashboard">Unique Key</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Unique Key</Label>
                   <Input
                     placeholder="e.g. CUTTING"
                     value={step.stepKey || ""}
@@ -352,7 +352,7 @@ export function GarmentWorkflowStepsDialog({
 
               <div className="flex items-center gap-4 border-l border-r px-2">
                 <div className="flex flex-col items-center gap-1">
-                  <Label variant="dashboard" className="text-text-secondary">
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                     Required
                   </Label>
                   <Switch
@@ -361,7 +361,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Label variant="dashboard" className="text-text-secondary">
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                     Active
                   </Label>
                   <Switch
@@ -374,8 +374,8 @@ export function GarmentWorkflowStepsDialog({
               <div className="flex items-center gap-1.5">
                 <Button
                   type="button"
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => moveStepByIndex(index, "up")}
                   disabled={index === 0}
                   title="Move up"
@@ -384,8 +384,8 @@ export function GarmentWorkflowStepsDialog({
                 </Button>
                 <Button
                   type="button"
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => moveStepByIndex(index, "down")}
                   disabled={index === steps.length - 1}
                   title="Move down"
@@ -394,7 +394,7 @@ export function GarmentWorkflowStepsDialog({
                 </Button>
                 <Button
                   type="button"
-                  variant="tableDanger"
+                 
                   size="icon"
                   className="h-8 w-8 shrink-0"
                   onClick={() => handleRemoveStep(index)}
@@ -409,7 +409,7 @@ export function GarmentWorkflowStepsDialog({
             <InfoTile
               borderStyle="dashedStrong"
               padding="none"
-              className="py-8 text-center text-text-secondary"
+              className="py-8 text-center text-muted-foreground"
             >
               No steps configured. Add your first step below.
             </InfoTile>
@@ -417,8 +417,8 @@ export function GarmentWorkflowStepsDialog({
 
           <Button
             type="button"
-            variant="outlineDashed"
-            className="w-full"
+            variant="outline"
+            className="w-full border-dashed"
             onClick={handleAddStep}
           >
             <Plus className="mr-2 h-4 w-4" /> Add Step

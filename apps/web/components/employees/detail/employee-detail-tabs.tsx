@@ -59,7 +59,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { cn, formatDate, formatDateTime, formatPKR } from "@/lib/utils";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
@@ -147,24 +147,24 @@ function EmployeeSection({
   };
 
   return (
-    <Card id={id} variant="premium">
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card id={id}>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <CardTitle variant="section">{title}</CardTitle>
+            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">{title}</CardTitle>
             {badge}
           </div>
-          <Typography as="p" variant="muted">
+          <Text as="p"  variant="muted">
             {description}
-          </Typography>
+          </Text>
         </div>
 
         <div className="ml-auto flex w-full items-center justify-end gap-2 sm:w-auto">
           {action}
           <Button
             type="button"
-            variant="tableIcon"
-            size="iconSm"
+            variant="ghost"
+            size="icon"
             className="shrink-0"
             aria-expanded={isOpen}
             aria-controls={`${id}-content`}
@@ -539,7 +539,7 @@ export function EmployeeDetailTabs({
       cell: (item) => (
         <div className="flex flex-col">
           <span className="font-medium">{item.garmentTypeName}</span>
-          <span className="text-[10px] text-text-secondary">
+          <span className="text-[10px] text-muted-foreground">
             {item.completedAt
               ? `Completed: ${formatDate(item.completedAt)}`
               : "Pending"}
@@ -569,8 +569,8 @@ export function EmployeeDetailTabs({
       align: "right",
       cell: (item) => (
         <Button
-          variant="tableIcon"
-          size="iconSm"
+          variant="ghost"
+          size="icon"
           onClick={() => onViewOrder(item.orderId)}
         >
           <ChevronRight className="h-4 w-4" />
@@ -589,7 +589,7 @@ export function EmployeeDetailTabs({
     {
       header: "Clock In",
       cell: (record) => (
-        <span className="text-xs font-medium text-success">
+        <span className="text-xs font-medium text-primary">
           {new Date(record.clockIn).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -600,7 +600,7 @@ export function EmployeeDetailTabs({
     {
       header: "Clock Out",
       cell: (record) => (
-        <span className="text-xs font-medium text-error">
+        <span className="text-xs font-medium text-destructive">
           {record.clockOut
             ? new Date(record.clockOut).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -635,7 +635,7 @@ export function EmployeeDetailTabs({
           <span className="font-medium">
             {task.item?.garmentTypeName || "-"}
           </span>
-          <Label variant="dashboard" className="font-mono">
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground font-mono">
             {task.stepName}
           </Label>
         </div>
@@ -689,7 +689,7 @@ export function EmployeeDetailTabs({
       header: "Last Update",
       align: "right",
       cell: (task) => (
-        <span className="text-[10px] text-text-secondary">
+        <span className="text-[10px] text-muted-foreground">
           {formatDateTime(task.updatedAt)}
         </span>
       ),
@@ -700,7 +700,7 @@ export function EmployeeDetailTabs({
     {
       header: "Date",
       cell: (entry) => (
-        <span className="whitespace-nowrap text-xs text-text-secondary">
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
           {formatDateTime(entry.createdAt)}
         </span>
       ),
@@ -718,7 +718,7 @@ export function EmployeeDetailTabs({
       align: "right",
       cell: (entry) => (
         <span
-          className={`text-sm font-bold ${entry.amount >= 0 ? "text-ready" : "text-error"}`}
+          className={`text-sm font-bold ${entry.amount >= 0 ? "text-primary" : "text-destructive"}`}
         >
           {entry.amount >= 0 ? "+" : ""}
           {formatPKR(Math.abs(entry.amount))}
@@ -736,7 +736,7 @@ export function EmployeeDetailTabs({
             </span>
           ) : null}
           {entry.note ? (
-            <span className="text-[10px] text-text-secondary">
+            <span className="text-[10px] text-muted-foreground">
               {entry.note}
             </span>
           ) : null}
@@ -746,7 +746,7 @@ export function EmployeeDetailTabs({
     {
       header: "Order #",
       cell: (entry) => (
-        <span className="text-xs text-text-secondary">
+        <span className="text-xs text-muted-foreground">
           {entry.orderItemTask?.orderItem?.order?.orderNumber ?? "-"}
         </span>
       ),
@@ -757,8 +757,8 @@ export function EmployeeDetailTabs({
       cell: (entry) =>
         canManageLedger ? (
           <Button
-            variant="tableDanger"
-            size="iconSm"
+           
+            size="icon"
             className="h-7 w-7"
             onClick={() => onReverseLedgerEntry(entry.id)}
           >
@@ -786,21 +786,21 @@ export function EmployeeDetailTabs({
 
   return (
     <div className="space-y-6">
-      <Card variant="elevatedPanel">
+      <Card>
         <CardContent
           spacing="section"
           className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="space-y-1">
-            <Label variant="microCaps">Workspace Sections</Label>
-            <Typography as="p" variant="muted">
+            <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Workspace Sections</Label>
+            <Text as="p"  variant="muted">
               Jump between work logs, ledger, attendance, documents, and account
               controls.
-            </Typography>
+            </Text>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {quickLinks.map((link) => (
-              <Button key={link.id} variant="muted" size="xs" asChild>
+              <Button key={link.id} variant="secondary" size="sm" asChild>
                 <a href={`#${link.id}`}>{link.label}</a>
               </Button>
             ))}
@@ -813,7 +813,7 @@ export function EmployeeDetailTabs({
         title="Capabilities"
         description="Define which garments and steps this employee can be assigned to."
         badge={
-          <Badge variant="secondary" size="xs" className="font-semibold">
+          <Badge variant="default" size="xs" className="font-semibold">
             {activeCapabilities.length} ACTIVE
           </Badge>
         }
@@ -844,7 +844,7 @@ export function EmployeeDetailTabs({
               {
                 header: "Effective",
                 cell: (capability) => (
-                  <span className="text-xs text-text-secondary">
+                  <span className="text-xs text-muted-foreground">
                     {formatDate(capability.effectiveFrom)}
                     {capability.effectiveTo
                       ? ` → ${formatDate(capability.effectiveTo)}`
@@ -860,21 +860,21 @@ export function EmployeeDetailTabs({
           />
 
           {canManageWorkforceGovernance ? (
-            <InfoTile tone="surface" padding="contentLg" className="space-y-4">
+            <InfoTile tone="default" padding="contentLg" className="space-y-4">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
-                  <Label variant="dashboard">Effective From</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Effective From</Label>
                   <Input
                     type="date"
-                    variant="table"
+                   
                     value={capabilityEffectiveFrom}
                     onChange={(event) => setCapabilityEffectiveFrom(event.target.value)}
                   />
                 </div>
                 <div>
-                  <Label variant="dashboard">Snapshot Note</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Snapshot Note</Label>
                   <Input
-                    variant="table"
+                   
                     value={capabilityNote}
                     onChange={(event) => setCapabilityNote(event.target.value)}
                     placeholder="Optional context for this update"
@@ -895,10 +895,10 @@ export function EmployeeDetailTabs({
                   return (
                     <div
                       key={`capability-row-${index}`}
-                      className="grid grid-cols-1 gap-2 rounded-xl border border-divider p-3 md:grid-cols-12"
+                      className="grid grid-cols-1 gap-2 rounded-xl border border-border p-3 md:grid-cols-12"
                     >
                     <div className="md:col-span-4">
-                      <Label variant="dashboard">Garment Type</Label>
+                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Garment Type</Label>
                       <Select
                         value={row.garmentTypeId || "ANY"}
                         onValueChange={(value) => {
@@ -913,7 +913,7 @@ export function EmployeeDetailTabs({
                           });
                         }}
                       >
-                        <SelectTrigger variant="table">
+                        <SelectTrigger>
                           <SelectValue placeholder="Any garment" />
                         </SelectTrigger>
                         <SelectContent>
@@ -927,7 +927,7 @@ export function EmployeeDetailTabs({
                       </Select>
                     </div>
                     <div className="md:col-span-4">
-                      <Label variant="dashboard">Step Key</Label>
+                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Step Key</Label>
                       <Select
                         value={row.stepKey || "ANY_STEP"}
                         onValueChange={(value) =>
@@ -936,7 +936,7 @@ export function EmployeeDetailTabs({
                           })
                         }
                       >
-                        <SelectTrigger variant="table">
+                        <SelectTrigger>
                           <SelectValue placeholder="Any step" />
                         </SelectTrigger>
                         <SelectContent>
@@ -949,15 +949,15 @@ export function EmployeeDetailTabs({
                         </SelectContent>
                       </Select>
                       {row.garmentTypeId && stepOptions.length === 0 ? (
-                        <Typography as="p" variant="muted" className="mt-1 text-xs text-warning">
+                        <Text as="p"  variant="muted" className="mt-1 text-xs text-secondary-foreground">
                           No workflow steps configured for this garment.
-                        </Typography>
+                        </Text>
                       ) : null}
                     </div>
                     <div className="md:col-span-3">
-                      <Label variant="dashboard">Note</Label>
+                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Note</Label>
                       <Input
-                        variant="table"
+                       
                         value={row.note ?? ""}
                         onChange={(event) =>
                           updateCapabilityRow(index, {
@@ -970,8 +970,8 @@ export function EmployeeDetailTabs({
                     <div className="flex items-end md:col-span-1">
                       <Button
                         type="button"
-                        variant="tableDanger"
-                        size="iconSm"
+                        variant="outline"
+                        size="icon"
                         className="h-8 w-8"
                         onClick={() => removeCapabilityRow(index)}
                       >
@@ -1009,7 +1009,7 @@ export function EmployeeDetailTabs({
         title="Compensation Timeline"
         description="Track payment model and salary changes over time."
         badge={
-          <Badge variant="secondary" size="xs" className="font-semibold">
+          <Badge variant="default" size="xs" className="font-semibold">
             {compensationHistory.length} CHANGES
           </Badge>
         }
@@ -1038,7 +1038,7 @@ export function EmployeeDetailTabs({
               {
                 header: "Window",
                 cell: (entry) => (
-                  <span className="text-xs text-text-secondary">
+                  <span className="text-xs text-muted-foreground">
                     {formatDate(entry.effectiveFrom)}
                     {entry.effectiveTo
                       ? ` → ${formatDate(entry.effectiveTo)}`
@@ -1054,7 +1054,7 @@ export function EmployeeDetailTabs({
           />
 
           {canManageWorkforceGovernance ? (
-            <InfoTile tone="surface" padding="contentLg" className="space-y-4">
+            <InfoTile tone="default" padding="contentLg" className="space-y-4">
               {compensationValidationError ? (
                 <p className="text-sm text-destructive">
                   {compensationValidationError}
@@ -1062,7 +1062,7 @@ export function EmployeeDetailTabs({
               ) : null}
               <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <div>
-                  <Label variant="dashboard">Payment Model</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Payment Model</Label>
                   <Select
                     value={compensationPaymentType}
                     onValueChange={(value) => {
@@ -1079,7 +1079,7 @@ export function EmployeeDetailTabs({
                       }
                     }}
                   >
-                    <SelectTrigger variant="table">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1098,11 +1098,11 @@ export function EmployeeDetailTabs({
 
                 {compensationPaymentType === PaymentType.MONTHLY_FIXED ? (
                   <div>
-                    <Label variant="dashboard">Monthly Salary (Rs)</Label>
+                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Monthly Salary (Rs)</Label>
                     <Input
                       type="number"
                       min={0}
-                      variant="table"
+                     
                       value={compensationMonthlySalary}
                       onChange={(event) => {
                         setCompensationFieldErrors((previous) => ({
@@ -1122,10 +1122,10 @@ export function EmployeeDetailTabs({
                 ) : null}
 
                 <div>
-                  <Label variant="dashboard">Effective From</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Effective From</Label>
                   <Input
                     type="date"
-                    variant="table"
+                   
                     value={compensationEffectiveFrom}
                     onChange={(event) => {
                       setCompensationFieldErrors((previous) => ({
@@ -1143,9 +1143,9 @@ export function EmployeeDetailTabs({
                   ) : null}
                 </div>
                 <div>
-                  <Label variant="dashboard">Note</Label>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Note</Label>
                   <Input
-                    variant="table"
+                   
                     value={compensationNote}
                     onChange={(event) => {
                       setCompensationFieldErrors((previous) => ({
@@ -1181,7 +1181,7 @@ export function EmployeeDetailTabs({
           title="Production Tasks"
           description="Update assigned task statuses for this employee."
           badge={
-            <Badge variant="secondary" size="xs" className="font-semibold">
+            <Badge variant="default" size="xs" className="font-semibold">
               {tasks.length} TASKS
             </Badge>
           }
@@ -1206,7 +1206,7 @@ export function EmployeeDetailTabs({
         title="Work History"
         description="Review completed and pending order items handled by this employee."
         badge={
-          <Badge variant="secondary" size="xs" className="font-semibold">
+          <Badge variant="default" size="xs" className="font-semibold">
             {items.length} ITEMS
           </Badge>
         }
@@ -1230,7 +1230,7 @@ export function EmployeeDetailTabs({
         title="Ledger"
         description="Track payouts, deductions, and adjustments with filterable history."
         badge={
-          <Badge variant="secondary" size="xs" className="font-semibold">
+          <Badge variant="default" size="xs" className="font-semibold">
             {ledgerTotal} ENTRIES
           </Badge>
         }
@@ -1238,7 +1238,7 @@ export function EmployeeDetailTabs({
           canManageLedger ? (
             <Button
               size="sm"
-              variant="premium"
+              variant="default"
               className="h-8 w-full sm:w-auto"
               onClick={onOpenLedgerDialog}
             >
@@ -1258,21 +1258,21 @@ export function EmployeeDetailTabs({
           <div className="flex flex-col gap-2 md:flex-row md:items-center">
             <Input
               type="date"
-              variant="table"
+             
               className="h-8 w-full px-2 text-xs md:w-36"
               value={ledgerFrom}
               onChange={(event) => setLedgerFrom(event.target.value)}
             />
             <Input
               type="date"
-              variant="table"
+             
               className="h-8 w-full px-2 text-xs md:w-36"
               value={ledgerTo}
               onChange={(event) => setLedgerTo(event.target.value)}
             />
             <Select value={ledgerType} onValueChange={setLedgerType}>
               <SelectTrigger
-                variant="table"
+               
                 className="h-8 w-full text-xs md:w-[140px]"
               >
                 <SelectValue placeholder="All Types" />
@@ -1317,7 +1317,7 @@ export function EmployeeDetailTabs({
         title="Attendance"
         description="Review attendance logs and worked hours for this employee."
         badge={
-          <Badge variant="secondary" size="xs" className="font-semibold">
+          <Badge variant="default" size="xs" className="font-semibold">
             {attendance.length} RECORDS
           </Badge>
         }
@@ -1341,7 +1341,7 @@ export function EmployeeDetailTabs({
         title="Documents"
         description="Manage verification and identity documents for this employee."
         badge={
-          <Badge variant="secondary" size="xs" className="font-semibold">
+          <Badge variant="default" size="xs" className="font-semibold">
             {employee.documents?.length ?? 0} FILES
           </Badge>
         }
@@ -1364,7 +1364,7 @@ export function EmployeeDetailTabs({
           {employee.documents?.map((document) => (
             <InfoTile
               key={document.id}
-              tone="surface"
+              tone="default"
               padding="contentLg"
               layout="betweenGap"
               radius="xl"
@@ -1376,12 +1376,12 @@ export function EmployeeDetailTabs({
                 </SectionIcon>
                 <div>
                   <p className="text-sm font-bold">{document.label}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
+                  <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
                     {document.fileType}
                   </p>
                 </div>
               </div>
-              <Button variant="tableIcon" size="iconSm" asChild>
+              <Button variant="ghost" size="icon" asChild>
                 <a href={document.fileUrl} target="_blank" rel="noreferrer">
                   <ExternalLink className="h-4 w-4" />
                 </a>
@@ -1394,7 +1394,7 @@ export function EmployeeDetailTabs({
               borderStyle="dashedStrong"
               padding="none"
               radius="xl"
-              className="col-span-1 flex flex-col items-center justify-center py-14 text-text-secondary sm:col-span-2"
+              className="col-span-1 flex flex-col items-center justify-center py-14 text-muted-foreground sm:col-span-2"
             >
               <FileText className="mb-3 h-12 w-12 opacity-20" />
               <p className="text-sm font-medium">
@@ -1422,28 +1422,28 @@ export function EmployeeDetailTabs({
       >
         <div className="p-4 sm:p-5">
           {employee.userAccount ? (
-            <Card variant="successSoft">
-              <CardHeader variant="sectionSoft" density="compact">
+            <Card className="bg-muted/40 shadow-sm">
+              <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-card/70 px-6 py-4">
                 <SectionHeader
                   title="System Access Enabled"
                   titleClassName="text-sm"
                   description="This employee has an active portal account."
                   icon={
-                    <SectionIcon tone="infoSoft" size="sm">
-                      <ShieldCheck className="h-4 w-4 text-success" />
+                    <SectionIcon tone="info" size="sm">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
                     </SectionIcon>
                   }
                 />
               </CardHeader>
               <CardContent spacing="section" className="space-y-4">
-                <div className="flex items-center justify-between border-b border-divider py-2 text-sm">
-                  <span className="text-text-secondary">Login Email</span>
+                <div className="flex items-center justify-between border-b border-border py-2 text-sm">
+                  <span className="text-muted-foreground">Login Email</span>
                   <span className="font-bold tracking-tight">
                     {employee.userAccount.email}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-b border-divider py-2 text-sm">
-                  <span className="text-text-secondary">Status</span>
+                <div className="flex items-center justify-between border-b border-border py-2 text-sm">
+                  <span className="text-muted-foreground">Status</span>
                   <Badge variant="outline">
                     {employee.userAccount.isActive ? "ACTIVE" : "INACTIVE"}
                   </Badge>
@@ -1453,17 +1453,17 @@ export function EmployeeDetailTabs({
           ) : (
             <div className="flex flex-col items-center justify-center space-y-5 py-10 text-center">
               <InfoTile
-                tone="elevated"
+                tone="default"
                 padding="none"
                 className="rounded-full border-none p-4"
               >
-                <ShieldCheck className="h-10 w-10 text-text-secondary opacity-30" />
+                <ShieldCheck className="h-10 w-10 text-muted-foreground opacity-30" />
               </InfoTile>
               <div>
-                <Typography as="h3" variant="sectionTitle">
+                <Heading as="h3"  variant="section">
                   No Portal Account
-                </Typography>
-                <p className="mt-1 max-w-[300px] text-sm text-text-secondary">
+                </Heading>
+                <p className="mt-1 max-w-[300px] text-sm text-muted-foreground">
                   Provision an account to allow order tracking access.
                 </p>
               </div>

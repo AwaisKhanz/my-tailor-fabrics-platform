@@ -13,7 +13,7 @@ export function UsersPageHeader({ onAddUser }: UsersPageHeaderProps) {
       description="Manage staff access levels, branch assignments, and account security."
       actions={
         <Button
-          variant="premium"
+          variant="default"
           size="lg"
           className="w-full sm:w-auto"
           onClick={onAddUser}

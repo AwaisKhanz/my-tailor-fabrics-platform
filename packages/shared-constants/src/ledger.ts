@@ -17,7 +17,7 @@ export const LEDGER_ENTRY_TYPE_BADGE: Record<LedgerEntryType, BadgeVariant> = {
   [LedgerEntryType.ADVANCE]: 'warning',
   [LedgerEntryType.DEDUCTION]: 'destructive',
   [LedgerEntryType.ADJUSTMENT]: 'secondary',
-  [LedgerEntryType.SALARY]: 'ready',
+  [LedgerEntryType.SALARY]: 'success',
 };
 
 /** 

@@ -41,7 +41,7 @@ export function MeasurementCategoriesInventoryTable({
         header: "Category Name",
         cell: (category) => (
           category.deletedAt ? (
-            <span className="font-semibold text-text-secondary">
+            <span className="font-semibold text-muted-foreground">
               {category.name}
             </span>
           ) : (
@@ -50,7 +50,7 @@ export function MeasurementCategoriesInventoryTable({
                 event.stopPropagation();
                 onView(category);
               }}
-              className="font-semibold text-text-primary transition-colors hover:text-primary"
+              className="font-semibold text-foreground transition-colors hover:text-primary"
             >
               {category.name}
             </button>
@@ -88,8 +88,8 @@ export function MeasurementCategoriesInventoryTable({
         cell: (category) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="tableIcon"
-              size="iconSm"
+              variant="ghost"
+              size="icon"
               disabled={Boolean(category.deletedAt)}
               onClick={(event) => {
                 event.stopPropagation();
@@ -102,7 +102,7 @@ export function MeasurementCategoriesInventoryTable({
               <>
                 {category.deletedAt ? (
                   <Button
-                    variant="tablePrimary"
+                    variant="outline"
                     size="sm"
                     disabled={restoringId === category.id}
                     onClick={(event) => {
@@ -116,8 +116,8 @@ export function MeasurementCategoriesInventoryTable({
                 ) : (
                   <>
                     <Button
-                      variant="tableIcon"
-                      size="iconSm"
+                      variant="ghost"
+                      size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
                         onEdit(category);
@@ -126,8 +126,8 @@ export function MeasurementCategoriesInventoryTable({
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="tableDanger"
-                      size="iconSm"
+                      variant="outline"
+                      size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
                         onDelete(category);

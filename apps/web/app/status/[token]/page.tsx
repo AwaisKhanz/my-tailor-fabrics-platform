@@ -4,7 +4,7 @@ import { AlertCircle } from "lucide-react";
 import { usePublicOrderStatusPage } from "@/hooks/use-public-order-status-page";
 import { siteConfig } from "@/lib/config";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { StatusPageFrame } from "@/components/status/status-page-frame";
 import { StatusPinGateCard } from "@/components/status/status-pin-gate-card";
 import { StatusOrderHeaderCard } from "@/components/status/status-order-header-card";
@@ -70,11 +70,11 @@ export default function OrderStatusPage({ params }: { params: { token: string } 
       <StatusOrderDetailsCard order={order} />
       <StatusOrderItemsCard order={order} />
 
-      <Typography as="p" variant="muted" className="pb-8 text-center text-xs">
+      <Text as="p"  variant="muted" className="pb-8 text-center text-xs">
         &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
         <br />
         Contact us at {siteConfig.contact.phone} for any concerns.
-      </Typography>
+      </Text>
     </StatusPageFrame>
   );
 }

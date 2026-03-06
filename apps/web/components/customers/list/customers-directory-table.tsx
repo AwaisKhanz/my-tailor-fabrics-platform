@@ -9,13 +9,13 @@ import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 
 const AVATAR_COLORS = [
-  "bg-info-muted text-info",
-  "bg-success-muted text-success",
-  "bg-warning-muted text-warning",
-  "bg-ready-muted text-ready",
-  "bg-error-muted text-error",
   "bg-primary/10 text-primary",
-  "bg-pending-muted text-text-primary",
+  "bg-primary/10 text-primary",
+  "bg-secondary/60 text-secondary-foreground",
+  "bg-primary/10 text-primary",
+  "bg-destructive/10 text-destructive",
+  "bg-primary/10 text-primary",
+  "bg-muted text-foreground",
   "bg-muted text-muted-foreground",
 ];
 
@@ -88,7 +88,7 @@ export function CustomersDirectoryTable({
                 {initials}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-semibold leading-tight text-text-primary">
+                <span className="text-sm font-semibold leading-tight text-foreground">
                   {customer.fullName}
                 </span>
                 {customer.isVip ? (
@@ -105,18 +105,18 @@ export function CustomersDirectoryTable({
         header: "Contact Info",
         cell: (customer) => (
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold tabular-nums text-text-primary">{customer.phone}</span>
+            <span className="text-sm font-semibold tabular-nums text-foreground">{customer.phone}</span>
             {customer.whatsapp ? (
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 shrink-0 rounded-full bg-success/50" />
-                <Label variant="dashboard" className="text-success opacity-100">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-primary/50" />
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-primary opacity-100">
                   WhatsApp Connected
                 </Label>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 shrink-0 rounded-full bg-text-disabled" />
-                <Label variant="dashboard">No WhatsApp</Label>
+                <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">No WhatsApp</Label>
               </div>
             )}
           </div>
@@ -124,12 +124,12 @@ export function CustomersDirectoryTable({
       },
       {
         header: "City",
-        cell: (customer) => <Label variant="dashboard">{customer.city || "—"}</Label>,
+        cell: (customer) => <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{customer.city || "—"}</Label>,
       },
       {
         header: "Lifetime Value",
         cell: (customer) => (
-          <span className="text-sm font-semibold tabular-nums text-text-primary">
+          <span className="text-sm font-semibold tabular-nums text-foreground">
             {formatPKR(customer.lifetimeValue)}
           </span>
         ),
@@ -148,8 +148,8 @@ export function CustomersDirectoryTable({
         cell: (customer) => (
           <div className="flex items-center justify-end gap-1.5">
             <Button
-              variant="tableIcon"
-              size="iconSm"
+              variant="ghost"
+              size="icon"
               onClick={(event) => {
                 event.stopPropagation();
                 onView(customer);
@@ -161,8 +161,8 @@ export function CustomersDirectoryTable({
             </Button>
             {canEditCustomer ? (
               <Button
-                variant="tableIcon"
-                size="iconSm"
+                variant="ghost"
+                size="icon"
                 onClick={(event) => {
                   event.stopPropagation();
                   onEdit(customer);

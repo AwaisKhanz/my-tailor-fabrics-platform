@@ -53,7 +53,7 @@ export function MultiSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-auto min-h-11 w-full justify-between border-divider bg-inputSurface-background px-3 py-2 transition-all hover:border-divider hover:bg-surface",
+            "h-auto min-h-11 w-full justify-between border-border bg-background px-3 py-2 transition-all hover:border-border hover:bg-card",
             className,
           )}
         >
@@ -64,22 +64,22 @@ export function MultiSelect({
                 return (
                   <Badge
                     key={value}
-                    variant="secondary"
-                    className="rounded-md border-primary/10 bg-muted pr-1 text-primary transition-colors hover:bg-interaction-hover"
+                    variant="default"
+                    className="rounded-md border-primary/10 bg-muted pr-1 text-primary transition-colors hover:bg-accent"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleUnselect(value);
                     }}
                   >
                     {option?.label || value}
-                    <div className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-interaction-focus focus:ring-offset-2">
+                    <div className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2">
                       <X className="h-3 w-3 text-primary/70 transition-colors hover:text-primary" />
                     </div>
                   </Badge>
                 );
               })
             ) : (
-              <span className="text-text-secondary">{placeholder}</span>
+              <span className="text-muted-foreground">{placeholder}</span>
             )}
           </div>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />

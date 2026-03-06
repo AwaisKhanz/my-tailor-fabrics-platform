@@ -43,11 +43,11 @@ export function UsersAccessTable({
         cell: (user) => (
           <div className="flex items-center gap-4">
             <InfoTile padding="none" className="h-10 w-10 shrink-0 items-center justify-center">
-              <Users className="h-5 w-5 text-text-secondary" />
+              <Users className="h-5 w-5 text-muted-foreground" />
             </InfoTile>
             <div className="flex flex-col">
-              <span className="text-sm font-bold leading-tight text-text-primary">{user.name}</span>
-              <Label variant="dashboard" className="mt-0.5">
+              <span className="text-sm font-bold leading-tight text-foreground">{user.name}</span>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
                 ID: STAFF-{user.id ? user.id.slice(0, 3).toUpperCase() : "001"}
               </Label>
             </div>
@@ -56,7 +56,7 @@ export function UsersAccessTable({
       },
       {
         header: "Email",
-        cell: (user) => <span className="text-sm font-bold text-text-secondary">{user.email}</span>,
+        cell: (user) => <span className="text-sm font-bold text-muted-foreground">{user.email}</span>,
       },
       {
         header: "Role",
@@ -70,10 +70,10 @@ export function UsersAccessTable({
         header: "Branch Access",
         cell: (user) => (
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-text-primary">
+            <span className="text-sm font-bold text-foreground">
               {user.branch ? user.branch.name : "All Branches"}
             </span>
-            <Label variant="dashboard">{user.branch ? user.branch.code : "Master Access"}</Label>
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{user.branch ? user.branch.code : "Master Access"}</Label>
           </div>
         ),
       },
@@ -81,10 +81,10 @@ export function UsersAccessTable({
         header: "Last Activity",
         cell: (user) => (
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-text-primary">
+            <span className="text-sm font-bold text-foreground">
               {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString("en-PK") : "Never"}
             </span>
-            <Label variant="dashboard">System Log</Label>
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">System Log</Label>
           </div>
         ),
       },
@@ -92,7 +92,6 @@ export function UsersAccessTable({
         header: "Access",
         cell: (user) => (
           <Switch
-            variant="premium"
             checked={user.isActive}
             onCheckedChange={(nextChecked) => onToggleActive(user, nextChecked)}
           />
@@ -104,15 +103,15 @@ export function UsersAccessTable({
         cell: (user) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="tableIcon"
-              size="iconSm"
+              variant="ghost"
+              size="icon"
               onClick={() => onEdit(user)}
             >
               <Pencil className="h-4 w-4" />
             </Button>
             <Button
-              variant="tableDanger"
-              size="iconSm"
+              variant="outline"
+              size="icon"
               onClick={() => onDelete(user)}
             >
               <Trash2 className="h-4 w-4" />

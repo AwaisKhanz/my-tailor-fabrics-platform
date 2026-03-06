@@ -7,7 +7,7 @@ import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 interface GarmentMeasurementFormsCardProps {
@@ -20,21 +20,21 @@ export function GarmentMeasurementFormsCard({
   const categories = garment.measurementCategories ?? [];
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="start" gap="sm">
+    <Card>
+      <CardHeader align="start" gap="sm" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Connected Measurement Forms"
           description="These forms are shown when an order item is created for this garment."
           descriptionVariant="compact"
           icon={
-            <SectionIcon tone="primary">
+            <SectionIcon tone="default">
               <ClipboardList className="h-4 w-4" />
             </SectionIcon>
           }
         />
 
         <div className="">
-          {/* <Badge variant="secondary" size="xs" className="font-bold">
+          {/* <Badge variant="default" size="xs" className="font-bold">
             {categories.length} Form{categories.length === 1 ? "" : "s"}
           </Badge> */}
           <Button asChild variant="outline" size="sm" className="h-8">
@@ -63,26 +63,26 @@ export function GarmentMeasurementFormsCard({
               >
                 <div className="flex items-center gap-3">
                   <SectionIcon
-                    tone="primary"
+                    tone="default"
                     framed={false}
                     className="rounded-md transition-colors group-hover:bg-primary/20"
                   >
                     <Scale className="h-4 w-4 text-primary" />
                   </SectionIcon>
                   <div>
-                    <Typography
+                    <Text
                       as="p"
-                      variant="body"
+                       variant="body"
                       className="font-bold transition-colors group-hover:text-primary"
                     >
                       {category.name}
-                    </Typography>
-                    <Label variant="dashboard">
+                    </Text>
+                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                       {category.fields?.length ?? 0} measurement fields
                     </Label>
                   </div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-text-secondary transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
               </Link>
             ))}
           </div>
@@ -93,13 +93,10 @@ export function GarmentMeasurementFormsCard({
             radius="xl"
             className="col-span-full py-8 text-center"
           >
-            <Typography as="p" variant="lead">
+            <Text as="p"  variant="lead">
               No measurement forms attached.
-            </Typography>
-            <Label
-              variant="dashboard"
-              className="mt-1 block text-text-secondary"
-            >
+            </Text>
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-1 block">
               Attach forms from garment management settings.
             </Label>
           </InfoTile>

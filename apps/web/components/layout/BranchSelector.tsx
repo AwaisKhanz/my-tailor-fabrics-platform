@@ -9,7 +9,6 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  type SelectTriggerProps,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -19,12 +18,10 @@ import { cn } from "@/lib/utils";
 
 interface BranchSelectorProps {
   className?: string;
-  triggerVariant?: SelectTriggerProps["variant"];
 }
 
 export function BranchSelector({
   className,
-  triggerVariant = "appBar",
 }: BranchSelectorProps) {
   const router = useRouter();
   const { canAll } = useAuthz();
@@ -74,7 +71,6 @@ export function BranchSelector({
       }}
     >
       <SelectTrigger
-        variant={triggerVariant}
         className={cn(
           "h-9 w-full text-xs font-semibold tracking-wide sm:text-sm",
           className,

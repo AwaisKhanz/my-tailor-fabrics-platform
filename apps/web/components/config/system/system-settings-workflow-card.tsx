@@ -10,7 +10,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Switch } from "@/components/ui/switch";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 interface SystemSettingsWorkflowCardProps {
   loading: boolean;
@@ -32,8 +32,8 @@ export function SystemSettingsWorkflowCard({
   onSave,
 }: SystemSettingsWorkflowCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="section" className="space-y-2">
+    <Card>
+      <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <SectionHeader
             title="Workflow Engine"
@@ -56,24 +56,23 @@ export function SystemSettingsWorkflowCard({
         <InfoTile padding="contentLg">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <Typography
+              <Text
                 as="p"
-                variant="body"
-                className="text-sm font-semibold text-text-primary"
+                 variant="body"
+                className="text-sm font-semibold text-foreground"
               >
                 Enable Task Workflow
-              </Typography>
-              <Typography
+              </Text>
+              <Text
                 as="p"
-                variant="lead"
-                className="text-sm text-text-secondary"
+                 variant="lead"
+                className="text-sm text-muted-foreground"
               >
                 When enabled, newly created order items generate step-based
                 tasks using garment workflow templates.
-              </Typography>
+              </Text>
             </div>
             <Switch
-              variant="premium"
               checked={workflowEnabled}
               onCheckedChange={onWorkflowChange}
               disabled={loading || saving}
@@ -93,7 +92,7 @@ export function SystemSettingsWorkflowCard({
           </Button>
           <Button
             type="button"
-            variant="premium"
+            variant="default"
             onClick={() => void onSave()}
             disabled={!dirty || loading || saving}
           >

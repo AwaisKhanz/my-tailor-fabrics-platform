@@ -42,10 +42,10 @@ export function EmployeesListTable({
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-bold leading-tight text-text-primary transition-colors group-hover:text-primary">
+              <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
                 {employee.fullName}
               </span>
-              <Label variant="dashboard" className="mt-0.5">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
                 {employee.employeeCode}
               </Label>
             </div>
@@ -63,8 +63,8 @@ export function EmployeesListTable({
       {
         header: "Contact",
         cell: (employee) => (
-          <div className="flex items-center gap-1.5 text-xs font-semibold tabular-nums text-text-primary">
-            <Phone className="h-3 w-3 text-text-secondary" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold tabular-nums text-foreground">
+            <Phone className="h-3 w-3 text-muted-foreground" />
             {employee.phone}
           </div>
         ),
@@ -83,8 +83,8 @@ export function EmployeesListTable({
         cell: (employee) => (
           <div className="flex justify-end pr-2">
             <Button
-              variant="tableIcon"
-              size="iconSm"
+              variant="ghost"
+              size="icon"
               onClick={(event) => {
                 event.stopPropagation();
                 onViewEmployee(employee);

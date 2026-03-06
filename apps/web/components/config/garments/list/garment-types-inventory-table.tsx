@@ -57,10 +57,10 @@ export function GarmentTypesInventoryTable({
               }}
               className="group/link flex flex-col transition-opacity hover:opacity-80"
             >
-              <span className="text-sm font-bold leading-tight text-text-primary transition-colors group-hover/link:text-primary">
+              <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover/link:text-primary">
                 {item.name}
               </span>
-              <Label variant="dashboard" className="mt-0.5">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
                 ID: GT-{item.id.slice(-4).toUpperCase()}
               </Label>
             </Link>
@@ -70,7 +70,7 @@ export function GarmentTypesInventoryTable({
       {
         header: "Customer Price",
         cell: (item) => (
-          <span className="text-sm font-bold text-text-primary">
+          <span className="text-sm font-bold text-foreground">
             {formatPKR(item.customerPrice)}
           </span>
         ),
@@ -96,8 +96,8 @@ export function GarmentTypesInventoryTable({
         cell: (item) => (
           <div className="flex items-center justify-end gap-1">
             <Button
-              variant="tableIcon"
-              size="iconSm"
+              variant="ghost"
+              size="icon"
               onClick={(event) => {
                 event.stopPropagation();
                 onOpenHistory(item);
@@ -111,7 +111,7 @@ export function GarmentTypesInventoryTable({
               <>
                 {item.deletedAt ? (
                   <Button
-                    variant="tablePrimary"
+                    variant="outline"
                     size="sm"
                     disabled={restoringId === item.id}
                     onClick={(event) => {
@@ -125,8 +125,8 @@ export function GarmentTypesInventoryTable({
                 ) : (
                   <>
                     <Button
-                      variant="tableIcon"
-                      size="iconSm"
+                      variant="ghost"
+                      size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
                         onEdit(item);
@@ -136,8 +136,8 @@ export function GarmentTypesInventoryTable({
                     </Button>
 
                     <Button
-                      variant="tableIcon"
-                      size="iconSm"
+                      variant="ghost"
+                      size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
                         onOpenWorkflow(item);
@@ -148,8 +148,8 @@ export function GarmentTypesInventoryTable({
                     </Button>
 
                     <Button
-                      variant="tableDanger"
-                      size="iconSm"
+                      variant="outline"
+                      size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
                         onDelete(item);

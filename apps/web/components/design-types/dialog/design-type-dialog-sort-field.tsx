@@ -14,9 +14,9 @@ export function DesignTypeDialogSortField({ form }: DesignTypeDialogSortFieldPro
       name="sortOrder"
       render={({ field }) => (
         <FormItem>
-          <FormLabel variant="dashboard">Sort Order</FormLabel>
+          <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Sort Order</FormLabel>
           <FormControl>
-            <Input variant="premium" type="number" {...field} />
+            <Input type="number" {...field} />
           </FormControl>
         </FormItem>
       )}

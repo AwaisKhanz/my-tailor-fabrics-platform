@@ -26,23 +26,20 @@ export function DashboardOverdueBanner({
 
   if (overdueCount > 0) {
     return (
-      <Card variant="error">
+      <Card className="bg-muted/40 shadow-sm">
         <CardContent
           spacing="section"
           className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
         >
           <div className="flex items-start gap-3 sm:items-center sm:gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-error/15">
-              <AlertTriangle className="h-6 w-6 text-error" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <Label
-                variant="dashboard"
-                className="block text-sm font-bold text-error"
-              >
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground block text-destructive">
                 {overdueCount} Overdue {overdueCount === 1 ? "Order" : "Orders"}
               </Label>
-              <p className="text-sm text-error/80">
+              <p className="text-sm text-destructive/80">
                 These orders have passed their due date and require immediate
                 attention.
               </p>
@@ -61,30 +58,7 @@ export function DashboardOverdueBanner({
   }
 
   if (!error) {
-    return (
-      <></>
-      // <Card variant="successSoft">
-      //   <CardContent
-      //     spacing="section"
-      //     className="flex items-center gap-4 p-5 sm:p-6"
-      //   >
-      //     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/15">
-      //       <CheckCircle2 className="h-6 w-6 text-success" />
-      //     </div>
-      //     <div>
-      //       <Label
-      //         variant="dashboard"
-      //         className="block text-sm font-bold text-success"
-      //       >
-      //         All orders on track
-      //       </Label>
-      //       <p className="text-sm text-success/80">
-      //         No overdue orders at this time.
-      //       </p>
-      //     </div>
-      //   </CardContent>
-      // </Card>
-    );
+    return <></>;
   }
 
   return null;

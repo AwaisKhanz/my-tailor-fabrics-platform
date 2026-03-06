@@ -87,7 +87,7 @@ export function AttendanceSettingsPage() {
       {
         header: "Date",
         cell: (record) => (
-          <span className="text-sm font-medium text-text-primary">
+          <span className="text-sm font-medium text-foreground">
             {formatDate(record.date)}
           </span>
         ),
@@ -96,10 +96,10 @@ export function AttendanceSettingsPage() {
         header: "Employee",
         cell: (record) => (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-text-primary">
+            <p className="text-sm font-semibold text-foreground">
               {record.employee?.fullName ?? "Unknown employee"}
             </p>
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-muted-foreground">
               {record.employee?.employeeCode ?? "No code"}
               {record.employee?.designation
                 ? ` • ${record.employee.designation}`
@@ -111,7 +111,7 @@ export function AttendanceSettingsPage() {
       {
         header: "Clock In",
         cell: (record) => (
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-foreground">
             {formatDateTime(record.clockIn)}
           </span>
         ),
@@ -120,7 +120,7 @@ export function AttendanceSettingsPage() {
         header: "Clock Out",
         cell: (record) =>
           record.clockOut ? (
-            <span className="text-sm text-text-primary">
+            <span className="text-sm text-foreground">
               {formatDateTime(record.clockOut)}
             </span>
           ) : (
@@ -133,7 +133,7 @@ export function AttendanceSettingsPage() {
         header: "Hours",
         align: "right",
         cell: (record) => (
-          <span className="font-semibold text-text-primary">
+          <span className="font-semibold text-foreground">
             {typeof record.hoursWorked === "number"
               ? `${record.hoursWorked.toFixed(2)}h`
               : "—"}
@@ -143,7 +143,7 @@ export function AttendanceSettingsPage() {
       {
         header: "Note",
         cell: (record) => (
-          <span className="line-clamp-2 text-sm text-text-secondary">
+          <span className="line-clamp-2 text-sm text-muted-foreground">
             {record.note || "—"}
           </span>
         ),
@@ -153,7 +153,7 @@ export function AttendanceSettingsPage() {
         align: "right",
         cell: (record) =>
           record.clockOut ? (
-            <span className="text-xs text-text-secondary">Closed</span>
+            <span className="text-xs text-muted-foreground">Closed</span>
           ) : !canManageAttendanceEntries ? (
             <Badge variant="outline" size="xs">
               Open
@@ -229,8 +229,8 @@ export function AttendanceSettingsPage() {
 
       {canManageAttendanceEntries ? (
         <PageSection spacing="compact">
-          <Card variant="elevatedPanel">
-            <CardHeader variant="section">
+          <Card>
+            <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
               <SectionHeader
                 title="Quick Clock-In"
                 description="Record an employee shift start directly from admin settings."
@@ -246,7 +246,7 @@ export function AttendanceSettingsPage() {
               className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end"
             >
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Employee
                 </p>
                 <Select
@@ -254,7 +254,7 @@ export function AttendanceSettingsPage() {
                   onValueChange={setClockInEmployeeId}
                   disabled={employeesLoading || clockingIn}
                 >
-                  <SelectTrigger variant="table">
+                  <SelectTrigger>
                     <SelectValue
                       placeholder={
                         employeesLoading
@@ -279,11 +279,11 @@ export function AttendanceSettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Note (Optional)
                 </p>
                 <Input
-                  variant="table"
+                 
                   placeholder="Shift note or context..."
                   value={clockInNote}
                   onChange={(event) => setClockInNote(event.target.value)}
@@ -298,7 +298,7 @@ export function AttendanceSettingsPage() {
 
               <Button
                 type="button"
-                variant="premium"
+                variant="default"
                 disabled={clockingIn || !clockInEmployeeId}
                 onClick={() => void clockIn()}
                 className="w-full md:w-auto"
@@ -331,7 +331,7 @@ export function AttendanceSettingsPage() {
                     onValueChange={applyEmployeeFilter}
                     disabled={employeesLoading}
                   >
-                    <SelectTrigger variant="table">
+                    <SelectTrigger>
                       <SelectValue placeholder="Filter by employee" />
                     </SelectTrigger>
                     <SelectContent>
@@ -349,7 +349,7 @@ export function AttendanceSettingsPage() {
 
                 <Button
                   type="button"
-                  variant="tableReset"
+                  variant="ghost"
                   size="sm"
                   className="md:ml-auto"
                   onClick={resetFilters}

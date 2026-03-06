@@ -76,11 +76,11 @@ function DistributionBars({
   return (
     <div className="space-y-3">
       {activePoint ? (
-        <InfoTile tone="elevatedSoft" padding="md">
-          <p className="text-xs font-semibold text-text-primary">
+        <InfoTile tone="secondary" padding="md">
+          <p className="text-xs font-semibold text-foreground">
             {activePoint.label}
           </p>
-          <p className="mt-1 text-[11px] text-text-secondary">
+          <p className="mt-1 text-[11px] text-muted-foreground">
             {activePoint.share.toFixed(1)}% •{" "}
             {valueFormatter(activePoint.value)}
           </p>
@@ -99,16 +99,16 @@ function DistributionBars({
             key={point.key}
             className={`space-y-1.5 rounded-lg border p-3 transition-colors ${
               isActive
-                ? "border-primary/40 bg-interaction-hover"
-                : "border-divider bg-surface-elevated/60 hover:border-divider"
+                ? "border-primary/40 bg-accent"
+                : "border-border bg-card/60 hover:border-border"
             }`}
             onMouseEnter={() => setHoveredKey(point.key)}
           >
             <div className="flex items-center justify-between gap-3">
-              <p className="truncate text-sm font-medium text-text-primary">
+              <p className="truncate text-sm font-medium text-foreground">
                 {point.label}
               </p>
-              <p className="text-xs font-semibold text-text-secondary">
+              <p className="text-xs font-semibold text-muted-foreground">
                 {point.share.toFixed(1)}%
               </p>
             </div>
@@ -119,7 +119,7 @@ function DistributionBars({
               size="sm"
               fillClassName={getChartBgClass(index)}
             />
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-muted-foreground">
               {valueFormatter(point.value)}
             </p>
           </div>
@@ -159,7 +159,7 @@ function DistributionDonut({
               cx="60"
               cy="60"
               r={radius}
-              className="fill-transparent stroke-pending-muted"
+              className="fill-transparent stroke-border"
               strokeWidth="12"
             />
             {topPoints.map((point, index) => {
@@ -189,10 +189,10 @@ function DistributionDonut({
           </svg>
           {activePoint ? (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p className="text-[11px] uppercase tracking-[0.08em] text-text-secondary">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
                 Selected
               </p>
-              <p className="mt-1 text-sm font-semibold text-text-primary">
+              <p className="mt-1 text-sm font-semibold text-foreground">
                 {activePoint.label}
               </p>
               <p
@@ -203,7 +203,7 @@ function DistributionDonut({
               >
                 {activePoint.share.toFixed(1)}%
               </p>
-              <p className="text-[11px] text-text-secondary">
+              <p className="text-[11px] text-muted-foreground">
                 {valueFormatter(activePoint.value)}
               </p>
             </div>
@@ -217,8 +217,8 @@ function DistributionDonut({
             key={point.key}
             className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${
               index === activeIndex
-                ? "border-primary/40 bg-interaction-hover"
-                : "border-divider bg-surface-elevated/60 hover:border-divider"
+                ? "border-primary/40 bg-accent"
+                : "border-border bg-card/60 hover:border-border"
             }`}
             onMouseEnter={() => setHoveredIndex(index)}
           >
@@ -229,13 +229,13 @@ function DistributionDonut({
                   getChartBgClass(index),
                 )}
               />
-              <span className="text-sm text-text-primary">{point.label}</span>
+              <span className="text-sm text-foreground">{point.label}</span>
             </div>
             <div className="text-right">
-              <p className="text-xs font-semibold text-text-secondary">
+              <p className="text-xs font-semibold text-muted-foreground">
                 {point.share.toFixed(1)}%
               </p>
-              <p className="text-xs text-text-secondary">
+              <p className="text-xs text-muted-foreground">
                 {valueFormatter(point.value)}
               </p>
             </div>

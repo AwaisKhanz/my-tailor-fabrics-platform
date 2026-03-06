@@ -22,16 +22,12 @@ export function EmployeeProfileSidebar({
 }: EmployeeProfileSidebarProps) {
   return (
     <div className="space-y-6">
-      <Card variant="elevatedPanel">
-        <CardHeader
-          variant="rowSection"
-          density="compact"
-          align="startResponsive"
-        >
+      <Card>
+        <CardHeader density="compact" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
           <SectionHeader
             title="Personal Info"
             icon={
-              <SectionIcon tone="infoSoft">
+              <SectionIcon tone="info">
                 <UserSquare2 className="h-4 w-4" />
               </SectionIcon>
             }
@@ -45,23 +41,23 @@ export function EmployeeProfileSidebar({
         </CardHeader>
         <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="flex items-center gap-3 text-sm">
-            <Phone className="h-4 w-4 text-text-secondary" />
-            <span className="font-medium text-text-primary">
+            <Phone className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium text-foreground">
               {employee.phone}
             </span>
           </div>
-          <div className="flex items-start gap-3 text-sm text-text-secondary">
+          <div className="flex items-start gap-3 text-sm text-muted-foreground">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{employee.address || "No address provided"}</span>
           </div>
           <Separator />
           <div className="space-y-3">
-            <Label variant="dashboard">Emergency Contact</Label>
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Emergency Contact</Label>
             <div>
               <p className="text-sm font-bold">
                 {employee.emergencyName || "Not set"}
               </p>
-              <p className="text-xs text-text-secondary">
+              <p className="text-xs text-muted-foreground">
                 {employee.emergencyPhone || "Not set"}
               </p>
             </div>
@@ -69,16 +65,12 @@ export function EmployeeProfileSidebar({
         </CardContent>
       </Card>
 
-      <Card variant="elevatedPanel">
-        <CardHeader
-          variant="rowSection"
-          density="compact"
-          align="startResponsive"
-        >
+      <Card>
+        <CardHeader density="compact" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
           <SectionHeader
             title="Employment"
             icon={
-              <SectionIcon tone="infoSoft">
+              <SectionIcon tone="info">
                 <BriefcaseBusiness className="h-4 w-4" />
               </SectionIcon>
             }
@@ -86,13 +78,13 @@ export function EmployeeProfileSidebar({
         </CardHeader>
         <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="flex justify-between text-sm">
-            <span className="text-text-secondary">Join Date</span>
+            <span className="text-muted-foreground">Join Date</span>
             <span className="font-medium">
               {formatDate(employee.dateOfJoining)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-text-secondary">Pay Model</span>
+            <span className="text-muted-foreground">Pay Model</span>
             <Badge variant="outline" className="text-[10px]">
               {PAYMENT_TYPE_LABELS[employee.paymentType] ??
                 employee.paymentType}
@@ -100,7 +92,7 @@ export function EmployeeProfileSidebar({
           </div>
           {employee.monthlySalary != null ? (
             <div className="flex justify-between text-sm">
-              <span className="text-text-secondary">Monthly Salary</span>
+              <span className="text-muted-foreground">Monthly Salary</span>
               <span className="font-medium">
                 {formatPKR(employee.monthlySalary)}
               </span>
@@ -108,14 +100,14 @@ export function EmployeeProfileSidebar({
           ) : null}
           {employee.employmentEndDate ? (
             <div className="flex justify-between text-sm">
-              <span className="text-text-secondary">Employment End</span>
+              <span className="text-muted-foreground">Employment End</span>
               <span className="font-medium">
                 {formatDate(employee.employmentEndDate)}
               </span>
             </div>
           ) : null}
           <div className="flex justify-between text-sm">
-            <span className="text-text-secondary">Designation</span>
+            <span className="text-muted-foreground">Designation</span>
             <span className="font-medium">
               {employee.designation || "Staff"}
             </span>

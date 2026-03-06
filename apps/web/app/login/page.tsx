@@ -28,7 +28,6 @@ export default function LoginPage() {
       inset="none"
       className="relative flex min-h-screen w-full items-center justify-center bg-background px-4 py-6 sm:px-6 sm:py-10"
     >
-      <div className="pointer-events-none absolute inset-0 bg-theme-radial-top" />
       <Card className="relative w-full max-w-md overflow-hidden">
         <LoginFormPanel
           email={email}

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
-import { Typography } from "@/components/ui/typography";
+import { Heading } from "@/components/ui/typography";
 import { formatDate } from "@/lib/utils";
 
 interface GarmentDetailHeaderProps {
@@ -30,20 +30,20 @@ export function GarmentDetailHeader({
   const workflowStepsCount = garment.workflowSteps?.length ?? 0;
 
   return (
-    <Card variant="elevatedPanel">
+    <Card>
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3 lg:max-w-[70%]">
-            <Label variant="microStrong">Garment Command</Label>
+            <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Garment Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Typography
+              <Heading
                 as="h1"
-                variant="pageTitle"
+                 variant="page"
                 className="font-semibold sm:text-4xl"
               >
                 {garment.name}
-              </Typography>
+              </Heading>
               <Badge
                 variant={garment.isActive ? "success" : "outline"}
                 size="xs"
@@ -55,7 +55,7 @@ export function GarmentDetailHeader({
               </Badge>
             </div>
 
-            <div className="flex flex-col gap-2 text-xs text-text-secondary sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               <MetaPill>
                 <ClipboardList className="h-3.5 w-3.5" />
                 <span>
@@ -91,7 +91,7 @@ export function GarmentDetailHeader({
             ) : null}
             <Button
               asChild
-              variant="premium"
+              variant="default"
               size="lg"
               className="w-full justify-center sm:w-auto sm:min-w-[180px]"
             >

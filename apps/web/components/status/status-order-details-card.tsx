@@ -1,6 +1,6 @@
 import { type Order } from "@tbms/shared-types";
 import { Card } from "@/components/ui/card";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 
 interface StatusOrderDetailsCardProps {
@@ -9,50 +9,50 @@ interface StatusOrderDetailsCardProps {
 
 export function StatusOrderDetailsCard({ order }: StatusOrderDetailsCardProps) {
   return (
-    <Card variant="elevatedPanel" className="space-y-3 p-6">
-      <Typography
+    <Card className="space-y-3 p-6">
+      <Heading
         as="h2"
-        variant="muted"
-        className="font-semibold uppercase tracking-wide"
+        variant="section"
+        className="text-sm font-semibold uppercase tracking-wide text-muted-foreground"
       >
         Details
-      </Typography>
+      </Heading>
 
       <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
         <div>
-          <Typography as="p" variant="muted" className="text-xs">
+          <Text as="p"  variant="muted" className="text-xs">
             Customer
-          </Typography>
-          <Typography as="p" variant="body" className="font-medium">
+          </Text>
+          <Text as="p"  variant="body" className="font-medium">
             {order.customer?.fullName}
-          </Typography>
+          </Text>
         </div>
 
         <div>
-          <Typography as="p" variant="muted" className="text-xs">
+          <Text as="p"  variant="muted" className="text-xs">
             Due Date
-          </Typography>
-          <Typography as="p" variant="body" className="font-medium">
+          </Text>
+          <Text as="p"  variant="body" className="font-medium">
             {new Date(order.dueDate).toLocaleDateString("en-PK")}
-          </Typography>
+          </Text>
         </div>
 
         <div>
-          <Typography as="p" variant="muted" className="text-xs">
+          <Text as="p"  variant="muted" className="text-xs">
             Total
-          </Typography>
-          <Typography as="p" variant="body" className="font-medium">
+          </Text>
+          <Text as="p"  variant="body" className="font-medium">
             {formatPKR(order.totalAmount)}
-          </Typography>
+          </Text>
         </div>
 
         <div>
-          <Typography as="p" variant="muted" className="text-xs">
+          <Text as="p"  variant="muted" className="text-xs">
             Balance Due
-          </Typography>
-          <Typography as="p" variant="body" className="font-medium text-error">
+          </Text>
+          <Text as="p"  variant="body" className="font-medium text-destructive">
             {formatPKR(order.balanceDue)}
-          </Typography>
+          </Text>
         </div>
       </div>
     </Card>

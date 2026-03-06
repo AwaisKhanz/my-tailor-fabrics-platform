@@ -61,7 +61,7 @@ const dialogActionRowVariants = cva("", {
       relaxed: "pt-5",
     },
     bordered: {
-      true: "border-t border-divider bg-surface-elevated/60",
+      true: "border-t border-border bg-card/60",
       false: "",
     },
   },
@@ -141,7 +141,7 @@ export function DialogFormActions({
   submitFormId,
   submitDisabled,
   cancelVariant = "outline",
-  submitVariant = "premium",
+  submitVariant = "default",
   cancelSize,
   submitSize,
   submitClassName,

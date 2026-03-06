@@ -1,25 +1,19 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { statusSurfaceStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 export const infoTileVariants = cva(
-  "rounded-lg border border-divider text-text-primary",
+  "rounded-lg border border-border bg-card text-foreground shadow-sm",
   {
     variants: {
       tone: {
-        elevated: "bg-surface-elevated",
-        elevatedSoft: "bg-surface-elevated/70",
-        elevatedMuted: "bg-surface-elevated/60",
-        pending: "bg-pending-muted",
-        success: "bg-success-muted",
-        error: "bg-error-muted",
-        info: "border-info/30 bg-info-muted",
-        warning: "border-warning/30 bg-warning-muted",
-        primarySoft: "border-primary/20 bg-primary/5",
-        inverseSoft:
-          "border-text-inverse/25 bg-text-inverse/10 text-text-inverse",
-        surface: "bg-card",
-        inputSurface: "bg-inputSurface-background",
+        default: "",
+        secondary: "bg-secondary text-secondary-foreground",
+        success: statusSurfaceStyles.success,
+        destructive: statusSurfaceStyles.destructive,
+        info: statusSurfaceStyles.info,
+        warning: statusSurfaceStyles.warning,
       },
       padding: {
         none: "",
@@ -44,9 +38,7 @@ export const infoTileVariants = cva(
       interaction: {
         default: "",
         interactive:
-          "transition-all duration-200 hover:border-divider hover:shadow-sm hover:shadow-shadowColor/10",
-        interactivePrimary:
-          "transition-all duration-200 hover:border-primary/20 hover:bg-primary/5 hover:shadow-sm hover:shadow-shadowColor/10",
+          "transition-all duration-200 hover:border-border hover:shadow",
       },
       radius: {
         lg: "rounded-lg",
@@ -54,7 +46,7 @@ export const infoTileVariants = cva(
       },
     },
     defaultVariants: {
-      tone: "elevated",
+      tone: "default",
       padding: "lg",
       layout: "default",
       borderStyle: "solid",
@@ -81,6 +73,7 @@ export function InfoTile({
 }: InfoTileProps) {
   return (
     <div
+      data-ui="info-tile"
       className={cn(
         infoTileVariants({
           tone,

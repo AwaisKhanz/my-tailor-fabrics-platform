@@ -3,7 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
+import { statusIconStyles, statusTextStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 const statCardTone = cva("", {
@@ -25,12 +26,12 @@ const statCardTone = cva("", {
 const statValueTone = cva("text-3xl", {
   variants: {
     tone: {
-      default: "text-text-primary",
+      default: "text-foreground",
       primary: "text-primary",
-      success: "text-success",
-      warning: "text-warning",
+      success: statusTextStyles.success,
+      warning: statusTextStyles.warning,
       destructive: "text-destructive",
-      info: "text-info",
+      info: statusTextStyles.info,
     },
   },
   defaultVariants: {
@@ -43,12 +44,12 @@ const statIconTone = cva(
   {
     variants: {
       tone: {
-        default: "border-divider bg-muted text-muted-foreground",
+        default: "border-border bg-muted text-muted-foreground",
         primary: "border-primary/20 bg-primary/10 text-primary",
-        success: "border-success/20 bg-success-muted text-success",
-        warning: "border-warning/20 bg-warning-muted text-warning",
-        destructive: "border-destructive/20 bg-error-muted text-destructive",
-        info: "border-info/20 bg-info-muted text-info",
+        success: statusIconStyles.success,
+        warning: statusIconStyles.warning,
+        destructive: statusIconStyles.destructive,
+        info: statusIconStyles.info,
       },
     },
     defaultVariants: {
@@ -62,7 +63,7 @@ const statBadgeTone: Record<
   NonNullable<React.ComponentProps<typeof Badge>["variant"]>
 > = {
   default: "outline",
-  primary: "info",
+  primary: "default",
   success: "success",
   warning: "warning",
   destructive: "destructive",
@@ -105,19 +106,27 @@ export function StatCard({
 
   return (
     <Card
-      variant="elevatedPanel"
       className={cn(
         "overflow-hidden",
         statCardTone({ tone: resolvedTone }),
         className,
       )}
     >
-      <CardHeader variant="rowSection" density="compact" align="start" gap="sm">
+      <CardHeader
+        density="compact"
+        align="start"
+        gap="sm"
+        className="flex-row items-center justify-between gap-3 border-b border-border rounded-none bg-muted/40 px-6 py-4"
+      >
         <div className="space-y-1">
-          <CardTitle variant="dashboard" className="text-base">
+          <CardTitle className="text-base font-semibold text-foreground">
             {title}
           </CardTitle>
-          {subtitle ? <Label variant="micro">{subtitle}</Label> : null}
+          {subtitle ? (
+            <Label className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+              {subtitle}
+            </Label>
+          ) : null}
         </div>
 
         {icon ? (
@@ -130,16 +139,16 @@ export function StatCard({
         className={cn("space-y-2 p-5", contentClassName)}
       >
         <div className="flex items-center gap-2">
-          <Typography
+          <Heading
             as="div"
-            variant="statValue"
+            variant="stat"
             className={cn(
               statValueTone({ tone: resolvedValueTone }),
               valueClassName,
             )}
           >
             {value}
-          </Typography>
+          </Heading>
           {badgeText ? (
             <Badge variant={statBadgeTone[resolvedTone]} size="xs">
               {badgeText}
@@ -148,9 +157,9 @@ export function StatCard({
         </div>
 
         {helperText ? (
-          <Label variant="dashboard" className="text-text-secondary">
+          <Text as="p" variant="meta" className="text-muted-foreground">
             {helperText}
-          </Label>
+          </Text>
         ) : null}
 
         {action ? <div>{action}</div> : null}

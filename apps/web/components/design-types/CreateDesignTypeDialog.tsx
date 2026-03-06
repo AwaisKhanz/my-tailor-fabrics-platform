@@ -7,7 +7,7 @@ import {
 import { Form } from "@/components/ui/form";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { DesignTypeDialogBasicFields } from "@/components/design-types/dialog/design-type-dialog-basic-fields";
 import { DesignTypeDialogScopeFields } from "@/components/design-types/dialog/design-type-dialog-scope-fields";
 import { DesignTypeDialogSortField } from "@/components/design-types/dialog/design-type-dialog-sort-field";
@@ -61,9 +61,9 @@ export function CreateDesignTypeDialog({
     >
       <div className="-mt-1 mb-4 flex items-start gap-2">
         <Banknote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-        <Typography as="p" variant="lead">
+        <Text as="p"  variant="lead">
           Set standardized customer pricing and employee labor rates for a specific design.
-        </Typography>
+        </Text>
       </div>
 
       <Form {...form}>

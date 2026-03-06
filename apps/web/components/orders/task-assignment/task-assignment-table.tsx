@@ -108,8 +108,8 @@ export function TaskAssignmentTable({
         header: "Step",
         cell: (task) => (
           <div className="flex flex-col">
-            <span className="font-bold text-text-primary">{task.stepName}</span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+            <span className="font-bold text-foreground">{task.stepName}</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               {task.stepKey}
             </span>
           </div>
@@ -145,7 +145,7 @@ export function TaskAssignmentTable({
                 onAssign(task.id, value === "unassigned" ? null : value);
               }}
             >
-              <SelectTrigger variant="table" className="h-8 text-xs font-semibold">
+              <SelectTrigger className="h-8 text-xs font-semibold">
                 <SelectValue placeholder="Assign Employee" />
               </SelectTrigger>
               <SelectContent>
@@ -158,7 +158,7 @@ export function TaskAssignmentTable({
               </SelectContent>
             </Select>
             {!hasSelectableEmployee && !task.assignedEmployeeId ? (
-              <p className="mt-1 text-[11px] text-warning">
+              <p className="mt-1 text-[11px] text-secondary-foreground">
                 No eligible employees for this step.
               </p>
             ) : null}
@@ -179,7 +179,7 @@ export function TaskAssignmentTable({
                 }
               }}
             >
-              <SelectTrigger variant="inlineGhost" className="h-8 p-0">
+              <SelectTrigger className="h-8 border-transparent bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground focus:ring-0 focus:ring-offset-0">
                 <Badge variant={STATUS_VARIANTS[task.status] || "outline"} className="w-full justify-center uppercase">
                   {TASK_STATUS_LABELS[task.status]}
                 </Badge>
@@ -212,7 +212,7 @@ export function TaskAssignmentTable({
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center justify-end gap-1">
                   <Input
-                    variant="table"
+                   
                     className="h-7 w-20 text-right text-xs"
                     type="number"
                     value={tempRate}
@@ -228,16 +228,16 @@ export function TaskAssignmentTable({
                     }}
                   />
                   <Button
-                    variant="tableSuccess"
-                    size="iconSm"
+                    variant="secondary"
+                    size="icon"
                     className="h-7 w-7"
                     onClick={() => onRateUpdate(task.id)}
                   >
                     <Check className="h-3 w-3" />
                   </Button>
                   <Button
-                    variant="tableDanger"
-                    size="iconSm"
+                   
+                    size="icon"
                     className="h-7 w-7"
                     onClick={onCancelRateEdit}
                   >
@@ -262,7 +262,7 @@ export function TaskAssignmentTable({
                       ? "text-primary"
                       : task.designRateSnapshot
                         ? "text-primary/80"
-                        : "text-text-primary"
+                        : "text-foreground"
                   }`}
                 >
                   {formatPKR(
@@ -274,18 +274,18 @@ export function TaskAssignmentTable({
                   )}
                 </span>
                 {task.rateOverride ? (
-                  <span className="text-[9px] text-text-secondary line-through">
+                  <span className="text-[9px] text-muted-foreground line-through">
                     Base: {formatPKR(task.rateSnapshot ?? 0)}
                   </span>
                 ) : null}
               </div>
               <Button
-                variant="tableIcon"
-                size="iconSm"
+                variant="ghost"
+                size="icon"
                 className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
                 onClick={() => onStartRateEdit(task.id, effectiveRateInRupees)}
               >
-                <Edit2 className="h-3 w-3 text-text-secondary" />
+                <Edit2 className="h-3 w-3 text-muted-foreground" />
               </Button>
             </div>
           );
@@ -309,7 +309,7 @@ export function TaskAssignmentTable({
   );
 
   return (
-    <TableSurface variant="flat">
+    <TableSurface className="shadow-none">
       <DataTable
         columns={columns}
         data={pagedTasks}

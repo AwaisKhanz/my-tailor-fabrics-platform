@@ -81,4 +81,4 @@ export declare enum AddonType {
     ALTERATION = "ALTERATION",
     DESIGN_CHARGE = "DESIGN_CHARGE"
 }
-export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'ready' | 'admin' | 'royal' | 'amber';
+export type BadgeVariant = 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'info' | 'destructive';

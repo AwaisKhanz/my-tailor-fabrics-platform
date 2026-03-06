@@ -19,7 +19,7 @@ export function ReportsChartLegend({
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex items-center gap-2 text-xs text-text-secondary"
+          className="flex items-center gap-2 text-xs text-muted-foreground"
         >
           <span
             className={cn("h-2.5 w-2.5 rounded-full", item.toneClassName)}

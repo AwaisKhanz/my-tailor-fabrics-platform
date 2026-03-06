@@ -32,7 +32,7 @@ export function BranchesListToolbar({
           />
 
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="md:ml-auto"
             onClick={onResetFilters}

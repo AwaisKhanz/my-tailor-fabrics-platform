@@ -3,7 +3,7 @@ import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 interface MeasurementFieldDialogDropdownOptionsProps {
   fieldType: string;
@@ -29,10 +29,10 @@ export function MeasurementFieldDialogDropdownOptions({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Typography as="p" variant="body" className="font-medium leading-none">
+        <Text as="p"  variant="body" className="font-medium leading-none">
           Dropdown Options
-        </Typography>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+        </Text>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Manage Options
         </span>
       </div>
@@ -42,16 +42,16 @@ export function MeasurementFieldDialogDropdownOptions({
           {options.map((option) => (
             <InfoTile
               key={option}
-              tone="surface"
+              tone="default"
               padding="sm"
               layout="row"
-              className="inline-flex text-sm font-medium text-text-primary"
+              className="inline-flex text-sm font-medium text-foreground"
             >
               {option}
               <button
                 type="button"
                 onClick={() => onRemoveOption(option)}
-                className="ml-0.5 rounded-sm text-text-secondary transition-colors hover:text-error"
+                className="ml-0.5 rounded-sm text-muted-foreground transition-colors hover:text-destructive"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -85,7 +85,6 @@ function AddOptionInline({
       <div className="flex items-center gap-1">
         <Input
           autoFocus
-          variant="inlineChip"
           placeholder="Option name"
           value={value}
           onChange={(event) => onChange(event.target.value)}
@@ -112,10 +111,10 @@ function AddOptionInline({
   return (
     <Button
       type="button"
-      variant="outlineDashed"
+     
       size="sm"
       onClick={() => setEditing(true)}
-      className="h-7 px-3 text-sm font-medium"
+      className="h-7 border-dashed px-3 text-sm font-medium"
     >
       <Plus className="h-3 w-3" />
       Add Option

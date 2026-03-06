@@ -64,24 +64,24 @@ export function GarmentPriceHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="2xl" variant="flush">
-        <DialogHeader variant="section">
+      <DialogContent size="2xl" className="gap-0 overflow-hidden p-0">
+        <DialogHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
           <div className="flex items-center gap-3 mb-2">
-             <SectionIcon tone="primary" size="lg" framed={false} className="h-10 w-10">
+             <SectionIcon tone="default" size="lg" framed={false} className="h-10 w-10">
                 <History className="h-5 w-5 text-primary" />
              </SectionIcon>
              <div className="flex flex-col">
                 <DialogTitle className="text-2xl font-extrabold tracking-tight">Price History</DialogTitle>
-                 <Label variant="dashboard" className="opacity-100 text-text-primary text-xs">{garmentName} • Global Pricing</Label>
+                 <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground opacity-100 text-foreground text-xs">{garmentName} • Global Pricing</Label>
              </div>
           </div>
         </DialogHeader>
 
         <DialogSection className="px-6 pb-6 pt-4">
           {loading ? (
-            <div className="h-64 flex flex-col items-center justify-center gap-3 text-text-secondary">
+            <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <Label variant="dashboard" className="animate-pulse">Loading timeline...</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground animate-pulse">Loading timeline...</Label>
             </div>
           ) : logs.length === 0 ? (
             <InfoTile
@@ -91,21 +91,21 @@ export function GarmentPriceHistoryDialog({
               className="h-64 flex flex-col items-center justify-center gap-4 p-8 text-center"
             >
                <SectionIcon framed={false} className="h-12 w-12 rounded-full">
-                  <History className="h-6 w-6 text-text-secondary" />
+                  <History className="h-6 w-6 text-muted-foreground" />
                </SectionIcon>
                <div className="space-y-1">
-                  <p className="font-bold text-text-primary">No History Found</p>
-                   <p className="text-xs text-text-secondary max-w-[240px]">This garment hasn&apos;t had any price updates yet.</p>
+                  <p className="font-bold text-foreground">No History Found</p>
+                   <p className="text-xs text-muted-foreground max-w-[240px]">This garment hasn&apos;t had any price updates yet.</p>
                </div>
             </InfoTile>
           ) : (
-            <ScrollArea variant="themed" className="h-[400px] pr-4">
+            <ScrollArea className="h-[400px] pr-4">
               <div className="relative space-y-8 before:absolute before:inset-0 before:left-[19px] before:w-0.5 before:bg-gradient-to-b before:from-primary/20 before:via-border/50 before:to-transparent">
                 {logs.map((log) => (
                   <div key={log.id} className="relative pl-12">
                     {/* Dot */}
-                    <div className={`absolute left-0 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-background shadow-theme-soft ${
-                      log.action === "UPDATE" ? "bg-primary text-primary-foreground" : "bg-muted text-text-secondary"
+                    <div className={`absolute left-0 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-background shadow-sm ${
+                      log.action === "UPDATE" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                     }`}>
                       {log.action === "UPDATE" ? <Edit3 className="h-4 w-4" /> : <RotateCcw className="h-4 w-4" />}
                     </div>
@@ -113,33 +113,33 @@ export function GarmentPriceHistoryDialog({
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                           <p className="text-sm font-extrabold text-text-primary flex items-center gap-2">
+                           <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
                              Price Updated
                            </p>
-                           <Label variant="dashboard" className="opacity-100 text-[10px] mt-0.5">
+                           <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground opacity-100 text-[10px] mt-0.5">
                              {format(new Date(log.createdAt), "MMM d, yyyy • h:mm a")}
                            </Label>
                         </div>
-                        <Badge variant="outlineSoft" className="text-[10px] font-bold uppercase tracking-widest">
+                        <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest">
                            {log.action}
                         </Badge>
                       </div>
 
                       <InfoTile
-                        tone="surface"
+                        tone="default"
                         padding="contentLg"
                         radius="xl"
-                        interaction="interactivePrimary"
-                        className="grid grid-cols-1 gap-4"
+                        interaction="interactive"
+                        className="grid grid-cols-1 gap-4 hover:border-primary/35 hover:bg-primary/5"
                       >
                         <div className="space-y-2">
-                           <Label variant="dashboard">Retail Price</Label>
+                           <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Retail Price</Label>
                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-text-secondary line-through opacity-50">
+                              <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
                                  {formatPrice(log.oldCustomerPrice)}
                               </span>
-                              <ArrowRight className="h-3 w-3 text-text-secondary" />
-                              <span className={`text-sm font-extrabold ${log.action === 'RESET' ? 'text-text-secondary' : 'text-primary'}`}>
+                              <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                              <span className={`text-sm font-extrabold ${log.action === 'RESET' ? 'text-muted-foreground' : 'text-primary'}`}>
                                  {formatPrice(log.newCustomerPrice)}
                               </span>
                            </div>
@@ -148,10 +148,10 @@ export function GarmentPriceHistoryDialog({
 
                       <div className="flex items-center gap-2 pl-1">
                          <SectionIcon framed={false} className="h-5 w-5 rounded-full">
-                            <User className="h-3 w-3 text-text-secondary" />
+                            <User className="h-3 w-3 text-muted-foreground" />
                          </SectionIcon>
-                         <p className="text-xs font-bold text-text-secondary">
-                            Changed by <span className="text-text-primary">{log.changedBy.name}</span>
+                         <p className="text-xs font-bold text-muted-foreground">
+                            Changed by <span className="text-foreground">{log.changedBy.name}</span>
                          </p>
                       </div>
                     </div>

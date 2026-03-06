@@ -20,8 +20,8 @@ export function ReportsWeeklyPrintCard({
   canExport = true,
 }: ReportsWeeklyPrintCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Production Work-Order Summary"
           description="Optimized for physical printing and shift-based task management."
@@ -35,7 +35,7 @@ export function ReportsWeeklyPrintCard({
 
       <CardContent spacing="section">
         <Button
-          variant="premium"
+          variant="default"
           className="w-full"
           size="lg"
           onClick={onPrint}

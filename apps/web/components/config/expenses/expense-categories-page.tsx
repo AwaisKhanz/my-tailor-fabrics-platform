@@ -64,7 +64,7 @@ export function ExpenseCategoriesPage() {
       {
         header: "Category Name",
         cell: (category) => (
-          <span className="font-semibold text-text-primary">
+          <span className="font-semibold text-foreground">
             {category.name}
           </span>
         ),
@@ -86,8 +86,8 @@ export function ExpenseCategoriesPage() {
               <>
                 <Button
                   type="button"
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
                     openEditDialog(category);
@@ -108,8 +108,8 @@ export function ExpenseCategoriesPage() {
                 </Button>
                 <Button
                   type="button"
-                  variant="tableDanger"
-                  size="iconSm"
+                  variant="outline"
+                  size="icon"
                   disabled={deletingId === category.id}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -120,7 +120,7 @@ export function ExpenseCategoriesPage() {
                 </Button>
               </>
             ) : (
-              <span className="text-xs font-medium text-text-secondary">
+              <span className="text-xs font-medium text-muted-foreground">
                 Read only
               </span>
             )}
@@ -148,7 +148,7 @@ export function ExpenseCategoriesPage() {
             canManageExpenseCategories ? (
               <Button
                 type="button"
-                variant="premium"
+                variant="default"
                 size="lg"
                 onClick={openCreateDialog}
                 className="w-full sm:w-auto"
@@ -202,7 +202,7 @@ export function ExpenseCategoriesPage() {
                 />
                 <Button
                   type="button"
-                  variant="tableReset"
+                  variant="ghost"
                   size="sm"
                   className="md:ml-auto"
                   onClick={resetFilters}
@@ -249,7 +249,7 @@ export function ExpenseCategoriesPage() {
                 submitText={
                   editingCategory ? "Save Changes" : "Create Category"
                 }
-                submitVariant="premium"
+                submitVariant="default"
               />
             }
           >
@@ -266,12 +266,12 @@ export function ExpenseCategoriesPage() {
                   <p className="text-sm text-destructive">{formError}</p>
                 ) : null}
                 <div className="space-y-2">
-                  <Label htmlFor="expense-category-name" variant="dashboard">
+                  <Label htmlFor="expense-category-name" className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                     Name
                   </Label>
                   <Input
                     id="expense-category-name"
-                    variant="table"
+                   
                     value={form.name}
                     onChange={(event) =>
                       updateFormField("name", event.target.value)
@@ -288,15 +288,14 @@ export function ExpenseCategoriesPage() {
 
                 <InfoTile layout="betweenGap" className="rounded-md">
                   <div>
-                    <p className="text-sm font-medium text-text-primary">
+                    <p className="text-sm font-medium text-foreground">
                       Active
                     </p>
-                    <p className="text-xs text-text-secondary">
+                    <p className="text-xs text-muted-foreground">
                       Active categories are available in expense entry forms.
                     </p>
                   </div>
                   <Switch
-                    variant="premium"
                     checked={form.isActive}
                     onCheckedChange={(checked) =>
                       updateFormField("isActive", checked)

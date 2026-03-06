@@ -48,18 +48,14 @@ export function OrderCustomerInsightCard({
   const measurementPreview = getMeasurementPreview(customer);
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader
-        variant="rowSection"
-        density="comfortable"
-        align="startResponsive"
-      >
+    <Card>
+      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Customer Profile"
           titleVariant="dashboard"
           description="Contact details and saved measurements."
           icon={
-            <SectionIcon tone="infoSoft" size="lg">
+            <SectionIcon tone="info" size="lg">
               <UserRound className="h-4 w-4 text-primary" />
             </SectionIcon>
           }
@@ -75,29 +71,29 @@ export function OrderCustomerInsightCard({
 
       <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoTile tone="elevatedSoft">
-            <Label variant="micro">Full Name</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+          <InfoTile tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Full Name</Label>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.fullName}
             </p>
           </InfoTile>
-          <InfoTile tone="elevatedSoft">
-            <Label variant="micro">Phone</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+          <InfoTile tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Phone</Label>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.phone || "-"}
             </p>
           </InfoTile>
-          <InfoTile tone="elevatedSoft">
-            <Label variant="micro">City</Label>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
+          <InfoTile tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.city || "-"}
             </p>
           </InfoTile>
         </div>
 
-        <InfoTile tone="elevatedSoft" padding="contentLg">
+        <InfoTile tone="secondary" padding="contentLg">
           <div className="mb-3 flex items-center justify-between">
-            <Label variant="micro">Measurement Snapshot</Label>
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Measurement Snapshot</Label>
             <Badge
               variant="info"
               size="xs"
@@ -108,7 +104,7 @@ export function OrderCustomerInsightCard({
           </div>
 
           {measurementPreview.length === 0 ? (
-            <p className="py-4 text-center text-xs text-text-secondary">
+            <p className="py-4 text-center text-xs text-muted-foreground">
               No measurements available for this customer.
             </p>
           ) : (
@@ -118,10 +114,10 @@ export function OrderCustomerInsightCard({
                   key={item.label}
                   className="flex items-center justify-between gap-3"
                 >
-                  <span className="truncate text-xs text-text-secondary">
+                  <span className="truncate text-xs text-muted-foreground">
                     {item.label}
                   </span>
-                  <span className="shrink-0 text-xs font-semibold tabular-nums text-text-primary">
+                  <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground">
                     {item.value}
                   </span>
                 </div>

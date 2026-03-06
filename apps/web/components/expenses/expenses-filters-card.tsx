@@ -56,7 +56,7 @@ export function ExpensesFiltersCard({
           />
 
           <div className="w-full sm:w-[220px]">
-            <Label variant="dashboard" className="mb-2 block">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
               <span className="inline-flex items-center gap-1.5">
                 <Filter className="h-3.5 w-3.5" />
                 Category
@@ -67,7 +67,7 @@ export function ExpensesFiltersCard({
               onValueChange={onCategoryChange}
               disabled={categoriesLoading}
             >
-              <SelectTrigger variant="table">
+              <SelectTrigger>
                 <SelectValue
                   placeholder={
                     categoriesLoading
@@ -88,11 +88,11 @@ export function ExpensesFiltersCard({
           </div>
 
           <div className="w-full sm:w-[180px]">
-            <Label variant="dashboard" className="mb-2 block">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
               Date From
             </Label>
             <Input
-              variant="table"
+             
               type="date"
               value={filters.from}
               onChange={(event) => onFromChange(event.target.value)}
@@ -100,11 +100,11 @@ export function ExpensesFiltersCard({
           </div>
 
           <div className="w-full sm:w-[180px]">
-            <Label variant="dashboard" className="mb-2 block">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
               Date To
             </Label>
             <Input
-              variant="table"
+             
               type="date"
               value={filters.to}
               onChange={(event) => onToChange(event.target.value)}
@@ -112,7 +112,7 @@ export function ExpensesFiltersCard({
           </div>
 
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="w-full justify-center sm:ml-auto sm:w-auto sm:self-end"
             onClick={onReset}

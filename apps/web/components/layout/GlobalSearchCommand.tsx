@@ -208,11 +208,13 @@ export function GlobalSearchCommand({
   }, [open, hasMinimumQuery, term]);
 
   return (
-    <div ref={containerRef} className={cn("relative w-full", className)}>
-      <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+    <div
+      ref={containerRef}
+      className={cn("dashboard-liquid-search relative w-full", className)}
+    >
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-foreground/55" />
       <Input
         ref={inputRef}
-        variant="searchCommand"
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -238,7 +240,7 @@ export function GlobalSearchCommand({
             : "Search orders, customers, and staff..."
         }
         className={cn(
-          "w-full pl-10",
+          "w-full rounded-[1.35rem] pl-10",
           query ? "pr-9" : !compact ? "pr-24" : undefined,
         )}
       />
@@ -252,7 +254,7 @@ export function GlobalSearchCommand({
             setError(null);
             inputRef.current?.focus();
           }}
-          className="absolute right-2.5 top-1/2 z-10 -translate-y-1/2 rounded p-0.5 text-text-secondary hover:bg-interaction-hover hover:text-text-primary"
+          className="absolute right-2.5 top-1/2 z-10 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
           aria-label="Clear search"
         >
           <X className="h-3.5 w-3.5" />
@@ -265,14 +267,13 @@ export function GlobalSearchCommand({
 
       {open ? (
         <Card
-          variant="elevatedPanel"
-          className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[70] overflow-hidden"
+          className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-[1.6rem]"
         >
-          <CardHeader variant="rowSection" density="compact">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+          <CardHeader density="compact" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Global Search
             </p>
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-muted-foreground">
               {hasMinimumQuery
                 ? loading
                   ? "Searching..."
@@ -281,14 +282,14 @@ export function GlobalSearchCommand({
             </p>
           </CardHeader>
 
-          <ScrollArea variant="default">
+          <ScrollArea>
             <div className="space-y-3 py-3 px-2">
               {loading ? (
                 <InfoTile
-                  tone="elevatedMuted"
+                  tone="secondary"
                   padding="md"
                   layout="row"
-                  className="text-sm text-text-secondary"
+                  className="text-sm text-muted-foreground"
                 >
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Searching orders, customers, and employees...
@@ -297,9 +298,9 @@ export function GlobalSearchCommand({
 
               {!loading && error ? (
                 <InfoTile
-                  tone="error"
+                  tone="destructive"
                   padding="md"
-                  className="text-sm text-error"
+                  className="text-sm text-destructive"
                 >
                   {error}
                 </InfoTile>
@@ -307,9 +308,9 @@ export function GlobalSearchCommand({
 
               {!loading && !error && !hasMinimumQuery ? (
                 <InfoTile
-                  tone="elevatedMuted"
+                  tone="secondary"
                   padding="md"
-                  className="text-sm text-text-secondary"
+                  className="text-sm text-muted-foreground"
                 >
                   Start typing to search order number, customer, phone, or
                   employee code.
@@ -318,9 +319,9 @@ export function GlobalSearchCommand({
 
               {!loading && !error && hasMinimumQuery && resultCount === 0 ? (
                 <InfoTile
-                  tone="elevatedMuted"
+                  tone="secondary"
                   padding="md"
-                  className="text-sm text-text-secondary"
+                  className="text-sm text-muted-foreground"
                 >
                   No matching records found.
                 </InfoTile>
@@ -397,10 +398,10 @@ function ResultGroup({
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between px-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {title}
         </p>
-        <p className="text-[11px] text-text-secondary">{count}</p>
+        <p className="text-[11px] text-muted-foreground">{count}</p>
       </div>
       <div className="space-y-1.5">{children}</div>
     </section>
@@ -424,21 +425,21 @@ function ResultItem({
       onClick={onClick}
       className={cn(
         infoTileVariants({
-          tone: "elevatedMuted",
+          tone: "secondary",
           padding: "lg",
           layout: "row",
         }),
-        "w-full text-left transition-colors hover:border-primary/35 hover:bg-interaction-hover",
+        "w-full text-left transition-colors hover:border-primary/35 hover:bg-accent",
       )}
     >
-      <SectionIcon tone="primary" framed={false} className="rounded-md">
+      <SectionIcon tone="default" framed={false} className="rounded-md">
         <Icon className="h-4 w-4" />
       </SectionIcon>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-text-primary">
+        <span className="block truncate text-sm font-semibold text-foreground">
           {title}
         </span>
-        <span className="block truncate text-xs text-text-secondary">
+        <span className="block truncate text-xs text-muted-foreground">
           {subtitle}
         </span>
       </span>

@@ -86,7 +86,7 @@ function PaymentsPage() {
                 </Button>
                 {canDisburse ? (
                   <Button
-                    variant="premium"
+                    variant="default"
                     size="lg"
                     className="w-full sm:w-auto"
                     onClick={openDisburseDialog}

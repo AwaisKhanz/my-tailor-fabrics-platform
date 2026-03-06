@@ -36,21 +36,16 @@ export function OrderFormItemsCard({
   getItemLineTotal,
 }: OrderFormItemsCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader
-        variant="rowSection"
-        density="comfortable"
-        align="startResponsive"
-        gap="md"
-      >
+    <Card>
+      <CardHeader density="comfortable" align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <CardTitle variant="section">Order Items</CardTitle>
-            <Badge variant="secondary" size="xs" className="font-semibold">
+            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Order Items</CardTitle>
+            <Badge variant="default" size="xs" className="font-semibold">
               {fields.length} PIECES
             </Badge>
           </div>
-          <Label variant="dashboard" className="text-text-secondary">
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
             Configure garment, pricing, and design per piece.
           </Label>
         </div>

@@ -229,19 +229,19 @@ export function MeasurementForm({
   if (loading)
     return (
       <div className="flex justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin text-text-secondary" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
 
   return (
     <FormStack density="relaxed">
       <div className="space-y-2">
-        <Label variant="dashboard">Measurement Category</Label>
+        <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Measurement Category</Label>
         <Select
           onValueChange={handleCategoryChange}
           defaultValue={initialCategoryId}
         >
-          <SelectTrigger variant="premium">
+          <SelectTrigger>
             <SelectValue placeholder="Select Garment Category" />
           </SelectTrigger>
           <SelectContent>
@@ -255,17 +255,17 @@ export function MeasurementForm({
       </div>
 
       {selectedCategory && (
-        <Card variant="default">
+        <Card>
           <Form {...form}>
             <FormStack as="form" onSubmit={form.handleSubmit(onSubmit)}>
               <div className="space-y-4">
                 {groupedFields.map((section) => (
                   <div key={section.id} className="p-4">
                     <div className="mb-4 flex items-center justify-between gap-3">
-                      <h3 className="text-sm font-semibold text-text-primary">
+                      <h3 className="text-sm font-semibold text-foreground">
                         {section.name}
                       </h3>
-                      <span className="text-xs text-text-secondary">
+                      <span className="text-xs text-muted-foreground">
                         {section.fields.length} field
                         {section.fields.length === 1 ? "" : "s"}
                       </span>
@@ -279,10 +279,10 @@ export function MeasurementForm({
                           name={field.id}
                           render={({ field: formField }) => (
                             <FormItem>
-                              <FormLabel variant="dashboard">
+                              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                                 {field.label}{" "}
                                 {field.unit && (
-                                  <span className="text-xs text-text-secondary">
+                                  <span className="text-xs text-muted-foreground">
                                     ({field.unit})
                                   </span>
                                 )}
@@ -300,7 +300,7 @@ export function MeasurementForm({
                                         : ""
                                     }
                                   >
-                                    <SelectTrigger variant="premium">
+                                    <SelectTrigger>
                                       <SelectValue
                                         placeholder={`Select ${field.label}`}
                                       />
@@ -315,7 +315,7 @@ export function MeasurementForm({
                                   </Select>
                                 ) : (
                                   <Input
-                                    variant="premium"
+                                   
                                     placeholder={`Enter ${field.label.toLowerCase()}`}
                                     type={
                                       field.fieldType === FieldType.NUMBER

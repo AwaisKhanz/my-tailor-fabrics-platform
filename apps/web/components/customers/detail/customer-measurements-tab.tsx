@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Label } from "@/components/ui/label";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 interface CustomerMeasurementsTabProps {
   measurements: CustomerMeasurement[];
@@ -24,19 +24,19 @@ export function CustomerMeasurementsTab({
   canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle variant="section">Measurements</CardTitle>
-            <Badge variant="secondary" size="xs" className="font-semibold">
+            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Measurements</CardTitle>
+            <Badge variant="default" size="xs" className="font-semibold">
               {measurements.length} SETS
             </Badge>
           </div>
-          <Typography as="p" variant="muted">
+          <Text as="p"  variant="muted">
             Keep sizing data updated for better fit accuracy and quicker order
             entry.
-          </Typography>
+          </Text>
         </div>
         {canUpdateMeasurements ? (
           <Button
@@ -54,14 +54,11 @@ export function CustomerMeasurementsTab({
         {measurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {measurements.map((measurement) => (
-              <Card key={measurement.id} variant="warningSoft">
-                <CardHeader variant="sectionSoft" density="compact">
+              <Card key={measurement.id} className="bg-muted/40 shadow-sm">
+                <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-card/70 px-6 py-4">
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
-                    <Label
-                      variant="dashboard"
-                      className="font-normal opacity-60"
-                    >
+                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground font-normal opacity-60">
                       Updated:{" "}
                       {new Date(measurement.updatedAt).toLocaleDateString()}
                     </Label>
@@ -72,16 +69,16 @@ export function CustomerMeasurementsTab({
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Object.entries(measurement.values).map(([key, value]) => (
                       <div key={key}>
-                        <Label variant="dashboard" className="mb-0.5 block">
+                        <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-0.5 block">
                           {getMeasurementLabel(measurement, key)}
                         </Label>
-                        <Typography
+                        <Text
                           as="p"
-                          variant="body"
+                           variant="body"
                           className="font-semibold"
                         >
                           {String(value)}
-                        </Typography>
+                        </Text>
                       </div>
                     ))}
                   </div>

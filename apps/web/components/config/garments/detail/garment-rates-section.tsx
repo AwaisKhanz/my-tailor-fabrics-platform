@@ -30,21 +30,21 @@ export function GarmentRatesSection({
 }: GarmentRatesSectionProps) {
   return (
     <>
-      <Card variant="elevatedPanel">
-        <CardHeader variant="rowSection" align="start" gap="sm">
+      <Card>
+        <CardHeader align="start" gap="sm" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
           <SectionHeader
             title="Production Rates (Step-based)"
             description="Define how much tailors are paid for each step of this garment."
             descriptionVariant="compact"
             icon={
-              <SectionIcon tone="primary">
+              <SectionIcon tone="default">
                 <Banknote className="h-4 w-4" />
               </SectionIcon>
             }
           />
 
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
-            {/* <Badge variant="secondary" size="xs">
+            {/* <Badge variant="default" size="xs">
               {activeRatesCount} active rate{activeRatesCount === 1 ? "" : "s"}
             </Badge> */}
             {canManageRates ? (

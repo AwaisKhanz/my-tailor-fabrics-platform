@@ -14,9 +14,9 @@ export function CustomerDialogAddressField({ form }: CustomerDialogAddressFieldP
       name="address"
       render={({ field }) => (
         <FormItem>
-          <FormLabel variant="dashboard">Address</FormLabel>
+          <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Address</FormLabel>
           <FormControl>
-            <Input variant="premium" placeholder="Street, Area..." {...field} />
+            <Input placeholder="Street, Area..." {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

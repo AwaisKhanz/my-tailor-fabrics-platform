@@ -17,9 +17,9 @@ export function DashboardOverdueOrdersCard({
   onOpenOrder,
 }: DashboardOverdueOrdersCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection">
-        <CardTitle variant="dashboardSection">Recent Overdue Orders</CardTitle>
+    <Card>
+      <CardHeader className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardTitle className="text-base font-bold normal-case tracking-tight">Recent Overdue Orders</CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
           View all
         </Button>
@@ -28,11 +28,11 @@ export function DashboardOverdueOrdersCard({
         spacing="section"
         className="overflow-hidden rounded-b-xl p-0"
       >
-        <div className="divide-y divide-divider border-t border-divider">
+        <div className="divide-y divide-border border-t border-border">
           {orders.slice(0, 4).map((order) => (
             <div
               key={order.id}
-              className="grid grid-cols-1 gap-3 px-4 py-4 transition-colors hover:bg-interaction-hover sm:grid-cols-[1.3fr_1.4fr_1fr] sm:items-center sm:px-6"
+              className="grid grid-cols-1 gap-3 px-4 py-4 transition-colors hover:bg-accent sm:grid-cols-[1.3fr_1.4fr_1fr] sm:items-center sm:px-6"
             >
               <div className="min-w-0">
                 <button
@@ -44,7 +44,7 @@ export function DashboardOverdueOrdersCard({
                 </button>
               </div>
               <div className="flex min-w-0 justify-start">
-                <Label variant="dashboard" className="truncate opacity-100">
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground truncate opacity-100">
                   {order.customer.fullName}
                 </Label>
               </div>
@@ -52,7 +52,7 @@ export function DashboardOverdueOrdersCard({
                 <Badge variant="destructive" size="xs">
                   <Clock className="mr-1 h-3 w-3" /> Overdue
                 </Badge>
-                <Label variant="dashboard" className="text-text-secondary">
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                   Needs attention
                 </Label>
               </div>
@@ -60,7 +60,7 @@ export function DashboardOverdueOrdersCard({
           ))}
 
           {orders.length === 0 ? (
-            <div className="p-6 text-center text-sm text-text-secondary">
+            <div className="p-6 text-center text-sm text-muted-foreground">
               No recent overdue orders found.
             </div>
           ) : null}

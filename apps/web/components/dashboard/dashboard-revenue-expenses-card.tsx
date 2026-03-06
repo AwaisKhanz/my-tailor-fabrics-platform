@@ -129,48 +129,48 @@ export function DashboardRevenueExpensesCard({
   const tooltipY = padTop + 10;
 
   return (
-    <Card variant="elevatedPanel" className="flex h-full flex-col">
-      <CardHeader variant="rowSection" align="start">
+    <Card className="flex h-full flex-col">
+      <CardHeader align="start" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <div className="space-y-1">
-          <CardTitle variant="dashboardSection">Revenue vs. Expenses</CardTitle>
-          <p className="text-xs text-text-secondary">
+          <CardTitle className="text-base font-bold normal-case tracking-tight">Revenue vs. Expenses</CardTitle>
+          <p className="text-xs text-muted-foreground">
             Monthly trend powered by backend report totals.
           </p>
         </div>
         <InfoTile
-          tone="elevatedSoft"
+          tone="secondary"
           layout="row"
           padding="xs"
           className="rounded-md gap-1"
         >
-          <Label variant="dashboard">Last 6 Months</Label>
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Last 6 Months</Label>
           <Clock className="ml-1 h-3 w-3" />
         </InfoTile>
       </CardHeader>
       <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
         <div className="grid gap-3 sm:grid-cols-3">
-          <InfoTile tone="inputSurface" padding="md">
+          <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
-              <Label variant="micro">Revenue</Label>
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Revenue</Label>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-1">
               {formatPKR(totalRevenue)}
             </p>
           </InfoTile>
-          <InfoTile tone="inputSurface" padding="md">
+          <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
-              <Label variant="micro">Expenses</Label>
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Expenses</Label>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-2">
               {formatPKR(totalExpenses)}
             </p>
           </InfoTile>
-          <InfoTile tone="inputSurface" padding="md">
+          <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
-              <Label variant="micro">Net</Label>
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net</Label>
             </div>
             <p
               className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-chart-3"}`}
@@ -186,7 +186,7 @@ export function DashboardRevenueExpensesCard({
             padding="none"
             className="relative flex h-full min-h-[220px] w-full flex-1 items-center justify-center"
           >
-            <div className="flex max-w-md items-center gap-3 text-sm font-medium text-text-secondary/80">
+            <div className="flex max-w-md items-center gap-3 text-sm font-medium text-muted-foreground/80">
               <BarChart className="h-10 w-10 opacity-20" />
               <span>
                 {rows.length === 0
@@ -213,7 +213,7 @@ export function DashboardRevenueExpensesCard({
                     y1={y}
                     x2={width - padRight}
                     y2={y}
-                    className="stroke-divider"
+                    className="stroke-border"
                     strokeDasharray="3 4"
                   />
                 );
@@ -289,7 +289,7 @@ export function DashboardRevenueExpensesCard({
                     x={point.x}
                     y={height - 10}
                     textAnchor="middle"
-                    className="fill-text-secondary text-[10px]"
+                    className="fill-muted-foreground text-[10px]"
                   >
                     {point.month}
                   </text>
@@ -318,13 +318,13 @@ export function DashboardRevenueExpensesCard({
                     width={tooltipWidth}
                     height={tooltipHeight}
                     rx="8"
-                    className="fill-popover stroke-divider/50"
+                    className="fill-card stroke-border/50"
                     strokeWidth="1"
                   />
                   <text
                     x="10"
                     y="17"
-                    className="fill-text-primary text-[11px] font-semibold"
+                    className="fill-foreground text-[11px] font-semibold"
                   >
                     {activePoint.month}
                   </text>

@@ -124,9 +124,9 @@ export function ReportsOverviewTab({
             valueFormatter={(value) => formatPKR(value)}
           />
 
-          <Card variant="elevatedPanel">
-            <CardHeader variant="rowSection">
-              <CardTitle variant="section">Top Performers</CardTitle>
+          <Card>
+            <CardHeader className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+              <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Top Performers</CardTitle>
             </CardHeader>
             <CardContent spacing="section" className="space-y-2">
               {loading ? (
@@ -137,14 +137,14 @@ export function ReportsOverviewTab({
                   />
                 ))
               ) : productivity.length === 0 ? (
-                <p className="py-6 text-center text-sm text-text-secondary">
+                <p className="py-6 text-center text-sm text-muted-foreground">
                   No productivity records for this range.
                 </p>
               ) : (
                 productivity.slice(0, 5).map((entry, index) => (
                   <InfoTile
                     key={entry.employeeId}
-                    tone="elevatedSoft"
+                    tone="secondary"
                     padding="md"
                     layout="between"
                     interaction="interactive"
@@ -153,11 +153,11 @@ export function ReportsOverviewTab({
                       <Badge variant="outline" size="xs">
                         #{index + 1}
                       </Badge>
-                      <span className="text-sm text-text-primary">
+                      <span className="text-sm text-foreground">
                         {entry.employeeName}
                       </span>
                     </div>
-                    <span className="text-xs font-semibold text-text-secondary">
+                    <span className="text-xs font-semibold text-muted-foreground">
                       {entry.totalCompleted} completed
                     </span>
                   </InfoTile>

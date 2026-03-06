@@ -48,7 +48,7 @@ export function PaymentsHistorySection({
         header: "Paid Date",
         cell: (payment) => (
           <div className="flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 text-text-secondary" />
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium">{formatDate(payment.paidAt)}</span>
           </div>
         ),
@@ -56,7 +56,7 @@ export function PaymentsHistorySection({
       {
         header: "Note",
         cell: (payment) => (
-          <span className="text-xs text-text-secondary">{payment.note || "—"}</span>
+          <span className="text-xs text-muted-foreground">{payment.note || "—"}</span>
         ),
       },
       {
@@ -74,7 +74,7 @@ export function PaymentsHistorySection({
               cell: (payment: Payment) => (
                 <Button
                   type="button"
-                  variant="tableDanger"
+                  variant="outline"
                   size="sm"
                   disabled={reversingPaymentId === payment.id}
                   onClick={() => onReversePayment(payment.id)}
@@ -101,11 +101,11 @@ export function PaymentsHistorySection({
         controls={
           <>
             <div className="w-full sm:w-[180px]">
-              <Label variant="dashboard" className="mb-2 block">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
                 Paid From
               </Label>
               <Input
-                variant="table"
+               
                 type="date"
                 value={filters.from}
                 onChange={(event) => onFromChange(event.target.value)}
@@ -113,11 +113,11 @@ export function PaymentsHistorySection({
             </div>
 
             <div className="w-full sm:w-[180px]">
-              <Label variant="dashboard" className="mb-2 block">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
                 Paid To
               </Label>
               <Input
-                variant="table"
+               
                 type="date"
                 value={filters.to}
                 onChange={(event) => onToChange(event.target.value)}
@@ -125,7 +125,7 @@ export function PaymentsHistorySection({
             </div>
 
             <Button
-              variant="tableReset"
+              variant="ghost"
               size="sm"
               className="w-full justify-center sm:ml-auto sm:w-auto sm:self-end"
               onClick={onResetFilters}

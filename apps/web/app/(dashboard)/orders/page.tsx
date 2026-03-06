@@ -56,7 +56,7 @@ function OrdersPage() {
           actions={
             <Can all={["orders.create"]}>
               <Button
-                variant="premium"
+                variant="default"
                 size="lg"
                 className="w-full sm:w-auto"
                 onClick={() => router.push("/orders/new")}

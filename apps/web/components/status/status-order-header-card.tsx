@@ -1,7 +1,7 @@
 import { type BadgeVariant, type Order } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 
 interface StatusOrderHeaderCardProps {
   order: Order;
@@ -17,13 +17,13 @@ export function StatusOrderHeaderCard({
   icon: Icon,
 }: StatusOrderHeaderCardProps) {
   return (
-    <Card variant="elevatedPanel" className="p-6 text-center">
-      <Typography as="p" variant="muted" className="mb-1 text-xs">
+    <Card className="p-6 text-center">
+      <Text as="p"  variant="muted" className="mb-1 text-xs">
         Order Number
-      </Typography>
-      <Typography as="h1" variant="pageTitle" className="text-2xl text-primary">
+      </Text>
+      <Heading as="h1"  variant="page" className="text-2xl text-primary">
         {order.orderNumber}
-      </Typography>
+      </Heading>
 
       <div className="mt-3 flex justify-center">
         <Badge

@@ -191,7 +191,7 @@ export function MeasurementFieldsTable({
     () => [
       {
         header: "Field Label",
-        cell: (field) => <span className="font-semibold text-text-primary">{field.label}</span>,
+        cell: (field) => <span className="font-semibold text-foreground">{field.label}</span>,
       },
       {
         header: "Section",
@@ -207,7 +207,7 @@ export function MeasurementFieldsTable({
 
           if (!showSectionMoveSelect) {
             return (
-              <Badge variant="secondary" size="xs">
+              <Badge variant="default" size="xs">
                 {field.section?.name ?? "General"}
               </Badge>
             );
@@ -222,7 +222,7 @@ export function MeasurementFieldsTable({
                 }}
                 disabled={movingFieldId === field.id}
               >
-                <SelectTrigger variant="table" className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -265,16 +265,16 @@ export function MeasurementFieldsTable({
                 Archived
               </Badge>
             ) : field.isRequired ? (
-              <div className="flex items-center gap-1.5 text-success">
+              <div className="flex items-center gap-1.5 text-primary">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <Label variant="dashboard" className="text-success">
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-primary">
                   Required
                 </Label>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-text-secondary">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <div className="h-3.5 w-3.5 rounded-full border-2 border-muted" />
-                <Label variant="dashboard">Optional</Label>
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Optional</Label>
               </div>
             )}
           </div>
@@ -290,7 +290,7 @@ export function MeasurementFieldsTable({
                 {field.deletedAt ? (
                   onRestoreField ? (
                     <Button
-                      variant="tablePrimary"
+                      variant="outline"
                       size="sm"
                       onClick={() => onRestoreField(field)}
                     >
@@ -301,15 +301,15 @@ export function MeasurementFieldsTable({
                 ) : (
                   <>
                     <Button
-                      variant="tableIcon"
-                      size="iconSm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => onEditField(field)}
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="tableDanger"
-                      size="iconSm"
+                      variant="outline"
+                      size="icon"
                       onClick={() => onDeleteField(field)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -318,7 +318,7 @@ export function MeasurementFieldsTable({
                 )}
               </>
             ) : (
-              <span className="text-xs font-medium text-text-secondary">Read only</span>
+              <span className="text-xs font-medium text-muted-foreground">Read only</span>
             )}
           </div>
         ),
@@ -354,7 +354,7 @@ export function MeasurementFieldsTable({
             />
 
             <Select value={sectionFilter} onValueChange={updateSectionFilter}>
-              <SelectTrigger variant="table" className="md:w-[220px]">
+              <SelectTrigger className="md:w-[220px]">
                 <SelectValue placeholder="All Sections" />
               </SelectTrigger>
               <SelectContent>
@@ -368,7 +368,7 @@ export function MeasurementFieldsTable({
             </Select>
 
             <Button
-              variant="tableReset"
+              variant="ghost"
               size="sm"
               className="md:ml-auto"
               onClick={resetFilters}

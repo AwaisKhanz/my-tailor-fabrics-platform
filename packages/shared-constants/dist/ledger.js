@@ -18,7 +18,7 @@ exports.LEDGER_ENTRY_TYPE_BADGE = {
     [shared_types_1.LedgerEntryType.ADVANCE]: 'warning',
     [shared_types_1.LedgerEntryType.DEDUCTION]: 'destructive',
     [shared_types_1.LedgerEntryType.ADJUSTMENT]: 'secondary',
-    [shared_types_1.LedgerEntryType.SALARY]: 'ready',
+    [shared_types_1.LedgerEntryType.SALARY]: 'success',
 };
 /**
  * Sign of each entry type (positive = money in, negative = money out).

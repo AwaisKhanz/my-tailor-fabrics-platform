@@ -219,16 +219,16 @@ function NavList({
     const ItemIcon = item.icon;
 
     const baseClasses =
-      "group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all";
+      "dashboard-nav-item group flex w-full cursor-pointer items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all";
 
-    const activeClasses =
-      "border border-sidebar-border bg-sidebar-active text-sidebar-foreground shadow-sm";
+    const activeClasses = "text-sidebar-foreground";
 
     const inactiveClasses =
-      "border border-transparent text-sidebar-foreground/70 hover:border-sidebar-border hover:bg-interaction-hover hover:text-sidebar-foreground";
+      "text-sidebar-foreground/72 hover:text-sidebar-foreground";
 
     return (
       <div
+        data-active={isActive ? "true" : "false"}
         className={cn(baseClasses, isActive ? activeClasses : inactiveClasses)}
       >
         <ItemIcon
@@ -249,10 +249,7 @@ function NavList({
       {sections.map((section) => (
         <section key={section.title} className="space-y-1.5">
           <div className="px-3">
-            <Label
-              variant="dashboard"
-              className="text-[10px] uppercase tracking-[0.12em] text-sidebar-foreground/45"
-            >
+            <Label className="dashboard-nav-label">
               {section.title}
             </Label>
           </div>
@@ -281,7 +278,26 @@ export function Sidebar() {
   const sections = getVisibleNavSections(role);
 
   return (
-    <aside className="hidden h-full w-72 flex-shrink-0 flex-col bg-sidebar md:flex">
+    <aside className="dashboard-liquid-sidebar fixed bottom-4 left-4 top-[6.25rem] z-30 hidden w-[18.75rem] flex-col rounded-[2rem] text-sidebar-foreground md:flex lg:left-5 lg:top-[6.5rem] lg:bottom-5">
+      <div className="flex items-center gap-3 border-b border-sidebar-border/45 px-4 py-4">
+        <SectionIcon tone="default" size="md" className="relative overflow-hidden">
+          <Image
+            src={siteConfig.branding.logo}
+            alt={siteConfig.name}
+            width={32}
+            height={32}
+            className="object-contain p-1"
+          />
+        </SectionIcon>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-sidebar-foreground">
+            {siteConfig.shortName}
+          </p>
+          <p className="truncate text-xs text-sidebar-foreground/68">
+            Tailoring workspace
+          </p>
+        </div>
+      </div>
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <NavList sections={sections} pathname={pathname} />
       </div>
@@ -299,8 +315,8 @@ export function MobileSidebarTrigger() {
   return (
     <>
       <Button
-        variant="sidebarIcon"
-        size="iconSm"
+        variant="outline"
+        size="icon"
         className="md:hidden"
         onClick={() => setOpen(true)}
         aria-label="Open menu"
@@ -311,15 +327,15 @@ export function MobileSidebarTrigger() {
       {open && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
-            className="absolute inset-0 bg-overlay backdrop-blur-sm"
+            className="absolute inset-0 bg-foreground/18 backdrop-blur-xl"
             onClick={() => setOpen(false)}
           />
 
-          <div className="relative flex h-full w-[18.5rem] flex-col border-r border-sidebar-border bg-sidebar shadow-theme-modal">
-            <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border bg-sidebar/95 px-4">
+          <div className="dashboard-liquid-sidebar relative m-3 flex h-[calc(100%-1.5rem)] w-[18.75rem] flex-col rounded-[2rem] text-sidebar-foreground">
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border/60 px-4">
               <div className="flex min-w-0 items-center gap-2">
                 <SectionIcon
-                  tone="sidebar"
+                  tone="default"
                   size="md"
                   className="relative overflow-hidden"
                 >
@@ -336,8 +352,8 @@ export function MobileSidebarTrigger() {
                 </span>
               </div>
               <Button
-                variant="sidebarIcon"
-                size="iconSm"
+                variant="outline"
+                size="icon"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
               >
@@ -353,8 +369,10 @@ export function MobileSidebarTrigger() {
               />
             </div>
 
-            <div className="flex shrink-0 items-center justify-between border-t border-sidebar-border bg-sidebar px-4 py-4">
-              <Label variant="dashboard">Theme</Label>
+            <div className="flex shrink-0 items-center justify-between border-t border-sidebar-border/60 px-4 py-4">
+              <Label className="dashboard-nav-label">
+                Theme
+              </Label>
               <ThemeToggle />
             </div>
           </div>

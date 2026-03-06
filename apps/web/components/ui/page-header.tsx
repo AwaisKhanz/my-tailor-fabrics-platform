@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Typography } from '@/components/ui/typography';
+import { Heading, Text } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
@@ -23,6 +23,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <div
+      data-ui="page-header"
       className={cn(
         "items-start justify-between gap-4",
         stackOnMobile ? "flex flex-col sm:flex-row" : "flex",
@@ -30,17 +31,17 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0">
-        <Typography as="h1" variant="pageTitle">
+        <Heading as="h1" variant="page">
           {title}
-        </Typography>
+        </Heading>
         {description ? (
-          <Typography
+          <Text
             as="div"
             variant="lead"
             className={cn(density === "compact" ? "mt-0.5" : "mt-1")}
           >
             {description}
-          </Typography>
+          </Text>
         ) : null}
       </div>
       {actions ? (

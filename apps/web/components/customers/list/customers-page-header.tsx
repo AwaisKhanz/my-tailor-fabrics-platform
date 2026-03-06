@@ -19,7 +19,7 @@ export function CustomersPageHeader({
         canCreateCustomer ? (
           <Button
             onClick={onAddCustomer}
-            variant="premium"
+            variant="default"
             size="lg"
             className="w-full gap-2 sm:w-auto"
           >

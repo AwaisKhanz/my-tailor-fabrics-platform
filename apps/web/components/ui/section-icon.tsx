@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { statusIconStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 const sectionIconVariants = cva(
@@ -7,13 +8,11 @@ const sectionIconVariants = cva(
   {
     variants: {
       tone: {
-        sidebar: "bg-sidebar-active ring-sidebar-border",
-        primary: "bg-primary/10 ring-primary/20",
-        info: "bg-info/10 ring-info/20 text-info",
-        infoSoft: "bg-info-muted ring-divider text-info",
-        warningSoft: "bg-warning-muted ring-divider text-warning",
-        errorSoft: "bg-error-muted ring-divider text-destructive",
-        timelinePrimary: "border-2 border-primary bg-surface text-primary",
+        default: "bg-primary/10 ring-primary/20 text-primary",
+        info: statusIconStyles.info,
+        success: statusIconStyles.success,
+        warning: statusIconStyles.warning,
+        destructive: statusIconStyles.destructive,
       },
       size: {
         sm: "h-7 w-7 rounded-lg",
@@ -26,7 +25,7 @@ const sectionIconVariants = cva(
       },
     },
     defaultVariants: {
-      tone: "primary",
+      tone: "default",
       size: "md",
       framed: true,
     },

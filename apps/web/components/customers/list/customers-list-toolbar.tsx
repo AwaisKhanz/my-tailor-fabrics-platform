@@ -68,7 +68,7 @@ export function CustomersListToolbar({
                 }
               }}
             >
-              <SelectTrigger variant="table" className="text-sm font-semibold">
+              <SelectTrigger className="text-sm font-semibold">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -82,7 +82,7 @@ export function CustomersListToolbar({
           </div>
 
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="w-full justify-center md:ml-auto md:w-auto md:justify-start"
             onClick={onReset}

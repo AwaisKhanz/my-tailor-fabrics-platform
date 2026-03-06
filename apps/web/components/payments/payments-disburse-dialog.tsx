@@ -14,7 +14,7 @@ import {
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 import { toPaisaFromRupees } from "@/lib/utils/money";
 import { paymentDisbursementFormSchema } from "@tbms/shared-types";
@@ -69,21 +69,21 @@ export function PaymentsDisburseDialog({
               onSubmit();
             }}
           >
-            <InfoTile tone="pending" padding="contentLg" radius="xl">
-              <Label variant="dashboard" className="mb-1 block">
+            <InfoTile tone="secondary" padding="contentLg" radius="xl">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1 block">
                 Available to pay
               </Label>
-              <Typography as="p" variant="statValue" className="text-warning">
+              <Heading as="div" variant="stat" className="text-secondary-foreground">
                 {formatPKR(currentBalance)}
-              </Typography>
+              </Heading>
             </InfoTile>
 
             <div className="space-y-2">
-              <Label variant="dashboard">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                 Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
-                variant="premium"
+               
                 type="number"
                 placeholder="e.g. 5000"
                 className="h-11 text-lg font-bold"
@@ -92,20 +92,20 @@ export function PaymentsDisburseDialog({
                 min="1"
               />
               {validationError ? (
-                <Typography as="p" variant="muted" className="text-destructive">
+                <Text as="p"  variant="muted" className="text-destructive">
                   {validationError}
-                </Typography>
+                </Text>
               ) : exceedsBalance ? (
-                <Typography as="p" variant="muted" className="text-destructive">
+                <Text as="p"  variant="muted" className="text-destructive">
                   Amount cannot be greater than outstanding balance.
-                </Typography>
+                </Text>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label variant="dashboard">Note / Remarks</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Note / Remarks</Label>
               <Input
-                variant="premium"
+               
                 className="h-11"
                 placeholder="e.g. Weekly settlement, advance payment..."
                 value={form.note}

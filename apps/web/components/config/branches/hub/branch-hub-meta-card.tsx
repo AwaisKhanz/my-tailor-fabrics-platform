@@ -6,7 +6,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { formatDate } from "@/lib/utils";
 
 interface BranchHubMetaCardProps {
@@ -15,8 +15,8 @@ interface BranchHubMetaCardProps {
 
 export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive">
+    <Card>
+      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Branch Profile"
           icon={
@@ -31,54 +31,54 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
-        <InfoTile tone={"elevatedSoft"}>
-          <Label variant="micro">Branch ID</Label>
-          <Typography
+        <InfoTile tone="secondary">
+          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch ID</Label>
+          <Text
             as="p"
-            variant="body"
-            className="mt-1 truncate text-sm font-semibold text-text-primary"
+             variant="body"
+            className="mt-1 truncate text-sm font-semibold text-foreground"
           >
             {branch?.id || "N/A"}
-          </Typography>
+          </Text>
         </InfoTile>
 
-        <InfoTile tone={"elevatedSoft"}>
-          <Label variant="micro">Branch Code</Label>
-          <Typography
+        <InfoTile tone="secondary">
+          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch Code</Label>
+          <Text
             as="p"
-            variant="body"
-            className="mt-1 text-sm font-semibold uppercase text-text-primary"
+             variant="body"
+            className="mt-1 text-sm font-semibold uppercase text-foreground"
           >
             {branch?.code || "N/A"}
-          </Typography>
+          </Text>
         </InfoTile>
 
-        <InfoTile padding="md" tone={"elevatedSoft"} className=" space-y-2">
-          <div className="flex items-start gap-3 text-sm text-text-secondary">
-            <MapPin className="mt-0.5 h-4 w-4 text-text-secondary" />
+        <InfoTile padding="md" tone="secondary" className="space-y-2">
+          <div className="flex items-start gap-3 text-sm text-muted-foreground">
+            <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
             <span>{branch?.address || "No address provided yet."}</span>
           </div>
 
-          <div className="flex items-center gap-3 text-sm text-text-secondary">
-            <Phone className="h-4 w-4 text-text-secondary" />
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Phone className="h-4 w-4 text-muted-foreground" />
             <span>{branch?.phone || "No phone provided yet."}</span>
           </div>
         </InfoTile>
 
-        <div className="grid grid-cols-1 gap-3 border-t border-divider  sm:grid-cols-2">
-          <InfoTile padding="md" tone={"elevatedSoft"}>
-            <Label variant="dashboard">Created</Label>
-            <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-text-primary">
-              <CalendarDays className="h-3.5 w-3.5 text-text-secondary" />
+        <div className="grid grid-cols-1 gap-3 border-t border-border  sm:grid-cols-2">
+          <InfoTile padding="md" tone="secondary">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Created</Label>
+            <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
               <span>
                 {branch?.createdAt ? formatDate(branch.createdAt) : "N/A"}
               </span>
             </div>
           </InfoTile>
-          <InfoTile padding="md" tone={"elevatedSoft"}>
-            <Label variant="dashboard">Last Updated</Label>
-            <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-text-primary">
-              <CalendarDays className="h-3.5 w-3.5 text-text-secondary" />
+          <InfoTile padding="md" tone="secondary">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Last Updated</Label>
+            <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
               <span>
                 {branch?.updatedAt ? formatDate(branch.updatedAt) : "N/A"}
               </span>

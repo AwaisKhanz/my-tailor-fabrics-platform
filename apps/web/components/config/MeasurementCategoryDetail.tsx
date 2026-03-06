@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { useAuthz } from "@/hooks/use-authz";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
 
 export function MeasurementCategoryDetail({ id }: { id: string }) {
@@ -153,14 +153,14 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
         <PageSection spacing="compact">
           <Card>
             <CardContent className="flex min-h-[340px] flex-col items-center justify-center p-6 text-center">
-              <Typography as="h2" variant="sectionTitle">
+              <Heading as="h2"  variant="section">
                 Category Not Found
-              </Typography>
-              <Typography as="p" variant="lead" className="mt-2 max-w-md">
+              </Heading>
+              <Text as="p"  variant="lead" className="mt-2 max-w-md">
                 This measurement category may have been removed or is no longer available.
-              </Typography>
+              </Text>
               <Button
-                variant="premium"
+               
                 className="mt-6 w-full sm:w-auto"
                 onClick={() => router.push("/settings/measurements")}
               >
@@ -303,33 +303,33 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
             }
           >
             {cannotDeleteSection ? (
-              <Typography as="p" variant="body" className="text-destructive">
+              <Text as="p"  variant="body" className="text-destructive">
                 This section contains {fieldsInDeletingSection} field
                 {fieldsInDeletingSection === 1 ? "" : "s"}, but there is no
                 other section to move them into. Create another section first.
-              </Typography>
+              </Text>
             ) : (
               <div className="space-y-4">
-                <Typography as="p" variant="body">
+                <Text as="p"  variant="body">
                   {requiresMoveTarget
                     ? `This section has ${fieldsInDeletingSection} field${fieldsInDeletingSection === 1 ? "" : "s"}. Choose where these fields should move before archiving.`
                     : "This section has no active fields and will be archived immediately."}
-                </Typography>
+                </Text>
 
                 {requiresMoveTarget ? (
                   <div className="space-y-2">
-                    <Typography
+                    <Text
                       as="p"
-                      variant="muted"
+                       variant="muted"
                       className="font-semibold uppercase tracking-[0.08em]"
                     >
                       Move existing fields to
-                    </Typography>
+                    </Text>
                     <Select
                       value={targetSectionId}
                       onValueChange={setTargetSectionId}
                     >
-                      <SelectTrigger variant="premium">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select destination section" />
                       </SelectTrigger>
                       <SelectContent>

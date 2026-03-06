@@ -51,16 +51,11 @@ export function ReportsExportGrid({
         const pdfKey = `${card.type}:pdf`;
 
         return (
-          <Card key={card.type} variant="elevatedPanel">
-            <CardHeader
-              variant="rowSection"
-              density="compact"
-              align="startResponsive"
-              gap="md"
-            >
+          <Card key={card.type}>
+            <CardHeader density="compact" align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
               <div>
-                <CardTitle variant="section">{card.title}</CardTitle>
-                <CardDescription variant="finePrint">
+                <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">{card.title}</CardTitle>
+                <CardDescription className="mt-1 text-[11px] leading-relaxed">
                   {card.description}
                 </CardDescription>
               </div>

@@ -56,12 +56,12 @@ export function ReportsWorkspaceFilters({
   })}`;
 
   return (
-    <Card variant="elevatedPanel">
+    <Card>
       <CardContent className="space-y-3 p-4">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
             <div className="space-y-1.5">
-              <Label variant="dashboard">Date Range</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Date Range</Label>
               <Select
                 value={preset}
                 onValueChange={(value) => {
@@ -71,7 +71,7 @@ export function ReportsWorkspaceFilters({
                 }}
                 disabled={loading}
               >
-                <SelectTrigger variant="table" className="h-9">
+                <SelectTrigger className="h-9">
                   <SelectValue placeholder="Select range" />
                 </SelectTrigger>
                 <SelectContent>
@@ -85,7 +85,7 @@ export function ReportsWorkspaceFilters({
             </div>
 
             <div className="space-y-1.5">
-              <Label variant="dashboard">Granularity</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Granularity</Label>
               <Select
                 value={granularity}
                 onValueChange={(value) => {
@@ -95,7 +95,7 @@ export function ReportsWorkspaceFilters({
                 }}
                 disabled={loading}
               >
-                <SelectTrigger variant="table" className="h-9">
+                <SelectTrigger className="h-9">
                   <SelectValue placeholder="Select granularity" />
                 </SelectTrigger>
                 <SelectContent>
@@ -111,10 +111,10 @@ export function ReportsWorkspaceFilters({
 
           {preset === "custom" ? null : (
             <InfoTile
-              tone="elevatedSoft"
+              tone="secondary"
               layout="row"
               padding="md"
-              className="h-9 rounded-md text-xs text-text-secondary lg:w-fit"
+              className="h-9 rounded-md text-xs text-muted-foreground lg:w-fit"
             >
               <CalendarRange className="mr-1.5 h-3.5 w-3.5" />
               {rangeLabel}
@@ -125,11 +125,11 @@ export function ReportsWorkspaceFilters({
         {preset === "custom" ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:ml-auto lg:max-w-[440px]">
             <div className="space-y-1.5">
-              <Label variant="dashboard" className="sr-only">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground sr-only">
                 Start Date
               </Label>
               <Input
-                variant="table"
+               
                 type="date"
                 value={dateRange.from}
                 onChange={(event) => onDateChange("from", event.target.value)}
@@ -138,11 +138,11 @@ export function ReportsWorkspaceFilters({
             </div>
 
             <div className="space-y-1.5">
-              <Label variant="dashboard" className="sr-only">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground sr-only">
                 End Date
               </Label>
               <Input
-                variant="table"
+               
                 type="date"
                 value={dateRange.to}
                 onChange={(event) => onDateChange("to", event.target.value)}

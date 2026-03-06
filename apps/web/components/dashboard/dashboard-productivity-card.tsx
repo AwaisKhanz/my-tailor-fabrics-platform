@@ -30,16 +30,16 @@ export function DashboardProductivityCard({
     : 0;
 
   return (
-    <Card variant="elevatedPanel" className="flex h-full flex-col">
-      <CardHeader variant="rowSection" align="start">
-        <CardTitle variant="dashboardSection">Employee Productivity</CardTitle>
+    <Card className="flex h-full flex-col">
+      <CardHeader align="start" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardTitle className="text-base font-bold normal-case tracking-tight">Employee Productivity</CardTitle>
         <div className="flex flex-col items-end">
           {loading ? (
             <Skeleton className="h-6 w-16" />
           ) : (
             <span className="text-xl font-bold text-primary">{average}</span>
           )}
-          <Label variant="dashboard">Avg Items / Tailor</Label>
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Avg Items / Tailor</Label>
         </div>
       </CardHeader>
       <CardContent spacing="section" className="flex flex-1 flex-col gap-6">
@@ -54,18 +54,18 @@ export function DashboardProductivityCard({
           <InfoTile
             borderStyle="dashed"
             padding="none"
-            className="flex flex-1 items-center justify-center px-4 py-10 text-center text-xs text-text-secondary"
+            className="flex flex-1 items-center justify-center px-4 py-10 text-center text-xs text-muted-foreground"
           >
             No productivity data for this period
           </InfoTile>
         ) : (
           <>
             {activeEmployee ? (
-              <InfoTile tone="elevatedSoft" padding="md">
-                <p className="text-xs font-semibold text-text-primary">
+              <InfoTile tone="secondary" padding="md">
+                <p className="text-xs font-semibold text-foreground">
                   {activeEmployee.label}
                 </p>
-                <p className="mt-1 text-[11px] text-text-secondary">
+                <p className="mt-1 text-[11px] text-muted-foreground">
                   {activeEmployee.value} completed
                 </p>
               </InfoTile>
@@ -77,24 +77,24 @@ export function DashboardProductivityCard({
                 percentage >= 90
                   ? "bg-primary"
                   : percentage >= 75
-                    ? "bg-info"
-                    : "bg-warning";
+                    ? "bg-primary"
+                    : "bg-secondary";
 
               return (
                 <div
                   key={employee.label}
                   className={`flex flex-col gap-2 rounded-lg border px-2.5 py-2 transition-colors ${
                     activeEmployee?.label === employee.label
-                      ? "border-primary/35 bg-interaction-hover"
-                      : "border-divider bg-surface-elevated/60 hover:border-divider"
+                      ? "border-primary/35 bg-accent"
+                      : "border-border bg-card/60 hover:border-border"
                   }`}
                   onMouseEnter={() => setHoveredEmployee(employee.label)}
                 >
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-bold text-text-primary">
+                    <span className="font-bold text-foreground">
                       {employee.label}
                     </span>
-                    <Label variant="dashboard">{employee.value} Items</Label>
+                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{employee.value} Items</Label>
                   </div>
                   <ProgressBar
                     value={percentage}

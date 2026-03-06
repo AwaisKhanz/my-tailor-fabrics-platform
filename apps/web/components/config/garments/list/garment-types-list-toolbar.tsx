@@ -47,7 +47,7 @@ export function GarmentTypesListToolbar({
           </Button>
 
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="md:ml-auto"
             onClick={onReset}

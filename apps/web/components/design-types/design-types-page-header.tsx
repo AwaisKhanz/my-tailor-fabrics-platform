@@ -21,7 +21,7 @@ export function DesignTypesPageHeader({
         </span>
       }
       actions={canCreateDesignType ? (
-        <Button variant="premium" size="lg" className="w-full gap-2 sm:w-auto" onClick={onCreate}>
+        <Button variant="default" size="lg" className="w-full gap-2 sm:w-auto" onClick={onCreate}>
           <Plus className="h-4 w-4" />
           Add Design Type
         </Button>

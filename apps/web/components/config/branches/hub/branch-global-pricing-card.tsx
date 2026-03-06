@@ -8,7 +8,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 interface BranchGlobalPricingCardProps {
   branch: BranchDetail | null;
@@ -23,8 +23,8 @@ export function BranchGlobalPricingCard({
   const hasBranchRateOverrides = Boolean(branch?.stats?.hasBranchRateOverrides);
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive">
+    <Card>
+      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Global Pricing Model"
           icon={
@@ -39,81 +39,81 @@ export function BranchGlobalPricingCard({
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-5">
-        <Typography as="p" variant="lead" className="text-sm leading-relaxed">
+        <Text as="p"  variant="lead" className="text-sm leading-relaxed">
           Customer garment prices are controlled from one shared catalog in{" "}
-          <span className="font-semibold text-text-primary">
+          <span className="font-semibold text-foreground">
             {" "}
             Settings &gt; Garments
           </span>
           . This means every branch uses the same customer-facing price list.
-        </Typography>
+        </Text>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <InfoTile padding="md" tone={"elevatedSoft"}>
-            <Label variant="micro">Customer Price Source</Label>
-            <Typography
+          <InfoTile padding="md" tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Price Source</Label>
+            <Text
               as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-text-primary"
+               variant="body"
+              className="mt-1 text-sm font-semibold text-foreground"
             >
               Global Garment Catalog
-            </Typography>
+            </Text>
           </InfoTile>
-          <InfoTile padding="md" tone={"elevatedSoft"}>
-            <Label variant="micro">Branch-level Price List</Label>
-            <Typography
+          <InfoTile padding="md" tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch-level Price List</Label>
+            <Text
               as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-text-primary"
+               variant="body"
+              className="mt-1 text-sm font-semibold text-foreground"
             >
               Not Supported for Customer Prices
-            </Typography>
+            </Text>
           </InfoTile>
-          <InfoTile padding="md" tone={"elevatedSoft"}>
-            <Label variant="micro">Active Garment Types</Label>
-            <Typography
+          <InfoTile padding="md" tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Garment Types</Label>
+            <Text
               as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-text-primary"
+               variant="body"
+              className="mt-1 text-sm font-semibold text-foreground"
             >
               {garmentTypesCount.toLocaleString()}
-            </Typography>
+            </Text>
           </InfoTile>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <InfoTile padding="md" tone={"elevatedSoft"}>
-            <Label variant="micro">Task Rate Overrides</Label>
-            <Typography
+          <InfoTile padding="md" tone="secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Task Rate Overrides</Label>
+            <Text
               as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-text-primary"
+               variant="body"
+              className="mt-1 text-sm font-semibold text-foreground"
             >
               {hasBranchRateOverrides
                 ? `${branchRateCards.toLocaleString()} branch-specific rates`
                 : "Disabled (no branch-specific rate cards)"}
-            </Typography>
+            </Text>
           </InfoTile>
           <InfoTile
             padding="md"
             className="sm:col-span-2"
-            tone={"elevatedSoft"}
+            tone="secondary"
           >
-            <Label variant="micro">Global Task Rate Cards</Label>
-            <Typography
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Global Task Rate Cards</Label>
+            <Text
               as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-text-primary"
+               variant="body"
+              className="mt-1 text-sm font-semibold text-foreground"
             >
               {globalRateCards.toLocaleString()} default rate cards are
               available system-wide
-            </Typography>
+            </Text>
           </InfoTile>
         </div>
 
         <div className="flex justify-start">
           <Button
-            variant="premium"
+           
             size="lg"
             className="w-full sm:w-auto"
             asChild

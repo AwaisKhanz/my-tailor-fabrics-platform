@@ -71,22 +71,22 @@ export function OrderPaymentDialog({
             {validationError ? (
               <p className="text-sm text-destructive">{validationError}</p>
             ) : null}
-            <InfoTile tone="pending" radius="xl" layout="between" padding="none" className="px-5 py-4">
-              <span className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
+            <InfoTile tone="secondary" radius="xl" layout="between" padding="none" className="px-5 py-4">
+              <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
                 Pending amount
               </span>
-              <span className="text-xl font-bold tabular-nums text-text-primary">
+              <span className="text-xl font-bold tabular-nums text-foreground">
                 {formatPKR(balanceDue)}
               </span>
             </InfoTile>
 
             <div className="space-y-2">
-              <Label variant="tightCaps" className="text-text-primary">
+              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground text-foreground">
                 Deposit Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
                 type="number"
-                variant="premium"
+               
                 className="h-12 text-lg font-bold"
                 placeholder="e.g. 1000"
                 value={amount}
@@ -99,11 +99,11 @@ export function OrderPaymentDialog({
             </div>
 
             <div className="space-y-2">
-              <Label variant="tightCaps" className="text-text-primary">
+              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground text-foreground">
                 Transaction Note
               </Label>
               <Input
-                variant="premium"
+               
                 className="h-12"
                 placeholder="e.g. Received via Cash / Bank Transfer"
                 value={note}

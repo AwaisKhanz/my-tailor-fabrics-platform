@@ -21,8 +21,9 @@ const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
+    data-ui="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-overlay-strong backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-foreground/20 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -78,7 +79,7 @@ function setForwardedRef<T>(ref: React.ForwardedRef<T>, value: T | null) {
   }
 }
 
-const dialogContentVariants = cva(
+const dialogContentSizes = cva(
   "fixed left-[50%] top-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
   {
     variants: {
@@ -92,16 +93,9 @@ const dialogContentVariants = cva(
         "4xl": "max-w-4xl",
         full: "max-w-[96vw]",
       },
-      variant: {
-        default:
-          "grid gap-4 border border-divider/50 bg-popover p-6 text-popover-foreground shadow-theme-modal sm:rounded-2xl",
-        flush:
-          "grid gap-0 overflow-hidden border border-divider/50 bg-popover p-0 text-popover-foreground shadow-theme-modal sm:rounded-2xl",
-      },
     },
     defaultVariants: {
       size: "lg",
-      variant: "default",
     },
   },
 );
@@ -109,14 +103,13 @@ const dialogContentVariants = cva(
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
-    VariantProps<typeof dialogContentVariants>
+    VariantProps<typeof dialogContentSizes>
 >(
   (
     {
       className,
       children,
       size,
-      variant,
       onKeyDownCapture,
       onFocusCapture,
       ...props
@@ -181,13 +174,18 @@ const DialogContent = React.forwardRef<
         <DialogOverlay />
         <DialogPrimitive.Content
           ref={setRefs}
-          className={cn(dialogContentVariants({ size, variant }), className)}
+          data-ui="dialog-content"
+          className={cn(
+            dialogContentSizes({ size }),
+            "grid gap-4 border border-border bg-popover p-6 text-popover-foreground shadow sm:rounded-2xl",
+            className,
+          )}
           onKeyDownCapture={handleKeyDownCapture}
           onFocusCapture={handleFocusCapture}
           {...props}
         >
           {children}
-          <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-text-secondary transition-colors hover:border-divider hover:bg-interaction-hover hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-interaction-focus focus:ring-offset-2 focus:ring-offset-popover disabled:pointer-events-none">
+          <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:pointer-events-none">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
@@ -200,17 +198,12 @@ DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const dialogHeaderVariants = cva("flex flex-col text-center sm:text-left", {
   variants: {
-    variant: {
-      default: "",
-      section: "shrink-0 border-b border-divider px-6 pb-4 pt-6 text-left",
-    },
     spacing: {
       default: "space-y-2",
       relaxed: "space-y-3",
     },
   },
   defaultVariants: {
-    variant: "default",
     spacing: "default",
   },
 });
@@ -222,12 +215,11 @@ interface DialogHeaderProps
 
 const DialogHeader = ({
   className,
-  variant,
   spacing,
   ...props
 }: DialogHeaderProps) => (
   <div
-    className={cn(dialogHeaderVariants({ variant, spacing }), className)}
+    className={cn(dialogHeaderVariants({ spacing }), className)}
     {...props}
   />
 );
@@ -268,7 +260,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-text-secondary", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ));

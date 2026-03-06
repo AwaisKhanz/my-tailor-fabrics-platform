@@ -28,7 +28,7 @@ import {
   PageSection,
 } from "@/components/ui/page-shell";
 import { StatsGrid } from "@/components/ui/stats-grid";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { Can } from "@/components/auth/can";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 
@@ -59,13 +59,13 @@ function DashboardPage() {
         <PageHeader
           title="Dashboard"
           description={
-            <span className="text-text-secondary">
+            <span className="text-muted-foreground">
               Welcome back,{" "}
               <span className="font-medium text-foreground">
                 {session?.user?.email}
               </span>
               {session?.user?.role ? (
-                <Badge variant="admin" size="xs" className="ml-2">
+                <Badge variant="secondary" size="xs" className="ml-2">
                   {roleLabel}
                 </Badge>
               ) : null}
@@ -76,7 +76,7 @@ function DashboardPage() {
             <>
               <Can all={["orders.create"]}>
                 <Button
-                  variant="premium"
+                  variant="default"
                   size="lg"
                   className="w-full sm:w-auto"
                   onClick={() => router.push("/orders/new")}
@@ -101,16 +101,16 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none" className="space-y-1">
-        <Typography
+        <Heading
           as="h2"
-          variant="sectionTitle"
+           variant="section"
           className="text-base sm:text-lg"
         >
           Today Overview
-        </Typography>
-        <Typography as="p" variant="muted" className="text-xs sm:text-sm">
+        </Heading>
+        <Text as="p"  variant="muted" className="text-xs sm:text-sm">
           Key numbers for revenue, expenses, balances, and new orders.
-        </Typography>
+        </Text>
       </PageSection>
 
       <PageSection spacing="compact">
@@ -167,13 +167,13 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none" className="pt-1">
-        <Typography
+        <Heading
           as="h2"
-          variant="sectionTitle"
+           variant="section"
           className="text-base sm:text-lg"
         >
           Financial Insights
-        </Typography>
+        </Heading>
       </PageSection>
 
       <PageSection>
@@ -213,13 +213,13 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none">
-        <Typography
+        <Heading
           as="h2"
-          variant="sectionTitle"
+           variant="section"
           className="text-base sm:text-lg"
         >
           Operational Attention
-        </Typography>
+        </Heading>
       </PageSection>
 
       <PageSection>

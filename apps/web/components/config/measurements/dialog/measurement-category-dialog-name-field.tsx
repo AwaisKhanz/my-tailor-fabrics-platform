@@ -16,9 +16,9 @@ export function MeasurementCategoryDialogNameField({
       name="name"
       render={({ field }) => (
         <FormItem>
-          <FormLabel variant="dashboard">Category Name</FormLabel>
+          <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Category Name</FormLabel>
           <FormControl>
-            <Input variant="premium" placeholder="e.g. Mens Shirt" {...field} />
+            <Input placeholder="e.g. Mens Shirt" {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

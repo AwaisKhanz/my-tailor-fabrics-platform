@@ -6,7 +6,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 
 interface GarmentPricingLogsCardProps {
@@ -15,17 +15,17 @@ interface GarmentPricingLogsCardProps {
 
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive">
+    <Card>
+      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Recent Pricing Logs"
           icon={
-            <SectionIcon tone="primary">
+            <SectionIcon tone="default">
               <History className="h-4 w-4" />
             </SectionIcon>
           }
         />
-        <Badge variant="secondary" size="xs">
+        <Badge variant="default" size="xs">
           {logs.length} entries
         </Badge>
       </CardHeader>
@@ -36,7 +36,7 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
             {logs.map((log) => (
               <div key={log.id} className="relative pl-8">
                 <SectionIcon
-                  tone="timelinePrimary"
+                  tone="default"
                   size="sm"
                   framed={false}
                   className="absolute left-0 top-1.5 z-10 rounded-full"
@@ -45,20 +45,17 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                 </SectionIcon>
 
                 <div className="mb-1 flex items-center justify-between">
-                  <Typography as="p" variant="body" className="font-bold">
+                  <Text as="p"  variant="body" className="font-bold">
                     Price Updated
-                  </Typography>
-                  <Label variant="dashboard">
+                  </Text>
+                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
                     {new Date(log.createdAt).toLocaleString()}
                   </Label>
                 </div>
 
                 <InfoTile padding="content" className="space-y-2">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <Label
-                      variant="dashboard"
-                      className="flex shrink-0 items-center gap-1.5"
-                    >
+                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground flex shrink-0 items-center gap-1.5">
                       <Users className="h-3 w-3" />
                       {log.changedBy.name}
                     </Label>
@@ -66,22 +63,22 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
 
                   <div className="grid grid-cols-1 gap-3 pt-1">
                     <div>
-                      <Label variant="dashboard">Customer Price</Label>
+                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Customer Price</Label>
                       <div className="flex items-center gap-2">
-                        <Typography
+                        <Text
                           as="span"
-                          variant="muted"
+                           variant="muted"
                           className="text-xs line-through opacity-50"
                         >
                           {formatPKR(log.oldCustomerPrice || 0)}
-                        </Typography>
-                        <Typography
+                        </Text>
+                        <Text
                           as="span"
-                          variant="body"
+                           variant="body"
                           className="text-xs font-bold"
                         >
                           {formatPKR(log.newCustomerPrice || 0)}
-                        </Typography>
+                        </Text>
                       </div>
                     </div>
                   </div>
@@ -90,11 +87,11 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
             ))}
           </div>
         ) : (
-          <div className="py-12 text-center text-text-secondary">
+          <div className="py-12 text-center text-muted-foreground">
             <History className="mx-auto mb-3 h-8 w-8 opacity-20" />
-            <Typography as="p" variant="lead">
+            <Text as="p"  variant="lead">
               No pricing change logs found yet.
-            </Typography>
+            </Text>
           </div>
         )}
       </CardContent>

@@ -34,7 +34,7 @@ export function EmployeesListToolbar({
             onChange={(event) => onSearchChange(event.target.value)}
           />
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="w-full justify-center md:ml-auto md:w-auto md:justify-start"
             onClick={onReset}

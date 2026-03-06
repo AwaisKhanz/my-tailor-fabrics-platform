@@ -58,10 +58,10 @@ export function UserAccountDialog({
           ) : null}
           <div className="space-y-1.5">
             <Label>
-              Full Name <span className="text-error">*</span>
+              Full Name <span className="text-destructive">*</span>
             </Label>
             <Input
-              variant="premium"
+             
               placeholder="Staff member name"
               value={form.name}
               onChange={(event) => onFormFieldChange("name", event.target.value)}
@@ -73,10 +73,10 @@ export function UserAccountDialog({
 
           <div className="space-y-1.5">
             <Label>
-              Email <span className="text-error">*</span>
+              Email <span className="text-destructive">*</span>
             </Label>
             <Input
-              variant="premium"
+             
               type="email"
               placeholder="user@example.com"
               value={form.email}
@@ -93,11 +93,11 @@ export function UserAccountDialog({
               {editingUser ? (
                 "(leave blank to keep current)"
               ) : (
-                <span className="text-error">*</span>
+                <span className="text-destructive">*</span>
               )}
             </Label>
             <Input
-              variant="premium"
+             
               type="password"
               placeholder={editingUser ? "Enter new password" : "Minimum 8 characters"}
               value={form.password}
@@ -110,7 +110,7 @@ export function UserAccountDialog({
 
           <div className="space-y-1.5">
             <Label>
-              Role <span className="text-error">*</span>
+              Role <span className="text-destructive">*</span>
             </Label>
             <Select
               value={form.role}
@@ -120,7 +120,7 @@ export function UserAccountDialog({
                 }
               }}
             >
-              <SelectTrigger variant="premium">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -139,7 +139,7 @@ export function UserAccountDialog({
           <div className="space-y-1.5">
             <Label>Branch</Label>
             <Select value={form.branchId} onValueChange={(value) => onFormFieldChange("branchId", value)}>
-              <SelectTrigger variant="premium">
+              <SelectTrigger>
                 <SelectValue placeholder="Select branch (leave blank for all)" />
               </SelectTrigger>
               <SelectContent>

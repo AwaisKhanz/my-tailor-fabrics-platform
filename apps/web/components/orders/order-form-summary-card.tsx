@@ -59,13 +59,13 @@ export function OrderFormSummaryCard({
   isEditMode,
 }: OrderFormSummaryCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Order Summary"
           description="Review totals and finalize payment details."
           icon={
-            <SectionIcon tone="infoSoft">
+            <SectionIcon tone="info">
               <Calculator className="h-4 w-4" />
             </SectionIcon>
           }
@@ -77,31 +77,31 @@ export function OrderFormSummaryCard({
 
       <CardContent spacing="section" className="space-y-5">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <InfoTile tone="elevatedSoft" className="space-y-1">
-            <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-text-secondary">
+          <InfoTile tone="secondary" className="space-y-1">
+            <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
               <UserRound className="h-3.5 w-3.5" />
               Customer
             </span>
-            <p className="line-clamp-1 text-sm font-semibold text-text-primary">
+            <p className="line-clamp-1 text-sm font-semibold text-foreground">
               {selectedCustomerName || "Not selected"}
             </p>
           </InfoTile>
 
-          <InfoTile tone="elevatedSoft" className="space-y-1">
-            <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-text-secondary">
+          <InfoTile tone="secondary" className="space-y-1">
+            <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
               <CalendarDays className="h-3.5 w-3.5" />
               Due Date
             </span>
-            <p className="text-sm font-semibold text-text-primary">
+            <p className="text-sm font-semibold text-foreground">
               {dueDate || "-"}
             </p>
           </InfoTile>
         </div>
 
-        <InfoTile tone="elevatedSoft" padding="content" className="space-y-3">
+        <InfoTile tone="secondary" padding="content" className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <Label variant="dashboard">Subtotal</Label>
-            <span className="font-semibold text-text-primary">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Subtotal</Label>
+            <span className="font-semibold text-foreground">
               {formatPKR(Math.round(totals.subtotal * 100))}
             </span>
           </div>
@@ -112,10 +112,10 @@ export function OrderFormSummaryCard({
               name="discountType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="dashboard">Discount Type</FormLabel>
+                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Discount Type</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger variant="premium" className="h-9">
+                      <SelectTrigger className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
@@ -138,10 +138,10 @@ export function OrderFormSummaryCard({
               name="discountValue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="dashboard">Discount Value</FormLabel>
+                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Discount Value</FormLabel>
                   <FormControl>
                     <Input
-                      variant="premium"
+                     
                       type="number"
                       className="h-9"
                       {...field}
@@ -153,8 +153,8 @@ export function OrderFormSummaryCard({
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-md bg-success/10 px-2 py-1.5 text-sm text-success">
-            <Label variant="dashboard" className="text-success">
+          <div className="flex items-center justify-between rounded-md bg-primary/10 px-2 py-1.5 text-sm text-primary">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-primary">
               Discount
             </Label>
             <span className="font-semibold">
@@ -166,7 +166,7 @@ export function OrderFormSummaryCard({
         <Separator />
 
         <InfoTile padding="content" className="space-y-3">
-          <div className="flex items-center justify-between text-lg font-bold text-text-primary">
+          <div className="flex items-center justify-between text-lg font-bold text-foreground">
             <span>Total</span>
             <span>{formatPKR(Math.round(totals.totalAmount * 100))}</span>
           </div>
@@ -176,17 +176,21 @@ export function OrderFormSummaryCard({
             name="advancePayment"
             render={({ field }) => (
               <FormItem>
-                <FormLabel variant="dashboard">Advance Payment</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Advance Payment</FormLabel>
                 <FormControl>
-                  <Input variant="premiumSuccess" type="number" {...field} />
+                  <Input
+                    type="number"
+                    {...field}
+                    className="border-primary/20 bg-primary/10 text-primary font-semibold"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className="flex items-center justify-between border-t border-divider pt-2.5">
-            <Label variant="dashboard" className="text-destructive">
+          <div className="flex items-center justify-between border-t border-border pt-2.5">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-destructive">
               Balance Due
             </Label>
             <span className="text-lg font-bold text-destructive">
@@ -200,10 +204,10 @@ export function OrderFormSummaryCard({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="dashboard">Internal Notes</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Internal Notes</FormLabel>
               <FormControl>
                 <Input
-                  variant="premium"
+                 
                   placeholder="Priority, delivery notes, handling instructions"
                   {...field}
                 />
@@ -216,7 +220,7 @@ export function OrderFormSummaryCard({
 
       <CardFooter spacing="compact" tone="mutedSection" className="p-4">
         <Button
-          variant="premium"
+          variant="default"
           size="lg"
           className="w-full"
           type="submit"

@@ -62,11 +62,11 @@ export function PaymentsSummaryCards({
         tone="warning"
         icon={<Banknote className="h-4 w-4" />}
         badgeText={currentBalance > 0 ? "DUE" : "CLEAR"}
-        valueClassName={currentBalance > 0 ? "" : "text-text-secondary"}
+        valueClassName={currentBalance > 0 ? "" : "text-muted-foreground"}
         action={
           canManagePayments ? (
             <Button
-              variant={canDisburse ? "premium" : "outline"}
+              variant={canDisburse ? "default" : "outline"}
               size="sm"
               className="w-full sm:w-auto"
               onClick={onDisburse}

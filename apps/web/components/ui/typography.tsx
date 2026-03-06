@@ -1,34 +1,63 @@
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
-const typographyVariants = cva('', {
+const headingVariants = cva("", {
   variants: {
     variant: {
-      pageTitle: 'text-3xl font-bold tracking-tight text-text-primary',
-      sectionTitle: 'text-lg font-bold text-text-primary',
-      statValue: 'text-2xl font-bold tracking-tight text-text-primary',
-      lead: 'text-sm text-text-secondary',
-      muted: 'text-xs text-text-secondary',
-      body: 'text-sm text-text-primary',
+      page: "text-[2.2rem] font-semibold leading-[1.04] tracking-[-0.03em] text-foreground md:text-[2.85rem]",
+      section: "text-[1.18rem] font-semibold leading-tight text-foreground",
+      stat: "text-2xl font-bold tracking-tight text-foreground",
     },
   },
   defaultVariants: {
-    variant: 'body',
+    variant: "section",
   },
 });
 
-export interface TypographyProps
+const textVariants = cva("", {
+  variants: {
+    variant: {
+      lead: "text-[1rem] leading-8 text-muted-foreground md:text-[1.05rem]",
+      body: "text-sm text-foreground",
+      muted: "text-sm text-muted-foreground",
+      meta: "text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground",
+    },
+  },
+  defaultVariants: {
+    variant: "body",
+  },
+});
+
+type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "span";
+type TextTag = "p" | "span" | "div" | "small";
+
+export interface HeadingProps
   extends React.HTMLAttributes<HTMLElement>,
-    VariantProps<typeof typographyVariants> {
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'small';
+    VariantProps<typeof headingVariants> {
+  as?: HeadingTag;
 }
 
-export function Typography({
-  as: Tag = 'p',
+export function Heading({
+  as: Tag = "h2",
   className,
   variant,
   ...props
-}: TypographyProps) {
-  return <Tag className={cn(typographyVariants({ variant }), className)} {...props} />;
+}: HeadingProps) {
+  return <Tag className={cn(headingVariants({ variant }), className)} {...props} />;
+}
+
+export interface TextProps
+  extends React.HTMLAttributes<HTMLElement>,
+    VariantProps<typeof textVariants> {
+  as?: TextTag;
+}
+
+export function Text({
+  as: Tag = "p",
+  className,
+  variant,
+  ...props
+}: TextProps) {
+  return <Tag className={cn(textVariants({ variant }), className)} {...props} />;
 }

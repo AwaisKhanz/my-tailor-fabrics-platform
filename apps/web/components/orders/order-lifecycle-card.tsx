@@ -16,7 +16,7 @@ const NEXT_STATUS_CONFIG: Partial<
       next: OrderStatus;
       label: string;
       helper: string;
-      variant: "premium" | "outlinePrimary";
+      variant: "default" | "outline";
     }
   >
 > = {
@@ -24,25 +24,25 @@ const NEXT_STATUS_CONFIG: Partial<
     next: OrderStatus.IN_PROGRESS,
     label: "Begin Production",
     helper: "Start tailoring workflow for all assigned pieces.",
-    variant: "premium",
+    variant: "default",
   },
   [OrderStatus.IN_PROGRESS]: {
     next: OrderStatus.READY,
     label: "Mark Ready",
     helper: "Move order to ready once work is completed.",
-    variant: "outlinePrimary",
+    variant: "outline",
   },
   [OrderStatus.READY]: {
     next: OrderStatus.DELIVERED,
     label: "Mark Delivered",
     helper: "Confirm handover to customer.",
-    variant: "outlinePrimary",
+    variant: "outline",
   },
   [OrderStatus.DELIVERED]: {
     next: OrderStatus.COMPLETED,
     label: "Complete Order",
     helper: "Close lifecycle after final checks.",
-    variant: "premium",
+    variant: "default",
   },
 };
 
@@ -61,16 +61,16 @@ export function OrderLifecycleCard({
   }
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="section" density="comfortable">
-        <CardTitle variant="dashboard">Lifecycle Action</CardTitle>
-        <p className="text-xs text-text-secondary">
+    <Card>
+      <CardHeader density="comfortable" className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+        <CardTitle className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Lifecycle Action</CardTitle>
+        <p className="text-xs text-muted-foreground">
           Advance this order to the next stage.
         </p>
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-3">
-        <p className="rounded-lg border border-divider bg-surface-elevated/60 px-3 py-2 text-xs text-text-secondary">
+        <p className="rounded-lg border border-border bg-card/60 px-3 py-2 text-xs text-muted-foreground">
           {nextConfig.helper}
         </p>
 

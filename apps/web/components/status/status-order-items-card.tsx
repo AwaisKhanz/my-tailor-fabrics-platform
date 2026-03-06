@@ -1,6 +1,6 @@
 import { type Order } from "@tbms/shared-types";
 import { Card } from "@/components/ui/card";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 
 interface StatusOrderItemsCardProps {
@@ -9,14 +9,14 @@ interface StatusOrderItemsCardProps {
 
 export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
   return (
-    <Card variant="elevatedPanel" className="space-y-3 p-6">
-      <Typography
+    <Card className="space-y-3 p-6">
+      <Heading
         as="h2"
-        variant="muted"
-        className="font-semibold uppercase tracking-wide"
+        variant="section"
+        className="text-sm font-semibold uppercase tracking-wide text-muted-foreground"
       >
         Items
-      </Typography>
+      </Heading>
 
       <div className="divide-y">
         {order.items.map((item) => (
@@ -25,23 +25,23 @@ export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
             className="flex flex-col gap-2 py-2 text-sm sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
-              <Typography as="p" variant="body" className="font-medium">
+              <Text as="p"  variant="body" className="font-medium">
                 {item.garmentTypeName}
-              </Typography>
+              </Text>
               {item.description ? (
-                <Typography as="p" variant="muted" className="text-xs">
+                <Text as="p"  variant="muted" className="text-xs">
                   {item.description}
-                </Typography>
+                </Text>
               ) : null}
             </div>
 
             <div className="text-left sm:text-right">
-              <Typography as="p" variant="body" className="font-medium">
+              <Text as="p"  variant="body" className="font-medium">
                 x{item.quantity}
-              </Typography>
-              <Typography as="p" variant="muted" className="text-xs">
+              </Text>
+              <Text as="p"  variant="muted" className="text-xs">
                 {formatPKR(item.unitPrice * item.quantity)}
-              </Typography>
+              </Text>
             </div>
           </div>
         ))}

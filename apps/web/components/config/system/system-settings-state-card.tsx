@@ -18,8 +18,8 @@ export function SystemSettingsStateCard({
   lastUpdatedText,
 }: SystemSettingsStateCardProps) {
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="section">
+    <Card>
+      <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Current State"
           description="Snapshot of effective system behavior."
@@ -32,14 +32,14 @@ export function SystemSettingsStateCard({
       </CardHeader>
       <CardContent spacing="section" className="space-y-4 p-5 text-sm">
         <InfoTile layout="betweenGap" padding="md" className="rounded-md">
-          <span className="text-text-secondary">Task workflow</span>
-          <span className="font-semibold text-text-primary">
+          <span className="text-muted-foreground">Task workflow</span>
+          <span className="font-semibold text-foreground">
             {workflowEnabled ? "Active" : "Inactive"}
           </span>
         </InfoTile>
         <InfoTile layout="betweenGap" padding="md" className="rounded-md">
-          <span className="text-text-secondary">Last updated</span>
-          <span className="font-medium text-text-primary">
+          <span className="text-muted-foreground">Last updated</span>
+          <span className="font-medium text-foreground">
             {lastUpdatedText}
           </span>
         </InfoTile>

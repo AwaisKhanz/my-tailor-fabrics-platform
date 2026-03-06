@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 interface BranchesDirectoryTableProps {
   branches: Branch[];
@@ -47,10 +47,10 @@ export function BranchesDirectoryTable({
         header: "Branch",
         cell: (branch) => (
           <Link href={`/settings/branches/${branch.id}`} className="group inline-flex max-w-[220px] flex-col">
-            <span className="truncate text-sm font-bold leading-tight text-text-primary transition-colors group-hover:text-primary">
+            <span className="truncate text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
               {branch.name}
             </span>
-            <Label variant="dashboard" className="mt-0.5 uppercase">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
               {branch.code.toUpperCase()}
             </Label>
           </Link>
@@ -60,10 +60,10 @@ export function BranchesDirectoryTable({
         header: "Contact",
         cell: (branch) => (
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-text-primary">
+            <span className="text-sm font-semibold text-foreground">
               {branch.phone || "No phone provided"}
             </span>
-            <Label variant="dashboard" className="mt-0.5">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
               Branch Hotline
             </Label>
           </div>
@@ -72,9 +72,9 @@ export function BranchesDirectoryTable({
       {
         header: "Address",
         cell: (branch) => (
-          <Typography as="p" variant="body" className="max-w-[260px] font-medium leading-snug text-text-secondary">
+          <Text as="p"  variant="body" className="max-w-[260px] font-medium leading-snug text-muted-foreground">
             {branch.address || "No address provided"}
-          </Typography>
+          </Text>
         ),
       },
       {
@@ -94,8 +94,8 @@ export function BranchesDirectoryTable({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="tableIcon"
-                    size="iconSm"
+                    variant="ghost"
+                    size="icon"
                     aria-label={`Open actions for ${branch.name}`}
                   >
                     <MoreVertical className="h-4 w-4" />
@@ -120,23 +120,23 @@ export function BranchesDirectoryTable({
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => onToggleActive(branch)}
-                    className="cursor-pointer p-3 text-xs font-bold text-text-primary"
+                    className="cursor-pointer p-3 text-xs font-bold text-foreground"
                   >
                     {branch.isActive ? (
                       <>
-                        <Ban className="mr-2 h-4 w-4 text-warning" />
+                        <Ban className="mr-2 h-4 w-4 text-secondary-foreground" />
                         Deactivate
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="mr-2 h-4 w-4 text-success" />
+                        <CheckCircle className="mr-2 h-4 w-4 text-primary" />
                         Activate
                       </>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => onDelete(branch)}
-                    className="cursor-pointer p-3 text-xs font-bold text-error focus:text-error"
+                    className="cursor-pointer p-3 text-xs font-bold text-destructive focus:text-destructive"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Branch
@@ -145,8 +145,8 @@ export function BranchesDirectoryTable({
               </DropdownMenu>
             ) : (
               <Button
-                variant="tableIcon"
-                size="iconSm"
+                variant="ghost"
+                size="icon"
                 aria-label={`View ${branch.name}`}
                 onClick={() => onOpenBranch(branch)}
               >

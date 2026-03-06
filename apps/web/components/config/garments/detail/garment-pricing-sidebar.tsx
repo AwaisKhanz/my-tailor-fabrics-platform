@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-track";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 import { cn, formatPKR } from "@/lib/utils";
 
 interface GarmentPricingSidebarProps {
@@ -26,12 +26,12 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
 
   return (
     <div className="space-y-6">
-      <Card variant="elevatedPanel">
-        <CardHeader variant="rowSection" align="startResponsive">
+      <Card>
+        <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
           <SectionHeader
             title="Global Pricing"
             icon={
-              <SectionIcon tone="primary">
+              <SectionIcon tone="default">
                 <Banknote className="h-4 w-4" />
               </SectionIcon>
             }
@@ -44,33 +44,33 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
         <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-text-secondary">
+              <span className="text-xs font-medium text-muted-foreground">
                 Customer Price
               </span>
-              <Typography as="span" variant="sectionTitle" className="text-lg">
+              <Heading as="span"  variant="section" className="text-lg">
                 {formatPKR(customerPrice)}
-              </Typography>
+              </Heading>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-text-secondary">
+              <span className="text-xs font-medium text-muted-foreground">
                 Workflow Labour Baseline
               </span>
-              <Typography as="span" variant="sectionTitle" className="text-lg">
+              <Heading as="span"  variant="section" className="text-lg">
                 {formatPKR(baselineLabourRate)}
-              </Typography>
+              </Heading>
             </div>
 
             <div className="pt-2">
               <div className="mb-2 flex items-center justify-between">
-                <Label variant="dashboard">Revenue Share</Label>
-                <Typography
+                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Revenue Share</Label>
+                <Text
                   as="span"
-                  variant="muted"
+                   variant="muted"
                   className="text-[10px] font-bold text-primary"
                 >
                   {formatPKR(marginAmount)}
-                </Typography>
+                </Text>
               </div>
 
               <ProgressBar
@@ -82,28 +82,28 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
               />
 
               <div className="mt-1 flex justify-between">
-                <Typography
+                <Text
                   as="span"
-                  variant="muted"
+                   variant="muted"
                   className="text-[9px] font-bold"
                 >
                   Owner {marginPercentage}%
-                </Typography>
-                <Typography
+                </Text>
+                <Text
                   as="span"
-                  variant="muted"
+                   variant="muted"
                   className="text-[9px] font-bold"
                 >
                   Tailor {tailorSharePercentage}%
-                </Typography>
+                </Text>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card variant="elevatedPanel">
-        <CardHeader variant="rowSection" align="startResponsive">
+      <Card>
+        <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
           <SectionHeader
             title="Top Tailors"
             icon={
@@ -112,7 +112,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
               </SectionIcon>
             }
           />
-          <Badge variant="secondary" size="xs">
+          <Badge variant="default" size="xs">
             Productivity
           </Badge>
         </CardHeader>
@@ -126,34 +126,34 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                     className={cn(
                       "flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold",
                       index === 0
-                        ? "bg-ready/20 text-ready"
-                        : "bg-muted text-text-secondary",
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     {index + 1}
                   </div>
-                  <Typography as="p" variant="body" className="font-bold">
+                  <Text as="p"  variant="body" className="font-bold">
                     {tailor.name}
-                  </Typography>
+                  </Text>
                 </div>
 
                 <Badge
                   variant="outline"
                   size="xs"
-                  className="border-divider text-[10px] font-bold"
+                  className="border-border text-[10px] font-bold"
                 >
                   {tailor.count} completed
                 </Badge>
               </InfoTile>
             ))
           ) : (
-            <Typography
+            <Text
               as="p"
-              variant="lead"
+               variant="lead"
               className="py-4 text-center text-xs"
             >
               No production data yet.
-            </Typography>
+            </Text>
           )}
         </CardContent>
       </Card>

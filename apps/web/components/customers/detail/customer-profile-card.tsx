@@ -16,7 +16,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
+import { Heading } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 
 interface CustomerProfileCardProps {
@@ -29,12 +29,12 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
     .join(", ");
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive">
+    <Card>
+      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Customer Profile"
           icon={
-            <SectionIcon tone="infoSoft">
+            <SectionIcon tone="info">
               <UserSquare2 className="h-4 w-4" />
             </SectionIcon>
           }
@@ -48,58 +48,58 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
-        <InfoTile tone="elevatedSoft">
-          <Label variant="micro">Size Number</Label>
-          <p className="mt-1 text-sm font-semibold text-text-primary">
+        <InfoTile tone="secondary">
+          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+          <p className="mt-1 text-sm font-semibold text-foreground">
             {customer.sizeNumber}
           </p>
         </InfoTile>
 
         <div className="flex items-center gap-3 text-sm">
-          <Phone className="h-4 w-4 text-text-secondary" />
+          <Phone className="h-4 w-4 text-muted-foreground" />
           <span>{customer.phone}</span>
         </div>
 
         {customer.whatsapp ? (
           <div className="flex items-center gap-3 text-sm">
-            <Phone className="h-4 w-4 text-success" />
+            <Phone className="h-4 w-4 text-primary" />
             <span>{customer.whatsapp} (WhatsApp)</span>
           </div>
         ) : null}
 
         <div className="flex items-start gap-3 text-sm">
-          <MapPin className="mt-0.5 h-4 w-4 text-text-secondary" />
+          <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
           <span>{addressLine || "No address added yet"}</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 border-t border-divider pt-4">
+        <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
           <div>
-            <Label variant="dashboard" className="mb-1">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1">
               Total Orders
             </Label>
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4 text-primary" />
-              <Typography as="p" variant="sectionTitle" className="text-base">
+              <Heading as="div" variant="section" className="text-base">
                 {customer.stats?.totalOrders || 0}
-              </Typography>
+              </Heading>
             </div>
           </div>
 
           <div>
-            <Label variant="dashboard" className="mb-1">
+            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1">
               Total Spent
             </Label>
             <div className="flex items-center gap-2">
-              <Banknote className="h-4 w-4 text-success" />
-              <Typography as="p" variant="sectionTitle" className="text-base">
+              <Banknote className="h-4 w-4 text-primary" />
+              <Heading as="div" variant="section" className="text-base">
                 {formatPKR(customer.stats?.totalSpent || 0)}
-              </Typography>
+              </Heading>
             </div>
           </div>
         </div>
 
-        <div className="border-t flex justify-between items-center border-divider pt-4">
-          <Label variant="dashboard" className="mb-1">
+        <div className="border-t flex justify-between items-center border-border pt-4">
+          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1">
             Account Type
           </Label>
           <Badge variant={customer.isVip ? "warning" : "secondary"} size="xs">

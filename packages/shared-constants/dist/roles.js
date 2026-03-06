@@ -10,9 +10,9 @@ exports.ROLES = [
     { value: shared_types_1.Role.EMPLOYEE, label: 'Employee' },
 ];
 exports.ROLE_BADGE = {
-    [shared_types_1.Role.SUPER_ADMIN]: 'royal',
-    [shared_types_1.Role.ADMIN]: 'admin',
-    [shared_types_1.Role.ENTRY_OPERATOR]: 'amber',
+    [shared_types_1.Role.SUPER_ADMIN]: 'default',
+    [shared_types_1.Role.ADMIN]: 'secondary',
+    [shared_types_1.Role.ENTRY_OPERATOR]: 'warning',
     [shared_types_1.Role.VIEWER]: 'outline',
     [shared_types_1.Role.EMPLOYEE]: 'success',
 };

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import {
   salaryAccrualGenerationFormSchema,
   type SalaryAccrualGenerationFormInput,
@@ -83,22 +83,22 @@ export function PaymentsGenerateSalariesDialog({
             }}
           >
             <div className="space-y-2">
-              <Label variant="dashboard">Payroll Month</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Payroll Month</Label>
               <Input
-                variant="premium"
+               
                 type="month"
                 value={form.month}
                 onChange={(event) => onMonthChange(event.target.value)}
               />
               {validationError ? (
-                <Typography as="p" variant="muted" className="text-destructive">
+                <Text as="p"  variant="muted" className="text-destructive">
                   {validationError}
-                </Typography>
+                </Text>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label variant="dashboard">Scope</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Scope</Label>
               <Select
                 value={form.scope}
                 onValueChange={(value) => {
@@ -108,7 +108,7 @@ export function PaymentsGenerateSalariesDialog({
                 }}
                 disabled={!hasSelectedEmployee}
               >
-                <SelectTrigger variant="premium">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -120,9 +120,9 @@ export function PaymentsGenerateSalariesDialog({
                   ) : null}
                 </SelectContent>
               </Select>
-              <Typography as="p" variant="muted" className="text-xs">
+              <Text as="p"  variant="muted" className="text-xs">
                 System is idempotent and skips already generated employee-month accruals.
-              </Typography>
+              </Text>
             </div>
           </FormStack>
         </DialogSection>

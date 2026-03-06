@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -68,19 +68,19 @@ export function CustomerOrdersTab({
       {
         header: "Order #",
         cell: (order) => (
-          <Typography
+          <Text
             as="p"
-            variant="body"
+             variant="body"
             className="font-semibold text-primary"
           >
             {order.orderNumber}
-          </Typography>
+          </Text>
         ),
       },
       {
         header: "Created",
         cell: (order) => (
-          <div className="flex items-center gap-2 text-xs text-text-secondary">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock3 className="h-3.5 w-3.5" />
             <span>{new Date(order.createdAt).toLocaleDateString()}</span>
           </div>
@@ -90,9 +90,9 @@ export function CustomerOrdersTab({
         header: "Total",
         align: "right",
         cell: (order) => (
-          <Typography as="p" variant="body" className="font-semibold">
+          <Text as="p"  variant="body" className="font-semibold">
             {formatPKR(order.totalAmount)}
-          </Typography>
+          </Text>
         ),
       },
       {
@@ -117,18 +117,18 @@ export function CustomerOrdersTab({
   );
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle variant="section">Order History</CardTitle>
-            <Badge variant="secondary" size="xs" className="font-semibold">
+            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Order History</CardTitle>
+            <Badge variant="default" size="xs" className="font-semibold">
               {orders.length} ORDERS
             </Badge>
           </div>
-          <Typography as="p" variant="muted">
+          <Text as="p"  variant="muted">
             Review all customer orders with current status and amount details.
-          </Typography>
+          </Text>
         </div>
       </CardHeader>
 

@@ -39,10 +39,10 @@ export function DesignTypeDialogScopeFields({
         name="garmentTypeId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel variant="dashboard">Applicable Garment</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Applicable Garment</FormLabel>
             <Select value={field.value || DESIGN_TYPE_ALL_SCOPE} onValueChange={field.onChange}>
               <FormControl>
-                <SelectTrigger variant="premium">
+                <SelectTrigger>
                   <SelectValue placeholder="All Garments" />
                 </SelectTrigger>
               </FormControl>
@@ -64,10 +64,10 @@ export function DesignTypeDialogScopeFields({
         name="branchId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel variant="dashboard">Branch Scoping</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Branch Scoping</FormLabel>
             <Select value={field.value || DESIGN_TYPE_ALL_SCOPE} onValueChange={field.onChange}>
               <FormControl>
-                <SelectTrigger variant="premium">
+                <SelectTrigger>
                   <SelectValue placeholder="Global (All Branches)" />
                 </SelectTrigger>
               </FormControl>

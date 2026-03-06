@@ -31,7 +31,7 @@ export function RatesSearchStats({
             onChange={(event) => onSearchChange(event.target.value)}
           />
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="md:ml-auto"
             onClick={onClearSearch}

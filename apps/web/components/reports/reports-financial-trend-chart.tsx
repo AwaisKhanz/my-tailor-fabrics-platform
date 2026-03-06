@@ -213,13 +213,13 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               y1={tick.y}
               x2={width - padRight}
               y2={tick.y}
-              className="stroke-divider"
+              className="stroke-border"
               strokeDasharray="3 4"
             />
             <text
               x={8}
               y={tick.y + 4}
-              className="fill-text-secondary text-[10px]"
+              className="fill-muted-foreground text-[10px]"
             >
               {formatNumber(tick.value)}
             </text>
@@ -287,7 +287,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
                 x={point.x}
                 y={height - 10}
                 textAnchor="middle"
-                className="fill-text-secondary text-[10px]"
+                className="fill-muted-foreground text-[10px]"
               >
                 {point.label}
               </text>
@@ -317,13 +317,13 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               width={tooltipWidth}
               height={tooltipHeight}
               rx="8"
-              className="fill-popover stroke-divider/50"
+              className="fill-card stroke-border/50"
               strokeWidth="1"
             />
             <text
               x="12"
               y="18"
-              className="fill-text-primary text-[11px] font-semibold"
+              className="fill-foreground text-[11px] font-semibold"
             >
               {activePoint.label}
             </text>

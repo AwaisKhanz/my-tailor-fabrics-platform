@@ -35,18 +35,14 @@ export function OrderFinancialSummaryCard({
   );
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader
-        variant="rowSection"
-        density="comfortable"
-        align="startResponsive"
-      >
+    <Card>
+      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title="Financial Summary"
           titleVariant="dashboard"
           description="Invoice, received payments, and pending balance."
           icon={
-            <SectionIcon tone="infoSoft" size="lg">
+            <SectionIcon tone="info" size="lg">
               <CreditCard className="h-4 w-4 text-primary" />
             </SectionIcon>
           }
@@ -54,31 +50,31 @@ export function OrderFinancialSummaryCard({
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
-        <InfoTile tone="elevatedSoft" padding="contentLg" className="space-y-3">
+        <InfoTile tone="secondary" padding="contentLg" className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label variant="micro">Subtotal</Label>
-            <span className="text-sm font-semibold text-text-primary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Subtotal</Label>
+            <span className="text-sm font-semibold text-foreground">
               {formatPKR(order.subtotal)}
             </span>
           </div>
 
           {order.discountAmount > 0 ? (
             <div className="flex items-center justify-between">
-              <Label variant="micro">
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Discount{" "}
                 {order.discountType === "PERCENTAGE"
                   ? `(${order.discountValue}%)`
                   : ""}
               </Label>
-              <span className="text-sm font-semibold text-success">
+              <span className="text-sm font-semibold text-primary">
                 - {formatPKR(order.discountAmount)}
               </span>
             </div>
           ) : null}
 
-          <div className="flex items-center justify-between border-t border-divider pt-3">
-            <Label variant="micro">Net Invoice</Label>
-            <span className="text-lg font-bold text-text-primary">
+          <div className="flex items-center justify-between border-t border-border pt-3">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Invoice</Label>
+            <span className="text-lg font-bold text-foreground">
               {formatPKR(order.totalAmount)}
             </span>
           </div>
@@ -86,29 +82,29 @@ export function OrderFinancialSummaryCard({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoTile tone="success">
-            <Label variant="micro">Paid</Label>
-            <p className="mt-1 text-lg font-bold text-success">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Paid</Label>
+            <p className="mt-1 text-lg font-bold text-primary">
               {formatPKR(order.totalPaid)}
             </p>
           </InfoTile>
-          <InfoTile tone="error">
-            <Label variant="micro">Balance</Label>
+          <InfoTile tone="destructive">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Balance</Label>
             <p className="mt-1 text-lg font-bold text-destructive">
               {formatPKR(order.balanceDue)}
             </p>
           </InfoTile>
         </div>
 
-        <InfoTile tone="elevatedSoft" padding="content" className="space-y-3">
+        <InfoTile tone="secondary" padding="content" className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label variant="micro">Posted Payments</Label>
-            <span className="text-xs font-semibold text-text-secondary">
+            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Posted Payments</Label>
+            <span className="text-xs font-semibold text-muted-foreground">
               {sortedPayments.length}
             </span>
           </div>
 
           {sortedPayments.length === 0 ? (
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-muted-foreground">
               No payments have been posted yet.
             </p>
           ) : (
@@ -116,17 +112,17 @@ export function OrderFinancialSummaryCard({
               {sortedPayments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-divider bg-panel/60 px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2"
                 >
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-sm font-semibold text-text-primary">
+                    <p className="text-sm font-semibold text-foreground">
                       {formatPKR(payment.amount)}
                     </p>
-                    <p className="text-[11px] text-text-secondary">
+                    <p className="text-[11px] text-muted-foreground">
                       {formatDate(payment.paidAt)}
                     </p>
                     {payment.note ? (
-                      <p className="truncate text-[11px] text-text-secondary">
+                      <p className="truncate text-[11px] text-muted-foreground">
                         {payment.note}
                       </p>
                     ) : null}
@@ -134,7 +130,7 @@ export function OrderFinancialSummaryCard({
 
                   {canReversePayment && onReversePayment ? (
                     <Button
-                      variant="tableDanger"
+                      variant="outline"
                       size="sm"
                       disabled={reversingPaymentId === payment.id}
                       onClick={() => onReversePayment(payment.id)}
@@ -152,7 +148,7 @@ export function OrderFinancialSummaryCard({
 
         {canCapturePayment ? (
           <Button
-            variant="premium"
+            variant="default"
             className="h-11 w-full"
             onClick={onCapturePayment}
           >

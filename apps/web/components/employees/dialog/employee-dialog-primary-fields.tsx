@@ -15,9 +15,9 @@ export function EmployeeDialogPrimaryFields({ form }: EmployeeDialogPrimaryField
         name="fullName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel variant="dashboard">Full Name</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Full Name</FormLabel>
             <FormControl>
-              <Input variant="premium" placeholder="John Doe" {...field} />
+              <Input placeholder="John Doe" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -28,9 +28,9 @@ export function EmployeeDialogPrimaryFields({ form }: EmployeeDialogPrimaryField
         name="phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel variant="dashboard">Primary Phone</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Primary Phone</FormLabel>
             <FormControl>
-              <Input variant="premium" placeholder="03XXXXXXXXX" {...field} />
+              <Input placeholder="03XXXXXXXXX" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

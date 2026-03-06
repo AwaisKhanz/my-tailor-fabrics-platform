@@ -3,7 +3,7 @@ import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { type BranchFormState } from "@/hooks/use-branches-page";
 
 interface BranchFormDialogProps {
@@ -61,10 +61,10 @@ export function BranchFormDialog({
         {!editingBranch ? (
           <div className="space-y-1.5">
             <Label>
-              Branch Code <span className="text-error">*</span>
+              Branch Code <span className="text-destructive">*</span>
             </Label>
             <Input
-              variant="premium"
+             
               placeholder="e.g. LHR, KHI"
               value={form.code}
               maxLength={6}
@@ -73,18 +73,18 @@ export function BranchFormDialog({
             {fieldErrors.code ? (
               <p className="text-xs text-destructive">{fieldErrors.code}</p>
             ) : null}
-            <Typography as="p" variant="muted">
+            <Text as="p"  variant="muted">
               Short unique code used in order and customer numbers. Cannot be changed later.
-            </Typography>
+            </Text>
           </div>
         ) : null}
 
         <div className="space-y-1.5">
           <Label>
-            Branch Name <span className="text-error">*</span>
+            Branch Name <span className="text-destructive">*</span>
           </Label>
           <Input
-            variant="premium"
+           
             placeholder="e.g. Lahore Main Branch"
             value={form.name}
             onChange={(event) => onFieldChange("name", event.target.value)}
@@ -97,7 +97,7 @@ export function BranchFormDialog({
         <div className="space-y-1.5">
           <Label>Phone</Label>
           <Input
-            variant="premium"
+           
             placeholder="Contact number"
             value={form.phone}
             onChange={(event) => onFieldChange("phone", event.target.value)}
@@ -110,7 +110,7 @@ export function BranchFormDialog({
         <div className="space-y-1.5">
           <Label>Address</Label>
           <Input
-            variant="premium"
+           
             placeholder="Street address"
             value={form.address}
             onChange={(event) => onFieldChange("address", event.target.value)}

@@ -81,20 +81,20 @@ export function OrderItemsTable({
     {
       header: "Piece",
       cell: (item) => (
-        <span className="font-semibold text-text-primary">#{item.pieceNo}</span>
+        <span className="font-semibold text-foreground">#{item.pieceNo}</span>
       ),
     },
     {
       header: "Item",
       cell: (item) => (
         <div className="flex min-w-[180px] items-start gap-2">
-          <Scissors className="mt-0.5 h-3.5 w-3.5 text-text-secondary" />
+          <Scissors className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-text-primary">
+            <p className="truncate text-sm font-semibold text-foreground">
               {item.garmentTypeName}
             </p>
             {item.designType ? (
-              <Label variant="dashboard" className="mt-0.5 text-primary">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5 text-primary">
                 {item.designType.name}
               </Label>
             ) : null}
@@ -108,7 +108,7 @@ export function OrderItemsTable({
         if (item.tasks && item.tasks.length > 0 && canManageTasks) {
           return (
             <Button
-              variant="tablePrimary"
+              variant="outline"
               size="sm"
               className="h-8 text-[11px] font-semibold"
               onClick={() => onManageTasks(item)}
@@ -119,7 +119,7 @@ export function OrderItemsTable({
         }
 
         return (
-          <span className="text-xs font-medium text-text-secondary">
+          <span className="text-xs font-medium text-muted-foreground">
             {item.tasks && item.tasks.length > 0
               ? "No permission to manage"
               : "No workflow steps"}
@@ -130,7 +130,7 @@ export function OrderItemsTable({
     {
       header: "Due",
       cell: (item) => (
-        <div className="inline-flex items-center gap-1 text-xs text-text-secondary">
+        <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
           <CalendarDays className="h-3 w-3" />
           {item.dueDate ? formatShortDate(item.dueDate) : "-"}
         </div>
@@ -172,11 +172,11 @@ export function OrderItemsTable({
 
         return (
           <div className="text-right">
-            <p className="text-sm font-semibold text-text-primary">
+            <p className="text-sm font-semibold text-foreground">
               {formatPKR(total)}
             </p>
             {addonsTotal > 0 || designPrice > 0 ? (
-              <p className="text-[10px] text-text-secondary">
+              <p className="text-[10px] text-muted-foreground">
                 +{formatPKR(addonsTotal + designPrice)} extras
               </p>
             ) : null}
@@ -187,22 +187,18 @@ export function OrderItemsTable({
   ];
 
   return (
-    <Card variant="elevatedPanel">
-      <CardHeader
-        variant="rowSection"
-        density="comfortable"
-        align="startResponsive"
-      >
+    <Card>
+      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <div>
-          <CardTitle variant="dashboard">Order Items</CardTitle>
-          <CardDescription variant="header">
+          <CardTitle className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Order Items</CardTitle>
+          <CardDescription className="mt-1 text-xs">
             Piece breakdown, assignments, and task controls.
           </CardDescription>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge
-            variant="secondary"
+            variant="default"
             size="xs"
             className="font-bold uppercase tracking-[0.08em]"
           >

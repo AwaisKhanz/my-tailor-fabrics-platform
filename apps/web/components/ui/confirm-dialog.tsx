@@ -55,7 +55,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md" variant="flush">
+      <DialogContent size="md" className="gap-0 overflow-hidden p-0">
         <div className={cn(
           "h-2 w-full",
           variant === "destructive" ? "bg-destructive" : "bg-primary"
@@ -65,18 +65,18 @@ export function ConfirmDialog({
           <DialogHeader spacing="relaxed">
             <div className={cn(
                "flex h-12 w-12 items-center justify-center rounded-full shrink-0",
-               variant === "destructive" ? "bg-error-muted text-destructive" : "bg-info-muted text-info"
+               variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
             )}>
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div className="space-y-1">
               <DialogTitle className="text-xl font-bold tracking-tight">{title}</DialogTitle>
               {typeof description === "string" ? (
-                <DialogDescription className="text-[15px] leading-relaxed text-text-secondary">
+                <DialogDescription className="text-[15px] leading-relaxed text-muted-foreground">
                   {description}
                 </DialogDescription>
               ) : (
-                <div className="text-[15px] leading-relaxed text-text-secondary">
+                <div className="text-[15px] leading-relaxed text-muted-foreground">
                   {description}
                 </div>
               )}
@@ -94,7 +94,7 @@ export function ConfirmDialog({
               {cancelText}
             </Button>
             <Button
-              variant={variant === "destructive" ? "destructive" : "premium"}
+              variant={variant === "destructive" ? "destructive" : "default"}
               onClick={handleConfirm}
               disabled={isLoading}
               size="lg"

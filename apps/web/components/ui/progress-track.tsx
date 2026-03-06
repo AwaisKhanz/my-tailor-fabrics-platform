@@ -27,12 +27,13 @@ const progressFillVariants = cva("h-full rounded-full transition-[width] duratio
   variants: {
     tone: {
       primary: "bg-primary",
-      info: "bg-info",
-      warning: "bg-warning",
-      success: "bg-success",
-      chart1: "bg-chart-1",
-      chart2: "bg-chart-2",
-      chart3: "bg-chart-3",
+      info: "bg-primary",
+      warning: "bg-secondary",
+      success: "bg-primary",
+      destructive: "bg-destructive",
+      chart1: "bg-primary",
+      chart2: "bg-secondary",
+      chart3: "bg-foreground",
     },
   },
   defaultVariants: {

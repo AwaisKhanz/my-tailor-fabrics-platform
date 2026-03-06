@@ -17,7 +17,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import {
   Select,
   SelectContent,
@@ -76,13 +76,13 @@ export function ExpenseCreateDialog({
             }}
           >
             <InfoTile padding="contentLg" radius="xl">
-              <Label variant="dashboard" className="mb-1 block">
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1 block">
                 Entry Scope
               </Label>
-              <Typography as="p" variant="body" className="inline-flex items-center gap-2 font-semibold">
+              <Text as="p"  variant="body" className="inline-flex items-center gap-2 font-semibold">
                 <ReceiptText className="h-4 w-4 text-primary" />
                 Branch expense record
-              </Typography>
+              </Text>
             </InfoTile>
 
             {formError ? (
@@ -90,15 +90,15 @@ export function ExpenseCreateDialog({
             ) : null}
 
             <div className="space-y-2">
-              <Label variant="dashboard">
-                Category <span className="text-error">*</span>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                Category <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={form.categoryId}
                 onValueChange={(value) => onFormChange("categoryId", value)}
                 disabled={categoriesLoading}
               >
-                <SelectTrigger variant="premium" className="h-11">
+                <SelectTrigger className="h-11">
                   <SelectValue
                     placeholder={
                       categoriesLoading ? "Loading categories..." : "Select category"
@@ -121,11 +121,11 @@ export function ExpenseCreateDialog({
             </div>
 
             <div className="space-y-2">
-              <Label variant="dashboard">
-                Amount (Rs.) <span className="text-error">*</span>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
-                variant="premium"
+               
                 type="number"
                 placeholder="e.g. 500"
                 className="h-11"
@@ -139,11 +139,11 @@ export function ExpenseCreateDialog({
             </div>
 
             <div className="space-y-2">
-              <Label variant="dashboard">
-                Expense Date <span className="text-error">*</span>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                Expense Date <span className="text-destructive">*</span>
               </Label>
               <Input
-                variant="premium"
+               
                 type="date"
                 className="h-11"
                 value={form.expenseDate}
@@ -157,9 +157,8 @@ export function ExpenseCreateDialog({
             </div>
 
             <div className="space-y-2">
-              <Label variant="dashboard">Description</Label>
+              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Description</Label>
               <Textarea
-                variant="premium"
                 placeholder="What was this for?"
                 className="min-h-[96px] resize-y"
                 value={form.description}

@@ -70,7 +70,7 @@ export function RatesList({
                 {rate.branch?.code || 'Branch'}
               </Badge>
             ) : (
-              <Badge variant="secondary" className="text-[10px] font-bold">Global</Badge>
+              <Badge variant="default" className="text-[10px] font-bold">Global</Badge>
             )}
           </>
         )
@@ -82,7 +82,7 @@ export function RatesList({
         header: "Rate",
         align: "right",
         cell: (rate) => (
-          <span className="font-black text-ready">
+          <span className="font-black text-primary">
             {formatPKR(rate.amount)}
           </span>
         )
@@ -92,12 +92,12 @@ export function RatesList({
         align: "right",
         cell: (rate) => (
           <div className="flex flex-col items-end whitespace-nowrap">
-            <span className="flex items-center gap-1 font-medium text-text-primary text-[10px]">
+            <span className="flex items-center gap-1 font-medium text-foreground text-[10px]">
               <Clock className="h-2.5 w-2.5" />
               {new Date(rate.effectiveFrom).toLocaleDateString()}
             </span>
             {rate.effectiveTo && (
-              <span className="text-[10px] text-text-secondary">until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
+              <span className="text-[10px] text-muted-foreground">until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
             )}
           </div>
         )

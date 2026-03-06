@@ -102,13 +102,9 @@ export enum AddonType {
 // UI Type Definitions
 export type BadgeVariant = 
   | 'default' 
-  | 'secondary' 
-  | 'destructive' 
+  | 'secondary'
   | 'outline' 
   | 'success' 
   | 'warning' 
   | 'info' 
-  | 'ready' 
-  | 'admin' 
-  | 'royal' 
-  | 'amber';
+  | 'destructive';

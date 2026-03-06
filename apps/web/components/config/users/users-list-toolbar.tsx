@@ -45,9 +45,9 @@ export function UsersListToolbar({
 
           <div className="w-full md:w-56">
             <Select value={roleFilter} onValueChange={onRoleFilterChange}>
-              <SelectTrigger variant="table" className="w-full text-xs font-bold">
+              <SelectTrigger className="w-full text-xs font-bold">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-3.5 w-3.5 text-text-secondary" />
+                  <Filter className="h-3.5 w-3.5 text-muted-foreground" />
                   <SelectValue placeholder="Filter by role" />
                 </div>
               </SelectTrigger>
@@ -63,7 +63,7 @@ export function UsersListToolbar({
           </div>
 
           <Button
-            variant="tableReset"
+            variant="ghost"
             size="sm"
             className="md:ml-auto"
             onClick={onResetFilters}

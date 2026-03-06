@@ -10,7 +10,7 @@ export function OrderFormSkeleton() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div className="space-y-6 md:col-span-2">
           <Card>
-            <CardHeader variant="section">
+            <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
               <Skeleton className="h-6 w-48" />
             </CardHeader>
             <CardContent spacing="section" className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -20,7 +20,7 @@ export function OrderFormSkeleton() {
           </Card>
 
           <Card>
-            <CardHeader variant="section">
+            <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
               <Skeleton className="h-6 w-40" />
             </CardHeader>
             <CardContent spacing="section" className="space-y-4">
@@ -39,7 +39,7 @@ export function OrderFormSkeleton() {
         </div>
 
         <Card>
-          <CardHeader variant="section">
+          <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
             <Skeleton className="h-6 w-36" />
           </CardHeader>
           <CardContent spacing="section" className="space-y-3">

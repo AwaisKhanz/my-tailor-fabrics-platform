@@ -32,8 +32,8 @@ export function ChartShell({
   contentClassName,
 }: ChartShellProps) {
   return (
-    <Card variant="elevatedPanel" className={cn("overflow-hidden", className)}>
-      <CardHeader variant="rowSection" align="startResponsive" gap="md">
+    <Card className={cn("overflow-hidden", className)}>
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
         <SectionHeader
           title={title}
           description={description}
@@ -57,7 +57,7 @@ export function ChartShell({
       </CardContent>
 
       {footer ? (
-        <div className="border-t border-divider px-6 py-4">{footer}</div>
+        <div className="border-t border-border px-6 py-4">{footer}</div>
       ) : null}
     </Card>
   );

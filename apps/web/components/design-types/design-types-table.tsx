@@ -55,7 +55,7 @@ export function DesignTypesTable({
     () => [
       {
         header: "Name",
-        cell: (designType) => <div className="font-bold text-text-primary">{designType.name}</div>,
+        cell: (designType) => <div className="font-bold text-foreground">{designType.name}</div>,
       },
       {
         header: "Application",
@@ -93,7 +93,7 @@ export function DesignTypesTable({
         header: "Worker Rate",
         align: "right",
         cell: (designType) => (
-          <span className="font-bold text-ready">{formatPKR(designType.defaultRate)}</span>
+          <span className="font-bold text-primary">{formatPKR(designType.defaultRate)}</span>
         ),
       },
       {
@@ -104,8 +104,8 @@ export function DesignTypesTable({
             {canManageDesignTypes ? (
               <>
                 <Button
-                  variant="tableIcon"
-                  size="iconSm"
+                  variant="ghost"
+                  size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
                     onEdit(designType);
@@ -114,8 +114,8 @@ export function DesignTypesTable({
                   <Edit2 className="h-4 w-4" />
                 </Button>
                 <Button
-                  variant="tableDanger"
-                  size="iconSm"
+                  variant="outline"
+                  size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
                     onDelete(designType);
@@ -125,7 +125,7 @@ export function DesignTypesTable({
                 </Button>
               </>
             ) : (
-              <span className="text-xs font-medium text-text-secondary">Read only</span>
+              <span className="text-xs font-medium text-muted-foreground">Read only</span>
             )}
           </div>
         ),
@@ -150,7 +150,7 @@ export function DesignTypesTable({
               onChange={(event) => onSearchChange(event.target.value)}
             />
             <Button
-              variant="tableReset"
+              variant="ghost"
               size="sm"
               className="md:ml-auto"
               onClick={onResetFilters}

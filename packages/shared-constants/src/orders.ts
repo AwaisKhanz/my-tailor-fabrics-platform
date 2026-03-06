@@ -6,7 +6,7 @@ export const ORDER_STATUS_CONFIG: Record<
 > = {
   [OrderStatus.NEW]: { label: "NEW", variant: "outline" },
   [OrderStatus.IN_PROGRESS]: { label: "IN PROGRESS", variant: "warning" },
-  [OrderStatus.READY]: { label: "READY", variant: "ready" },
+  [OrderStatus.READY]: { label: "READY", variant: "success" },
   [OrderStatus.OVERDUE]: { label: "OVERDUE", variant: "destructive" },
   [OrderStatus.DELIVERED]: { label: "DELIVERED", variant: "info" },
   [OrderStatus.COMPLETED]: { label: "COMPLETED", variant: "success" },
