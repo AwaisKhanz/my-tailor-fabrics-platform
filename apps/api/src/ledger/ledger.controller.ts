@@ -6,7 +6,6 @@ import {
   Body,
   Param,
   Query,
-  Delete,
   Req,
 } from '@nestjs/common';
 import { LedgerService } from './ledger.service';
@@ -16,7 +15,10 @@ import { LedgerEntryType } from '@tbms/shared-types';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { CreateLedgerEntryDto } from './dto/create-ledger-entry.dto';
+import {
+  CreateLedgerEntryDto,
+  ReverseLedgerEntryDto,
+} from './dto/create-ledger-entry.dto';
 import { parsePositiveInt } from '../common/utils/query-parsing.util';
 import { success } from '../common/utils/response.util';
 
@@ -40,6 +42,12 @@ export class LedgerController {
     if (!branchId) {
       throw new BadRequestException(
         'Branch scope is required to create a ledger entry',
+      );
+    }
+
+    if (dto.type === LedgerEntryType.SALARY) {
+      throw new BadRequestException(
+        'Manual SALARY entries are disabled. Use salary accrual generation.',
       );
     }
 
@@ -107,11 +115,20 @@ export class LedgerController {
     return success(data);
   }
 
-  @Delete(':id')
+  @Post(':id/reverse')
   @Roles(...ADMIN_ROLES)
   @RequirePermissions('ledger.manage')
-  async deleteEntry(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    const data = await this.ledgerService.remove(id, req.branchId);
+  async reverseEntry(
+    @Param('id') id: string,
+    @Body() dto: ReverseLedgerEntryDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ledgerService.reverseEntry(
+      id,
+      req.user.userId,
+      req.branchId,
+      dto.note,
+    );
     return success(data);
   }
 }

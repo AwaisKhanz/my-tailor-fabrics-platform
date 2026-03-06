@@ -160,9 +160,9 @@ function rupeesToPaisa(rupees) {
 }
 /**
  * Returns the effective rate for a task:
- * rateOverride takes priority over rateSnapshot.
+ * rateOverride takes priority over snapshots.
  */
-function getEffectiveTaskRate(rateSnapshot, rateOverride, designRate) {
-    return rateOverride ?? designRate ?? rateSnapshot ?? 0;
+function getEffectiveTaskRate(rateSnapshot, rateOverride, designRateSnapshot) {
+    return rateOverride ?? designRateSnapshot ?? rateSnapshot ?? 0;
 }
 //# sourceMappingURL=rates.js.map

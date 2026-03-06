@@ -130,7 +130,7 @@ export function GarmentPriceHistoryDialog({
                         padding="contentLg"
                         radius="xl"
                         interaction="interactivePrimary"
-                        className="grid grid-cols-2 gap-4"
+                        className="grid grid-cols-1 gap-4"
                       >
                         <div className="space-y-2">
                            <Label variant="dashboard">Retail Price</Label>
@@ -141,19 +141,6 @@ export function GarmentPriceHistoryDialog({
                               <ArrowRight className="h-3 w-3 text-text-secondary" />
                               <span className={`text-sm font-extrabold ${log.action === 'RESET' ? 'text-text-secondary' : 'text-primary'}`}>
                                  {formatPrice(log.newCustomerPrice)}
-                              </span>
-                           </div>
-                        </div>
-
-                        <div className="space-y-2">
-                           <Label variant="dashboard">Tailor Rate</Label>
-                           <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-text-secondary line-through opacity-50">
-                                 {formatPrice(log.oldEmployeeRate)}
-                              </span>
-                              <ArrowRight className="h-3 w-3 text-text-secondary" />
-                              <span className={`text-sm font-extrabold ${log.action === 'RESET' ? 'text-text-secondary' : 'text-text-primary'}`}>
-                                 {formatPrice(log.newEmployeeRate)}
                               </span>
                            </div>
                         </div>

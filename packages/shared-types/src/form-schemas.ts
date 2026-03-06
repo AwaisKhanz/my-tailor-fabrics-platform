@@ -14,6 +14,19 @@ import type { MeasurementField } from "./config";
 
 const optionalTrimmedText = z.string().trim().optional();
 const optionalEmail = z.string().trim().email("Invalid email").optional().or(z.literal(""));
+const optionalDateInput = z.string().trim().optional().or(z.literal(""));
+const optionalNumberInput = z.preprocess((value) => {
+  if (value === "" || value === null || value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value === "number") {
+    return value;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : value;
+}, z.number().nonnegative("Amount cannot be negative").optional());
 
 export const customerSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
@@ -29,21 +42,53 @@ export const customerSchema = z.object({
 
 export type CustomerFormValues = z.infer<typeof customerSchema>;
 
-export const employeeSchema = z.object({
-  fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
-  phone: z.string().trim().min(10, "Invalid phone number"),
-  phone2: optionalTrimmedText,
-  address: optionalTrimmedText,
-  city: optionalTrimmedText,
-  designation: z.string().trim().min(2, "Designation is required"),
-  status: z.nativeEnum(EmployeeStatus),
-  paymentType: z.nativeEnum(PaymentType),
-  dateOfJoining: z.string().min(1, "Date of joining is required"),
-  dateOfBirth: optionalTrimmedText,
-  emergencyName: optionalTrimmedText,
-  emergencyPhone: optionalTrimmedText,
-  branchId: optionalTrimmedText,
-});
+export const employeeSchema = z
+  .object({
+    fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
+    phone: z.string().trim().min(10, "Invalid phone number"),
+    phone2: optionalTrimmedText,
+    address: optionalTrimmedText,
+    city: optionalTrimmedText,
+    designation: optionalTrimmedText,
+    status: z.nativeEnum(EmployeeStatus),
+    paymentType: z.nativeEnum(PaymentType),
+    monthlySalary: optionalNumberInput,
+    dateOfJoining: z.string().min(1, "Date of joining is required"),
+    employmentEndDate: optionalDateInput,
+    dateOfBirth: optionalDateInput,
+    emergencyName: optionalTrimmedText,
+    emergencyPhone: optionalTrimmedText,
+    branchId: optionalTrimmedText,
+  })
+  .superRefine((value, ctx) => {
+    if (value.paymentType === PaymentType.MONTHLY_FIXED) {
+      if (value.monthlySalary === undefined || value.monthlySalary <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["monthlySalary"],
+          message: "Monthly salary is required for monthly payroll employees.",
+        });
+      }
+    }
+
+    if (!value.employmentEndDate) {
+      return;
+    }
+
+    const joiningDate = new Date(value.dateOfJoining);
+    const endDate = new Date(value.employmentEndDate);
+    if (
+      !Number.isNaN(joiningDate.getTime()) &&
+      !Number.isNaN(endDate.getTime()) &&
+      endDate < joiningDate
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["employmentEndDate"],
+        message: "Employment end date cannot be before joining date.",
+      });
+    }
+  });
 
 export type EmployeeFormValues = z.infer<typeof employeeSchema>;
 
@@ -73,8 +118,6 @@ export const orderItemSchema = z.object({
   garmentTypeId: z.string().min(1, "Garment type is required"),
   quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
   unitPrice: z.coerce.number().min(0, "Price must be at least 0"),
-  employeeId: z.string().optional(),
-  employeeRate: z.coerce.number().optional(),
   dueDate: z.string().optional(),
   description: z.string().optional(),
   fabricSource: z.nativeEnum(FabricSource).default(FabricSource.SHOP),
@@ -107,7 +150,6 @@ export type OrderFormValues = z.infer<typeof orderSchema>;
 export const garmentTypeSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   customerPrice: z.coerce.number().min(0, "Price cannot be negative"),
-  employeeRate: z.coerce.number().min(0, "Rate cannot be negative"),
   description: z.string().optional(),
   isActive: z.boolean().default(true),
   sortOrder: z.coerce.number().default(0),
@@ -346,6 +388,21 @@ export type PaymentDisbursementFormInput = z.input<
   typeof paymentDisbursementFormSchema
 >;
 
+export const salaryAccrualGenerationFormSchema = z.object({
+  month: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Select a valid payroll month."),
+  employeeId: optionalTrimmedText,
+});
+
+export type SalaryAccrualGenerationFormValues = z.infer<
+  typeof salaryAccrualGenerationFormSchema
+>;
+export type SalaryAccrualGenerationFormInput = z.input<
+  typeof salaryAccrualGenerationFormSchema
+>;
+
 export const taskRateOverrideFormSchema = z.object({
   amount: z.coerce.number().min(0, "Rate must be zero or greater."),
 });
@@ -388,6 +445,76 @@ export type EmployeeDocumentUploadFormValues = z.infer<
 >;
 export type EmployeeDocumentUploadFormInput = z.input<
   typeof employeeDocumentUploadFormSchema
+>;
+
+export const employeeCapabilityWindowInputSchema = z
+  .object({
+    garmentTypeId: optionalTrimmedText,
+    stepKey: optionalTrimmedText,
+    note: optionalTrimmedText,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.garmentTypeId && !value.stepKey) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["garmentTypeId"],
+        message: "Select a garment or provide a step key.",
+      });
+    }
+  });
+
+export const employeeCapabilitySnapshotFormSchema = z.object({
+  effectiveFrom: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Effective date is required."),
+  note: optionalTrimmedText,
+  capabilities: z.array(employeeCapabilityWindowInputSchema),
+});
+
+export type EmployeeCapabilitySnapshotFormValues = z.infer<
+  typeof employeeCapabilitySnapshotFormSchema
+>;
+export type EmployeeCapabilitySnapshotFormInput = z.input<
+  typeof employeeCapabilitySnapshotFormSchema
+>;
+
+export const employeeCompensationChangeFormSchema = z
+  .object({
+    paymentType: z.nativeEnum(PaymentType),
+    monthlySalary: optionalNumberInput,
+    effectiveFrom: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Effective date is required."),
+    note: optionalTrimmedText,
+  })
+  .superRefine((value, ctx) => {
+    if (
+      value.paymentType === PaymentType.MONTHLY_FIXED &&
+      (value.monthlySalary === undefined || value.monthlySalary <= 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["monthlySalary"],
+        message: "Monthly salary is required for monthly compensation.",
+      });
+    }
+
+    if (value.paymentType === PaymentType.PER_PIECE && value.monthlySalary !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["monthlySalary"],
+        message: "Monthly salary is not allowed for per-piece compensation.",
+      });
+    }
+  });
+
+export type EmployeeCompensationChangeFormValues = z.infer<
+  typeof employeeCompensationChangeFormSchema
+>;
+export type EmployeeCompensationChangeFormInput = z.input<
+  typeof employeeCompensationChangeFormSchema
 >;
 
 export const workflowStepInputFormSchema = z.object({

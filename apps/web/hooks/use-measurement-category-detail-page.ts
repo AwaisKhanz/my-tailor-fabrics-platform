@@ -20,6 +20,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<MeasurementCategory | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [includeArchived, setIncludeArchived] = useState(false);
 
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<MeasurementField | null>(null);
@@ -37,7 +38,9 @@ export function useMeasurementCategoryDetailPage(id: string) {
   const fetchCategory = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await configApi.getMeasurementCategory(id);
+      const response = await configApi.getMeasurementCategory(id, {
+        includeArchived,
+      });
       if (response.success) {
         setCategory(response.data);
         setNotFound(false);
@@ -59,7 +62,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
     } finally {
       setLoading(false);
     }
-  }, [id, toast]);
+  }, [id, includeArchived, toast]);
 
   useEffect(() => {
     void fetchCategory();
@@ -121,14 +124,14 @@ export function useMeasurementCategoryDetailPage(id: string) {
 
     try {
       await configApi.deleteMeasurementField(fieldToDelete.id);
-      toast({ title: "Field deleted" });
+      toast({ title: "Field archived" });
       setFieldToDelete(null);
       setIsConfirmOpen(false);
       await fetchCategory();
     } catch {
       toast({
         title: "Error",
-        description: "Failed to delete field",
+        description: "Failed to archive field",
         variant: "destructive",
       });
     }
@@ -169,11 +172,11 @@ export function useMeasurementCategoryDetailPage(id: string) {
 
         const movedCount = response.data.movedFieldCount;
         toast({
-          title: "Section deleted",
+          title: "Section archived",
           description:
             movedCount > 0
               ? `${movedCount} field${movedCount === 1 ? "" : "s"} moved successfully.`
-              : "Section removed successfully.",
+              : "Section archived successfully.",
         });
 
         await fetchCategory();
@@ -182,7 +185,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
           title: "Error",
           description: getApiErrorMessageOrFallback(
             error,
-            "Failed to delete section. Please try again.",
+            "Failed to archive section. Please try again.",
           ),
           variant: "destructive",
         });
@@ -192,10 +195,52 @@ export function useMeasurementCategoryDetailPage(id: string) {
     [fetchCategory, toast],
   );
 
+  const restoreField = useCallback(
+    async (fieldId: string) => {
+      try {
+        await configApi.restoreMeasurementField(fieldId);
+        toast({ title: "Field restored" });
+        await fetchCategory();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to restore field",
+          ),
+          variant: "destructive",
+        });
+      }
+    },
+    [fetchCategory, toast],
+  );
+
+  const restoreSection = useCallback(
+    async (sectionId: string) => {
+      try {
+        await configApi.restoreMeasurementSection(sectionId);
+        toast({ title: "Section restored" });
+        await fetchCategory();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to restore section",
+          ),
+          variant: "destructive",
+        });
+      }
+    },
+    [fetchCategory, toast],
+  );
+
   return {
     loading,
     category,
     notFound,
+    includeArchived,
+    setIncludeArchived,
     isFieldDialogOpen,
     selectedField,
     preferredSectionId,
@@ -214,6 +259,8 @@ export function useMeasurementCategoryDetailPage(id: string) {
     confirmDeleteField,
     moveFieldToSection,
     deleteSection,
+    restoreField,
+    restoreSection,
     fetchCategory,
   };
 }

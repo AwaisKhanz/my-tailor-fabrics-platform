@@ -69,7 +69,7 @@ export class WeeklyPdfService {
             throw new NotFoundException('No payments found for this week to generate report.');
         }
 
-        const element = React.createElement(WeeklyPaymentDocument, { data });
+        const element = WeeklyPaymentDocument({ data });
         return renderPdfStream(element);
     }
 }

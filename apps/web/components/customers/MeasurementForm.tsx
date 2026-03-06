@@ -26,14 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  customerApi,
-} from "@/lib/api/customers";
+import { Label } from "@/components/ui/label";
+import { customerApi } from "@/lib/api/customers";
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { logDevError } from "@/lib/logger";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { Card } from "../ui/card";
 
 interface MeasurementFormProps {
   customerId: string;
@@ -50,7 +49,8 @@ export function MeasurementForm({
 }: MeasurementFormProps) {
   const { toast } = useToast();
   const [categories, setCategories] = useState<MeasurementCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<MeasurementCategory | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<MeasurementCategory | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -100,9 +100,10 @@ export function MeasurementForm({
     }
 
     selectedCategory.fields.forEach((field) => {
-      const targetKey = field.sectionId && groups.has(field.sectionId)
-        ? field.sectionId
-        : FALLBACK_SECTION_ID;
+      const targetKey =
+        field.sectionId && groups.has(field.sectionId)
+          ? field.sectionId
+          : FALLBACK_SECTION_ID;
       groups.get(targetKey)?.fields.push(field);
     });
 
@@ -170,21 +171,40 @@ export function MeasurementForm({
         });
       });
 
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
-      });
       return;
     }
 
     setSubmitting(true);
     try {
+      const fieldById = new Map(
+        selectedCategory.fields.map((field) => [field.id, field]),
+      );
       const sanitizedValues: MeasurementValues = {};
       Object.entries(parsedResult.data).forEach(([key, value]) => {
-        if (value !== undefined) {
-          sanitizedValues[key] = value;
+        if (value === undefined) {
+          return;
         }
+
+        if (typeof value === "string") {
+          const trimmedValue = value.trim();
+          if (trimmedValue.length === 0) {
+            return;
+          }
+
+          const field = fieldById.get(key);
+          if (field?.fieldType === FieldType.NUMBER) {
+            const parsedNumber = Number(trimmedValue);
+            if (Number.isFinite(parsedNumber)) {
+              sanitizedValues[key] = parsedNumber;
+              return;
+            }
+          }
+
+          sanitizedValues[key] = trimmedValue;
+          return;
+        }
+
+        sanitizedValues[key] = value;
       });
 
       await customerApi.upsertMeasurements(
@@ -206,14 +226,22 @@ export function MeasurementForm({
     }
   }
 
-  if (loading) return <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-text-secondary" /></div>;
+  if (loading)
+    return (
+      <div className="flex justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin text-text-secondary" />
+      </div>
+    );
 
   return (
     <FormStack density="relaxed">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Measurement Category</label>
-        <Select onValueChange={handleCategoryChange} defaultValue={initialCategoryId}>
-          <SelectTrigger>
+        <Label variant="dashboard">Measurement Category</Label>
+        <Select
+          onValueChange={handleCategoryChange}
+          defaultValue={initialCategoryId}
+        >
+          <SelectTrigger variant="premium">
             <SelectValue placeholder="Select Garment Category" />
           </SelectTrigger>
           <SelectContent>
@@ -227,81 +255,100 @@ export function MeasurementForm({
       </div>
 
       {selectedCategory && (
-        <Form {...form}>
-          <FormStack as="form" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="space-y-4">
-              {groupedFields.map((section) => (
-                <div key={section.id} className="rounded-xl border border-border/60 bg-surface/50 p-4">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <h3 className="text-sm font-semibold text-text-primary">{section.name}</h3>
-                    <span className="text-xs text-text-secondary">
-                      {section.fields.length} field{section.fields.length === 1 ? "" : "s"}
-                    </span>
-                  </div>
+        <Card variant="default">
+          <Form {...form}>
+            <FormStack as="form" onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="space-y-4">
+                {groupedFields.map((section) => (
+                  <div key={section.id} className="p-4">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h3 className="text-sm font-semibold text-text-primary">
+                        {section.name}
+                      </h3>
+                      <span className="text-xs text-text-secondary">
+                        {section.fields.length} field
+                        {section.fields.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
 
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {section.fields.map((field) => (
-                      <FormField
-                        key={field.id}
-                        control={form.control}
-                        name={field.id}
-                        render={({ field: formField }) => (
-                          <FormItem>
-                            <FormLabel>
-                              {field.label} {field.unit && <span className="text-xs text-text-secondary">({field.unit})</span>}
-                              {field.isRequired && <span className="text-destructive">*</span>}
-                            </FormLabel>
-                            <FormControl>
-                              {field.fieldType === FieldType.DROPDOWN ? (
-                                <Select
-                                  onValueChange={formField.onChange}
-                                  value={
-                                    typeof formField.value === "string"
-                                      ? formField.value
-                                      : ""
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder={`Select ${field.label}`} />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {field.dropdownOptions.map((opt) => (
-                                      <SelectItem key={opt} value={opt}>
-                                        {opt}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <Input
-                                  placeholder={`Enter ${field.label.toLowerCase()}`}
-                                  type={field.fieldType === FieldType.NUMBER ? "text" : "text"}
-                                  {...formField}
-                                  value={
-                                    typeof formField.value === "string" ||
-                                    typeof formField.value === "number"
-                                      ? formField.value
-                                      : ""
-                                  }
-                                />
-                              )}
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    ))}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {section.fields.map((field) => (
+                        <FormField
+                          key={field.id}
+                          control={form.control}
+                          name={field.id}
+                          render={({ field: formField }) => (
+                            <FormItem>
+                              <FormLabel variant="dashboard">
+                                {field.label}{" "}
+                                {field.unit && (
+                                  <span className="text-xs text-text-secondary">
+                                    ({field.unit})
+                                  </span>
+                                )}
+                                {field.isRequired && (
+                                  <span className="text-destructive">*</span>
+                                )}
+                              </FormLabel>
+                              <FormControl>
+                                {field.fieldType === FieldType.DROPDOWN ? (
+                                  <Select
+                                    onValueChange={formField.onChange}
+                                    value={
+                                      typeof formField.value === "string"
+                                        ? formField.value
+                                        : ""
+                                    }
+                                  >
+                                    <SelectTrigger variant="premium">
+                                      <SelectValue
+                                        placeholder={`Select ${field.label}`}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {field.dropdownOptions.map((opt) => (
+                                        <SelectItem key={opt} value={opt}>
+                                          {opt}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <Input
+                                    variant="premium"
+                                    placeholder={`Enter ${field.label.toLowerCase()}`}
+                                    type={
+                                      field.fieldType === FieldType.NUMBER
+                                        ? "text"
+                                        : "text"
+                                    }
+                                    {...formField}
+                                    value={
+                                      typeof formField.value === "string" ||
+                                      typeof formField.value === "number"
+                                        ? formField.value
+                                        : ""
+                                    }
+                                  />
+                                )}
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <FormActionRow>
-              <Button type="submit" disabled={submitting}>
-                {submitting ? "Saving..." : "Save Measurements"}
-              </Button>
-            </FormActionRow>
-          </FormStack>
-        </Form>
+                ))}
+              </div>
+              <FormActionRow>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Saving..." : "Save Measurements"}
+                </Button>
+              </FormActionRow>
+            </FormStack>
+          </Form>
+        </Card>
       )}
     </FormStack>
   );

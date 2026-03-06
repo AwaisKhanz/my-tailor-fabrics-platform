@@ -8,7 +8,6 @@ import {
   type ExpenseCategory,
 } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
@@ -35,6 +34,7 @@ export interface ExpenseFormState {
   expenseDate: string;
   description: string;
 }
+type ExpenseFieldErrors = Partial<Record<keyof ExpenseFormState, string>>;
 
 function getTodayDate() {
   return new Date().toISOString().split("T")[0] ?? "";
@@ -70,6 +70,8 @@ export function useExpensesPage() {
 
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState<ExpenseFormState>(getDefaultFormState);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
   const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
@@ -187,12 +189,16 @@ export function useExpensesPage() {
 
   const updateFormField = useCallback(
     <K extends keyof ExpenseFormState>(field: K, value: ExpenseFormState[K]) => {
+      setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
+      setFormError("");
       setForm((previous) => ({ ...previous, [field]: value }));
     },
     [],
   );
 
   const openAddDialog = useCallback(() => {
+    setFieldErrors({});
+    setFormError("");
     setAddOpen(true);
   }, []);
 
@@ -200,6 +206,8 @@ export function useExpensesPage() {
     if (saving) {
       return;
     }
+    setFieldErrors({});
+    setFormError("");
     setAddOpen(false);
   }, [saving]);
 
@@ -210,22 +218,32 @@ export function useExpensesPage() {
   const submitCreateExpense = useCallback(async () => {
     const parsedResult = expenseCreateFormSchema.safeParse(form);
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setFieldErrors({
+        categoryId: flattenedErrors.categoryId?.[0],
+        amount: flattenedErrors.amount?.[0],
+        expenseDate: flattenedErrors.expenseDate?.[0],
+        description: flattenedErrors.description?.[0],
       });
+      setFormError(
+        flattenedErrors.categoryId?.[0] ??
+          flattenedErrors.amount?.[0] ??
+          flattenedErrors.expenseDate?.[0] ??
+          flattenedErrors.description?.[0] ??
+          "Fix the highlighted fields and try again.",
+      );
       return;
     }
 
     const data = parsedResult.data;
-    const amountInPaisa = Math.round(data.amount * 100);
+    setFieldErrors({});
+    setFormError("");
 
     setSaving(true);
     try {
       const payload: Parameters<typeof expensesApi.createExpense>[0] = {
         categoryId: data.categoryId,
-        amount: amountInPaisa,
+        amount: data.amount,
         description: data.description || undefined,
         expenseDate: new Date(data.expenseDate).toISOString(),
       };
@@ -250,7 +268,7 @@ export function useExpensesPage() {
     } finally {
       setSaving(false);
     }
-  }, [fetchExpenses, form, page, resetCreateForm, toast]);
+  }, [fetchExpenses, form, page, resetCreateForm, setPage, toast]);
 
   const requestDeleteExpense = useCallback((expense: Expense) => {
     setDeleteTarget(expense);
@@ -325,6 +343,8 @@ export function useExpensesPage() {
     listedAmount,
     addOpen,
     form,
+    formError,
+    fieldErrors,
     saving,
     deleteTarget,
     deletingId,

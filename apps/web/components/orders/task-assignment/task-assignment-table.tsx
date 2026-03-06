@@ -25,11 +25,13 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 interface TaskAssignmentTableProps {
   tasks: OrderItemTask[];
   employees: Array<Pick<Employee, "id" | "fullName">>;
+  eligibleEmployeesByTask: Record<string, Array<Pick<Employee, "id" | "fullName">>>;
   loadingId: string | null;
   editingRateId: string | null;
   tempRate: string;
+  rateValidationError: string;
   onTempRateChange: (value: string) => void;
-  onAssign: (taskId: string, employeeId: string) => void;
+  onAssign: (taskId: string, employeeId: string | null) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onStartRateEdit: (taskId: string, currentRateInRupees: number) => void;
   onCancelRateEdit: () => void;
@@ -60,9 +62,11 @@ function isTaskStatus(value: string): value is TaskStatus {
 export function TaskAssignmentTable({
   tasks,
   employees,
+  eligibleEmployeesByTask,
   loadingId,
   editingRateId,
   tempRate,
+  rateValidationError,
   onTempRateChange,
   onAssign,
   onStatusChange,
@@ -113,15 +117,32 @@ export function TaskAssignmentTable({
       },
       {
         header: "Assigned Employee",
-        cell: (task) => (
-          <div className="min-w-[180px]">
+        cell: (task) => {
+          const eligibleEmployees = eligibleEmployeesByTask[task.id] ?? [];
+          const assignedEmployeeOption = task.assignedEmployeeId
+            ? employees.find((employee) => employee.id === task.assignedEmployeeId)
+            : undefined;
+          const assignmentOptions = assignedEmployeeOption
+            ? [
+                ...eligibleEmployees,
+                ...eligibleEmployees.some(
+                  (employee) => employee.id === assignedEmployeeOption.id,
+                )
+                  ? []
+                  : [assignedEmployeeOption],
+              ]
+            : eligibleEmployees;
+          const hasSelectableEmployee = assignmentOptions.length > 0;
+          const canModifyAssignment =
+            loadingId !== task.id && (hasSelectableEmployee || Boolean(task.assignedEmployeeId));
+
+          return (
+            <div className="min-w-[180px]">
             <Select
-              disabled={loadingId === task.id}
+              disabled={!canModifyAssignment}
               value={task.assignedEmployeeId || "unassigned"}
               onValueChange={(value) => {
-                if (value !== "unassigned") {
-                  onAssign(task.id, value);
-                }
+                onAssign(task.id, value === "unassigned" ? null : value);
               }}
             >
               <SelectTrigger variant="table" className="h-8 text-xs font-semibold">
@@ -129,15 +150,21 @@ export function TaskAssignmentTable({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
-                {employees.map((employee) => (
+                {assignmentOptions.map((employee) => (
                   <SelectItem key={employee.id} value={employee.id}>
                     {employee.fullName}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        ),
+            {!hasSelectableEmployee && !task.assignedEmployeeId ? (
+              <p className="mt-1 text-[11px] text-warning">
+                No eligible employees for this step.
+              </p>
+            ) : null}
+            </div>
+          );
+        },
       },
       {
         header: "Status",
@@ -173,44 +200,55 @@ export function TaskAssignmentTable({
         align: "right",
         cell: (task) => {
           const effectiveRateInRupees =
-            getEffectiveTaskRate(task.rateSnapshot, task.rateOverride, task.designType?.defaultRate) / 100;
+            getEffectiveTaskRate(
+              task.rateSnapshot,
+              task.rateOverride,
+              task.designRateSnapshot,
+            ) / 100;
           const isEditing = editingRateId === task.id;
 
           if (isEditing) {
             return (
-              <div className="flex items-center justify-end gap-1">
-                <Input
-                  variant="table"
-                  className="h-7 w-20 text-right text-xs"
-                  type="number"
-                  value={tempRate}
-                  onChange={(event) => onTempRateChange(event.target.value)}
-                  autoFocus
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      onRateUpdate(task.id);
-                    }
-                    if (event.key === "Escape") {
-                      onCancelRateEdit();
-                    }
-                  }}
-                />
-                <Button
-                  variant="tableSuccess"
-                  size="iconSm"
-                  className="h-7 w-7"
-                  onClick={() => onRateUpdate(task.id)}
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="tableDanger"
-                  size="iconSm"
-                  className="h-7 w-7"
-                  onClick={onCancelRateEdit}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center justify-end gap-1">
+                  <Input
+                    variant="table"
+                    className="h-7 w-20 text-right text-xs"
+                    type="number"
+                    value={tempRate}
+                    onChange={(event) => onTempRateChange(event.target.value)}
+                    autoFocus
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        onRateUpdate(task.id);
+                      }
+                      if (event.key === "Escape") {
+                        onCancelRateEdit();
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="tableSuccess"
+                    size="iconSm"
+                    className="h-7 w-7"
+                    onClick={() => onRateUpdate(task.id)}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="tableDanger"
+                    size="iconSm"
+                    className="h-7 w-7"
+                    onClick={onCancelRateEdit}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+                {rateValidationError ? (
+                  <p className="text-[11px] text-destructive">
+                    {rateValidationError}
+                  </p>
+                ) : null}
               </div>
             );
           }
@@ -222,13 +260,17 @@ export function TaskAssignmentTable({
                   className={`text-sm font-bold ${
                     task.rateOverride
                       ? "text-primary"
-                      : task.designType?.defaultRate
+                      : task.designRateSnapshot
                         ? "text-primary/80"
                         : "text-text-primary"
                   }`}
                 >
                   {formatPKR(
-                    getEffectiveTaskRate(task.rateSnapshot, task.rateOverride, task.designType?.defaultRate),
+                    getEffectiveTaskRate(
+                      task.rateSnapshot,
+                      task.rateOverride,
+                      task.designRateSnapshot,
+                    ),
                   )}
                 </span>
                 {task.rateOverride ? (
@@ -253,6 +295,7 @@ export function TaskAssignmentTable({
     [
       editingRateId,
       employees,
+      eligibleEmployeesByTask,
       loadingId,
       onAssign,
       onCancelRateEdit,
@@ -260,6 +303,7 @@ export function TaskAssignmentTable({
       onStartRateEdit,
       onStatusChange,
       onTempRateChange,
+      rateValidationError,
       tempRate,
     ],
   );

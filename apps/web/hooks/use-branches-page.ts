@@ -10,7 +10,6 @@ import { branchesApi } from "@/lib/api/branches";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const ITEMS_PER_PAGE = 10;
@@ -21,6 +20,7 @@ export interface BranchFormState {
   address: string;
   phone: string;
 }
+type BranchFieldErrors = Partial<Record<keyof BranchFormState, string>>;
 
 export const EMPTY_BRANCH_FORM: BranchFormState = {
   code: "",
@@ -52,6 +52,8 @@ export function useBranchesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
   const [form, setForm] = useState<BranchFormState>(EMPTY_BRANCH_FORM);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<BranchFieldErrors>({});
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [branchToDelete, setBranchToDelete] = useState<Branch | null>(null);
@@ -87,6 +89,8 @@ export function useBranchesPage() {
   const openCreateDialog = useCallback(() => {
     setEditingBranch(null);
     setForm(EMPTY_BRANCH_FORM);
+    setFieldErrors({});
+    setFormError("");
     setDialogOpen(true);
   }, []);
 
@@ -98,6 +102,8 @@ export function useBranchesPage() {
       address: branch.address ?? "",
       phone: branch.phone ?? "",
     });
+    setFieldErrors({});
+    setFormError("");
     setDialogOpen(true);
   }, []);
 
@@ -106,6 +112,8 @@ export function useBranchesPage() {
     if (!open) {
       setEditingBranch(null);
       setForm(EMPTY_BRANCH_FORM);
+      setFieldErrors({});
+      setFormError("");
     }
   }, []);
 
@@ -126,6 +134,8 @@ export function useBranchesPage() {
 
   const updateFormField = useCallback(
     <K extends keyof BranchFormState>(field: K, value: BranchFormState[K]) => {
+      setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
+      setFormError("");
       setForm((previous) => ({
         ...previous,
         [field]: value,
@@ -143,27 +153,45 @@ export function useBranchesPage() {
     if (editingBranch) {
       const parsedUpdate = branchUpdateFormSchema.safeParse(form);
       if (!parsedUpdate.success) {
-        toast({
-          title: "Validation error",
-          description: getFirstZodErrorMessage(parsedUpdate.error),
-          variant: "destructive",
+        const flattenedErrors = parsedUpdate.error.flatten().fieldErrors;
+        setFieldErrors({
+          name: flattenedErrors.name?.[0],
+          address: flattenedErrors.address?.[0],
+          phone: flattenedErrors.phone?.[0],
         });
+        setFormError(
+          flattenedErrors.name?.[0] ??
+            flattenedErrors.address?.[0] ??
+            flattenedErrors.phone?.[0] ??
+            "Fix the highlighted fields and try again.",
+        );
         return;
       }
       updateData = parsedUpdate.data;
     } else {
       const parsedCreate = branchCreateFormSchema.safeParse(form);
       if (!parsedCreate.success) {
-        toast({
-          title: "Validation error",
-          description: getFirstZodErrorMessage(parsedCreate.error),
-          variant: "destructive",
+        const flattenedErrors = parsedCreate.error.flatten().fieldErrors;
+        setFieldErrors({
+          code: flattenedErrors.code?.[0],
+          name: flattenedErrors.name?.[0],
+          address: flattenedErrors.address?.[0],
+          phone: flattenedErrors.phone?.[0],
         });
+        setFormError(
+          flattenedErrors.code?.[0] ??
+            flattenedErrors.name?.[0] ??
+            flattenedErrors.address?.[0] ??
+            flattenedErrors.phone?.[0] ??
+            "Fix the highlighted fields and try again.",
+        );
         return;
       }
       createData = parsedCreate.data;
     }
 
+    setFieldErrors({});
+    setFormError("");
     setSaving(true);
     try {
       if (editingBranch && updateData) {
@@ -252,6 +280,8 @@ export function useBranchesPage() {
     dialogOpen,
     editingBranch,
     form,
+    formError,
+    fieldErrors,
     isConfirmOpen,
     branchToDelete,
     setCurrentPage,

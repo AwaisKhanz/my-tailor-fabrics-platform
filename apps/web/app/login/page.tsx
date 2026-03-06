@@ -12,6 +12,8 @@ export default function LoginPage() {
     showPassword,
     staySignedIn,
     isLoading,
+    fieldErrors,
+    formError,
     setEmail,
     setPassword,
     setStaySignedIn,
@@ -34,6 +36,8 @@ export default function LoginPage() {
           showPassword={showPassword}
           staySignedIn={staySignedIn}
           isLoading={isLoading}
+          fieldErrors={fieldErrors}
+          formError={formError}
           onEmailChange={setEmail}
           onPasswordChange={setPassword}
           onTogglePassword={togglePasswordVisibility}

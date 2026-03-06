@@ -9,7 +9,7 @@ exports.EMPLOYEE_STATUS_LABELS = {
 };
 exports.PAYMENT_TYPE_LABELS = {
     [shared_types_1.PaymentType.PER_PIECE]: 'Per Piece (Commission)',
-    [shared_types_1.PaymentType.WEEKLY_FIXED]: 'Weekly Fixed Salary',
+    [shared_types_1.PaymentType.MONTHLY_FIXED]: 'Monthly Fixed Salary',
 };
 exports.EMPLOYEE_STATUS_BADGE = {
     [shared_types_1.EmployeeStatus.ACTIVE]: 'success',

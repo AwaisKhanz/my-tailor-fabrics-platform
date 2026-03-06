@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { loginFormSchema } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 export function useLoginPage() {
   const router = useRouter();
@@ -18,6 +17,11 @@ export function useLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
+  const [formError, setFormError] = useState("");
   const handledInvalidSessionRef = useRef(false);
 
   useEffect(() => {
@@ -52,15 +56,22 @@ export function useLoginPage() {
 
       const parsedResult = loginFormSchema.safeParse({ email, password });
       if (!parsedResult.success) {
-        toast({
-          variant: "destructive",
-          title: "Validation error",
-          description: getFirstZodErrorMessage(parsedResult.error),
+        const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+        setFieldErrors({
+          email: flattenedErrors.email?.[0],
+          password: flattenedErrors.password?.[0],
         });
+        setFormError(
+          flattenedErrors.email?.[0] ??
+            flattenedErrors.password?.[0] ??
+            "Enter a valid email and password.",
+        );
         return;
       }
 
       const data = parsedResult.data;
+      setFieldErrors({});
+      setFormError("");
       setIsLoading(true);
 
       try {
@@ -105,8 +116,18 @@ export function useLoginPage() {
     showPassword,
     staySignedIn,
     isLoading,
-    setEmail,
-    setPassword,
+    fieldErrors,
+    formError,
+    setEmail: (value: string) => {
+      setFieldErrors((previous) => ({ ...previous, email: undefined }));
+      setFormError("");
+      setEmail(value);
+    },
+    setPassword: (value: string) => {
+      setFieldErrors((previous) => ({ ...previous, password: undefined }));
+      setFormError("");
+      setPassword(value);
+    },
     setStaySignedIn,
     togglePasswordVisibility,
     handleSubmit,

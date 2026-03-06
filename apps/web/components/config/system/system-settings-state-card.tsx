@@ -2,11 +2,11 @@ import { Workflow } from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
+import { SectionHeader } from "@/components/ui/section-header";
+import { SectionIcon } from "@/components/ui/section-icon";
 
 interface SystemSettingsStateCardProps {
   workflowEnabled: boolean;
@@ -19,14 +19,16 @@ export function SystemSettingsStateCard({
 }: SystemSettingsStateCardProps) {
   return (
     <Card variant="elevatedPanel">
-      <CardHeader variant="section" className="space-y-1">
-        <CardTitle variant="section" className="flex items-center gap-2">
-          <Workflow className="h-4 w-4 text-primary" />
-          Current State
-        </CardTitle>
-        <CardDescription>
-          Snapshot of effective system behavior.
-        </CardDescription>
+      <CardHeader variant="section">
+        <SectionHeader
+          title="Current State"
+          description="Snapshot of effective system behavior."
+          icon={
+            <SectionIcon size="sm">
+              <Workflow className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
       </CardHeader>
       <CardContent spacing="section" className="space-y-4 p-5 text-sm">
         <InfoTile layout="betweenGap" padding="md" className="rounded-md">

@@ -6,41 +6,326 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { TaskStatus, LedgerEntryType, Role } from '@tbms/shared-types';
+import { getEffectiveTaskRate } from '@tbms/shared-constants';
 import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
+import { EmployeesService } from '../employees/employees.service';
+
+type LedgerSyncResult = {
+  created: number;
+  updated: number;
+  deleted: number;
+};
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly employeesService: EmployeesService,
+  ) {}
+
+  private resolveEffectiveTaskRate(task: {
+    rateSnapshot?: number | null;
+    rateOverride?: number | null;
+    designRateSnapshot?: number | null;
+  }): number {
+    return getEffectiveTaskRate(
+      task.rateSnapshot,
+      task.rateOverride,
+      task.designRateSnapshot,
+    );
+  }
+
+  private async deactivateTaskEarningEntries(
+    tx: Prisma.TransactionClient,
+    taskId: string,
+  ): Promise<number> {
+    const result = await tx.employeeLedgerEntry.updateMany({
+      where: {
+        orderItemTaskId: taskId,
+        type: LedgerEntryType.EARNING,
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return result.count;
+  }
+
+  private async syncTaskEarningEntry(
+    tx: Prisma.TransactionClient,
+    params: {
+      taskId: string;
+      employeeId: string;
+      branchId: string;
+      stepName: string;
+      effectiveRate: number;
+      createdById: string;
+    },
+  ): Promise<LedgerSyncResult> {
+    const activeEntries = await tx.employeeLedgerEntry.findMany({
+      where: {
+        orderItemTaskId: params.taskId,
+        type: LedgerEntryType.EARNING,
+        deletedAt: null,
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      select: { id: true },
+    });
+
+    const activeEntryIds = activeEntries.map((entry) => entry.id);
+
+    if (params.effectiveRate <= 0) {
+      if (activeEntryIds.length === 0) {
+        return { created: 0, updated: 0, deleted: 0 };
+      }
+
+      const deleted = await this.deactivateTaskEarningEntries(tx, params.taskId);
+      return { created: 0, updated: 0, deleted };
+    }
+
+    const [primaryEntry, ...duplicateEntries] = activeEntries;
+
+    if (!primaryEntry) {
+      await tx.employeeLedgerEntry.create({
+        data: {
+          employeeId: params.employeeId,
+          branchId: params.branchId,
+          type: LedgerEntryType.EARNING,
+          amount: params.effectiveRate,
+          orderItemTaskId: params.taskId,
+          createdById: params.createdById,
+          note: `Earned for ${params.stepName} task`,
+        },
+      });
+
+      return { created: 1, updated: 0, deleted: 0 };
+    }
+
+    await tx.employeeLedgerEntry.update({
+      where: { id: primaryEntry.id },
+      data: {
+        employeeId: params.employeeId,
+        branchId: params.branchId,
+        amount: params.effectiveRate,
+        note: `Earned for ${params.stepName} task`,
+        deletedAt: null,
+      },
+    });
+
+    let deleted = 0;
+    if (duplicateEntries.length > 0) {
+      const result = await tx.employeeLedgerEntry.updateMany({
+        where: {
+          id: {
+            in: duplicateEntries.map((entry) => entry.id),
+          },
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+      deleted = result.count;
+    }
+
+    return { created: 0, updated: 1, deleted };
+  }
+
+  async reconcileTaskEarnings(branchId: string | null, updatedById: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const tasks = await tx.orderItemTask.findMany({
+        where: {
+          deletedAt: null,
+          orderItem: {
+            order: {
+              deletedAt: null,
+              ...(branchId ? { branchId } : {}),
+            },
+          },
+        },
+        select: {
+          id: true,
+          stepName: true,
+          status: true,
+          assignedEmployeeId: true,
+          rateOverride: true,
+          rateSnapshot: true,
+          designRateSnapshot: true,
+          orderItem: {
+            select: {
+              order: {
+                select: {
+                  branchId: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const counters = {
+        processedTasks: tasks.length,
+        doneTasks: 0,
+        createdEntries: 0,
+        updatedEntries: 0,
+        deletedEntries: 0,
+      };
+
+      for (const task of tasks) {
+        if (task.status === TaskStatus.DONE && task.assignedEmployeeId) {
+          counters.doneTasks += 1;
+          const syncResult = await this.syncTaskEarningEntry(tx, {
+            taskId: task.id,
+            employeeId: task.assignedEmployeeId,
+            branchId: task.orderItem.order.branchId,
+            stepName: task.stepName,
+            effectiveRate: this.resolveEffectiveTaskRate(task),
+            createdById: updatedById,
+          });
+          counters.createdEntries += syncResult.created;
+          counters.updatedEntries += syncResult.updated;
+          counters.deletedEntries += syncResult.deleted;
+          continue;
+        }
+
+        counters.deletedEntries += await this.deactivateTaskEarningEntries(
+          tx,
+          task.id,
+        );
+      }
+
+      return counters;
+    });
+  }
 
   async assignTask(
     taskId: string,
-    employeeId: string,
+    employeeId: string | null,
     branchId: string,
+    updatedById: string,
   ) {
     const task = await this.prisma.orderItemTask.findFirst({
       where: {
         id: taskId,
         orderItem: { order: { branchId } },
       },
+      include: {
+        orderItem: {
+          select: {
+            garmentTypeId: true,
+            order: {
+              select: {
+                branchId: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!task) throw new NotFoundException('Task not found');
 
-    await requireEmployeeInScope(this.prisma, {
-      employeeId,
-      branchId,
-      requireActive: true,
-      inactiveMessage: 'Task can only be assigned to active employees',
-      inactiveViolation: 'forbidden',
-      wrongBranchMessage:
-        'Cannot assign task to an employee from another branch',
+    if (employeeId) {
+      await requireEmployeeInScope(this.prisma, {
+        employeeId,
+        branchId,
+        requireActive: true,
+        inactiveMessage: 'Task can only be assigned to active employees',
+        inactiveViolation: 'forbidden',
+        wrongBranchMessage:
+          'Cannot assign task to an employee from another branch',
+      });
+
+      await this.employeesService.assertEmployeeEligibleForAssignment({
+        employeeId,
+        branchId: task.orderItem.order.branchId,
+        garmentTypeId: task.orderItem.garmentTypeId,
+        stepKey: task.stepKey,
+      });
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const taskInTransaction = await tx.orderItemTask.findUnique({
+        where: { id: taskId },
+        include: {
+          orderItem: {
+            include: {
+              order: {
+                select: {
+                  branchId: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!taskInTransaction) {
+        throw new NotFoundException('Task not found');
+      }
+
+      const updatedTask = await tx.orderItemTask.update({
+        where: { id: taskId },
+        data: {
+          assignedEmployeeId: employeeId,
+        },
+      });
+
+      if (updatedTask.status === TaskStatus.DONE && employeeId) {
+        await this.syncTaskEarningEntry(tx, {
+          taskId: updatedTask.id,
+          employeeId,
+          branchId: taskInTransaction.orderItem.order.branchId,
+          stepName: updatedTask.stepName,
+          effectiveRate: this.resolveEffectiveTaskRate(updatedTask),
+          createdById: updatedById,
+        });
+      } else {
+        await this.deactivateTaskEarningEntries(tx, taskId);
+      }
+
+      return updatedTask;
+    });
+  }
+
+  async getEligibleEmployeesForTask(taskId: string, branchId: string) {
+    const task = await this.prisma.orderItemTask.findFirst({
+      where: {
+        id: taskId,
+        deletedAt: null,
+        orderItem: {
+          deletedAt: null,
+          order: {
+            branchId,
+            deletedAt: null,
+          },
+        },
+      },
+      select: {
+        id: true,
+        stepKey: true,
+        orderItem: {
+          select: {
+            garmentTypeId: true,
+            order: {
+              select: {
+                branchId: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    return this.prisma.orderItemTask.update({
-      where: { id: taskId },
-      data: {
-        assignedEmployeeId: employeeId,
-      },
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    return this.employeesService.getEligibleEmployees({
+      branchId: task.orderItem.order.branchId,
+      garmentTypeId: task.orderItem.garmentTypeId,
+      stepKey: task.stepKey,
     });
   }
 
@@ -64,7 +349,6 @@ export class TasksService {
               order: true,
             },
           },
-          designType: true,
         },
       });
 
@@ -94,39 +378,17 @@ export class TasksService {
         data,
       });
 
-      // Idempotent earnings record: only one active EARNING entry per task.
-      const becameDone = status === TaskStatus.DONE && !task.completedAt;
-      if (becameDone && task.assignedEmployeeId) {
-        const existingEntry = await tx.employeeLedgerEntry.findFirst({
-          where: {
-            orderItemTaskId: taskId,
-            type: LedgerEntryType.EARNING,
-            deletedAt: null,
-          },
-          select: { id: true },
+      if (status === TaskStatus.DONE && task.assignedEmployeeId) {
+        await this.syncTaskEarningEntry(tx, {
+          taskId,
+          employeeId: task.assignedEmployeeId,
+          branchId: task.orderItem.order.branchId,
+          stepName: task.stepName,
+          effectiveRate: this.resolveEffectiveTaskRate(task),
+          createdById: updatedById,
         });
-
-        if (!existingEntry) {
-          const earningAmount =
-            task.rateOverride ??
-            task.designType?.defaultRate ??
-            task.rateSnapshot ??
-            0;
-
-          if (earningAmount > 0) {
-            await tx.employeeLedgerEntry.create({
-              data: {
-                employeeId: task.assignedEmployeeId,
-                branchId: task.orderItem.order.branchId,
-                type: LedgerEntryType.EARNING,
-                amount: earningAmount,
-                orderItemTaskId: taskId,
-                createdById: updatedById,
-                note: `Earned for ${task.stepName} task`,
-              },
-            });
-          }
-        }
+      } else {
+        await this.deactivateTaskEarningEntries(tx, taskId);
       }
 
       return updatedTask;
@@ -190,21 +452,50 @@ export class TasksService {
     taskId: string,
     rateOverride: number,
     branchId: string,
+    updatedById: string,
   ) {
-    const task = await this.prisma.orderItemTask.findFirst({
-      where: {
-        id: taskId,
-        deletedAt: null,
-        orderItem: { order: { branchId } },
-      },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const task = await tx.orderItemTask.findFirst({
+        where: {
+          id: taskId,
+          deletedAt: null,
+          orderItem: { order: { branchId } },
+        },
+        include: {
+          orderItem: {
+            include: {
+              order: {
+                select: {
+                  branchId: true,
+                },
+              },
+            },
+          },
+        },
+      });
 
-    if (!task) throw new NotFoundException('Task not found');
+      if (!task) throw new NotFoundException('Task not found');
 
-    return this.prisma.orderItemTask.update({
-      where: { id: taskId },
-      data: { rateOverride },
-      include: { assignedEmployee: { select: { fullName: true, id: true } } },
+      const updatedTask = await tx.orderItemTask.update({
+        where: { id: taskId },
+        data: { rateOverride },
+        include: { assignedEmployee: { select: { fullName: true, id: true } } },
+      });
+
+      if (updatedTask.status === TaskStatus.DONE && updatedTask.assignedEmployeeId) {
+        await this.syncTaskEarningEntry(tx, {
+          taskId: updatedTask.id,
+          employeeId: updatedTask.assignedEmployeeId,
+          branchId: task.orderItem.order.branchId,
+          stepName: updatedTask.stepName,
+          effectiveRate: this.resolveEffectiveTaskRate(updatedTask),
+          createdById: updatedById,
+        });
+      } else {
+        await this.deactivateTaskEarningEntries(tx, updatedTask.id);
+      }
+
+      return updatedTask;
     });
   }
 }

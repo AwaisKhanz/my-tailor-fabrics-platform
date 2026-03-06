@@ -1,11 +1,12 @@
 "use client";
 
-import { Banknote } from "lucide-react";
+import { Banknote, CalendarClock } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { Button } from "@/components/ui/button";
 import { PaymentsDisburseDialog } from "@/components/payments/payments-disburse-dialog";
+import { PaymentsGenerateSalariesDialog } from "@/components/payments/payments-generate-salaries-dialog";
 import { PaymentsEmployeeSelectorCard } from "@/components/payments/payments-employee-selector-card";
 import { PaymentsHistorySection } from "@/components/payments/payments-history-section";
 import { PaymentsSummaryCards } from "@/components/payments/payments-summary-cards";
@@ -32,9 +33,16 @@ function PaymentsPage() {
     historyPageSize,
     disburseOpen,
     disburseForm,
+    disburseValidationError,
     disbursing,
+    reversingPaymentId,
+    generateSalariesOpen,
+    salaryAccrualForm,
+    salaryAccrualValidationError,
+    generatingSalaries,
     currentBalance,
     canDisburse,
+    hasSelectedEmployee,
     setHistoryPage,
     handleEmployeeChange,
     setHistoryFrom,
@@ -45,8 +53,13 @@ function PaymentsPage() {
     setDisbursementAmount,
     setDisbursementNote,
     submitDisbursement,
+    openGenerateSalariesDialog,
+    closeGenerateSalariesDialog,
+    setSalaryAccrualMonth,
+    setSalaryAccrualScope,
+    submitSalaryAccrualGeneration,
+    reversePayment,
   } = usePaymentsPage();
-  const hasSelectedEmployee = Boolean(selectedEmployeeId);
 
   return (
     <PageShell>
@@ -60,16 +73,29 @@ function PaymentsPage() {
           }
           density="compact"
           actions={
-            canManagePayments && canDisburse ? (
-              <Button
-                variant="premium"
-                size="lg"
-                className="w-full sm:w-auto"
-                onClick={openDisburseDialog}
-              >
-                <Banknote className="h-4 w-4" />
-                Disburse Payment
-              </Button>
+            canManagePayments ? (
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  onClick={openGenerateSalariesDialog}
+                >
+                  <CalendarClock className="h-4 w-4" />
+                  Generate Monthly Salaries
+                </Button>
+                {canDisburse ? (
+                  <Button
+                    variant="premium"
+                    size="lg"
+                    className="w-full sm:w-auto"
+                    onClick={openDisburseDialog}
+                  >
+                    <Banknote className="h-4 w-4" />
+                    Disburse Payment
+                  </Button>
+                ) : null}
+              </div>
             ) : null
           }
         />
@@ -105,10 +131,21 @@ function PaymentsPage() {
               limit={historyPageSize}
               filters={historyFilters}
               activeFilterCount={historyFilterCount}
+              canManagePayments={canManagePayments}
+              reversingPaymentId={reversingPaymentId}
               onPageChange={setHistoryPage}
               onFromChange={setHistoryFrom}
               onToChange={setHistoryTo}
               onResetFilters={resetHistoryFilters}
+              onReversePayment={(paymentId) => {
+                if (
+                  confirm(
+                    "Reverse this payment? This will create a reversal audit entry.",
+                  )
+                ) {
+                  void reversePayment(paymentId);
+                }
+              }}
             />
           </>
         ) : (
@@ -127,10 +164,26 @@ function PaymentsPage() {
           employeeName={selectedEmployee?.fullName ?? "selected employee"}
           currentBalance={currentBalance}
           form={disburseForm}
+          validationError={disburseValidationError}
           onOpenChange={closeDisburseDialog}
           onAmountChange={setDisbursementAmount}
           onNoteChange={setDisbursementNote}
           onSubmit={submitDisbursement}
+        />
+      ) : null}
+
+      {canManagePayments ? (
+        <PaymentsGenerateSalariesDialog
+          open={generateSalariesOpen}
+          loading={generatingSalaries}
+          form={salaryAccrualForm}
+          validationError={salaryAccrualValidationError}
+          selectedEmployeeName={selectedEmployee?.fullName ?? null}
+          hasSelectedEmployee={hasSelectedEmployee}
+          onOpenChange={closeGenerateSalariesDialog}
+          onMonthChange={setSalaryAccrualMonth}
+          onScopeChange={setSalaryAccrualScope}
+          onSubmit={submitSalaryAccrualGeneration}
         />
       ) : null}
     </PageShell>

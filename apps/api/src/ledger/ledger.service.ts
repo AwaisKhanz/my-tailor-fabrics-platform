@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LedgerEntryType } from '@tbms/shared-types';
 import type {
@@ -252,22 +256,75 @@ export class LedgerService {
   }
 
   async remove(id: string, branchId?: string | null) {
-    const entry = await this.prisma.employeeLedgerEntry.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-        ...(branchId ? { branchId } : {}),
-      },
-      select: { id: true },
-    });
+    throw new BadRequestException(
+      'Ledger delete is disabled. Use reversal instead.',
+    );
+  }
 
-    if (!entry) {
-      throw new NotFoundException('Ledger entry not found');
-    }
+  async reverseEntry(
+    id: string,
+    reversedById: string,
+    branchId?: string | null,
+    note?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const entry = await tx.employeeLedgerEntry.findFirst({
+        where: {
+          id,
+          deletedAt: null,
+          reversedAt: null,
+          ...(branchId ? { branchId } : {}),
+        },
+        include: {
+          salaryAccrual: { select: { id: true } },
+        },
+      });
 
-    return this.prisma.employeeLedgerEntry.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+      if (!entry) {
+        throw new NotFoundException('Ledger entry not found or already reversed');
+      }
+
+      const isSystemGenerated =
+        Boolean(entry.paymentId) ||
+        Boolean(entry.orderItemTaskId) ||
+        Boolean(entry.salaryAccrual) ||
+        Boolean(entry.reversalOfId) ||
+        entry.type === LedgerEntryType.SALARY;
+
+      if (isSystemGenerated) {
+        throw new BadRequestException(
+          'Only manual ledger entries can be reversed.',
+        );
+      }
+
+      const now = new Date();
+      const reversalEntry = await tx.employeeLedgerEntry.create({
+        data: {
+          employeeId: entry.employeeId,
+          branchId: entry.branchId,
+          type: LedgerEntryType.ADJUSTMENT,
+          amount: -entry.amount,
+          createdById: reversedById,
+          note: note?.trim() || `Reversal for ledger entry ${entry.id}`,
+          reversalOfId: entry.id,
+        },
+      });
+
+      await tx.employeeLedgerEntry.update({
+        where: { id: entry.id },
+        data: {
+          reversedAt: now,
+          reversedById,
+          reversalNote: note?.trim() || null,
+        },
+      });
+
+      return {
+        originalEntryId: entry.id,
+        reversalEntryId: reversalEntry.id,
+        reversedAt: now.toISOString(),
+        amount: entry.amount,
+      };
     });
   }
 }

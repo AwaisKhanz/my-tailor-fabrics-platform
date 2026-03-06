@@ -2,6 +2,8 @@ import { api } from '../api';
 import type {
   ApiResponse,
   AddOrderPaymentInput,
+  ReverseOrderPaymentInput,
+  OrderPaymentReversalResult,
   CreateOrderInput,
   DashboardStats,
   Order,
@@ -11,12 +13,60 @@ import type {
   OrdersListResult,
   OrdersListSummary,
   OrdersSummaryQueryInput,
+  EligibleEmployeeResult,
   SharedOrderTokenPayload,
   TaskStatus,
   UpdateOrderItemStatusInput,
   UpdateOrderInput,
   UpdateOrderStatusInput,
 } from '@tbms/shared-types';
+import { toPaisaFromRupees } from '@/lib/utils/money';
+
+function toCreateOrderApiPayload(data: CreateOrderInput): CreateOrderInput {
+  return {
+    ...data,
+    items: data.items.map((item) => ({
+      ...item,
+      unitPrice:
+        item.unitPrice === undefined
+          ? undefined
+          : toPaisaFromRupees(item.unitPrice),
+      addons: item.addons?.map((addon) => ({
+        ...addon,
+        price: toPaisaFromRupees(addon.price),
+      })),
+    })),
+    discountValue:
+      data.discountValue === undefined
+        ? undefined
+        : toPaisaFromRupees(data.discountValue),
+    advancePayment:
+      data.advancePayment === undefined
+        ? undefined
+        : toPaisaFromRupees(data.advancePayment),
+  };
+}
+
+function toUpdateOrderApiPayload(data: UpdateOrderInput): UpdateOrderInput {
+  return {
+    ...data,
+    items: data.items?.map((item) => ({
+      ...item,
+      unitPrice:
+        item.unitPrice === undefined
+          ? undefined
+          : toPaisaFromRupees(item.unitPrice),
+      addons: item.addons?.map((addon) => ({
+        ...addon,
+        price: toPaisaFromRupees(addon.price),
+      })),
+    })),
+    discountValue:
+      data.discountValue === undefined
+        ? undefined
+        : toPaisaFromRupees(data.discountValue),
+  };
+}
 
 export const ordersApi = {
   getOrders: async (params: OrdersListQueryInput = {}) => {
@@ -38,11 +88,13 @@ export const ordersApi = {
     return response.data;
   },
   createOrder: async (data: CreateOrderInput) => {
-    const response = await api.post<ApiResponse<Order>>('/orders', data);
+    const payload = toCreateOrderApiPayload(data);
+    const response = await api.post<ApiResponse<Order>>('/orders', payload);
     return response.data;
   },
   updateOrder: async (id: string, data: UpdateOrderInput) => {
-    const response = await api.patch<ApiResponse<Order>>(`/orders/${id}`, data);
+    const payload = toUpdateOrderApiPayload(data);
+    const response = await api.patch<ApiResponse<Order>>(`/orders/${id}`, payload);
     return response.data;
   },
   updateStatus: async (id: string, data: UpdateOrderStatusInput) => {
@@ -50,7 +102,22 @@ export const ordersApi = {
     return response.data;
   },
   addPayment: async (id: string, data: AddOrderPaymentInput) => {
-    const response = await api.post<ApiResponse<Order>>(`/orders/${id}/payment`, data);
+    const payload: AddOrderPaymentInput = {
+      ...data,
+      amount: toPaisaFromRupees(data.amount),
+    };
+    const response = await api.post<ApiResponse<Order>>(`/orders/${id}/payment`, payload);
+    return response.data;
+  },
+  reversePayment: async (
+    orderId: string,
+    paymentId: string,
+    data: ReverseOrderPaymentInput = {},
+  ) => {
+    const response = await api.post<ApiResponse<OrderPaymentReversalResult>>(
+      `/orders/${orderId}/payments/${paymentId}/reverse`,
+      data,
+    );
     return response.data;
   },
   shareOrder: async (id: string) => {
@@ -71,8 +138,10 @@ export const ordersApi = {
   },
 
   // -- Tasks --
-  assignTask: async (taskId: string, employeeId: string) => {
-    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/assign`, { employeeId });
+  assignTask: async (taskId: string, employeeId: string | null) => {
+    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/assign`, {
+      employeeId,
+    });
     return response.data;
   },
   updateTaskStatus: async (taskId: string, status: TaskStatus) => {
@@ -80,11 +149,19 @@ export const ordersApi = {
     return response.data;
   },
   updateTaskRate: async (taskId: string, rateOverride: number) => {
-    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/rate`, { rateOverride });
+    const response = await api.patch<ApiResponse<OrderItemTask>>(`/tasks/${taskId}/rate`, {
+      rateOverride: toPaisaFromRupees(rateOverride),
+    });
     return response.data;
   },
   getTasksByEmployee: async (employeeId: string) => {
     const response = await api.get<ApiResponse<OrderItemTask[]>>(`/tasks/employee/${employeeId}`);
+    return response.data;
+  },
+  getEligibleEmployeesForTask: async (taskId: string) => {
+    const response = await api.get<ApiResponse<EligibleEmployeeResult[]>>(
+      `/tasks/${taskId}/eligible-employees`,
+    );
     return response.data;
   },
 

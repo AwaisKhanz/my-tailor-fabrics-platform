@@ -40,11 +40,16 @@ function OrderDetailPage() {
     employees,
     statusLoading,
     processingPayment,
+    paymentFieldErrors,
+    paymentValidationError,
+    reversingPaymentId,
     sharing,
     shareData,
     fetchOrder,
     updateStatus,
     addPayment,
+    clearPaymentValidation,
+    reversePayment,
     generateShareLink,
     clearShareData,
   } = useOrderDetail(orderId);
@@ -152,7 +157,11 @@ function OrderDetailPage() {
     0,
   );
   const assignedTailorsCount = new Set(
-    order.items.map((item) => item.employeeId).filter(Boolean),
+    order.items.flatMap((item) =>
+      (item.tasks ?? [])
+        .map((task) => task.assignedEmployeeId)
+        .filter((value): value is string => Boolean(value)),
+    ),
   ).size;
   const totalTaskCount = order.items.reduce(
     (sum, item) => sum + (item.tasks?.length ?? 0),
@@ -234,7 +243,7 @@ function OrderDetailPage() {
             contentClassName="p-5"
           />
           <StatCard
-            title="Assigned Tailors"
+            title="Assigned Employees"
             subtitle="Active assignees"
             value={assignedTailorsCount}
             icon={<UserCog className="h-4 w-4" />}
@@ -276,7 +285,6 @@ function OrderDetailPage() {
 
               <OrderItemsTable
                 items={order.items}
-                employees={employees}
                 canManageTasks={canManageTasks}
                 onManageTasks={handleManageTasks}
               />
@@ -287,7 +295,18 @@ function OrderDetailPage() {
               <OrderFinancialSummaryCard
                 order={order}
                 canCapturePayment={canCapturePayment}
+                canReversePayment={canCapturePayment}
+                reversingPaymentId={reversingPaymentId}
                 onCapturePayment={() => setPaymentOpen(true)}
+                onReversePayment={(paymentId) => {
+                  if (
+                    confirm(
+                      "Reverse this payment? This will create a reversal audit entry.",
+                    )
+                  ) {
+                    void reversePayment(paymentId);
+                  }
+                }}
               />
 
               <OrderLifecycleCard
@@ -307,14 +326,27 @@ function OrderDetailPage() {
 
       <OrderPaymentDialog
         open={paymentOpen}
-        onOpenChange={setPaymentOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            clearPaymentValidation();
+          }
+          setPaymentOpen(open);
+        }}
         orderNumber={order.orderNumber}
         balanceDue={order.balanceDue}
         amount={amount}
         note={note}
         processing={processingPayment}
-        onAmountChange={setAmount}
-        onNoteChange={setNote}
+        fieldErrors={paymentFieldErrors}
+        validationError={paymentValidationError}
+        onAmountChange={(value) => {
+          clearPaymentValidation();
+          setAmount(value);
+        }}
+        onNoteChange={(value) => {
+          clearPaymentValidation();
+          setNote(value);
+        }}
         onSubmit={() => {
           void handleAddPayment();
         }}

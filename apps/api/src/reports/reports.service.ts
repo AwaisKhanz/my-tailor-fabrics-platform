@@ -188,6 +188,8 @@ export class ReportsService {
     range: ResolvedDateRange | null = null,
   ): Promise<{ revenue: number; expenses: number }> {
     const orderWhere: Prisma.OrderPaymentWhereInput = {
+      deletedAt: null,
+      reversedAt: null,
       order: {
         deletedAt: null,
         ...(branchId ? { branchId } : {}),
@@ -255,40 +257,28 @@ export class ReportsService {
 
     // Outstanding balances are operationally current and intentionally not date-windowed.
     const earnedBranchCondition = branchId
-      ? Prisma.sql`AND o."branchId" = ${branchId}`
+      ? Prisma.sql`AND le."branchId" = ${branchId}`
       : Prisma.empty;
 
     const totalEarnedQuery = await this.prisma.$queryRaw<[{ total: bigint }]>(
       Prisma.sql`
-        SELECT (
-          (
-            SELECT COALESCE(SUM(oi."employeeRate" * oi.quantity), 0)
-            FROM "OrderItem" oi
-            JOIN "Order" o ON o.id = oi."orderId"
-            WHERE oi.status IN ('COMPLETED')
-              AND o."deletedAt" IS NULL
-              ${earnedBranchCondition}
-          )
-          +
-          (
-            SELECT COALESCE(SUM(COALESCE(oit."rateOverride", dt."defaultRate", oit."rateSnapshot", 0)), 0)
-            FROM "OrderItemTask" oit
-            JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
-            JOIN "Order" o ON o.id = oi."orderId"
-            LEFT JOIN "DesignType" dt ON dt.id = oit."designTypeId"
-            WHERE oit.status = 'DONE'
-              AND o."deletedAt" IS NULL
-              ${earnedBranchCondition}
-          )
-        ) AS total
+        SELECT COALESCE(SUM(le.amount), 0) AS total
+        FROM "EmployeeLedgerEntry" le
+        WHERE le.type = 'EARNING'
+          AND le."deletedAt" IS NULL
+          ${earnedBranchCondition}
       `,
     );
 
     const totalPaid = await this.prisma.payment.aggregate({
       _sum: { amount: true },
       where: branchId
-        ? { employee: { branchId, deletedAt: null } }
-        : { employee: { deletedAt: null } },
+        ? {
+            deletedAt: null,
+            reversedAt: null,
+            employee: { branchId, deletedAt: null },
+          }
+        : { deletedAt: null, reversedAt: null, employee: { deletedAt: null } },
     });
 
     const totalEarned = Number(totalEarnedQuery[0]?.total ?? 0);
@@ -375,6 +365,8 @@ export class ReportsService {
         FROM "OrderPayment" op
         JOIN "Order" o ON o.id = op."orderId"
         WHERE op."paidAt" >= NOW() - (${safeMonths} * INTERVAL '1 month')
+          AND op."deletedAt" IS NULL
+          AND op."reversedAt" IS NULL
           AND o."deletedAt" IS NULL
           ${branchConditionOrder}
         GROUP BY month
@@ -443,6 +435,8 @@ export class ReportsService {
           FROM "OrderPayment" op
           JOIN "Order" o ON o.id = op."orderId"
           WHERE o."deletedAt" IS NULL
+            AND op."deletedAt" IS NULL
+            AND op."reversedAt" IS NULL
             ${this.getSqlDateCondition('orderPaymentPaidAt', range)}
             ${branchConditionOrder}
           GROUP BY 1
@@ -613,10 +607,6 @@ export class ReportsService {
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
 
-    const itemDateCondition = range
-      ? this.getSqlDateCondition('orderItemCompletedAt', range)
-      : Prisma.empty;
-
     const taskDateCondition = range
       ? this.getSqlDateCondition('taskCompletedAt', range)
       : Prisma.empty;
@@ -631,64 +621,32 @@ export class ReportsService {
       }[]
     >(
       Prisma.sql`
-        WITH item_prod AS (
-          SELECT
-            emp.id::text AS "employeeId",
-            emp."fullName" AS "employeeName",
-            COALESCE(SUM(oi.quantity), 0)::double precision AS "completedItems",
-            0::double precision AS "completedTasks",
-            COALESCE(SUM(oi."employeeRate" * oi.quantity), 0)::double precision AS payout
-          FROM "OrderItem" oi
-          JOIN "Order" o ON o.id = oi."orderId"
-          JOIN "Employee" emp ON emp.id = oi."employeeId"
-          WHERE oi.status IN ('COMPLETED')
-            AND o."deletedAt" IS NULL
-            AND emp."deletedAt" IS NULL
-            ${branchCondition}
-            ${itemDateCondition}
-          GROUP BY emp.id, emp."fullName"
-        ),
-        task_prod AS (
+        WITH task_prod AS (
           SELECT
             emp.id::text AS "employeeId",
             emp."fullName" AS "employeeName",
             0::double precision AS "completedItems",
             COUNT(oit.id)::double precision AS "completedTasks",
-            COALESCE(SUM(COALESCE(oit."rateOverride", dt."defaultRate", oit."rateSnapshot", 0)), 0)::double precision AS payout
+            COALESCE(SUM(COALESCE(oit."rateOverride", oit."designRateSnapshot", oit."rateSnapshot", 0)), 0)::double precision AS payout
           FROM "OrderItemTask" oit
           JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
           JOIN "Order" o ON o.id = oi."orderId"
           JOIN "Employee" emp ON emp.id = oit."assignedEmployeeId"
-          LEFT JOIN "DesignType" dt ON dt.id = oit."designTypeId"
           WHERE oit.status = 'DONE'
             AND o."deletedAt" IS NULL
             AND emp."deletedAt" IS NULL
             ${branchCondition}
             ${taskDateCondition}
           GROUP BY emp.id, emp."fullName"
-        ),
-        combined_prod AS (
-          SELECT
-            "employeeId",
-            "employeeName",
-            SUM("completedItems") AS "completedItems",
-            SUM("completedTasks") AS "completedTasks",
-            SUM(payout) AS payout
-          FROM (
-            SELECT * FROM item_prod
-            UNION ALL
-            SELECT * FROM task_prod
-          ) source
-          GROUP BY "employeeId", "employeeName"
         )
         SELECT
           "employeeId",
           "employeeName",
-          COALESCE("completedItems", 0)::double precision AS "completedItems",
+          0::double precision AS "completedItems",
           COALESCE("completedTasks", 0)::double precision AS "completedTasks",
           COALESCE(payout, 0)::double precision AS payout
-        FROM combined_prod
-        ORDER BY ("completedItems" + "completedTasks") DESC
+        FROM task_prod
+        ORDER BY "completedTasks" DESC
         LIMIT ${safeLimit}
       `,
     );
@@ -740,16 +698,24 @@ export class ReportsService {
         SELECT
           dt.name,
           COUNT(oi.id) as count,
-          SUM(dt."defaultPrice") as revenue,
-          SUM(dt."defaultRate") as payout
+          COALESCE(SUM(oi."unitPrice" * oi.quantity), 0) as revenue,
+          COALESCE(SUM(COALESCE(task_payout.payout, 0)), 0) as payout
         FROM "OrderItem" oi
         JOIN "DesignType" dt ON dt.id = oi."designTypeId"
         JOIN "Order" o ON o.id = oi."orderId"
+        LEFT JOIN LATERAL (
+          SELECT
+            COALESCE(SUM(COALESCE(oit."rateOverride", oit."designRateSnapshot", oit."rateSnapshot", 0)), 0) AS payout
+          FROM "OrderItemTask" oit
+          WHERE oit."orderItemId" = oi.id
+            AND oit."deletedAt" IS NULL
+            AND oit."designTypeId" = oi."designTypeId"
+        ) AS task_payout ON TRUE
         WHERE o."deletedAt" IS NULL
           AND oi.status NOT IN ('CANCELLED')
           ${branchCondition}
           ${this.getSqlDateCondition('orderCreatedAt', range)}
-        GROUP BY dt.name
+        GROUP BY dt.id, dt.name
         ORDER BY count DESC
       `,
     );

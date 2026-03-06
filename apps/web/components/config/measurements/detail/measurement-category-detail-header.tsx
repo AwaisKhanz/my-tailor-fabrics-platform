@@ -10,6 +10,8 @@ import { formatDate } from "@/lib/utils";
 
 interface MeasurementCategoryDetailHeaderProps {
   category: MeasurementCategory | null;
+  includeArchived: boolean;
+  onIncludeArchivedChange: (next: boolean) => void;
   onAddSection: () => void;
   onAddField: () => void;
   canManageMeasurements?: boolean;
@@ -17,6 +19,8 @@ interface MeasurementCategoryDetailHeaderProps {
 
 export function MeasurementCategoryDetailHeader({
   category,
+  includeArchived,
+  onIncludeArchivedChange,
   onAddSection,
   onAddField,
   canManageMeasurements = true,
@@ -75,6 +79,14 @@ export function MeasurementCategoryDetailHeader({
 
           {canManageMeasurements ? (
             <div className="flex w-full flex-col justify-start gap-2 sm:flex-row lg:w-auto lg:justify-end">
+              <Button
+                variant={includeArchived ? "default" : "outline"}
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={() => onIncludeArchivedChange(!includeArchived)}
+              >
+                {includeArchived ? "Showing Archived" : "Show Archived"}
+              </Button>
               <Button
                 variant="outline"
                 size="lg"

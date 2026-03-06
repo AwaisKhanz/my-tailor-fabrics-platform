@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
+import { toPaisaFromRupees } from "@/lib/utils/money";
 import { paymentDisbursementFormSchema } from "@tbms/shared-types";
 import { type PaymentDisbursementForm } from "@/hooks/use-payments-page";
 
@@ -25,6 +26,7 @@ interface PaymentsDisburseDialogProps {
   employeeName: string;
   currentBalance: number;
   form: PaymentDisbursementForm;
+  validationError: string | null;
   onOpenChange: (open: boolean) => void;
   onAmountChange: (value: string) => void;
   onNoteChange: (value: string) => void;
@@ -37,6 +39,7 @@ export function PaymentsDisburseDialog({
   employeeName,
   currentBalance,
   form,
+  validationError,
   onOpenChange,
   onAmountChange,
   onNoteChange,
@@ -44,7 +47,8 @@ export function PaymentsDisburseDialog({
 }: PaymentsDisburseDialogProps) {
   const parsedResult = paymentDisbursementFormSchema.safeParse(form);
   const parsedAmount = parsedResult.success ? parsedResult.data.amount : 0;
-  const exceedsBalance = parsedResult.success && Math.round(parsedAmount * 100) > currentBalance;
+  const exceedsBalance =
+    parsedResult.success && toPaisaFromRupees(parsedAmount) > currentBalance;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,7 +91,11 @@ export function PaymentsDisburseDialog({
                 onChange={(event) => onAmountChange(event.target.value)}
                 min="1"
               />
-              {exceedsBalance ? (
+              {validationError ? (
+                <Typography as="p" variant="muted" className="text-destructive">
+                  {validationError}
+                </Typography>
+              ) : exceedsBalance ? (
                 <Typography as="p" variant="muted" className="text-destructive">
                   Amount cannot be greater than outstanding balance.
                 </Typography>

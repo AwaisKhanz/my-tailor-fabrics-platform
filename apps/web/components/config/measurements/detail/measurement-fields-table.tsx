@@ -26,8 +26,10 @@ interface MeasurementFieldsTableProps {
   fields: MeasurementField[];
   sections: MeasurementSection[];
   loading: boolean;
+  showArchived?: boolean;
   onEditField: (field: MeasurementField) => void;
   onDeleteField: (field: MeasurementField) => void;
+  onRestoreField?: (field: MeasurementField) => void;
   onMoveFieldSection?: (
     field: MeasurementField,
     sectionId: string,
@@ -42,8 +44,10 @@ export function MeasurementFieldsTable({
   fields,
   sections,
   loading,
+  showArchived = false,
   onEditField,
   onDeleteField,
+  onRestoreField,
   onMoveFieldSection,
   canManageFields = true,
 }: MeasurementFieldsTableProps) {
@@ -60,13 +64,17 @@ export function MeasurementFieldsTable({
 
   const sectionOptions = useMemo(
     () =>
-      [...sections].sort((left, right) => {
+      [...(showArchived ? sections : sections.filter((section) => !section.deletedAt))].sort((left, right) => {
         if (left.sortOrder !== right.sortOrder) {
           return left.sortOrder - right.sortOrder;
         }
         return left.name.localeCompare(right.name);
       }),
-    [sections],
+    [sections, showArchived],
+  );
+  const moveSectionOptions = useMemo(
+    () => sectionOptions.filter((section) => !section.deletedAt),
+    [sectionOptions],
   );
 
   const search = values.search ?? "";
@@ -77,7 +85,11 @@ export function MeasurementFieldsTable({
   const filteredFields = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
-    return fields.filter((field) => {
+    const visibleFields = showArchived
+      ? fields
+      : fields.filter((field) => !field.deletedAt);
+
+    return visibleFields.filter((field) => {
       if (
         sectionFilter !== ALL_SECTIONS_FILTER &&
         field.sectionId !== sectionFilter
@@ -95,7 +107,7 @@ export function MeasurementFieldsTable({
         .toLowerCase();
       return haystack.includes(normalizedSearch);
     });
-  }, [fields, search, sectionFilter]);
+  }, [fields, search, sectionFilter, showArchived]);
 
   const total = filteredFields.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -189,7 +201,8 @@ export function MeasurementFieldsTable({
           const showSectionMoveSelect =
             canManageFields &&
             Boolean(onMoveFieldSection) &&
-            sectionOptions.length > 0 &&
+            moveSectionOptions.length > 0 &&
+            !field.deletedAt &&
             Boolean(currentSectionId);
 
           if (!showSectionMoveSelect) {
@@ -213,7 +226,7 @@ export function MeasurementFieldsTable({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {sectionOptions.map((section) => (
+                  {moveSectionOptions.map((section) => (
                     <SelectItem key={section.id} value={section.id}>
                       {section.name}
                     </SelectItem>
@@ -247,7 +260,11 @@ export function MeasurementFieldsTable({
         header: "Status",
         cell: (field) => (
           <div className="flex items-center gap-2">
-            {field.isRequired ? (
+            {field.deletedAt ? (
+              <Badge variant="outline" size="xs">
+                Archived
+              </Badge>
+            ) : field.isRequired ? (
               <div className="flex items-center gap-1.5 text-success">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <Label variant="dashboard" className="text-success">
@@ -270,20 +287,35 @@ export function MeasurementFieldsTable({
           <div className="flex items-center justify-end gap-1">
             {canManageFields ? (
               <>
-                <Button
-                  variant="tableIcon"
-                  size="iconSm"
-                  onClick={() => onEditField(field)}
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="tableDanger"
-                  size="iconSm"
-                  onClick={() => onDeleteField(field)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                {field.deletedAt ? (
+                  onRestoreField ? (
+                    <Button
+                      variant="tablePrimary"
+                      size="sm"
+                      onClick={() => onRestoreField(field)}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Restore
+                    </Button>
+                  ) : null
+                ) : (
+                  <>
+                    <Button
+                      variant="tableIcon"
+                      size="iconSm"
+                      onClick={() => onEditField(field)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="tableDanger"
+                      size="iconSm"
+                      onClick={() => onDeleteField(field)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
               </>
             ) : (
               <span className="text-xs font-medium text-text-secondary">Read only</span>
@@ -296,9 +328,11 @@ export function MeasurementFieldsTable({
       canManageFields,
       handleMoveFieldSection,
       movingFieldId,
+      moveSectionOptions,
       onDeleteField,
       onEditField,
       onMoveFieldSection,
+      onRestoreField,
       sectionOptions,
     ],
   );

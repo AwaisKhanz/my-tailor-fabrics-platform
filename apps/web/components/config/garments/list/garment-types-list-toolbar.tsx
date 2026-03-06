@@ -5,24 +5,30 @@ import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 interface GarmentTypesListToolbarProps {
   totalCount: number;
   search: string;
-  hasActiveFilters: boolean;
+  includeArchived: boolean;
+  activeFilterCount: number;
   onSearchChange: (value: string) => void;
+  onIncludeArchivedChange: (next: boolean) => void;
   onReset: () => void;
 }
 
 export function GarmentTypesListToolbar({
   totalCount,
   search,
-  hasActiveFilters,
+  includeArchived,
+  activeFilterCount,
   onSearchChange,
+  onIncludeArchivedChange,
   onReset,
 }: GarmentTypesListToolbarProps) {
+  const hasActiveFilters = activeFilterCount > 0;
+
   return (
     <TableToolbar
       title="Garment Type Inventory"
       total={totalCount}
       totalLabel="types"
-      activeFilterCount={hasActiveFilters ? 1 : 0}
+      activeFilterCount={activeFilterCount}
       controls={
         <>
           <TableSearch
@@ -31,6 +37,14 @@ export function GarmentTypesListToolbar({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
+
+          <Button
+            variant={includeArchived ? "default" : "outline"}
+            size="sm"
+            onClick={() => onIncludeArchivedChange(!includeArchived)}
+          >
+            {includeArchived ? "Showing Archived" : "Show Archived"}
+          </Button>
 
           <Button
             variant="tableReset"

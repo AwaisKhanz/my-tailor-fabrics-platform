@@ -1,14 +1,14 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { DialogActionRow } from "@/components/ui/form-layout"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/components/ui/dialog";
+import { DialogActionRow } from "@/components/ui/form-layout";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ScrollableDialogProps {
   open: boolean;
@@ -42,19 +42,17 @@ export function ScrollableDialog({
       <DialogContent
         size={contentSize}
         variant="flush"
-        className={cn(maxWidthClass, maxHeightClass, "min-h-0 flex flex-col")}
+        className={cn(maxWidthClass, maxHeightClass, "min-h-0 flex flex-col ")}
       >
         <DialogHeader variant="section">
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        
-        <ScrollArea variant="dialogBody">
-          <div className="py-4">
-            {children}
-          </div>
+
+        <ScrollArea variant="dialogBody" className="overflow-y-auto">
+          <div className="py-4">{children}</div>
         </ScrollArea>
-        
+
         {footerActions ? (
           <DialogActionRow className="shrink-0 bg-popover px-6 pb-6">
             {footerActions}
@@ -62,5 +60,5 @@ export function ScrollableDialog({
         ) : null}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

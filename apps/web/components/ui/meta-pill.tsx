@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const metaPillVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full border border-divider bg-muted px-2.5 py-1.5 text-xs text-text-secondary",
+  "inline-flex items-center gap-1.5 rounded-full border border-divider bg-muted px-4 py-2 text-xs text-text-secondary",
   {
     variants: {
       tone: {
@@ -18,9 +18,12 @@ const metaPillVariants = cva(
 );
 
 export interface MetaPillProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof metaPillVariants> {}
 
 export function MetaPill({ className, tone, ...props }: MetaPillProps) {
-  return <div className={cn(metaPillVariants({ tone }), className)} {...props} />;
+  return (
+    <div className={cn(metaPillVariants({ tone }), className)} {...props} />
+  );
 }

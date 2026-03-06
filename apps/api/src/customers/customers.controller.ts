@@ -181,4 +181,14 @@ export class CustomersController {
     );
     return success(data);
   }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('customers.measurements.manage')
+  @Post('measurements/backfill-snapshots')
+  async backfillMeasurementSnapshots(@Req() req: AuthenticatedRequest) {
+    const data = await this.customersService.backfillMeasurementValueSnapshots(
+      requireBranchScope(req),
+    );
+    return success(data);
+  }
 }

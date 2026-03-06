@@ -26,6 +26,7 @@ model Branch {
   rateCards         RateCard[]
   users             User[]
   ledgerEntries     EmployeeLedgerEntry[]
+  salaryAccruals    SalaryAccrual[]
   designTypes       DesignType[]
 }
 
@@ -50,7 +51,13 @@ model User {
   rateCardsCreated     RateCard[]
   taskAssignmentEvents OrderItemTaskAssignmentEvent[]
   paymentsProcessed    Payment[]
+  paymentsReversed     Payment[]                      @relation("PaymentReversedBy")
+  orderPaymentsReversed OrderPayment[]               @relation("OrderPaymentReversedBy")
   ledgerEntries        EmployeeLedgerEntry[]
+  ledgerEntriesReversed EmployeeLedgerEntry[]        @relation("LedgerEntryReversedBy")
+  generatedSalaryAccruals SalaryAccrual[]           @relation("SalaryAccrualGeneratedBy")
+  createdEmployeeCapabilities EmployeeCapability[]  @relation("EmployeeCapabilityCreatedBy")
+  changedEmployeeCompensations EmployeeCompensationHistory[] @relation("EmployeeCompensationChangedBy")
   branch               Branch?                        @relation(fields: [branchId], references: [id])
   employee             Employee?                      @relation(fields: [employeeId], references: [id])
 
@@ -71,8 +78,10 @@ model Employee {
   cnic              String?                  @unique
   dateOfBirth       DateTime?
   dateOfJoining     DateTime                 @default(now())
+  employmentEndDate DateTime?
   designation       String?
   paymentType       PaymentType              @default(PER_PIECE)
+  monthlySalary     Int?
   accountNumber     String?
   emergencyName     String?
   emergencyPhone    String?
@@ -86,11 +95,13 @@ model Employee {
   attendanceRecords AttendanceRecord[]
   branch            Branch                   @relation(fields: [branchId], references: [id])
   documents         EmployeeDocument[]
-  orderItems        OrderItem[]
   assignedTasks     OrderItemTask[]
   payments          Payment[]
   userAccount       User?
   ledgerEntries     EmployeeLedgerEntry[]
+  salaryAccruals    SalaryAccrual[]
+  capabilities      EmployeeCapability[]
+  compensationHistory EmployeeCompensationHistory[]
 
   @@index([branchId, status])
   @@index([searchVector], type: Gin)
@@ -108,6 +119,43 @@ model EmployeeDocument {
   employee     Employee  @relation(fields: [employeeId], references: [id])
 
   @@index([employeeId])
+}
+
+model EmployeeCapability {
+  id           String      @id @default(cuid())
+  employeeId   String
+  garmentTypeId String?
+  stepKey      String?
+  effectiveFrom DateTime
+  effectiveTo  DateTime?
+  note         String?
+  createdById  String?
+  createdAt    DateTime    @default(now())
+  deletedAt    DateTime?
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+  garmentType  GarmentType? @relation(fields: [garmentTypeId], references: [id])
+  createdBy    User?       @relation("EmployeeCapabilityCreatedBy", fields: [createdById], references: [id])
+
+  @@index([employeeId, effectiveFrom, effectiveTo])
+  @@index([employeeId, garmentTypeId, stepKey, effectiveFrom])
+  @@index([garmentTypeId, stepKey, effectiveFrom])
+}
+
+model EmployeeCompensationHistory {
+  id           String      @id @default(cuid())
+  employeeId   String
+  paymentType  PaymentType
+  monthlySalary Int?
+  effectiveFrom DateTime
+  effectiveTo  DateTime?
+  note         String?
+  changedById  String?
+  createdAt    DateTime    @default(now())
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+  changedBy    User?       @relation("EmployeeCompensationChangedBy", fields: [changedById], references: [id])
+
+  @@index([employeeId, effectiveFrom, effectiveTo])
+  @@index([paymentType, effectiveFrom, effectiveTo])
 }
 
 model Customer {
@@ -156,12 +204,14 @@ model MeasurementSection {
   categoryId String
   name       String
   sortOrder  Int                 @default(0)
+  deletedAt  DateTime?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   category   MeasurementCategory @relation(fields: [categoryId], references: [id])
   fields     MeasurementField[]
 
   @@index([categoryId, sortOrder])
+  @@index([categoryId, deletedAt, sortOrder])
 }
 
 model MeasurementField {
@@ -188,6 +238,7 @@ model CustomerMeasurement {
   customerId String
   categoryId String
   values     Json
+  valuesMeta Json?
   updatedAt  DateTime            @updatedAt
   createdAt  DateTime            @default(now())
   category   MeasurementCategory @relation(fields: [categoryId], references: [id])
@@ -200,7 +251,6 @@ model GarmentType {
   id                    String                 @id @default(cuid())
   name                  String
   customerPrice         Int
-  employeeRate          Int
   description           String?
   sortOrder             Int                    @default(0)
   isActive              Boolean                @default(true)
@@ -213,6 +263,7 @@ model GarmentType {
   workflowSteps         WorkflowStepTemplate[]
   measurementCategories MeasurementCategory[]  @relation("GarmentTypeToMeasurementCategory")
   designTypes           DesignType[]
+  employeeCapabilities  EmployeeCapability[]
 }
 
 model Order {
@@ -257,10 +308,8 @@ model OrderItem {
   orderId         String
   garmentTypeId   String
   garmentTypeName String
-  employeeId      String?
   quantity        Int              @default(1)
   unitPrice       Int
-  employeeRate    Int
   description     String?
   dueDate         DateTime?
   status          ItemStatus       @default(PENDING)
@@ -270,7 +319,6 @@ model OrderItem {
   updatedAt       DateTime         @updatedAt
   fabricSource    FabricSource     @default(SHOP)
   pieceNo         Int              @default(1)
-  employee        Employee?        @relation(fields: [employeeId], references: [id])
   garmentType     GarmentType      @relation(fields: [garmentTypeId], references: [id])
   order           Order            @relation(fields: [orderId], references: [id])
   tasks           OrderItemTask[]
@@ -281,7 +329,6 @@ model OrderItem {
   @@unique([orderId, garmentTypeId, pieceNo])
   @@index([orderId])
   @@index([garmentTypeId])
-  @@index([employeeId, status])
 }
 
 model OrderPayment {
@@ -291,12 +338,17 @@ model OrderPayment {
   paidAt       DateTime  @default(now())
   receivedById String
   note         String?
+  reversedAt   DateTime?
+  reversedById String?
+  reversalNote String?
   deletedAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   order        Order     @relation(fields: [orderId], references: [id])
+  reversedBy   User?     @relation("OrderPaymentReversedBy", fields: [reversedById], references: [id])
 
   @@index([orderId])
+  @@index([reversedAt])
 }
 
 model OrderStatusHistory {
@@ -320,14 +372,19 @@ model Payment {
   paidAt        DateTime              @default(now())
   processedById String
   note          String?
+  reversedAt    DateTime?
+  reversedById  String?
+  reversalNote  String?
   deletedAt     DateTime?
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
   employee      Employee              @relation(fields: [employeeId], references: [id])
   processedBy   User                  @relation(fields: [processedById], references: [id])
+  reversedBy    User?                 @relation("PaymentReversedBy", fields: [reversedById], references: [id])
   ledgerEntries EmployeeLedgerEntry[]
 
   @@index([employeeId, paidAt])
+  @@index([reversedAt])
 }
 
 model ExpenseCategory {
@@ -403,9 +460,7 @@ model GarmentPriceLog {
   garmentTypeId    String
   changedById      String
   oldCustomerPrice Int?
-  oldEmployeeRate  Int?
   newCustomerPrice Int?
-  newEmployeeRate  Int?
   action           String
   createdAt        DateTime    @default(now())
   changedBy        User        @relation(fields: [changedById], references: [id])
@@ -474,6 +529,7 @@ model OrderItemTask {
   rateCardId         String?
   rateOverride       Int?
   rateSnapshot       Int?
+  designRateSnapshot Int?
   assignedEmployee   Employee?                      @relation(fields: [assignedEmployeeId], references: [id])
   orderItem          OrderItem                      @relation(fields: [orderItemId], references: [id])
   rateCard           RateCard?                      @relation(fields: [rateCardId], references: [id])
@@ -525,7 +581,7 @@ enum EmployeeStatus {
 
 enum PaymentType {
   PER_PIECE
-  WEEKLY_FIXED
+  MONTHLY_FIXED
 }
 
 enum CustomerStatus {
@@ -654,12 +710,46 @@ model EmployeeLedgerEntry {
 
   createdById String?
   createdBy   User?   @relation(fields: [createdById], references: [id])
+  reversedById String?
+  reversedBy   User?   @relation("LedgerEntryReversedBy", fields: [reversedById], references: [id])
+  reversalOfId String?
+  reversalOf   EmployeeLedgerEntry? @relation("LedgerEntryReversal", fields: [reversalOfId], references: [id])
+  reversalEntries EmployeeLedgerEntry[] @relation("LedgerEntryReversal")
+  salaryAccrual SalaryAccrual?
 
   note      String?
+  reversalNote String?
   createdAt DateTime  @default(now())
   deletedAt DateTime?
+  reversedAt DateTime?
 
   @@index([employeeId, createdAt])
   @@index([branchId, createdAt])
   @@index([orderItemTaskId])
+  @@index([reversedAt])
+  @@index([reversalOfId])
+}
+
+model SalaryAccrual {
+  id            String              @id @default(cuid())
+  employeeId    String
+  employee      Employee            @relation(fields: [employeeId], references: [id])
+  branchId      String
+  branch        Branch              @relation(fields: [branchId], references: [id])
+  periodYear    Int
+  periodMonth   Int
+  periodStart   DateTime
+  periodEnd     DateTime
+  daysInMonth   Int
+  eligibleDays  Int
+  amount        Int
+  ledgerEntryId String              @unique
+  ledgerEntry   EmployeeLedgerEntry @relation(fields: [ledgerEntryId], references: [id])
+  generatedById String?
+  generatedBy   User?               @relation("SalaryAccrualGeneratedBy", fields: [generatedById], references: [id])
+  source        String              @default("MANUAL")
+  createdAt     DateTime            @default(now())
+
+  @@unique([employeeId, periodYear, periodMonth])
+  @@index([branchId, periodYear, periodMonth])
 }

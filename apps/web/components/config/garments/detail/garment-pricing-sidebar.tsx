@@ -1,10 +1,11 @@
 import { Banknote } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-track";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { cn, formatPKR } from "@/lib/utils";
@@ -15,8 +16,8 @@ interface GarmentPricingSidebarProps {
 
 export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
   const customerPrice = garment.customerPrice ?? 0;
-  const employeeRate = garment.employeeRate ?? 0;
   const marginAmount = garment.marginAmount ?? 0;
+  const baselineLabourRate = customerPrice - marginAmount;
   const marginPercentage = Math.max(
     0,
     Math.min(garment.marginPercentage ?? 0, 100),
@@ -27,12 +28,14 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
     <div className="space-y-6">
       <Card variant="elevatedPanel">
         <CardHeader variant="rowSection" align="startResponsive">
-          <div className="flex items-center gap-2">
-            <SectionIcon tone="primary">
-              <Banknote className="h-4 w-4" />
-            </SectionIcon>
-            <CardTitle variant="section">Global Pricing</CardTitle>
-          </div>
+          <SectionHeader
+            title="Global Pricing"
+            icon={
+              <SectionIcon tone="primary">
+                <Banknote className="h-4 w-4" />
+              </SectionIcon>
+            }
+          />
           <Badge variant="info" size="xs">
             Shared
           </Badge>
@@ -51,10 +54,10 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
 
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-text-secondary">
-                Employee Rate
+                Workflow Labour Baseline
               </span>
               <Typography as="span" variant="sectionTitle" className="text-lg">
-                {formatPKR(employeeRate)}
+                {formatPKR(baselineLabourRate)}
               </Typography>
             </div>
 
@@ -101,12 +104,14 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
 
       <Card variant="elevatedPanel">
         <CardHeader variant="rowSection" align="startResponsive">
-          <div className="flex items-center gap-2">
-            <SectionIcon tone="info">
-              <Banknote className="h-4 w-4" />
-            </SectionIcon>
-            <CardTitle variant="section">Top Tailors</CardTitle>
-          </div>
+          <SectionHeader
+            title="Top Tailors"
+            icon={
+              <SectionIcon tone="info">
+                <Banknote className="h-4 w-4" />
+              </SectionIcon>
+            }
+          />
           <Badge variant="secondary" size="xs">
             Productivity
           </Badge>

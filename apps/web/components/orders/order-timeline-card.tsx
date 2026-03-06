@@ -4,12 +4,11 @@ import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 
 interface TimelineStep {
@@ -80,17 +79,16 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         density="comfortable"
         align="startResponsive"
       >
-        <div className="flex items-center gap-3">
-          <SectionIcon tone="infoSoft" size="lg">
-            <Clock3 className="h-4 w-4 text-primary" />
-          </SectionIcon>
-          <div>
-            <CardTitle variant="dashboard">Order Timeline</CardTitle>
-            <CardDescription variant="header">
-              Current progression and status events.
-            </CardDescription>
-          </div>
-        </div>
+        <SectionHeader
+          title="Order Timeline"
+          titleVariant="dashboard"
+          description="Current progression and status events."
+          icon={
+            <SectionIcon tone="infoSoft" size="lg">
+              <Clock3 className="h-4 w-4 text-primary" />
+            </SectionIcon>
+          }
+        />
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-5">

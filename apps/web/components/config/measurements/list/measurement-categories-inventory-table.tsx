@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Edit2, Eye, Trash2 } from "lucide-react";
+import { Edit2, Eye, RotateCcw, Trash2 } from "lucide-react";
 import { MEASUREMENT_STATUS_BADGE, MEASUREMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { type MeasurementCategory } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,8 @@ interface MeasurementCategoriesInventoryTableProps {
   onView: (category: MeasurementCategory) => void;
   onEdit: (category: MeasurementCategory) => void;
   onDelete: (category: MeasurementCategory) => void;
+  onRestore: (category: MeasurementCategory) => void;
+  restoringId?: string | null;
   canManageMeasurements?: boolean;
 }
 
@@ -29,6 +31,8 @@ export function MeasurementCategoriesInventoryTable({
   onView,
   onEdit,
   onDelete,
+  onRestore,
+  restoringId = null,
   canManageMeasurements = true,
 }: MeasurementCategoriesInventoryTableProps) {
   const columns = useMemo<ColumnDef<MeasurementCategory>[]>(
@@ -36,15 +40,21 @@ export function MeasurementCategoriesInventoryTable({
       {
         header: "Category Name",
         cell: (category) => (
-          <button
-            onClick={(event) => {
-              event.stopPropagation();
-              onView(category);
-            }}
-            className="font-semibold text-text-primary transition-colors hover:text-primary"
-          >
-            {category.name}
-          </button>
+          category.deletedAt ? (
+            <span className="font-semibold text-text-secondary">
+              {category.name}
+            </span>
+          ) : (
+            <button
+              onClick={(event) => {
+                event.stopPropagation();
+                onView(category);
+              }}
+              className="font-semibold text-text-primary transition-colors hover:text-primary"
+            >
+              {category.name}
+            </button>
+          )
         ),
       },
       {
@@ -55,10 +65,20 @@ export function MeasurementCategoriesInventoryTable({
         header: "Status",
         cell: (category) => (
           <Badge
-            variant={category.isActive ? MEASUREMENT_STATUS_BADGE.ACTIVE : MEASUREMENT_STATUS_BADGE.HIDDEN}
+            variant={
+              category.deletedAt
+                ? "outline"
+                : category.isActive
+                  ? MEASUREMENT_STATUS_BADGE.ACTIVE
+                  : MEASUREMENT_STATUS_BADGE.HIDDEN
+            }
             size="xs"
           >
-            {category.isActive ? MEASUREMENT_STATUS_LABELS.ACTIVE : MEASUREMENT_STATUS_LABELS.HIDDEN}
+            {category.deletedAt
+              ? "Archived"
+              : category.isActive
+                ? MEASUREMENT_STATUS_LABELS.ACTIVE
+                : MEASUREMENT_STATUS_LABELS.HIDDEN}
           </Badge>
         ),
       },
@@ -70,6 +90,7 @@ export function MeasurementCategoriesInventoryTable({
             <Button
               variant="tableIcon"
               size="iconSm"
+              disabled={Boolean(category.deletedAt)}
               onClick={(event) => {
                 event.stopPropagation();
                 onView(category);
@@ -79,33 +100,50 @@ export function MeasurementCategoriesInventoryTable({
             </Button>
             {canManageMeasurements ? (
               <>
-                <Button
-                  variant="tableIcon"
-                  size="iconSm"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onEdit(category);
-                  }}
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="tableDanger"
-                  size="iconSm"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onDelete(category);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                {category.deletedAt ? (
+                  <Button
+                    variant="tablePrimary"
+                    size="sm"
+                    disabled={restoringId === category.id}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onRestore(category);
+                    }}
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    {restoringId === category.id ? "Restoring..." : "Restore"}
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="tableIcon"
+                      size="iconSm"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEdit(category);
+                      }}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="tableDanger"
+                      size="iconSm"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(category);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
               </>
             ) : null}
           </div>
         ),
       },
     ],
-    [canManageMeasurements, onDelete, onEdit, onView],
+    [canManageMeasurements, onDelete, onEdit, onRestore, onView, restoringId],
   );
 
   return (
@@ -120,7 +158,11 @@ export function MeasurementCategoriesInventoryTable({
       limit={pageSize}
       onPageChange={onPageChange}
       chrome="flat"
-      onRowClick={onView}
+      onRowClick={(category) => {
+        if (!category.deletedAt) {
+          onView(category);
+        }
+      }}
     />
   );
 }

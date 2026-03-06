@@ -17,10 +17,6 @@ export class CreateGarmentTypeDto {
   @Min(0)
   customerPrice!: number;
 
-  @IsInt()
-  @Min(0)
-  employeeRate!: number;
-
   @IsString()
   @IsOptional()
   description?: string;
@@ -50,11 +46,6 @@ export class UpdateGarmentTypeDto {
   @Min(0)
   @IsOptional()
   customerPrice?: number;
-
-  @IsInt()
-  @Min(0)
-  @IsOptional()
-  employeeRate?: number;
 
   @IsString()
   @IsOptional()

@@ -5,24 +5,30 @@ import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 interface MeasurementCategoriesListToolbarProps {
   total: number;
   search: string;
-  hasActiveFilters: boolean;
+  includeArchived: boolean;
+  activeFilterCount: number;
   onSearchChange: (value: string) => void;
+  onIncludeArchivedChange: (next: boolean) => void;
   onReset: () => void;
 }
 
 export function MeasurementCategoriesListToolbar({
   total,
   search,
-  hasActiveFilters,
+  includeArchived,
+  activeFilterCount,
   onSearchChange,
+  onIncludeArchivedChange,
   onReset,
 }: MeasurementCategoriesListToolbarProps) {
+  const hasActiveFilters = activeFilterCount > 0;
+
   return (
     <TableToolbar
       title="Categories Inventory"
       total={total}
       totalLabel="categories"
-      activeFilterCount={hasActiveFilters ? 1 : 0}
+      activeFilterCount={activeFilterCount}
       controls={
         <>
           <TableSearch
@@ -31,6 +37,14 @@ export function MeasurementCategoriesListToolbar({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
+
+          <Button
+            variant={includeArchived ? "default" : "outline"}
+            size="sm"
+            onClick={() => onIncludeArchivedChange(!includeArchived)}
+          >
+            {includeArchived ? "Showing Archived" : "Show Archived"}
+          </Button>
 
           <Button
             variant="tableReset"

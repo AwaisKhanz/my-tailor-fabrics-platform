@@ -13,6 +13,11 @@ interface LoginFormPanelProps {
   showPassword: boolean;
   staySignedIn: boolean;
   isLoading: boolean;
+  fieldErrors: {
+    email?: string;
+    password?: string;
+  };
+  formError: string;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onTogglePassword: () => void;
@@ -26,6 +31,8 @@ export function LoginFormPanel({
   showPassword,
   staySignedIn,
   isLoading,
+  fieldErrors,
+  formError,
   onEmailChange,
   onPasswordChange,
   onTogglePassword,
@@ -64,6 +71,9 @@ export function LoginFormPanel({
                   autoComplete="email"
                 />
               </div>
+              {fieldErrors.email ? (
+                <p className="text-xs text-destructive">{fieldErrors.email}</p>
+              ) : null}
             </div>
 
             <div className="space-y-1.5">
@@ -92,8 +102,17 @@ export function LoginFormPanel({
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {fieldErrors.password ? (
+                <p className="text-xs text-destructive">
+                  {fieldErrors.password}
+                </p>
+              ) : null}
             </div>
           </div>
+
+          {formError ? (
+            <p className="text-sm text-destructive">{formError}</p>
+          ) : null}
 
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center space-x-2">

@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
+import { SectionHeader } from "@/components/ui/section-header";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { Switch } from "@/components/ui/switch";
 import { Typography } from "@/components/ui/typography";
 
@@ -33,19 +33,23 @@ export function SystemSettingsWorkflowCard({
 }: SystemSettingsWorkflowCardProps) {
   return (
     <Card variant="elevatedPanel">
-      <CardHeader variant="section" className="space-y-1">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle variant="section" className="flex items-center gap-2">
-            <Settings2 className="h-4 w-4 text-primary" />
-            Workflow Engine
-          </CardTitle>
+      <CardHeader variant="section" className="space-y-2">
+        <div className="flex items-start justify-between gap-2">
+          <SectionHeader
+            title="Workflow Engine"
+            description="Toggle production task generation at the platform level."
+            icon={
+              <SectionIcon size="sm">
+                <Settings2 className="h-4 w-4" />
+              </SectionIcon>
+            }
+            className="flex-1"
+            textClassName="space-y-1"
+          />
           <Badge variant={workflowEnabled ? "success" : "outline"}>
             {workflowEnabled ? "Enabled" : "Disabled"}
           </Badge>
         </div>
-        <CardDescription>
-          Toggle production task generation at the platform level.
-        </CardDescription>
       </CardHeader>
 
       <CardContent spacing="section" className="space-y-5 p-5">

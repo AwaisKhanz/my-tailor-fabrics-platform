@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import { Typography } from "@/components/ui/typography";
 import { ReportsExportGrid } from "@/components/reports/reports-export-grid";
 import { ReportsWeeklyPrintCard } from "@/components/reports/reports-weekly-print-card";
 import type { ReportExportType } from "@/hooks/use-reports-workspace";
@@ -22,14 +22,16 @@ export function ReportsExportsTab({
 }: ReportsExportsTabProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3 px-1">
-        <SectionIcon framed={false} className="rounded-xl">
-          <FileText className="h-4 w-4 text-primary" />
-        </SectionIcon>
-        <Typography as="h2" variant="sectionTitle">
-          Document Exports
-        </Typography>
-      </div>
+      <SectionHeader
+        className="px-1"
+        title="Document Exports"
+        titleClassName="text-[1.25rem] font-bold"
+        icon={
+          <SectionIcon framed={false} className="rounded-xl">
+            <FileText className="h-4 w-4 text-primary" />
+          </SectionIcon>
+        }
+      />
 
       <ReportsExportGrid
         exportingKey={exportingKey}

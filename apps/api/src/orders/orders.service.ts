@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -36,7 +35,6 @@ import { hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
 import { calculateDiscountAmount, calculateOrderTotals } from './money';
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
-import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 import { getStatusPinPepper } from '../common/env';
 import {
   normalizePagination,
@@ -122,6 +120,59 @@ export class OrdersService {
     return FABRIC_SOURCE_TO_PRISMA[source];
   }
 
+  private async cancelActiveTasksForOrderItems(
+    orderItemIds: string[],
+    tx: Prisma.TransactionClient,
+  ) {
+    if (orderItemIds.length === 0) {
+      return { cancelledTasks: 0, deactivatedEarnings: 0 };
+    }
+
+    const activeTasks = await tx.orderItemTask.findMany({
+      where: {
+        orderItemId: { in: orderItemIds },
+        status: { in: ['PENDING', 'IN_PROGRESS'] },
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+
+    if (activeTasks.length === 0) {
+      return { cancelledTasks: 0, deactivatedEarnings: 0 };
+    }
+
+    const taskIds = activeTasks.map((task) => task.id);
+    const now = new Date();
+
+    const [cancelledTasks, deactivatedEarnings] = await Promise.all([
+      tx.orderItemTask.updateMany({
+        where: {
+          id: { in: taskIds },
+          deletedAt: null,
+        },
+        data: {
+          status: 'CANCELLED',
+          deletedAt: now,
+        },
+      }),
+      tx.employeeLedgerEntry.updateMany({
+        where: {
+          orderItemTaskId: { in: taskIds },
+          type: 'EARNING',
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: now,
+        },
+      }),
+    ]);
+
+    return {
+      cancelledTasks: cancelledTasks.count,
+      deactivatedEarnings: deactivatedEarnings.count,
+    };
+  }
+
   private async generateOrderNumber(
     branchId: string,
     tx: Prisma.TransactionClient,
@@ -180,18 +231,14 @@ export class OrdersService {
       }
 
       const orderBranchId = branchId || customer.branchId;
-      const validatedEmployeeIds = new Set<string>();
-
       // 2. Resolve Prices and compute item subtotals
       let subtotal = 0;
       const resolvedItems: Array<{
         garmentTypeId: string;
         garmentTypeName: string;
         pieceNo: number;
-        employeeId: string | null;
         quantity: number;
         unitPrice: number;
-        employeeRate: number;
         description: string | undefined;
         fabricSource: SharedFabricSource;
         dueDate: Date | null;
@@ -201,19 +248,6 @@ export class OrdersService {
       const pieceMap: Record<string, number> = {};
 
       for (const item of createOrderDto.items) {
-        if (item.employeeId && !validatedEmployeeIds.has(item.employeeId)) {
-          await requireEmployeeInScope(
-            tx,
-            {
-              employeeId: item.employeeId,
-              branchId: orderBranchId,
-              requireActive: true,
-              inactiveMessage: 'Only active employees can be assigned',
-            },
-          );
-          validatedEmployeeIds.add(item.employeeId);
-        }
-
         const type = await tx.garmentType.findUnique({
           where: { id: item.garmentTypeId },
         });
@@ -228,10 +262,6 @@ export class OrdersService {
           item.unitPrice !== undefined && item.unitPrice !== 0
             ? item.unitPrice
             : type.customerPrice;
-        const employeeRate =
-          item.employeeRate !== undefined && item.employeeRate !== 0
-            ? item.employeeRate
-            : type.employeeRate;
 
         // Split quantity into individual pieces
         for (let i = 0; i < item.quantity; i++) {
@@ -257,10 +287,8 @@ export class OrdersService {
             garmentTypeId: type.id,
             garmentTypeName: type.name,
             pieceNo: currentPieceNo, // SEQUENTIAL per garment type
-            employeeId: item.employeeId || null,
             quantity: 1, // ALWAYS 1
             unitPrice: customerPrice,
-            employeeRate: employeeRate,
             description: item.description,
             fabricSource: item.fabricSource ?? SharedFabricSource.SHOP,
             dueDate: item.dueDate ? new Date(item.dueDate) : null,
@@ -321,12 +349,8 @@ export class OrdersService {
           items: {
             create: resolvedItems.map((item) => ({
               pieceNo: item.pieceNo,
-              employee: item.employeeId
-                ? { connect: { id: item.employeeId } }
-                : undefined,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
-              employeeRate: item.employeeRate,
               description: item.description,
               fabricSource: this.toPrismaFabricSource(item.fabricSource),
               dueDate: item.dueDate,
@@ -474,7 +498,16 @@ export class OrdersService {
     }
 
     if (filters.employeeId) {
-      whereClause.items = { some: { employeeId: filters.employeeId } };
+      whereClause.items = {
+        some: {
+          tasks: {
+            some: {
+              assignedEmployeeId: filters.employeeId,
+              deletedAt: null,
+            },
+          },
+        },
+      };
     }
 
     if (filters.search) {
@@ -642,7 +675,6 @@ export class OrdersService {
           where: { deletedAt: null },
           orderBy: { pieceNo: 'asc' },
           include: {
-            employee: { select: { fullName: true, id: true } },
             designType: true,
             addons: { where: { deletedAt: null } },
             tasks: {
@@ -655,6 +687,7 @@ export class OrdersService {
           },
         },
         payments: {
+          where: { deletedAt: null, reversedAt: null },
           orderBy: { paidAt: 'desc' },
         },
         statusHistory: {
@@ -712,6 +745,75 @@ export class OrdersService {
       });
 
       return this.recalcOrderTotals(id, tx);
+    });
+  }
+
+  async reversePayment(
+    orderId: string,
+    paymentId: string,
+    branchId: string,
+    reversedById: string,
+    note?: string,
+  ) {
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const order = await tx.order.findFirst({
+        where: {
+          id: orderId,
+          deletedAt: null,
+          ...(branchId ? { branchId } : {}),
+        },
+      });
+      if (!order) throw new NotFoundException('Order not found');
+
+      const payment = await tx.orderPayment.findFirst({
+        where: {
+          id: paymentId,
+          orderId,
+          deletedAt: null,
+          reversedAt: null,
+        },
+      });
+      if (!payment) {
+        throw new NotFoundException('Order payment not found or already reversed');
+      }
+
+      const reversedAt = new Date();
+
+      await tx.orderPayment.update({
+        where: { id: payment.id },
+        data: {
+          reversedAt,
+          reversedById,
+          reversalNote: note ?? null,
+        },
+      });
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: {
+          totalPaid: {
+            decrement: payment.amount,
+          },
+        },
+      });
+
+      await tx.customer.update({
+        where: { id: order.customerId },
+        data: {
+          lifetimeValue: {
+            decrement: payment.amount,
+          },
+        },
+      });
+
+      await this.recalcOrderTotals(order.id, tx);
+
+      return {
+        orderId: order.id,
+        paymentId: payment.id,
+        amount: payment.amount,
+        reversedAt: reversedAt.toISOString(),
+      };
     });
   }
 
@@ -909,22 +1011,10 @@ export class OrdersService {
                 orderId: id,
                 deletedAt: null,
               },
-              select: { id: true },
+              select: { id: true, garmentTypeId: true },
             });
             if (!existingItem) {
               throw new NotFoundException('Order item not found');
-            }
-
-            if (itemDto.employeeId) {
-              await requireEmployeeInScope(
-                tx,
-                {
-                  employeeId: itemDto.employeeId,
-                  branchId: order.branchId,
-                  requireActive: true,
-                  inactiveMessage: 'Only active employees can be assigned',
-                },
-              );
             }
 
             // Update all pieces of this "logical" item if they share the same base configuration?
@@ -936,7 +1026,6 @@ export class OrdersService {
                 unitPrice: itemDto.unitPrice,
                 designTypeId: itemDto.designTypeId || null,
                 description: itemDto.description,
-                employeeRate: itemDto.employeeRate,
                 addons: itemDto.addons
                   ? {
                       deleteMany: {},
@@ -980,23 +1069,10 @@ export class OrdersService {
     });
     if (!item) throw new NotFoundException('Order item not found');
 
-    if (dto.employeeId) {
-      await requireEmployeeInScope(
-        this.prisma,
-        {
-          employeeId: dto.employeeId,
-          branchId: order.branchId,
-          requireActive: true,
-          inactiveMessage: 'Only active employees can be assigned',
-        },
-      );
-    }
-
     const updated = await this.prisma.orderItem.update({
       where: { id: itemId },
       data: {
         status: dto.status || undefined,
-        employeeId: dto.employeeId || undefined,
       },
     });
 
@@ -1009,29 +1085,33 @@ export class OrdersService {
   }
 
   async removeItem(orderId: string, itemId: string, branchId: string) {
-    const order = await this.prisma.order.findFirst({
-      where: {
-        id: orderId,
-        deletedAt: null,
-        ...(branchId ? { branchId } : {}),
-      },
-    });
-    if (!order) throw new NotFoundException('Order not found');
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const order = await tx.order.findFirst({
+        where: {
+          id: orderId,
+          deletedAt: null,
+          ...(branchId ? { branchId } : {}),
+        },
+      });
+      if (!order) throw new NotFoundException('Order not found');
 
-    const item = await this.prisma.orderItem.findFirst({
-      where: { id: itemId, orderId, deletedAt: null },
-      select: { id: true },
-    });
-    if (!item) {
-      throw new NotFoundException('Order item not found');
-    }
+      const item = await tx.orderItem.findFirst({
+        where: { id: itemId, orderId, deletedAt: null },
+        select: { id: true },
+      });
+      if (!item) {
+        throw new NotFoundException('Order item not found');
+      }
 
-    await this.prisma.orderItem.update({
-      where: { id: item.id },
-      data: { deletedAt: new Date(), status: 'CANCELLED' },
-    });
+      await this.cancelActiveTasksForOrderItems([item.id], tx);
 
-    return this.recalcOrderTotals(orderId);
+      await tx.orderItem.update({
+        where: { id: item.id },
+        data: { deletedAt: new Date(), status: 'CANCELLED' },
+      });
+
+      return this.recalcOrderTotals(orderId, tx);
+    });
   }
 
   async cancelOrder(id: string, branchId: string, userId: string) {
@@ -1041,19 +1121,26 @@ export class OrdersService {
       });
       if (!order) throw new NotFoundException('Order not found');
 
-      // 1. Cancel all items
+      const activeOrderItems = await tx.orderItem.findMany({
+        where: { orderId: id, deletedAt: null },
+        select: { id: true },
+      });
+
+      await this.cancelActiveTasksForOrderItems(
+        activeOrderItems.map((item) => item.id),
+        tx,
+      );
+
       await tx.orderItem.updateMany({
         where: { orderId: id, deletedAt: null },
         data: { status: 'CANCELLED', deletedAt: new Date() },
       });
 
-      // 2. Set order status to CANCELLED and soft delete
       const updated = await tx.order.update({
         where: { id },
         data: { status: 'CANCELLED', deletedAt: new Date() },
       });
 
-      // 3. Log history
       await tx.orderStatusHistory.create({
         data: {
           orderId: id,
@@ -1080,18 +1167,6 @@ export class OrdersService {
       });
       if (!order) throw new NotFoundException('Order not found');
 
-      if (itemDto.employeeId) {
-        await requireEmployeeInScope(
-          tx,
-          {
-            employeeId: itemDto.employeeId,
-            branchId: order.branchId,
-            requireActive: true,
-            inactiveMessage: 'Only active employees can be assigned',
-          },
-        );
-      }
-
       const type = await tx.garmentType.findUnique({
         where: { id: itemDto.garmentTypeId },
       });
@@ -1104,10 +1179,6 @@ export class OrdersService {
         itemDto.unitPrice !== undefined && itemDto.unitPrice !== 0
           ? itemDto.unitPrice
           : type.customerPrice;
-      const employeeRate =
-        itemDto.employeeRate !== undefined && itemDto.employeeRate !== 0
-          ? itemDto.employeeRate
-          : type.employeeRate;
 
       // 1. Find max pieceNo for this garment type in this order
       const lastItem = await tx.orderItem.findFirst({
@@ -1126,10 +1197,8 @@ export class OrdersService {
             garmentTypeId: type.id,
             garmentTypeName: type.name,
             pieceNo: nextPieceNo++,
-            employeeId: itemDto.employeeId || null,
             quantity: 1, // ALWAYS 1
             unitPrice: customerPrice,
-            employeeRate: employeeRate,
             description: itemDto.description,
             fabricSource: this.toPrismaFabricSource(
               itemDto.fabricSource ?? SharedFabricSource.SHOP,
@@ -1181,7 +1250,14 @@ export class OrdersService {
 
     const item = await tx.orderItem.findUnique({
       where: { id: orderItemId },
-      select: { designTypeId: true },
+      select: {
+        designTypeId: true,
+        designType: {
+          select: {
+            defaultRate: true,
+          },
+        },
+      },
     });
 
     const tasksToCreate: {
@@ -1193,6 +1269,7 @@ export class OrdersService {
       status: 'PENDING';
       rateCardId: string | null;
       rateSnapshot: number;
+      designRateSnapshot?: number | null;
       designTypeId?: string | null;
     }[] = [];
     for (const t of templates) {
@@ -1221,6 +1298,9 @@ export class OrdersService {
         status: 'PENDING',
         rateCardId: rateCard?.id || null,
         rateSnapshot: rateCard?.amount || 0,
+        designRateSnapshot: isDesignStep
+          ? (item?.designType?.defaultRate ?? null)
+          : null,
         designTypeId: isDesignStep ? item?.designTypeId : null,
       });
     }

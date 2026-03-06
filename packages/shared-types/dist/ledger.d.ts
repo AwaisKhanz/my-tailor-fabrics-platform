@@ -38,6 +38,10 @@ export interface EmployeeLedgerEntry {
         name: string;
     } | null;
     note?: string | null;
+    reversalNote?: string | null;
+    reversedAt?: string | Date | null;
+    reversedById?: string | null;
+    reversalOfId?: string | null;
     createdAt: string | Date;
     deletedAt?: string | Date | null;
 }
@@ -59,6 +63,15 @@ export interface CreateManualLedgerEntryInput {
     orderItemTaskId?: string | null;
     paymentId?: string | null;
     note?: string | null;
+}
+export interface ReverseLedgerEntryInput {
+    note?: string;
+}
+export interface LedgerEntryReversalResult {
+    originalEntryId: string;
+    reversalEntryId: string;
+    reversedAt: string;
+    amount: number;
 }
 export interface LedgerSummary {
     totalEarned: number;

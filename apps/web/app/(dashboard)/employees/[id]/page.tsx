@@ -36,8 +36,13 @@ function EmployeeDetailPage() {
     tasks,
     attendance,
     systemSettings,
+    garmentTypes,
+    capabilities,
+    compensationHistory,
     fetchEmployeeData,
     handleTaskStatusChange,
+    saveCapabilitiesSnapshot,
+    scheduleCompensationChange,
 
     ledgerEntries,
     ledgerLoading,
@@ -65,6 +70,8 @@ function EmployeeDetailPage() {
     setDocLabel,
     docUrl,
     setDocUrl,
+    documentFieldErrors,
+    documentValidationError,
     uploadingDocument,
     uploadDocument,
 
@@ -74,9 +81,11 @@ function EmployeeDetailPage() {
     setNewEntryAmount,
     newEntryNote,
     setNewEntryNote,
+    ledgerEntryFieldErrors,
+    ledgerEntryValidationError,
     submittingLedgerEntry,
     submitLedgerEntry,
-    deleteLedgerEntry,
+    reverseLedgerEntry,
   } = useEmployeeDetailPage({ employeeId });
 
   const refreshEmployeeData = () => {
@@ -137,6 +146,9 @@ function EmployeeDetailPage() {
               items={items}
               tasks={tasks}
               attendance={attendance}
+              garmentTypes={garmentTypes}
+              capabilities={capabilities}
+              compensationHistory={compensationHistory}
               ledgerEntries={ledgerEntries}
               ledgerLoading={ledgerLoading}
               ledgerFrom={ledgerFrom}
@@ -154,19 +166,22 @@ function EmployeeDetailPage() {
               onTaskStatusChange={(taskId, status) => {
                 void handleTaskStatusChange(taskId, status);
               }}
-              onDeleteLedgerEntry={(entryId) => {
-                if (confirm("Are you sure you want to delete this ledger entry? This cannot be undone.")) {
-                  void deleteLedgerEntry(entryId);
+              onReverseLedgerEntry={(entryId) => {
+                if (confirm("Are you sure you want to reverse this ledger entry? This will create an audit reversal.")) {
+                  void reverseLedgerEntry(entryId);
                 }
               }}
               onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
               onOpenDocumentDialog={() => setDocumentDialogOpen(true)}
               onOpenAccountDialog={() => setAccountDialogOpen(true)}
               onOpenLedgerDialog={() => setLedgerDialogOpen(true)}
+              onSaveCapabilitiesSnapshot={saveCapabilitiesSnapshot}
+              onScheduleCompensationChange={scheduleCompensationChange}
               canManageTaskStatus={canManageTaskStatus}
               canManageLedger={canManageLedger}
               canManageDocuments={canManageEmployees}
               canManageAccount={canManageAccounts}
+              canManageWorkforceGovernance={canManageEmployees}
             />
           }
           side={<EmployeeProfileSidebar employee={employee} />}
@@ -191,6 +206,8 @@ function EmployeeDetailPage() {
           amount={newEntryAmount}
           note={newEntryNote}
           submitting={submittingLedgerEntry}
+          fieldErrors={ledgerEntryFieldErrors}
+          validationError={ledgerEntryValidationError}
           onEntryTypeChange={setNewEntryType}
           onAmountChange={setNewEntryAmount}
           onNoteChange={setNewEntryNote}
@@ -208,6 +225,8 @@ function EmployeeDetailPage() {
             label={docLabel}
             url={docUrl}
             uploading={uploadingDocument}
+            fieldErrors={documentFieldErrors}
+            validationError={documentValidationError}
             onLabelChange={setDocLabel}
             onUrlChange={setDocUrl}
             onSubmit={() => {

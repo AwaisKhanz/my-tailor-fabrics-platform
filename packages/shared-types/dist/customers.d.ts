@@ -1,6 +1,17 @@
 import { CustomerStatus, PaginatedResponse } from './common';
+import type { FieldType } from './common';
 export type MeasurementValue = string | number | boolean | null;
 export type MeasurementValues = Record<string, MeasurementValue>;
+export interface MeasurementValueSnapshotMeta {
+    fieldId: string;
+    label: string;
+    fieldType: FieldType;
+    unit?: string | null;
+    sectionId?: string | null;
+    sectionName?: string | null;
+    isRequired: boolean;
+}
+export type MeasurementValuesMeta = Record<string, MeasurementValueSnapshotMeta>;
 export interface Customer {
     id: string;
     branchId: string;
@@ -28,6 +39,7 @@ export interface CustomerMeasurement {
     customerId: string;
     categoryId: string;
     values: MeasurementValues;
+    valuesMeta?: MeasurementValuesMeta | null;
     updatedAt: string;
     category?: {
         id: string;

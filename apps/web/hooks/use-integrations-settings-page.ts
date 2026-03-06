@@ -8,7 +8,6 @@ import {
 import { mailApi } from "@/lib/api/mail";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback, getApiErrorStatus } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const DEFAULT_STATUS: MailIntegrationStatus = {
   publicEndpointsEnabled: false,
@@ -40,6 +39,7 @@ export function useIntegrationsSettingsPage() {
   const [requestingAuthUrl, setRequestingAuthUrl] = useState(false);
 
   const [testEmail, setTestEmail] = useState("");
+  const [testEmailValidationError, setTestEmailValidationError] = useState("");
   const [sendingTest, setSendingTest] = useState(false);
 
   const loadStatus = useCallback(
@@ -111,14 +111,14 @@ export function useIntegrationsSettingsPage() {
   const sendTestMail = useCallback(async () => {
     const parsedResult = integrationTestEmailFormSchema.safeParse({ to: testEmail });
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
-      });
+      setTestEmailValidationError(
+        parsedResult.error.flatten().fieldErrors.to?.[0] ??
+          "Enter a valid recipient email address.",
+      );
       return;
     }
 
+    setTestEmailValidationError("");
     setSendingTest(true);
     try {
       const response = await mailApi.sendTestMail({ to: parsedResult.data.to });
@@ -155,10 +155,14 @@ export function useIntegrationsSettingsPage() {
     authMessage,
     requestingAuthUrl,
     testEmail,
+    testEmailValidationError,
     sendingTest,
     configuredCount,
     canRunMailActions,
-    setTestEmail,
+    setTestEmail: (value: string) => {
+      setTestEmailValidationError("");
+      setTestEmail(value);
+    },
     refresh,
     requestAuthUrl,
     sendTestMail,

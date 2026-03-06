@@ -11,11 +11,11 @@ import { attendanceApi } from "@/lib/api/attendance";
 import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 20;
 export const ALL_EMPLOYEES_FILTER = "all";
+type ClockInFieldErrors = Partial<Record<"employeeId" | "note", string>>;
 
 export function useAttendanceSettingsPage() {
   const { toast } = useToast();
@@ -39,6 +39,8 @@ export function useAttendanceSettingsPage() {
 
   const [clockInEmployeeId, setClockInEmployeeId] = useState("");
   const [clockInNote, setClockInNote] = useState("");
+  const [clockInFieldErrors, setClockInFieldErrors] = useState<ClockInFieldErrors>({});
+  const [clockInValidationError, setClockInValidationError] = useState("");
   const [clockingIn, setClockingIn] = useState(false);
   const [clockingOutId, setClockingOutId] = useState<string | null>(null);
 
@@ -135,14 +137,21 @@ export function useAttendanceSettingsPage() {
     });
 
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setClockInFieldErrors({
+        employeeId: flattenedErrors.employeeId?.[0],
+        note: flattenedErrors.note?.[0],
       });
+      setClockInValidationError(
+        flattenedErrors.employeeId?.[0] ??
+          flattenedErrors.note?.[0] ??
+          "Fix the highlighted fields and try again.",
+      );
       return;
     }
 
+    setClockInFieldErrors({});
+    setClockInValidationError("");
     setClockingIn(true);
     try {
       await attendanceApi.clockIn(
@@ -153,6 +162,8 @@ export function useAttendanceSettingsPage() {
         title: "Clock-In Recorded",
         description: "Attendance entry created successfully.",
       });
+      setClockInFieldErrors({});
+      setClockInValidationError("");
       setClockInNote("");
       if (page !== 1) {
         setPage(1);
@@ -210,11 +221,21 @@ export function useAttendanceSettingsPage() {
     clockInNote,
     clockingIn,
     clockingOutId,
+    clockInFieldErrors,
+    clockInValidationError,
     setPage,
     applyEmployeeFilter,
     resetFilters,
-    setClockInEmployeeId,
-    setClockInNote,
+    setClockInEmployeeId: (value: string) => {
+      setClockInFieldErrors((previous) => ({ ...previous, employeeId: undefined }));
+      setClockInValidationError("");
+      setClockInEmployeeId(value);
+    },
+    setClockInNote: (value: string) => {
+      setClockInFieldErrors((previous) => ({ ...previous, note: undefined }));
+      setClockInValidationError("");
+      setClockInNote(value);
+    },
     clockIn,
     clockOut,
     refresh,

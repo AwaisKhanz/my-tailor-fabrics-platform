@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { PieChart } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import type { GarmentRevenue } from "@/lib/api/reports";
 import {
@@ -33,16 +34,18 @@ export function DashboardGarmentBreakdownCard({
 
   return (
     <Card variant="elevatedPanel" className="flex h-full flex-col">
-      <CardHeader variant="section" density="compact" className="space-y-2">
-        <div className="flex items-center gap-2">
-          <SectionIcon size="sm">
-            <PieChart className="h-4 w-4" />
-          </SectionIcon>
-          <CardTitle variant="dashboardSection">Garment Mix</CardTitle>
-        </div>
-        <p className="text-xs text-text-secondary">
-          Contribution split across garment categories.
-        </p>
+      <CardHeader variant="section" density="compact">
+        <SectionHeader
+          title="Garment Mix"
+          titleVariant="dashboardSection"
+          description="Contribution split across garment categories."
+          descriptionVariant="compact"
+          icon={
+            <SectionIcon size="sm">
+              <PieChart className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
       </CardHeader>
 
       <CardContent spacing="section" className="flex flex-1 flex-col gap-4">

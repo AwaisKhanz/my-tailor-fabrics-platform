@@ -23,6 +23,9 @@ export function MeasurementCategoriesTable() {
     total,
     stats,
     search,
+    includeArchived,
+    activeFilterCount,
+    restoringId,
     page,
     pageSize,
     hasActiveFilters,
@@ -32,6 +35,7 @@ export function MeasurementCategoriesTable() {
     categoryToDelete,
     setPage,
     setSearchFilter,
+    setIncludeArchived,
     resetFilters,
     openCreateDialog,
     openEditDialog,
@@ -39,6 +43,7 @@ export function MeasurementCategoriesTable() {
     requestDelete,
     closeConfirm,
     confirmDelete,
+    restoreCategory,
     fetchCategories,
   } = useMeasurementCategoriesPage();
 
@@ -61,8 +66,10 @@ export function MeasurementCategoriesTable() {
           <MeasurementCategoriesListToolbar
             total={total}
             search={search}
-            hasActiveFilters={hasActiveFilters}
+            includeArchived={includeArchived}
+            activeFilterCount={activeFilterCount}
             onSearchChange={setSearchFilter}
+            onIncludeArchivedChange={setIncludeArchived}
             onReset={resetFilters}
           />
 
@@ -78,6 +85,8 @@ export function MeasurementCategoriesTable() {
             }}
             onEdit={openEditDialog}
             onDelete={requestDelete}
+            onRestore={restoreCategory}
+            restoringId={restoringId}
             canManageMeasurements={canManageMeasurements}
           />
         </TableSurface>
@@ -97,12 +106,12 @@ export function MeasurementCategoriesTable() {
           <ConfirmDialog
             open={isConfirmOpen}
             onOpenChange={closeConfirm}
-            title="Delete Category"
-            description={`Are you sure you want to delete the "${categoryToDelete?.name}" category? This action cannot be undone.`}
+            title="Archive Category"
+            description={`Archive "${categoryToDelete?.name}"? It will be hidden from new forms but historical measurements remain.`}
             onConfirm={() => {
               void confirmDelete();
             }}
-            confirmText="Delete Category"
+            confirmText="Archive Category"
           />
         </>
       ) : null}

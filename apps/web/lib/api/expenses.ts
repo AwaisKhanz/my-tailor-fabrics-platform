@@ -12,6 +12,7 @@ import type {
   UpdateExpenseCategoryInput,
   UpdateExpenseInput,
 } from '@tbms/shared-types';
+import { toPaisaFromRupees } from '@/lib/utils/money';
 
 export type { Expense, ExpenseCategory };
 
@@ -55,12 +56,20 @@ export const expensesApi = {
   },
 
   createExpense: async (data: CreateExpenseInput) => {
-    const response = await api.post<ApiResponse<Expense>>('/expenses', data);
+    const payload: CreateExpenseInput = {
+      ...data,
+      amount: toPaisaFromRupees(data.amount),
+    };
+    const response = await api.post<ApiResponse<Expense>>('/expenses', payload);
     return response.data;
   },
 
   updateExpense: async (id: string, data: UpdateExpenseInput) => {
-    const response = await api.put<ApiResponse<Expense>>(`/expenses/${id}`, data);
+    const payload: UpdateExpenseInput = {
+      ...data,
+      amount: data.amount === undefined ? undefined : toPaisaFromRupees(data.amount),
+    };
+    const response = await api.put<ApiResponse<Expense>>(`/expenses/${id}`, payload);
     return response.data;
   },
 

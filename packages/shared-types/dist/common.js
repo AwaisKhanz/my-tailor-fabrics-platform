@@ -19,7 +19,7 @@ var EmployeeStatus;
 var PaymentType;
 (function (PaymentType) {
     PaymentType["PER_PIECE"] = "PER_PIECE";
-    PaymentType["WEEKLY_FIXED"] = "WEEKLY_FIXED";
+    PaymentType["MONTHLY_FIXED"] = "MONTHLY_FIXED";
 })(PaymentType || (exports.PaymentType = PaymentType = {}));
 var CustomerStatus;
 (function (CustomerStatus) {

@@ -18,6 +18,10 @@ import type {
   CreateMeasurementSectionInput,
   UpdateMeasurementSectionInput,
   DeleteMeasurementSectionInput,
+  DeleteMeasurementSectionResult,
+  ArchiveMeasurementFieldResult,
+  ArchiveMeasurementCategoryResult,
+  ArchiveGarmentTypeResult,
   CreateGarmentTypeInput,
   UpdateGarmentTypeInput,
   GarmentPriceLog,
@@ -27,6 +31,7 @@ import type {
   SystemSettings,
   UpdateSystemSettingsInput,
 } from '@tbms/shared-types';
+import { toPaisaFromRupees } from '@/lib/utils/money';
 
 export const configApi = {
   // Garment Types
@@ -42,15 +47,39 @@ export const configApi = {
     return response.data;
   },
   createGarmentType: async (data: CreateGarmentTypeInput) => {
-    const response = await api.post<ApiResponse<GarmentType>>('/config/garment-types', data);
+    const payload: CreateGarmentTypeInput = {
+      ...data,
+      customerPrice: toPaisaFromRupees(data.customerPrice),
+    };
+    const response = await api.post<ApiResponse<GarmentType>>('/config/garment-types', payload);
     return response.data;
   },
   updateGarmentType: async (id: string, data: UpdateGarmentTypeInput) => {
-    const response = await api.put<ApiResponse<GarmentType>>(`/config/garment-types/${id}`, data);
+    const payload: UpdateGarmentTypeInput = {
+      ...data,
+      customerPrice:
+        data.customerPrice === undefined
+          ? undefined
+          : toPaisaFromRupees(data.customerPrice),
+    };
+    const response = await api.put<ApiResponse<GarmentType>>(`/config/garment-types/${id}`, payload);
     return response.data;
   },
-  deleteGarmentType: async (id: string) => {
-    const response = await api.delete<ApiResponse<void>>(`/config/garment-types/${id}`);
+  deleteGarmentType: async (id: string, preview = false) => {
+    const response = await api.delete<ApiResponse<ArchiveGarmentTypeResult>>(
+      `/config/garment-types/${id}`,
+      { params: preview ? { preview: "true" } : undefined },
+    );
+    return response.data;
+  },
+  restoreGarmentType: async (id: string) => {
+    const response = await api.put<ApiResponse<GarmentType>>(`/config/garment-types/${id}/restore`);
+    return response.data;
+  },
+  restoreGarmentWorkflowStep: async (garmentTypeId: string, stepKey: string) => {
+    const response = await api.put<ApiResponse<WorkflowStepTemplate>>(
+      `/config/garment-types/${garmentTypeId}/steps/${encodeURIComponent(stepKey)}/restore`,
+    );
     return response.data;
   },
   getGarmentStats: async () => {
@@ -82,8 +111,16 @@ export const configApi = {
     );
     return response.data;
   },
-  getMeasurementCategory: async (id: string) => {
-    const response = await api.get<ApiResponse<MeasurementCategory>>(`/config/measurement-categories/${id}`);
+  getMeasurementCategory: async (
+    id: string,
+    params: { includeArchived?: boolean } = {},
+  ) => {
+    const response = await api.get<ApiResponse<MeasurementCategory>>(
+      `/config/measurement-categories/${id}`,
+      {
+        params: params.includeArchived ? { includeArchived: "true" } : undefined,
+      },
+    );
     return response.data;
   },
   getMeasurementStats: async () => {
@@ -121,12 +158,21 @@ export const configApi = {
   deleteMeasurementSection: async (
     sectionId: string,
     data: DeleteMeasurementSectionInput = {},
+    preview = false,
   ) => {
-    const response = await api.delete<
-      ApiResponse<{ deletedSectionId: string; movedFieldCount: number; targetSectionId: string | null }>
-    >(`/config/measurement-sections/${sectionId}`, {
+    const response = await api.delete<ApiResponse<DeleteMeasurementSectionResult>>(
+      `/config/measurement-sections/${sectionId}`,
+      {
       data,
-    });
+      params: preview ? { preview: "true" } : undefined,
+      },
+    );
+    return response.data;
+  },
+  restoreMeasurementSection: async (sectionId: string) => {
+    const response = await api.put<ApiResponse<MeasurementSection>>(
+      `/config/measurement-sections/${sectionId}/restore`,
+    );
     return response.data;
   },
   addMeasurementField: async (
@@ -149,12 +195,26 @@ export const configApi = {
     );
     return response.data;
   },
-  deleteMeasurementField: async (fieldId: string) => {
-    const response = await api.delete<ApiResponse<void>>(`/config/measurement-fields/${fieldId}`);
+  deleteMeasurementField: async (fieldId: string, preview = false) => {
+    const response = await api.delete<ApiResponse<ArchiveMeasurementFieldResult>>(
+      `/config/measurement-fields/${fieldId}`,
+      { params: preview ? { preview: "true" } : undefined },
+    );
     return response.data;
   },
-  deleteMeasurementCategory: async (id: string) => {
-    const response = await api.delete<ApiResponse<void>>(`/config/measurement-categories/${id}`);
+  restoreMeasurementField: async (fieldId: string) => {
+    const response = await api.put<ApiResponse<MeasurementField>>(`/config/measurement-fields/${fieldId}/restore`);
+    return response.data;
+  },
+  deleteMeasurementCategory: async (id: string, preview = false) => {
+    const response = await api.delete<ApiResponse<ArchiveMeasurementCategoryResult>>(
+      `/config/measurement-categories/${id}`,
+      { params: preview ? { preview: "true" } : undefined },
+    );
+    return response.data;
+  },
+  restoreMeasurementCategory: async (id: string) => {
+    const response = await api.put<ApiResponse<MeasurementCategory>>(`/config/measurement-categories/${id}/restore`);
     return response.data;
   },
   

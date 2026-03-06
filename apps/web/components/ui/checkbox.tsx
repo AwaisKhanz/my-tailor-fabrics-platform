@@ -14,7 +14,7 @@ const checkboxVariants = cva(
       variant: {
         default: "h-4 w-4",
         premium:
-          "h-5 w-5 rounded border-border data-[state=checked]:border-primary transition-all duration-200",
+          "h-5 w-5 rounded border-divider data-[state=checked]:border-primary transition-all duration-200",
       },
     },
     defaultVariants: {

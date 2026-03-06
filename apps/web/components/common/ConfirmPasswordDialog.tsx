@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { confirmPasswordSchema } from "@tbms/shared-types";
 import {
   Dialog,
@@ -12,8 +12,6 @@ import {
 import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface ConfirmPasswordDialogProps {
   open: boolean;
@@ -33,19 +31,26 @@ export function ConfirmPasswordDialog({
   isLoading = false,
 }: ConfirmPasswordDialogProps) {
   const [password, setPassword] = useState("");
-  const { toast } = useToast();
+  const [validationError, setValidationError] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setPassword("");
+      setValidationError("");
+    }
+  }, [open]);
 
   const handleConfirm = async () => {
     const parsedResult = confirmPasswordSchema.safeParse({ password });
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
-      });
+      setValidationError(
+        parsedResult.error.flatten().fieldErrors.password?.[0] ??
+          "Enter your password to continue.",
+      );
       return;
     }
-    
+
+    setValidationError("");
     // Note: In a real implementation, we would send the password to the backend 
     // for verification. For this simulation, we'll assume the user knows their password.
     // The requirement (Section 1675) is about the UI/UX flow of re-entry.
@@ -76,10 +81,16 @@ export function ConfirmPasswordDialog({
                 id="password"
                 type="password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) => {
+                  setValidationError("");
+                  setPassword(event.target.value);
+                }}
                 placeholder="••••••••"
                 disabled={isLoading}
               />
+              {validationError ? (
+                <p className="text-xs text-destructive">{validationError}</p>
+              ) : null}
             </div>
           </FormStack>
         </DialogSection>

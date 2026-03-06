@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   FormControl,
@@ -19,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import {
   Select,
@@ -62,17 +61,15 @@ export function OrderFormSummaryCard({
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
-        <div className="flex items-center gap-3">
-          <SectionIcon tone="infoSoft">
-            <Calculator className="h-4 w-4" />
-          </SectionIcon>
-          <div>
-            <CardTitle variant="section">Order Summary</CardTitle>
-            <CardDescription variant="header">
-              Review totals and finalize payment details.
-            </CardDescription>
-          </div>
-        </div>
+        <SectionHeader
+          title="Order Summary"
+          description="Review totals and finalize payment details."
+          icon={
+            <SectionIcon tone="infoSoft">
+              <Calculator className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge variant="outline" size="xs">
           {itemCount} PIECES
         </Badge>

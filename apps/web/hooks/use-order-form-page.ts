@@ -9,7 +9,6 @@ import {
   Customer,
   DesignType,
   DiscountType,
-  Employee,
   FabricSource,
   GarmentType,
   UpdateOrderInput,
@@ -19,7 +18,6 @@ import { useToast } from "@/hooks/use-toast";
 import { orderSchema, type OrderFormValues } from "@/types/orders/schemas";
 import { configApi } from "@/lib/api/config";
 import { customerApi } from "@/lib/api/customers";
-import { employeesApi } from "@/lib/api/employees";
 import { designTypesApi } from "@/lib/api/design-types";
 import { ordersApi } from "@/lib/api/orders";
 import { useAuthz } from "@/hooks/use-authz";
@@ -54,13 +52,12 @@ export function useOrderFormPage() {
 
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [tailors, setTailors] = useState<Employee[]>([]);
   const [designTypes, setDesignTypes] = useState<DesignType[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<OrderFormValues>({
-    resolver: typedZodResolver<OrderFormValues>(orderSchema),
+    resolver: typedZodResolver(orderSchema),
     defaultValues: {
       customerId: "",
       dueDate: toDateInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
@@ -90,11 +87,10 @@ export function useOrderFormPage() {
     async function loadData() {
       setLoading(true);
       try {
-        const [garmentsResponse, customersResponse, employeesResponse, designTypesResponse] =
+        const [garmentsResponse, customersResponse, designTypesResponse] =
           await Promise.all([
             configApi.getGarmentTypes(),
             customerApi.getCustomers({ page: 1, limit: 100 }),
-            employeesApi.getEmployees({ limit: 100 }),
             designTypesApi.findAll(),
           ]);
 
@@ -108,17 +104,6 @@ export function useOrderFormPage() {
 
         if (customersResponse.success) {
           setCustomers(customersResponse.data.data || []);
-        }
-
-        if (employeesResponse.success) {
-          const employeeList = employeesResponse.data.data || [];
-          setTailors(
-            employeeList.filter(
-              (employee) =>
-                employee.designation?.toLowerCase().includes("tailor") ||
-                employee.designation?.toLowerCase().includes("master"),
-            ),
-          );
         }
 
         if (designTypesResponse.success) {
@@ -140,8 +125,6 @@ export function useOrderFormPage() {
           garmentTypeId: item.garmentTypeId,
           quantity: item.quantity,
           unitPrice: item.unitPrice / 100,
-          employeeId: item.employeeId || undefined,
-          employeeRate: item.employeeRate ? item.employeeRate / 100 : undefined,
           description: item.description || "",
           fabricSource: item.fabricSource || FabricSource.SHOP,
           designTypeId: item.designTypeId || undefined,
@@ -282,9 +265,6 @@ export function useOrderFormPage() {
       form.setValue(`items.${itemIndex}.unitPrice`, selectedGarment.customerPrice / 100, {
         shouldDirty: true,
       });
-      form.setValue(`items.${itemIndex}.employeeRate`, selectedGarment.employeeRate / 100, {
-        shouldDirty: true,
-      });
     },
     [form, garmentTypes],
   );
@@ -304,20 +284,17 @@ export function useOrderFormPage() {
       try {
         const mappedItems = values.items.map((item) => ({
           ...item,
-          unitPrice: Math.round(Number(item.unitPrice || 0) * 100),
-          employeeRate: item.employeeRate
-            ? Math.round(Number(item.employeeRate) * 100)
-            : undefined,
+          unitPrice: Number(item.unitPrice || 0),
           addons: item.addons?.map((addon) => ({
             ...addon,
-            price: Math.round(Number(addon.price || 0) * 100),
+            price: Number(addon.price || 0),
           })),
         }));
 
         const discountPayload = canManageDiscounts
           ? {
               discountType: values.discountType,
-              discountValue: Math.round(Number(values.discountValue || 0) * 100),
+              discountValue: Number(values.discountValue || 0),
             }
           : {};
 
@@ -344,7 +321,7 @@ export function useOrderFormPage() {
           dueDate: values.dueDate,
           notes: values.notes,
           items: mappedItems,
-          advancePayment: Math.round(Number(values.advancePayment || 0) * 100),
+          advancePayment: Number(values.advancePayment || 0),
           ...discountPayload,
         };
 
@@ -378,7 +355,6 @@ export function useOrderFormPage() {
     isEditMode,
     garmentTypes,
     customers,
-    tailors,
     totals,
     selectedCustomer,
     watchedDueDate,

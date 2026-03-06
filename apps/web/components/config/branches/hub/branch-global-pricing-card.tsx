@@ -3,9 +3,10 @@ import { Shirt } from "lucide-react";
 import { type BranchDetail } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 
@@ -24,12 +25,14 @@ export function BranchGlobalPricingCard({
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
-        <div className="flex items-center gap-2">
-          <SectionIcon>
-            <Shirt className="h-4 w-4" />
-          </SectionIcon>
-          <CardTitle variant="section">Global Pricing Model</CardTitle>
-        </div>
+        <SectionHeader
+          title="Global Pricing Model"
+          icon={
+            <SectionIcon>
+              <Shirt className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge variant="info" size="xs">
           Global
         </Badge>

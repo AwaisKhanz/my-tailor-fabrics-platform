@@ -16,7 +16,8 @@ import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Switch } from "@/components/ui/switch";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { Filter, Globe } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { configApi } from "@/lib/api/config";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -64,11 +65,10 @@ export function GarmentTypeDialog({
   }, [open]);
 
   const form = useForm<GarmentTypeFormValues>({
-    resolver: typedZodResolver<GarmentTypeFormValues>(garmentTypeSchema),
+    resolver: typedZodResolver(garmentTypeSchema),
     defaultValues: {
       name: "",
       customerPrice: 0,
-      employeeRate: 0,
       description: "",
       sortOrder: 0,
       isActive: true,
@@ -81,7 +81,6 @@ export function GarmentTypeDialog({
         name: initialData.name,
         description: initialData.description ?? "",
         customerPrice: initialData.customerPrice / 100,
-        employeeRate: initialData.employeeRate / 100,
         sortOrder: initialData.sortOrder,
         isActive: initialData.isActive,
         measurementCategoryIds:
@@ -93,7 +92,6 @@ export function GarmentTypeDialog({
         name: "",
         description: "",
         customerPrice: 0,
-        employeeRate: 0,
         sortOrder: 0,
         isActive: true,
         measurementCategoryIds: [],
@@ -104,11 +102,7 @@ export function GarmentTypeDialog({
   async function onSubmit(data: GarmentTypeFormValues) {
     setLoading(true);
     try {
-      const normalizedPayload = {
-        ...data,
-        customerPrice: Math.round(data.customerPrice * 100),
-        employeeRate: Math.round(data.employeeRate * 100),
-      };
+      const normalizedPayload = { ...data };
 
       if (initialData) {
         const payload: UpdateGarmentTypeInput = normalizedPayload;
@@ -190,9 +184,9 @@ export function GarmentTypeDialog({
                     Description (Optional)
                   </FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       variant="premium"
-                      className="h-9 text-sm"
+                      className="min-h-[92px] text-sm"
                       placeholder="e.g. Standard fitting"
                       {...field}
                     />
@@ -203,54 +197,28 @@ export function GarmentTypeDialog({
             />
           </div>
 
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-2">
-              <Globe className="h-3 w-3 text-text-secondary" />
-              <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">
-                Global Base Pricing
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="customerPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel variant="dashboard">Price (Rs)</FormLabel>
-                    <FormControl>
-                      <Input
-                        variant="premium"
-                        className="h-9"
-                        type="number"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="employeeRate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel variant="dashboard">Rate (Rs)</FormLabel>
-                    <FormControl>
-                      <Input
-                        variant="premium"
-                        className="h-9"
-                        type="number"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-3">
+            <FormField
+              control={form.control}
+              name="customerPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel variant="dashboard">Price (Rs)</FormLabel>
+                  <FormControl>
+                    <Input
+                      variant="premium"
+                      className="h-9"
+                      type="number"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <div className="space-y-3 pt-3 border-t border-divider">
+          <div className="space-y-3 pt-3">
             <div className="flex items-center gap-2">
               <Filter className="h-3 w-3 text-text-secondary" />
               <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">

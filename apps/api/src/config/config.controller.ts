@@ -34,7 +34,15 @@ import {
   OPERATOR_ROLES,
   SUPER_ADMIN_ONLY_ROLES,
 } from '@tbms/shared-constants';
-import { success, successOnly } from '../common/utils/response.util';
+import { success } from '../common/utils/response.util';
+
+function parseBooleanQueryFlag(value?: string): boolean {
+  if (!value) {
+    return false;
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized === '1' || normalized === 'true';
+}
 
 @Controller('config')
 export class ConfigController {
@@ -73,11 +81,13 @@ export class ConfigController {
   async getGarmentTypes(
     @Query() pagination: PaginationQueryDto,
     @Query('search') search?: string,
+    @Query('includeArchived') includeArchived?: string,
   ) {
     const data = await this.configService.getGarmentTypes({
       search,
       page: pagination.page ?? 1,
       limit: pagination.limit ?? 10,
+      includeArchived: parseBooleanQueryFlag(includeArchived),
     });
     return success(data);
   }
@@ -147,9 +157,37 @@ export class ConfigController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions('garments.manage')
   @Delete('garment-types/:id')
-  async deleteGarmentType(@Param('id') id: string) {
-    await this.configService.deleteGarmentType(id);
-    return successOnly();
+  async deleteGarmentType(
+    @Param('id') id: string,
+    @Query('preview') preview?: string,
+  ) {
+    const data = await this.configService.deleteGarmentType(
+      id,
+      parseBooleanQueryFlag(preview),
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('garments.manage')
+  @Put('garment-types/:id/restore')
+  async restoreGarmentType(@Param('id') id: string) {
+    const data = await this.configService.restoreGarmentType(id);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('garments.manage')
+  @Put('garment-types/:id/steps/:stepKey/restore')
+  async restoreGarmentWorkflowStep(
+    @Param('id') garmentTypeId: string,
+    @Param('stepKey') stepKey: string,
+  ) {
+    const data = await this.configService.restoreGarmentWorkflowStep(
+      garmentTypeId,
+      stepKey,
+    );
+    return success(data);
   }
 
   // --- Measurement Categories ---
@@ -159,11 +197,13 @@ export class ConfigController {
   async getMeasurementCategories(
     @Query() pagination: PaginationQueryDto,
     @Query('search') search?: string,
+    @Query('includeArchived') includeArchived?: string,
   ) {
     const data = await this.configService.getMeasurementCategories({
       search,
       page: pagination.page ?? 1,
       limit: pagination.limit ?? 10,
+      includeArchived: parseBooleanQueryFlag(includeArchived),
     });
     return success(data);
   }
@@ -171,8 +211,13 @@ export class ConfigController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions('measurements.read')
   @Get('measurement-categories/:id')
-  async getMeasurementCategory(@Param('id') id: string) {
-    const data = await this.configService.getMeasurementCategory(id);
+  async getMeasurementCategory(
+    @Param('id') id: string,
+    @Query('includeArchived') includeArchived?: string,
+  ) {
+    const data = await this.configService.getMeasurementCategory(id, {
+      includeArchived: parseBooleanQueryFlag(includeArchived),
+    });
     return success(data);
   }
 
@@ -231,8 +276,13 @@ export class ConfigController {
   async deleteMeasurementSection(
     @Param('id') sectionId: string,
     @Body() dto: DeleteMeasurementSectionDto,
+    @Query('preview') preview?: string,
   ) {
-    const data = await this.configService.deleteMeasurementSection(sectionId, dto);
+    const data = await this.configService.deleteMeasurementSection(
+      sectionId,
+      dto,
+      parseBooleanQueryFlag(preview),
+    );
     return success(data);
   }
 
@@ -259,21 +309,55 @@ export class ConfigController {
     return success(data);
   }
 
-  // Soft delete requested in PRD, but schema does not have deletedAt for measurement field,
-  // Using pure delete per PRD section "Soft delete field", maybe actually DELETE if schema lacks soft-delete?
   @Roles(...ADMIN_ROLES)
   @RequirePermissions('measurements.manage')
   @Delete('measurement-fields/:id')
-  async deleteMeasurementField(@Param('id') id: string) {
-    await this.configService.deleteMeasurementField(id);
-    return successOnly();
+  async deleteMeasurementField(
+    @Param('id') id: string,
+    @Query('preview') preview?: string,
+  ) {
+    const data = await this.configService.deleteMeasurementField(
+      id,
+      parseBooleanQueryFlag(preview),
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('measurements.manage')
+  @Put('measurement-fields/:id/restore')
+  async restoreMeasurementField(@Param('id') id: string) {
+    const data = await this.configService.restoreMeasurementField(id);
+    return success(data);
   }
 
   @Roles(...ADMIN_ROLES)
   @RequirePermissions('measurements.manage')
   @Delete('measurement-categories/:id')
-  async deleteMeasurementCategory(@Param('id') id: string) {
-    await this.configService.deleteMeasurementCategory(id);
-    return successOnly();
+  async deleteMeasurementCategory(
+    @Param('id') id: string,
+    @Query('preview') preview?: string,
+  ) {
+    const data = await this.configService.deleteMeasurementCategory(
+      id,
+      parseBooleanQueryFlag(preview),
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('measurements.manage')
+  @Put('measurement-categories/:id/restore')
+  async restoreMeasurementCategory(@Param('id') id: string) {
+    const data = await this.configService.restoreMeasurementCategory(id);
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('measurements.manage')
+  @Put('measurement-sections/:id/restore')
+  async restoreMeasurementSection(@Param('id') id: string) {
+    const data = await this.configService.restoreMeasurementSection(id);
+    return success(data);
   }
 }

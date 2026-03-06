@@ -1,11 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.integrationTestEmailFormSchema = exports.confirmPasswordSchema = exports.publicStatusPinSchema = exports.loginFormSchema = exports.garmentWorkflowStepsFormSchema = exports.workflowStepInputFormSchema = exports.employeeDocumentUploadFormSchema = exports.employeeLedgerEntryFormSchema = exports.attendanceClockInFormSchema = exports.taskRateOverrideFormSchema = exports.paymentDisbursementFormSchema = exports.orderPaymentFormSchema = exports.rateCardCreateFormSchema = exports.expenseCategoryFormSchema = exports.expenseCreateFormSchema = exports.userAccountUpdateFormSchema = exports.userAccountCreateFormSchema = exports.branchUpdateFormSchema = exports.branchCreateFormSchema = exports.designTypeFormSchema = exports.measurementFieldDialogFormSchema = exports.measurementCategorySchema = exports.measurementFieldSchema = exports.garmentTypeSchema = exports.orderSchema = exports.orderItemSchema = exports.accountCreationSchema = exports.accountSchema = exports.employeeSchema = exports.customerSchema = void 0;
+exports.integrationTestEmailFormSchema = exports.confirmPasswordSchema = exports.publicStatusPinSchema = exports.loginFormSchema = exports.garmentWorkflowStepsFormSchema = exports.workflowStepInputFormSchema = exports.employeeCompensationChangeFormSchema = exports.employeeCapabilitySnapshotFormSchema = exports.employeeCapabilityWindowInputSchema = exports.employeeDocumentUploadFormSchema = exports.employeeLedgerEntryFormSchema = exports.attendanceClockInFormSchema = exports.taskRateOverrideFormSchema = exports.salaryAccrualGenerationFormSchema = exports.paymentDisbursementFormSchema = exports.orderPaymentFormSchema = exports.rateCardCreateFormSchema = exports.expenseCategoryFormSchema = exports.expenseCreateFormSchema = exports.userAccountUpdateFormSchema = exports.userAccountCreateFormSchema = exports.branchUpdateFormSchema = exports.branchCreateFormSchema = exports.designTypeFormSchema = exports.measurementFieldDialogFormSchema = exports.measurementCategorySchema = exports.measurementFieldSchema = exports.garmentTypeSchema = exports.orderSchema = exports.orderItemSchema = exports.accountCreationSchema = exports.accountSchema = exports.employeeSchema = exports.customerSchema = void 0;
 exports.createMeasurementValuesFormSchema = createMeasurementValuesFormSchema;
 const zod_1 = require("zod");
 const common_1 = require("./common");
 const optionalTrimmedText = zod_1.z.string().trim().optional();
 const optionalEmail = zod_1.z.string().trim().email("Invalid email").optional().or(zod_1.z.literal(""));
+const optionalDateInput = zod_1.z.string().trim().optional().or(zod_1.z.literal(""));
+const optionalNumberInput = zod_1.z.preprocess((value) => {
+    if (value === "" || value === null || value === undefined) {
+        return undefined;
+    }
+    if (typeof value === "number") {
+        return value;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : value;
+}, zod_1.z.number().nonnegative("Amount cannot be negative").optional());
 exports.customerSchema = zod_1.z.object({
     fullName: zod_1.z.string().trim().min(2, "Name must be at least 2 characters"),
     phone: zod_1.z.string().trim().min(10, "Invalid phone number"),
@@ -17,20 +28,48 @@ exports.customerSchema = zod_1.z.object({
     status: zod_1.z.nativeEnum(common_1.CustomerStatus).default(common_1.CustomerStatus.ACTIVE),
     branchId: optionalTrimmedText,
 });
-exports.employeeSchema = zod_1.z.object({
+exports.employeeSchema = zod_1.z
+    .object({
     fullName: zod_1.z.string().trim().min(2, "Full name must be at least 2 characters"),
     phone: zod_1.z.string().trim().min(10, "Invalid phone number"),
     phone2: optionalTrimmedText,
     address: optionalTrimmedText,
     city: optionalTrimmedText,
-    designation: zod_1.z.string().trim().min(2, "Designation is required"),
+    designation: optionalTrimmedText,
     status: zod_1.z.nativeEnum(common_1.EmployeeStatus),
     paymentType: zod_1.z.nativeEnum(common_1.PaymentType),
+    monthlySalary: optionalNumberInput,
     dateOfJoining: zod_1.z.string().min(1, "Date of joining is required"),
-    dateOfBirth: optionalTrimmedText,
+    employmentEndDate: optionalDateInput,
+    dateOfBirth: optionalDateInput,
     emergencyName: optionalTrimmedText,
     emergencyPhone: optionalTrimmedText,
     branchId: optionalTrimmedText,
+})
+    .superRefine((value, ctx) => {
+    if (value.paymentType === common_1.PaymentType.MONTHLY_FIXED) {
+        if (value.monthlySalary === undefined || value.monthlySalary <= 0) {
+            ctx.addIssue({
+                code: zod_1.z.ZodIssueCode.custom,
+                path: ["monthlySalary"],
+                message: "Monthly salary is required for monthly payroll employees.",
+            });
+        }
+    }
+    if (!value.employmentEndDate) {
+        return;
+    }
+    const joiningDate = new Date(value.dateOfJoining);
+    const endDate = new Date(value.employmentEndDate);
+    if (!Number.isNaN(joiningDate.getTime()) &&
+        !Number.isNaN(endDate.getTime()) &&
+        endDate < joiningDate) {
+        ctx.addIssue({
+            code: zod_1.z.ZodIssueCode.custom,
+            path: ["employmentEndDate"],
+            message: "Employment end date cannot be before joining date.",
+        });
+    }
 });
 exports.accountSchema = zod_1.z.object({
     email: zod_1.z.string().trim().email("Invalid email address"),
@@ -52,8 +91,6 @@ exports.orderItemSchema = zod_1.z.object({
     garmentTypeId: zod_1.z.string().min(1, "Garment type is required"),
     quantity: zod_1.z.coerce.number().min(1, "Quantity must be at least 1"),
     unitPrice: zod_1.z.coerce.number().min(0, "Price must be at least 0"),
-    employeeId: zod_1.z.string().optional(),
-    employeeRate: zod_1.z.coerce.number().optional(),
     dueDate: zod_1.z.string().optional(),
     description: zod_1.z.string().optional(),
     fabricSource: zod_1.z.nativeEnum(common_1.FabricSource).default(common_1.FabricSource.SHOP),
@@ -78,7 +115,6 @@ exports.orderSchema = zod_1.z.object({
 exports.garmentTypeSchema = zod_1.z.object({
     name: zod_1.z.string().trim().min(2, "Name must be at least 2 characters"),
     customerPrice: zod_1.z.coerce.number().min(0, "Price cannot be negative"),
-    employeeRate: zod_1.z.coerce.number().min(0, "Rate cannot be negative"),
     description: zod_1.z.string().optional(),
     isActive: zod_1.z.boolean().default(true),
     sortOrder: zod_1.z.coerce.number().default(0),
@@ -238,6 +274,13 @@ exports.paymentDisbursementFormSchema = zod_1.z.object({
     amount: zod_1.z.coerce.number().positive("Please enter a valid positive amount."),
     note: optionalTrimmedText,
 });
+exports.salaryAccrualGenerationFormSchema = zod_1.z.object({
+    month: zod_1.z
+        .string()
+        .trim()
+        .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Select a valid payroll month."),
+    employeeId: optionalTrimmedText,
+});
 exports.taskRateOverrideFormSchema = zod_1.z.object({
     amount: zod_1.z.coerce.number().min(0, "Rate must be zero or greater."),
 });
@@ -253,6 +296,56 @@ exports.employeeLedgerEntryFormSchema = zod_1.z.object({
 exports.employeeDocumentUploadFormSchema = zod_1.z.object({
     label: zod_1.z.string().trim().min(1, "Document label is required."),
     url: zod_1.z.string().trim().url("Please enter a valid file URL."),
+});
+exports.employeeCapabilityWindowInputSchema = zod_1.z
+    .object({
+    garmentTypeId: optionalTrimmedText,
+    stepKey: optionalTrimmedText,
+    note: optionalTrimmedText,
+})
+    .superRefine((value, ctx) => {
+    if (!value.garmentTypeId && !value.stepKey) {
+        ctx.addIssue({
+            code: zod_1.z.ZodIssueCode.custom,
+            path: ["garmentTypeId"],
+            message: "Select a garment or provide a step key.",
+        });
+    }
+});
+exports.employeeCapabilitySnapshotFormSchema = zod_1.z.object({
+    effectiveFrom: zod_1.z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Effective date is required."),
+    note: optionalTrimmedText,
+    capabilities: zod_1.z.array(exports.employeeCapabilityWindowInputSchema),
+});
+exports.employeeCompensationChangeFormSchema = zod_1.z
+    .object({
+    paymentType: zod_1.z.nativeEnum(common_1.PaymentType),
+    monthlySalary: optionalNumberInput,
+    effectiveFrom: zod_1.z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Effective date is required."),
+    note: optionalTrimmedText,
+})
+    .superRefine((value, ctx) => {
+    if (value.paymentType === common_1.PaymentType.MONTHLY_FIXED &&
+        (value.monthlySalary === undefined || value.monthlySalary <= 0)) {
+        ctx.addIssue({
+            code: zod_1.z.ZodIssueCode.custom,
+            path: ["monthlySalary"],
+            message: "Monthly salary is required for monthly compensation.",
+        });
+    }
+    if (value.paymentType === common_1.PaymentType.PER_PIECE && value.monthlySalary !== undefined) {
+        ctx.addIssue({
+            code: zod_1.z.ZodIssueCode.custom,
+            path: ["monthlySalary"],
+            message: "Monthly salary is not allowed for per-piece compensation.",
+        });
+    }
 });
 exports.workflowStepInputFormSchema = zod_1.z.object({
     id: zod_1.z.string().optional(),

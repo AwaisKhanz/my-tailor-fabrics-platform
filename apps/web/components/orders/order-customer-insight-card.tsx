@@ -2,12 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { UserRound } from "lucide-react";
 import { Order, type MeasurementValues } from "@tbms/shared-types";
@@ -55,17 +54,16 @@ export function OrderCustomerInsightCard({
         density="comfortable"
         align="startResponsive"
       >
-        <div className="flex items-center gap-3">
-          <SectionIcon tone="infoSoft" size="lg">
-            <UserRound className="h-4 w-4 text-primary" />
-          </SectionIcon>
-          <div>
-            <CardTitle variant="dashboard">Customer Profile</CardTitle>
-            <CardDescription variant="header">
-              Contact details and saved measurements.
-            </CardDescription>
-          </div>
-        </div>
+        <SectionHeader
+          title="Customer Profile"
+          titleVariant="dashboard"
+          description="Contact details and saved measurements."
+          icon={
+            <SectionIcon tone="infoSoft" size="lg">
+              <UserRound className="h-4 w-4 text-primary" />
+            </SectionIcon>
+          }
+        />
         <Badge
           variant="outline"
           size="xs"

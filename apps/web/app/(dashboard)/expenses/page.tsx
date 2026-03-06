@@ -31,6 +31,8 @@ function ExpensesPage() {
     listedAmount,
     addOpen,
     form,
+    formError,
+    fieldErrors,
     saving,
     deleteTarget,
     deletingId,
@@ -117,6 +119,8 @@ function ExpensesPage() {
             categoriesLoading={categoriesLoading}
             categories={categories}
             form={form}
+            formError={formError}
+            fieldErrors={fieldErrors}
             onOpenChange={(open) => {
               if (open) {
                 openAddDialog();

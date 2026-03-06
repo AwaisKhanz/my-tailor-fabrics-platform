@@ -20,6 +20,11 @@ interface EmployeeDocumentUploadDialogProps {
   label: string;
   url: string;
   uploading: boolean;
+  fieldErrors: {
+    label?: string;
+    url?: string;
+  };
+  validationError: string;
   onLabelChange: (value: string) => void;
   onUrlChange: (value: string) => void;
   onSubmit: () => void;
@@ -31,6 +36,8 @@ export function EmployeeDocumentUploadDialog({
   label,
   url,
   uploading,
+  fieldErrors,
+  validationError,
   onLabelChange,
   onUrlChange,
   onSubmit,
@@ -54,6 +61,9 @@ export function EmployeeDocumentUploadDialog({
               onSubmit();
             }}
           >
+            {validationError ? (
+              <p className="text-sm text-destructive">{validationError}</p>
+            ) : null}
             <div className="space-y-1.5">
               <Label>Document Label</Label>
               <Input
@@ -61,6 +71,9 @@ export function EmployeeDocumentUploadDialog({
                 value={label}
                 onChange={(event) => onLabelChange(event.target.value)}
               />
+              {fieldErrors.label ? (
+                <p className="text-xs text-destructive">{fieldErrors.label}</p>
+              ) : null}
             </div>
             <div className="space-y-1.5">
               <Label>File URL</Label>
@@ -69,6 +82,9 @@ export function EmployeeDocumentUploadDialog({
                 value={url}
                 onChange={(event) => onUrlChange(event.target.value)}
               />
+              {fieldErrors.url ? (
+                <p className="text-xs text-destructive">{fieldErrors.url}</p>
+              ) : null}
             </div>
           </FormStack>
         </DialogSection>

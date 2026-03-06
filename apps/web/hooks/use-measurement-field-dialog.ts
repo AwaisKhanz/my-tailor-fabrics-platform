@@ -14,7 +14,6 @@ import {
 import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { typedZodResolver } from "@/lib/utils/form";
 
 export type FieldFormValues = MeasurementFieldDialogFormValues;
@@ -55,9 +54,7 @@ export function useMeasurementFieldDialog({
   const [newOption, setNewOption] = useState("");
 
   const form = useForm<FieldFormValues>({
-    resolver: typedZodResolver<FieldFormValues>(
-      measurementFieldDialogFormSchema,
-    ),
+    resolver: typedZodResolver(measurementFieldDialogFormSchema),
     defaultValues: DEFAULT_FORM_VALUES,
   });
 
@@ -144,26 +141,15 @@ export function useMeasurementFieldDialog({
         return;
       }
 
-      const parsedResult = measurementFieldDialogFormSchema.safeParse(values);
-      if (!parsedResult.success) {
-        toast({
-          title: "Validation error",
-          description: getFirstZodErrorMessage(parsedResult.error),
-          variant: "destructive",
-        });
-        return;
-      }
-      const validated = parsedResult.data;
-
       setLoading(true);
       try {
         const basePayload = {
-          ...validated,
-          sectionName: validated.sectionName.trim(),
-          unit: validated.unit || undefined,
+          ...values,
+          sectionName: values.sectionName.trim(),
+          unit: values.unit || undefined,
           dropdownOptions:
-            validated.fieldType === FieldType.DROPDOWN
-              ? validated.dropdownOptions
+            values.fieldType === FieldType.DROPDOWN
+              ? values.dropdownOptions
               : undefined,
         };
 

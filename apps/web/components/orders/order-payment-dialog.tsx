@@ -24,6 +24,11 @@ interface OrderPaymentDialogProps {
   amount: string;
   note: string;
   processing: boolean;
+  fieldErrors: {
+    amount?: string;
+    note?: string;
+  };
+  validationError: string;
   onAmountChange: (amount: string) => void;
   onNoteChange: (note: string) => void;
   onSubmit: () => void;
@@ -37,6 +42,8 @@ export function OrderPaymentDialog({
   amount,
   note,
   processing,
+  fieldErrors,
+  validationError,
   onAmountChange,
   onNoteChange,
   onSubmit,
@@ -61,6 +68,9 @@ export function OrderPaymentDialog({
               onSubmit();
             }}
           >
+            {validationError ? (
+              <p className="text-sm text-destructive">{validationError}</p>
+            ) : null}
             <InfoTile tone="pending" radius="xl" layout="between" padding="none" className="px-5 py-4">
               <span className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
                 Pending amount
@@ -83,6 +93,9 @@ export function OrderPaymentDialog({
                 onChange={(event) => onAmountChange(event.target.value)}
                 max={balanceDue / 100}
               />
+              {fieldErrors.amount ? (
+                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -96,6 +109,9 @@ export function OrderPaymentDialog({
                 value={note}
                 onChange={(event) => onNoteChange(event.target.value)}
               />
+              {fieldErrors.note ? (
+                <p className="text-xs text-destructive">{fieldErrors.note}</p>
+              ) : null}
             </div>
           </FormStack>
         </DialogSection>

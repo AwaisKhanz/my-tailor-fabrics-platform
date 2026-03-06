@@ -14,7 +14,6 @@ import { usersApi } from "@/lib/api/users";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
@@ -31,6 +30,7 @@ export interface UserFormState {
   role: Role;
   branchId: string;
 }
+type UserFieldErrors = Partial<Record<keyof UserFormState, string>>;
 
 export type UpdateUserFormField = <K extends keyof UserFormState>(
   field: K,
@@ -83,6 +83,8 @@ export function useUsersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserAccount | null>(null);
   const [form, setForm] = useState<UserFormState>(EMPTY_USER_FORM);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<UserFieldErrors>({});
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserAccount | null>(null);
@@ -145,6 +147,8 @@ export function useUsersPage() {
   const openCreateDialog = useCallback(() => {
     setEditingUser(null);
     setForm(EMPTY_USER_FORM);
+    setFieldErrors({});
+    setFormError("");
     setDialogOpen(true);
   }, []);
 
@@ -157,6 +161,8 @@ export function useUsersPage() {
       role: user.role,
       branchId: user.branchId ?? USERS_ALL_BRANCHES_VALUE,
     });
+    setFieldErrors({});
+    setFormError("");
     setDialogOpen(true);
   }, []);
 
@@ -165,6 +171,8 @@ export function useUsersPage() {
     if (!open) {
       setEditingUser(null);
       setForm(EMPTY_USER_FORM);
+      setFieldErrors({});
+      setFormError("");
     }
   }, []);
 
@@ -193,6 +201,8 @@ export function useUsersPage() {
   }, [resetValues]);
 
   const updateFormField = useCallback<UpdateUserFormField>((field, value) => {
+    setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
+    setFormError("");
     setForm((previous) => ({ ...previous, [field]: value }));
   }, []);
 
@@ -202,15 +212,28 @@ export function useUsersPage() {
       : userAccountCreateFormSchema.safeParse(form);
 
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setFieldErrors({
+        name: flattenedErrors.name?.[0],
+        email: flattenedErrors.email?.[0],
+        password: flattenedErrors.password?.[0],
+        role: flattenedErrors.role?.[0],
+        branchId: flattenedErrors.branchId?.[0],
       });
+      setFormError(
+        flattenedErrors.name?.[0] ??
+          flattenedErrors.email?.[0] ??
+          flattenedErrors.password?.[0] ??
+          flattenedErrors.role?.[0] ??
+          flattenedErrors.branchId?.[0] ??
+          "Fix the highlighted fields and try again.",
+      );
       return;
     }
 
     const validated = parsedResult.data;
+    setFieldErrors({});
+    setFormError("");
 
     setSaving(true);
     try {
@@ -306,6 +329,8 @@ export function useUsersPage() {
     dialogOpen,
     editingUser,
     form,
+    formError,
+    fieldErrors,
     isConfirmOpen,
     userToDelete,
     setSearchFilter,

@@ -3,12 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import {
   Select,
@@ -38,17 +37,15 @@ export function PaymentsEmployeeSelectorCard({
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
-        <div className="flex items-center gap-3">
-          <SectionIcon size="lg">
-            <UserRound className="h-4 w-4" />
-          </SectionIcon>
-          <div>
-            <CardTitle variant="section">Employee Scope</CardTitle>
-            <CardDescription variant="header">
-              Select an employee to load payroll summary and ledger.
-            </CardDescription>
-          </div>
-        </div>
+        <SectionHeader
+          title="Employee Scope"
+          description="Select an employee to load payroll summary and ledger."
+          icon={
+            <SectionIcon size="lg">
+              <UserRound className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge variant="secondary" size="xs">
           {employees.length} employees
         </Badge>

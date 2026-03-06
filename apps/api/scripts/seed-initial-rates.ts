@@ -1,6 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { RATE_SPLIT_HINTS } from '@tbms/shared-constants';
-import type { StepKey } from '@tbms/shared-constants';
 
 const prisma = new PrismaClient();
 
@@ -8,97 +6,58 @@ async function main() {
   console.log('Starting RateCard seeding...');
 
   // Find the admin user to use as createdById for seeded rate cards
-  const adminUser = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' }, orderBy: { createdAt: 'asc' } });
-  if (!adminUser) throw new Error('No SUPER_ADMIN user found. Please seed users first.');
+  const adminUser = await prisma.user.findFirst({
+    where: { role: 'SUPER_ADMIN' },
+    orderBy: { createdAt: 'asc' },
+  });
+  if (!adminUser)
+    throw new Error('No SUPER_ADMIN user found. Please seed users first.');
 
   const garmentTypes = await prisma.garmentType.findMany({
-    include: { workflowSteps: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } }
+    include: {
+      workflowSteps: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } },
+    },
   });
 
-  for (const gt of garmentTypes) {
-    if (gt.workflowSteps.length === 0) {
-      console.log(`Skipping ${gt.name} - no active workflow steps.`);
+  for (const garmentType of garmentTypes) {
+    if (garmentType.workflowSteps.length === 0) {
+      console.log(`Skipping ${garmentType.name} - no active workflow steps.`);
       continue;
     }
 
-    console.log(`Processing ${gt.name}...`);
+    console.log(`Processing ${garmentType.name}...`);
 
-    // Split employee rate proportionally using shared hints:
-    // CUTTING: 20%, STITCHING: 60%, PRESSING: 10%, others: split remainder
-    const steps = gt.workflowSteps;
-    const totalRate = gt.employeeRate;
-
-    let consumedRate = 0;
-    const rates: { stepKey: string; stepName: string; amount: number; stepTemplateId: string }[] = [];
-
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i];
-      let stepRate = 0;
-
-      if (steps.length === 1) {
-        stepRate = totalRate;
-      } else {
-        const key = step.stepKey.toUpperCase() as StepKey;
-        const rateHint = RATE_SPLIT_HINTS[key];
-        if (typeof rateHint === 'number') {
-          stepRate = Math.floor(totalRate * rateHint);
-        } else {
-          const remainingSteps = steps.length - 1 - i;
-          const available = totalRate - consumedRate;
-          stepRate = Math.floor(available / (remainingSteps + 1));
-        }
-      }
-
-      // Safeguard: last step takes the remainder
-      if (i === steps.length - 1) {
-        stepRate = totalRate - consumedRate;
-      }
-
-      if (stepRate < 0) stepRate = 0;
-      consumedRate += stepRate;
-
-      rates.push({
-        stepKey: step.stepKey,
-        stepName: step.stepName,
-        amount: stepRate,
-        stepTemplateId: step.id
-      });
-    }
-
-    // Upsert Global RateCards
-    for (const r of rates) {
+    // Ensure every active workflow step has one global open rate row.
+    // Placeholder amounts start at 0 and can be updated from the rates UI.
+    for (const step of garmentType.workflowSteps) {
       const existing = await prisma.rateCard.findFirst({
         where: {
           branchId: null,
-          garmentTypeId: gt.id,
-          stepKey: r.stepKey,
+          garmentTypeId: garmentType.id,
+          stepKey: step.stepKey,
           effectiveTo: null,
-          deletedAt: null
-        }
+          deletedAt: null,
+        },
       });
 
       if (existing) {
-        if (existing.amount !== r.amount) {
-          console.log(`Updating rate for ${gt.name} ${r.stepKey}: ${existing.amount} -> ${r.amount}`);
-          await prisma.rateCard.update({
-            where: { id: existing.id },
-            data: { amount: r.amount }
-          });
-        }
-      } else {
-        console.log(`Creating rate for ${gt.name} ${r.stepKey}: ${r.amount}`);
-        await prisma.rateCard.create({
-          data: {
-            branchId: null,
-            garmentTypeId: gt.id,
-            stepKey: r.stepKey,
-            amount: r.amount,
-            stepTemplateId: r.stepTemplateId,
-            createdById: adminUser.id,
-            effectiveFrom: new Date('2024-01-01')
-          }
-        });
+        continue;
       }
+
+      console.log(
+        `Creating placeholder rate for ${garmentType.name} ${step.stepKey}: 0`,
+      );
+      await prisma.rateCard.create({
+        data: {
+          branchId: null,
+          garmentTypeId: garmentType.id,
+          stepKey: step.stepKey,
+          amount: 0,
+          stepTemplateId: step.id,
+          createdById: adminUser.id,
+          effectiveFrom: new Date('2024-01-01'),
+        },
+      });
     }
   }
 
@@ -106,8 +65,8 @@ async function main() {
 }
 
 main()
-  .catch(e => {
-    console.error(e);
+  .catch((error) => {
+    console.error(error);
     process.exit(1);
   })
   .finally(async () => {

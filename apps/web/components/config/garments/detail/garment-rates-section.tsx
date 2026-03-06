@@ -5,14 +5,8 @@ import {
   type GarmentTypeWithAnalytics,
 } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
 import { RatesList } from "@/components/rates/RatesList";
@@ -34,30 +28,25 @@ export function GarmentRatesSection({
   onCreateRate,
   canManageRates = true,
 }: GarmentRatesSectionProps) {
-  const activeRatesCount = garment.rateCards?.length ?? 0;
-
   return (
     <>
       <Card variant="elevatedPanel">
-        <CardHeader variant="rowSection" align="startResponsive" gap="sm">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
+        <CardHeader variant="rowSection" align="start" gap="sm">
+          <SectionHeader
+            title="Production Rates (Step-based)"
+            description="Define how much tailors are paid for each step of this garment."
+            descriptionVariant="compact"
+            icon={
               <SectionIcon tone="primary">
                 <Banknote className="h-4 w-4" />
               </SectionIcon>
-              <CardTitle variant="section">
-                Production Rates (Step-based)
-              </CardTitle>
-            </div>
-            <CardDescription variant="compact">
-              Define how much tailors are paid for each step of this garment.
-            </CardDescription>
-          </div>
+            }
+          />
 
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
-            <Badge variant="secondary" size="xs">
+            {/* <Badge variant="secondary" size="xs">
               {activeRatesCount} active rate{activeRatesCount === 1 ? "" : "s"}
-            </Badge>
+            </Badge> */}
             {canManageRates ? (
               <Button
                 variant="outline"

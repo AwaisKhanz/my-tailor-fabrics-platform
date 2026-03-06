@@ -15,14 +15,8 @@ import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
-interface EmployeeOption {
-  id: string;
-  fullName: string;
-}
-
 interface OrderItemsTableProps {
   items: OrderItem[];
-  employees: EmployeeOption[];
   onManageTasks: (item: OrderItem) => void;
   canManageTasks?: boolean;
 }
@@ -38,7 +32,6 @@ function formatShortDate(value: string) {
 
 export function OrderItemsTable({
   items,
-  employees,
   onManageTasks,
   canManageTasks = true,
 }: OrderItemsTableProps) {
@@ -69,12 +62,6 @@ export function OrderItemsTable({
     const start = (page - 1) * pageSize;
     return items.slice(start, start + pageSize);
   }, [items, page, pageSize]);
-
-  const employeeMap = useMemo(
-    () =>
-      new Map(employees.map((employee) => [employee.id, employee.fullName])),
-    [employees],
-  );
 
   const summary = useMemo(() => {
     const completed = items.filter(
@@ -116,9 +103,9 @@ export function OrderItemsTable({
       ),
     },
     {
-      header: "Assignment",
+      header: "Workflow",
       cell: (item) => {
-        if (canManageTasks && item.tasks && item.tasks.length > 0) {
+        if (item.tasks && item.tasks.length > 0 && canManageTasks) {
           return (
             <Button
               variant="tablePrimary"
@@ -131,13 +118,11 @@ export function OrderItemsTable({
           );
         }
 
-        const employeeName = item.employeeId
-          ? (employeeMap.get(item.employeeId) ?? "Assigned")
-          : "Unassigned";
-
         return (
           <span className="text-xs font-medium text-text-secondary">
-            {employeeName}
+            {item.tasks && item.tasks.length > 0
+              ? "No permission to manage"
+              : "No workflow steps"}
           </span>
         );
       },

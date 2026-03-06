@@ -23,16 +23,18 @@ export function TaskAssignmentDialog({
 }: TaskAssignmentDialogProps) {
   const {
     tasks,
+    eligibleEmployeesByTask,
     loadingId,
     editingRateId,
     tempRate,
+    rateValidationError,
     setTempRate,
     handleAssign,
     handleStatusChange,
     startRateEdit,
     cancelRateEdit,
     updateTaskRate,
-  } = useTaskAssignmentDialog(orderItem, onSuccess);
+  } = useTaskAssignmentDialog(orderItem, employees, onSuccess);
 
   if (!orderItem) {
     return null;
@@ -59,9 +61,11 @@ export function TaskAssignmentDialog({
       <TaskAssignmentTable
         tasks={tasks}
         employees={employees}
+        eligibleEmployeesByTask={eligibleEmployeesByTask}
         loadingId={loadingId}
         editingRateId={editingRateId}
         tempRate={tempRate}
+        rateValidationError={rateValidationError}
         onTempRateChange={setTempRate}
         onAssign={handleAssign}
         onStatusChange={handleStatusChange}

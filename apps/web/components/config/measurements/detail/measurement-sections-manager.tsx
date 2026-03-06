@@ -19,10 +19,12 @@ interface MeasurementSectionsManagerProps {
   sections: MeasurementSection[];
   fields: MeasurementField[];
   loading?: boolean;
+  showArchived?: boolean;
   canManageSections?: boolean;
   onAddSection: () => void;
   onEditSection: (section: MeasurementSection) => void;
   onDeleteSection: (section: MeasurementSection) => void;
+  onRestoreSection?: (section: MeasurementSection) => void;
   onAddFieldToSection: (sectionId: string) => void;
 }
 
@@ -39,10 +41,12 @@ export function MeasurementSectionsManager({
   sections,
   fields,
   loading = false,
+  showArchived = false,
   canManageSections = true,
   onAddSection,
   onEditSection,
   onDeleteSection,
+  onRestoreSection,
   onAddFieldToSection,
 }: MeasurementSectionsManagerProps) {
   const { values, setValues, getPositiveInt } = useUrlTableState({
@@ -61,7 +65,14 @@ export function MeasurementSectionsManager({
   const rows = useMemo<SectionRow[]>(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
-    const sortedSections = [...sections].sort((left, right) => {
+    const visibleSections = showArchived
+      ? sections
+      : sections.filter((section) => !section.deletedAt);
+    const visibleFields = showArchived
+      ? fields
+      : fields.filter((field) => !field.deletedAt);
+
+    const sortedSections = [...visibleSections].sort((left, right) => {
       if (left.sortOrder !== right.sortOrder) {
         return left.sortOrder - right.sortOrder;
       }
@@ -74,7 +85,9 @@ export function MeasurementSectionsManager({
           return true;
         }
 
-        const sectionFields = fields.filter((field) => field.sectionId === section.id);
+        const sectionFields = visibleFields.filter(
+          (field) => field.sectionId === section.id,
+        );
         const haystack = [
           section.name,
           String(section.sortOrder),
@@ -86,7 +99,9 @@ export function MeasurementSectionsManager({
         return haystack.includes(normalizedSearch);
       })
       .map((section) => {
-        const sectionFields = fields.filter((field) => field.sectionId === section.id);
+        const sectionFields = visibleFields.filter(
+          (field) => field.sectionId === section.id,
+        );
         const requiredCount = sectionFields.filter((field) => field.isRequired).length;
 
         return {
@@ -96,7 +111,7 @@ export function MeasurementSectionsManager({
           requiredCount,
         };
       });
-  }, [fields, search, sections]);
+  }, [fields, search, sections, showArchived]);
 
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -181,30 +196,56 @@ export function MeasurementSectionsManager({
           <div className="flex items-center justify-end gap-1.5">
             {canManageSections ? (
               <>
-                <Button
-                  variant="tablePrimary"
-                  size="sm"
-                  onClick={() => onAddFieldToSection(row.section.id)}
-                >
-                  <FolderPlus className="h-4 w-4" />
-                  Add Field
-                </Button>
-                <Button
-                  variant="tableIcon"
-                  size="iconSm"
-                  onClick={() => onEditSection(row.section)}
-                  aria-label={`Edit section ${row.section.name}`}
-                >
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="tableDanger"
-                  size="iconSm"
-                  onClick={() => onDeleteSection(row.section)}
-                  aria-label={`Delete section ${row.section.name}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                {row.section.deletedAt ? (
+                  onRestoreSection ? (
+                    <Button
+                      variant="tablePrimary"
+                      size="sm"
+                      onClick={() => onRestoreSection(row.section)}
+                      aria-label={`Restore section ${row.section.name}`}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Restore
+                    </Button>
+                  ) : null
+                ) : (
+                  <>
+                    <Button
+                      variant="tablePrimary"
+                      size="sm"
+                      onClick={() => onAddFieldToSection(row.section.id)}
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                      Add Field
+                    </Button>
+                    <Button
+                      variant="tableIcon"
+                      size="iconSm"
+                      onClick={() => onEditSection(row.section)}
+                      aria-label={`Edit section ${row.section.name}`}
+                    >
+                      <PencilLine className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="tableDanger"
+                      size="iconSm"
+                      onClick={() => onDeleteSection(row.section)}
+                      aria-label={`Delete section ${row.section.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+                {row.section.deletedAt ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled
+                    aria-label={`Section ${row.section.name} is archived`}
+                  >
+                    Archived
+                  </Button>
+                ) : null}
               </>
             ) : (
               <span className="text-xs font-medium text-text-secondary">Read only</span>
@@ -213,7 +254,13 @@ export function MeasurementSectionsManager({
         ),
       },
     ],
-    [canManageSections, onAddFieldToSection, onDeleteSection, onEditSection],
+    [
+      canManageSections,
+      onAddFieldToSection,
+      onDeleteSection,
+      onEditSection,
+      onRestoreSection,
+    ],
   );
 
   return (

@@ -8,5 +8,6 @@ import { LedgerModule } from '../ledger/ledger.module';
   imports: [SearchModule, LedgerModule],
   providers: [EmployeesService],
   controllers: [EmployeesController],
+  exports: [EmployeesService],
 })
 export class EmployeesModule {}

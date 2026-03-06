@@ -10,7 +10,11 @@ import {
   Res,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { DisbursePaymentDto } from './dto/payment.dto';
+import {
+  DisbursePaymentDto,
+  GenerateSalaryAccrualsDto,
+  ReversePaymentDto,
+} from './dto/payment.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
@@ -19,12 +23,14 @@ import { success } from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 import { WeeklyPdfService } from './weekly-pdf.service';
+import { SalaryAccrualService } from './salary-accrual.service';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(
     private readonly paymentsService: PaymentsService,
     private readonly weeklyPdfService: WeeklyPdfService,
+    private readonly salaryAccrualService: SalaryAccrualService,
   ) {}
 
   @Roles(...ADMIN_ROLES)
@@ -55,6 +61,40 @@ export class PaymentsController {
       requireBranchScope(req),
       dto.note,
     );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.manage')
+  @Post(':id/reverse')
+  async reversePayment(
+    @Param('id') id: string,
+    @Body() dto: ReversePaymentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.paymentsService.reversePayment(
+      id,
+      req.user.userId,
+      req.branchId,
+      dto.note,
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('payments.manage')
+  @Post('salary-accruals/generate')
+  async generateSalaryAccruals(
+    @Body() dto: GenerateSalaryAccrualsDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.salaryAccrualService.generateForMonth({
+      branchId: requireBranchScope(req),
+      month: dto.month,
+      employeeId: dto.employeeId,
+      generatedById: req.user.userId,
+      source: 'MANUAL',
+    });
     return success(data);
   }
 

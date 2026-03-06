@@ -19,11 +19,13 @@ export declare const employeeSchema: z.ZodObject<{
     phone2: z.ZodOptional<z.ZodString>;
     address: z.ZodOptional<z.ZodString>;
     city: z.ZodOptional<z.ZodString>;
-    designation: z.ZodString;
+    designation: z.ZodOptional<z.ZodString>;
     status: z.ZodEnum<typeof EmployeeStatus>;
     paymentType: z.ZodEnum<typeof PaymentType>;
+    monthlySalary: z.ZodPipe<z.ZodTransform<{} | undefined, unknown>, z.ZodOptional<z.ZodNumber>>;
     dateOfJoining: z.ZodString;
-    dateOfBirth: z.ZodOptional<z.ZodString>;
+    employmentEndDate: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
+    dateOfBirth: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
     emergencyName: z.ZodOptional<z.ZodString>;
     emergencyPhone: z.ZodOptional<z.ZodString>;
     branchId: z.ZodOptional<z.ZodString>;
@@ -46,8 +48,6 @@ export declare const orderItemSchema: z.ZodObject<{
     garmentTypeId: z.ZodString;
     quantity: z.ZodCoercedNumber<unknown>;
     unitPrice: z.ZodCoercedNumber<unknown>;
-    employeeId: z.ZodOptional<z.ZodString>;
-    employeeRate: z.ZodOptional<z.ZodCoercedNumber<unknown>>;
     dueDate: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodString>;
     fabricSource: z.ZodDefault<z.ZodEnum<typeof FabricSource>>;
@@ -67,8 +67,6 @@ export declare const orderSchema: z.ZodObject<{
         garmentTypeId: z.ZodString;
         quantity: z.ZodCoercedNumber<unknown>;
         unitPrice: z.ZodCoercedNumber<unknown>;
-        employeeId: z.ZodOptional<z.ZodString>;
-        employeeRate: z.ZodOptional<z.ZodCoercedNumber<unknown>>;
         dueDate: z.ZodOptional<z.ZodString>;
         description: z.ZodOptional<z.ZodString>;
         fabricSource: z.ZodDefault<z.ZodEnum<typeof FabricSource>>;
@@ -88,7 +86,6 @@ export type OrderFormValues = z.infer<typeof orderSchema>;
 export declare const garmentTypeSchema: z.ZodObject<{
     name: z.ZodString;
     customerPrice: z.ZodCoercedNumber<unknown>;
-    employeeRate: z.ZodCoercedNumber<unknown>;
     description: z.ZodOptional<z.ZodString>;
     isActive: z.ZodDefault<z.ZodBoolean>;
     sortOrder: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
@@ -213,6 +210,12 @@ export declare const paymentDisbursementFormSchema: z.ZodObject<{
 }, z.core.$strip>;
 export type PaymentDisbursementFormValues = z.infer<typeof paymentDisbursementFormSchema>;
 export type PaymentDisbursementFormInput = z.input<typeof paymentDisbursementFormSchema>;
+export declare const salaryAccrualGenerationFormSchema: z.ZodObject<{
+    month: z.ZodString;
+    employeeId: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+export type SalaryAccrualGenerationFormValues = z.infer<typeof salaryAccrualGenerationFormSchema>;
+export type SalaryAccrualGenerationFormInput = z.input<typeof salaryAccrualGenerationFormSchema>;
 export declare const taskRateOverrideFormSchema: z.ZodObject<{
     amount: z.ZodCoercedNumber<unknown>;
 }, z.core.$strip>;
@@ -237,6 +240,30 @@ export declare const employeeDocumentUploadFormSchema: z.ZodObject<{
 }, z.core.$strip>;
 export type EmployeeDocumentUploadFormValues = z.infer<typeof employeeDocumentUploadFormSchema>;
 export type EmployeeDocumentUploadFormInput = z.input<typeof employeeDocumentUploadFormSchema>;
+export declare const employeeCapabilityWindowInputSchema: z.ZodObject<{
+    garmentTypeId: z.ZodOptional<z.ZodString>;
+    stepKey: z.ZodOptional<z.ZodString>;
+    note: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+export declare const employeeCapabilitySnapshotFormSchema: z.ZodObject<{
+    effectiveFrom: z.ZodString;
+    note: z.ZodOptional<z.ZodString>;
+    capabilities: z.ZodArray<z.ZodObject<{
+        garmentTypeId: z.ZodOptional<z.ZodString>;
+        stepKey: z.ZodOptional<z.ZodString>;
+        note: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>>;
+}, z.core.$strip>;
+export type EmployeeCapabilitySnapshotFormValues = z.infer<typeof employeeCapabilitySnapshotFormSchema>;
+export type EmployeeCapabilitySnapshotFormInput = z.input<typeof employeeCapabilitySnapshotFormSchema>;
+export declare const employeeCompensationChangeFormSchema: z.ZodObject<{
+    paymentType: z.ZodEnum<typeof PaymentType>;
+    monthlySalary: z.ZodPipe<z.ZodTransform<{} | undefined, unknown>, z.ZodOptional<z.ZodNumber>>;
+    effectiveFrom: z.ZodString;
+    note: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>;
+export type EmployeeCompensationChangeFormValues = z.infer<typeof employeeCompensationChangeFormSchema>;
+export type EmployeeCompensationChangeFormInput = z.input<typeof employeeCompensationChangeFormSchema>;
 export declare const workflowStepInputFormSchema: z.ZodObject<{
     id: z.ZodOptional<z.ZodString>;
     stepKey: z.ZodString;

@@ -16,6 +16,7 @@ import {
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import {
   Select,
@@ -32,6 +33,8 @@ interface ExpenseCreateDialogProps {
   categoriesLoading: boolean;
   categories: ExpenseCategory[];
   form: ExpenseFormState;
+  formError: string;
+  fieldErrors: Partial<Record<keyof ExpenseFormState, string>>;
   onOpenChange: (open: boolean) => void;
   onFormChange: <K extends keyof ExpenseFormState>(
     field: K,
@@ -46,6 +49,8 @@ export function ExpenseCreateDialog({
   categoriesLoading,
   categories,
   form,
+  formError,
+  fieldErrors,
   onOpenChange,
   onFormChange,
   onSubmit,
@@ -80,6 +85,10 @@ export function ExpenseCreateDialog({
               </Typography>
             </InfoTile>
 
+            {formError ? (
+              <p className="text-sm text-destructive">{formError}</p>
+            ) : null}
+
             <div className="space-y-2">
               <Label variant="dashboard">
                 Category <span className="text-error">*</span>
@@ -104,6 +113,11 @@ export function ExpenseCreateDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {fieldErrors.categoryId ? (
+                <p className="text-xs text-destructive">
+                  {fieldErrors.categoryId}
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -119,6 +133,9 @@ export function ExpenseCreateDialog({
                 onChange={(event) => onFormChange("amount", event.target.value)}
                 min="1"
               />
+              {fieldErrors.amount ? (
+                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -132,17 +149,27 @@ export function ExpenseCreateDialog({
                 value={form.expenseDate}
                 onChange={(event) => onFormChange("expenseDate", event.target.value)}
               />
+              {fieldErrors.expenseDate ? (
+                <p className="text-xs text-destructive">
+                  {fieldErrors.expenseDate}
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <Label variant="dashboard">Description</Label>
-              <Input
+              <Textarea
                 variant="premium"
                 placeholder="What was this for?"
-                className="h-11"
+                className="min-h-[96px] resize-y"
                 value={form.description}
                 onChange={(event) => onFormChange("description", event.target.value)}
               />
+              {fieldErrors.description ? (
+                <p className="text-xs text-destructive">
+                  {fieldErrors.description}
+                </p>
+              ) : null}
             </div>
           </FormStack>
         </DialogSection>

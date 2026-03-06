@@ -27,11 +27,14 @@ function RatesPage() {
     garmentTypes,
     branches,
     createDialogOpen,
+    selectedRateForAdjust,
     stepKeysByGarmentId,
     setPage,
     setSearchFilter,
     clearSearch,
     setCreateDialogOpen,
+    openCreateRateDialog,
+    openAdjustRateDialog,
     createRate,
   } = useRatesPage();
 
@@ -39,7 +42,7 @@ function RatesPage() {
     <PageShell>
       <PageSection spacing="compact">
         <RatesPageHeader
-          onCreate={() => setCreateDialogOpen(true)}
+          onCreate={openCreateRateDialog}
           canCreateRate={canManageRates}
         />
       </PageSection>
@@ -68,6 +71,7 @@ function RatesPage() {
             total={total}
             pageSize={pageSize}
             onPageChange={setPage}
+            onAdjustRate={canManageRates ? openAdjustRateDialog : undefined}
           />
         </TableSurface>
       </PageSection>
@@ -80,6 +84,8 @@ function RatesPage() {
           garmentTypes={garmentTypes.map((garment) => ({ id: garment.id, name: garment.name }))}
           branches={branches.map((branch) => ({ id: branch.id, name: branch.name, code: branch.code }))}
           stepsByGarmentTypeId={stepKeysByGarmentId}
+          mode={selectedRateForAdjust ? "adjust" : "create"}
+          initialRate={selectedRateForAdjust}
         />
       ) : null}
     </PageShell>

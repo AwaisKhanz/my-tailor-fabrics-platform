@@ -54,10 +54,6 @@ export class UpdateOrderItemDto {
   @IsOptional()
   fabricSource?: FabricSource;
 
-  @IsString()
-  @IsOptional()
-  employeeId?: string;
-
   @IsDateString()
   @IsOptional()
   dueDate?: string;
@@ -76,21 +72,12 @@ export class UpdateOrderItemDto {
   @Min(0)
   @IsOptional()
   unitPrice?: number;
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  employeeRate?: number;
 }
 
 export class UpdateOrderItemAssignmentDto {
   @IsEnum(ItemStatus)
   @IsOptional()
   status?: ItemStatus;
-
-  @IsString()
-  @IsOptional()
-  employeeId?: string;
 }
 
 export class UpdateOrderDto {

@@ -4,6 +4,7 @@ export interface MeasurementSection {
     name: string;
     sortOrder: number;
     categoryId: string;
+    deletedAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
@@ -17,6 +18,7 @@ export interface MeasurementField {
     dropdownOptions: string[];
     sectionId?: string | null;
     section?: MeasurementSection | null;
+    deletedAt?: Date | string | null;
 }
 export interface CreateMeasurementFieldInput {
     label: string;
@@ -54,6 +56,7 @@ export interface MeasurementCategory {
     name: string;
     sortOrder: number;
     isActive: boolean;
+    deletedAt?: Date | string | null;
     fields: MeasurementField[];
     sections: MeasurementSection[];
     createdAt: Date | string;
@@ -70,6 +73,30 @@ export interface UpdateMeasurementSectionInput {
 export interface DeleteMeasurementSectionInput {
     targetSectionId?: string;
 }
+export interface LifecycleBlockedReason {
+    code: string;
+    message: string;
+}
+export interface LifecycleImpactSummary {
+    blocked: boolean;
+    action: 'ARCHIVE' | 'RESTORE' | 'REVERSE';
+    blockedReasons: LifecycleBlockedReason[];
+    affected: Record<string, number>;
+}
+export interface DeleteMeasurementSectionResult extends LifecycleImpactSummary {
+    deletedSectionId: string;
+    movedFieldCount: number;
+    targetSectionId: string | null;
+}
+export interface ArchiveMeasurementFieldResult extends LifecycleImpactSummary {
+    archivedFieldId: string;
+}
+export interface ArchiveMeasurementCategoryResult extends LifecycleImpactSummary {
+    archivedCategoryId: string;
+}
+export interface ArchiveGarmentTypeResult extends LifecycleImpactSummary {
+    archivedGarmentTypeId: string;
+}
 export interface MeasurementStats {
     totalCategories: number;
     activeCategories: number;
@@ -80,16 +107,17 @@ export interface MeasurementCategoryListQueryInput {
     search?: string;
     page?: number;
     limit?: number;
+    includeArchived?: boolean;
 }
 export type MeasurementCategoryListResult = PaginatedResponse<MeasurementCategory>;
 export interface GarmentType {
     id: string;
     name: string;
     customerPrice: number;
-    employeeRate: number;
     description?: string | null;
     sortOrder: number;
     isActive: boolean;
+    deletedAt?: Date | string | null;
     createdAt: Date | string;
     updatedAt: Date | string;
     measurementCategories?: MeasurementCategory[];
@@ -98,7 +126,6 @@ export interface GarmentType {
 export interface CreateGarmentTypeInput {
     name: string;
     customerPrice: number;
-    employeeRate: number;
     description?: string;
     sortOrder?: number;
     isActive?: boolean;
@@ -110,15 +137,14 @@ export interface GarmentTypeListQueryInput {
     search?: string;
     page?: number;
     limit?: number;
+    includeArchived?: boolean;
 }
 export type GarmentTypeListResult = PaginatedResponse<GarmentType>;
 export interface GarmentPriceLog {
     id: string;
     action: string;
     oldCustomerPrice: number | null;
-    oldEmployeeRate: number | null;
     newCustomerPrice: number | null;
-    newEmployeeRate: number | null;
     createdAt: Date | string;
     changedBy: {
         name: string;

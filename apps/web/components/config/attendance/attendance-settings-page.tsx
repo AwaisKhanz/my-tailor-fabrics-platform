@@ -30,10 +30,10 @@ import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import { SectionHeader } from "@/components/ui/section-header";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
 import {
@@ -61,6 +61,8 @@ export function AttendanceSettingsPage() {
     clockInNote,
     clockingIn,
     clockingOutId,
+    clockInFieldErrors,
+    clockInValidationError,
     setPage,
     applyEmployeeFilter,
     resetFilters,
@@ -228,14 +230,16 @@ export function AttendanceSettingsPage() {
       {canManageAttendanceEntries ? (
         <PageSection spacing="compact">
           <Card variant="elevatedPanel">
-            <CardHeader variant="section" className="space-y-1">
-              <CardTitle variant="section" className="flex items-center gap-2">
-                <UserCheck className="h-4 w-4 text-primary" />
-                Quick Clock-In
-              </CardTitle>
-              <CardDescription>
-                Record an employee shift start directly from admin settings.
-              </CardDescription>
+            <CardHeader variant="section">
+              <SectionHeader
+                title="Quick Clock-In"
+                description="Record an employee shift start directly from admin settings."
+                icon={
+                  <SectionIcon size="sm">
+                    <UserCheck className="h-4 w-4" />
+                  </SectionIcon>
+                }
+              />
             </CardHeader>
             <CardContent
               spacing="section"
@@ -267,6 +271,11 @@ export function AttendanceSettingsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {clockInFieldErrors.employeeId ? (
+                  <p className="text-xs text-destructive">
+                    {clockInFieldErrors.employeeId}
+                  </p>
+                ) : null}
               </div>
 
               <div className="space-y-2">
@@ -280,6 +289,11 @@ export function AttendanceSettingsPage() {
                   onChange={(event) => setClockInNote(event.target.value)}
                   disabled={clockingIn}
                 />
+                {clockInFieldErrors.note ? (
+                  <p className="text-xs text-destructive">
+                    {clockInFieldErrors.note}
+                  </p>
+                ) : null}
               </div>
 
               <Button
@@ -292,6 +306,11 @@ export function AttendanceSettingsPage() {
                 <Clock3 className="h-4 w-4" />
                 {clockingIn ? "Clocking In..." : "Clock In"}
               </Button>
+              {clockInValidationError ? (
+                <p className="md:col-span-3 text-sm text-destructive">
+                  {clockInValidationError}
+                </p>
+              ) : null}
             </CardContent>
           </Card>
         </PageSection>

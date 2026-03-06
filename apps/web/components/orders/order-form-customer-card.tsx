@@ -3,9 +3,7 @@ import { UserRound } from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   FormControl,
@@ -17,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import {
   Select,
@@ -49,17 +48,16 @@ export function OrderFormCustomerCard({
         density="comfortable"
         align="startResponsive"
       >
-        <div className="flex items-center gap-3">
-          <SectionIcon tone="infoSoft" size="lg">
-            <UserRound className="h-4 w-4" />
-          </SectionIcon>
-          <div>
-            <CardTitle variant="dashboard">Customer Information</CardTitle>
-            <CardDescription variant="header">
-              Select the customer and set a delivery timeline.
-            </CardDescription>
-          </div>
-        </div>
+        <SectionHeader
+          title="Customer Information"
+          titleVariant="dashboard"
+          description="Select the customer and set a delivery timeline."
+          icon={
+            <SectionIcon tone="infoSoft" size="lg">
+              <UserRound className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-5">

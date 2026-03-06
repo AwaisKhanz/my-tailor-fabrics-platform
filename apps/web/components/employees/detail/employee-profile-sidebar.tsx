@@ -6,11 +6,12 @@ import {
   PAYMENT_TYPE_LABELS,
 } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Separator } from "@/components/ui/separator";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatPKR } from "@/lib/utils";
 
 interface EmployeeProfileSidebarProps {
   employee: EmployeeWithRelations;
@@ -27,12 +28,14 @@ export function EmployeeProfileSidebar({
           density="compact"
           align="startResponsive"
         >
-          <div className="flex items-center gap-2">
-            <SectionIcon tone="infoSoft">
-              <UserSquare2 className="h-4 w-4" />
-            </SectionIcon>
-            <CardTitle variant="section">Personal Info</CardTitle>
-          </div>
+          <SectionHeader
+            title="Personal Info"
+            icon={
+              <SectionIcon tone="infoSoft">
+                <UserSquare2 className="h-4 w-4" />
+              </SectionIcon>
+            }
+          />
           <Badge
             variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"}
             size="xs"
@@ -72,12 +75,14 @@ export function EmployeeProfileSidebar({
           density="compact"
           align="startResponsive"
         >
-          <div className="flex items-center gap-2">
-            <SectionIcon tone="infoSoft">
-              <BriefcaseBusiness className="h-4 w-4" />
-            </SectionIcon>
-            <CardTitle variant="section">Employment</CardTitle>
-          </div>
+          <SectionHeader
+            title="Employment"
+            icon={
+              <SectionIcon tone="infoSoft">
+                <BriefcaseBusiness className="h-4 w-4" />
+              </SectionIcon>
+            }
+          />
         </CardHeader>
         <CardContent spacing="section" padding="inset" className="space-y-4">
           <div className="flex justify-between text-sm">
@@ -93,6 +98,22 @@ export function EmployeeProfileSidebar({
                 employee.paymentType}
             </Badge>
           </div>
+          {employee.monthlySalary != null ? (
+            <div className="flex justify-between text-sm">
+              <span className="text-text-secondary">Monthly Salary</span>
+              <span className="font-medium">
+                {formatPKR(employee.monthlySalary)}
+              </span>
+            </div>
+          ) : null}
+          {employee.employmentEndDate ? (
+            <div className="flex justify-between text-sm">
+              <span className="text-text-secondary">Employment End</span>
+              <span className="font-medium">
+                {formatDate(employee.employmentEndDate)}
+              </span>
+            </div>
+          ) : null}
           <div className="flex justify-between text-sm">
             <span className="text-text-secondary">Designation</span>
             <span className="font-medium">

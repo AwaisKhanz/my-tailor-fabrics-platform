@@ -11,9 +11,10 @@ import {
   CUSTOMER_STATUS_LABELS,
 } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
@@ -30,12 +31,14 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
-        <div className="flex items-center gap-2">
-          <SectionIcon tone="infoSoft">
-            <UserSquare2 className="h-4 w-4" />
-          </SectionIcon>
-          <CardTitle variant="section">Customer Profile</CardTitle>
-        </div>
+        <SectionHeader
+          title="Customer Profile"
+          icon={
+            <SectionIcon tone="infoSoft">
+              <UserSquare2 className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge
           variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
           size="xs"
@@ -95,7 +98,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
           </div>
         </div>
 
-        <div className="border-t border-divider pt-4">
+        <div className="border-t flex justify-between items-center border-divider pt-4">
           <Label variant="dashboard" className="mb-1">
             Account Type
           </Label>

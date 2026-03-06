@@ -154,7 +154,7 @@ export class PdfExportService {
       orderBy: { orderDate: 'desc' },
     });
 
-    const element = React.createElement(OrdersDocument, {
+    const element = OrdersDocument({
       orders,
       title: 'Order Report Ledger',
     });
@@ -177,7 +177,7 @@ export class PdfExportService {
       orderBy: { paidAt: 'desc' },
     });
 
-    const element = React.createElement(PaymentsDocument, {
+    const element = PaymentsDocument({
       payments,
       title: 'Employee Payroll Report',
     });
@@ -201,7 +201,7 @@ export class PdfExportService {
       orderBy: { expenseDate: 'desc' },
     });
 
-    const element = React.createElement(ExpensesDocument, {
+    const element = ExpensesDocument({
       expenses,
       title: 'Expense Audit Log',
     });

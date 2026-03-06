@@ -36,7 +36,7 @@ export function useMeasurementCategoryDialog({
   const [loading, setLoading] = useState(false);
 
   const form = useForm<MeasurementCategoryFormValues>({
-    resolver: typedZodResolver<MeasurementCategoryFormValues>(measurementCategorySchema),
+    resolver: typedZodResolver(measurementCategorySchema),
     defaultValues: EMPTY_VALUES,
   });
 

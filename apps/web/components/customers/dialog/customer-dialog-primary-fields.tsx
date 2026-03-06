@@ -9,7 +9,7 @@ interface CustomerDialogPrimaryFieldsProps {
 
 export function CustomerDialogPrimaryFields({ form }: CustomerDialogPrimaryFieldsProps) {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <FormField
         control={form.control}
         name="fullName"

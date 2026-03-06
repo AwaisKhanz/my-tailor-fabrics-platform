@@ -10,7 +10,10 @@ import { Typography } from "@/components/ui/typography";
 interface CustomerMeasurementsTabProps {
   measurements: CustomerMeasurement[];
   onUpdateMeasurements: () => void;
-  getMeasurementLabel: (categoryId: string, fieldId: string) => string;
+  getMeasurementLabel: (
+    measurement: CustomerMeasurement,
+    fieldId: string,
+  ) => string;
   canUpdateMeasurements?: boolean;
 }
 
@@ -51,7 +54,7 @@ export function CustomerMeasurementsTab({
         {measurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {measurements.map((measurement) => (
-              <Card key={measurement.id} variant="premium">
+              <Card key={measurement.id} variant="warningSoft">
                 <CardHeader variant="sectionSoft" density="compact">
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
@@ -70,7 +73,7 @@ export function CustomerMeasurementsTab({
                     {Object.entries(measurement.values).map(([key, value]) => (
                       <div key={key}>
                         <Label variant="dashboard" className="mb-0.5 block">
-                          {getMeasurementLabel(measurement.categoryId, key)}
+                          {getMeasurementLabel(measurement, key)}
                         </Label>
                         <Typography
                           as="p"

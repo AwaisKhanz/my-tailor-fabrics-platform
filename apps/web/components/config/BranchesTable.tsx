@@ -31,6 +31,8 @@ export function BranchesTable() {
     dialogOpen,
     editingBranch,
     form,
+    formError,
+    fieldErrors,
     isConfirmOpen,
     branchToDelete,
     setCurrentPage,
@@ -126,6 +128,8 @@ export function BranchesTable() {
             editingBranch={editingBranch}
             saving={saving}
             form={form}
+            formError={formError}
+            fieldErrors={fieldErrors}
             onOpenChange={handleDialogOpenChange}
             onFieldChange={updateFormField}
             onSubmit={() => {

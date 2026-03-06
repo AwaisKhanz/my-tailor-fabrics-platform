@@ -17,10 +17,13 @@ interface PaymentsHistorySectionProps {
   limit: number;
   filters: PaymentHistoryFilters;
   activeFilterCount: number;
+  canManagePayments?: boolean;
+  reversingPaymentId?: string | null;
   onPageChange: (page: number) => void;
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   onResetFilters: () => void;
+  onReversePayment?: (paymentId: string) => void;
 }
 
 export function PaymentsHistorySection({
@@ -31,10 +34,13 @@ export function PaymentsHistorySection({
   limit,
   filters,
   activeFilterCount,
+  canManagePayments = false,
+  reversingPaymentId = null,
   onPageChange,
   onFromChange,
   onToChange,
   onResetFilters,
+  onReversePayment,
 }: PaymentsHistorySectionProps) {
   const columns = useMemo<ColumnDef<Payment>[]>(
     () => [
@@ -60,8 +66,27 @@ export function PaymentsHistorySection({
           <span className="font-bold text-primary">{formatPKR(payment.amount)}</span>
         ),
       },
+      ...(canManagePayments && onReversePayment
+        ? [
+            {
+              header: "Actions",
+              align: "right" as const,
+              cell: (payment: Payment) => (
+                <Button
+                  type="button"
+                  variant="tableDanger"
+                  size="sm"
+                  disabled={reversingPaymentId === payment.id}
+                  onClick={() => onReversePayment(payment.id)}
+                >
+                  {reversingPaymentId === payment.id ? "Reversing..." : "Reverse"}
+                </Button>
+              ),
+            },
+          ]
+        : []),
     ],
-    [],
+    [canManagePayments, onReversePayment, reversingPaymentId],
   );
 
   const hasActiveFilters = activeFilterCount > 0;

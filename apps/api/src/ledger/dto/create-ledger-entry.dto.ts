@@ -38,3 +38,9 @@ export class CreateLedgerEntryDto {
   @IsString()
   note?: string | null;
 }
+
+export class ReverseLedgerEntryDto {
+  @IsOptional()
+  @IsString()
+  note?: string;
+}

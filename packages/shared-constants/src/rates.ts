@@ -176,12 +176,12 @@ export function rupeesToPaisa(rupees: number): number {
 
 /**
  * Returns the effective rate for a task:
- * rateOverride takes priority over rateSnapshot.
+ * rateOverride takes priority over snapshots.
  */
 export function getEffectiveTaskRate(
   rateSnapshot?: number | null,
   rateOverride?: number | null,
-  designRate?: number | null,
+  designRateSnapshot?: number | null,
 ): number {
-  return rateOverride ?? designRate ?? rateSnapshot ?? 0;
+  return rateOverride ?? designRateSnapshot ?? rateSnapshot ?? 0;
 }

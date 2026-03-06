@@ -1,4 +1,4 @@
-import { DesignType, Employee, GarmentType } from "@tbms/shared-types";
+import { DesignType, GarmentType } from "@tbms/shared-types";
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ interface OrderFormItemsCardProps {
   fields: FieldArrayWithId<OrderFormValues, "items", "id">[];
   watchedItems: OrderFormValues["items"];
   garmentTypes: GarmentType[];
-  tailors: Employee[];
   onAddItem: () => void;
   onRemoveItem: (itemIndex: number) => void;
   onAddAddon: (itemIndex: number) => void;
@@ -28,7 +27,6 @@ export function OrderFormItemsCard({
   fields,
   watchedItems,
   garmentTypes,
-  tailors,
   onAddItem,
   onRemoveItem,
   onAddAddon,
@@ -53,7 +51,7 @@ export function OrderFormItemsCard({
             </Badge>
           </div>
           <Label variant="dashboard" className="text-text-secondary">
-            Configure garment, pricing, design, and assignment per piece.
+            Configure garment, pricing, and design per piece.
           </Label>
         </div>
 
@@ -83,7 +81,6 @@ export function OrderFormItemsCard({
               index={index}
               form={form}
               garmentTypes={garmentTypes}
-              tailors={tailors}
               designTypeOptions={getDesignTypeOptions(
                 currentItem.garmentTypeId,
               )}

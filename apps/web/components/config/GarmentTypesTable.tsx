@@ -25,9 +25,12 @@ export function GarmentTypesTable() {
     totalCount,
     stats,
     search,
+    includeArchived,
+    activeFilterCount,
     currentPage,
     pageSize,
     hasActiveFilters,
+    restoringId,
     selectedType,
     typeToDelete,
     isDialogOpen,
@@ -36,6 +39,7 @@ export function GarmentTypesTable() {
     isConfirmOpen,
     setCurrentPage,
     setSearchFilter,
+    setIncludeArchived,
     resetFilters,
     openCreateDialog,
     openEditDialog,
@@ -48,6 +52,7 @@ export function GarmentTypesTable() {
     closeConfirmDialog,
     fetchGarmentTypes,
     confirmDelete,
+    restoreType,
   } = useGarmentTypesPage();
 
   return (
@@ -69,8 +74,10 @@ export function GarmentTypesTable() {
           <GarmentTypesListToolbar
             totalCount={totalCount}
             search={search}
-            hasActiveFilters={hasActiveFilters}
+            includeArchived={includeArchived}
+            activeFilterCount={activeFilterCount}
             onSearchChange={setSearchFilter}
+            onIncludeArchivedChange={setIncludeArchived}
             onReset={resetFilters}
           />
 
@@ -81,11 +88,17 @@ export function GarmentTypesTable() {
             total={totalCount}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
-            onOpen={(garment) => router.push(`/settings/garments/${garment.id}`)}
+            onOpen={(garment) => {
+              if (!garment.deletedAt) {
+                router.push(`/settings/garments/${garment.id}`);
+              }
+            }}
             onEdit={openEditDialog}
             onOpenHistory={openHistoryDialog}
             onOpenWorkflow={openWorkflowDialog}
             onDelete={requestDelete}
+            onRestore={restoreType}
+            restoringId={restoringId}
             canManageGarments={canManageGarments}
           />
         </TableSurface>
@@ -123,12 +136,12 @@ export function GarmentTypesTable() {
           <ConfirmDialog
             open={isConfirmOpen}
             onOpenChange={closeConfirmDialog}
-            title="Delete Garment Type"
-            description={`Are you sure you want to delete "${typeToDelete?.name}"? This action cannot be undone.`}
+            title="Archive Garment Type"
+            description={`Archive "${typeToDelete?.name}"? It will be hidden from new operations but history remains intact.`}
             onConfirm={() => {
               void confirmDelete();
             }}
-            confirmText="Delete Garment Type"
+            confirmText="Archive Garment Type"
           />
         </>
       ) : null}

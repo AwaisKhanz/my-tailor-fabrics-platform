@@ -24,6 +24,45 @@ const EMPTY_RATE_STATS: RateStatsSummary = {
   branchScoped: 0,
 };
 
+const LOCAL_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function normalizeEffectiveFromForSubmit(value: Date | string): string {
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) {
+      throw new Error("Invalid effective date");
+    }
+
+    return value.toISOString();
+  }
+
+  const rawValue = value.trim();
+  if (!rawValue) {
+    throw new Error("Effective date is required");
+  }
+
+  if (LOCAL_DATE_PATTERN.test(rawValue)) {
+    if (rawValue === toLocalDateString(new Date())) {
+      return new Date().toISOString();
+    }
+
+    return rawValue;
+  }
+
+  const parsed = new Date(rawValue);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error("Invalid effective date");
+  }
+
+  return parsed.toISOString();
+}
+
 export type RateWithIncludes = RateCard & {
   garmentType?: { name: string };
   branch?: { code: string; name: string } | null;
@@ -50,6 +89,9 @@ export function useRatesPage() {
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedRateForAdjust, setSelectedRateForAdjust] = useState<RateWithIncludes | null>(
+    null,
+  );
 
   const stepKeysByGarmentId = useMemo(() => {
     const map: Record<string, string[]> = {};
@@ -132,27 +174,48 @@ export function useRatesPage() {
 
   const createRate = useCallback(
     async (data: CreateRateCardInput) => {
+      const normalizedEffectiveFrom = normalizeEffectiveFromForSubmit(data.effectiveFrom);
       const parsedResult = rateCardCreateFormSchema.safeParse({
         branchId: data.branchId ?? "GLOBAL",
         garmentTypeId: data.garmentTypeId,
         stepKey: data.stepKey,
-        amount: data.amount / 100,
-        effectiveFrom: data.effectiveFrom,
+        amount: data.amount,
+        effectiveFrom: normalizedEffectiveFrom.slice(0, 10),
       });
       if (!parsedResult.success) {
         throw new Error(getFirstZodErrorMessage(parsedResult.error));
       }
 
-      const response = await ratesApi.create(data);
+      const response = await ratesApi.create({
+        ...data,
+        effectiveFrom: normalizedEffectiveFrom,
+      });
       if (!response.success) {
-        throw new Error("Failed to create rate card");
+        throw new Error("Failed to save rate card");
       }
 
-      toast({ title: "Rate card created successfully" });
+      toast({ title: "Rate card saved successfully" });
       await fetchData();
     },
     [fetchData, toast],
   );
+
+  const openCreateRateDialog = useCallback(() => {
+    setSelectedRateForAdjust(null);
+    setCreateDialogOpen(true);
+  }, []);
+
+  const openAdjustRateDialog = useCallback((rate: RateWithIncludes) => {
+    setSelectedRateForAdjust(rate);
+    setCreateDialogOpen(true);
+  }, []);
+
+  const handleCreateDialogOpenChange = useCallback((open: boolean) => {
+    setCreateDialogOpen(open);
+    if (!open) {
+      setSelectedRateForAdjust(null);
+    }
+  }, []);
 
   return {
     loading,
@@ -166,11 +229,14 @@ export function useRatesPage() {
     garmentTypes,
     branches,
     createDialogOpen,
+    selectedRateForAdjust,
     stepKeysByGarmentId,
     setPage,
     setSearchFilter,
     clearSearch,
-    setCreateDialogOpen,
+    setCreateDialogOpen: handleCreateDialogOpenChange,
+    openCreateRateDialog,
+    openAdjustRateDialog,
     createRate,
   };
 }

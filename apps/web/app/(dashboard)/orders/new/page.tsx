@@ -1,30 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CalendarDays, ClipboardList, Package2, UserRound } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormStack } from "@/components/ui/form-layout";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Badge } from "@/components/ui/badge";
-import {
   DetailSplit,
   PageShell,
   PageSection,
 } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
-import { Typography } from "@/components/ui/typography";
 import { useOrderFormPage } from "@/hooks/use-order-form-page";
 import { OrderFormSkeleton } from "@/components/orders/order-form-skeleton";
 import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-card";
@@ -44,7 +29,6 @@ function NewOrderPage() {
     isEditMode,
     garmentTypes,
     customers,
-    tailors,
     totals,
     selectedCustomer,
     watchedDueDate,
@@ -66,21 +50,6 @@ function NewOrderPage() {
   if (isInitialLoading) {
     return <OrderFormSkeleton />;
   }
-
-  const workflowSteps = [
-    {
-      title: "Customer & Timeline",
-      detail: "Pick customer and confirm delivery date.",
-    },
-    {
-      title: "Configure Pieces",
-      detail: "Set garment, quantity, design, and assignment.",
-    },
-    {
-      title: "Confirm Pricing",
-      detail: "Review totals, advance payment, and notes.",
-    },
-  ];
 
   return (
     <PageShell>
@@ -134,7 +103,6 @@ function NewOrderPage() {
                     fields={fields}
                     watchedItems={watchedItems}
                     garmentTypes={garmentTypes}
-                    tailors={tailors}
                     onAddItem={addItem}
                     onRemoveItem={removeItem}
                     onAddAddon={addAddon}

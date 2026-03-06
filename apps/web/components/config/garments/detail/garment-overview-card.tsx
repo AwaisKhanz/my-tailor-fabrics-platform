@@ -7,10 +7,11 @@ import {
 } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { formatDate, formatPKR } from "@/lib/utils";
@@ -26,12 +27,14 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
-        <div className="flex items-center gap-2">
-          <SectionIcon tone="primary">
-            <Shirt className="h-4 w-4" />
-          </SectionIcon>
-          <CardTitle variant="section">Garment Profile</CardTitle>
-        </div>
+        <SectionHeader
+          title="Garment Profile"
+          icon={
+            <SectionIcon tone="primary">
+              <Shirt className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge variant={garment.isActive ? "success" : "outline"} size="xs">
           {garment.isActive ? "Active" : "Inactive"}
         </Badge>
@@ -70,12 +73,12 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
               </Typography>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 text-xs text-text-secondary sm:grid-cols-2">
-              <MetaPill>
+            <div className="">
+              <MetaPill tone={"strong"}>
                 <CalendarDays className="h-3.5 w-3.5" />
                 <span>Created {formatDate(garment.createdAt)}</span>
               </MetaPill>
-              <MetaPill>
+              <MetaPill tone={"strong"}>
                 <Layers3 className="h-3.5 w-3.5" />
                 <span>Updated {formatDate(garment.updatedAt)}</span>
               </MetaPill>
@@ -83,7 +86,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
           </InfoTile>
 
           <InfoTile
-            tone="primarySoft"
+            tone="elevatedMuted"
             padding="contentLg"
             radius="xl"
             className="space-y-4"
@@ -121,10 +124,6 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
                 </div>
               </div>
             </div>
-
-            <Badge variant="outline" size="xs" className="font-bold">
-              Revenue split based on current global prices
-            </Badge>
           </InfoTile>
         </div>
       </CardContent>

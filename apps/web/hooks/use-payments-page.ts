@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   paymentDisbursementFormSchema,
+  salaryAccrualGenerationFormSchema,
   type Payment,
   type PaymentSummary,
 } from "@tbms/shared-types";
@@ -10,7 +11,7 @@ import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { toPaisaFromRupees } from "@/lib/utils/money";
 import { type Employee } from "@/types/employees";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -35,6 +36,32 @@ const DEFAULT_DISBURSEMENT_FORM: PaymentDisbursementForm = {
   amount: "",
   note: "",
 };
+
+export interface SalaryAccrualForm {
+  month: string;
+  scope: "ALL" | "SELECTED";
+}
+
+const PAYROLL_TIMEZONE = "Asia/Karachi";
+
+function getPreviousPayrollMonth(referenceDate = new Date()): string {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: PAYROLL_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+  });
+  const parts = formatter.formatToParts(referenceDate);
+  const year = Number(parts.find((part) => part.type === "year")?.value);
+  const month = Number(parts.find((part) => part.type === "month")?.value);
+
+  if (!Number.isFinite(year) || !Number.isFinite(month)) {
+    return new Date().toISOString().slice(0, 7);
+  }
+
+  const previousMonth = month === 1 ? 12 : month - 1;
+  const previousYear = month === 1 ? year - 1 : year;
+  return `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
+}
 
 export function usePaymentsPage() {
   const { toast } = useToast();
@@ -72,7 +99,19 @@ export function usePaymentsPage() {
   const [disburseOpen, setDisburseOpen] = useState(false);
   const [disburseForm, setDisburseForm] =
     useState<PaymentDisbursementForm>(DEFAULT_DISBURSEMENT_FORM);
+  const [disburseValidationError, setDisburseValidationError] = useState<string | null>(null);
   const [disbursing, setDisbursing] = useState(false);
+  const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
+    null,
+  );
+  const [generateSalariesOpen, setGenerateSalariesOpen] = useState(false);
+  const [salaryAccrualForm, setSalaryAccrualForm] = useState<SalaryAccrualForm>({
+    month: getPreviousPayrollMonth(),
+    scope: "ALL",
+  });
+  const [salaryAccrualValidationError, setSalaryAccrualValidationError] =
+    useState<string | null>(null);
+  const [generatingSalaries, setGeneratingSalaries] = useState(false);
 
   const fetchEmployees = useCallback(async () => {
     setEmployeesLoading(true);
@@ -179,6 +218,11 @@ export function usePaymentsPage() {
     setHistoryTotal(0);
     setDisburseOpen(false);
     setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
+    setGenerateSalariesOpen(false);
+    setSalaryAccrualForm({
+      month: getPreviousPayrollMonth(),
+      scope: employeeId ? "SELECTED" : "ALL",
+    });
   }, [setValues]);
 
   const setHistoryFrom = useCallback((value: string) => {
@@ -208,6 +252,7 @@ export function usePaymentsPage() {
   }, [setValues]);
 
   const openDisburseDialog = useCallback(() => {
+    setDisburseValidationError(null);
     setDisburseOpen(true);
   }, []);
 
@@ -215,15 +260,48 @@ export function usePaymentsPage() {
     setDisburseOpen(open);
     if (!open && !disbursing) {
       setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
+      setDisburseValidationError(null);
     }
   }, [disbursing]);
 
+  const openGenerateSalariesDialog = useCallback(() => {
+    setSalaryAccrualForm({
+      month: getPreviousPayrollMonth(),
+      scope: selectedEmployeeId ? "SELECTED" : "ALL",
+    });
+    setGenerateSalariesOpen(true);
+    setSalaryAccrualValidationError(null);
+  }, [selectedEmployeeId]);
+
+  const closeGenerateSalariesDialog = useCallback((open: boolean) => {
+    setGenerateSalariesOpen(open);
+    if (!open && !generatingSalaries) {
+      setSalaryAccrualForm({
+        month: getPreviousPayrollMonth(),
+        scope: selectedEmployeeId ? "SELECTED" : "ALL",
+      });
+      setSalaryAccrualValidationError(null);
+    }
+  }, [generatingSalaries, selectedEmployeeId]);
+
+  const setSalaryAccrualMonth = useCallback((value: string) => {
+    setSalaryAccrualForm((previous) => ({ ...previous, month: value }));
+    setSalaryAccrualValidationError(null);
+  }, []);
+
+  const setSalaryAccrualScope = useCallback((scope: SalaryAccrualForm["scope"]) => {
+    setSalaryAccrualForm((previous) => ({ ...previous, scope }));
+    setSalaryAccrualValidationError(null);
+  }, []);
+
   const setDisbursementAmount = useCallback((value: string) => {
     setDisburseForm((previous) => ({ ...previous, amount: value }));
+    setDisburseValidationError(null);
   }, []);
 
   const setDisbursementNote = useCallback((value: string) => {
     setDisburseForm((previous) => ({ ...previous, note: value }));
+    setDisburseValidationError(null);
   }, []);
 
   const currentBalance = summary?.currentBalance ?? 0;
@@ -233,24 +311,23 @@ export function usePaymentsPage() {
       return;
     }
 
-    const parsedResult = paymentDisbursementFormSchema.safeParse(disburseForm);
+    const parsedResult = paymentDisbursementFormSchema.safeParse({
+      amount: disburseForm.amount,
+      note: disburseForm.note,
+    });
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
-      });
+      const firstIssue = parsedResult.error.issues[0]?.message;
+      setDisburseValidationError(firstIssue ?? "Please complete required fields.");
       return;
     }
+    setDisburseValidationError(null);
 
-    const amountInPaisa = Math.round(parsedResult.data.amount * 100);
+    const amountInPaisa = toPaisaFromRupees(parsedResult.data.amount);
 
     if (amountInPaisa > currentBalance) {
-      toast({
-        title: "Amount exceeds outstanding balance",
-        description: "Disbursement amount cannot be greater than the pending payable amount.",
-        variant: "destructive",
-      });
+      setDisburseValidationError(
+        "Disbursement amount cannot be greater than the outstanding payable balance.",
+      );
       return;
     }
 
@@ -258,13 +335,14 @@ export function usePaymentsPage() {
     try {
       await paymentsApi.disburse({
         employeeId: selectedEmployeeId,
-        amount: amountInPaisa,
+        amount: parsedResult.data.amount,
         note: parsedResult.data.note || undefined,
       });
 
       toast({ title: "Payment disbursed successfully" });
       setDisburseOpen(false);
       setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
+      setDisburseValidationError(null);
 
       await fetchSummary(selectedEmployeeId);
       if (historyPage !== 1) {
@@ -292,6 +370,114 @@ export function usePaymentsPage() {
     selectedEmployeeId,
     toast,
   ]);
+
+  const submitSalaryAccrualGeneration = useCallback(async () => {
+    const selectedScopeEmployeeId =
+      salaryAccrualForm.scope === "SELECTED" ? selectedEmployeeId || undefined : undefined;
+
+    const parsedResult = salaryAccrualGenerationFormSchema.safeParse({
+      month: salaryAccrualForm.month,
+      employeeId: selectedScopeEmployeeId,
+    });
+
+    if (!parsedResult.success) {
+      const firstIssue = parsedResult.error.issues[0]?.message;
+      setSalaryAccrualValidationError(
+        firstIssue ?? "Please provide a valid payroll month.",
+      );
+      return;
+    }
+    setSalaryAccrualValidationError(null);
+
+    setGeneratingSalaries(true);
+    try {
+      const response = await paymentsApi.generateSalaryAccruals({
+        month: parsedResult.data.month,
+        employeeId: parsedResult.data.employeeId || undefined,
+      });
+
+      if (response.success) {
+        const summary = response.data;
+        toast({
+          title: "Monthly salaries generated",
+          description: `Created ${summary.created}, existing ${summary.alreadyExists}, skipped ${summary.skipped} for ${summary.period}.`,
+        });
+        setGenerateSalariesOpen(false);
+        setSalaryAccrualForm({
+          month: getPreviousPayrollMonth(),
+          scope: selectedEmployeeId ? "SELECTED" : "ALL",
+        });
+        setSalaryAccrualValidationError(null);
+
+        if (selectedEmployeeId) {
+          await fetchSummary(selectedEmployeeId);
+          await fetchHistory(1);
+          if (historyPage !== 1) {
+            setValues({ page: "1" });
+          }
+        }
+      }
+    } catch (error: unknown) {
+      toast({
+        title: "Error",
+        description: getApiErrorMessageOrFallback(error, "Failed to generate monthly salaries"),
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingSalaries(false);
+    }
+  }, [
+    fetchHistory,
+    fetchSummary,
+    historyPage,
+    salaryAccrualForm.month,
+    salaryAccrualForm.scope,
+    selectedEmployeeId,
+    setValues,
+    toast,
+  ]);
+
+  const reversePayment = useCallback(
+    async (paymentId: string) => {
+      if (!selectedEmployeeId) {
+        return false;
+      }
+
+      setReversingPaymentId(paymentId);
+      try {
+        await paymentsApi.reverse(paymentId);
+        toast({ title: "Payment reversed successfully" });
+
+        await fetchSummary(selectedEmployeeId);
+        await fetchHistory(1);
+        if (historyPage !== 1) {
+          setValues({ page: "1" });
+        }
+
+        return true;
+      } catch (error: unknown) {
+        toast({
+          title: "Error",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to reverse payment",
+          ),
+          variant: "destructive",
+        });
+        return false;
+      } finally {
+        setReversingPaymentId(null);
+      }
+    },
+    [
+      fetchHistory,
+      fetchSummary,
+      historyPage,
+      selectedEmployeeId,
+      setValues,
+      toast,
+    ],
+  );
 
   const selectedEmployee = useMemo(
     () => employees.find((employee) => employee.id === selectedEmployeeId) ?? null,
@@ -325,9 +511,16 @@ export function usePaymentsPage() {
     historyPageSize,
     disburseOpen,
     disburseForm,
+    disburseValidationError,
     disbursing,
+    reversingPaymentId,
+    generateSalariesOpen,
+    salaryAccrualForm,
+    salaryAccrualValidationError,
+    generatingSalaries,
     currentBalance,
     canDisburse: Boolean(selectedEmployeeId && currentBalance > 0),
+    hasSelectedEmployee: Boolean(selectedEmployeeId),
     setHistoryPage,
     handleEmployeeChange,
     setHistoryFrom,
@@ -338,5 +531,11 @@ export function usePaymentsPage() {
     setDisbursementAmount,
     setDisbursementNote,
     submitDisbursement,
+    openGenerateSalariesDialog,
+    closeGenerateSalariesDialog,
+    setSalaryAccrualMonth,
+    setSalaryAccrualScope,
+    submitSalaryAccrualGeneration,
+    reversePayment,
   };
 }

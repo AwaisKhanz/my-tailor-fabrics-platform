@@ -1,9 +1,10 @@
 import { ArrowUpRight, History, Users } from "lucide-react";
 import { type GarmentPriceLog } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { formatPKR } from "@/lib/utils";
@@ -16,12 +17,14 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
-        <div className="flex items-center gap-2">
-          <SectionIcon tone="primary">
-            <History className="h-4 w-4" />
-          </SectionIcon>
-          <CardTitle variant="section">Recent Pricing Logs</CardTitle>
-        </div>
+        <SectionHeader
+          title="Recent Pricing Logs"
+          icon={
+            <SectionIcon tone="primary">
+              <History className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge variant="secondary" size="xs">
           {logs.length} entries
         </Badge>
@@ -61,7 +64,7 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                     </Label>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 pt-1">
                     <div>
                       <Label variant="dashboard">Customer Price</Label>
                       <div className="flex items-center gap-2">
@@ -78,26 +81,6 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                           className="text-xs font-bold"
                         >
                           {formatPKR(log.newCustomerPrice || 0)}
-                        </Typography>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label variant="dashboard">Employee Rate</Label>
-                      <div className="flex items-center gap-2">
-                        <Typography
-                          as="span"
-                          variant="muted"
-                          className="text-xs line-through opacity-50"
-                        >
-                          {formatPKR(log.oldEmployeeRate || 0)}
-                        </Typography>
-                        <Typography
-                          as="span"
-                          variant="body"
-                          className="text-xs font-bold"
-                        >
-                          {formatPKR(log.newEmployeeRate || 0)}
                         </Typography>
                       </div>
                     </div>

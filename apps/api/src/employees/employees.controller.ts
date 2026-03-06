@@ -17,6 +17,12 @@ import {
   CreateEmployeeUserAccountDto,
   UpdateEmployeeDto,
 } from './dto/create-employee.dto';
+import {
+  CompensationChangeDto,
+  EligibleEmployeesQueryDto,
+  EmployeeCapabilitiesQueryDto,
+  UpdateEmployeeCapabilitiesDto,
+} from './dto/workforce-governance.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import {
   RequireAnyPermissions,
@@ -68,9 +74,92 @@ export class EmployeesController {
 
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions('employees.read')
+  @Get('eligible')
+  async getEligibleEmployees(
+    @Query() query: EligibleEmployeesQueryDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.employeesService.getEligibleEmployees({
+      branchId: requireBranchScope(req),
+      garmentTypeId: query.garmentTypeId,
+      stepKey: query.stepKey,
+      asOf: query.asOf,
+    });
+    return success(data);
+  }
+
+  @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.findOne(id, req.branchId);
+    return success(data);
+  }
+
+  @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
+  @Get(':id/capabilities')
+  async getCapabilities(
+    @Param('id') id: string,
+    @Query() query: EmployeeCapabilitiesQueryDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.employeesService.getCapabilities(
+      id,
+      req.branchId ?? requireBranchScope(req),
+      {
+        activeOnly: query.activeOnly,
+        asOf: query.asOf,
+      },
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
+  @Put(':id/capabilities')
+  async replaceCapabilities(
+    @Param('id') id: string,
+    @Body() dto: UpdateEmployeeCapabilitiesDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.employeesService.replaceCapabilitiesSnapshot(
+      id,
+      requireBranchScope(req),
+      dto,
+      req.user.userId,
+    );
+    return success(data);
+  }
+
+  @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('employees.read')
+  @Get(':id/compensation')
+  async getCompensationHistory(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.employeesService.getCompensationHistory(
+      id,
+      req.branchId ?? requireBranchScope(req),
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('employees.manage')
+  @Post(':id/compensation')
+  async createCompensationChange(
+    @Param('id') id: string,
+    @Body() dto: CompensationChangeDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.employeesService.createCompensationChange(
+      id,
+      requireBranchScope(req),
+      dto,
+      req.user.userId,
+    );
     return success(data);
   }
 
@@ -86,6 +175,7 @@ export class EmployeesController {
       id,
       requireBranchScope(req),
       updateEmployeeDto,
+      req.user.userId,
     );
     return success(data);
   }

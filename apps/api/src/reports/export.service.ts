@@ -72,8 +72,11 @@ export class ExportService {
   }
 
   async exportPayments(branchId?: string, from?: string, to?: string) {
-    const where: import('@prisma/client').Prisma.PaymentWhereInput = {};
-    if (branchId) where.employee = { branchId };
+    const where: import('@prisma/client').Prisma.PaymentWhereInput = {
+      deletedAt: null,
+      reversedAt: null,
+    };
+    if (branchId) where.employee = { branchId, deletedAt: null };
 
     let dateFilter: import('@prisma/client').Prisma.DateTimeFilter | undefined;
     if (from && to) dateFilter = { gte: new Date(from), lte: new Date(to) };
@@ -175,18 +178,21 @@ export class ExportService {
     ];
 
     for (const emp of employees) {
-      const raw = await this.prisma.$queryRaw<[{ earned: bigint }]>`
-        SELECT COALESCE(SUM("employeeRate" * quantity), 0) AS earned
-        FROM "OrderItem"
-        WHERE "employeeId" = ${emp.id} AND status IN ('COMPLETED', 'DELIVERED')
-      `;
-
-      const paid = await this.prisma.payment.aggregate({
-        where: { employeeId: emp.id },
+      const earned = await this.prisma.employeeLedgerEntry.aggregate({
+        where: {
+          employeeId: emp.id,
+          type: 'EARNING',
+          deletedAt: null,
+        },
         _sum: { amount: true },
       });
 
-      const earnedAmt = Number(raw[0]?.earned ?? 0);
+      const paid = await this.prisma.payment.aggregate({
+        where: { employeeId: emp.id, deletedAt: null, reversedAt: null },
+        _sum: { amount: true },
+      });
+
+      const earnedAmt = earned._sum.amount ?? 0;
       const paidAmt = paid._sum.amount ?? 0;
 
       sheet.addRow({

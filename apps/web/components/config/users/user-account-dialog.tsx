@@ -18,6 +18,8 @@ interface UserAccountDialogProps {
   form: UserFormState;
   branches: Branch[];
   saving: boolean;
+  formError: string;
+  fieldErrors: Partial<Record<keyof UserFormState, string>>;
   onOpenChange: (open: boolean) => void;
   onFormFieldChange: UpdateUserFormField;
   onSave: () => void;
@@ -29,12 +31,12 @@ export function UserAccountDialog({
   form,
   branches,
   saving,
+  formError,
+  fieldErrors,
   onOpenChange,
   onFormFieldChange,
   onSave,
 }: UserAccountDialogProps) {
-  const isCreateMode = !editingUser;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="md">
@@ -51,6 +53,9 @@ export function UserAccountDialog({
             onSave();
           }}
         >
+          {formError ? (
+            <p className="text-sm text-destructive">{formError}</p>
+          ) : null}
           <div className="space-y-1.5">
             <Label>
               Full Name <span className="text-error">*</span>
@@ -61,6 +66,9 @@ export function UserAccountDialog({
               value={form.name}
               onChange={(event) => onFormFieldChange("name", event.target.value)}
             />
+            {fieldErrors.name ? (
+              <p className="text-xs text-destructive">{fieldErrors.name}</p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -74,6 +82,9 @@ export function UserAccountDialog({
               value={form.email}
               onChange={(event) => onFormFieldChange("email", event.target.value)}
             />
+            {fieldErrors.email ? (
+              <p className="text-xs text-destructive">{fieldErrors.email}</p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -92,6 +103,9 @@ export function UserAccountDialog({
               value={form.password}
               onChange={(event) => onFormFieldChange("password", event.target.value)}
             />
+            {fieldErrors.password ? (
+              <p className="text-xs text-destructive">{fieldErrors.password}</p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -117,6 +131,9 @@ export function UserAccountDialog({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.role ? (
+              <p className="text-xs text-destructive">{fieldErrors.role}</p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -136,6 +153,9 @@ export function UserAccountDialog({
                   ))}
               </SelectContent>
             </Select>
+            {fieldErrors.branchId ? (
+              <p className="text-xs text-destructive">{fieldErrors.branchId}</p>
+            ) : null}
           </div>
         </FormStack>
 

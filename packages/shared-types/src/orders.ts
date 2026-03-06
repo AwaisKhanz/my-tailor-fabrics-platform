@@ -13,8 +13,6 @@ export interface OrderItemInput {
   garmentTypeId: string;
   quantity: number;
   unitPrice?: number;
-  employeeRate?: number;
-  employeeId?: string | null;
   description?: string;
   fabricSource?: FabricSource;
   dueDate?: string;
@@ -69,9 +67,12 @@ export interface AddOrderPaymentInput {
   note?: string;
 }
 
+export interface ReverseOrderPaymentInput {
+  note?: string;
+}
+
 export interface UpdateOrderItemStatusInput {
   status?: string;
-  employeeId?: string;
 }
 
 export interface SharedOrderTokenPayload {
@@ -88,7 +89,6 @@ export type PublicOrderStatusResult = Order;
 export interface UpdateOrderItemInput extends Partial<OrderItemInput> {
   id?: string;
   unitPrice?: number;
-  employeeRate?: number;
 }
 
 export interface UpdateOrderInput {
@@ -110,8 +110,6 @@ export interface OrderItem {
   quantity: number;
   pieceNo: number;
   unitPrice: number;
-  employeeRate: number;
-  employeeId?: string | null;
   description?: string;
   fabricSource: FabricSource;
   dueDate?: string;
@@ -121,10 +119,6 @@ export interface OrderItem {
   addons?: OrderItemAddon[];
   designTypeId?: string | null;
   designType?: DesignType | null;
-  employee?: {
-    id: string;
-    fullName: string;
-  };
 }
 
 export interface Order {
@@ -159,7 +153,17 @@ export interface OrderPayment {
   amount: number;
   paidAt: string;
   note?: string | null;
+  reversedAt?: string | null;
+  reversedById?: string | null;
+  reversalNote?: string | null;
   ledgerEntries?: import('./ledger').EmployeeLedgerEntry[];
+}
+
+export interface OrderPaymentReversalResult {
+  orderId: string;
+  paymentId: string;
+  amount: number;
+  reversedAt: string;
 }
 
 export interface OrderStatusHistory {
@@ -212,6 +216,7 @@ export interface OrderItemTask {
   };
   rateCardId?: string | null;
   rateSnapshot?: number | null;
+  designRateSnapshot?: number | null;
   rateOverride?: number | null;
   item?: {
     garmentTypeName: string;

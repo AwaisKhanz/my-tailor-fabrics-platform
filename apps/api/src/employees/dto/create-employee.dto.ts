@@ -2,9 +2,11 @@ import {
   IsDateString,
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Min,
   MinLength,
 } from 'class-validator';
 import { EmployeeStatus, PaymentType } from '@tbms/shared-types';
@@ -53,6 +55,15 @@ export class CreateEmployeeDto {
   @IsEnum(PaymentType)
   @IsOptional()
   paymentType?: PaymentType;
+
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  monthlySalary?: number;
+
+  @IsDateString()
+  @IsOptional()
+  employmentEndDate?: string;
 
   @IsString()
   @IsOptional()
@@ -115,6 +126,19 @@ export class UpdateEmployeeDto {
   @IsEnum(PaymentType)
   @IsOptional()
   paymentType?: PaymentType;
+
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  monthlySalary?: number;
+
+  @IsDateString()
+  @IsOptional()
+  compensationEffectiveFrom?: string;
+
+  @IsDateString()
+  @IsOptional()
+  employmentEndDate?: string;
 
   @IsString()
   @IsOptional()

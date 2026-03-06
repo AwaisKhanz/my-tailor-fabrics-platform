@@ -7,7 +7,10 @@ interface CustomerDetailTabsProps {
   measurements: CustomerMeasurement[];
   orders: Order[];
   notes?: string | null;
-  getMeasurementLabel: (categoryId: string, fieldId: string) => string;
+  getMeasurementLabel: (
+    measurement: CustomerMeasurement,
+    fieldId: string,
+  ) => string;
   onUpdateMeasurements: () => void;
   onOpenOrder: (orderId: string) => void;
   canUpdateMeasurements?: boolean;

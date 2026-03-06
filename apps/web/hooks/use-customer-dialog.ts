@@ -41,7 +41,7 @@ export function useCustomerDialog({
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<CustomerFormValues>({
-    resolver: typedZodResolver<CustomerFormValues>(customerSchema),
+    resolver: typedZodResolver(customerSchema),
     defaultValues: DEFAULT_VALUES,
   });
 

@@ -85,7 +85,6 @@ async function main() {
       id: 'gt_shalwar_kameez',
       name: 'Shalwar Kameez',
       customerPrice: 150000,
-      employeeRate: 50000,
     },
   });
 
@@ -116,7 +115,6 @@ async function main() {
       id: 'gt_coat',
       name: 'Coat',
       customerPrice: 2000000,
-      employeeRate: 800000,
     },
   });
 
@@ -269,8 +267,6 @@ async function main() {
               garmentTypeName: gtShalwar.name,
               quantity: 2,
               unitPrice: gtShalwar.customerPrice,
-              employeeRate: gtShalwar.employeeRate,
-              employeeId: emp1.id,
             }
           ]
         },

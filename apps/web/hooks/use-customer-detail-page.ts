@@ -84,8 +84,16 @@ export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParam
   }, [categories]);
 
   const getMeasurementLabel = useCallback(
-    (categoryId: string, fieldId: string) => {
-      return fieldLabelMap.get(categoryId)?.get(fieldId) ?? fieldId.replace(/_/g, " ");
+    (measurement: CustomerMeasurement, fieldId: string) => {
+      const snapshotLabel = measurement.valuesMeta?.[fieldId]?.label;
+      if (snapshotLabel) {
+        return snapshotLabel;
+      }
+
+      return (
+        fieldLabelMap.get(measurement.categoryId)?.get(fieldId) ??
+        fieldId.replace(/_/g, " ")
+      );
     },
     [fieldLabelMap],
   );

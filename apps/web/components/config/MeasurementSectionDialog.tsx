@@ -38,7 +38,7 @@ export function MeasurementSectionDialog({
   const [loading, setLoading] = useState(false);
 
   const form = useForm<MeasurementSectionDialogFormValues>({
-    resolver: typedZodResolver<MeasurementSectionDialogFormValues>(measurementSectionDialogFormSchema),
+    resolver: typedZodResolver(measurementSectionDialogFormSchema),
     defaultValues: {
       name: "",
     },

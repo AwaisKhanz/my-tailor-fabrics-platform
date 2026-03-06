@@ -5,7 +5,6 @@ import { Edit2, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
 import { type ExpenseCategory } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
@@ -43,6 +42,8 @@ export function ExpenseCategoriesPage() {
     dialogOpen,
     editingCategory,
     form,
+    formError,
+    fieldErrors,
     deleteTarget,
     setSearch,
     setPage,
@@ -261,6 +262,9 @@ export function ExpenseCategoriesPage() {
               }}
             >
               <div className="space-y-4">
+                {formError ? (
+                  <p className="text-sm text-destructive">{formError}</p>
+                ) : null}
                 <div className="space-y-2">
                   <Label htmlFor="expense-category-name" variant="dashboard">
                     Name
@@ -275,6 +279,11 @@ export function ExpenseCategoriesPage() {
                     placeholder="e.g. Utilities"
                     disabled={saving}
                   />
+                  {fieldErrors.name ? (
+                    <p className="text-xs text-destructive">
+                      {fieldErrors.name}
+                    </p>
+                  ) : null}
                 </div>
 
                 <InfoTile layout="betweenGap" className="rounded-md">

@@ -10,10 +10,10 @@ import {
 import { expensesApi } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 type CategoryFormState = ExpenseCategoryFormValues;
+type CategoryFieldErrors = Partial<Record<keyof CategoryFormState, string>>;
 const PAGE_SIZE = 10;
 const EMPTY_STATS: ExpenseCategoryStatsSummary = {
   total: 0,
@@ -50,6 +50,8 @@ export function useExpenseCategoriesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null);
   const [form, setForm] = useState<CategoryFormState>(DEFAULT_FORM_STATE);
+  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<CategoryFieldErrors>({});
 
   const [deleteTarget, setDeleteTarget] = useState<ExpenseCategory | null>(null);
 
@@ -104,6 +106,8 @@ export function useExpenseCategoriesPage() {
   const openCreateDialog = useCallback(() => {
     setEditingCategory(null);
     setForm(DEFAULT_FORM_STATE);
+    setFieldErrors({});
+    setFormError("");
     setDialogOpen(true);
   }, []);
 
@@ -113,6 +117,8 @@ export function useExpenseCategoriesPage() {
       name: category.name,
       isActive: category.isActive,
     });
+    setFieldErrors({});
+    setFormError("");
     setDialogOpen(true);
   }, []);
 
@@ -125,6 +131,8 @@ export function useExpenseCategoriesPage() {
       if (!open) {
         setEditingCategory(null);
         setForm(DEFAULT_FORM_STATE);
+        setFieldErrors({});
+        setFormError("");
       }
     },
     [saving],
@@ -132,6 +140,8 @@ export function useExpenseCategoriesPage() {
 
   const updateFormField = useCallback(
     <K extends keyof CategoryFormState>(field: K, value: CategoryFormState[K]) => {
+      setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
+      setFormError("");
       setForm((previous) => ({ ...previous, [field]: value }));
     },
     [],
@@ -140,15 +150,17 @@ export function useExpenseCategoriesPage() {
   const saveCategory = useCallback(async () => {
     const parsedResult = expenseCategoryFormSchema.safeParse(form);
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setFieldErrors({
+        name: flattenedErrors.name?.[0],
       });
+      setFormError(flattenedErrors.name?.[0] ?? "Fix the highlighted field and try again.");
       return;
     }
 
     const validated = parsedResult.data;
+    setFieldErrors({});
+    setFormError("");
 
     setSaving(true);
     try {
@@ -272,6 +284,8 @@ export function useExpenseCategoriesPage() {
     editingCategory,
     form,
     deleteTarget,
+    formError,
+    fieldErrors,
     setSearch: setSearchFilter,
     setPage,
     resetFilters,

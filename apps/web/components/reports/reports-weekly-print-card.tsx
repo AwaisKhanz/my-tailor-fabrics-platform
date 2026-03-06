@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 
 interface ReportsWeeklyPrintCardProps {
@@ -23,15 +22,15 @@ export function ReportsWeeklyPrintCard({
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
-        <div>
-          <CardTitle variant="section">Production Work-Order Summary</CardTitle>
-          <CardDescription variant="header">
-            Optimized for physical printing and shift-based task management.
-          </CardDescription>
-        </div>
-        <SectionIcon size="lg">
-          <Printer className="h-4 w-4" />
-        </SectionIcon>
+        <SectionHeader
+          title="Production Work-Order Summary"
+          description="Optimized for physical printing and shift-based task management."
+          icon={
+            <SectionIcon size="lg">
+              <Printer className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
       </CardHeader>
 
       <CardContent spacing="section">

@@ -48,6 +48,19 @@ const toSharedFieldType = (fieldType: string): FieldType => {
 export class ConfigService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getActiveGarmentTypeOrThrow(id: string) {
+    const garmentType = await this.prisma.garmentType.findFirst({
+      where: { id, deletedAt: null },
+      select: { id: true, deletedAt: true, isActive: true },
+    });
+
+    if (!garmentType) {
+      throw new NotFoundException('Garment type not found.');
+    }
+
+    return garmentType;
+  }
+
   // --- Branches ---
   async getBranches() {
     return this.prisma.branch.findMany({
@@ -89,9 +102,10 @@ export class ConfigService {
       search?: string;
       page?: number;
       limit?: number;
+      includeArchived?: boolean;
     } = {},
   ) {
-    const { search, page = 1, limit = 10 } = options;
+    const { search, page = 1, limit = 10, includeArchived = false } = options;
     const pagination = normalizePagination({
       page,
       limit,
@@ -99,10 +113,12 @@ export class ConfigService {
       maxLimit: 100,
     });
 
-    const where: Prisma.GarmentTypeWhereInput = {
-      isActive: true,
-      deletedAt: null,
-    };
+    const where: Prisma.GarmentTypeWhereInput = includeArchived
+      ? {}
+      : {
+          isActive: true,
+          deletedAt: null,
+        };
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -123,18 +139,31 @@ export class ConfigService {
             where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' },
           },
+          rateCards: {
+            where: {
+              deletedAt: null,
+              effectiveTo: null,
+              branchId: null,
+            },
+            select: { amount: true },
+          },
         },
       }),
     ]);
 
     const data = types.map((t) => {
+      const baselineLabourRate = t.rateCards.reduce(
+        (sum, rate) => sum + rate.amount,
+        0,
+      );
       return {
         ...t,
-        marginAmount: t.customerPrice - t.employeeRate,
+        marginAmount: t.customerPrice - baselineLabourRate,
         marginPercentage:
           t.customerPrice > 0
             ? Math.round(
-                ((t.customerPrice - t.employeeRate) / t.customerPrice) * 100,
+                ((t.customerPrice - baselineLabourRate) / t.customerPrice) *
+                  100,
               )
             : 0,
       };
@@ -155,6 +184,7 @@ export class ConfigService {
           where: { deletedAt: null },
           include: {
             sections: {
+              where: { deletedAt: null },
               orderBy: { sortOrder: 'asc' },
             },
             fields: {
@@ -184,8 +214,24 @@ export class ConfigService {
     const orderStats = await this.prisma.orderItem.aggregate({
       where: { garmentTypeId: id, deletedAt: null },
       _count: { id: true },
-      _sum: { unitPrice: true, employeeRate: true },
+      _sum: { unitPrice: true },
     });
+
+    const totalPayoutFromTasksResult = await this.prisma.$queryRaw<
+      [{ total: bigint }]
+    >(
+      Prisma.sql`
+        SELECT COALESCE(SUM(COALESCE(oit."rateOverride", oit."designRateSnapshot", oit."rateSnapshot", 0)), 0) AS total
+        FROM "OrderItemTask" oit
+        JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
+        JOIN "Order" o ON o.id = oi."orderId"
+        WHERE oi."garmentTypeId" = ${id}
+          AND oit."deletedAt" IS NULL
+          AND oit.status = 'DONE'
+          AND o."deletedAt" IS NULL
+      `,
+    );
+    const totalPayoutFromTasks = Number(totalPayoutFromTasksResult[0]?.total ?? 0);
 
     const activeOrdersCount = await this.prisma.orderItem.count({
       where: {
@@ -195,40 +241,56 @@ export class ConfigService {
       },
     });
 
-    // Top Tailors (Efficiency)
-    const topTailorsData = await this.prisma.orderItem.groupBy({
-      by: ['employeeId'],
-      where: {
-        garmentTypeId: id,
-        employeeId: { not: null },
-        status: 'COMPLETED',
-        deletedAt: null,
-      },
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-      take: 3,
-    });
+    // Top Tailors (Efficiency) based on completed workflow tasks.
+    const topTailorsData = await this.prisma.$queryRaw<
+      Array<{ employeeId: string; count: bigint }>
+    >(
+      Prisma.sql`
+        SELECT
+          oit."assignedEmployeeId" AS "employeeId",
+          COUNT(*)::bigint AS "count"
+        FROM "OrderItemTask" oit
+        JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
+        JOIN "Order" o ON o.id = oi."orderId"
+        WHERE oi."garmentTypeId" = ${id}
+          AND oit."assignedEmployeeId" IS NOT NULL
+          AND oit."status" = 'DONE'
+          AND oit."deletedAt" IS NULL
+          AND oi."deletedAt" IS NULL
+          AND o."deletedAt" IS NULL
+        GROUP BY oit."assignedEmployeeId"
+        ORDER BY COUNT(*) DESC
+        LIMIT 3
+      `,
+    );
 
-    const topTailors = await Promise.all(
-      topTailorsData.map(async (t) => {
-        const employee = await this.prisma.employee.findUnique({
-          where: { id: t.employeeId! },
-          select: { fullName: true },
-        });
-        return {
-          name: employee?.fullName || 'Removed Employee',
-          count: t._count.id,
-        };
-      }),
+    const employeeIds = topTailorsData.map((entry) => entry.employeeId);
+    const employees = employeeIds.length
+      ? await this.prisma.employee.findMany({
+          where: { id: { in: employeeIds } },
+          select: { id: true, fullName: true },
+        })
+      : [];
+    const employeeNameMap = new Map(
+      employees.map((employee) => [employee.id, employee.fullName]),
+    );
+    const topTailors = topTailorsData.map((entry) => ({
+      name: employeeNameMap.get(entry.employeeId) ?? 'Removed Employee',
+      count: Number(entry.count),
+    }));
+
+    const globalActiveRateTotal = (garment.rateCards || []).reduce(
+      (sum, rate) => sum + (rate.branchId ? 0 : rate.amount),
+      0,
     );
 
     const result: GarmentTypeWithAnalytics = {
       ...garment,
-      marginAmount: garment.customerPrice - garment.employeeRate,
+      marginAmount: garment.customerPrice - globalActiveRateTotal,
       marginPercentage:
         garment.customerPrice > 0
           ? Math.round(
-              ((garment.customerPrice - garment.employeeRate) /
+              ((garment.customerPrice - globalActiveRateTotal) /
                 garment.customerPrice) *
                 100,
             )
@@ -252,7 +314,7 @@ export class ConfigService {
         totalOrders: orderStats._count.id,
         activeOrders: activeOrdersCount,
         totalRevenue: orderStats._sum.unitPrice || 0,
-        totalPayout: orderStats._sum.employeeRate || 0,
+        totalPayout: totalPayoutFromTasks,
         avgActualPrice:
           orderStats._count.id > 0
             ? Math.round(
@@ -285,9 +347,13 @@ export class ConfigService {
     dto: UpdateGarmentTypeDto,
     userId: string,
   ) {
-    const current = await this.prisma.garmentType.findUniqueOrThrow({
-      where: { id },
+    const current = await this.prisma.garmentType.findFirst({
+      where: { id, deletedAt: null },
     });
+
+    if (!current) {
+      throw new NotFoundException('Garment type not found.');
+    }
     const { measurementCategoryIds, ...data } = dto;
 
     const result = await this.prisma.garmentType.update({
@@ -304,19 +370,15 @@ export class ConfigService {
 
     // Create log if price changed
     if (
-      (dto.customerPrice !== undefined &&
-        dto.customerPrice !== current.customerPrice) ||
-      (dto.employeeRate !== undefined &&
-        dto.employeeRate !== current.employeeRate)
+      dto.customerPrice !== undefined &&
+      dto.customerPrice !== current.customerPrice
     ) {
       await this.prisma.garmentPriceLog.create({
         data: {
           garmentType: { connect: { id } },
           changedBy: { connect: { id: userId } },
           oldCustomerPrice: current.customerPrice,
-          oldEmployeeRate: current.employeeRate,
           newCustomerPrice: dto.customerPrice ?? current.customerPrice,
-          newEmployeeRate: dto.employeeRate ?? current.employeeRate,
           action: 'UPDATE',
         },
       });
@@ -325,13 +387,81 @@ export class ConfigService {
     return result;
   }
 
-  async deleteGarmentType(id: string) {
-    await this.prisma.garmentType.findUniqueOrThrow({
-      where: { id, deletedAt: null },
-    });
-    return this.prisma.garmentType.update({
+  async deleteGarmentType(id: string, preview = false) {
+    await this.getActiveGarmentTypeOrThrow(id);
+
+    const [workflowStepCount, activeRateCount, linkedOrderItemCount] =
+      await Promise.all([
+        this.prisma.workflowStepTemplate.count({
+          where: { garmentTypeId: id, deletedAt: null },
+        }),
+        this.prisma.rateCard.count({
+          where: {
+            garmentTypeId: id,
+            deletedAt: null,
+            effectiveTo: null,
+          },
+        }),
+        this.prisma.orderItem.count({
+          where: {
+            garmentTypeId: id,
+            deletedAt: null,
+            order: { deletedAt: null },
+          },
+        }),
+      ]);
+
+    if (preview) {
+      return {
+        action: 'ARCHIVE',
+        blocked: false,
+        blockedReasons: [],
+        affected: {
+          garments: 1,
+          workflowSteps: workflowStepCount,
+          activeRates: activeRateCount,
+          historicalOrderItems: linkedOrderItemCount,
+        },
+        archivedGarmentTypeId: id,
+      };
+    }
+
+    await this.prisma.garmentType.update({
       where: { id },
       data: { deletedAt: new Date(), isActive: false },
+    });
+
+    return {
+      action: 'ARCHIVE',
+      blocked: false,
+      blockedReasons: [],
+      affected: {
+        garments: 1,
+        workflowSteps: workflowStepCount,
+        activeRates: activeRateCount,
+        historicalOrderItems: linkedOrderItemCount,
+      },
+      archivedGarmentTypeId: id,
+    };
+  }
+
+  async restoreGarmentType(id: string) {
+    const garment = await this.prisma.garmentType.findUnique({
+      where: { id },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (!garment) {
+      throw new NotFoundException('Garment type not found.');
+    }
+
+    if (!garment.deletedAt) {
+      return garment;
+    }
+
+    return this.prisma.garmentType.update({
+      where: { id },
+      data: { deletedAt: null, isActive: true },
     });
   }
 
@@ -339,9 +469,7 @@ export class ConfigService {
     garmentTypeId: string,
     dto: UpdateGarmentWorkflowStepsDto,
   ) {
-    await this.prisma.garmentType.findUniqueOrThrow({
-      where: { id: garmentTypeId, deletedAt: null },
-    });
+    await this.getActiveGarmentTypeOrThrow(garmentTypeId);
 
     const normalizedSteps = dto.steps.map((step, index) => {
       const stepKey = step.stepKey.trim().toUpperCase();
@@ -382,11 +510,50 @@ export class ConfigService {
       seenStepKeys.add(step.stepKey);
     }
 
+    const existingSteps = await this.prisma.workflowStepTemplate.findMany({
+      where: {
+        garmentTypeId,
+        deletedAt: null,
+      },
+      select: {
+        stepKey: true,
+      },
+    });
+
+    const incomingStepKeys = new Set(normalizedSteps.map((step) => step.stepKey));
+    const removedStepKeys = existingSteps
+      .map((step) => step.stepKey)
+      .filter((stepKey) => !incomingStepKeys.has(stepKey));
+
+    if (removedStepKeys.length > 0) {
+      const openTasksCount = await this.prisma.orderItemTask.count({
+        where: {
+          stepKey: { in: removedStepKeys },
+          status: { in: ['PENDING', 'IN_PROGRESS'] },
+          deletedAt: null,
+          orderItem: {
+            garmentTypeId,
+            deletedAt: null,
+            order: {
+              deletedAt: null,
+            },
+          },
+        },
+      });
+
+      if (openTasksCount > 0) {
+        throw new BadRequestException(
+          `Cannot remove workflow steps with ${openTasksCount} open task(s). Complete or cancel those tasks first.`,
+        );
+      }
+    }
+
     return this.prisma.$transaction(async (tx) => {
-      // Soft delete existing active steps not in the incoming payload (if needed, or just hard delete if they haven't been used, but soft delete is safer)
+      const now = new Date();
+
       await tx.workflowStepTemplate.updateMany({
         where: { garmentTypeId },
-        data: { deletedAt: new Date(), isActive: false },
+        data: { deletedAt: now, isActive: false },
       });
 
       // Insert or Update the incoming steps
@@ -400,7 +567,7 @@ export class ConfigService {
             sortOrder: step.sortOrder,
             isRequired: step.isRequired ?? true,
             isActive: step.isActive ?? true,
-            deletedAt: null, // Restore if previously soft deleted
+            deletedAt: null,
           },
           create: {
             garmentTypeId: garmentTypeId,
@@ -409,6 +576,33 @@ export class ConfigService {
             sortOrder: step.sortOrder,
             isRequired: step.isRequired ?? true,
             isActive: step.isActive ?? true,
+          },
+        });
+      }
+
+      if (removedStepKeys.length > 0) {
+        await tx.rateCard.updateMany({
+          where: {
+            garmentTypeId,
+            stepKey: { in: removedStepKeys },
+            deletedAt: null,
+            effectiveTo: null,
+          },
+          data: {
+            effectiveTo: now,
+          },
+        });
+
+        await tx.employeeCapability.updateMany({
+          where: {
+            garmentTypeId,
+            stepKey: { in: removedStepKeys },
+            deletedAt: null,
+            OR: [{ effectiveTo: null }, { effectiveTo: { gte: now } }],
+          },
+          data: {
+            effectiveTo: now,
+            note: 'Auto-closed because the workflow step was archived.',
           },
         });
       }
@@ -458,7 +652,7 @@ export class ConfigService {
   // --- Measurement Categories & Fields ---
   private async getNextSectionSortOrder(categoryId: string) {
     const aggregate = await this.prisma.measurementSection.aggregate({
-      where: { categoryId },
+      where: { categoryId, deletedAt: null },
       _max: { sortOrder: true },
     });
     return (aggregate._max.sortOrder ?? -1) + 1;
@@ -468,6 +662,7 @@ export class ConfigService {
     const existingDefault = await this.prisma.measurementSection.findFirst({
       where: {
         categoryId,
+        deletedAt: null,
         name: { equals: 'General', mode: 'insensitive' },
       },
     });
@@ -493,8 +688,8 @@ export class ConfigService {
   ) {
     const normalizedSectionId = sectionId?.trim();
     if (normalizedSectionId) {
-      const section = await this.prisma.measurementSection.findUnique({
-        where: { id: normalizedSectionId },
+      const section = await this.prisma.measurementSection.findFirst({
+        where: { id: normalizedSectionId, deletedAt: null },
       });
 
       if (!section || section.categoryId !== categoryId) {
@@ -509,6 +704,7 @@ export class ConfigService {
       const existing = await this.prisma.measurementSection.findFirst({
         where: {
           categoryId,
+          deletedAt: null,
           name: { equals: normalizedSectionName, mode: 'insensitive' },
         },
       });
@@ -531,9 +727,19 @@ export class ConfigService {
   }
 
   async getMeasurementCategories(
-    options: { search?: string; page?: number; limit?: number } = {},
+    options: {
+      search?: string;
+      page?: number;
+      limit?: number;
+      includeArchived?: boolean;
+    } = {},
   ) {
-    const { search, page = 1, limit = 10 } = options;
+    const {
+      search,
+      page = 1,
+      limit = 10,
+      includeArchived = false,
+    } = options;
     const pagination = normalizePagination({
       page,
       limit,
@@ -541,10 +747,12 @@ export class ConfigService {
       maxLimit: 100,
     });
 
-    const where: Prisma.MeasurementCategoryWhereInput = {
-      isActive: true,
-      deletedAt: null,
-    };
+    const where: Prisma.MeasurementCategoryWhereInput = includeArchived
+      ? {}
+      : {
+          isActive: true,
+          deletedAt: null,
+        };
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
     }
@@ -557,11 +765,16 @@ export class ConfigService {
         skip: pagination.skip,
         take: pagination.limit,
         include: {
-          sections: {
-            orderBy: { sortOrder: 'asc' },
-          },
+          sections: includeArchived
+            ? {
+                orderBy: { sortOrder: 'asc' },
+              }
+            : {
+                where: { deletedAt: null },
+                orderBy: { sortOrder: 'asc' },
+              },
           fields: {
-            where: { deletedAt: null },
+            ...(includeArchived ? {} : { where: { deletedAt: null } }),
             orderBy: { sortOrder: 'asc' },
             include: {
               section: true,
@@ -574,15 +787,24 @@ export class ConfigService {
     return toPaginatedResponse(data, total, pagination);
   }
 
-  async getMeasurementCategory(id: string) {
+  async getMeasurementCategory(
+    id: string,
+    options: { includeArchived?: boolean } = {},
+  ) {
+    const { includeArchived = false } = options;
     const category = await this.prisma.measurementCategory.findUnique({
       where: { id },
       include: {
-        sections: {
-          orderBy: { sortOrder: 'asc' },
-        },
+        sections: includeArchived
+          ? {
+              orderBy: { sortOrder: 'asc' },
+            }
+          : {
+              where: { deletedAt: null },
+              orderBy: { sortOrder: 'asc' },
+            },
         fields: {
-          where: { deletedAt: null },
+          ...(includeArchived ? {} : { where: { deletedAt: null } }),
           orderBy: { sortOrder: 'asc' },
           include: {
             section: true,
@@ -591,7 +813,11 @@ export class ConfigService {
       },
     });
 
-    if (!category || category.deletedAt) {
+    if (!category) {
+      throw new NotFoundException('Measurement category not found');
+    }
+
+    if (!includeArchived && category.deletedAt) {
       throw new NotFoundException('Measurement category not found');
     }
 
@@ -667,7 +893,9 @@ export class ConfigService {
     id: string,
     dto: UpdateMeasurementCategoryDto,
   ) {
-    await this.prisma.measurementCategory.findUniqueOrThrow({ where: { id } });
+    await this.prisma.measurementCategory.findFirstOrThrow({
+      where: { id, deletedAt: null },
+    });
     // For now, we only update the category details.
     // MeasurementCategoryDialog specifically handles CATEGORY edit,
     // and MeasurementCategoryDetail handles FIELD edits separately.
@@ -698,6 +926,7 @@ export class ConfigService {
     const duplicate = await this.prisma.measurementSection.findFirst({
       where: {
         categoryId,
+        deletedAt: null,
         name: { equals: normalizedName, mode: 'insensitive' },
       },
     });
@@ -723,8 +952,8 @@ export class ConfigService {
     sectionId: string,
     dto: UpdateMeasurementSectionDto,
   ) {
-    const section = await this.prisma.measurementSection.findUnique({
-      where: { id: sectionId },
+    const section = await this.prisma.measurementSection.findFirst({
+      where: { id: sectionId, deletedAt: null },
     });
 
     if (!section) {
@@ -742,6 +971,7 @@ export class ConfigService {
       const duplicate = await this.prisma.measurementSection.findFirst({
         where: {
           categoryId: section.categoryId,
+          deletedAt: null,
           id: { not: sectionId },
           name: { equals: normalizedName, mode: 'insensitive' },
         },
@@ -773,6 +1003,7 @@ export class ConfigService {
   async deleteMeasurementSection(
     sectionId: string,
     dto: DeleteMeasurementSectionDto = {},
+    preview = false,
   ) {
     const section = await this.prisma.measurementSection.findUnique({
       where: { id: sectionId },
@@ -786,7 +1017,7 @@ export class ConfigService {
       },
     });
 
-    if (!section || section.category.deletedAt) {
+    if (!section || section.deletedAt || section.category.deletedAt) {
       throw new NotFoundException('Measurement section not found.');
     }
 
@@ -795,50 +1026,106 @@ export class ConfigService {
     });
 
     const targetSectionId = dto.targetSectionId?.trim();
+    const blockedReasons: { code: string; message: string }[] = [];
+
+    let targetSection:
+      | {
+          id: string;
+          categoryId: string;
+        }
+      | null = null;
 
     if (activeFieldCount > 0) {
       if (!targetSectionId) {
-        throw new BadRequestException(
-          'Target section is required to move fields before deleting this section.',
-        );
+        blockedReasons.push({
+          code: 'TARGET_SECTION_REQUIRED',
+          message:
+            'Target section is required to move fields before archiving this section.',
+        });
       }
 
-      if (targetSectionId === sectionId) {
-        throw new BadRequestException(
-          'Target section must be different from the section being deleted.',
-        );
+      if (targetSectionId && targetSectionId === sectionId) {
+        blockedReasons.push({
+          code: 'TARGET_SECTION_INVALID',
+          message:
+            'Target section must be different from the section being archived.',
+        });
       }
 
-      const targetSection = await this.prisma.measurementSection.findUnique({
-        where: { id: targetSectionId },
-      });
+      if (targetSectionId && targetSectionId !== sectionId) {
+        targetSection = await this.prisma.measurementSection.findFirst({
+          where: { id: targetSectionId, deletedAt: null },
+          select: { id: true, categoryId: true },
+        });
 
-      if (!targetSection || targetSection.categoryId !== section.categoryId) {
-        throw new NotFoundException('Target measurement section not found.');
+        if (!targetSection || targetSection.categoryId !== section.categoryId) {
+          blockedReasons.push({
+            code: 'TARGET_SECTION_NOT_FOUND',
+            message:
+              'Target measurement section was not found in this category.',
+          });
+        }
       }
+    }
 
+    if (preview) {
+      return {
+        action: 'ARCHIVE',
+        blocked: blockedReasons.length > 0,
+        blockedReasons,
+        affected: {
+          sections: 1,
+          movedFields: blockedReasons.length > 0 ? 0 : activeFieldCount,
+        },
+        deletedSectionId: sectionId,
+        movedFieldCount: blockedReasons.length > 0 ? 0 : activeFieldCount,
+        targetSectionId: targetSection?.id ?? null,
+      };
+    }
+
+    if (blockedReasons.length > 0) {
+      throw new BadRequestException(blockedReasons[0].message);
+    }
+
+    if (activeFieldCount > 0 && targetSection?.id) {
       await this.prisma.$transaction([
         this.prisma.measurementField.updateMany({
           where: { sectionId, deletedAt: null },
-          data: { sectionId: targetSectionId },
+          data: { sectionId: targetSection.id },
         }),
-        this.prisma.measurementSection.delete({
+        this.prisma.measurementSection.update({
           where: { id: sectionId },
+          data: { deletedAt: new Date() },
         }),
       ]);
 
       return {
+        action: 'ARCHIVE',
+        blocked: false,
+        blockedReasons: [],
+        affected: {
+          sections: 1,
+          movedFields: activeFieldCount,
+        },
         deletedSectionId: sectionId,
         movedFieldCount: activeFieldCount,
-        targetSectionId,
-      };
+        targetSectionId: targetSection.id,
+      }
     }
 
-    await this.prisma.measurementSection.delete({
+    await this.prisma.measurementSection.update({
       where: { id: sectionId },
+      data: { deletedAt: new Date() },
     });
 
     return {
+      action: 'ARCHIVE',
+      blocked: false,
+      blockedReasons: [],
+      affected: {
+        sections: 1,
+        movedFields: 0,
+      },
       deletedSectionId: sectionId,
       movedFieldCount: 0,
       targetSectionId: null,
@@ -853,8 +1140,8 @@ export class ConfigService {
     if (!label) {
       throw new BadRequestException('Field label is required.');
     }
-    const category = await this.prisma.measurementCategory.findUniqueOrThrow({
-      where: { id: categoryId },
+    const category = await this.prisma.measurementCategory.findFirstOrThrow({
+      where: { id: categoryId, deletedAt: null },
       include: { fields: { where: { deletedAt: null } } },
     });
 
@@ -885,8 +1172,8 @@ export class ConfigService {
   }
 
   async updateMeasurementField(id: string, dto: UpdateMeasurementFieldDto) {
-    const field = await this.prisma.measurementField.findUniqueOrThrow({
-      where: { id },
+    const field = await this.prisma.measurementField.findFirstOrThrow({
+      where: { id, deletedAt: null },
     });
 
     if (dto.label) {
@@ -930,23 +1217,194 @@ export class ConfigService {
     });
   }
 
-  async deleteMeasurementField(id: string) {
-    await this.prisma.measurementField.findUniqueOrThrow({
+  async deleteMeasurementField(id: string, preview = false) {
+    const field = await this.prisma.measurementField.findFirstOrThrow({
       where: { id, deletedAt: null },
+      select: { id: true, categoryId: true },
     });
-    return this.prisma.measurementField.update({
+
+    const customerMeasurementCount = await this.prisma.customerMeasurement.count({
+      where: { categoryId: field.categoryId },
+    });
+
+    if (preview) {
+      return {
+        action: 'ARCHIVE',
+        blocked: false,
+        blockedReasons: [],
+        affected: {
+          fields: 1,
+          historicalCustomerMeasurements: customerMeasurementCount,
+        },
+        archivedFieldId: id,
+      };
+    }
+
+    await this.prisma.measurementField.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
+
+    return {
+      action: 'ARCHIVE',
+      blocked: false,
+      blockedReasons: [],
+      affected: {
+        fields: 1,
+        historicalCustomerMeasurements: customerMeasurementCount,
+      },
+      archivedFieldId: id,
+    };
   }
 
-  async deleteMeasurementCategory(id: string) {
-    await this.prisma.measurementCategory.findUniqueOrThrow({
+  async deleteMeasurementCategory(id: string, preview = false) {
+    const category = await this.prisma.measurementCategory.findFirstOrThrow({
       where: { id, deletedAt: null },
+      include: {
+        garmentTypes: {
+          where: { deletedAt: null },
+          select: { id: true },
+        },
+        fields: {
+          where: { deletedAt: null },
+          select: { id: true },
+        },
+        sections: {
+          where: { deletedAt: null },
+          select: { id: true },
+        },
+      },
     });
-    return this.prisma.measurementCategory.update({
+
+    const historicalMeasurementCount = await this.prisma.customerMeasurement
+      .count({
+        where: { categoryId: id },
+      });
+
+    if (preview) {
+      return {
+        action: 'ARCHIVE',
+        blocked: false,
+        blockedReasons: [],
+        affected: {
+          categories: 1,
+          linkedGarments: category.garmentTypes.length,
+          activeSections: category.sections.length,
+          activeFields: category.fields.length,
+          historicalCustomerMeasurements: historicalMeasurementCount,
+        },
+        archivedCategoryId: id,
+      };
+    }
+
+    await this.prisma.measurementCategory.update({
       where: { id },
       data: { deletedAt: new Date(), isActive: false },
+    });
+
+    return {
+      action: 'ARCHIVE',
+      blocked: false,
+      blockedReasons: [],
+      affected: {
+        categories: 1,
+        linkedGarments: category.garmentTypes.length,
+        activeSections: category.sections.length,
+        activeFields: category.fields.length,
+        historicalCustomerMeasurements: historicalMeasurementCount,
+      },
+      archivedCategoryId: id,
+    };
+  }
+
+  async restoreMeasurementCategory(id: string) {
+    const category = await this.prisma.measurementCategory.findUnique({
+      where: { id },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Measurement category not found.');
+    }
+
+    if (!category.deletedAt) {
+      return category;
+    }
+
+    return this.prisma.measurementCategory.update({
+      where: { id },
+      data: { deletedAt: null, isActive: true },
+    });
+  }
+
+  async restoreMeasurementField(id: string) {
+    const field = await this.prisma.measurementField.findUnique({
+      where: { id },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (!field) {
+      throw new NotFoundException('Measurement field not found.');
+    }
+
+    if (!field.deletedAt) {
+      return field;
+    }
+
+    return this.prisma.measurementField.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
+
+  async restoreMeasurementSection(id: string) {
+    const section = await this.prisma.measurementSection.findUnique({
+      where: { id },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (!section) {
+      throw new NotFoundException('Measurement section not found.');
+    }
+
+    if (!section.deletedAt) {
+      return section;
+    }
+
+    return this.prisma.measurementSection.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
+
+  async restoreGarmentWorkflowStep(garmentTypeId: string, stepKeyRaw: string) {
+    await this.getActiveGarmentTypeOrThrow(garmentTypeId);
+    const stepKey = stepKeyRaw.trim().toUpperCase();
+    const existing = await this.prisma.workflowStepTemplate.findUnique({
+      where: {
+        garmentTypeId_stepKey: {
+          garmentTypeId,
+          stepKey,
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('Workflow step template not found.');
+    }
+
+    return this.prisma.workflowStepTemplate.update({
+      where: {
+        garmentTypeId_stepKey: {
+          garmentTypeId,
+          stepKey,
+        },
+      },
+      data: {
+        deletedAt: null,
+        isActive: true,
+      },
     });
   }
 }

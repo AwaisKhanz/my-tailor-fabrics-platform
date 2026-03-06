@@ -23,6 +23,7 @@ export function useMeasurementCategoriesPage() {
       page: "1",
       limit: String(PAGE_SIZE),
       search: "",
+      includeArchived: "false",
     },
   });
 
@@ -32,9 +33,12 @@ export function useMeasurementCategoriesPage() {
   const [stats, setStats] = useState<MeasurementStats>(EMPTY_MEASUREMENT_STATS);
 
   const search = values.search;
+  const includeArchived = values.includeArchived === "true";
   const debouncedSearch = useDebounce(search, 500);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
+
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<MeasurementCategory | null>(null);
@@ -50,6 +54,7 @@ export function useMeasurementCategoriesPage() {
           search: debouncedSearch.trim() || undefined,
           page,
           limit: pageSize,
+          includeArchived,
         }),
         configApi.getMeasurementStats(),
       ]);
@@ -67,13 +72,20 @@ export function useMeasurementCategoriesPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, page, pageSize]);
+  }, [debouncedSearch, includeArchived, page, pageSize]);
 
   useEffect(() => {
     void fetchCategories();
   }, [fetchCategories]);
 
-  const hasActiveFilters = useMemo(() => search.trim().length > 0, [search]);
+  const hasActiveFilters = useMemo(
+    () => search.trim().length > 0 || includeArchived,
+    [includeArchived, search],
+  );
+  const activeFilterCount = useMemo(
+    () => (search.trim().length > 0 ? 1 : 0) + (includeArchived ? 1 : 0),
+    [includeArchived, search],
+  );
 
   const setSearchFilter = useCallback((value: string) => {
     setValues({
@@ -85,6 +97,16 @@ export function useMeasurementCategoriesPage() {
   const resetFilters = useCallback(() => {
     resetValues();
   }, [resetValues]);
+
+  const setIncludeArchived = useCallback(
+    (next: boolean) => {
+      setValues({
+        includeArchived: next ? "true" : "false",
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const setPage = useCallback((nextPage: number) => {
     setValues({ page: String(nextPage) });
@@ -126,18 +148,42 @@ export function useMeasurementCategoriesPage() {
 
     try {
       await configApi.deleteMeasurementCategory(categoryToDelete.id);
-      toast({ title: "Category deleted" });
+      toast({ title: "Category archived" });
       setCategoryToDelete(null);
       setIsConfirmOpen(false);
       await fetchCategories();
     } catch {
       toast({
         title: "Error",
-        description: "Failed to delete category",
+        description: "Failed to archive category",
         variant: "destructive",
       });
     }
   }, [categoryToDelete, fetchCategories, toast]);
+
+  const restoreCategory = useCallback(
+    async (category: MeasurementCategory) => {
+      if (!category.deletedAt) {
+        return;
+      }
+
+      setRestoringId(category.id);
+      try {
+        await configApi.restoreMeasurementCategory(category.id);
+        toast({ title: "Category restored" });
+        await fetchCategories();
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to restore category",
+          variant: "destructive",
+        });
+      } finally {
+        setRestoringId(null);
+      }
+    },
+    [fetchCategories, toast],
+  );
 
   return {
     loading,
@@ -145,6 +191,9 @@ export function useMeasurementCategoriesPage() {
     total,
     stats,
     search,
+    includeArchived,
+    activeFilterCount,
+    restoringId,
     page,
     pageSize,
     hasActiveFilters,
@@ -154,6 +203,7 @@ export function useMeasurementCategoriesPage() {
     categoryToDelete,
     setPage,
     setSearchFilter,
+    setIncludeArchived,
     resetFilters,
     openCreateDialog,
     openEditDialog,
@@ -161,6 +211,7 @@ export function useMeasurementCategoriesPage() {
     requestDelete,
     closeConfirm,
     confirmDelete,
+    restoreCategory,
     fetchCategories,
   };
 }

@@ -61,11 +61,13 @@ export function GarmentWorkflowStepsDialog({
   const [steps, setSteps] = useState<WorkflowStepDraft[]>([]);
   const [draggingStepId, setDraggingStepId] = useState<string | null>(null);
   const [dragOverStepId, setDragOverStepId] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
+      setValidationError(null);
       setSteps(
         normalizeStepOrder(
           [...initialSteps]
@@ -82,6 +84,7 @@ export function GarmentWorkflowStepsDialog({
         ),
       );
     } else {
+      setValidationError(null);
       setDraggingStepId(null);
       setDragOverStepId(null);
     }
@@ -124,6 +127,7 @@ export function GarmentWorkflowStepsDialog({
   };
 
   const handleAddStep = () => {
+    setValidationError(null);
     setSteps((current) =>
       normalizeStepOrder([
         ...current,
@@ -140,6 +144,7 @@ export function GarmentWorkflowStepsDialog({
   };
 
   const handleRemoveStep = (index: number) => {
+    setValidationError(null);
     setSteps((current) =>
       normalizeStepOrder(current.filter((_, currentIndex) => currentIndex !== index)),
     );
@@ -150,6 +155,7 @@ export function GarmentWorkflowStepsDialog({
     field: K,
     value: WorkflowStepTemplateInput[K],
   ) => {
+    setValidationError(null);
     setSteps((current) => {
       const nextSteps = [...current];
 
@@ -220,26 +226,21 @@ export function GarmentWorkflowStepsDialog({
   };
 
   const onSubmit = async () => {
-    const payload = normalizeStepOrder(
-      steps.map((step) => ({
-        id: step.id,
-        stepKey: step.stepKey,
-        stepName: step.stepName,
-        sortOrder: step.sortOrder,
-        isRequired: step.isRequired,
-        isActive: step.isActive,
-      })),
-    );
+    const payload = normalizeStepOrder([...steps]).map((step) => ({
+      id: step.id,
+      stepKey: step.stepKey,
+      stepName: step.stepName,
+      sortOrder: step.sortOrder,
+      isRequired: step.isRequired,
+      isActive: step.isActive,
+    }));
 
     const parsedResult = garmentWorkflowStepsFormSchema.safeParse({ steps: payload });
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
-      });
+      setValidationError(getFirstZodErrorMessage(parsedResult.error));
       return;
     }
+    setValidationError(null);
 
     try {
       setLoading(true);
@@ -291,6 +292,9 @@ export function GarmentWorkflowStepsDialog({
             void onSubmit();
           }}
         >
+          {validationError ? (
+            <p className="text-xs text-destructive">{validationError}</p>
+          ) : null}
           {steps.map((step, index) => (
             <InfoTile
               tone="primarySoft"

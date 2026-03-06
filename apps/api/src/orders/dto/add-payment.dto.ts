@@ -9,3 +9,9 @@ export class AddPaymentDto {
   @IsOptional()
   note?: string;
 }
+
+export class ReverseOrderPaymentDto {
+  @IsString()
+  @IsOptional()
+  note?: string;
+}

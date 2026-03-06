@@ -45,7 +45,7 @@ export function useDesignTypeDialog({
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<DesignTypeFormValues>({
-    resolver: typedZodResolver<DesignTypeFormValues>(designTypeFormSchema),
+    resolver: typedZodResolver(designTypeFormSchema),
     defaultValues: DEFAULT_VALUES,
   });
 

@@ -8,7 +8,7 @@ export const EMPLOYEE_STATUS_LABELS: Record<EmployeeStatus, string> = {
 
 export const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
   [PaymentType.PER_PIECE]: 'Per Piece (Commission)',
-  [PaymentType.WEEKLY_FIXED]: 'Weekly Fixed Salary',
+  [PaymentType.MONTHLY_FIXED]: 'Monthly Fixed Salary',
 };
 
 export const EMPLOYEE_STATUS_BADGE: Record<EmployeeStatus, BadgeVariant> = {

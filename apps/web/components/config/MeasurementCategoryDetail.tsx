@@ -35,6 +35,8 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
     loading,
     category,
     notFound,
+    includeArchived,
+    setIncludeArchived,
     isFieldDialogOpen,
     selectedField,
     preferredSectionId,
@@ -53,6 +55,8 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
     confirmDeleteField,
     moveFieldToSection,
     deleteSection,
+    restoreField,
+    restoreSection,
     fetchCategory,
   } = useMeasurementCategoryDetailPage(id);
 
@@ -179,6 +183,8 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
 
         <MeasurementCategoryDetailHeader
           category={category}
+          includeArchived={includeArchived}
+          onIncludeArchivedChange={setIncludeArchived}
           onAddSection={openAddSectionDialog}
           onAddField={openAddFieldDialog}
           canManageMeasurements={canManageMeasurements}
@@ -194,10 +200,14 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
           sections={category?.sections ?? []}
           fields={category?.fields ?? []}
           loading={loading}
+          showArchived={includeArchived}
           canManageSections={canManageMeasurements}
           onAddSection={openAddSectionDialog}
           onEditSection={openEditSectionDialog}
           onDeleteSection={openDeleteSectionDialog}
+          onRestoreSection={(section) => {
+            void restoreSection(section.id);
+          }}
           onAddFieldToSection={(sectionId) => openAddFieldDialog(sectionId)}
         />
       </PageSection>
@@ -207,8 +217,12 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
           fields={category?.fields || []}
           sections={category?.sections || []}
           loading={loading}
+          showArchived={includeArchived}
           onEditField={openEditFieldDialog}
           onDeleteField={requestDeleteField}
+          onRestoreField={(field) => {
+            void restoreField(field.id);
+          }}
           onMoveFieldSection={moveFieldToSection}
           canManageFields={canManageMeasurements}
         />
@@ -243,21 +257,21 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
           <ConfirmDialog
             open={isConfirmOpen}
             onOpenChange={closeDeleteConfirm}
-            title="Delete Field"
-            description={`Are you sure you want to delete the field "${fieldToDelete?.label}"? This action cannot be undone.`}
+            title="Archive Field"
+            description={`Archive "${fieldToDelete?.label}"? It will be removed from new forms but historical values will remain visible.`}
             onConfirm={() => {
               void confirmDeleteField();
             }}
-            confirmText="Delete Field"
+            confirmText="Archive Field"
           />
 
           <ScrollableDialog
             open={isSectionDeleteOpen}
             onOpenChange={closeDeleteSectionDialog}
-            title="Delete Section"
+            title="Archive Section"
             description={
               sectionToDelete
-                ? `Remove "${sectionToDelete.name}" section from ${category?.name ?? "this category"}.`
+                ? `Archive "${sectionToDelete.name}" from ${category?.name ?? "this category"}.`
                 : undefined
             }
             maxWidthClass="sm:max-w-lg"
@@ -283,7 +297,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
                     (requiresMoveTarget && !targetSectionId)
                   }
                 >
-                  {isDeletingSection ? "Deleting..." : "Delete Section"}
+                  {isDeletingSection ? "Archiving..." : "Archive Section"}
                 </Button>
               </div>
             }
@@ -298,8 +312,8 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
               <div className="space-y-4">
                 <Typography as="p" variant="body">
                   {requiresMoveTarget
-                    ? `This section has ${fieldsInDeletingSection} field${fieldsInDeletingSection === 1 ? "" : "s"}. Choose where these fields should move before deletion.`
-                    : "This section has no active fields and will be removed immediately."}
+                    ? `This section has ${fieldsInDeletingSection} field${fieldsInDeletingSection === 1 ? "" : "s"}. Choose where these fields should move before archiving.`
+                    : "This section has no active fields and will be archived immediately."}
                 </Typography>
 
                 {requiresMoveTarget ? (

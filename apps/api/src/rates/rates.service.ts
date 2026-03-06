@@ -15,20 +15,22 @@ const MAX_LIMIT = 100;
 export class RatesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private buildSearchOr(search?: string): Prisma.RateCardWhereInput['OR'] {
+  private buildSearchWhere(search?: string): Prisma.RateCardWhereInput | undefined {
     const searchTerm = search?.trim();
     if (!searchTerm) {
       return undefined;
     }
 
-    return [
-      { stepKey: { contains: searchTerm, mode: 'insensitive' } },
-      {
-        garmentType: {
-          name: { contains: searchTerm, mode: 'insensitive' },
+    return {
+      OR: [
+        { stepKey: { contains: searchTerm, mode: 'insensitive' } },
+        {
+          garmentType: {
+            name: { contains: searchTerm, mode: 'insensitive' },
+          },
         },
-      },
-    ];
+      ],
+    };
   }
 
   async findEffectiveRate(
@@ -76,6 +78,21 @@ export class RatesService {
     }
 
     return this.prisma.$transaction(async (tx) => {
+      const garmentType = await tx.garmentType.findFirst({
+        where: {
+          id: dto.garmentTypeId,
+          deletedAt: null,
+          isActive: true,
+        },
+        select: { id: true },
+      });
+
+      if (!garmentType) {
+        throw new BadRequestException(
+          'Cannot create rate for an archived or inactive garment type.',
+        );
+      }
+
       const stepTemplate = await tx.workflowStepTemplate.findFirst({
         where: {
           garmentTypeId: dto.garmentTypeId,
@@ -157,6 +174,19 @@ export class RatesService {
     } = {},
   ) {
     const { branchId, search } = options;
+    const filters: Prisma.RateCardWhereInput[] = [];
+
+    if (branchId) {
+      filters.push({
+        OR: [{ branchId }, { branchId: null }],
+      });
+    }
+
+    const searchWhere = this.buildSearchWhere(search);
+    if (searchWhere) {
+      filters.push(searchWhere);
+    }
+
     const pagination = normalizePagination({
       page: options.page,
       limit: options.limit,
@@ -164,10 +194,10 @@ export class RatesService {
       defaultLimit: DEFAULT_LIMIT,
       maxLimit: MAX_LIMIT,
     });
+
     const where: Prisma.RateCardWhereInput = {
       deletedAt: null,
-      ...(branchId ? { branchId } : {}),
-      OR: this.buildSearchOr(search),
+      ...(filters.length > 0 ? { AND: filters } : {}),
     };
 
     const [total, data] = await Promise.all([
@@ -192,37 +222,52 @@ export class RatesService {
   }
 
   async getStats(options: { branchId?: string | null; search?: string } = {}) {
-    const searchOr = this.buildSearchOr(options.search);
+    const searchWhere = this.buildSearchWhere(options.search);
+
+    if (options.branchId) {
+      const branchScopedWhere: Prisma.RateCardWhereInput = {
+        deletedAt: null,
+        branchId: options.branchId,
+        ...(searchWhere ? { AND: [searchWhere] } : {}),
+      };
+      const globalWhere: Prisma.RateCardWhereInput = {
+        deletedAt: null,
+        branchId: null,
+        ...(searchWhere ? { AND: [searchWhere] } : {}),
+      };
+
+      const [branchScoped, global] = await Promise.all([
+        this.prisma.rateCard.count({ where: branchScopedWhere }),
+        this.prisma.rateCard.count({ where: globalWhere }),
+      ]);
+
+      return {
+        total: branchScoped + global,
+        global,
+        branchScoped,
+      };
+    }
 
     const scopedWhere: Prisma.RateCardWhereInput = {
       deletedAt: null,
-      ...(options.branchId ? { branchId: options.branchId } : {}),
-      OR: searchOr,
+      ...(searchWhere ? { AND: [searchWhere] } : {}),
     };
 
     const total = await this.prisma.rateCard.count({ where: scopedWhere });
-
-    if (options.branchId) {
-      return {
-        total,
-        global: 0,
-        branchScoped: total,
-      };
-    }
 
     const [global, branchScoped] = await Promise.all([
       this.prisma.rateCard.count({
         where: {
           deletedAt: null,
           branchId: null,
-          OR: searchOr,
+          ...(searchWhere ? { AND: [searchWhere] } : {}),
         },
       }),
       this.prisma.rateCard.count({
         where: {
           deletedAt: null,
           NOT: { branchId: null },
-          OR: searchOr,
+          ...(searchWhere ? { AND: [searchWhere] } : {}),
         },
       }),
     ]);

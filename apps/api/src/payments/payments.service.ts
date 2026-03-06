@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -155,6 +157,99 @@ export class PaymentsService {
     throw new ConflictException('Unable to process payment at this time');
   }
 
+  async reversePayment(
+    paymentId: string,
+    reversedById: string,
+    actorBranchId?: string | null,
+    note?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findFirst({
+        where: {
+          id: paymentId,
+          deletedAt: null,
+          reversedAt: null,
+          ...(actorBranchId
+            ? {
+                employee: {
+                  branchId: actorBranchId,
+                  deletedAt: null,
+                },
+              }
+            : {}),
+        },
+        include: {
+          employee: {
+            select: {
+              id: true,
+              branchId: true,
+            },
+          },
+        },
+      });
+
+      if (!payment) {
+        throw new NotFoundException('Payment not found or already reversed');
+      }
+
+      const payoutEntry = await tx.employeeLedgerEntry.findFirst({
+        where: {
+          paymentId: payment.id,
+          type: LedgerEntryType.PAYOUT,
+          deletedAt: null,
+          reversedAt: null,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (!payoutEntry) {
+        throw new BadRequestException(
+          'No active payout ledger entry found for this payment.',
+        );
+      }
+
+      const now = new Date();
+      const reversalEntry = await tx.employeeLedgerEntry.create({
+        data: {
+          employeeId: payment.employeeId,
+          branchId: payment.employee.branchId,
+          type: LedgerEntryType.ADJUSTMENT,
+          amount: Math.abs(payment.amount),
+          paymentId: payment.id,
+          createdById: reversedById,
+          note: note?.trim() || `Payment reversal for ${payment.id}`,
+          reversalOfId: payoutEntry.id,
+        },
+      });
+
+      await Promise.all([
+        tx.payment.update({
+          where: { id: payment.id },
+          data: {
+            reversedAt: now,
+            reversedById,
+            reversalNote: note?.trim() || null,
+          },
+        }),
+        tx.employeeLedgerEntry.update({
+          where: { id: payoutEntry.id },
+          data: {
+            reversedAt: now,
+            reversedById,
+            reversalNote: note?.trim() || null,
+          },
+        }),
+      ]);
+
+      return {
+        paymentId: payment.id,
+        reversalLedgerEntryId: reversalEntry.id,
+        amount: payment.amount,
+        reversedAt: now.toISOString(),
+      };
+    });
+  }
+
   private parseDateBoundary(
     value?: string,
     endOfDay = false,
@@ -222,12 +317,14 @@ export class PaymentsService {
     const where: Prisma.PaymentWhereInput = {
       employeeId,
       deletedAt: null,
+      reversedAt: null,
       ...(actorBranchId
         ? {
             ledgerEntries: {
               some: {
                 branchId: actorBranchId,
                 deletedAt: null,
+                reversedAt: null,
                 type: LedgerEntryType.PAYOUT,
               },
             },
@@ -280,7 +377,9 @@ export class PaymentsService {
               JOIN "EmployeeLedgerEntry" le ON le."paymentId" = p.id
               WHERE p."paidAt" >= date_trunc('week', NOW() AT TIME ZONE 'Asia/Karachi')
                 AND p."deletedAt" IS NULL
+                AND p."reversedAt" IS NULL
                 AND le."deletedAt" IS NULL
+                AND le."reversedAt" IS NULL
                 AND le.type = 'PAYOUT'
                 ${ledgerBranchFilter}
             )

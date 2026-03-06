@@ -9,6 +9,7 @@ import type {
   RateStatsSummary,
   RateStatsQueryInput,
 } from '@tbms/shared-types';
+import { toPaisaFromRupees } from '@/lib/utils/money';
 
 export const ratesApi = {
   findAll: async (params: RateCardsListQueryInput = {}) => {
@@ -43,7 +44,11 @@ export const ratesApi = {
     return response.data;
   },
   create: async (data: CreateRateCardInput) => {
-    const response = await api.post<ApiResponse<RateCard>>('/rates', data);
+    const payload: CreateRateCardInput = {
+      ...data,
+      amount: toPaisaFromRupees(data.amount),
+    };
+    const response = await api.post<ApiResponse<RateCard>>('/rates', payload);
     return response.data;
   }
 };

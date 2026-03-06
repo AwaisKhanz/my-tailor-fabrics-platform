@@ -29,10 +29,6 @@ export class OrderItemDto {
   @IsOptional()
   fabricSource?: FabricSource;
 
-  @IsString()
-  @IsOptional()
-  employeeId?: string; // Optional tailor assignment at creation
-
   @IsDateString()
   @IsOptional()
   dueDate?: string; // Optional item-specific due date
@@ -51,11 +47,6 @@ export class OrderItemDto {
   @Min(0)
   @IsOptional()
   unitPrice?: number;
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  employeeRate?: number;
 }
 
 export class OrderItemAddonDto {

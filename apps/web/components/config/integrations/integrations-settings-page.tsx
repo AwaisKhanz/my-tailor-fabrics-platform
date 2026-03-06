@@ -23,6 +23,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
+import { SectionHeader } from "@/components/ui/section-header";
+import { SectionIcon } from "@/components/ui/section-icon";
 import { StatCard } from "@/components/ui/stat-card";
 import { useIntegrationsSettingsPage } from "@/hooks/use-integrations-settings-page";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +44,7 @@ export function IntegrationsSettingsPage() {
     authMessage,
     requestingAuthUrl,
     testEmail,
+    testEmailValidationError,
     sendingTest,
     configuredCount,
     canRunMailActions,
@@ -116,14 +119,16 @@ export function IntegrationsSettingsPage() {
       {forbidden ? (
         <PageSection spacing="compact">
           <Card variant="warningSoft">
-            <CardHeader variant="section" className="space-y-1">
-              <CardTitle variant="section" className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-warning" />
-                Access Restricted
-              </CardTitle>
-              <CardDescription>
-                Integration controls are available to super admins only.
-              </CardDescription>
+            <CardHeader variant="section">
+              <SectionHeader
+                title="Access Restricted"
+                description="Integration controls are available to super admins only."
+                icon={
+                  <SectionIcon tone="warningSoft" size="sm">
+                    <ShieldCheck className="h-4 w-4" />
+                  </SectionIcon>
+                }
+              />
             </CardHeader>
           </Card>
         </PageSection>
@@ -276,6 +281,11 @@ export function IntegrationsSettingsPage() {
                   value={testEmail}
                   onChange={(event) => setTestEmail(event.target.value)}
                 />
+                {testEmailValidationError ? (
+                  <p className="text-xs text-destructive">
+                    {testEmailValidationError}
+                  </p>
+                ) : null}
               </div>
               <Button
                 type="button"

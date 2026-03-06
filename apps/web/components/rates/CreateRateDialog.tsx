@@ -22,7 +22,6 @@ import {
   type CreateRateCardInput,
 } from "@tbms/shared-types";
 import { logDevError } from "@/lib/logger";
-import { useToast } from "@/hooks/use-toast";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 interface CreateRateDialogProps {
@@ -33,6 +32,66 @@ interface CreateRateDialogProps {
   branches: { id: string; name: string; code: string }[];
   steps?: string[];
   stepsByGarmentTypeId?: Record<string, string[]>;
+  mode?: "create" | "adjust";
+  initialRate?: {
+    garmentTypeId: string;
+    branchId?: string | null;
+    stepKey: string;
+    amount: number;
+    effectiveFrom: Date | string;
+  } | null;
+}
+
+interface RateFormState {
+  garmentTypeId: string;
+  branchId: string;
+  stepKey: string;
+  amount: string;
+  effectiveFrom: string;
+}
+
+type RateFieldErrors = Partial<Record<keyof RateFormState, string>>;
+
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function toDateInputValue(value: Date | string): string {
+  const parsed = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return toLocalDateString(new Date());
+  }
+
+  return toLocalDateString(parsed);
+}
+
+function getDefaultFormData(): RateFormState {
+  return {
+    garmentTypeId: "",
+    branchId: "GLOBAL",
+    stepKey: "",
+    amount: "",
+    effectiveFrom: toLocalDateString(new Date()),
+  };
+}
+
+function getAdjustFormData(
+  initialRate: NonNullable<CreateRateDialogProps["initialRate"]>,
+): RateFormState {
+  const amountInRupees = initialRate.amount / 100;
+
+  return {
+    garmentTypeId: initialRate.garmentTypeId,
+    branchId: initialRate.branchId ?? "GLOBAL",
+    stepKey: initialRate.stepKey,
+    amount: Number.isFinite(amountInRupees) ? String(amountInRupees) : "",
+    effectiveFrom: toDateInputValue(initialRate.effectiveFrom),
+  };
 }
 
 export function CreateRateDialog({
@@ -43,33 +102,69 @@ export function CreateRateDialog({
   branches,
   steps = [],
   stepsByGarmentTypeId,
+  mode = "create",
+  initialRate = null,
 }: CreateRateDialogProps) {
-  const { toast } = useToast();
   const [loading, setLoading] = React.useState(false);
-  const [formData, setFormData] = React.useState({
-    garmentTypeId: "",
-    branchId: "GLOBAL",
-    stepKey: "",
-    amount: "",
-    effectiveFrom: new Date().toISOString().split("T")[0],
-  });
+  const [formData, setFormData] = React.useState<RateFormState>(getDefaultFormData);
+  const [fieldErrors, setFieldErrors] = React.useState<RateFieldErrors>({});
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const isAdjustMode = mode === "adjust" && Boolean(initialRate);
+
+  React.useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (isAdjustMode && initialRate) {
+      setFormData(getAdjustFormData(initialRate));
+      setFieldErrors({});
+      setFormError(null);
+      return;
+    }
+
+    setFormData(getDefaultFormData());
+    setFieldErrors({});
+    setFormError(null);
+  }, [open, isAdjustMode, initialRate]);
 
   const availableSteps = React.useMemo(() => {
+    let resolvedSteps: string[] = [];
+
     if (stepsByGarmentTypeId) {
       if (!formData.garmentTypeId) {
         return [];
       }
-      return stepsByGarmentTypeId[formData.garmentTypeId] ?? [];
+
+      resolvedSteps = stepsByGarmentTypeId[formData.garmentTypeId] ?? [];
+    } else {
+      resolvedSteps = steps;
     }
-    return steps;
-  }, [formData.garmentTypeId, steps, stepsByGarmentTypeId]);
+
+    if (
+      isAdjustMode &&
+      formData.stepKey &&
+      !resolvedSteps.includes(formData.stepKey)
+    ) {
+      return [formData.stepKey, ...resolvedSteps];
+    }
+
+    return resolvedSteps;
+  }, [
+    formData.garmentTypeId,
+    formData.stepKey,
+    isAdjustMode,
+    steps,
+    stepsByGarmentTypeId,
+  ]);
 
   const hasGarmentSelected = Boolean(formData.garmentTypeId);
   const hasAvailableSteps = availableSteps.length > 0;
-  const noStepsConfigured = hasGarmentSelected && !hasAvailableSteps;
+  const noStepsConfigured =
+    !isAdjustMode && hasGarmentSelected && !hasAvailableSteps;
 
   React.useEffect(() => {
-    if (!formData.stepKey) {
+    if (isAdjustMode || !formData.stepKey) {
       return;
     }
 
@@ -79,46 +174,64 @@ export function CreateRateDialog({
         stepKey: "",
       }));
     }
-  }, [availableSteps, formData.stepKey]);
+  }, [availableSteps, formData.stepKey, isAdjustMode]);
 
   const handleSubmit = async () => {
     const parsedResult = rateCardCreateFormSchema.safeParse(formData);
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const zodFieldErrors = parsedResult.error.flatten().fieldErrors;
+      setFieldErrors({
+        garmentTypeId: zodFieldErrors.garmentTypeId?.[0],
+        branchId: zodFieldErrors.branchId?.[0],
+        stepKey: zodFieldErrors.stepKey?.[0],
+        amount: zodFieldErrors.amount?.[0],
+        effectiveFrom: zodFieldErrors.effectiveFrom?.[0],
       });
+      setFormError(getFirstZodErrorMessage(parsedResult.error));
       return;
     }
+    setFieldErrors({});
+    setFormError(null);
 
     const validated = parsedResult.data;
+    const effectiveFrom =
+      DATE_ONLY_PATTERN.test(validated.effectiveFrom) &&
+      validated.effectiveFrom === toLocalDateString(new Date())
+        ? new Date().toISOString()
+        : validated.effectiveFrom;
 
     setLoading(true);
     try {
       await onSubmit({
         garmentTypeId: validated.garmentTypeId,
         stepKey: validated.stepKey,
-        effectiveFrom: validated.effectiveFrom,
+        effectiveFrom,
         branchId: validated.branchId === "GLOBAL" ? null : validated.branchId,
-        amount: Math.round(validated.amount * 100),
+        amount: validated.amount,
       });
       onOpenChange(false);
     } catch (err) {
-      logDevError("Failed to create rate card:", err);
+      logDevError("Failed to save rate card:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  const dialogTitle = isAdjustMode ? "Adjust Rate Card" : "New Rate Card";
+  const dialogDescription = isAdjustMode
+    ? "Create a new version for this rate. Scope and step remain locked to preserve history."
+    : "Create a new production rate for a specific garment step.";
+  const submitText = isAdjustMode ? "Save Adjustment" : "Create Rate";
+  const submittingText = isAdjustMode ? "Saving..." : "Creating...";
+
   const footerActions = (
     <DialogFormActions
       onCancel={() => onOpenChange(false)}
-      submitText="Create Rate"
-      submittingText="Creating..."
+      submitText={submitText}
+      submittingText={submittingText}
       submitting={loading}
       submitDisabled={noStepsConfigured}
-      submitFormId="create-rate-form"
+      submitFormId="rate-card-form"
     />
   );
 
@@ -126,145 +239,191 @@ export function CreateRateDialog({
     <ScrollableDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="New Rate Card"
-      description="Create a new production rate for a specific garment step."
+      title={dialogTitle}
+      description={dialogDescription}
       footerActions={footerActions}
     >
       <DialogSection className="pt-0">
         <FormStack
           as="form"
-          id="create-rate-form"
+          id="rate-card-form"
           onSubmit={(event) => {
             event.preventDefault();
             void handleSubmit();
           }}
         >
-            <div className="space-y-2">
-              <Label htmlFor="branch">Branch Scope</Label>
-              <Select
-                value={formData.branchId}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, branchId: val })
-                }
-              >
-                <SelectTrigger id="branch">
-                  <SelectValue placeholder="Select Branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GLOBAL">Global (All Branches)</SelectItem>
-                  {branches.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>
-                      {b.name} ({b.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="branch">Branch Scope</Label>
+            <Select
+              value={formData.branchId}
+              onValueChange={(value) => {
+                setFormData((current) => ({ ...current, branchId: value }));
+                setFieldErrors((current) => ({ ...current, branchId: undefined }));
+                setFormError(null);
+              }}
+              disabled={isAdjustMode}
+            >
+              <SelectTrigger id="branch">
+                <SelectValue placeholder="Select Branch" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="GLOBAL">Global (All Branches)</SelectItem>
+                {branches.map((branch) => (
+                  <SelectItem key={branch.id} value={branch.id}>
+                    {branch.name} ({branch.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldErrors.branchId ? (
+              <p className="text-xs text-destructive">{fieldErrors.branchId}</p>
+            ) : null}
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="garmentType">Garment Type</Label>
-              <Select
-                value={formData.garmentTypeId}
-                onValueChange={(val) =>
-                  setFormData((current) => {
-                    const nextSteps = stepsByGarmentTypeId
-                      ? (stepsByGarmentTypeId[val] ?? [])
-                      : steps;
+          <div className="space-y-2">
+            <Label htmlFor="garmentType">Garment Type</Label>
+            <Select
+              value={formData.garmentTypeId}
+              onValueChange={(value) => {
+                setFormData((current) => {
+                  const nextSteps = stepsByGarmentTypeId
+                    ? (stepsByGarmentTypeId[value] ?? [])
+                    : steps;
 
-                    return {
+                  return {
+                    ...current,
+                    garmentTypeId: value,
+                    stepKey: nextSteps.includes(current.stepKey)
+                      ? current.stepKey
+                      : "",
+                  };
+                });
+                setFieldErrors((current) => ({
+                  ...current,
+                  garmentTypeId: undefined,
+                  stepKey: undefined,
+                }));
+                setFormError(null);
+              }}
+              disabled={isAdjustMode}
+            >
+              <SelectTrigger id="garmentType">
+                <SelectValue placeholder="Select Garment Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {garmentTypes.map((garmentType) => (
+                  <SelectItem key={garmentType.id} value={garmentType.id}>
+                    {garmentType.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldErrors.garmentTypeId ? (
+              <p className="text-xs text-destructive">{fieldErrors.garmentTypeId}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stepKey">Production Step</Label>
+            <Select
+              value={formData.stepKey}
+              onValueChange={(value) => {
+                setFormData((current) => ({ ...current, stepKey: value }));
+                setFieldErrors((current) => ({ ...current, stepKey: undefined }));
+                setFormError(null);
+              }}
+              disabled={isAdjustMode || !hasGarmentSelected || !hasAvailableSteps}
+            >
+              <SelectTrigger id="stepKey">
+                <SelectValue placeholder="Select Step" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableSteps.map((step) => (
+                  <SelectItem key={step} value={step}>
+                    {step}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldErrors.stepKey ? (
+              <p className="text-xs text-destructive">{fieldErrors.stepKey}</p>
+            ) : null}
+            {!hasGarmentSelected ? (
+              <p className="text-xs text-text-secondary">
+                Select a garment type first to load workflow steps.
+              </p>
+            ) : null}
+            {noStepsConfigured ? (
+              <p className="text-xs text-warning">
+                No active workflow steps are configured for this garment. Add
+                and save workflow steps first.
+              </p>
+            ) : null}
+            {isAdjustMode ? (
+              <p className="text-xs text-text-secondary">
+                Scope and step are locked. Saving creates a new version of this
+                rate card.
+              </p>
+            ) : null}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="rate">Rate (Rs.)</Label>
+              <div className="relative">
+                <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+                <Input
+                  id="rate"
+                  type="number"
+                  step="0.01"
+                  className="pl-9"
+                  value={formData.amount}
+                  onChange={(event) => {
+                    setFormData((current) => ({
                       ...current,
-                      garmentTypeId: val,
-                      stepKey: nextSteps.includes(current.stepKey)
-                        ? current.stepKey
-                        : "",
-                    };
-                  })
-                }
-              >
-                <SelectTrigger id="garmentType">
-                  <SelectValue placeholder="Select Garment Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {garmentTypes.map((gt) => (
-                    <SelectItem key={gt.id} value={gt.id}>
-                      {gt.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                      amount: event.target.value,
+                    }));
+                    setFieldErrors((current) => ({ ...current, amount: undefined }));
+                    setFormError(null);
+                  }}
+                  required
+                />
+              </div>
+              {fieldErrors.amount ? (
+                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+              ) : null}
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="stepKey">Production Step</Label>
-              <Select
-                value={formData.stepKey}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, stepKey: val })
-                }
-                disabled={!hasGarmentSelected || !hasAvailableSteps}
-              >
-                <SelectTrigger id="stepKey">
-                  <SelectValue placeholder="Select Step" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableSteps.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!hasGarmentSelected ? (
-                <p className="text-xs text-text-secondary">
-                  Select a garment type first to load workflow steps.
-                </p>
-              ) : null}
-              {noStepsConfigured ? (
-                <p className="text-xs text-warning">
-                  No active workflow steps are configured for this garment. Add
-                  and save workflow steps first.
-                </p>
+              <Label htmlFor="effectiveFrom">Effective From</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+                <Input
+                  id="effectiveFrom"
+                  type="date"
+                  className="pl-9"
+                  value={formData.effectiveFrom}
+                  onChange={(event) => {
+                    setFormData((current) => ({
+                      ...current,
+                      effectiveFrom: event.target.value,
+                    }));
+                    setFieldErrors((current) => ({
+                      ...current,
+                      effectiveFrom: undefined,
+                    }));
+                    setFormError(null);
+                  }}
+                  required
+                />
+              </div>
+              {fieldErrors.effectiveFrom ? (
+                <p className="text-xs text-destructive">{fieldErrors.effectiveFrom}</p>
               ) : null}
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="rate">Rate (Rs.)</Label>
-                <div className="relative">
-                  <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-                  <Input
-                    id="rate"
-                    type="number"
-                    step="0.01"
-                    className="pl-9"
-                    value={formData.amount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, amount: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="effectiveFrom">Effective From</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-                  <Input
-                    id="effectiveFrom"
-                    type="date"
-                    className="pl-9"
-                    value={formData.effectiveFrom}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        effectiveFrom: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-            </div>
+          </div>
+          {formError ? (
+            <p className="text-xs text-destructive">{formError}</p>
+          ) : null}
         </FormStack>
       </DialogSection>
     </ScrollableDialog>

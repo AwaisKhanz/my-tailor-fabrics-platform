@@ -35,7 +35,7 @@ export enum EmployeeStatus {
 
 export enum PaymentType {
   PER_PIECE = 'PER_PIECE',
-  WEEKLY_FIXED = 'WEEKLY_FIXED'
+  MONTHLY_FIXED = 'MONTHLY_FIXED'
 }
 
 export enum CustomerStatus {

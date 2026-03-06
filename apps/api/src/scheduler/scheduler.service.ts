@@ -3,12 +3,16 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderStatus } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
+import { SalaryAccrualService } from '../payments/salary-accrual.service';
 
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly salaryAccrualService: SalaryAccrualService,
+  ) {}
 
   // Run at midnight every day
   // Alternatively, could be every hour for faster feedback if desired.
@@ -77,5 +81,45 @@ export class SchedulerService {
     this.logger.log(
       `Successfully marked ${successCount} out of ${overdueCandidates.length} orders as OVERDUE.`,
     );
+  }
+
+  @Cron('10 0 * * *', { timeZone: 'Asia/Karachi' })
+  async handleMonthlySalaryAccruals() {
+    this.logger.log(
+      'Running CRON job: generating monthly salary accruals for active branches...',
+    );
+
+    const branches = await this.prisma.branch.findMany({
+      where: {
+        deletedAt: null,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        code: true,
+      },
+    });
+
+    if (branches.length === 0) {
+      this.logger.log('No active branches found for salary accrual generation.');
+      return;
+    }
+
+    for (const branch of branches) {
+      try {
+        const result = await this.salaryAccrualService.generateForMonth({
+          branchId: branch.id,
+          source: 'SCHEDULED',
+        });
+        this.logger.log(
+          `Salary accruals (${branch.code}): created=${result.created}, existing=${result.alreadyExists}, skipped=${result.skipped}, period=${result.period}`,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Failed to generate salary accruals for branch ${branch.code} (${branch.id})`,
+          error instanceof Error ? error.stack : JSON.stringify(error),
+        );
+      }
+    }
   }
 }

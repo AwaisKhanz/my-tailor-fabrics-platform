@@ -33,6 +33,7 @@ export function useGarmentTypesPage() {
       page: "1",
       limit: String(PAGE_SIZE),
       search: "",
+      includeArchived: "false",
     },
   });
 
@@ -42,9 +43,12 @@ export function useGarmentTypesPage() {
   const [stats, setStats] = useState<GarmentTypesStats>(EMPTY_GARMENT_STATS);
 
   const search = values.search;
+  const includeArchived = values.includeArchived === "true";
   const debouncedSearch = useDebounce(search, 500);
   const currentPage = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
+
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const [selectedType, setSelectedType] = useState<GarmentTypeWithWorkflow | null>(null);
   const [typeToDelete, setTypeToDelete] = useState<GarmentTypeWithWorkflow | null>(null);
@@ -62,6 +66,7 @@ export function useGarmentTypesPage() {
           search: debouncedSearch.trim() || undefined,
           page: currentPage,
           limit: pageSize,
+          includeArchived,
         }),
         configApi.getGarmentStats(),
       ]);
@@ -79,13 +84,20 @@ export function useGarmentTypesPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, debouncedSearch, pageSize]);
+  }, [currentPage, debouncedSearch, includeArchived, pageSize]);
 
   useEffect(() => {
     void fetchGarmentTypes();
   }, [fetchGarmentTypes]);
 
-  const hasActiveFilters = useMemo(() => search.trim().length > 0, [search]);
+  const hasActiveFilters = useMemo(
+    () => search.trim().length > 0 || includeArchived,
+    [includeArchived, search],
+  );
+  const activeFilterCount = useMemo(
+    () => (search.trim().length > 0 ? 1 : 0) + (includeArchived ? 1 : 0),
+    [includeArchived, search],
+  );
 
   const setSearchFilter = useCallback((value: string) => {
     setValues({
@@ -97,6 +109,16 @@ export function useGarmentTypesPage() {
   const resetFilters = useCallback(() => {
     resetValues();
   }, [resetValues]);
+
+  const setIncludeArchived = useCallback(
+    (next: boolean) => {
+      setValues({
+        includeArchived: next ? "true" : "false",
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const setCurrentPage = useCallback((nextPage: number) => {
     setValues({ page: String(nextPage) });
@@ -136,7 +158,7 @@ export function useGarmentTypesPage() {
       await configApi.deleteGarmentType(typeToDelete.id);
       toast({
         title: "Success",
-        description: "Garment type deleted",
+        description: "Garment type archived",
       });
       setTypeToDelete(null);
       setIsConfirmOpen(false);
@@ -144,11 +166,38 @@ export function useGarmentTypesPage() {
     } catch {
       toast({
         title: "Error",
-        description: "Failed to delete garment type",
+        description: "Failed to archive garment type",
         variant: "destructive",
       });
     }
   }, [fetchGarmentTypes, toast, typeToDelete]);
+
+  const restoreType = useCallback(
+    async (garmentType: GarmentTypeWithWorkflow) => {
+      if (!garmentType.deletedAt) {
+        return;
+      }
+
+      setRestoringId(garmentType.id);
+      try {
+        await configApi.restoreGarmentType(garmentType.id);
+        toast({
+          title: "Success",
+          description: "Garment type restored",
+        });
+        await fetchGarmentTypes();
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to restore garment type",
+          variant: "destructive",
+        });
+      } finally {
+        setRestoringId(null);
+      }
+    },
+    [fetchGarmentTypes, toast],
+  );
 
   const closeGarmentDialog = useCallback((open: boolean) => {
     setIsDialogOpen(open);
@@ -187,6 +236,9 @@ export function useGarmentTypesPage() {
     currentPage,
     pageSize,
     hasActiveFilters,
+    activeFilterCount,
+    includeArchived,
+    restoringId,
     selectedType,
     typeToDelete,
     isDialogOpen,
@@ -195,6 +247,7 @@ export function useGarmentTypesPage() {
     isConfirmOpen,
     setCurrentPage,
     setSearchFilter,
+    setIncludeArchived,
     resetFilters,
     openCreateDialog,
     openEditDialog,
@@ -207,5 +260,6 @@ export function useGarmentTypesPage() {
     closeConfirmDialog,
     fetchGarmentTypes,
     confirmDelete,
+    restoreType,
   };
 }

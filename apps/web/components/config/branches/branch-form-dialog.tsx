@@ -11,6 +11,8 @@ interface BranchFormDialogProps {
   editingBranch: Branch | null;
   saving: boolean;
   form: BranchFormState;
+  formError: string;
+  fieldErrors: Partial<Record<keyof BranchFormState, string>>;
   onOpenChange: (open: boolean) => void;
   onFieldChange: <K extends keyof BranchFormState>(field: K, value: BranchFormState[K]) => void;
   onSubmit: () => void;
@@ -21,6 +23,8 @@ export function BranchFormDialog({
   editingBranch,
   saving,
   form,
+  formError,
+  fieldErrors,
   onOpenChange,
   onFieldChange,
   onSubmit,
@@ -51,6 +55,9 @@ export function BranchFormDialog({
           onSubmit();
         }}
       >
+        {formError ? (
+          <p className="text-sm text-destructive">{formError}</p>
+        ) : null}
         {!editingBranch ? (
           <div className="space-y-1.5">
             <Label>
@@ -63,6 +70,9 @@ export function BranchFormDialog({
               maxLength={6}
               onChange={(event) => onFieldChange("code", event.target.value.toUpperCase())}
             />
+            {fieldErrors.code ? (
+              <p className="text-xs text-destructive">{fieldErrors.code}</p>
+            ) : null}
             <Typography as="p" variant="muted">
               Short unique code used in order and customer numbers. Cannot be changed later.
             </Typography>
@@ -79,6 +89,9 @@ export function BranchFormDialog({
             value={form.name}
             onChange={(event) => onFieldChange("name", event.target.value)}
           />
+          {fieldErrors.name ? (
+            <p className="text-xs text-destructive">{fieldErrors.name}</p>
+          ) : null}
         </div>
 
         <div className="space-y-1.5">
@@ -89,6 +102,9 @@ export function BranchFormDialog({
             value={form.phone}
             onChange={(event) => onFieldChange("phone", event.target.value)}
           />
+          {fieldErrors.phone ? (
+            <p className="text-xs text-destructive">{fieldErrors.phone}</p>
+          ) : null}
         </div>
 
         <div className="space-y-1.5">
@@ -99,6 +115,9 @@ export function BranchFormDialog({
             value={form.address}
             onChange={(event) => onFieldChange("address", event.target.value)}
           />
+          {fieldErrors.address ? (
+            <p className="text-xs text-destructive">{fieldErrors.address}</p>
+          ) : null}
         </div>
       </FormStack>
     </ScrollableDialog>

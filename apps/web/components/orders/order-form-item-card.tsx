@@ -1,7 +1,6 @@
 import {
   AddonType,
   DesignType,
-  Employee,
   FabricSource,
   GarmentType,
 } from "@tbms/shared-types";
@@ -26,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InfoTile } from "@/components/ui/info-tile";
+import { Textarea } from "@/components/ui/textarea";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -34,7 +34,6 @@ interface OrderFormItemCardProps {
   index: number;
   form: UseFormReturn<OrderFormValues>;
   garmentTypes: GarmentType[];
-  tailors: Employee[];
   designTypeOptions: DesignType[];
   lineTotal: number;
   canRemove: boolean;
@@ -64,7 +63,6 @@ export function OrderFormItemCard({
   index,
   form,
   garmentTypes,
-  tailors,
   designTypeOptions,
   lineTotal,
   canRemove,
@@ -198,7 +196,7 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.designTypeId`}
           render={({ field }) => (
-            <FormItem className="md:col-span-6">
+            <FormItem className="md:col-span-8">
               <FormLabel variant="dashboard">Design Type</FormLabel>
               <Select
                 onValueChange={(value) => {
@@ -227,40 +225,9 @@ export function OrderFormItemCard({
 
         <FormField
           control={form.control}
-          name={`items.${index}.employeeId`}
-          render={({ field }) => (
-            <FormItem className="md:col-span-4">
-              <FormLabel variant="dashboard">Assigned Tailor</FormLabel>
-              <Select
-                onValueChange={(value) =>
-                  field.onChange(value === "UNASSIGNED" ? undefined : value)
-                }
-                value={field.value || "UNASSIGNED"}
-              >
-                <FormControl>
-                  <SelectTrigger variant="default">
-                    <SelectValue placeholder="Optional" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="UNASSIGNED">Not assigned</SelectItem>
-                  {tailors.map((tailor) => (
-                    <SelectItem key={tailor.id} value={tailor.id}>
-                      {tailor.fullName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name={`items.${index}.fabricSource`}
           render={({ field }) => (
-            <FormItem className="md:col-span-2">
+            <FormItem className="md:col-span-4">
               <FormLabel variant="dashboard">Fabric Source</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -287,8 +254,9 @@ export function OrderFormItemCard({
             <FormItem className="md:col-span-6">
               <FormLabel variant="dashboard">Notes</FormLabel>
               <FormControl>
-                <Input
+                <Textarea
                   variant="default"
+                  className="min-h-[84px] resize-y"
                   placeholder="Collar style, sleeve notes, etc."
                   {...field}
                 />

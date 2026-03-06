@@ -23,7 +23,9 @@ const DEFAULT_VALUES: EmployeeFormValues = {
   designation: "",
   status: EmployeeStatus.ACTIVE,
   paymentType: PaymentType.PER_PIECE,
+  monthlySalary: undefined,
   dateOfJoining: new Date().toISOString().split("T")[0],
+  employmentEndDate: "",
   dateOfBirth: "",
   emergencyName: "",
   emergencyPhone: "",
@@ -38,8 +40,13 @@ function toEmployeeInput(values: EmployeeFormValues): CreateEmployeeInput {
     city: values.city || undefined,
     designation: values.designation || undefined,
     paymentType: values.paymentType,
+    monthlySalary:
+      values.paymentType === PaymentType.MONTHLY_FIXED
+        ? values.monthlySalary
+        : undefined,
     dateOfBirth: values.dateOfBirth || undefined,
     dateOfJoining: values.dateOfJoining || undefined,
+    employmentEndDate: values.employmentEndDate || undefined,
     emergencyName: values.emergencyName || undefined,
     emergencyPhone: values.emergencyPhone || undefined,
   };
@@ -75,7 +82,7 @@ export function useEmployeeDialog({
   const { toast } = useToast();
 
   const form = useForm<EmployeeFormValues>({
-    resolver: typedZodResolver<EmployeeFormValues>(employeeSchema),
+    resolver: typedZodResolver(employeeSchema),
     defaultValues: DEFAULT_VALUES,
   });
 
@@ -95,7 +102,12 @@ export function useEmployeeDialog({
             designation: initialData.designation ?? "",
             status: initialData.status,
             paymentType: initialData.paymentType,
+            monthlySalary:
+              initialData.monthlySalary != null
+                ? initialData.monthlySalary / 100
+                : undefined,
             dateOfJoining: toDateString(initialData.dateOfJoining),
+            employmentEndDate: toDateString(initialData.employmentEndDate),
             dateOfBirth: toDateString(initialData.dateOfBirth),
             emergencyName: initialData.emergencyName ?? "",
             emergencyPhone: initialData.emergencyPhone ?? "",

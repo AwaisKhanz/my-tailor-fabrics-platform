@@ -215,7 +215,7 @@ export class ReceiptService {
 
     const receiptOrder = this.toReceiptOrder(order);
 
-    const element = React.createElement(ReceiptDocument, {
+    const element = ReceiptDocument({
       order: receiptOrder,
     });
     return renderPdfStream(element);

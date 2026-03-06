@@ -1,9 +1,10 @@
 import { Building2, CalendarDays, MapPin, Phone } from "lucide-react";
 import { type BranchDetail } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { formatDate } from "@/lib/utils";
@@ -16,12 +17,14 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
   return (
     <Card variant="elevatedPanel">
       <CardHeader variant="rowSection" align="startResponsive">
-        <div className="flex items-center gap-2">
-          <SectionIcon>
-            <Building2 className="h-4 w-4" />
-          </SectionIcon>
-          <CardTitle variant="section">Branch Profile</CardTitle>
-        </div>
+        <SectionHeader
+          title="Branch Profile"
+          icon={
+            <SectionIcon>
+              <Building2 className="h-4 w-4" />
+            </SectionIcon>
+          }
+        />
         <Badge variant={branch?.isActive ? "success" : "outline"} size="xs">
           {branch?.isActive ? "Active" : "Inactive"}
         </Badge>

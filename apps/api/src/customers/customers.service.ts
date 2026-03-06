@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
@@ -7,18 +11,20 @@ import {
 } from './dto/create-customer.dto';
 import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
 import { SearchService } from '../search/search.service';
-import { CustomerStatus, CustomersListSummary } from '@tbms/shared-types';
+import {
+  CustomerStatus,
+  CustomersSummaryQueryInput,
+  CustomersListSummary,
+  FieldType,
+  MeasurementValuesMeta,
+} from '@tbms/shared-types';
 import {
   buildPaginationMeta,
   normalizePagination,
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
 
-interface CustomersListFilters {
-  search?: string;
-  isVip?: boolean;
-  status?: CustomerStatus;
-}
+type JsonRecord = Record<string, Prisma.JsonValue>;
 
 function toPrismaMeasurementValues(
   values: UpsertMeasurementDto['values'],
@@ -32,6 +38,40 @@ function toPrismaMeasurementValues(
   );
 }
 
+function toPrismaMeasurementValuesMeta(
+  valuesMeta: MeasurementValuesMeta,
+): Prisma.InputJsonObject {
+  return Object.entries(valuesMeta).reduce<Prisma.InputJsonObject>(
+    (metaAcc, [fieldId, snapshot]) => ({
+      ...metaAcc,
+      [fieldId]: {
+        fieldId: snapshot.fieldId,
+        label: snapshot.label,
+        fieldType: snapshot.fieldType,
+        unit: snapshot.unit ?? null,
+        sectionId: snapshot.sectionId ?? null,
+        sectionName: snapshot.sectionName ?? null,
+        isRequired: snapshot.isRequired,
+      },
+    }),
+    {},
+  );
+}
+
+function isJsonRecord(value: Prisma.JsonValue): value is JsonRecord {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function toSharedFieldType(fieldType: string): FieldType {
+  if (fieldType === FieldType.TEXT) {
+    return FieldType.TEXT;
+  }
+  if (fieldType === FieldType.DROPDOWN) {
+    return FieldType.DROPDOWN;
+  }
+  return FieldType.NUMBER;
+}
+
 @Injectable()
 export class CustomersService {
   constructor(
@@ -41,7 +81,7 @@ export class CustomersService {
 
   private buildCustomersWhereClause(
     branchId: string | null,
-    filters: CustomersListFilters = {},
+    filters: CustomersSummaryQueryInput = {},
     includeSearch = false,
   ): Prisma.CustomerWhereInput {
     const { search, isVip, status } = filters;
@@ -144,7 +184,7 @@ export class CustomersService {
 
   async getSummary(
     branchId: string | null,
-    filters: CustomersListFilters = {},
+    filters: CustomersSummaryQueryInput = {},
   ): Promise<CustomersListSummary> {
     const where = this.buildCustomersWhereClause(branchId, filters, true);
 
@@ -227,6 +267,22 @@ export class CustomersService {
 
   async remove(id: string, branchId: string) {
     await this.findOne(id, branchId);
+
+    const openOrdersCount = await this.prisma.order.count({
+      where: {
+        customerId: id,
+        branchId,
+        deletedAt: null,
+        status: { in: ['NEW', 'IN_PROGRESS', 'READY', 'OVERDUE'] },
+      },
+    });
+
+    if (openOrdersCount > 0) {
+      throw new BadRequestException(
+        `Cannot archive customer with ${openOrdersCount} active order(s).`,
+      );
+    }
+
     return this.prisma.customer.update({
       where: { id },
       data: { deletedAt: new Date() },
@@ -269,21 +325,66 @@ export class CustomersService {
     await this.findOne(id, branchId);
     const category = await this.prisma.measurementCategory.findUnique({
       where: { id: dto.categoryId },
+      include: {
+        sections: {
+          where: { deletedAt: null },
+          select: { id: true, name: true },
+        },
+        fields: {
+          where: { deletedAt: null },
+          select: {
+            id: true,
+            label: true,
+            fieldType: true,
+            unit: true,
+            sectionId: true,
+            isRequired: true,
+          },
+        },
+      },
     });
     if (!category || !category.isActive)
       throw new NotFoundException('Measurement Category not found or inactive');
 
     const measurementValues = toPrismaMeasurementValues(dto.values);
+    const sectionNameById = new Map(
+      category.sections.map((section) => [section.id, section.name]),
+    );
+
+    const valuesMeta: MeasurementValuesMeta = {};
+    for (const field of category.fields) {
+      if (!(field.id in dto.values)) {
+        continue;
+      }
+
+      valuesMeta[field.id] = {
+        fieldId: field.id,
+        label: field.label,
+        fieldType: toSharedFieldType(field.fieldType),
+        unit: field.unit,
+        sectionId: field.sectionId,
+        sectionName: field.sectionId
+          ? (sectionNameById.get(field.sectionId) ?? null)
+          : null,
+        isRequired: field.isRequired,
+      };
+    }
+
+    const measurementValuesMeta = toPrismaMeasurementValuesMeta(valuesMeta);
 
     return this.prisma.customerMeasurement.upsert({
       where: {
         customerId_categoryId: { customerId: id, categoryId: dto.categoryId },
       },
-      update: { values: measurementValues },
+      update: {
+        values: measurementValues,
+        valuesMeta: measurementValuesMeta,
+      },
       create: {
         customerId: id,
         categoryId: dto.categoryId,
         values: measurementValues,
+        valuesMeta: measurementValuesMeta,
       },
     });
   }
@@ -291,5 +392,84 @@ export class CustomersService {
   async toggleVip(id: string, branchId: string, isVip: boolean) {
     await this.findOne(id, branchId);
     return this.prisma.customer.update({ where: { id }, data: { isVip } });
+  }
+
+  async backfillMeasurementValueSnapshots(branchId: string) {
+    const records = await this.prisma.customerMeasurement.findMany({
+      where: {
+        valuesMeta: { equals: Prisma.AnyNull },
+        customer: {
+          branchId,
+          deletedAt: null,
+        },
+      },
+      include: {
+        category: {
+          include: {
+            sections: {
+              where: { deletedAt: null },
+              select: { id: true, name: true },
+            },
+            fields: {
+              where: { deletedAt: null },
+              select: {
+                id: true,
+                label: true,
+                fieldType: true,
+                unit: true,
+                sectionId: true,
+                isRequired: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    let updated = 0;
+
+    for (const record of records) {
+      const sectionNameById = new Map(
+        record.category.sections.map((section) => [section.id, section.name]),
+      );
+      if (!isJsonRecord(record.values)) {
+        continue;
+      }
+
+      const valuesRecord = record.values;
+      const nextMeta: MeasurementValuesMeta = {};
+
+      for (const field of record.category.fields) {
+        if (!(field.id in valuesRecord)) {
+          continue;
+        }
+
+        nextMeta[field.id] = {
+          fieldId: field.id,
+          label: field.label,
+          fieldType: toSharedFieldType(field.fieldType),
+          unit: field.unit,
+          sectionId: field.sectionId,
+          sectionName: field.sectionId
+            ? (sectionNameById.get(field.sectionId) ?? null)
+            : null,
+          isRequired: field.isRequired,
+        };
+      }
+
+      await this.prisma.customerMeasurement.update({
+        where: { id: record.id },
+        data: {
+          valuesMeta: toPrismaMeasurementValuesMeta(nextMeta),
+        },
+      });
+      updated += 1;
+    }
+
+    return {
+      processed: records.length,
+      updated,
+      skipped: records.length - updated,
+    };
   }
 }

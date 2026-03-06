@@ -38,6 +38,6 @@ export declare function formatPKR(paisa: number): string;
 export declare function rupeesToPaisa(rupees: number): number;
 /**
  * Returns the effective rate for a task:
- * rateOverride takes priority over rateSnapshot.
+ * rateOverride takes priority over snapshots.
  */
-export declare function getEffectiveTaskRate(rateSnapshot?: number | null, rateOverride?: number | null, designRate?: number | null): number;
+export declare function getEffectiveTaskRate(rateSnapshot?: number | null, rateOverride?: number | null, designRateSnapshot?: number | null): number;

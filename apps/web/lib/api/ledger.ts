@@ -8,7 +8,10 @@ import type {
   LedgerEarningsQueryInput,
   LedgerStatement,
   LedgerStatementParams,
+  LedgerEntryReversalResult,
+  ReverseLedgerEntryInput,
 } from '@tbms/shared-types';
+import { toSignedPaisaFromRupees } from '@/lib/utils/money';
 
 export const ledgerApi = {
   /** Get the current balance summary for an employee. */
@@ -43,20 +46,25 @@ export const ledgerApi = {
 
   /** 
    * Create a new manual ledger entry.
-   * @param data - The entry details. The `amount` field MUST be in **Paise** (integers).
+   * @param data - The entry details. The `amount` field is accepted in Rupees.
    */
   createEntry: async (data: CreateManualLedgerEntryInput) => {
+    const payload: CreateManualLedgerEntryInput = {
+      ...data,
+      amount: toSignedPaisaFromRupees(data.amount),
+    };
     const response = await api.post<ApiResponse<EmployeeLedgerEntry>>(
       '/ledger',
-      data
+      payload
     );
     return response.data;
   },
 
-  /** Soft-delete a ledger entry. */
-  deleteEntry: async (id: string) => {
-    const response = await api.delete<ApiResponse<EmployeeLedgerEntry>>(
-      `/ledger/${id}`
+  /** Reverse a manual ledger entry (immutable finance flow). */
+  reverseEntry: async (id: string, data: ReverseLedgerEntryInput = {}) => {
+    const response = await api.post<ApiResponse<LedgerEntryReversalResult>>(
+      `/ledger/${id}/reverse`,
+      data,
     );
     return response.data;
   },

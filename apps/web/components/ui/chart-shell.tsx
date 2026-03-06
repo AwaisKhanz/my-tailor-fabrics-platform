@@ -3,11 +3,10 @@ import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { SectionIcon } from "@/components/ui/section-icon";
+import { SectionHeader } from "@/components/ui/section-header";
 
 interface ChartShellProps {
   title: string;
@@ -35,15 +34,12 @@ export function ChartShell({
   return (
     <Card variant="elevatedPanel" className={cn("overflow-hidden", className)}>
       <CardHeader variant="rowSection" align="startResponsive" gap="md">
-        <div className="flex items-center gap-3">
-          {icon ? <SectionIcon size="lg">{icon}</SectionIcon> : null}
-          <div>
-            <CardTitle variant="section">{title}</CardTitle>
-            {description ? (
-              <CardDescription variant="header">{description}</CardDescription>
-            ) : null}
-          </div>
-        </div>
+        <SectionHeader
+          title={title}
+          description={description}
+          icon={icon ? <SectionIcon size="lg">{icon}</SectionIcon> : undefined}
+          descriptionVariant="header"
+        />
 
         {actions ? (
           <div className="ml-auto w-full sm:w-auto">{actions}</div>

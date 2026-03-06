@@ -9,8 +9,16 @@ import { configApi } from "@/lib/api/config";
 import { ledgerApi } from "@/lib/api/ledger";
 import {
   employeeDocumentUploadFormSchema,
+  employeeCapabilitySnapshotFormSchema,
+  employeeCompensationChangeFormSchema,
   employeeLedgerEntryFormSchema,
   type AttendanceRecord,
+  type EmployeeCapability,
+  type EmployeeCompensationHistoryEntry,
+  type EmployeeCapabilitySnapshot,
+  type CompensationChangeInput,
+  type GarmentType,
+  PaymentType,
   LedgerEntryType,
   type EmployeeLedgerEntry,
   type OrderItem,
@@ -18,7 +26,6 @@ import {
   type SystemSettings,
   type TaskStatus,
 } from "@tbms/shared-types";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface EmployeeStatsSnapshot {
@@ -69,6 +76,11 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   const [tasks, setTasks] = useState<OrderItemTask[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
+  const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
+  const [capabilities, setCapabilities] = useState<EmployeeCapability[]>([]);
+  const [compensationHistory, setCompensationHistory] = useState<
+    EmployeeCompensationHistoryEntry[]
+  >([]);
 
   const [ledgerEntries, setLedgerEntries] = useState<EmployeeLedgerEntry[]>([]);
   const [ledgerLoading, setLedgerLoading] = useState(false);
@@ -86,6 +98,11 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
 
   const [docLabel, setDocLabel] = useState("");
   const [docUrl, setDocUrl] = useState("");
+  const [documentFieldErrors, setDocumentFieldErrors] = useState<{
+    label?: string;
+    url?: string;
+  }>({});
+  const [documentValidationError, setDocumentValidationError] = useState("");
   const [uploadingDocument, setUploadingDocument] = useState(false);
 
   const [newEntryType, setNewEntryType] = useState<LedgerEntryType>(
@@ -93,6 +110,12 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   );
   const [newEntryAmount, setNewEntryAmount] = useState("");
   const [newEntryNote, setNewEntryNote] = useState("");
+  const [ledgerEntryFieldErrors, setLedgerEntryFieldErrors] = useState<{
+    type?: string;
+    amount?: string;
+    note?: string;
+  }>({});
+  const [ledgerEntryValidationError, setLedgerEntryValidationError] = useState("");
   const [submittingLedgerEntry, setSubmittingLedgerEntry] = useState(false);
 
   const fetchEmployeeData = useCallback(async () => {
@@ -102,7 +125,17 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
 
     setLoading(true);
     try {
-      const [employeeResponse, statsResponse, itemsResponse, attendanceResponse, tasksResponse, settingsResponse] =
+      const [
+        employeeResponse,
+        statsResponse,
+        itemsResponse,
+        attendanceResponse,
+        tasksResponse,
+        settingsResponse,
+        garmentTypesResponse,
+        capabilitiesResponse,
+        compensationResponse,
+      ] =
         await Promise.all([
           employeesApi.getEmployee(employeeId),
           employeesApi.getStats(employeeId),
@@ -110,6 +143,9 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
           attendanceApi.getAttendance({ employeeId, limit: 10 }),
           ordersApi.getTasksByEmployee(employeeId),
           configApi.getSystemSettings(),
+          configApi.getGarmentTypes(),
+          employeesApi.getCapabilities(employeeId),
+          employeesApi.getCompensationHistory(employeeId),
         ]);
 
       if (employeeResponse.success) {
@@ -133,6 +169,15 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
       }
       if (settingsResponse.success) {
         setSystemSettings(settingsResponse.data);
+      }
+      if (garmentTypesResponse.success) {
+        setGarmentTypes(garmentTypesResponse.data.data);
+      }
+      if (capabilitiesResponse.success) {
+        setCapabilities(capabilitiesResponse.data);
+      }
+      if (compensationResponse.success) {
+        setCompensationHistory(compensationResponse.data);
       }
     } catch {
       toast({
@@ -227,17 +272,25 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     });
 
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setLedgerEntryFieldErrors({
+        type: flattenedErrors.type?.[0],
+        amount: flattenedErrors.amount?.[0],
+        note: flattenedErrors.note?.[0],
       });
+      setLedgerEntryValidationError(
+        flattenedErrors.type?.[0] ??
+          flattenedErrors.amount?.[0] ??
+          flattenedErrors.note?.[0] ??
+          "Fix the highlighted fields and try again.",
+      );
       return;
     }
 
+    setLedgerEntryFieldErrors({});
+    setLedgerEntryValidationError("");
     setSubmittingLedgerEntry(true);
     try {
-      const amountInPaisa = Math.round(parsedResult.data.amount * 100);
       const isNegativeType = [
         LedgerEntryType.PAYOUT,
         LedgerEntryType.ADVANCE,
@@ -245,8 +298,8 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
       ].includes(newEntryType);
 
       const finalAmount = isNegativeType
-        ? -Math.abs(amountInPaisa)
-        : Math.abs(amountInPaisa);
+        ? -Math.abs(parsedResult.data.amount)
+        : Math.abs(parsedResult.data.amount);
 
       const response = await ledgerApi.createEntry({
         employeeId,
@@ -276,18 +329,18 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     }
   }, [employeeId, fetchEmployeeData, fetchLedger, newEntryAmount, newEntryNote, newEntryType, toast]);
 
-  const deleteLedgerEntry = useCallback(
+  const reverseLedgerEntry = useCallback(
     async (entryId: string) => {
       try {
-        const response = await ledgerApi.deleteEntry(entryId);
+        const response = await ledgerApi.reverseEntry(entryId);
         if (response.success) {
-          toast({ title: "Entry Deleted" });
+          toast({ title: "Entry Reversed" });
           await Promise.all([fetchLedger(ledgerPage), fetchEmployeeData()]);
         }
       } catch {
         toast({
           title: "Error",
-          description: "Failed to delete entry",
+          description: "Failed to reverse entry",
           variant: "destructive",
         });
       }
@@ -305,14 +358,21 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
       url: docUrl,
     });
     if (!parsedResult.success) {
-      toast({
-        title: "Validation error",
-        description: getFirstZodErrorMessage(parsedResult.error),
-        variant: "destructive",
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setDocumentFieldErrors({
+        label: flattenedErrors.label?.[0],
+        url: flattenedErrors.url?.[0],
       });
+      setDocumentValidationError(
+        flattenedErrors.label?.[0] ??
+          flattenedErrors.url?.[0] ??
+          "Fix the highlighted fields and try again.",
+      );
       return;
     }
 
+    setDocumentFieldErrors({});
+    setDocumentValidationError("");
     setUploadingDocument(true);
     try {
       await employeesApi.uploadDocument(employeeId, {
@@ -334,6 +394,88 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     }
   }, [docLabel, docUrl, employeeId, fetchEmployeeData, toast]);
 
+  const saveCapabilitiesSnapshot = useCallback(
+    async (snapshot: EmployeeCapabilitySnapshot) => {
+      if (!employeeId) {
+        return false;
+      }
+
+      const parsedResult = employeeCapabilitySnapshotFormSchema.safeParse(snapshot);
+      if (!parsedResult.success) {
+        return false;
+      }
+
+      try {
+        const response = await employeesApi.replaceCapabilities(
+          employeeId,
+          parsedResult.data,
+        );
+
+        if (response.success) {
+          setCapabilities(response.data);
+          toast({ title: "Capabilities updated successfully" });
+          await fetchEmployeeData();
+          return true;
+        }
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to update capabilities",
+          variant: "destructive",
+        });
+      }
+
+      return false;
+    },
+    [employeeId, fetchEmployeeData, toast],
+  );
+
+  const scheduleCompensationChange = useCallback(
+    async (change: CompensationChangeInput) => {
+      if (!employeeId) {
+        return false;
+      }
+
+      const parsedResult = employeeCompensationChangeFormSchema.safeParse(change);
+      if (!parsedResult.success) {
+        return false;
+      }
+
+      try {
+        const payload: CompensationChangeInput = {
+          paymentType: parsedResult.data.paymentType,
+          monthlySalary:
+            parsedResult.data.paymentType === PaymentType.MONTHLY_FIXED &&
+            parsedResult.data.monthlySalary !== undefined
+              ? parsedResult.data.monthlySalary
+              : undefined,
+          effectiveFrom: parsedResult.data.effectiveFrom,
+          note: parsedResult.data.note ?? undefined,
+        };
+
+        const response = await employeesApi.createCompensationChange(
+          employeeId,
+          payload,
+        );
+
+        if (response.success) {
+          toast({ title: "Compensation change scheduled" });
+          await fetchEmployeeData();
+          return true;
+        }
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to schedule compensation change",
+          variant: "destructive",
+        });
+      }
+
+      return false;
+    },
+    [employeeId, fetchEmployeeData, toast],
+  );
+
   useEffect(() => {
     if (!employeeId) {
       return;
@@ -349,8 +491,13 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     tasks,
     attendance,
     systemSettings,
+    garmentTypes,
+    capabilities,
+    compensationHistory,
     fetchEmployeeData,
     handleTaskStatusChange,
+    saveCapabilitiesSnapshot,
+    scheduleCompensationChange,
 
     ledgerEntries,
     ledgerLoading,
@@ -375,20 +522,44 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     setLedgerDialogOpen,
 
     docLabel,
-    setDocLabel,
+    setDocLabel: (value: string) => {
+      setDocumentFieldErrors((previous) => ({ ...previous, label: undefined }));
+      setDocumentValidationError("");
+      setDocLabel(value);
+    },
     docUrl,
-    setDocUrl,
+    setDocUrl: (value: string) => {
+      setDocumentFieldErrors((previous) => ({ ...previous, url: undefined }));
+      setDocumentValidationError("");
+      setDocUrl(value);
+    },
+    documentFieldErrors,
+    documentValidationError,
     uploadingDocument,
     uploadDocument,
 
     newEntryType,
-    setNewEntryType,
+    setNewEntryType: (value: LedgerEntryType) => {
+      setLedgerEntryFieldErrors((previous) => ({ ...previous, type: undefined }));
+      setLedgerEntryValidationError("");
+      setNewEntryType(value);
+    },
     newEntryAmount,
-    setNewEntryAmount,
+    setNewEntryAmount: (value: string) => {
+      setLedgerEntryFieldErrors((previous) => ({ ...previous, amount: undefined }));
+      setLedgerEntryValidationError("");
+      setNewEntryAmount(value);
+    },
     newEntryNote,
-    setNewEntryNote,
+    setNewEntryNote: (value: string) => {
+      setLedgerEntryFieldErrors((previous) => ({ ...previous, note: undefined }));
+      setLedgerEntryValidationError("");
+      setNewEntryNote(value);
+    },
+    ledgerEntryFieldErrors,
+    ledgerEntryValidationError,
     submittingLedgerEntry,
     submitLedgerEntry,
-    deleteLedgerEntry,
+    reverseLedgerEntry,
   };
 }

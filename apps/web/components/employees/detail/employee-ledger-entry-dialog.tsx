@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,12 @@ interface EmployeeLedgerEntryDialogProps {
   amount: string;
   note: string;
   submitting: boolean;
+  fieldErrors: {
+    type?: string;
+    amount?: string;
+    note?: string;
+  };
+  validationError: string;
   onEntryTypeChange: (value: LedgerEntryType) => void;
   onAmountChange: (value: string) => void;
   onNoteChange: (value: string) => void;
@@ -50,6 +57,8 @@ export function EmployeeLedgerEntryDialog({
   amount,
   note,
   submitting,
+  fieldErrors,
+  validationError,
   onEntryTypeChange,
   onAmountChange,
   onNoteChange,
@@ -81,6 +90,9 @@ export function EmployeeLedgerEntryDialog({
               onSubmit();
             }}
           >
+            {validationError ? (
+              <p className="text-sm text-destructive">{validationError}</p>
+            ) : null}
             <div className="space-y-2">
               <Label>Entry Type</Label>
               <Select
@@ -98,9 +110,11 @@ export function EmployeeLedgerEntryDialog({
                   <SelectItem value={LedgerEntryType.ADVANCE}>Advance Payment</SelectItem>
                   <SelectItem value={LedgerEntryType.DEDUCTION}>Deduction</SelectItem>
                   <SelectItem value={LedgerEntryType.ADJUSTMENT}>General Adjustment</SelectItem>
-                  <SelectItem value={LedgerEntryType.SALARY}>Monthly Salary</SelectItem>
                 </SelectContent>
               </Select>
+              {fieldErrors.type ? (
+                <p className="text-xs text-destructive">{fieldErrors.type}</p>
+              ) : null}
               <p className="text-[10px] font-bold uppercase tracking-tight text-text-secondary">
                 {reducesBalance
                   ? "This entry will decrease employee balance"
@@ -116,15 +130,23 @@ export function EmployeeLedgerEntryDialog({
                 value={amount}
                 onChange={(event) => onAmountChange(event.target.value)}
               />
+              {fieldErrors.amount ? (
+                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <Label>Note / Description</Label>
-              <Input
+              <Textarea
+                variant="default"
+                className="min-h-[90px] resize-y"
                 placeholder="e.g. Advance for medical bill"
                 value={note}
                 onChange={(event) => onNoteChange(event.target.value)}
               />
+              {fieldErrors.note ? (
+                <p className="text-xs text-destructive">{fieldErrors.note}</p>
+              ) : null}
             </div>
           </FormStack>
         </DialogSection>

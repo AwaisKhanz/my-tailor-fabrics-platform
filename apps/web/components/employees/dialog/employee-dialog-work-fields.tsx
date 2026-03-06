@@ -1,5 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import { EMPLOYEE_STATUS_LABELS, PAYMENT_TYPE_LABELS } from "@tbms/shared-constants";
+import { EmployeeStatus, PaymentType } from "@tbms/shared-types";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,9 +17,12 @@ interface EmployeeDialogWorkFieldsProps {
 }
 
 export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps) {
+  const selectedPaymentType = form.watch("paymentType");
+  const selectedStatus = form.watch("status");
+
   return (
     <>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <FormField
           control={form.control}
           name="designation"
@@ -58,7 +62,7 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <FormField
           control={form.control}
           name="paymentType"
@@ -90,13 +94,53 @@ export function EmployeeDialogWorkFields({ form }: EmployeeDialogWorkFieldsProps
             <FormItem>
               <FormLabel variant="dashboard">Date of Joining</FormLabel>
               <FormControl>
-                <Input variant="premium" type="date" {...field} />
+                <Input variant="premium" type="date" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
       </div>
+
+      {selectedPaymentType === PaymentType.MONTHLY_FIXED ? (
+        <FormField
+          control={form.control}
+          name="monthlySalary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel variant="dashboard">Monthly Salary (Rs.)</FormLabel>
+              <FormControl>
+                <Input
+                  variant="premium"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder="e.g. 45000"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ) : null}
+
+      {selectedStatus === EmployeeStatus.LEFT ? (
+        <FormField
+          control={form.control}
+          name="employmentEndDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel variant="dashboard">Employment End Date</FormLabel>
+              <FormControl>
+                <Input variant="premium" type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ) : null}
     </>
   );
 }

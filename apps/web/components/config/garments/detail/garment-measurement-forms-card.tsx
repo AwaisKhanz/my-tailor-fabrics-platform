@@ -1,17 +1,11 @@
 import Link from "next/link";
 import { ChevronRight, ClipboardList, Scale, Settings } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
@@ -27,24 +21,22 @@ export function GarmentMeasurementFormsCard({
 
   return (
     <Card variant="elevatedPanel">
-      <CardHeader variant="rowSection" align="startResponsive" gap="sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
+      <CardHeader variant="rowSection" align="start" gap="sm">
+        <SectionHeader
+          title="Connected Measurement Forms"
+          description="These forms are shown when an order item is created for this garment."
+          descriptionVariant="compact"
+          icon={
             <SectionIcon tone="primary">
               <ClipboardList className="h-4 w-4" />
             </SectionIcon>
-            <CardTitle variant="section">Connected Measurement Forms</CardTitle>
-          </div>
-          <CardDescription variant="compact">
-            These forms are shown when an order item is created for this
-            garment.
-          </CardDescription>
-        </div>
+          }
+        />
 
-        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
-          <Badge variant="secondary" size="xs" className="font-bold">
+        <div className="">
+          {/* <Badge variant="secondary" size="xs" className="font-bold">
             {categories.length} Form{categories.length === 1 ? "" : "s"}
-          </Badge>
+          </Badge> */}
           <Button asChild variant="outline" size="sm" className="h-8">
             <Link href="/settings/measurements">
               <Settings className="h-3.5 w-3.5" />

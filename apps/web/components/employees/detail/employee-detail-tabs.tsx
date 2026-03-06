@@ -7,20 +7,33 @@ import {
   ExternalLink,
   FileText,
   Plus,
+  RotateCcw,
   ShieldCheck,
   Trash2,
 } from "lucide-react";
 import type {
   AttendanceRecord,
+  CompensationChangeInput,
+  EmployeeCapability,
+  EmployeeCapabilitySnapshot,
+  EmployeeCapabilityWindowInput,
+  EmployeeCompensationHistoryEntry,
   EmployeeLedgerEntry,
+  GarmentType,
   OrderItem,
   OrderItemTask,
   SystemSettings,
 } from "@tbms/shared-types";
-import { TaskStatus } from "@tbms/shared-types";
+import {
+  employeeCapabilitySnapshotFormSchema,
+  employeeCompensationChangeFormSchema,
+  PaymentType,
+  TaskStatus,
+} from "@tbms/shared-types";
 import {
   LEDGER_ENTRY_TYPE_BADGE,
   LEDGER_ENTRY_TYPE_LABELS,
+  PAYMENT_TYPE_LABELS,
   TASK_STATUS_LABELS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
@@ -30,7 +43,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -39,6 +51,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
+import { SectionHeader } from "@/components/ui/section-header";
 import {
   Select,
   SelectContent,
@@ -49,6 +62,7 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { cn, formatDate, formatDateTime, formatPKR } from "@/lib/utils";
+import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const DEFAULT_TABLE_PAGE_SIZE = 10;
 
@@ -59,6 +73,9 @@ interface EmployeeDetailTabsProps {
   items: OrderItem[];
   tasks: OrderItemTask[];
   attendance: AttendanceRecord[];
+  garmentTypes: GarmentType[];
+  capabilities: EmployeeCapability[];
+  compensationHistory: EmployeeCompensationHistoryEntry[];
   ledgerEntries: EmployeeLedgerEntry[];
   ledgerLoading: boolean;
   ledgerFrom: string;
@@ -72,15 +89,18 @@ interface EmployeeDetailTabsProps {
   setLedgerType: (value: string) => void;
   onFetchLedger: (page?: number) => void;
   onTaskStatusChange: (taskId: string, status: TaskStatus) => void;
-  onDeleteLedgerEntry: (entryId: string) => void;
+  onReverseLedgerEntry: (entryId: string) => void;
   onViewOrder: (orderId: string) => void;
   onOpenDocumentDialog: () => void;
   onOpenAccountDialog: () => void;
   onOpenLedgerDialog: () => void;
+  onSaveCapabilitiesSnapshot: (snapshot: EmployeeCapabilitySnapshot) => Promise<boolean>;
+  onScheduleCompensationChange: (change: CompensationChangeInput) => Promise<boolean>;
   canManageTaskStatus?: boolean;
   canManageLedger?: boolean;
   canManageDocuments?: boolean;
   canManageAccount?: boolean;
+  canManageWorkforceGovernance?: boolean;
 }
 
 interface EmployeeSectionProps {
@@ -181,6 +201,18 @@ function isTaskStatus(value: string): value is TaskStatus {
   }
 }
 
+function toDateInputValue(value?: string | null): string {
+  if (!value) {
+    return "";
+  }
+
+  try {
+    return new Date(value).toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+}
+
 export function EmployeeDetailTabs({
   loading,
   employee,
@@ -188,6 +220,9 @@ export function EmployeeDetailTabs({
   items,
   tasks,
   attendance,
+  garmentTypes,
+  capabilities,
+  compensationHistory,
   ledgerEntries,
   ledgerLoading,
   ledgerFrom,
@@ -201,15 +236,18 @@ export function EmployeeDetailTabs({
   setLedgerType,
   onFetchLedger,
   onTaskStatusChange,
-  onDeleteLedgerEntry,
+  onReverseLedgerEntry,
   onViewOrder,
   onOpenDocumentDialog,
   onOpenAccountDialog,
   onOpenLedgerDialog,
+  onSaveCapabilitiesSnapshot,
+  onScheduleCompensationChange,
   canManageTaskStatus = true,
   canManageLedger = true,
   canManageDocuments = true,
   canManageAccount = true,
+  canManageWorkforceGovernance = true,
 }: EmployeeDetailTabsProps) {
   const { setValues: setTaskValues, getPositiveInt: getTaskInt } = useUrlTableState({
     prefix: "employeeTasks",
@@ -293,6 +331,202 @@ export function EmployeeDetailTabs({
     return attendance.slice(start, start + attendanceLimit);
   }, [attendance, attendanceLimit, attendancePage]);
 
+  const activeCapabilities = useMemo(() => {
+    const now = new Date();
+    return capabilities.filter((capability) => {
+      const effectiveFrom = new Date(capability.effectiveFrom);
+      const effectiveTo = capability.effectiveTo
+        ? new Date(capability.effectiveTo)
+        : null;
+      return (
+        effectiveFrom <= now &&
+        (effectiveTo === null || effectiveTo >= now) &&
+        !capability.deletedAt
+      );
+    });
+  }, [capabilities]);
+  const garmentNameById = useMemo(
+    () => new Map(garmentTypes.map((garmentType) => [garmentType.id, garmentType.name])),
+    [garmentTypes],
+  );
+  const stepKeysByGarmentId = useMemo(() => {
+    const map = new Map<string, string[]>();
+
+    for (const garmentType of garmentTypes) {
+      const orderedUniqueStepKeys = Array.from(
+        new Set((garmentType.workflowSteps ?? []).map((workflowStep) => workflowStep.stepKey)),
+      );
+      map.set(garmentType.id, orderedUniqueStepKeys);
+    }
+
+    return map;
+  }, [garmentTypes]);
+  const allWorkflowStepKeys = useMemo(() => {
+    return Array.from(
+      new Set(
+        garmentTypes.flatMap((garmentType) =>
+          (garmentType.workflowSteps ?? []).map((workflowStep) => workflowStep.stepKey),
+        ),
+      ),
+    );
+  }, [garmentTypes]);
+  const getStepOptionsForCapabilityRow = useCallback(
+    (garmentTypeId?: string) => {
+      if (garmentTypeId) {
+        return stepKeysByGarmentId.get(garmentTypeId) ?? [];
+      }
+      return allWorkflowStepKeys;
+    },
+    [allWorkflowStepKeys, stepKeysByGarmentId],
+  );
+
+  const [capabilityEffectiveFrom, setCapabilityEffectiveFrom] = useState<string>(
+    toDateInputValue(new Date().toISOString()),
+  );
+  const [capabilityNote, setCapabilityNote] = useState<string>("");
+  const [capabilityRows, setCapabilityRows] = useState<
+    EmployeeCapabilityWindowInput[]
+  >([{ garmentTypeId: "", stepKey: "", note: "" }]);
+  const [capabilityValidationError, setCapabilityValidationError] =
+    useState<string>("");
+
+  useEffect(() => {
+    const seededRows =
+      activeCapabilities.length > 0
+        ? activeCapabilities.map((capability) => ({
+            garmentTypeId: capability.garmentTypeId ?? "",
+            stepKey: capability.stepKey ?? "",
+            note: capability.note ?? "",
+          }))
+        : [{ garmentTypeId: "", stepKey: "", note: "" }];
+    setCapabilityRows(seededRows);
+  }, [activeCapabilities]);
+
+  const [compensationPaymentType, setCompensationPaymentType] =
+    useState<PaymentType>(employee.paymentType);
+  const [compensationMonthlySalary, setCompensationMonthlySalary] =
+    useState<string>(
+      employee.monthlySalary != null ? String(employee.monthlySalary / 100) : "",
+    );
+  const [compensationEffectiveFrom, setCompensationEffectiveFrom] =
+    useState<string>(toDateInputValue(new Date().toISOString()));
+  const [compensationNote, setCompensationNote] = useState<string>("");
+  const [compensationFieldErrors, setCompensationFieldErrors] = useState<{
+    paymentType?: string;
+    monthlySalary?: string;
+    effectiveFrom?: string;
+    note?: string;
+  }>({});
+  const [compensationValidationError, setCompensationValidationError] =
+    useState<string>("");
+
+  useEffect(() => {
+    setCompensationPaymentType(employee.paymentType);
+    setCompensationMonthlySalary(
+      employee.monthlySalary != null ? String(employee.monthlySalary / 100) : "",
+    );
+  }, [employee.monthlySalary, employee.paymentType]);
+
+  const addCapabilityRow = useCallback(() => {
+    setCapabilityValidationError("");
+    setCapabilityRows((previous) => [
+      ...previous,
+      { garmentTypeId: "", stepKey: "", note: "" },
+    ]);
+  }, []);
+
+  const removeCapabilityRow = useCallback((index: number) => {
+    setCapabilityValidationError("");
+    setCapabilityRows((previous) => {
+      if (previous.length <= 1) {
+        return previous;
+      }
+      return previous.filter((_, capabilityIndex) => capabilityIndex !== index);
+    });
+  }, []);
+
+  const updateCapabilityRow = useCallback(
+    (index: number, updater: Partial<EmployeeCapabilityWindowInput>) => {
+      setCapabilityValidationError("");
+      setCapabilityRows((previous) =>
+        previous.map((row, rowIndex) =>
+          rowIndex === index
+            ? {
+                ...row,
+                ...updater,
+              }
+            : row,
+        ),
+      );
+    },
+    [],
+  );
+
+  const submitCapabilitiesSnapshot = useCallback(() => {
+    const normalizedRows = capabilityRows
+      .map((row) => ({
+        garmentTypeId: row.garmentTypeId?.trim() || undefined,
+        stepKey: row.stepKey?.trim() || undefined,
+        note: row.note?.trim() || undefined,
+      }))
+      .filter((row) => row.garmentTypeId || row.stepKey);
+
+    const snapshot: EmployeeCapabilitySnapshot = {
+      effectiveFrom: capabilityEffectiveFrom,
+      note: capabilityNote || undefined,
+      capabilities: normalizedRows,
+    };
+    const parsedResult = employeeCapabilitySnapshotFormSchema.safeParse(snapshot);
+    if (!parsedResult.success) {
+      setCapabilityValidationError(getFirstZodErrorMessage(parsedResult.error));
+      return;
+    }
+
+    setCapabilityValidationError("");
+    void onSaveCapabilitiesSnapshot(parsedResult.data);
+  }, [
+    capabilityEffectiveFrom,
+    capabilityNote,
+    capabilityRows,
+    onSaveCapabilitiesSnapshot,
+  ]);
+
+  const submitCompensationChange = useCallback(() => {
+    const payload: CompensationChangeInput = {
+      paymentType: compensationPaymentType,
+      monthlySalary:
+        compensationPaymentType === PaymentType.MONTHLY_FIXED &&
+        compensationMonthlySalary.length > 0
+          ? Number(compensationMonthlySalary)
+          : undefined,
+      effectiveFrom: compensationEffectiveFrom,
+      note: compensationNote || undefined,
+    };
+
+    const parsedResult = employeeCompensationChangeFormSchema.safeParse(payload);
+    if (!parsedResult.success) {
+      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+      setCompensationFieldErrors({
+        paymentType: flattenedErrors.paymentType?.[0],
+        monthlySalary: flattenedErrors.monthlySalary?.[0],
+        effectiveFrom: flattenedErrors.effectiveFrom?.[0],
+        note: flattenedErrors.note?.[0],
+      });
+      setCompensationValidationError(getFirstZodErrorMessage(parsedResult.error));
+      return;
+    }
+
+    setCompensationFieldErrors({});
+    setCompensationValidationError("");
+    void onScheduleCompensationChange(parsedResult.data);
+  }, [
+    compensationEffectiveFrom,
+    compensationMonthlySalary,
+    compensationNote,
+    compensationPaymentType,
+    onScheduleCompensationChange,
+  ]);
+
   const historyColumns: ColumnDef<OrderItem>[] = [
     {
       header: "Order #",
@@ -322,11 +556,11 @@ export function EmployeeDetailTabs({
       ),
     },
     {
-      header: "Rate",
+      header: "Price",
       align: "right",
       cell: (item) => (
         <span className="text-right font-bold text-primary">
-          {formatPKR(item.employeeRate)}
+          {formatPKR(item.unitPrice)}
         </span>
       ),
     },
@@ -445,7 +679,7 @@ export function EmployeeDetailTabs({
             getEffectiveTaskRate(
               task.rateSnapshot,
               task.rateOverride,
-              task.designType?.defaultRate,
+              task.designRateSnapshot,
             ),
           )}
         </span>
@@ -526,9 +760,9 @@ export function EmployeeDetailTabs({
             variant="tableDanger"
             size="iconSm"
             className="h-7 w-7"
-            onClick={() => onDeleteLedgerEntry(entry.id)}
+            onClick={() => onReverseLedgerEntry(entry.id)}
           >
-            <Trash2 className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
           </Button>
         ) : null,
     },
@@ -536,6 +770,8 @@ export function EmployeeDetailTabs({
 
   const quickLinks = useMemo(
     () => [
+      { id: "employee-capabilities", label: "Capabilities" },
+      { id: "employee-compensation", label: "Compensation" },
       ...(systemSettings?.useTaskWorkflow
         ? [{ id: "employee-production", label: "Production Tasks" }]
         : []),
@@ -571,6 +807,373 @@ export function EmployeeDetailTabs({
           </div>
         </CardContent>
       </Card>
+
+      <EmployeeSection
+        id="employee-capabilities"
+        title="Capabilities"
+        description="Define which garments and steps this employee can be assigned to."
+        badge={
+          <Badge variant="secondary" size="xs" className="font-semibold">
+            {activeCapabilities.length} ACTIVE
+          </Badge>
+        }
+        defaultOpen
+      >
+        <div className="space-y-4 p-4 sm:p-5">
+          <DataTable<EmployeeCapability>
+            columns={[
+              {
+                header: "Garment Type",
+                cell: (capability) => (
+                  <span className="font-medium">
+                    {capability.garmentTypeId
+                      ? garmentNameById.get(capability.garmentTypeId) ??
+                        capability.garmentTypeId
+                      : "Any"}
+                  </span>
+                ),
+              },
+              {
+                header: "Step Key",
+                cell: (capability) => (
+                  <span className="font-mono text-xs">
+                    {capability.stepKey || "Any"}
+                  </span>
+                ),
+              },
+              {
+                header: "Effective",
+                cell: (capability) => (
+                  <span className="text-xs text-text-secondary">
+                    {formatDate(capability.effectiveFrom)}
+                    {capability.effectiveTo
+                      ? ` → ${formatDate(capability.effectiveTo)}`
+                      : " onwards"}
+                  </span>
+                ),
+              },
+            ]}
+            data={activeCapabilities}
+            loading={false}
+            chrome="flat"
+            emptyMessage="No active capabilities configured."
+          />
+
+          {canManageWorkforceGovernance ? (
+            <InfoTile tone="surface" padding="contentLg" className="space-y-4">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <Label variant="dashboard">Effective From</Label>
+                  <Input
+                    type="date"
+                    variant="table"
+                    value={capabilityEffectiveFrom}
+                    onChange={(event) => setCapabilityEffectiveFrom(event.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label variant="dashboard">Snapshot Note</Label>
+                  <Input
+                    variant="table"
+                    value={capabilityNote}
+                    onChange={(event) => setCapabilityNote(event.target.value)}
+                    placeholder="Optional context for this update"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {capabilityRows.map((row, index) => {
+                  const stepOptions = getStepOptionsForCapabilityRow(
+                    row.garmentTypeId ?? undefined,
+                  );
+                  const visibleStepOptions =
+                    row.stepKey && !stepOptions.includes(row.stepKey)
+                      ? [row.stepKey, ...stepOptions]
+                      : stepOptions;
+
+                  return (
+                    <div
+                      key={`capability-row-${index}`}
+                      className="grid grid-cols-1 gap-2 rounded-xl border border-divider p-3 md:grid-cols-12"
+                    >
+                    <div className="md:col-span-4">
+                      <Label variant="dashboard">Garment Type</Label>
+                      <Select
+                        value={row.garmentTypeId || "ANY"}
+                        onValueChange={(value) => {
+                          const nextGarmentTypeId = value === "ANY" ? "" : value;
+                          const stepOptions = getStepOptionsForCapabilityRow(nextGarmentTypeId);
+                          updateCapabilityRow(index, {
+                            garmentTypeId: nextGarmentTypeId,
+                            stepKey:
+                              row.stepKey && stepOptions.includes(row.stepKey)
+                                ? row.stepKey
+                                : "",
+                          });
+                        }}
+                      >
+                        <SelectTrigger variant="table">
+                          <SelectValue placeholder="Any garment" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ANY">Any garment</SelectItem>
+                          {garmentTypes.map((garmentType) => (
+                            <SelectItem key={garmentType.id} value={garmentType.id}>
+                              {garmentType.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="md:col-span-4">
+                      <Label variant="dashboard">Step Key</Label>
+                      <Select
+                        value={row.stepKey || "ANY_STEP"}
+                        onValueChange={(value) =>
+                          updateCapabilityRow(index, {
+                            stepKey: value === "ANY_STEP" ? "" : value,
+                          })
+                        }
+                      >
+                        <SelectTrigger variant="table">
+                          <SelectValue placeholder="Any step" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ANY_STEP">Any step</SelectItem>
+                          {visibleStepOptions.map((stepKey) => (
+                            <SelectItem key={stepKey} value={stepKey}>
+                              {stepKey}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {row.garmentTypeId && stepOptions.length === 0 ? (
+                        <Typography as="p" variant="muted" className="mt-1 text-xs text-warning">
+                          No workflow steps configured for this garment.
+                        </Typography>
+                      ) : null}
+                    </div>
+                    <div className="md:col-span-3">
+                      <Label variant="dashboard">Note</Label>
+                      <Input
+                        variant="table"
+                        value={row.note ?? ""}
+                        onChange={(event) =>
+                          updateCapabilityRow(index, {
+                            note: event.target.value,
+                          })
+                        }
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div className="flex items-end md:col-span-1">
+                      <Button
+                        type="button"
+                        variant="tableDanger"
+                        size="iconSm"
+                        className="h-8 w-8"
+                        onClick={() => removeCapabilityRow(index)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={addCapabilityRow}>
+                  <Plus className="h-4 w-4" />
+                  Add Capability
+                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  {capabilityValidationError ? (
+                    <p className="text-sm text-destructive">
+                      {capabilityValidationError}
+                    </p>
+                  ) : null}
+                  <Button type="button" size="sm" onClick={submitCapabilitiesSnapshot}>
+                    Save Capability Snapshot
+                  </Button>
+                </div>
+              </div>
+            </InfoTile>
+          ) : null}
+        </div>
+      </EmployeeSection>
+
+      <EmployeeSection
+        id="employee-compensation"
+        title="Compensation Timeline"
+        description="Track payment model and salary changes over time."
+        badge={
+          <Badge variant="secondary" size="xs" className="font-semibold">
+            {compensationHistory.length} CHANGES
+          </Badge>
+        }
+        defaultOpen={false}
+      >
+        <div className="space-y-4 p-4 sm:p-5">
+          <DataTable<EmployeeCompensationHistoryEntry>
+            columns={[
+              {
+                header: "Model",
+                cell: (entry) => (
+                  <Badge variant="outline" size="xs">
+                    {PAYMENT_TYPE_LABELS[entry.paymentType]}
+                  </Badge>
+                ),
+              },
+              {
+                header: "Monthly Salary",
+                align: "right",
+                cell: (entry) => (
+                  <span className="font-medium">
+                    {entry.monthlySalary != null ? formatPKR(entry.monthlySalary) : "-"}
+                  </span>
+                ),
+              },
+              {
+                header: "Window",
+                cell: (entry) => (
+                  <span className="text-xs text-text-secondary">
+                    {formatDate(entry.effectiveFrom)}
+                    {entry.effectiveTo
+                      ? ` → ${formatDate(entry.effectiveTo)}`
+                      : " onwards"}
+                  </span>
+                ),
+              },
+            ]}
+            data={compensationHistory}
+            loading={false}
+            chrome="flat"
+            emptyMessage="No compensation history available."
+          />
+
+          {canManageWorkforceGovernance ? (
+            <InfoTile tone="surface" padding="contentLg" className="space-y-4">
+              {compensationValidationError ? (
+                <p className="text-sm text-destructive">
+                  {compensationValidationError}
+                </p>
+              ) : null}
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <div>
+                  <Label variant="dashboard">Payment Model</Label>
+                  <Select
+                    value={compensationPaymentType}
+                    onValueChange={(value) => {
+                      if (
+                        value === PaymentType.PER_PIECE ||
+                        value === PaymentType.MONTHLY_FIXED
+                      ) {
+                        setCompensationFieldErrors((previous) => ({
+                          ...previous,
+                          paymentType: undefined,
+                        }));
+                        setCompensationValidationError("");
+                        setCompensationPaymentType(value);
+                      }
+                    }}
+                  >
+                    <SelectTrigger variant="table">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={PaymentType.PER_PIECE}>Per Piece</SelectItem>
+                      <SelectItem value={PaymentType.MONTHLY_FIXED}>
+                        Monthly Fixed
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {compensationFieldErrors.paymentType ? (
+                    <p className="mt-1 text-xs text-destructive">
+                      {compensationFieldErrors.paymentType}
+                    </p>
+                  ) : null}
+                </div>
+
+                {compensationPaymentType === PaymentType.MONTHLY_FIXED ? (
+                  <div>
+                    <Label variant="dashboard">Monthly Salary (Rs)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      variant="table"
+                      value={compensationMonthlySalary}
+                      onChange={(event) => {
+                        setCompensationFieldErrors((previous) => ({
+                          ...previous,
+                          monthlySalary: undefined,
+                        }));
+                        setCompensationValidationError("");
+                        setCompensationMonthlySalary(event.target.value);
+                      }}
+                    />
+                    {compensationFieldErrors.monthlySalary ? (
+                      <p className="mt-1 text-xs text-destructive">
+                        {compensationFieldErrors.monthlySalary}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div>
+                  <Label variant="dashboard">Effective From</Label>
+                  <Input
+                    type="date"
+                    variant="table"
+                    value={compensationEffectiveFrom}
+                    onChange={(event) => {
+                      setCompensationFieldErrors((previous) => ({
+                        ...previous,
+                        effectiveFrom: undefined,
+                      }));
+                      setCompensationValidationError("");
+                      setCompensationEffectiveFrom(event.target.value);
+                    }}
+                  />
+                  {compensationFieldErrors.effectiveFrom ? (
+                    <p className="mt-1 text-xs text-destructive">
+                      {compensationFieldErrors.effectiveFrom}
+                    </p>
+                  ) : null}
+                </div>
+                <div>
+                  <Label variant="dashboard">Note</Label>
+                  <Input
+                    variant="table"
+                    value={compensationNote}
+                    onChange={(event) => {
+                      setCompensationFieldErrors((previous) => ({
+                        ...previous,
+                        note: undefined,
+                      }));
+                      setCompensationValidationError("");
+                      setCompensationNote(event.target.value);
+                    }}
+                    placeholder="Optional"
+                  />
+                  {compensationFieldErrors.note ? (
+                    <p className="mt-1 text-xs text-destructive">
+                      {compensationFieldErrors.note}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button type="button" size="sm" onClick={submitCompensationChange}>
+                  Schedule Compensation Change
+                </Button>
+              </div>
+            </InfoTile>
+          ) : null}
+        </div>
+      </EmployeeSection>
 
       {systemSettings?.useTaskWorkflow ? (
         <EmployeeSection
@@ -821,13 +1424,16 @@ export function EmployeeDetailTabs({
           {employee.userAccount ? (
             <Card variant="successSoft">
               <CardHeader variant="sectionSoft" density="compact">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <ShieldCheck className="h-5 w-5 text-success" /> System Access
-                  Enabled
-                </CardTitle>
-                <CardDescription>
-                  This employee has an active portal account.
-                </CardDescription>
+                <SectionHeader
+                  title="System Access Enabled"
+                  titleClassName="text-sm"
+                  description="This employee has an active portal account."
+                  icon={
+                    <SectionIcon tone="infoSoft" size="sm">
+                      <ShieldCheck className="h-4 w-4 text-success" />
+                    </SectionIcon>
+                  }
+                />
               </CardHeader>
               <CardContent spacing="section" className="space-y-4">
                 <div className="flex items-center justify-between border-b border-divider py-2 text-sm">

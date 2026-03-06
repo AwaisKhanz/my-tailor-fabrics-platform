@@ -25,7 +25,9 @@ export interface Employee {
   designation?: string | null;
   status: EmployeeStatus;
   paymentType: PaymentType;
+  monthlySalary?: number | null;
   dateOfJoining: string;
+  employmentEndDate?: string | null;
   dateOfBirth?: string | null;
   emergencyName?: string | null;
   emergencyPhone?: string | null;
@@ -33,6 +35,62 @@ export interface Employee {
   documents?: EmployeeDocument[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface EmployeeCapability {
+  id: string;
+  employeeId: string;
+  garmentTypeId?: string | null;
+  stepKey?: string | null;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  note?: string | null;
+  createdById?: string | null;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+
+export interface EmployeeCapabilityWindowInput {
+  garmentTypeId?: string | null;
+  stepKey?: string | null;
+  note?: string;
+}
+
+export interface EmployeeCapabilitySnapshot {
+  effectiveFrom: string;
+  note?: string;
+  capabilities: EmployeeCapabilityWindowInput[];
+}
+
+export interface EmployeeCompensationHistoryEntry {
+  id: string;
+  employeeId: string;
+  paymentType: PaymentType;
+  monthlySalary?: number | null;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  note?: string | null;
+  changedById?: string | null;
+  createdAt: string;
+}
+
+export interface CompensationChangeInput {
+  paymentType: PaymentType;
+  monthlySalary?: number;
+  effectiveFrom: string;
+  note?: string;
+}
+
+export interface EligibleEmployeeQueryInput {
+  garmentTypeId: string;
+  stepKey?: string;
+  asOf?: string;
+}
+
+export interface EligibleEmployeeResult {
+  employee: Employee;
+  matchType: 'EXACT' | 'GARMENT' | 'STEP';
+  score: number;
 }
 
 export interface EmployeeDocument {
@@ -47,6 +105,8 @@ export interface EmployeeDocument {
 export interface EmployeeWithRelations extends Employee {
   userAccount?: EmployeeLinkedUserAccount | null;
   documents: EmployeeDocument[];
+  capabilities?: EmployeeCapability[];
+  compensationHistory?: EmployeeCompensationHistoryEntry[];
 }
 
 export interface EmployeeListQueryInput {
@@ -88,6 +148,8 @@ export interface CreateEmployeeInput {
   dateOfJoining?: string;
   designation?: string;
   paymentType?: PaymentType;
+  monthlySalary?: number;
+  employmentEndDate?: string;
   accountNumber?: string;
   emergencyName?: string;
   emergencyPhone?: string;
@@ -96,6 +158,7 @@ export interface CreateEmployeeInput {
 
 export interface UpdateEmployeeInput extends Partial<CreateEmployeeInput> {
   status?: EmployeeStatus;
+  compensationEffectiveFrom?: string;
 }
 
 export interface CreateEmployeeUserAccountInput {

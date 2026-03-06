@@ -7,7 +7,6 @@ import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { Order, orderPaymentFormSchema, OrderStatus } from "@tbms/shared-types";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 export interface OrderEmployeeOption {
   id: string;
@@ -28,6 +27,14 @@ export function useOrderDetail(orderId: string | null) {
   const [employees, setEmployees] = useState<OrderEmployeeOption[]>([]);
   const [statusLoading, setStatusLoading] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentFieldErrors, setPaymentFieldErrors] = useState<{
+    amount?: string;
+    note?: string;
+  }>({});
+  const [paymentValidationError, setPaymentValidationError] = useState("");
+  const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
+    null,
+  );
   const [sharing, setSharing] = useState(false);
   const [shareData, setShareData] = useState<OrderShareData | null>(null);
 
@@ -117,20 +124,25 @@ export function useOrderDetail(orderId: string | null) {
       });
 
       if (!parsedResult.success) {
-        toast({
-          title: "Validation error",
-          description: getFirstZodErrorMessage(parsedResult.error),
-          variant: "destructive",
+        const flattenedErrors = parsedResult.error.flatten().fieldErrors;
+        setPaymentFieldErrors({
+          amount: flattenedErrors.amount?.[0],
+          note: flattenedErrors.note?.[0],
         });
+        setPaymentValidationError(
+          flattenedErrors.amount?.[0] ??
+            flattenedErrors.note?.[0] ??
+            "Fix the highlighted fields and try again.",
+        );
         return false;
       }
 
-      const amount = Math.round(parsedResult.data.amount * 100);
-
+      setPaymentFieldErrors({});
+      setPaymentValidationError("");
       setProcessingPayment(true);
       try {
         await ordersApi.addPayment(order.id, {
-          amount,
+          amount: parsedResult.data.amount,
           note: parsedResult.data.note || "",
         });
         toast({ title: "Payment Added" });
@@ -145,6 +157,37 @@ export function useOrderDetail(orderId: string | null) {
         return false;
       } finally {
         setProcessingPayment(false);
+      }
+    },
+    [fetchOrder, order, toast],
+  );
+
+  const reversePayment = useCallback(
+    async (paymentId: string, note?: string) => {
+      if (!order) {
+        return false;
+      }
+
+      setReversingPaymentId(paymentId);
+      try {
+        await ordersApi.reversePayment(order.id, paymentId, {
+          note: note?.trim() || undefined,
+        });
+        toast({ title: "Payment Reversed" });
+        await fetchOrder();
+        return true;
+      } catch (err: unknown) {
+        toast({
+          title: "Error",
+          description: getApiErrorMessageOrFallback(
+            err,
+            "Failed to reverse payment",
+          ),
+          variant: "destructive",
+        });
+        return false;
+      } finally {
+        setReversingPaymentId(null);
       }
     },
     [fetchOrder, order, toast],
@@ -187,11 +230,19 @@ export function useOrderDetail(orderId: string | null) {
     employees,
     statusLoading,
     processingPayment,
+    paymentFieldErrors,
+    paymentValidationError,
+    reversingPaymentId,
     sharing,
     shareData,
     fetchOrder,
     updateStatus,
     addPayment,
+    clearPaymentValidation: () => {
+      setPaymentFieldErrors({});
+      setPaymentValidationError("");
+    },
+    reversePayment,
     generateShareLink,
     clearShareData,
   };

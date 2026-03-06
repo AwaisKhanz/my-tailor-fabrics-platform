@@ -19,7 +19,7 @@ import {
   UpdateOrderDto,
   UpdateOrderItemAssignmentDto,
 } from './dto/update-order.dto';
-import { AddPaymentDto } from './dto/add-payment.dto';
+import { AddPaymentDto, ReverseOrderPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
@@ -194,6 +194,25 @@ export class OrdersController {
       requireBranchScope(req),
       addPaymentDto,
       req.user.userId,
+    );
+    return success(data);
+  }
+
+  @Roles(...OPERATOR_ROLES)
+  @RequirePermissions('payments.manage')
+  @Post(':id/payments/:paymentId/reverse')
+  async reversePayment(
+    @Param('id') id: string,
+    @Param('paymentId') paymentId: string,
+    @Body() dto: ReverseOrderPaymentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.ordersService.reversePayment(
+      id,
+      paymentId,
+      requireBranchScope(req),
+      req.user.userId,
+      dto.note,
     );
     return success(data);
   }

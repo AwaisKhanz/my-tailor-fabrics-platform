@@ -37,7 +37,7 @@ export function AccountCreationDialog({
 }: AccountCreationDialogProps) {
   const { toast } = useToast();
   const form = useForm<AccountCreationFormValues>({
-    resolver: typedZodResolver<AccountCreationFormValues>(accountCreationSchema),
+    resolver: typedZodResolver(accountCreationSchema),
     defaultValues: {
       email: "",
       password: "",

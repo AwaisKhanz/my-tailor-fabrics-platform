@@ -26,6 +26,8 @@ export function UsersTable() {
     dialogOpen,
     editingUser,
     form,
+    formError,
+    fieldErrors,
     isConfirmOpen,
     userToDelete,
     setPage,
@@ -79,6 +81,8 @@ export function UsersTable() {
         form={form}
         branches={branches}
         saving={saving}
+        formError={formError}
+        fieldErrors={fieldErrors}
         onOpenChange={handleDialogOpenChange}
         onFormFieldChange={updateFormField}
         onSave={() => {

@@ -82,11 +82,11 @@ export function MyOrdersTable({
         },
       },
       {
-        header: "Rate",
+        header: "Price",
         align: "right",
         cell: (item) => (
           <span className="whitespace-nowrap text-sm font-semibold text-primary">
-            {formatPKR(item.employeeRate)}
+            {formatPKR(item.unitPrice)}
           </span>
         ),
       },

@@ -3,7 +3,9 @@ import {
   Get,
   Body,
   Patch,
+  Post,
   Param,
+  Query,
   Req,
 } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
@@ -11,6 +13,7 @@ import { TasksService } from './tasks.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
+import { resolveBranchScopeForRead } from '../common/utils/branch-resolution.util';
 import { success } from '../common/utils/response.util';
 import {
   ADMIN_ROLES,
@@ -34,7 +37,22 @@ export class TasksController {
   ) {
     const data = await this.tasksService.assignTask(
       id,
-      dto.employeeId,
+      dto.employeeId ?? null,
+      requireBranchScope(req),
+      req.user.userId,
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('tasks.assign')
+  @Get(':id/eligible-employees')
+  async getEligibleEmployees(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.tasksService.getEligibleEmployeesForTask(
+      id,
       requireBranchScope(req),
     );
     return success(data);
@@ -71,6 +89,24 @@ export class TasksController {
       id,
       dto.rateOverride,
       requireBranchScope(req),
+      req.user.userId,
+    );
+    return success(data);
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions('tasks.rate.override')
+  @Post('reconcile-earnings')
+  async reconcileEarnings(
+    @Req() req: AuthenticatedRequest,
+    @Query('branchId') branchId?: string,
+  ) {
+    const scopedBranchId = resolveBranchScopeForRead(req, branchId, {
+      allowAllForSuperAdmin: true,
+    });
+    const data = await this.tasksService.reconcileTaskEarnings(
+      scopedBranchId ?? null,
+      req.user.userId,
     );
     return success(data);
   }

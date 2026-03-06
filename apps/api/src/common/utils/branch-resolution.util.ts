@@ -54,6 +54,11 @@ export function resolveBranchScopeForMutation(
     return normalizeBranchId(req.branchId);
   }
 
+  // Explicit null from super admin means global scope by intent.
+  if (requestedBranchId === null) {
+    return undefined;
+  }
+
   const requested = normalizeBranchId(requestedBranchId);
   if (requested) {
     return requested;
