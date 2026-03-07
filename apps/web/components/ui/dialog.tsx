@@ -23,7 +23,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     data-ui="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-foreground/18 backdrop-blur-[18px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-foreground/24 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -177,7 +177,7 @@ const DialogContent = React.forwardRef<
           data-ui="dialog-content"
           className={cn(
             dialogContentSizes({ size }),
-            "grid gap-4 border border-border bg-popover/98 p-6 text-popover-foreground shadow backdrop-blur-xl sm:rounded-[24px]",
+            "grid gap-4 border border-border bg-popover p-6 text-popover-foreground shadow-sm sm:rounded-[24px]",
             className,
           )}
           onKeyDownCapture={handleKeyDownCapture}

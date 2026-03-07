@@ -327,7 +327,7 @@ export function MobileSidebarTrigger() {
       {open && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
-            className="absolute inset-0 bg-foreground/18 backdrop-blur-xl"
+            className="absolute inset-0 bg-foreground/24"
             onClick={() => setOpen(false)}
           />
 
