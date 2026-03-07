@@ -33,7 +33,7 @@ export function ChartShell({
 }: ChartShellProps) {
   return (
     <Card className={cn("overflow-hidden", className)}>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader align="startResponsive" gap="md" className="flex-row items-center justify-between gap-3 border-b border-border/70 bg-secondary/55 px-5 py-4">
         <SectionHeader
           title={title}
           description={description}
@@ -48,7 +48,7 @@ export function ChartShell({
 
       <CardContent
         spacing="section"
-        className={cn("space-y-4 h-full", contentClassName)}
+        className={cn("h-full space-y-4", contentClassName)}
       >
         {legend ? (
           <div className="flex flex-wrap items-center gap-2">{legend}</div>
@@ -57,7 +57,7 @@ export function ChartShell({
       </CardContent>
 
       {footer ? (
-        <div className="border-t border-border px-6 py-4">{footer}</div>
+        <div className="border-t border-border/70 px-5 py-4">{footer}</div>
       ) : null}
     </Card>
   );

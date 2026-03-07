@@ -4,24 +4,24 @@ import { statusIconStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 const sectionIconVariants = cva(
-  "inline-flex shrink-0 items-center justify-center text-primary",
+  "inline-flex shrink-0 items-center justify-center border text-primary shadow-sm",
   {
     variants: {
       tone: {
-        default: "bg-primary/10 ring-primary/20 text-primary",
+        default: "border-primary/10 bg-primary/10 text-primary dark:border-primary/20 dark:bg-primary/12",
         info: statusIconStyles.info,
         success: statusIconStyles.success,
         warning: statusIconStyles.warning,
         destructive: statusIconStyles.destructive,
       },
       size: {
-        sm: "h-7 w-7 rounded-lg",
-        md: "h-8 w-8 rounded-lg",
-        lg: "h-9 w-9 rounded-xl",
+        sm: "h-8 w-8 rounded-[14px]",
+        md: "h-10 w-10 rounded-[16px]",
+        lg: "h-11 w-11 rounded-[18px]",
       },
       framed: {
-        true: "ring-1",
-        false: "ring-0",
+        true: "",
+        false: "border-transparent shadow-none",
       },
     },
     defaultVariants: {

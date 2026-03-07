@@ -219,7 +219,7 @@ function NavList({
     const ItemIcon = item.icon;
 
     const baseClasses =
-      "dashboard-nav-item group flex w-full cursor-pointer items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all";
+      "dashboard-nav-item group flex w-full cursor-pointer items-center gap-3 rounded-[20px] px-4 py-3.5 text-[0.875rem] font-medium transition-all";
 
     const activeClasses = "text-sidebar-foreground";
 
@@ -278,8 +278,8 @@ export function Sidebar() {
   const sections = getVisibleNavSections(role);
 
   return (
-    <aside className="dashboard-liquid-sidebar fixed bottom-4 left-4 top-[6.25rem] z-30 hidden w-[18.75rem] flex-col rounded-[2rem] text-sidebar-foreground md:flex lg:left-5 lg:top-[6.5rem] lg:bottom-5">
-      <div className="flex items-center gap-3 border-b border-sidebar-border/45 px-4 py-4">
+    <aside className="dashboard-shell-sidebar fixed bottom-4 left-4 top-[5.75rem] z-30 hidden w-[19rem] flex-col rounded-[32px] text-sidebar-foreground md:flex lg:left-5 lg:top-[6rem] lg:bottom-5">
+      <div className="flex items-center gap-3 border-b border-sidebar-border/80 px-4 py-4">
         <SectionIcon tone="default" size="md" className="relative overflow-hidden">
           <Image
             src={siteConfig.branding.logo}
@@ -290,10 +290,10 @@ export function Sidebar() {
           />
         </SectionIcon>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-sidebar-foreground">
+          <p className="truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-sidebar-foreground">
             {siteConfig.shortName}
           </p>
-          <p className="truncate text-xs text-sidebar-foreground/68">
+          <p className="truncate text-[0.75rem] uppercase tracking-[0.14em] text-sidebar-foreground/62">
             Tailoring workspace
           </p>
         </div>
@@ -331,8 +331,8 @@ export function MobileSidebarTrigger() {
             onClick={() => setOpen(false)}
           />
 
-          <div className="dashboard-liquid-sidebar relative m-3 flex h-[calc(100%-1.5rem)] w-[18.75rem] flex-col rounded-[2rem] text-sidebar-foreground">
-            <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border/60 px-4">
+          <div className="dashboard-shell-sidebar relative m-3 flex h-[calc(100%-1.5rem)] w-[19rem] flex-col rounded-[32px] text-sidebar-foreground">
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border/80 px-4">
               <div className="flex min-w-0 items-center gap-2">
                 <SectionIcon
                   tone="default"
@@ -347,7 +347,7 @@ export function MobileSidebarTrigger() {
                     className="object-contain p-1"
                   />
                 </SectionIcon>
-                <span className="truncate text-sm font-semibold text-sidebar-foreground">
+                <span className="truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-sidebar-foreground">
                   {siteConfig.shortName}
                 </span>
               </div>
@@ -369,7 +369,7 @@ export function MobileSidebarTrigger() {
               />
             </div>
 
-            <div className="flex shrink-0 items-center justify-between border-t border-sidebar-border/60 px-4 py-4">
+            <div className="flex shrink-0 items-center justify-between border-t border-sidebar-border/80 px-4 py-4">
               <Label className="dashboard-nav-label">
                 Theme
               </Label>

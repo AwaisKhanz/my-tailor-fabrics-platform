@@ -7,11 +7,11 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const tabsListVariants = cva(
-  "inline-flex h-auto min-w-max items-center justify-start gap-1 rounded-xl border border-border bg-muted/60 p-1 text-muted-foreground"
+  "inline-flex h-auto min-w-max items-center justify-start gap-1.5 rounded-[20px] border border-border bg-secondary/85 p-1.5 text-muted-foreground shadow-sm"
 )
 
 const tabsTriggerVariants = cva(
-  "inline-flex h-9 items-center justify-center whitespace-nowrap rounded-lg px-4 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground ring-offset-background transition-colors duration-200 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+  "inline-flex h-10 items-center justify-center whitespace-nowrap rounded-[14px] px-4 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground ring-offset-background transition-[background-color,color,box-shadow] duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
 )
 
 const Tabs = TabsPrimitive.Root
@@ -41,7 +41,7 @@ const TabsTrigger = React.forwardRef<
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
 const tabsContentVariants = cva(
-  "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-offset-2",
   {
     variants: {
       spacing: {

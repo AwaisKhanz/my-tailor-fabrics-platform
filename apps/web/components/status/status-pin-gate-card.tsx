@@ -23,25 +23,25 @@ export function StatusPinGateCard({
   onSubmit,
 }: StatusPinGateCardProps) {
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md rounded-[32px]">
       <CardContent spacing="section" className="space-y-6 p-6 sm:p-8">
         <div className="text-center">
           <InfoTile
             tone="default"
             padding="none"
             radius="xl"
-            className="mx-auto mb-4 h-16 w-16 overflow-hidden"
+            className="mx-auto mb-5 h-16 w-16 overflow-hidden"
           >
             <Image
               src={siteConfig.branding.logo}
               alt={siteConfig.name}
               width={64}
               height={64}
-              className="object-contain p-2"
+              className="object-contain p-3"
             />
           </InfoTile>
 
-          <Heading as="h1"  variant="section" className="text-xl">
+          <Heading as="h1"  variant="section" className="text-[1.4rem]">
             Track Your Order
           </Heading>
           <Text as="p"  variant="lead" className="mt-1 text-sm">

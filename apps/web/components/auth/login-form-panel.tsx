@@ -42,7 +42,10 @@ export function LoginFormPanel({
   return (
     <section className="flex h-full w-full flex-1 flex-col justify-center bg-card px-6 py-8 sm:px-8 lg:px-10">
       <div className="mx-auto w-full max-w-[390px] space-y-7 md:space-y-8">
-        <div className="space-y-2 text-center md:text-left">
+        <div className="space-y-3 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            {siteConfig.shortName}
+          </div>
           <Heading as="h2"  variant="page" className="text-3xl sm:text-[2rem]">
             Welcome Back
           </Heading>
@@ -54,7 +57,7 @@ export function LoginFormPanel({
         <FormStack as="form" density="default" onSubmit={onSubmit}>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-bold text-foreground">
+              <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground">
                 Email Address
               </Label>
               <div className="relative">
@@ -77,7 +80,7 @@ export function LoginFormPanel({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-xs font-bold text-foreground">
+              <Label htmlFor="password" className="text-xs font-semibold text-muted-foreground">
                 Password
               </Label>
               <div className="relative">

@@ -121,8 +121,8 @@ const DELETED_PATHS = [
 ];
 
 const REQUIRED_TAILWIND_SNIPPETS = [
-  'ui: ["Avenir Next", "Segoe UI", "sans-serif"]',
-  'sans: ["Avenir Next", "Segoe UI", "sans-serif"]',
+  'ui: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"]',
+  'sans: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"]',
   'background: "hsl(var(--background) / <alpha-value>)"',
   'foreground: "hsl(var(--foreground) / <alpha-value>)"',
   'border: "hsl(var(--border) / <alpha-value>)"',

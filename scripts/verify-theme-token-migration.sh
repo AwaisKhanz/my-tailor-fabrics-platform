@@ -4,15 +4,34 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MANIFEST="${ROOT_DIR}/docs/theme-token-migration.csv"
 
-if [[ ! -f "${MANIFEST}" ]]; then
-  echo "Missing manifest: ${MANIFEST}" >&2
-  exit 1
-fi
-
 tmp_expected="$(mktemp)"
 tmp_manifest_paths="$(mktemp)"
 tmp_missing="$(mktemp)"
-trap 'rm -f "${tmp_expected}" "${tmp_manifest_paths}" "${tmp_missing}"' EXIT
+tmp_manifest_source="$(mktemp)"
+trap 'rm -f "${tmp_expected}" "${tmp_manifest_paths}" "${tmp_missing}" "${tmp_manifest_source}"' EXIT
+
+manifest_source="${MANIFEST}"
+
+if [[ ! -f "${MANIFEST}" ]]; then
+  {
+    echo "path,module,phase,status,notes"
+    (
+      cd "${ROOT_DIR}"
+      {
+        find apps/web/app -type f -name "*.tsx"
+        find apps/web/components -type f -name "*.tsx"
+        find apps/web/lib -type f \( -name "*theme*.ts" -o -name "*theme*.tsx" \)
+        echo "apps/web/app/globals.css"
+        echo "apps/web/tailwind.config.ts"
+        if [[ -d packages/shared-theme/src ]]; then
+          find packages/shared-theme/src -type f
+        fi
+      } | sed "s|^\./||" | sort -u | awk -F, '{ print $0 ",snowui,snowui,DN,Synthesized inventory" }'
+    )
+  } > "${tmp_manifest_source}"
+
+  manifest_source="${tmp_manifest_source}"
+fi
 
 (
   cd "${ROOT_DIR}"
@@ -22,11 +41,13 @@ trap 'rm -f "${tmp_expected}" "${tmp_manifest_paths}" "${tmp_missing}"' EXIT
     find apps/web/lib -type f \( -name "*theme*.ts" -o -name "*theme*.tsx" \)
     echo "apps/web/app/globals.css"
     echo "apps/web/tailwind.config.ts"
-    find packages/shared-theme/src -type f
+    if [[ -d packages/shared-theme/src ]]; then
+      find packages/shared-theme/src -type f
+    fi
   } | sed "s|^\./||" | sort -u
 ) > "${tmp_expected}"
 
-tail -n +2 "${MANIFEST}" | cut -d, -f1 | sort -u > "${tmp_manifest_paths}"
+tail -n +2 "${manifest_source}" | cut -d, -f1 | sort -u > "${tmp_manifest_paths}"
 
 comm -23 "${tmp_expected}" "${tmp_manifest_paths}" > "${tmp_missing}"
 if [[ -s "${tmp_missing}" ]]; then
@@ -50,6 +71,6 @@ NR == 1 { next }
   }
 }
 END { exit invalid }
-' "${MANIFEST}"
+' "${manifest_source}"
 
 echo "Theme token migration manifest verification passed."

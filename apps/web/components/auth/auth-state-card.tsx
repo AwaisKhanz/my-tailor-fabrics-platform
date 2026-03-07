@@ -32,12 +32,12 @@ export function AuthStateCard({
       className="relative flex min-h-screen items-center justify-center bg-background px-4 py-8"
     >
       <PageSection spacing="compact" className="relative w-full max-w-xl">
-        <Card>
+        <Card className="rounded-[32px]">
           <CardContent
             spacing="section"
-            className="space-y-5 py-8 text-center sm:py-10"
+            className="space-y-6 px-8 py-10 text-center"
           >
-            <div className="mx-auto w-fit rounded-full bg-destructive/10 p-5">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[20px] border border-destructive/20 bg-destructive/10">
               <Icon className="h-10 w-10 text-destructive" />
             </div>
 

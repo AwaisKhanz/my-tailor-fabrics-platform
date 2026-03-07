@@ -40,15 +40,15 @@ const statValueTone = cva("text-3xl", {
 });
 
 const statIconTone = cva(
-  "flex h-10 w-10 items-center justify-center rounded-lg border",
+  "flex h-11 w-11 items-center justify-center rounded-[16px] border shadow-sm",
   {
     variants: {
       tone: {
-        default: "border-border bg-muted text-muted-foreground",
-        primary: "border-primary/20 bg-primary/10 text-primary",
-        success: statusIconStyles.success,
-        warning: statusIconStyles.warning,
-        destructive: statusIconStyles.destructive,
+      default: "border-border bg-muted text-muted-foreground",
+      primary: "border-primary/12 bg-primary text-primary-foreground",
+      success: statusIconStyles.success,
+      warning: statusIconStyles.warning,
+      destructive: statusIconStyles.destructive,
         info: statusIconStyles.info,
       },
     },
@@ -116,14 +116,14 @@ export function StatCard({
         density="compact"
         align="start"
         gap="sm"
-        className="flex-row items-center justify-between gap-3 border-b border-border rounded-none bg-muted/40 px-6 py-4"
+        className="flex-row items-center justify-between gap-3 border-b border-border/70 bg-secondary/55 px-5 py-4"
       >
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold text-foreground">
             {title}
           </CardTitle>
           {subtitle ? (
-            <Label className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+            <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {subtitle}
             </Label>
           ) : null}
@@ -136,7 +136,7 @@ export function StatCard({
 
       <CardContent
         spacing="section"
-        className={cn("space-y-2 p-5", contentClassName)}
+        className={cn("space-y-3 p-5", contentClassName)}
       >
         <div className="flex items-center gap-2">
           <Heading

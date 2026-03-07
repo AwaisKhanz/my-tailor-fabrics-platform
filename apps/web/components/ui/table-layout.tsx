@@ -28,7 +28,7 @@ export function TableSurface({
   className,
 }: TableSurfaceProps) {
   return (
-    <div className={cn("overflow-hidden rounded-xl border border-border bg-card shadow-sm", className)}>
+    <div className={cn("overflow-hidden rounded-[24px] border border-border bg-card shadow-sm", className)}>
       {children}
     </div>
   );
@@ -47,7 +47,7 @@ export function TableToolbar({
   return (
     <div
       className={cn(
-        "border-b border-border bg-muted/40 px-4 py-5",
+        "border-b border-border/70 bg-secondary/55 px-4 py-5",
         className,
       )}
     >
@@ -85,7 +85,7 @@ export function TableSearch({
   return (
     <div className="group relative w-full md:min-w-[280px] md:flex-1">
       <Input className={cn("pl-9", className)} {...props} />
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-hover:text-primary">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-hover:text-foreground">
         {icon ?? <Search className="h-4 w-4" />}
       </span>
     </div>

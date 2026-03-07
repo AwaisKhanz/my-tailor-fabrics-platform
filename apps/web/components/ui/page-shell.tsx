@@ -6,14 +6,14 @@ const pageShellVariants = cva("mx-auto w-full", {
   variants: {
     width: {
       full: "max-w-full",
-      dashboard: "max-w-[1600px]",
+      dashboard: "max-w-[1680px]",
       content: "max-w-7xl",
       narrow: "max-w-5xl",
     },
     spacing: {
-      compact: "space-y-4",
-      default: "space-y-6",
-      spacious: "space-y-8",
+      compact: "space-y-4 lg:space-y-5",
+      default: "space-y-6 lg:space-y-7",
+      spacious: "space-y-8 lg:space-y-9",
     },
     inset: {
       none: "",
@@ -53,8 +53,8 @@ const pageSectionVariants = cva("w-full", {
     spacing: {
       none: "",
       compact: "space-y-3",
-      default: "space-y-4",
-      spacious: "space-y-6",
+      default: "space-y-4 lg:space-y-5",
+      spacious: "space-y-6 lg:space-y-7",
     },
   },
   defaultVariants: {

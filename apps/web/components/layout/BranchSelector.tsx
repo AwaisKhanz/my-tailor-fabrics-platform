@@ -72,7 +72,7 @@ export function BranchSelector({
     >
       <SelectTrigger
         className={cn(
-          "h-9 w-full text-xs font-semibold tracking-wide sm:text-sm",
+          "h-10 w-full text-[0.8rem] font-semibold tracking-[0.08em] sm:text-[0.875rem]",
           className,
         )}
       >

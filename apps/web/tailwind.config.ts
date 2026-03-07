@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        ui: ["Avenir Next", "Segoe UI", "sans-serif"],
-        sans: ["Avenir Next", "Segoe UI", "sans-serif"],
+        ui: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"],
+        sans: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"],
       },
       colors: {
         background: "hsl(var(--background) / <alpha-value>)",
@@ -52,6 +52,20 @@ const config: Config = {
           foreground: "hsl(var(--sidebar-foreground) / <alpha-value>)",
           border: "hsl(var(--sidebar-border) / <alpha-value>)",
         },
+        snow: {
+          black: "#1c1c1c",
+          light: "#f7f9fb",
+          blue: "#e3f5ff",
+          purple: "#e5ecf6",
+          "purple-a": "#95a4fc",
+          "purple-b": "#c6c7f8",
+          "blue-a": "#a8c5da",
+          "blue-b": "#b1e3ff",
+          "green-a": "#a1e3cb",
+          "green-b": "#baedbd",
+          yellow: "#ffe999",
+          red: "#ff4747",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -61,6 +75,7 @@ const config: Config = {
       boxShadow: {
         sm: "var(--shadow-sm)",
         DEFAULT: "var(--shadow)",
+        focus: "0 0 0 4px hsl(var(--ring) / 0.18)",
       },
     },
   },

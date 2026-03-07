@@ -210,9 +210,9 @@ export function GlobalSearchCommand({
   return (
     <div
       ref={containerRef}
-      className={cn("dashboard-liquid-search relative w-full", className)}
+      className={cn("dashboard-shell-search relative w-full", className)}
     >
-      <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-foreground/55" />
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         ref={inputRef}
         value={query}
@@ -240,7 +240,7 @@ export function GlobalSearchCommand({
             : "Search orders, customers, and staff..."
         }
         className={cn(
-          "w-full rounded-[1.35rem] pl-10",
+          "w-full rounded-[18px] pl-10",
           query ? "pr-9" : !compact ? "pr-24" : undefined,
         )}
       />
@@ -267,9 +267,9 @@ export function GlobalSearchCommand({
 
       {open ? (
         <Card
-          className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-[1.6rem]"
+          className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-[28px]"
         >
-          <CardHeader density="compact" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+          <CardHeader density="compact" className="flex-row items-center justify-between gap-3 border-b border-border/70 bg-secondary/55 px-5 py-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Global Search
             </p>

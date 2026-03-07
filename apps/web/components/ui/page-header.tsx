@@ -25,7 +25,7 @@ export function PageHeader({
     <div
       data-ui="page-header"
       className={cn(
-        "items-start justify-between gap-4",
+        "items-start justify-between gap-4 rounded-[28px] border border-border bg-card/96 px-5 py-5 shadow-sm backdrop-blur-xl sm:px-6 sm:py-6",
         stackOnMobile ? "flex flex-col sm:flex-row" : "flex",
         className,
       )}

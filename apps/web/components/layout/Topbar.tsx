@@ -30,12 +30,12 @@ export function Topbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-4 lg:px-5">
       <div className="space-y-2">
-        <div className="dashboard-liquid-topbar flex h-[4.5rem] w-full items-center gap-2 rounded-[1.9rem] px-3 sm:gap-3 sm:px-4 lg:px-5">
+        <div className="dashboard-shell-topbar flex h-[4.5rem] w-full items-center gap-2 rounded-[28px] px-3 sm:gap-3 sm:px-4 lg:px-5">
           <div className="flex min-w-0 items-center gap-2 md:pr-4">
             <MobileSidebarTrigger />
             <div className="hidden min-w-0 flex-col md:flex">
               <Label className="dashboard-nav-label">Workspace</Label>
-              <span className="truncate text-base font-semibold text-foreground">
+              <span className="truncate text-[0.95rem] font-semibold tracking-[-0.02em] text-foreground">
                 {siteConfig.shortName}
               </span>
             </div>
@@ -51,7 +51,7 @@ export function Topbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="h-9 w-9 p-0">
-                  <div className="flex h-full w-full items-center justify-center rounded-[0.95rem] bg-background/42 text-sm font-bold text-foreground">
+                  <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-secondary text-sm font-semibold text-foreground">
                     {(user?.email || "U")[0].toUpperCase()}
                   </div>
                 </Button>

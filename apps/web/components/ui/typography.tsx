@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 const headingVariants = cva("", {
   variants: {
     variant: {
-      page: "text-[2.2rem] font-semibold leading-[1.04] tracking-[-0.03em] text-foreground md:text-[2.85rem]",
-      section: "text-[1.18rem] font-semibold leading-tight text-foreground",
-      stat: "text-2xl font-bold tracking-tight text-foreground",
+      page: "text-[2rem] font-semibold leading-[1.02] tracking-[-0.04em] text-foreground md:text-[2.5rem] lg:text-[3rem]",
+      section:
+        "text-[1.125rem] font-semibold leading-[1.18] tracking-[-0.02em] text-foreground md:text-[1.25rem]",
+      stat: "text-[2rem] font-semibold leading-none tracking-[-0.03em] text-foreground",
     },
   },
   defaultVariants: {
@@ -18,10 +19,10 @@ const headingVariants = cva("", {
 const textVariants = cva("", {
   variants: {
     variant: {
-      lead: "text-[1rem] leading-8 text-muted-foreground md:text-[1.05rem]",
-      body: "text-sm text-foreground",
-      muted: "text-sm text-muted-foreground",
-      meta: "text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground",
+      lead: "text-[0.95rem] leading-7 text-muted-foreground md:text-base",
+      body: "text-[0.875rem] leading-6 text-foreground",
+      muted: "text-[0.875rem] leading-6 text-muted-foreground",
+      meta: "text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground",
     },
   },
   defaultVariants: {

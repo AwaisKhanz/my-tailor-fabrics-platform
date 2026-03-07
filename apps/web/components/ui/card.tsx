@@ -10,7 +10,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       ref={ref}
       data-ui="card"
       className={cn(
-        "rounded-2xl border border-border bg-card text-card-foreground shadow",
+        "overflow-hidden rounded-[24px] border border-border bg-card text-card-foreground shadow",
         className,
       )}
       {...props}
@@ -19,12 +19,12 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 );
 Card.displayName = "Card";
 
-const cardHeaderVariants = cva("flex flex-col rounded-lg", {
+const cardHeaderVariants = cva("flex flex-col", {
   variants: {
     density: {
-      default: "space-y-1.5 p-6",
-      compact: "px-5 py-4",
-      comfortable: "px-6 py-5",
+      default: "space-y-1.5 px-6 py-5",
+      compact: "space-y-1 px-5 py-4",
+      comfortable: "space-y-1.5 px-6 py-5",
     },
     align: {
       default: "",
@@ -68,7 +68,7 @@ const CardTitle = React.forwardRef<HTMLDivElement, CardTitleProps>(
     <div
       ref={ref}
       className={cn(
-        "font-semibold leading-none tracking-tight text-foreground",
+        "text-[1rem] font-semibold leading-none tracking-[-0.02em] text-foreground",
         className,
       )}
       {...props}

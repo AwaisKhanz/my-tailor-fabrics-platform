@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const metaPillVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-4 py-2 text-xs text-muted-foreground",
+  "inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground shadow-sm",
   {
     variants: {
       tone: {

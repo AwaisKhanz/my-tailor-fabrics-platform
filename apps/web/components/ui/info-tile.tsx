@@ -4,12 +4,12 @@ import { statusSurfaceStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 export const infoTileVariants = cva(
-  "rounded-lg border border-border bg-card text-foreground shadow-sm",
+  "rounded-[20px] border border-border bg-card text-foreground shadow-sm",
   {
     variants: {
       tone: {
         default: "",
-        secondary: "bg-secondary text-secondary-foreground",
+        secondary: "border-secondary bg-secondary text-secondary-foreground",
         success: statusSurfaceStyles.success,
         destructive: statusSurfaceStyles.destructive,
         info: statusSurfaceStyles.info,
@@ -41,8 +41,8 @@ export const infoTileVariants = cva(
           "transition-all duration-200 hover:border-border hover:shadow",
       },
       radius: {
-        lg: "rounded-lg",
-        xl: "rounded-xl",
+        lg: "rounded-[20px]",
+        xl: "rounded-[24px]",
       },
     },
     defaultVariants: {

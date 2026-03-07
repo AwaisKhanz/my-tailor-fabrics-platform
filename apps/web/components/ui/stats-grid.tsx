@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const statsGridVariants = cva("grid auto-rows-fr gap-4", {
+const statsGridVariants = cva("grid auto-rows-fr gap-4 lg:gap-5", {
   variants: {
     columns: {
       two: "grid-cols-1 sm:grid-cols-2",

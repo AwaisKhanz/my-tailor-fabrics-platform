@@ -40,18 +40,20 @@ export default function DashboardLayout({
   }, [router, session?.accessToken, session?.error, status]);
 
   useEffect(() => {
-    document.body.classList.add("dashboard-liquid");
+    document.body.classList.add("dashboard-shell");
     return () => {
-      document.body.classList.remove("dashboard-liquid");
+      document.body.classList.remove("dashboard-shell");
     };
   }, []);
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="mt-4 text-muted-foreground">Loading application...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="flex min-w-[280px] flex-col items-center rounded-[28px] border border-border bg-card px-8 py-10 shadow">
+          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-primary/25 border-t-primary" />
+          <p className="mt-4 text-[0.875rem] font-medium text-muted-foreground">
+            Loading application...
+          </p>
         </div>
       </div>
     );
@@ -62,11 +64,11 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="dashboard-liquid-shell">
+    <div className="dashboard-shell">
       <Topbar />
       <Sidebar />
-      <main className="dashboard-liquid-scroll">
-        <div className="dashboard-liquid-workspace">{children}</div>
+      <main className="dashboard-shell-scroll">
+        <div className="dashboard-shell-workspace">{children}</div>
       </main>
     </div>
   );

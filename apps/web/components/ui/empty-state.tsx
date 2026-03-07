@@ -23,15 +23,15 @@ interface EmptyStateProps {
  */
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-card py-16 text-center shadow-sm">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-muted">
-        <Icon className="h-6 w-6 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center rounded-[28px] border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
+      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-[18px] border border-border bg-secondary shadow-sm">
+        <Icon className="h-6 w-6 text-foreground" />
       </div>
-      <Heading as="h3" variant="section" className="text-sm">
+      <Heading as="h3" variant="section" className="text-base">
         {title}
       </Heading>
       {description && (
-        <Text as="p" variant="lead" className="mt-1 max-w-xs">
+        <Text as="p" variant="lead" className="mt-2 max-w-sm">
           {description}
         </Text>
       )}
@@ -39,7 +39,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
         <Button
           variant="secondary"
           size="sm"
-          className="mt-4"
+          className="mt-5"
           onClick={action.onClick}
         >
           {action.label}

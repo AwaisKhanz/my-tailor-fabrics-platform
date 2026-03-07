@@ -4,78 +4,86 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
-    --foreground: 240 10% 4%;
+    --background: 210 33% 98%;
+    --foreground: 0 0% 11%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 240 10% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 11%;
 
-    --popover: 0 0% 98%;
-    --popover-foreground: 240 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 11%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 84% 5%;
+    --secondary: 215 49% 93%;
+    --secondary-foreground: 0 0% 11%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 201 100% 95%;
+    --muted-foreground: 223 8% 41%;
 
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 10% 4%;
+    --accent: 215 49% 93%;
+    --accent-foreground: 0 0% 11%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 100% 64%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 5.5% 90%;
-    --input: 240 5.5% 90%;
-    --ring: 221 83% 53%;
+    --border: 220 26% 90%;
+    --input: 220 26% 90%;
+    --ring: 231 94% 79%;
 
-    --sidebar: 0 0% 99%;
-    --sidebar-foreground: 240 10% 4%;
-    --sidebar-border: 240 5% 88%;
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 0 0% 11%;
+    --sidebar-border: 220 26% 90%;
 
-    --radius: 0.75rem;
-    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    --shadow: 0 4px 16px -4px rgb(0 0 0 / 0.12);
+    --radius: 1rem;
+    --shadow-sm:
+      0 1px 2px rgb(15 23 42 / 0.04),
+      0 10px 24px -18px rgb(15 23 42 / 0.14);
+    --shadow:
+      0 24px 60px -34px rgb(15 23 42 / 0.18),
+      0 12px 22px -18px rgb(15 23 42 / 0.1);
   }
 
   .dark {
-    --background: 240 10% 4%;
+    --background: 240 15% 10%;
     --foreground: 0 0% 95%;
 
-    --card: 240 10% 7%;
+    --card: 240 14% 14%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 240 10% 7%;
+    --popover: 240 14% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 84% 5%;
+    --primary: 239 78% 87%;
+    --primary-foreground: 0 0% 11%;
 
-    --secondary: 240 5% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 12% 20%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 240 12% 18%;
+    --muted-foreground: 236 9% 72%;
 
-    --accent: 240 4% 16%;
+    --accent: 240 12% 22%;
     --accent-foreground: 0 0% 95%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 100% 64%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 5% 18%;
-    --input: 240 5% 18%;
-    --ring: 217 91% 60%;
+    --border: 240 12% 24%;
+    --input: 240 12% 24%;
+    --ring: 202 100% 85%;
 
-    --sidebar: 240 10% 6%;
-    --sidebar-foreground: 0 0% 94%;
-    --sidebar-border: 240 5% 20%;
+    --sidebar: 240 14% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-border: 240 12% 22%;
 
-    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4);
-    --shadow: 0 10px 25px -5px rgb(0 0 0 / 0.5);
+    --shadow-sm:
+      0 1px 2px rgb(0 0 0 / 0.2),
+      0 12px 24px -18px rgb(0 0 0 / 0.28);
+    --shadow:
+      0 24px 64px -32px rgb(0 0 0 / 0.42),
+      0 16px 28px -22px rgb(0 0 0 / 0.34);
   }
 
   * {
@@ -84,121 +92,85 @@
 
   html {
     min-height: 100%;
+    background: hsl(var(--background));
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    background-image: linear-gradient(
+      180deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--background)) 100%
+    );
   }
 
   ::selection {
-    @apply bg-primary/20 text-foreground;
+    @apply bg-primary/15 text-foreground;
   }
 
-  body.dashboard-liquid {
+  body.dashboard-shell {
     position: relative;
     min-height: 100vh;
     background:
       radial-gradient(
-        circle at 14% 16%,
-        hsl(var(--primary) / 0.22) 0%,
+        circle at 8% 0%,
+        rgb(229 236 246 / 0.96) 0%,
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 100% 0%,
+        rgb(227 245 255 / 0.92) 0%,
         transparent 30%
       ),
-      radial-gradient(
-        circle at 84% 14%,
-        hsl(var(--foreground) / 0.07) 0%,
-        transparent 24%
-      ),
-      radial-gradient(
-        circle at 52% 100%,
-        hsl(var(--primary) / 0.12) 0%,
-        transparent 38%
-      ),
       linear-gradient(
-        160deg,
+        180deg,
         hsl(var(--background)) 0%,
-        hsl(var(--secondary)) 52%,
-        hsl(var(--background)) 100%
+        hsl(210 29% 99%) 100%
       );
     background-attachment: fixed;
   }
 
-  body.dashboard-liquid::before,
-  body.dashboard-liquid::after {
+  body.dashboard-shell::before {
     content: "";
     pointer-events: none;
     position: fixed;
     inset: 0;
     z-index: -1;
+    background-image:
+      linear-gradient(rgb(15 23 42 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(15 23 42 / 0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: linear-gradient(180deg, rgb(0 0 0 / 0.5), transparent 85%);
+    opacity: 0.45;
   }
 
-  body.dashboard-liquid::before {
+  .dark body.dashboard-shell {
     background:
       radial-gradient(
-        circle at 50% -10%,
-        hsl(var(--background) / 0.78) 0%,
-        transparent 42%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(var(--background) / 0.68) 0%,
-        transparent 34%,
-        transparent 66%,
-        hsl(var(--foreground) / 0.03) 100%
-      );
-  }
-
-  body.dashboard-liquid::after {
-    opacity: 0.5;
-    background:
-      linear-gradient(
-        115deg,
-        transparent 0%,
-        hsl(var(--background) / 0.34) 48%,
-        transparent 72%
-      );
-    mix-blend-mode: screen;
-  }
-
-  .dark body.dashboard-liquid {
-    background:
-      radial-gradient(
-        circle at 16% 16%,
-        hsl(var(--primary) / 0.18) 0%,
+        circle at 10% 0%,
+        rgb(149 164 252 / 0.18) 0%,
         transparent 28%
       ),
       radial-gradient(
-        circle at 84% 12%,
-        hsl(var(--foreground) / 0.08) 0%,
-        transparent 24%
-      ),
-      radial-gradient(
-        circle at 50% 100%,
-        hsl(var(--primary) / 0.12) 0%,
-        transparent 34%
-      ),
-      linear-gradient(
-        160deg,
-        hsl(var(--background)) 0%,
-        hsl(var(--card)) 52%,
-        hsl(var(--background)) 100%
-      );
-  }
-
-  .dark body.dashboard-liquid::before {
-    background:
-      radial-gradient(
-        circle at 50% -14%,
-        hsl(var(--background) / 0.22) 0%,
-        transparent 42%
+        circle at 100% 0%,
+        rgb(177 227 255 / 0.12) 0%,
+        transparent 26%
       ),
       linear-gradient(
         180deg,
-        hsl(var(--background) / 0.32) 0%,
-        transparent 34%,
-        transparent 68%,
-        hsl(var(--foreground) / 0.03) 100%
+        hsl(var(--background)) 0%,
+        hsl(240 17% 8%) 100%
       );
+  }
+
+  .dark body.dashboard-shell::before {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+    opacity: 0.22;
   }
 }
 
@@ -208,453 +180,224 @@
   }
 
   .card {
-    @apply rounded-xl border bg-card text-card-foreground shadow;
+    @apply rounded-[24px] border bg-card text-card-foreground shadow;
   }
 
   .glass {
-    border: 1px solid hsl(var(--border) / 0.55);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--background) / 0.78) 0%,
-        hsl(var(--card) / 0.54) 100%
-      );
-    box-shadow:
-      0 24px 70px -42px hsl(var(--foreground) / 0.28),
-      inset 0 1px 0 hsl(var(--background) / 0.88),
-      inset 0 -1px 0 hsl(var(--foreground) / 0.05);
-    backdrop-filter: blur(26px) saturate(175%);
-    -webkit-backdrop-filter: blur(26px) saturate(175%);
+    border: 1px solid hsl(var(--border) / 0.82);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--card) / 0.88) 0%,
+      hsl(var(--card) / 0.74) 100%
+    );
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
   }
 
   .meta {
-    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground;
   }
 
   .error {
     @apply text-sm font-medium text-destructive;
   }
 
-  .dashboard-liquid-shell {
-    @apply relative isolate h-screen overflow-hidden;
+  .dashboard-shell {
+    @apply relative isolate min-h-screen;
   }
 
-  .dashboard-liquid-scroll {
+  .dashboard-shell-scroll {
     position: relative;
     z-index: 0;
-    height: 100%;
+    min-height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-top: 8.4rem;
+    padding-top: 6.5rem;
     padding-bottom: 1rem;
-    scroll-padding-top: 8.8rem;
+    scroll-padding-top: 7rem;
   }
 
-  .dashboard-liquid-workspace {
+  .dashboard-shell-workspace {
     width: 100%;
-    max-width: 1600px;
+    max-width: 1680px;
     margin: 0 auto;
     padding-inline: 0.75rem;
   }
 
   @media (min-width: 640px) {
-    .dashboard-liquid-scroll {
-      padding-top: 8.7rem;
+    .dashboard-shell-scroll {
+      padding-top: 6.75rem;
       padding-bottom: 1.25rem;
     }
 
-    .dashboard-liquid-workspace {
+    .dashboard-shell-workspace {
       padding-inline: 1rem;
     }
   }
 
   @media (min-width: 768px) {
-    .dashboard-liquid-scroll {
-      padding-top: 6rem;
+    .dashboard-shell-scroll {
+      padding-top: 5.75rem;
       padding-left: 21rem;
       padding-right: 1rem;
-      padding-bottom: 1rem;
-      scroll-padding-top: 6.5rem;
+      scroll-padding-top: 6.25rem;
     }
 
-    .dashboard-liquid-workspace {
+    .dashboard-shell-workspace {
       padding-inline: 0;
     }
   }
 
   @media (min-width: 1024px) {
-    .dashboard-liquid-scroll {
-      padding-top: 6.25rem;
+    .dashboard-shell-scroll {
+      padding-top: 6rem;
       padding-left: 21.5rem;
       padding-right: 1.25rem;
-      padding-bottom: 1.25rem;
+      padding-bottom: 1.5rem;
     }
   }
 
-  .dashboard-liquid-topbar,
-  .dashboard-liquid-sidebar,
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) :is(
-      [data-ui="card"],
-      [data-ui="dialog-content"],
-      [data-ui="dropdown-content"],
-      [data-ui="popover-content"],
-      [data-ui="select-content"],
-      [data-ui="toast"],
-      [data-ui="info-tile"],
-      [data-ui="table-frame"],
-      [data-ui="page-header"],
-      [data-ui="command-surface"]
-    ) {
+  .dashboard-shell-topbar,
+  .dashboard-shell-sidebar {
     position: relative;
     overflow: hidden;
-    border: 1px solid hsl(var(--background) / 0.34);
-    background:
-      linear-gradient(
-        135deg,
-        hsl(var(--background) / 0.58) 0%,
-        hsl(var(--card) / 0.34) 48%,
-        hsl(var(--background) / 0.26) 100%
-      );
-    box-shadow:
-      0 24px 54px -34px hsl(var(--foreground) / 0.22),
-      inset 0 1px 0 hsl(var(--background) / 0.58),
-      inset 0 -1px 0 hsl(var(--foreground) / 0.04);
-    backdrop-filter: blur(22px) saturate(145%);
-    -webkit-backdrop-filter: blur(22px) saturate(145%);
+    border: 1px solid hsl(var(--border) / 0.74);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--card) / 0.94) 0%,
+      hsl(var(--card) / 0.84) 100%
+    );
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
   }
 
-  .dashboard-liquid-topbar::before,
-  .dashboard-liquid-sidebar::before,
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) :is(
-      [data-ui="card"],
-      [data-ui="dialog-content"],
-      [data-ui="dropdown-content"],
-      [data-ui="popover-content"],
-      [data-ui="select-content"],
-      [data-ui="toast"],
-      [data-ui="info-tile"],
-      [data-ui="table-frame"],
-      [data-ui="page-header"],
-      [data-ui="command-surface"]
-    )::before {
+  .dashboard-shell-topbar::before,
+  .dashboard-shell-sidebar::before {
     content: "";
     pointer-events: none;
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(
-        135deg,
-        hsl(var(--background) / 0.34) 0%,
-        transparent 42%,
-        transparent 68%,
-        hsl(var(--foreground) / 0.025) 100%
-      );
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card-foreground) / 0.05) 0%,
+      transparent 40%,
+      hsl(var(--ring) / 0.08) 100%
+    );
     opacity: 0.9;
   }
 
-  .dashboard-liquid-search {
-    position: relative;
-  }
-
-  .dashboard-liquid-search::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background:
-      linear-gradient(
-        135deg,
-        hsl(var(--background) / 0.16) 0%,
-        transparent 56%
-      );
-    opacity: 0.72;
-  }
-
-  .dashboard-liquid-topbar {
+  .dashboard-shell-topbar {
     overflow: visible;
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) :is(
-      [data-ui="button"],
-      [data-ui="input"],
-      [data-ui="select-trigger"],
-      [data-ui="badge"],
-      [data-ui="checkbox"],
-      [data-ui="switch"]
-    ) {
+  .dashboard-shell-search {
     position: relative;
-    overflow: hidden;
-    border-color: hsl(var(--background) / 0.26);
-    box-shadow:
-      inset 0 1px 0 hsl(var(--background) / 0.5),
-      0 16px 24px -24px hsl(var(--foreground) / 0.18);
-    backdrop-filter: blur(16px) saturate(135%);
-    -webkit-backdrop-filter: blur(16px) saturate(135%);
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="button"][data-variant="default"] {
-    border: 1px solid hsl(var(--primary) / 0.28);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--primary) / 0.78) 0%,
-        hsl(var(--primary) / 0.58) 100%
-      );
+  .dashboard-shell-search::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.46) 0%,
+      transparent 56%
+    );
+    opacity: 0.9;
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="button"][data-variant="secondary"],
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="button"][data-variant="outline"],
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="button"][data-variant="ghost"] {
-    border: 1px solid hsl(var(--background) / 0.26);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--background) / 0.4) 0%,
-        hsl(var(--card) / 0.2) 100%
-      );
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="button"][data-variant="ghost"] {
-    border-color: transparent;
-    background: hsl(var(--background) / 0.08);
-    box-shadow: none;
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="button"][data-variant="destructive"] {
-    border: 1px solid hsl(var(--destructive) / 0.22);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--destructive) / 0.74) 0%,
-        hsl(var(--destructive) / 0.54) 100%
-      );
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="default"] {
-    border-color: hsl(var(--primary) / 0.3);
-    background: hsl(var(--primary) / 0.16);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="secondary"],
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="outline"] {
-    border-color: hsl(var(--border) / 0.66);
-    background: hsl(var(--background) / 0.46);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="success"],
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="info"] {
-    border-color: hsl(var(--primary) / 0.3);
-    background: hsl(var(--primary) / 0.14);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="warning"] {
-    border-color: hsl(var(--secondary-foreground) / 0.18);
-    background: hsl(var(--secondary) / 0.84);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="badge"][data-variant="destructive"] {
-    border-color: hsl(var(--destructive) / 0.3);
-    background: hsl(var(--destructive) / 0.12);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) :is([data-ui="input"], [data-ui="select-trigger"]) {
-    border-color: hsl(var(--background) / 0.24);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--background) / 0.38) 0%,
-        hsl(var(--card) / 0.16) 100%
-      );
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) :is([data-ui="input"], [data-ui="select-trigger"]):focus-visible {
-    border-color: hsl(var(--primary) / 0.45);
-    box-shadow:
-      inset 0 1px 0 hsl(var(--background) / 0.56),
-      0 0 0 1px hsl(var(--primary) / 0.14),
-      0 16px 24px -24px hsl(var(--foreground) / 0.18);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="card"] {
-    border-radius: 1.65rem;
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="card-header"] {
-    position: relative;
-    background: hsl(var(--background) / 0.14);
-    backdrop-filter: blur(10px) saturate(132%);
-    -webkit-backdrop-filter: blur(10px) saturate(132%);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="card-footer"] {
-    background: hsl(var(--background) / 0.12);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="page-header"] {
-    border-radius: 1.8rem;
-    padding: 1.4rem;
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="table-frame"] {
-    border-radius: 1.55rem;
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="table-frame"] [data-ui="table-head"] {
-    background: hsl(var(--background) / 0.2);
-    backdrop-filter: blur(10px) saturate(138%);
-    -webkit-backdrop-filter: blur(10px) saturate(138%);
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="table-row"] {
-    transition:
-      background-color 180ms ease,
-      border-color 180ms ease;
-  }
-
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) [data-ui="table-row"]:hover {
-    background: hsl(var(--background) / 0.34);
-  }
-
-  body.dashboard-liquid [data-ui="dialog-overlay"] {
+  body.dashboard-shell [data-ui="dialog-overlay"] {
     background:
       radial-gradient(
-        circle at 50% 20%,
-        hsl(var(--background) / 0.12) 0%,
-        transparent 40%
+        circle at 50% 15%,
+        hsl(var(--ring) / 0.12) 0%,
+        transparent 36%
       ),
-      hsl(var(--foreground) / 0.22);
-    backdrop-filter: blur(16px) saturate(130%);
-    -webkit-backdrop-filter: blur(16px) saturate(130%);
+      hsl(var(--foreground) / 0.18);
+    backdrop-filter: blur(20px) saturate(145%);
+    -webkit-backdrop-filter: blur(20px) saturate(145%);
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-label {
+  .dashboard-nav-label {
     @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground;
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-item {
+  .dashboard-nav-item {
     border: 1px solid transparent;
-    background: hsl(var(--background) / 0.08);
-    backdrop-filter: blur(14px) saturate(132%);
-    -webkit-backdrop-filter: blur(14px) saturate(132%);
+    background: hsl(var(--background) / 0.54);
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-item:hover {
-    border-color: hsl(var(--background) / 0.24);
-    background: hsl(var(--background) / 0.18);
+  .dashboard-nav-item:hover {
+    border-color: hsl(var(--border) / 0.92);
+    background: hsl(var(--card) / 0.9);
+    box-shadow: 0 12px 24px -22px hsl(var(--foreground) / 0.2);
+    transform: translateY(-1px);
   }
 
-  :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-item[data-active="true"] {
-    border-color: hsl(var(--background) / 0.28);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--background) / 0.36) 0%,
-        hsl(var(--card) / 0.2) 100%
-      );
+  .dashboard-nav-item[data-active="true"] {
+    border-color: hsl(var(--ring) / 0.46);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--secondary)) 0%,
+      hsl(var(--card)) 100%
+    );
     box-shadow:
-      inset 0 1px 0 hsl(var(--background) / 0.44),
-      0 14px 20px -22px hsl(var(--foreground) / 0.14);
+      0 18px 30px -24px hsl(var(--foreground) / 0.16),
+      inset 0 1px 0 hsl(var(--card) / 0.9);
   }
 
-  .dark :where(.dashboard-liquid-topbar, .dashboard-liquid-sidebar),
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) :is(
-      [data-ui="card"],
-      [data-ui="dialog-content"],
-      [data-ui="dropdown-content"],
-      [data-ui="popover-content"],
-      [data-ui="select-content"],
-      [data-ui="toast"],
-      [data-ui="info-tile"],
-      [data-ui="table-frame"],
-      [data-ui="page-header"],
-      [data-ui="command-surface"]
-    ) {
+  .dark .dashboard-shell-topbar,
+  .dark .dashboard-shell-sidebar {
+    border-color: hsl(var(--border) / 0.92);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--card) / 0.94) 0%,
+      hsl(var(--card) / 0.82) 100%
+    );
+  }
+
+  .dark .dashboard-shell-topbar::before,
+  .dark .dashboard-shell-sidebar::before {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--foreground) / 0.06) 0%,
+      transparent 40%,
+      hsl(var(--ring) / 0.06) 100%
+    );
+  }
+
+  .dark .dashboard-nav-item {
+    background: hsl(var(--background) / 0.64);
+  }
+
+  .dark .dashboard-nav-item:hover {
     border-color: hsl(var(--foreground) / 0.08);
-    background:
-      linear-gradient(
-        135deg,
-        hsl(var(--background) / 0.54) 0%,
-        hsl(var(--card) / 0.32) 48%,
-        hsl(var(--background) / 0.2) 100%
-      );
-    box-shadow:
-      0 26px 54px -34px hsl(var(--foreground) / 0.04),
-      inset 0 1px 0 hsl(var(--foreground) / 0.08),
-      inset 0 -1px 0 hsl(var(--foreground) / 0.02);
+    background: hsl(var(--accent) / 0.92);
+    box-shadow: 0 14px 28px -24px rgb(0 0 0 / 0.34);
   }
 
-  .dark :where(.dashboard-liquid-topbar, .dashboard-liquid-sidebar)::before,
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) :is(
-      [data-ui="card"],
-      [data-ui="dialog-content"],
-      [data-ui="dropdown-content"],
-      [data-ui="popover-content"],
-      [data-ui="select-content"],
-      [data-ui="toast"],
-      [data-ui="info-tile"],
-      [data-ui="table-frame"],
-      [data-ui="page-header"],
-      [data-ui="command-surface"]
-    )::before {
-    background:
-      linear-gradient(
-        135deg,
-        hsl(var(--foreground) / 0.08) 0%,
-        transparent 46%,
-        transparent 72%,
-        hsl(var(--foreground) / 0.015) 100%
-      );
-  }
-
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) :is(
-      [data-ui="button"],
-      [data-ui="input"],
-      [data-ui="select-trigger"],
-      [data-ui="badge"],
-      [data-ui="checkbox"],
-      [data-ui="switch"]
-    ) {
-    border-color: hsl(var(--foreground) / 0.08);
-    box-shadow:
-      inset 0 1px 0 hsl(var(--foreground) / 0.08),
-      0 16px 24px -24px hsl(var(--foreground) / 0.04);
-  }
-
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) :is([data-ui="input"], [data-ui="select-trigger"]) {
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--background) / 0.42) 0%,
-        hsl(var(--card) / 0.18) 100%
-      );
-  }
-
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-item {
-    background: hsl(var(--foreground) / 0.03);
-  }
-
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-item:hover {
-    border-color: hsl(var(--foreground) / 0.08);
-    background: hsl(var(--foreground) / 0.05);
-  }
-
-  .dark :where(body.dashboard-liquid, .dashboard-liquid-shell) .dashboard-nav-item[data-active="true"] {
-    border-color: hsl(var(--foreground) / 0.1);
-    background:
-      linear-gradient(
-        180deg,
-        hsl(var(--foreground) / 0.08) 0%,
-        hsl(var(--foreground) / 0.03) 100%
-      );
-    box-shadow:
-      inset 0 1px 0 hsl(var(--foreground) / 0.1),
-      0 14px 20px -22px hsl(var(--foreground) / 0.03);
+  .dark .dashboard-nav-item[data-active="true"] {
+    border-color: hsl(var(--ring) / 0.36);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--accent)) 0%,
+      hsl(var(--card)) 100%
+    );
   }
 }
 
 h1,
 h2,
 h3 {
-  @apply font-bold tracking-tight text-foreground;
+  @apply font-semibold tracking-tight text-foreground;
 }
