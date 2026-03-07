@@ -25,7 +25,7 @@ export function ReportsExportsTab({
       <SectionHeader
         className="px-1"
         title="Document Exports"
-        titleClassName="text-[1.25rem] font-bold"
+        titleClassName="text-[1.125rem] font-bold"
         icon={
           <SectionIcon framed={false} className="rounded-xl">
             <FileText className="h-4 w-4 text-primary" />

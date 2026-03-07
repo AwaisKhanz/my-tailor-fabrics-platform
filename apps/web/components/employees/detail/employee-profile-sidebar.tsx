@@ -23,7 +23,7 @@ export function EmployeeProfileSidebar({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader density="compact" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardHeader density="compact" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
           <SectionHeader
             title="Personal Info"
             icon={
@@ -66,7 +66,7 @@ export function EmployeeProfileSidebar({
       </Card>
 
       <Card>
-        <CardHeader density="compact" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardHeader density="compact" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
           <SectionHeader
             title="Employment"
             icon={
@@ -85,7 +85,7 @@ export function EmployeeProfileSidebar({
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Pay Model</span>
-            <Badge variant="outline" className="text-[10px]">
+            <Badge variant="outline" className="text-xs">
               {PAYMENT_TYPE_LABELS[employee.paymentType] ??
                 employee.paymentType}
             </Badge>

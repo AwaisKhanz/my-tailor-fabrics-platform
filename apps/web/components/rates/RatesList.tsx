@@ -65,12 +65,12 @@ export function RatesList({
         cell: (rate) => (
           <>
             {rate.branchId ? (
-              <Badge variant="outline" className="text-[10px] font-bold gap-1">
+              <Badge variant="outline" className="text-xs font-bold gap-1">
                 <GitBranch className="h-2.5 w-2.5" />
                 {rate.branch?.code || 'Branch'}
               </Badge>
             ) : (
-              <Badge variant="default" className="text-[10px] font-bold">Global</Badge>
+              <Badge variant="default" className="text-xs font-bold">Global</Badge>
             )}
           </>
         )
@@ -92,12 +92,12 @@ export function RatesList({
         align: "right",
         cell: (rate) => (
           <div className="flex flex-col items-end whitespace-nowrap">
-            <span className="flex items-center gap-1 font-medium text-foreground text-[10px]">
+            <span className="flex items-center gap-1 font-medium text-foreground text-xs">
               <Clock className="h-2.5 w-2.5" />
               {new Date(rate.effectiveFrom).toLocaleDateString()}
             </span>
             {rate.effectiveTo && (
-              <span className="text-[10px] text-muted-foreground">until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
+              <span className="text-xs text-muted-foreground">until {new Date(rate.effectiveTo).toLocaleDateString()}</span>
             )}
           </div>
         )

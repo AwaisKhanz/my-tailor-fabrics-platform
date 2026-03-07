@@ -27,7 +27,7 @@ export function DashboardDesignPopularityCard({
 
   return (
     <Card className="flex h-full flex-col">
-      <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="compact" surface="mutedSection" trimBottom>
         <CardTitle className="text-base font-bold normal-case tracking-tight">Design Popularity</CardTitle>
         <p className="text-xs text-muted-foreground">
           Most requested designs in the selected period.
@@ -60,7 +60,7 @@ export function DashboardDesignPopularityCard({
                   <p className="text-xs font-semibold text-foreground">
                     {activeDesign.name}
                   </p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {activeDesign.count} requests
                   </p>
                 </InfoTile>
@@ -72,11 +72,11 @@ export function DashboardDesignPopularityCard({
                   className={`space-y-1.5 rounded-lg border px-2.5 py-2 transition-colors ${
                     activeDesign?.name === design.name
                       ? "border-primary/35 bg-accent"
-                      : "border-border bg-card/60 hover:border-border"
+                      : "border-border bg-card hover:border-border"
                   }`}
                   onMouseEnter={() => setHoveredDesignName(design.name)}
                 >
-                  <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center justify-between text-xs">
                     <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{design.name}</Label>
                     <span className="font-medium text-muted-foreground">
                       {design.count}

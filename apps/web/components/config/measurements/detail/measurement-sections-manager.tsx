@@ -184,7 +184,7 @@ export function MeasurementSectionsManager({
       {
         header: "Sort",
         cell: (row) => (
-          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             {row.section.sortOrder}
           </Label>
         ),

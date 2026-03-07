@@ -118,10 +118,10 @@ export function CustomerOrdersTab({
 
   return (
     <Card>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Order History</CardTitle>
+            <CardTitle>Order History</CardTitle>
             <Badge variant="default" size="xs" className="font-semibold">
               {orders.length} ORDERS
             </Badge>

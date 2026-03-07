@@ -12,7 +12,7 @@ function ImpactMetric({ label, value }: { label: string; value: number }) {
   return (
     <InfoTile tone="secondary" padding="xs" className="flex-col rounded-md">
       <span className="text-xs font-bold text-foreground">{value}</span>
-      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-[9px]">
+      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-xs">
         {label}
       </Label>
     </InfoTile>

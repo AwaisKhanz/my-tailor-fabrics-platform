@@ -32,7 +32,7 @@ export function MeasurementFieldDialogDropdownOptions({
         <Text as="p"  variant="body" className="font-medium leading-none">
           Dropdown Options
         </Text>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Manage Options
         </span>
       </div>

@@ -44,6 +44,7 @@
 - [x] `npm run lint -w web`
 - [x] `npm run build -w web`
 - [x] `npm run theme:audit -w web`
+- [x] `npm run snowui:audit -w web`
 - [x] `npm run theme:migration:verify`
 - [x] `npm run theme:usage:audit`
 - [x] Browser QA completed on `http://localhost:3000` for shell chrome, theme toggle, `/login`, `/unauthorized`, `/status/[token]`, `/`, `/orders`, `/reports`, `/settings/users`, and `/orders/new`

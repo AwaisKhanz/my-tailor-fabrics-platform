@@ -31,7 +31,7 @@ export function DashboardProductivityCard({
 
   return (
     <Card className="flex h-full flex-col">
-      <CardHeader align="start" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
         <CardTitle className="text-base font-bold normal-case tracking-tight">Employee Productivity</CardTitle>
         <div className="flex flex-col items-end">
           {loading ? (
@@ -65,7 +65,7 @@ export function DashboardProductivityCard({
                 <p className="text-xs font-semibold text-foreground">
                   {activeEmployee.label}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {activeEmployee.value} completed
                 </p>
               </InfoTile>
@@ -86,7 +86,7 @@ export function DashboardProductivityCard({
                   className={`flex flex-col gap-2 rounded-lg border px-2.5 py-2 transition-colors ${
                     activeEmployee?.label === employee.label
                       ? "border-primary/35 bg-accent"
-                      : "border-border bg-card/60 hover:border-border"
+                      : "border-border bg-card hover:border-border"
                   }`}
                   onMouseEnter={() => setHoveredEmployee(employee.label)}
                 >

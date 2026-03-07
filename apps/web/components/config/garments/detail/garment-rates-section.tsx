@@ -31,7 +31,7 @@ export function GarmentRatesSection({
   return (
     <>
       <Card>
-        <CardHeader align="start" gap="sm" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
           <SectionHeader
             title="Production Rates (Step-based)"
             description="Define how much tailors are paid for each step of this garment."

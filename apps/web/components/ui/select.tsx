@@ -8,7 +8,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-[16px] border border-input bg-card text-foreground ring-offset-background shadow-sm transition-[border-color,box-shadow,background-color] focus:border-ring focus:outline-none focus:ring-4 focus:ring-ring/16 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full items-center justify-between rounded-snow-16 border border-input bg-card text-foreground ring-offset-background shadow-sm transition-[border-color,box-shadow,background-color] focus:border-ring focus:outline-none focus:ring-4 focus:ring-ring/16 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
   {
     variants: {
       uiSize: {
@@ -95,7 +95,7 @@ const SelectContent = React.forwardRef<
       ref={ref}
       data-ui="select-content"
       className={cn(
-        "relative z-50 max-h-96 min-w-[10rem] overflow-hidden rounded-[20px] border border-border bg-popover text-popover-foreground shadow-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "relative z-50 max-h-96 min-w-[10rem] overflow-hidden rounded-snow-20 border border-border bg-popover text-popover-foreground shadow-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className,
@@ -126,7 +126,7 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 pb-1 pt-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground",
+      "px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground",
       className,
     )}
     {...props}
@@ -141,7 +141,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-[14px] py-2.5 pl-10 pr-3 text-[0.875rem] outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-[0.875rem] outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}

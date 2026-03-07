@@ -62,7 +62,7 @@ export function OrderLifecycleCard({
 
   return (
     <Card>
-      <CardHeader density="comfortable" className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="comfortable" surface="mutedSection" trimBottom>
         <CardTitle className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Lifecycle Action</CardTitle>
         <p className="text-xs text-muted-foreground">
           Advance this order to the next stage.
@@ -70,7 +70,7 @@ export function OrderLifecycleCard({
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-3">
-        <p className="rounded-lg border border-border bg-card/60 px-3 py-2 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
           {nextConfig.helper}
         </p>
 

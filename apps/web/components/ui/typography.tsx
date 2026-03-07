@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 const headingVariants = cva("", {
   variants: {
     variant: {
-      page: "text-[2rem] font-semibold leading-[1.02] tracking-[-0.04em] text-foreground md:text-[2.5rem] lg:text-[3rem]",
+      page: "text-[2rem] font-semibold leading-[1.02] tracking-[-0.04em] text-foreground md:text-[2rem] lg:text-[3rem]",
       section:
-        "text-[1.125rem] font-semibold leading-[1.18] tracking-[-0.02em] text-foreground md:text-[1.25rem]",
+        "text-[1.125rem] font-semibold leading-[1.18] tracking-[-0.02em] text-foreground md:text-[1.125rem]",
       stat: "text-[2rem] font-semibold leading-none tracking-[-0.03em] text-foreground",
     },
   },
@@ -19,7 +19,7 @@ const headingVariants = cva("", {
 const textVariants = cva("", {
   variants: {
     variant: {
-      lead: "text-[0.95rem] leading-7 text-muted-foreground md:text-base",
+      lead: "text-base leading-7 text-muted-foreground md:text-base",
       body: "text-[0.875rem] leading-6 text-foreground",
       muted: "text-[0.875rem] leading-6 text-muted-foreground",
       meta: "text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground",

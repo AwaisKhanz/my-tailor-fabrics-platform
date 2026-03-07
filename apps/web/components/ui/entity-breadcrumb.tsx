@@ -21,7 +21,7 @@ export function EntityBreadcrumb({
   return (
     <div
       className={cn(
-        "mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground",
+        "mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground",
         className,
       )}
     >

@@ -148,10 +148,10 @@ function EmployeeSection({
 
   return (
     <Card id={id}>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">{title}</CardTitle>
+            <CardTitle>{title}</CardTitle>
             {badge}
           </div>
           <Text as="p"  variant="muted">
@@ -539,7 +539,7 @@ export function EmployeeDetailTabs({
       cell: (item) => (
         <div className="flex flex-col">
           <span className="font-medium">{item.garmentTypeName}</span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {item.completedAt
               ? `Completed: ${formatDate(item.completedAt)}`
               : "Pending"}
@@ -653,7 +653,7 @@ export function EmployeeDetailTabs({
           }}
           disabled={!canManageTaskStatus}
         >
-          <SelectTrigger className="h-7 w-[130px] text-[10px] font-bold uppercase">
+          <SelectTrigger className="h-7 w-[130px] text-xs font-bold uppercase">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -661,7 +661,7 @@ export function EmployeeDetailTabs({
               <SelectItem
                 key={key}
                 value={key}
-                className="text-[10px] font-bold uppercase"
+                className="text-xs font-bold uppercase"
               >
                 {label}
               </SelectItem>
@@ -689,7 +689,7 @@ export function EmployeeDetailTabs({
       header: "Last Update",
       align: "right",
       cell: (task) => (
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {formatDateTime(task.updatedAt)}
         </span>
       ),
@@ -736,7 +736,7 @@ export function EmployeeDetailTabs({
             </span>
           ) : null}
           {entry.note ? (
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {entry.note}
             </span>
           ) : null}
@@ -792,7 +792,7 @@ export function EmployeeDetailTabs({
           className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="space-y-1">
-            <Label className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Workspace Sections</Label>
+            <Label className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Workspace Sections</Label>
             <Text as="p"  variant="muted">
               Jump between work logs, ledger, attendance, documents, and account
               controls.
@@ -1376,7 +1376,7 @@ export function EmployeeDetailTabs({
                 </SectionIcon>
                 <div>
                   <p className="text-sm font-bold">{document.label}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+                  <p className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
                     {document.fileType}
                   </p>
                 </div>
@@ -1422,8 +1422,8 @@ export function EmployeeDetailTabs({
       >
         <div className="p-4 sm:p-5">
           {employee.userAccount ? (
-            <Card className="bg-muted/40 shadow-sm">
-              <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-card/70 px-6 py-4">
+            <Card className="bg-muted shadow-sm">
+              <CardHeader density="compact" surface="cardSection" trimBottom>
                 <SectionHeader
                   title="System Access Enabled"
                   titleClassName="text-sm"

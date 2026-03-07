@@ -36,7 +36,7 @@ export function PaymentsEmployeeSelectorCard({
 }: PaymentsEmployeeSelectorCardProps) {
   return (
     <Card>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Employee Scope"
           description="Select an employee to load payroll summary and ledger."
@@ -82,19 +82,19 @@ export function PaymentsEmployeeSelectorCard({
         {selectedEmployee ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <InfoTile>
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Employee</Label>
+              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Employee</Label>
               <Text as="p"  variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.fullName}
               </Text>
             </InfoTile>
             <InfoTile>
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Code</Label>
+              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Code</Label>
               <Text as="p"  variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.employeeCode}
               </Text>
             </InfoTile>
             <InfoTile>
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Role</Label>
+              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Role</Label>
               <Text as="p"  variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.designation || "Staff"}
               </Text>

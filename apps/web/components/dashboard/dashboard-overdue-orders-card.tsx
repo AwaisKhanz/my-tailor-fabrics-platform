@@ -18,7 +18,7 @@ export function DashboardOverdueOrdersCard({
 }: DashboardOverdueOrdersCardProps) {
   return (
     <Card>
-      <CardHeader className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetween" surface="mutedSection" trimBottom>
         <CardTitle className="text-base font-bold normal-case tracking-tight">Recent Overdue Orders</CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
           View all

@@ -34,7 +34,7 @@ export function DashboardGarmentBreakdownCard({
 
   return (
     <Card className="flex h-full flex-col">
-      <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="compact" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Garment Mix"
           titleVariant="dashboardSection"
@@ -51,13 +51,13 @@ export function DashboardGarmentBreakdownCard({
       <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
         <InfoTile tone="secondary" layout="between">
           <div>
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Total Value</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Total Value</Label>
             <p className="mt-1 text-lg font-bold text-foreground">
               {formatPKR(totalItems)}
             </p>
           </div>
           <div className="text-right">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Types</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Types</Label>
             <p className="mt-1 text-lg font-bold text-foreground">
               {topGarments.length}
             </p>
@@ -122,7 +122,7 @@ export function DashboardGarmentBreakdownCard({
 
                 {activeGarment ? (
                   <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                    <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                       Selected
                     </p>
                     <p className="mt-1 max-w-[88px] truncate text-xs font-semibold leading-tight text-foreground">
@@ -139,7 +139,7 @@ export function DashboardGarmentBreakdownCard({
                         : "0.0"}
                       %
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {formatPKR(activeGarment.value)}
                     </p>
                   </div>
@@ -159,7 +159,7 @@ export function DashboardGarmentBreakdownCard({
                     className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${
                       isActive
                         ? "border-primary/40 bg-accent"
-                        : "border-border bg-card/60 hover:border-border"
+                        : "border-border bg-card hover:border-border"
                     }`}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}

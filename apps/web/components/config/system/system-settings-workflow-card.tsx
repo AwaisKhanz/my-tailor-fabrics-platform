@@ -33,7 +33,7 @@ export function SystemSettingsWorkflowCard({
 }: SystemSettingsWorkflowCardProps) {
   return (
     <Card>
-      <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4 space-y-2">
+      <CardHeader surface="mutedSection" trimBottom className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <SectionHeader
             title="Workflow Engine"

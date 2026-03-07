@@ -72,11 +72,11 @@ export function ConfirmDialog({
             <div className="space-y-1">
               <DialogTitle className="text-xl font-bold tracking-tight">{title}</DialogTitle>
               {typeof description === "string" ? (
-                <DialogDescription className="text-[15px] leading-relaxed text-muted-foreground">
+                <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
                   {description}
                 </DialogDescription>
               ) : (
-                <div className="text-[15px] leading-relaxed text-muted-foreground">
+                <div className="text-sm leading-relaxed text-muted-foreground">
                   {description}
                 </div>
               )}

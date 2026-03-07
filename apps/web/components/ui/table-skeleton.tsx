@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TableSurface } from "@/components/ui/table-layout";
 
 interface TableSkeletonProps {
   /** Number of skeleton rows to render */
@@ -60,9 +61,5 @@ export function TableSkeleton({
     return table;
   }
 
-  return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      {table}
-    </div>
-  );
+  return <TableSurface>{table}</TableSurface>;
 }

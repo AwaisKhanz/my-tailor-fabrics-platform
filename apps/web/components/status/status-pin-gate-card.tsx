@@ -23,7 +23,7 @@ export function StatusPinGateCard({
   onSubmit,
 }: StatusPinGateCardProps) {
   return (
-    <Card className="w-full max-w-md rounded-[32px]">
+    <Card className="w-full max-w-md rounded-snow-32">
       <CardContent spacing="section" className="space-y-6 p-6 sm:p-8">
         <div className="text-center">
           <InfoTile
@@ -41,7 +41,7 @@ export function StatusPinGateCard({
             />
           </InfoTile>
 
-          <Heading as="h1"  variant="section" className="text-[1.4rem]">
+          <Heading as="h1"  variant="section" className="text-2xl">
             Track Your Order
           </Heading>
           <Text as="p"  variant="lead" className="mt-1 text-sm">

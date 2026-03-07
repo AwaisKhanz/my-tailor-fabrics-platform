@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/typography";
+import { TableSurface } from "@/components/ui/table-layout";
 
 export interface ColumnDef<T> {
   header: string;
@@ -102,7 +103,7 @@ export function DataTable<T extends { id: string | number }>({
       <div className="overflow-x-auto">
         <Table className="text-sm">
           <TableHeader>
-            <TableRow className="border-b border-border/80">
+            <TableRow className="border-b border-border">
               {columns.map((column, idx) => (
                 <TableHead
                   key={idx}
@@ -135,7 +136,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableRow
                   key={item.id}
                   className={cn(
-                    "group !border-b !border-border transition-colors hover:bg-accent/55",
+                    "group !border-b !border-border transition-colors hover:bg-accent",
                     onRowClick && "cursor-pointer",
                   )}
                   onClick={() => onRowClick?.(item)}
@@ -166,7 +167,7 @@ export function DataTable<T extends { id: string | number }>({
 
       {/* Pagination Footer */}
       {totalPages > 0 && onPageChange && page && (
-        <div className="flex items-center justify-between border-t border-border bg-card/80 px-5 py-3.5">
+        <div className="flex items-center justify-between border-t border-border bg-card px-5 py-3.5">
           <Text as="p"  variant="muted">
             Showing <span className="font-bold text-foreground">{from}</span>{" "}
             to <span className="font-bold text-foreground">{to}</span> of{" "}
@@ -180,7 +181,7 @@ export function DataTable<T extends { id: string | number }>({
               size="icon"
               disabled={page === 1}
               onClick={() => onPageChange(page - 1)}
-              className="h-8 w-8 rounded-[12px] border-border bg-card hover:bg-accent disabled:opacity-40"
+              className="h-8 w-8 rounded-snow-12 border-border bg-card hover:bg-accent disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -205,10 +206,10 @@ export function DataTable<T extends { id: string | number }>({
                       onPageChange(p);
                     }
                   }}
-                  className={cn(
-                    "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
-                    page === p
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/92"
+                    className={cn(
+                      "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
+                      page === p
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary"
                       : "border-border bg-card text-foreground hover:bg-accent",
                   )}
                 >
@@ -222,7 +223,7 @@ export function DataTable<T extends { id: string | number }>({
               size="icon"
               disabled={page === totalPages}
               onClick={() => onPageChange(page + 1)}
-              className="h-8 w-8 rounded-[12px] border-border bg-card hover:bg-accent disabled:opacity-40"
+              className="h-8 w-8 rounded-snow-12 border-border bg-card hover:bg-accent disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -236,9 +237,5 @@ export function DataTable<T extends { id: string | number }>({
     return tableContent;
   }
 
-  return (
-    <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-sm">
-      {tableContent}
-    </div>
-  );
+  return <TableSurface>{tableContent}</TableSurface>;
 }

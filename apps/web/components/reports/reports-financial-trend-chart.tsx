@@ -219,7 +219,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
             <text
               x={8}
               y={tick.y + 4}
-              className="fill-muted-foreground text-[10px]"
+              className="fill-muted-foreground text-xs"
             >
               {formatNumber(tick.value)}
             </text>
@@ -287,7 +287,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
                 x={point.x}
                 y={height - 10}
                 textAnchor="middle"
-                className="fill-muted-foreground text-[10px]"
+                className="fill-muted-foreground text-xs"
               >
                 {point.label}
               </text>
@@ -323,17 +323,17 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
             <text
               x="12"
               y="18"
-              className="fill-foreground text-[11px] font-semibold"
+              className="fill-foreground text-xs font-semibold"
             >
               {activePoint.label}
             </text>
-            <text x="12" y="35" className="fill-chart-1 text-[10px]">
+            <text x="12" y="35" className="fill-chart-1 text-xs">
               Revenue: {formatPKR(activePoint.revenue)}
             </text>
-            <text x="12" y="49" className="fill-chart-2 text-[10px]">
+            <text x="12" y="49" className="fill-chart-2 text-xs">
               Expenses: {formatPKR(activePoint.expenses)}
             </text>
-            <text x="12" y="63" className="fill-chart-3 text-[10px]">
+            <text x="12" y="63" className="fill-chart-3 text-xs">
               Net: {formatPKR(activePoint.net)}
             </text>
           </g>

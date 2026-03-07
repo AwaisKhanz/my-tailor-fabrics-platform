@@ -64,7 +64,7 @@ export function ReportsProductivityChart({
               <p className="text-xs font-semibold text-foreground">
                 {activePoint.employeeName}
               </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {activePoint.totalCompleted} completed •{" "}
                 {formatPKR(activePoint.payout)}
               </p>
@@ -90,7 +90,7 @@ export function ReportsProductivityChart({
                 className={`space-y-1.5 rounded-lg border px-3 py-2.5 transition-colors ${
                   isActive
                     ? "border-primary/40 bg-accent"
-                    : "border-border bg-card/60 hover:border-border"
+                    : "border-border bg-card hover:border-border"
                 }`}
                 onMouseEnter={() => setHoveredEmployeeId(point.employeeId)}
               >
@@ -119,7 +119,7 @@ export function ReportsProductivityChart({
                   />
                 </ProgressTrack>
 
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Items: {point.completedItems}</span>
                   <span>Tasks: {point.completedTasks}</span>
                 </div>

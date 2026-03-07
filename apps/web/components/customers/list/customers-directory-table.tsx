@@ -11,7 +11,7 @@ import { formatPKR } from "@/lib/utils";
 const AVATAR_COLORS = [
   "bg-primary/10 text-primary",
   "bg-primary/10 text-primary",
-  "bg-secondary/60 text-secondary-foreground",
+  "bg-secondary text-secondary-foreground",
   "bg-primary/10 text-primary",
   "bg-destructive/10 text-destructive",
   "bg-primary/10 text-primary",

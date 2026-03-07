@@ -125,8 +125,8 @@ export function ReportsOverviewTab({
           />
 
           <Card>
-            <CardHeader className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
-              <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Top Performers</CardTitle>
+            <CardHeader layout="rowBetween" surface="mutedSection" trimBottom>
+              <CardTitle>Top Performers</CardTitle>
             </CardHeader>
             <CardContent spacing="section" className="space-y-2">
               {loading ? (

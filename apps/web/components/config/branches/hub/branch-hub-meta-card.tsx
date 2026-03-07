@@ -16,7 +16,7 @@ interface BranchHubMetaCardProps {
 export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
   return (
     <Card>
-      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Branch Profile"
           icon={
@@ -32,7 +32,7 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary">
-          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch ID</Label>
+          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch ID</Label>
           <Text
             as="p"
              variant="body"
@@ -43,7 +43,7 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
         </InfoTile>
 
         <InfoTile tone="secondary">
-          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch Code</Label>
+          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch Code</Label>
           <Text
             as="p"
              variant="body"

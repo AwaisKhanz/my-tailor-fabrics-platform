@@ -74,7 +74,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
 
   return (
     <Card>
-      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Order Timeline"
           titleVariant="dashboard"
@@ -124,7 +124,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
                     {step.key}
                   </p>
                   {step.active ? (
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       Current stage
                     </p>
                   ) : null}
@@ -135,7 +135,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         </div>
 
         <InfoTile tone="secondary" padding="content">
-          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recent Events</Label>
+          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recent Events</Label>
           <div className="mt-2 space-y-2">
             {history.slice(0, 4).map((entry) => (
               <InfoTile
@@ -147,7 +147,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
                 <p className="text-xs font-semibold text-foreground">
                   {entry.toStatus.replace("_", " ")}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {formatHistoryTime(entry.createdAt)}
                 </p>
               </InfoTile>

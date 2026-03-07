@@ -15,6 +15,21 @@
 - `--ring`: focus ring derived from SnowUI Purple A in light mode and SnowUI Blue B in dark mode.
 - `--sidebar*`: same family as the main surface contract, but tuned for persistent navigation chrome.
 
+## SnowUI Variable Families
+- Spacing scale in CSS variables:
+  - `--snow-space-{0,4,8,12,16,20,24,28,32,40,48,80}`
+- Size scale in CSS variables:
+  - `--snow-size-{0,4,8,12,16,20,24,28,32,40,48,80}`
+- Radius scale in CSS variables:
+  - `--snow-radius-{0,4,8,12,16,20,24,28,32,40,48,80}`
+- Background levels in CSS variables:
+  - `--snow-bg-1` through `--snow-bg-6` (light and dark mappings)
+- Text scale hooks in CSS variables:
+  - `--snow-text-{12,14,16,18,24,32,48,64}`
+  - `--snow-leading-{12,14,16,18,24,32,48,64}`
+  - `--snow-weight-regular`, `--snow-weight-semibold`
+  - `--snow-font-family`
+
 ## Static SnowUI Palette
 - `snow.black`: `#1c1c1c`
 - `snow.light`: `#f7f9fb`

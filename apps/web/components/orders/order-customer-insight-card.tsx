@@ -49,7 +49,7 @@ export function OrderCustomerInsightCard({
 
   return (
     <Card>
-      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Customer Profile"
           titleVariant="dashboard"
@@ -72,19 +72,19 @@ export function OrderCustomerInsightCard({
       <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <InfoTile tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Full Name</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Full Name</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.fullName}
             </p>
           </InfoTile>
           <InfoTile tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Phone</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Phone</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.phone || "-"}
             </p>
           </InfoTile>
           <InfoTile tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.city || "-"}
             </p>
@@ -93,7 +93,7 @@ export function OrderCustomerInsightCard({
 
         <InfoTile tone="secondary" padding="contentLg">
           <div className="mb-3 flex items-center justify-between">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Measurement Snapshot</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Measurement Snapshot</Label>
             <Badge
               variant="info"
               size="xs"

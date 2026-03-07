@@ -72,7 +72,7 @@ export function OrderPaymentDialog({
               <p className="text-sm text-destructive">{validationError}</p>
             ) : null}
             <InfoTile tone="secondary" radius="xl" layout="between" padding="none" className="px-5 py-4">
-              <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+              <span className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
                 Pending amount
               </span>
               <span className="text-xl font-bold tabular-nums text-foreground">
@@ -81,7 +81,7 @@ export function OrderPaymentDialog({
             </InfoTile>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground text-foreground">
+              <Label className="text-xs font-bold uppercase tracking-tight text-muted-foreground text-foreground">
                 Deposit Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -99,7 +99,7 @@ export function OrderPaymentDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground text-foreground">
+              <Label className="text-xs font-bold uppercase tracking-tight text-muted-foreground text-foreground">
                 Transaction Note
               </Label>
               <Input

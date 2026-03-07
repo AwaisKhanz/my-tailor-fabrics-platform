@@ -43,7 +43,7 @@ export function OrderFormCustomerCard({
 }: OrderFormCustomerCardProps) {
   return (
     <Card>
-      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Customer Information"
           titleVariant="dashboard"
@@ -104,19 +104,19 @@ export function OrderFormCustomerCard({
 
         <div className="grid gap-3 sm:grid-cols-3">
           <InfoTile tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.sizeNumber || "-"}
             </p>
           </InfoTile>
           <InfoTile tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.city || "-"}
             </p>
           </InfoTile>
           <InfoTile tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Lifetime Value</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Lifetime Value</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer
                 ? formatPKR(selectedCustomer.lifetimeValue)

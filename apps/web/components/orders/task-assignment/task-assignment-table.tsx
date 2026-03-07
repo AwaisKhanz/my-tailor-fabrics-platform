@@ -109,7 +109,7 @@ export function TaskAssignmentTable({
         cell: (task) => (
           <div className="flex flex-col">
             <span className="font-bold text-foreground">{task.stepName}</span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
               {task.stepKey}
             </span>
           </div>
@@ -158,7 +158,7 @@ export function TaskAssignmentTable({
               </SelectContent>
             </Select>
             {!hasSelectableEmployee && !task.assignedEmployeeId ? (
-              <p className="mt-1 text-[11px] text-secondary-foreground">
+              <p className="mt-1 text-xs text-secondary-foreground">
                 No eligible employees for this step.
               </p>
             ) : null}
@@ -245,7 +245,7 @@ export function TaskAssignmentTable({
                   </Button>
                 </div>
                 {rateValidationError ? (
-                  <p className="text-[11px] text-destructive">
+                  <p className="text-xs text-destructive">
                     {rateValidationError}
                   </p>
                 ) : null}
@@ -274,7 +274,7 @@ export function TaskAssignmentTable({
                   )}
                 </span>
                 {task.rateOverride ? (
-                  <span className="text-[9px] text-muted-foreground line-through">
+                  <span className="text-xs text-muted-foreground line-through">
                     Base: {formatPKR(task.rateSnapshot ?? 0)}
                   </span>
                 ) : null}
@@ -309,7 +309,7 @@ export function TaskAssignmentTable({
   );
 
   return (
-    <TableSurface className="shadow-none">
+    <TableSurface shadow="none">
       <DataTable
         columns={columns}
         data={pagedTasks}

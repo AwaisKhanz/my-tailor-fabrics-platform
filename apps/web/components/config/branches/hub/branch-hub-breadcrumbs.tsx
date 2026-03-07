@@ -13,7 +13,7 @@ export function BranchHubBreadcrumbs({
     <EntityBreadcrumb
       sectionLabel="Branches"
       currentLabel={(branchCode || "Branch").toUpperCase()}
-      separatorClassName="text-muted-foreground/60"
+      separatorClassName="text-muted-foreground"
       onBack={onBack}
     />
   );

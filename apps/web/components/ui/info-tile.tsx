@@ -4,7 +4,7 @@ import { statusSurfaceStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 export const infoTileVariants = cva(
-  "rounded-[20px] border border-border bg-card text-foreground shadow-sm",
+  "rounded-snow-20 border border-border bg-card text-foreground shadow-sm",
   {
     variants: {
       tone: {
@@ -41,8 +41,8 @@ export const infoTileVariants = cva(
           "transition-all duration-200 hover:border-border hover:shadow",
       },
       radius: {
-        lg: "rounded-[20px]",
-        xl: "rounded-[24px]",
+        lg: "rounded-snow-20",
+        xl: "rounded-snow-24",
       },
     },
     defaultVariants: {

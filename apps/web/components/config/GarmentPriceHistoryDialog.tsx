@@ -65,7 +65,7 @@ export function GarmentPriceHistoryDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="2xl" className="gap-0 overflow-hidden p-0">
-        <DialogHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+        <DialogHeader surface="mutedSection" padding="md" trimBottom>
           <div className="flex items-center gap-3 mb-2">
              <SectionIcon tone="default" size="lg" framed={false} className="h-10 w-10">
                 <History className="h-5 w-5 text-primary" />
@@ -116,11 +116,11 @@ export function GarmentPriceHistoryDialog({
                            <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
                              Price Updated
                            </p>
-                           <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground opacity-100 text-[10px] mt-0.5">
+                           <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground opacity-100 text-xs mt-0.5">
                              {format(new Date(log.createdAt), "MMM d, yyyy • h:mm a")}
                            </Label>
                         </div>
-                        <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest">
+                        <Badge variant="secondary" className="text-xs font-bold uppercase tracking-widest">
                            {log.action}
                         </Badge>
                       </div>

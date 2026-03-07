@@ -24,7 +24,7 @@ export function BranchGlobalPricingCard({
 
   return (
     <Card>
-      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Global Pricing Model"
           icon={
@@ -50,7 +50,7 @@ export function BranchGlobalPricingCard({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Price Source</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Price Source</Label>
             <Text
               as="p"
                variant="body"
@@ -60,7 +60,7 @@ export function BranchGlobalPricingCard({
             </Text>
           </InfoTile>
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch-level Price List</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch-level Price List</Label>
             <Text
               as="p"
                variant="body"
@@ -70,7 +70,7 @@ export function BranchGlobalPricingCard({
             </Text>
           </InfoTile>
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Garment Types</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Garment Types</Label>
             <Text
               as="p"
                variant="body"
@@ -83,7 +83,7 @@ export function BranchGlobalPricingCard({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Task Rate Overrides</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Task Rate Overrides</Label>
             <Text
               as="p"
                variant="body"
@@ -99,7 +99,7 @@ export function BranchGlobalPricingCard({
             className="sm:col-span-2"
             tone="secondary"
           >
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Global Task Rate Cards</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Global Task Rate Cards</Label>
             <Text
               as="p"
                variant="body"

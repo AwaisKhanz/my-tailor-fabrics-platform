@@ -46,7 +46,7 @@ export function OrderShareDialog({
         {shareData ? (
           <DialogSection density="relaxed">
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+              <Label className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
                 Public URL
               </Label>
               <div className="flex gap-2">
@@ -67,7 +67,7 @@ export function OrderShareDialog({
 
             <InfoTile tone="info" padding="contentLg" layout="betweenGap" radius="xl">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-tight text-primary/70">
+                <p className="text-xs font-bold uppercase tracking-tight text-primary/70">
                   Access PIN
                 </p>
                 <p className="text-3xl font-bold tracking-tight text-primary">
@@ -84,7 +84,7 @@ export function OrderShareDialog({
               </Button>
             </InfoTile>
 
-            <p className="text-center text-[10px] font-bold text-muted-foreground">
+            <p className="text-center text-xs font-bold text-muted-foreground">
               * Customers will need the 4-digit PIN to access their order
               details.
             </p>

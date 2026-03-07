@@ -26,7 +26,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
 
   return (
     <Card>
-      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Garment Profile"
           icon={
@@ -43,13 +43,13 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
       <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <InfoTile>
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Sort Order</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Sort Order</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {garment.sortOrder}
             </p>
           </InfoTile>
           <InfoTile>
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Linked Forms / Steps</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Linked Forms / Steps</Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {measurementFormsCount} form
               {measurementFormsCount === 1 ? "" : "s"} / {workflowStepsCount}{" "}
@@ -62,7 +62,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <InfoTile padding="contentLg" radius="xl" className="space-y-4">
             <div>
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Description</Label>
+              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Description</Label>
               <Text
                 as="p"
                  variant="body"
@@ -92,7 +92,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
             className="space-y-4"
           >
             <div className="mb-1 flex items-center justify-between">
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground text-primary/90">
+              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground text-primary/90">
                 Margin Snapshot
               </Label>
               <BadgePercent className="h-4 w-4 text-primary" />

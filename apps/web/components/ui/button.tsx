@@ -5,20 +5,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[16px] border text-[0.875rem] font-semibold leading-none transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-50 active:translate-y-px ring-offset-background [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-snow-16 border text-[0.875rem] font-semibold leading-none transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-50 active:translate-y-px ring-offset-background [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/92",
+          "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary",
         secondary:
-          "border-secondary bg-secondary text-secondary-foreground shadow-sm hover:border-ring/30 hover:bg-secondary/82",
+          "border-secondary bg-secondary text-secondary-foreground shadow-sm hover:border-ring/30 hover:bg-secondary",
         outline:
           "border-input bg-card text-foreground shadow-sm hover:border-ring/30 hover:bg-accent hover:text-accent-foreground",
         ghost:
           "border-transparent bg-transparent text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground",
         destructive:
-          "border-destructive/25 bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "border-destructive bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive",
       },
       size: {
         default: "h-11 px-4",

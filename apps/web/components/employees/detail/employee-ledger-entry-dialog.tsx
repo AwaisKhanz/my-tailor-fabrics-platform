@@ -115,7 +115,7 @@ export function EmployeeLedgerEntryDialog({
               {fieldErrors.type ? (
                 <p className="text-xs text-destructive">{fieldErrors.type}</p>
               ) : null}
-              <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+              <p className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
                 {reducesBalance
                   ? "This entry will decrease employee balance"
                   : "This entry will increase employee balance"}

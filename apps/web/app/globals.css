@@ -36,13 +36,79 @@
     --sidebar-foreground: 0 0% 11%;
     --sidebar-border: 220 26% 90%;
 
-    --radius: 1rem;
-    --shadow-sm:
-      0 1px 2px rgb(15 23 42 / 0.04),
-      0 10px 24px -18px rgb(15 23 42 / 0.14);
+    --snow-bg-1: 210 33% 98%;
+    --snow-bg-2: 0 0% 100%;
+    --snow-bg-3: 201 100% 95%;
+    --snow-bg-4: 215 49% 93%;
+    --snow-bg-5: 216 30% 88%;
+    --snow-bg-6: 220 22% 84%;
+
+    --snow-space-0: 0px;
+    --snow-space-4: 4px;
+    --snow-space-8: 8px;
+    --snow-space-12: 12px;
+    --snow-space-16: 16px;
+    --snow-space-20: 20px;
+    --snow-space-24: 24px;
+    --snow-space-28: 28px;
+    --snow-space-32: 32px;
+    --snow-space-40: 40px;
+    --snow-space-48: 48px;
+    --snow-space-80: 80px;
+
+    --snow-size-0: 0px;
+    --snow-size-4: 4px;
+    --snow-size-8: 8px;
+    --snow-size-12: 12px;
+    --snow-size-16: 16px;
+    --snow-size-20: 20px;
+    --snow-size-24: 24px;
+    --snow-size-28: 28px;
+    --snow-size-32: 32px;
+    --snow-size-40: 40px;
+    --snow-size-48: 48px;
+    --snow-size-80: 80px;
+
+    --radius: 8px;
+    --snow-radius-unit: calc(var(--radius) / 4);
+    --snow-radius-0: 0px;
+    --snow-radius-4: calc(var(--snow-radius-unit) * 1);
+    --snow-radius-8: calc(var(--snow-radius-unit) * 2);
+    --snow-radius-12: calc(var(--snow-radius-unit) * 3);
+    --snow-radius-16: calc(var(--snow-radius-unit) * 4);
+    --snow-radius-20: calc(var(--snow-radius-unit) * 5);
+    --snow-radius-24: calc(var(--snow-radius-unit) * 6);
+    --snow-radius-28: calc(var(--snow-radius-unit) * 7);
+    --snow-radius-32: calc(var(--snow-radius-unit) * 8);
+    --snow-radius-40: calc(var(--snow-radius-unit) * 10);
+    --snow-radius-48: calc(var(--snow-radius-unit) * 12);
+    --snow-radius-80: calc(var(--snow-radius-unit) * 20);
+
+    --snow-font-family: Inter, "SF Pro Text", "Segoe UI", sans-serif;
+    --snow-weight-regular: 400;
+    --snow-weight-semibold: 600;
+
+    --snow-text-12: 0.75rem;
+    --snow-text-14: 0.875rem;
+    --snow-text-16: 1rem;
+    --snow-text-18: 1.125rem;
+    --snow-text-24: 1.5rem;
+    --snow-text-32: 2rem;
+    --snow-text-48: 3rem;
+    --snow-text-64: 4rem;
+
+    --snow-leading-12: 1rem;
+    --snow-leading-14: 1.25rem;
+    --snow-leading-16: 1.5rem;
+    --snow-leading-18: 1.625rem;
+    --snow-leading-24: 2rem;
+    --snow-leading-32: 2.5rem;
+    --snow-leading-48: 3.5rem;
+    --snow-leading-64: 4.5rem;
+
     --shadow:
-      0 24px 60px -34px rgb(15 23 42 / 0.18),
-      0 12px 22px -18px rgb(15 23 42 / 0.1);
+      0 1px 2px rgb(15 23 42 / 0.06), 0 12px 24px -16px rgb(15 23 42 / 0.18);
+    --shadow-sm: var(--shadow);
   }
 
   .dark {
@@ -78,12 +144,15 @@
     --sidebar-foreground: 0 0% 95%;
     --sidebar-border: 240 12% 22%;
 
-    --shadow-sm:
-      0 1px 2px rgb(0 0 0 / 0.2),
-      0 12px 24px -18px rgb(0 0 0 / 0.28);
-    --shadow:
-      0 24px 64px -32px rgb(0 0 0 / 0.42),
-      0 16px 28px -22px rgb(0 0 0 / 0.34);
+    --snow-bg-1: 240 15% 10%;
+    --snow-bg-2: 240 14% 14%;
+    --snow-bg-3: 240 13% 17%;
+    --snow-bg-4: 240 12% 20%;
+    --snow-bg-5: 240 11% 24%;
+    --snow-bg-6: 240 10% 28%;
+
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.32), 0 14px 30px -18px rgb(0 0 0 / 0.46);
+    --shadow-sm: var(--shadow);
   }
 
   * {
@@ -100,11 +169,7 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
-    background-image: linear-gradient(
-      180deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--background)) 100%
-    );
+    background-image: none;
   }
 
   ::selection {
@@ -123,7 +188,7 @@
   }
 
   .card {
-    @apply rounded-[24px] border bg-card text-card-foreground shadow;
+    @apply rounded-snow-24 border bg-card text-card-foreground shadow;
   }
 
   .glass {
@@ -133,7 +198,7 @@
   }
 
   .meta {
-    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground;
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground;
   }
 
   .error {
@@ -216,12 +281,12 @@
   }
 
   .dashboard-nav-label {
-    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground;
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground;
   }
 
   .dashboard-nav-item {
     border: 1px solid transparent;
-    background: hsl(var(--background) / 0.54);
+    background: hsl(var(--card));
     transition:
       background-color 180ms ease,
       border-color 180ms ease,
@@ -250,7 +315,7 @@
   }
 
   .dark .dashboard-nav-item {
-    background: hsl(var(--background) / 0.64);
+    background: hsl(var(--card));
   }
 
   .dark .dashboard-nav-item:hover {

@@ -15,9 +15,9 @@ const sectionIconVariants = cva(
         destructive: statusIconStyles.destructive,
       },
       size: {
-        sm: "h-8 w-8 rounded-[14px]",
-        md: "h-10 w-10 rounded-[16px]",
-        lg: "h-11 w-11 rounded-[18px]",
+        sm: "h-8 w-8 rounded-snow-16",
+        md: "h-10 w-10 rounded-snow-16",
+        lg: "h-11 w-11 rounded-snow-20",
       },
       framed: {
         true: "",

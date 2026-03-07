@@ -10,7 +10,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       ref={ref}
       data-ui="card"
       className={cn(
-        "overflow-hidden rounded-[24px] border border-border bg-card text-card-foreground shadow",
+        "overflow-hidden rounded-snow-24 border border-border bg-card text-card-foreground shadow",
         className,
       )}
       {...props}
@@ -36,11 +36,32 @@ const cardHeaderVariants = cva("flex flex-col", {
       sm: "gap-3",
       md: "gap-4",
     },
+    layout: {
+      default: "",
+      rowBetween: "flex-row items-center justify-between gap-3 space-y-0",
+      rowBetweenStart:
+        "flex-row items-start justify-between gap-3 space-y-0",
+      rowBetweenResponsive:
+        "flex-row items-start justify-between gap-3 space-y-0 sm:items-center",
+    },
+    surface: {
+      default: "",
+      mutedSection: "border-b border-border bg-muted px-6 py-4",
+      secondarySection: "border-b border-border bg-secondary px-5 py-4",
+      cardSection: "border-b border-border bg-card px-6 py-4",
+    },
+    trimBottom: {
+      false: "",
+      true: "rounded-b-none",
+    },
   },
   defaultVariants: {
     density: "default",
     align: "default",
     gap: "default",
+    layout: "default",
+    surface: "default",
+    trimBottom: false,
   },
 });
 
@@ -50,11 +71,24 @@ export interface CardHeaderProps
     VariantProps<typeof cardHeaderVariants> {}
 
 const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, density, align, gap, ...props }, ref) => (
+  (
+    { className, density, align, gap, layout, surface, trimBottom, ...props },
+    ref,
+  ) => (
     <div
       ref={ref}
       data-ui="card-header"
-      className={cn(cardHeaderVariants({ density, align, gap, className }))}
+      className={cn(
+        cardHeaderVariants({
+          density,
+          align,
+          gap,
+          layout,
+          surface,
+          trimBottom,
+          className,
+        }),
+      )}
       {...props}
     />
   ),
@@ -134,7 +168,7 @@ const cardFooterVariants = cva("flex items-center p-6 pt-0", {
     },
     tone: {
       default: "",
-      mutedSection: "border-t border-border bg-muted/40",
+      mutedSection: "border-t border-border bg-muted",
     },
   },
   defaultVariants: {

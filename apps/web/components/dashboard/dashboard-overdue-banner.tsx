@@ -26,7 +26,7 @@ export function DashboardOverdueBanner({
 
   if (overdueCount > 0) {
     return (
-      <Card className="bg-muted/40 shadow-sm">
+      <Card className="bg-muted shadow-sm">
         <CardContent
           spacing="section"
           className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"

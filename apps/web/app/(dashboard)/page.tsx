@@ -54,7 +54,7 @@ function DashboardPage() {
     : undefined;
 
   return (
-    <PageShell spacing="spacious">
+    <PageShell spacing="default">
       <PageSection spacing="compact">
         <PageHeader
           title="Dashboard"
@@ -101,14 +101,10 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none" className="space-y-1">
-        <Heading
-          as="h2"
-           variant="section"
-          className="text-base sm:text-lg"
-        >
+        <Heading as="h2" variant="section" className="text-base sm:text-lg">
           Today Overview
         </Heading>
-        <Text as="p"  variant="muted" className="text-xs sm:text-sm">
+        <Text as="p" variant="muted" className="text-xs sm:text-sm">
           Key numbers for revenue, expenses, balances, and new orders.
         </Text>
       </PageSection>
@@ -167,11 +163,7 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none" className="pt-1">
-        <Heading
-          as="h2"
-           variant="section"
-          className="text-base sm:text-lg"
-        >
+        <Heading as="h2" variant="section" className="text-base sm:text-lg">
           Financial Insights
         </Heading>
       </PageSection>
@@ -213,11 +205,7 @@ function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="none">
-        <Heading
-          as="h2"
-           variant="section"
-          className="text-base sm:text-lg"
-        >
+        <Heading as="h2" variant="section" className="text-base sm:text-lg">
           Operational Attention
         </Heading>
       </PageSection>

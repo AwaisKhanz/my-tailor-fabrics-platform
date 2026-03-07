@@ -110,7 +110,7 @@ export function OrderItemsTable({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-[11px] font-semibold"
+              className="h-8 text-xs font-semibold"
               onClick={() => onManageTasks(item)}
             >
               Manage Tasks
@@ -176,7 +176,7 @@ export function OrderItemsTable({
               {formatPKR(total)}
             </p>
             {addonsTotal > 0 || designPrice > 0 ? (
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 +{formatPKR(addonsTotal + designPrice)} extras
               </p>
             ) : null}
@@ -188,7 +188,7 @@ export function OrderItemsTable({
 
   return (
     <Card>
-      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <div>
           <CardTitle className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Order Items</CardTitle>
           <CardDescription className="mt-1 text-xs">

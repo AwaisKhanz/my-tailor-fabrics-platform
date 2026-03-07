@@ -118,8 +118,8 @@ export function IntegrationsSettingsPage() {
 
       {forbidden ? (
         <PageSection spacing="compact">
-          <Card className="bg-muted/40 shadow-sm">
-            <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+          <Card className="bg-muted shadow-sm">
+            <CardHeader surface="mutedSection" trimBottom>
               <SectionHeader
                 title="Access Restricted"
                 description="Integration controls are available to super admins only."
@@ -166,8 +166,8 @@ export function IntegrationsSettingsPage() {
         className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
       >
         <Card>
-          <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4 space-y-1">
-            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Gmail Integration Status</CardTitle>
+          <CardHeader surface="mutedSection" trimBottom className="space-y-1">
+            <CardTitle>Gmail Integration Status</CardTitle>
             <CardDescription>
               Verify required OAuth credentials and sender metadata.
             </CardDescription>
@@ -211,8 +211,8 @@ export function IntegrationsSettingsPage() {
         </Card>
 
         <Card>
-          <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4 space-y-1">
-            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Integration Actions</CardTitle>
+          <CardHeader surface="mutedSection" trimBottom className="space-y-1">
+            <CardTitle>Integration Actions</CardTitle>
             <CardDescription>
               Generate OAuth authorization URL and validate delivery with a test
               email.

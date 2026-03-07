@@ -278,7 +278,7 @@ export function OrderFormItemCard({
             type="button"
             variant="secondary"
             size="sm"
-            className="h-7 gap-1 text-[10px] font-semibold"
+            className="h-7 gap-1 text-xs font-semibold"
             onClick={() => onAddAddon(index)}
           >
             <PlusCircle className="h-3.5 w-3.5" /> Add Charge

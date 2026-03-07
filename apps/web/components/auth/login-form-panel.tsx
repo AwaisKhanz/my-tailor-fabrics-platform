@@ -43,7 +43,7 @@ export function LoginFormPanel({
     <section className="flex h-full w-full flex-1 flex-col justify-center bg-card px-6 py-8 sm:px-8 lg:px-10">
       <div className="mx-auto w-full max-w-[390px] space-y-7 md:space-y-8">
         <div className="space-y-3 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {siteConfig.shortName}
           </div>
           <Heading as="h2"  variant="page" className="text-3xl sm:text-[2rem]">
@@ -144,7 +144,7 @@ export function LoginFormPanel({
         </FormStack>
 
         <div className="border-t border-border pt-4 text-center md:text-left">
-          <Text as="p"  variant="muted" className="text-[10px] font-medium leading-relaxed text-muted-foreground/80">
+          <Text as="p"  variant="muted" className="text-xs font-medium leading-relaxed text-muted-foreground">
             &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
             <br />
             Version 2.4.0 ({siteConfig.branding.edition})

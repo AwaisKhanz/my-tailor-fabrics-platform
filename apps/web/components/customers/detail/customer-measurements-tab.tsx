@@ -25,10 +25,10 @@ export function CustomerMeasurementsTab({
 }: CustomerMeasurementsTabProps) {
   return (
     <Card>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">Measurements</CardTitle>
+            <CardTitle>Measurements</CardTitle>
             <Badge variant="default" size="xs" className="font-semibold">
               {measurements.length} SETS
             </Badge>
@@ -54,8 +54,8 @@ export function CustomerMeasurementsTab({
         {measurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {measurements.map((measurement) => (
-              <Card key={measurement.id} className="bg-muted/40 shadow-sm">
-                <CardHeader density="compact" className="border-b !rounded-b-none border-border bg-card/70 px-6 py-4">
+              <Card key={measurement.id} className="bg-muted shadow-sm">
+                <CardHeader density="compact" surface="cardSection" trimBottom>
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
                     <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground font-normal opacity-60">

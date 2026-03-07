@@ -27,7 +27,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
           <SectionHeader
             title="Global Pricing"
             icon={
@@ -67,7 +67,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                 <Text
                   as="span"
                    variant="muted"
-                  className="text-[10px] font-bold text-primary"
+                  className="text-xs font-bold text-primary"
                 >
                   {formatPKR(marginAmount)}
                 </Text>
@@ -85,14 +85,14 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                 <Text
                   as="span"
                    variant="muted"
-                  className="text-[9px] font-bold"
+                  className="text-xs font-bold"
                 >
                   Owner {marginPercentage}%
                 </Text>
                 <Text
                   as="span"
                    variant="muted"
-                  className="text-[9px] font-bold"
+                  className="text-xs font-bold"
                 >
                   Tailor {tailorSharePercentage}%
                 </Text>
@@ -103,7 +103,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
       </Card>
 
       <Card>
-        <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+        <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
           <SectionHeader
             title="Top Tailors"
             icon={
@@ -124,7 +124,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                 <div className="flex items-center gap-2">
                   <div
                     className={cn(
-                      "flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold",
+                      "flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold",
                       index === 0
                         ? "bg-primary/10 text-primary"
                         : "bg-muted text-muted-foreground",
@@ -140,7 +140,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                 <Badge
                   variant="outline"
                   size="xs"
-                  className="border-border text-[10px] font-bold"
+                  className="border-border text-xs font-bold"
                 >
                   {tailor.count} completed
                 </Badge>

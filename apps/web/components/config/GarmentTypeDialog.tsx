@@ -220,7 +220,7 @@ export function GarmentTypeDialog({
           <div className="space-y-3 pt-3">
             <div className="flex items-center gap-2">
               <Filter className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                 Measurement Categories
               </span>
             </div>

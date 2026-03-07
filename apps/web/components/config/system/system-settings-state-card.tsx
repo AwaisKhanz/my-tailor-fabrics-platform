@@ -19,7 +19,7 @@ export function SystemSettingsStateCard({
 }: SystemSettingsStateCardProps) {
   return (
     <Card>
-      <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+      <CardHeader surface="mutedSection" trimBottom>
         <SectionHeader
           title="Current State"
           description="Snapshot of effective system behavior."

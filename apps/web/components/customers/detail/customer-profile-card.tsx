@@ -30,7 +30,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
   return (
     <Card>
-      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Customer Profile"
           icon={
@@ -49,7 +49,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary">
-          <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
           <p className="mt-1 text-sm font-semibold text-foreground">
             {customer.sizeNumber}
           </p>

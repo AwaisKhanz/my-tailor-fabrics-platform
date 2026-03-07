@@ -21,7 +21,7 @@ export function ReportsWeeklyPrintCard({
 }: ReportsWeeklyPrintCardProps) {
   return (
     <Card>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Production Work-Order Summary"
           description="Optimized for physical printing and shift-based task management."

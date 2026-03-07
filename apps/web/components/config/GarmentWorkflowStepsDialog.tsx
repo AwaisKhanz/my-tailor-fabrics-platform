@@ -318,7 +318,7 @@ export function GarmentWorkflowStepsDialog({
                 title="Drag to reorder"
               >
                 <GripVertical className="h-4 w-4" />
-                <span className="text-[10px] font-bold">{index + 1}</span>
+                <span className="text-xs font-bold">{index + 1}</span>
               </div>
 
               <div className="grid flex-1 grid-cols-2 gap-3">

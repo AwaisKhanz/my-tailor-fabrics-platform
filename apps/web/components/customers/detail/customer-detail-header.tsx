@@ -29,7 +29,7 @@ export function CustomerDetailHeader({
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Command</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Command</Label>
 
             <div className="flex flex-wrap items-center gap-3">
               <Heading
@@ -41,7 +41,7 @@ export function CustomerDetailHeader({
               </Heading>
               <Badge
                 variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
-                className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]"
+                className="px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em]"
               >
                 {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
               </Badge>

@@ -49,7 +49,7 @@ export default function DashboardLayout({
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="flex min-w-[280px] flex-col items-center rounded-[28px] border border-border bg-card px-8 py-10 shadow">
+        <div className="flex min-w-[280px] flex-col items-center rounded-snow-28 border border-border bg-card px-8 py-10 shadow">
           <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-primary/25 border-t-primary" />
           <p className="mt-4 text-[0.875rem] font-medium text-muted-foreground">
             Loading application...
@@ -67,7 +67,7 @@ export default function DashboardLayout({
     <div className="dashboard-shell">
       <Topbar />
       <Sidebar />
-      <main className="dashboard-shell-scroll">
+      <main className="dashboard-shell-scroll !mt-14 sm:!mt-0">
         <div className="dashboard-shell-workspace">{children}</div>
       </main>
     </div>

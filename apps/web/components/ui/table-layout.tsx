@@ -1,14 +1,32 @@
 import * as React from "react";
 import { Search } from "lucide-react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Heading } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
-export type TableSurfaceProps = {
+const tableSurfaceVariants = cva(
+  "overflow-hidden rounded-snow-24 border border-border bg-card",
+  {
+    variants: {
+      shadow: {
+        default: "shadow-sm",
+        none: "shadow-none",
+      },
+    },
+    defaultVariants: {
+      shadow: "default",
+    },
+  },
+);
+
+export interface TableSurfaceProps
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof tableSurfaceVariants> {
   children: React.ReactNode;
-  className?: string;
-};
+}
 
 export type TableToolbarProps = {
   title: string;
@@ -17,7 +35,25 @@ export type TableToolbarProps = {
   activeFilterCount?: number;
   controls?: React.ReactNode;
   className?: string;
-};
+} & VariantProps<typeof tableToolbarVariants>;
+
+const tableToolbarVariants = cva("border-b border-border px-4 py-5", {
+  variants: {
+    surface: {
+      secondary: "bg-secondary",
+      muted: "bg-muted",
+      card: "bg-card",
+    },
+    density: {
+      default: "",
+      compact: "px-4 py-4",
+    },
+  },
+  defaultVariants: {
+    surface: "secondary",
+    density: "default",
+  },
+});
 
 export type TableSearchProps = React.ComponentProps<typeof Input> & {
   icon?: React.ReactNode;
@@ -26,9 +62,14 @@ export type TableSearchProps = React.ComponentProps<typeof Input> & {
 export function TableSurface({
   children,
   className,
+  shadow,
+  ...props
 }: TableSurfaceProps) {
   return (
-    <div className={cn("overflow-hidden rounded-[24px] border border-border bg-card shadow-sm", className)}>
+    <div
+      className={cn(tableSurfaceVariants({ shadow }), className)}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -41,13 +82,15 @@ export function TableToolbar({
   activeFilterCount,
   controls,
   className,
+  surface,
+  density,
 }: TableToolbarProps) {
   const hasActiveFilters = Boolean(activeFilterCount && activeFilterCount > 0);
 
   return (
     <div
       className={cn(
-        "border-b border-border/70 bg-secondary/55 px-4 py-5",
+        tableToolbarVariants({ surface, density }),
         className,
       )}
     >

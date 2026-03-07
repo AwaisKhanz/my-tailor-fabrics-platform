@@ -36,7 +36,7 @@ export function OrderFinancialSummaryCard({
 
   return (
     <Card>
-      <CardHeader density="comfortable" align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Financial Summary"
           titleVariant="dashboard"
@@ -52,7 +52,7 @@ export function OrderFinancialSummaryCard({
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary" padding="contentLg" className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Subtotal</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Subtotal</Label>
             <span className="text-sm font-semibold text-foreground">
               {formatPKR(order.subtotal)}
             </span>
@@ -60,7 +60,7 @@ export function OrderFinancialSummaryCard({
 
           {order.discountAmount > 0 ? (
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Discount{" "}
                 {order.discountType === "PERCENTAGE"
                   ? `(${order.discountValue}%)`
@@ -73,7 +73,7 @@ export function OrderFinancialSummaryCard({
           ) : null}
 
           <div className="flex items-center justify-between border-t border-border pt-3">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Invoice</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Invoice</Label>
             <span className="text-lg font-bold text-foreground">
               {formatPKR(order.totalAmount)}
             </span>
@@ -82,13 +82,13 @@ export function OrderFinancialSummaryCard({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoTile tone="success">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Paid</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Paid</Label>
             <p className="mt-1 text-lg font-bold text-primary">
               {formatPKR(order.totalPaid)}
             </p>
           </InfoTile>
           <InfoTile tone="destructive">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Balance</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Balance</Label>
             <p className="mt-1 text-lg font-bold text-destructive">
               {formatPKR(order.balanceDue)}
             </p>
@@ -97,7 +97,7 @@ export function OrderFinancialSummaryCard({
 
         <InfoTile tone="secondary" padding="content" className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Posted Payments</Label>
+            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Posted Payments</Label>
             <span className="text-xs font-semibold text-muted-foreground">
               {sortedPayments.length}
             </span>
@@ -112,17 +112,17 @@ export function OrderFinancialSummaryCard({
               {sortedPayments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-border bg-muted px-3 py-2"
                 >
                   <div className="min-w-0 space-y-0.5">
                     <p className="text-sm font-semibold text-foreground">
                       {formatPKR(payment.amount)}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {formatDate(payment.paidAt)}
                     </p>
                     {payment.note ? (
-                      <p className="truncate text-[11px] text-muted-foreground">
+                      <p className="truncate text-xs text-muted-foreground">
                         {payment.note}
                       </p>
                     ) : null}

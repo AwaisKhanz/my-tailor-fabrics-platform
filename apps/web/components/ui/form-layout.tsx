@@ -61,7 +61,7 @@ const dialogActionRowVariants = cva("", {
       relaxed: "pt-5",
     },
     bordered: {
-      true: "border-t border-border bg-card/80",
+      true: "border-t border-border bg-card",
       false: "",
     },
   },

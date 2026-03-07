@@ -16,7 +16,7 @@ interface GarmentPricingLogsCardProps {
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
     <Card>
-      <CardHeader align="startResponsive" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Recent Pricing Logs"
           icon={

@@ -177,7 +177,7 @@ const DialogContent = React.forwardRef<
           data-ui="dialog-content"
           className={cn(
             dialogContentSizes({ size }),
-            "grid gap-4 border border-border bg-popover p-6 text-popover-foreground shadow-sm sm:rounded-[24px]",
+            "grid gap-4 border border-border bg-popover p-6 text-popover-foreground shadow-sm sm:rounded-snow-24",
             className,
           )}
           onKeyDownCapture={handleKeyDownCapture}
@@ -185,7 +185,7 @@ const DialogContent = React.forwardRef<
           {...props}
         >
           {children}
-          <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-[14px] border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/55 focus:ring-offset-2 focus:ring-offset-background disabled:pointer-events-none">
+          <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-snow-16 border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/55 focus:ring-offset-2 focus:ring-offset-background disabled:pointer-events-none">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
@@ -202,9 +202,25 @@ const dialogHeaderVariants = cva("flex flex-col text-center sm:text-left", {
       default: "space-y-2",
       relaxed: "space-y-3",
     },
+    surface: {
+      default: "",
+      mutedSection: "border-b border-border bg-muted",
+    },
+    padding: {
+      default: "",
+      md: "px-6 py-4",
+      lg: "px-6 py-8",
+    },
+    trimBottom: {
+      false: "",
+      true: "rounded-b-none",
+    },
   },
   defaultVariants: {
     spacing: "default",
+    surface: "default",
+    padding: "default",
+    trimBottom: false,
   },
 });
 
@@ -216,10 +232,16 @@ interface DialogHeaderProps
 const DialogHeader = ({
   className,
   spacing,
+  surface,
+  padding,
+  trimBottom,
   ...props
 }: DialogHeaderProps) => (
   <div
-    className={cn(dialogHeaderVariants({ spacing }), className)}
+    className={cn(
+      dialogHeaderVariants({ spacing, surface, padding, trimBottom }),
+      className,
+    )}
     {...props}
   />
 );

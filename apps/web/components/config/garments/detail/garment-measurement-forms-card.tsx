@@ -21,7 +21,7 @@ export function GarmentMeasurementFormsCard({
 
   return (
     <Card>
-      <CardHeader align="start" gap="sm" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Connected Measurement Forms"
           description="These forms are shown when an order item is created for this garment."
@@ -65,7 +65,7 @@ export function GarmentMeasurementFormsCard({
                   <SectionIcon
                     tone="default"
                     framed={false}
-                    className="rounded-md transition-colors group-hover:bg-primary/20"
+                    className="rounded-md transition-colors group-hover:bg-primary"
                   >
                     <Scale className="h-4 w-4 text-primary" />
                   </SectionIcon>

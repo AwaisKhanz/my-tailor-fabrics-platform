@@ -162,6 +162,8 @@ const BANNED_TAILWIND_SNIPPETS = [
   "button-shadow",
 ];
 
+const ALLOWED_EXTRA_TOKEN_PREFIXES = ["--snow-"];
+
 function extractBlock(content, selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const match = content.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\n\\s*\\}`, "m"));
@@ -174,7 +176,11 @@ function extractTokens(block) {
 
 function diffTokens(actual, expected) {
   const missing = expected.filter((token) => !actual.has(token));
-  const unexpected = [...actual].filter((token) => !expected.includes(token));
+  const unexpected = [...actual].filter(
+    (token) =>
+      !expected.includes(token) &&
+      !ALLOWED_EXTRA_TOKEN_PREFIXES.some((prefix) => token.startsWith(prefix)),
+  );
   return { missing, unexpected };
 }
 

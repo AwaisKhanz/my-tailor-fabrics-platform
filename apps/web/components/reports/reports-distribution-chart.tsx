@@ -80,7 +80,7 @@ function DistributionBars({
           <p className="text-xs font-semibold text-foreground">
             {activePoint.label}
           </p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {activePoint.share.toFixed(1)}% •{" "}
             {valueFormatter(activePoint.value)}
           </p>
@@ -100,7 +100,7 @@ function DistributionBars({
             className={`space-y-1.5 rounded-lg border p-3 transition-colors ${
               isActive
                 ? "border-primary/40 bg-accent"
-                : "border-border bg-card/60 hover:border-border"
+                : "border-border bg-card hover:border-border"
             }`}
             onMouseEnter={() => setHoveredKey(point.key)}
           >
@@ -189,7 +189,7 @@ function DistributionDonut({
           </svg>
           {activePoint ? (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                 Selected
               </p>
               <p className="mt-1 text-sm font-semibold text-foreground">
@@ -203,7 +203,7 @@ function DistributionDonut({
               >
                 {activePoint.share.toFixed(1)}%
               </p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {valueFormatter(activePoint.value)}
               </p>
             </div>
@@ -218,7 +218,7 @@ function DistributionDonut({
             className={`flex items-center justify-between rounded-lg border px-3 py-2 transition-colors ${
               index === activeIndex
                 ? "border-primary/40 bg-accent"
-                : "border-border bg-card/60 hover:border-border"
+                : "border-border bg-card hover:border-border"
             }`}
             onMouseEnter={() => setHoveredIndex(index)}
           >

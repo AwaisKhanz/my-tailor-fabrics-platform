@@ -47,7 +47,7 @@ export function ScrollableDialog({
           "min-h-0 flex flex-col gap-0 overflow-hidden p-0",
         )}
       >
-        <DialogHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+        <DialogHeader surface="mutedSection" padding="lg" trimBottom>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>

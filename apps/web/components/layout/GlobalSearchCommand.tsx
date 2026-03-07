@@ -240,7 +240,7 @@ export function GlobalSearchCommand({
             : "Search orders, customers, and staff..."
         }
         className={cn(
-          "w-full rounded-[18px] pl-10",
+          "w-full rounded-snow-20 pl-10",
           query ? "pr-9" : !compact ? "pr-24" : undefined,
         )}
       />
@@ -260,17 +260,17 @@ export function GlobalSearchCommand({
           <X className="h-3.5 w-3.5" />
         </button>
       ) : !compact ? (
-        <MetaPill className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 gap-1 px-1.5 py-0.5 text-[10px] font-medium xl:inline-flex">
+        <MetaPill className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 gap-1 px-1.5 py-0.5 text-xs font-medium xl:inline-flex">
           Ctrl/Cmd K
         </MetaPill>
       ) : null}
 
       {open ? (
         <Card
-          className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-[28px]"
+          className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-snow-28"
         >
-          <CardHeader density="compact" className="flex-row items-center justify-between gap-3 border-b border-border/70 bg-secondary/55 px-5 py-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <CardHeader density="compact" layout="rowBetween" surface="secondarySection">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Global Search
             </p>
             <p className="text-xs text-muted-foreground">
@@ -398,10 +398,10 @@ function ResultGroup({
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between px-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {title}
         </p>
-        <p className="text-[11px] text-muted-foreground">{count}</p>
+        <p className="text-xs text-muted-foreground">{count}</p>
       </div>
       <div className="space-y-1.5">{children}</div>
     </section>

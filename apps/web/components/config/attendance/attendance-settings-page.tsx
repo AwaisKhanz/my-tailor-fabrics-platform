@@ -230,7 +230,7 @@ export function AttendanceSettingsPage() {
       {canManageAttendanceEntries ? (
         <PageSection spacing="compact">
           <Card>
-            <CardHeader className="border-b !rounded-b-none border-border bg-muted/40 px-6 py-4">
+            <CardHeader surface="mutedSection" trimBottom>
               <SectionHeader
                 title="Quick Clock-In"
                 description="Record an employee shift start directly from admin settings."

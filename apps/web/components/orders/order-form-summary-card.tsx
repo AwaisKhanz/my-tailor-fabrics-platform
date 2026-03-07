@@ -60,7 +60,7 @@ export function OrderFormSummaryCard({
 }: OrderFormSummaryCardProps) {
   return (
     <Card>
-      <CardHeader align="startResponsive" gap="md" className="flex-row items-center !rounded-b-none justify-between gap-3 border-b border-border bg-muted/40 px-6 py-4">
+      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
         <SectionHeader
           title="Order Summary"
           description="Review totals and finalize payment details."
@@ -78,7 +78,7 @@ export function OrderFormSummaryCard({
       <CardContent spacing="section" className="space-y-5">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <InfoTile tone="secondary" className="space-y-1">
-            <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
               <UserRound className="h-3.5 w-3.5" />
               Customer
             </span>
@@ -88,7 +88,7 @@ export function OrderFormSummaryCard({
           </InfoTile>
 
           <InfoTile tone="secondary" className="space-y-1">
-            <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
               <CalendarDays className="h-3.5 w-3.5" />
               Due Date
             </span>

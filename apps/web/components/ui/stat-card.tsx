@@ -40,15 +40,15 @@ const statValueTone = cva("text-3xl", {
 });
 
 const statIconTone = cva(
-  "flex h-11 w-11 items-center justify-center rounded-[16px] border shadow-sm",
+  "flex h-11 w-11 items-center justify-center rounded-snow-16 border shadow-sm",
   {
     variants: {
       tone: {
-      default: "border-border bg-muted text-muted-foreground",
-      primary: "border-primary/12 bg-primary text-primary-foreground",
-      success: statusIconStyles.success,
-      warning: statusIconStyles.warning,
-      destructive: statusIconStyles.destructive,
+        default: "border-border bg-muted text-muted-foreground",
+        primary: "border-primary/12 bg-primary text-primary-foreground",
+        success: statusIconStyles.success,
+        warning: statusIconStyles.warning,
+        destructive: statusIconStyles.destructive,
         info: statusIconStyles.info,
       },
     },
@@ -114,16 +114,15 @@ export function StatCard({
     >
       <CardHeader
         density="compact"
-        align="start"
-        gap="sm"
-        className="flex-row items-center justify-between gap-3 border-b border-border/70 bg-secondary/55 px-5 py-4"
+        layout="rowBetween"
+        surface="secondarySection"
       >
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold text-foreground">
             {title}
           </CardTitle>
           {subtitle ? (
-            <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            <Label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {subtitle}
             </Label>
           ) : null}

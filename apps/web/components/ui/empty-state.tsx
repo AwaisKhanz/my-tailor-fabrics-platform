@@ -23,8 +23,8 @@ interface EmptyStateProps {
  */
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[28px] border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
-      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-[18px] border border-border bg-secondary shadow-sm">
+    <div className="flex flex-col items-center justify-center rounded-snow-28 border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
+      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-snow-20 border border-border bg-secondary shadow-sm">
         <Icon className="h-6 w-6 text-foreground" />
       </div>
       <Heading as="h3" variant="section" className="text-base">
