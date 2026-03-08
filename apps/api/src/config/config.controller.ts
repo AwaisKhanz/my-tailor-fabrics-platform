@@ -33,6 +33,7 @@ import {
 } from './dto/config-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
@@ -88,7 +89,7 @@ export class ConfigController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-types/:id')
-  async getGarmentType(@Param('id') id: string) {
+  async getGarmentType(@Param('id', ParseCuidPipe) id: string) {
     const data = await this.configService.getGarmentType(id);
     return success(data);
   }
@@ -113,7 +114,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id')
   async updateGarmentType(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateGarmentTypeDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -128,7 +129,9 @@ export class ConfigController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-types/:id/history')
-  async getGarmentPriceHistory(@Param('id') garmentTypeId: string) {
+  async getGarmentPriceHistory(
+    @Param('id', ParseCuidPipe) garmentTypeId: string,
+  ) {
     const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
     return success(data);
   }
@@ -137,7 +140,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id/steps')
   async updateGarmentWorkflowSteps(
-    @Param('id') garmentTypeId: string,
+    @Param('id', ParseCuidPipe) garmentTypeId: string,
     @Body() dto: UpdateGarmentWorkflowStepsDto,
   ) {
     const data = await this.configService.updateGarmentWorkflowSteps(
@@ -151,7 +154,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['garments.manage'])
   @Delete('garment-types/:id')
   async deleteGarmentType(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteGarmentType(
@@ -164,7 +167,7 @@ export class ConfigController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id/restore')
-  async restoreGarmentType(@Param('id') id: string) {
+  async restoreGarmentType(@Param('id', ParseCuidPipe) id: string) {
     const data = await this.configService.restoreGarmentType(id);
     return success(data);
   }
@@ -173,7 +176,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id/steps/:stepKey/restore')
   async restoreGarmentWorkflowStep(
-    @Param('id') garmentTypeId: string,
+    @Param('id', ParseCuidPipe) garmentTypeId: string,
     @Param('stepKey') stepKey: string,
   ) {
     const data = await this.configService.restoreGarmentWorkflowStep(
@@ -201,7 +204,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.read'])
   @Get('measurement-categories/:id')
   async getMeasurementCategory(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() query: ConfigIncludeArchivedQueryDto,
   ) {
     const data = await this.configService.getMeasurementCategory(id, {
@@ -230,7 +233,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-categories/:id')
   async updateMeasurementCategory(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateMeasurementCategoryDto,
   ) {
     const data = await this.configService.updateMeasurementCategory(id, dto);
@@ -241,7 +244,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Post('measurement-categories/:id/sections')
   async addMeasurementSection(
-    @Param('id') categoryId: string,
+    @Param('id', ParseCuidPipe) categoryId: string,
     @Body() dto: CreateMeasurementSectionDto,
   ) {
     const data = await this.configService.addMeasurementSection(
@@ -255,7 +258,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-sections/:id')
   async updateMeasurementSection(
-    @Param('id') sectionId: string,
+    @Param('id', ParseCuidPipe) sectionId: string,
     @Body() dto: UpdateMeasurementSectionDto,
   ) {
     const data = await this.configService.updateMeasurementSection(
@@ -269,7 +272,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Delete('measurement-sections/:id')
   async deleteMeasurementSection(
-    @Param('id') sectionId: string,
+    @Param('id', ParseCuidPipe) sectionId: string,
     @Body() dto: DeleteMeasurementSectionDto,
     @Query() query: ConfigPreviewQueryDto,
   ) {
@@ -286,7 +289,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Post('measurement-categories/:id/fields')
   async addMeasurementField(
-    @Param('id') categoryId: string,
+    @Param('id', ParseCuidPipe) categoryId: string,
     @Body() dto: CreateMeasurementFieldDto,
   ) {
     const data = await this.configService.addMeasurementField(categoryId, dto);
@@ -297,7 +300,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-fields/:id')
   async updateMeasurementField(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateMeasurementFieldDto,
   ) {
     const data = await this.configService.updateMeasurementField(id, dto);
@@ -308,7 +311,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Delete('measurement-fields/:id')
   async deleteMeasurementField(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteMeasurementField(
@@ -321,7 +324,7 @@ export class ConfigController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-fields/:id/restore')
-  async restoreMeasurementField(@Param('id') id: string) {
+  async restoreMeasurementField(@Param('id', ParseCuidPipe) id: string) {
     const data = await this.configService.restoreMeasurementField(id);
     return success(data);
   }
@@ -330,7 +333,7 @@ export class ConfigController {
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Delete('measurement-categories/:id')
   async deleteMeasurementCategory(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteMeasurementCategory(
@@ -343,7 +346,7 @@ export class ConfigController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-categories/:id/restore')
-  async restoreMeasurementCategory(@Param('id') id: string) {
+  async restoreMeasurementCategory(@Param('id', ParseCuidPipe) id: string) {
     const data = await this.configService.restoreMeasurementCategory(id);
     return success(data);
   }
@@ -351,7 +354,7 @@ export class ConfigController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-sections/:id/restore')
-  async restoreMeasurementSection(@Param('id') id: string) {
+  async restoreMeasurementSection(@Param('id', ParseCuidPipe) id: string) {
     const data = await this.configService.restoreMeasurementSection(id);
     return success(data);
   }
