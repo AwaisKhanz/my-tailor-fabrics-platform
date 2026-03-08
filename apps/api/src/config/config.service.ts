@@ -33,6 +33,8 @@ import {
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
 
+const MAX_CONFIG_TRANSACTION_RETRIES = 3;
+
 const toSharedFieldType = (fieldType: string): FieldType => {
   switch (fieldType) {
     case 'NUMBER':
@@ -51,6 +53,15 @@ type ConfigPrismaClient = PrismaService | Prisma.TransactionClient;
 @Injectable()
 export class ConfigService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private isSerializationConflict(error: unknown): error is { code: string } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2034'
+    );
+  }
 
   private async getActiveGarmentTypeOrThrow(id: string) {
     const garmentType = await this.prisma.garmentType.findFirst({
@@ -937,41 +948,76 @@ export class ConfigService {
     categoryId: string,
     dto: CreateMeasurementSectionDto,
   ) {
-    const category = await this.prisma.measurementCategory.findUnique({
-      where: { id: categoryId },
-    });
-
-    if (!category || category.deletedAt) {
-      throw new NotFoundException('Measurement category not found');
-    }
-
     const normalizedName = dto.name.trim();
     if (!normalizedName) {
       throw new BadRequestException('Section name is required.');
     }
-    const duplicate = await this.prisma.measurementSection.findFirst({
-      where: {
-        categoryId,
-        deletedAt: null,
-        name: { equals: normalizedName, mode: 'insensitive' },
-      },
-    });
 
-    if (duplicate) {
-      throw new ConflictException(
-        `Section "${normalizedName}" already exists in this category.`,
-      );
+    for (
+      let attempt = 1;
+      attempt <= MAX_CONFIG_TRANSACTION_RETRIES;
+      attempt += 1
+    ) {
+      try {
+        return await this.prisma.$transaction(
+          async (tx: Prisma.TransactionClient) => {
+            const category = await tx.measurementCategory.findUnique({
+              where: { id: categoryId },
+            });
+
+            if (!category || category.deletedAt) {
+              throw new NotFoundException('Measurement category not found');
+            }
+
+            const duplicate = await tx.measurementSection.findFirst({
+              where: {
+                categoryId,
+                deletedAt: null,
+                name: { equals: normalizedName, mode: 'insensitive' },
+              },
+            });
+
+            if (duplicate) {
+              throw new ConflictException(
+                `Section "${normalizedName}" already exists in this category.`,
+              );
+            }
+
+            const nextSortOrder =
+              dto.sortOrder ??
+              (await this.getNextSectionSortOrder(categoryId, tx));
+
+            return tx.measurementSection.create({
+              data: {
+                categoryId,
+                name: normalizedName,
+                sortOrder: nextSortOrder,
+              },
+            });
+          },
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        );
+      } catch (error) {
+        if (
+          this.isSerializationConflict(error) &&
+          attempt < MAX_CONFIG_TRANSACTION_RETRIES
+        ) {
+          continue;
+        }
+
+        if (this.isSerializationConflict(error)) {
+          throw new ConflictException(
+            'Concurrent measurement section update detected. Please retry.',
+          );
+        }
+
+        throw error;
+      }
     }
 
-    const nextSortOrder =
-      dto.sortOrder ?? (await this.getNextSectionSortOrder(categoryId));
-    return this.prisma.measurementSection.create({
-      data: {
-        categoryId,
-        name: normalizedName,
-        sortOrder: nextSortOrder,
-      },
-    });
+    throw new ConflictException(
+      'Unable to create measurement section at this time.',
+    );
   }
 
   async updateMeasurementSection(
