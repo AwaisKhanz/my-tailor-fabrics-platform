@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Permission, Role } from "@tbms/shared-types";
+import { resolveRoutePermissionPolicy } from "@tbms/shared-constants";
 import {
   resolveSessionRole,
   sessionHasAllPermissions,
@@ -16,6 +17,8 @@ type GuardOptions = {
   all?: readonly Permission[];
   any?: readonly Permission[];
 };
+
+type RouteGuardOptions = Pick<GuardOptions, "redirectTo" | "roles">;
 
 export function withRoleGuard<P extends object>(
   WrappedComponent: React.ComponentType<P>,
@@ -51,4 +54,22 @@ export function withRoleGuard<P extends object>(
 
     return <WrappedComponent {...props} />;
   };
+}
+
+export function withRouteGuard<P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+  pathname: string,
+  options: RouteGuardOptions = {},
+) {
+  const routePolicy = resolveRoutePermissionPolicy(pathname);
+
+  if (!routePolicy) {
+    throw new Error(`Missing shared route permission policy for ${pathname}`);
+  }
+
+  return withRoleGuard(WrappedComponent, {
+    ...options,
+    all: routePolicy.requireAll,
+    any: routePolicy.requireAny,
+  });
 }

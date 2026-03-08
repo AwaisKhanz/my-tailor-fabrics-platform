@@ -1,13 +1,10 @@
 "use client";
 
 import { BranchesTable } from "@/components/config/BranchesTable";
-import { withRoleGuard } from "@/components/auth/with-role-guard";
-import { PERMISSION } from '@tbms/shared-constants';
+import { withRouteGuard } from "@/components/auth/with-role-guard";
 
 function BranchesSettingsPage() {
   return <BranchesTable />;
 }
 
-export default withRoleGuard(BranchesSettingsPage, {
-  all: [PERMISSION["settings.read"], PERMISSION["branches.read"]],
-});
+export default withRouteGuard(BranchesSettingsPage, "/settings/branches");

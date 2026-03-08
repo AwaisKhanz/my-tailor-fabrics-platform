@@ -9,7 +9,7 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useRatesPage } from "@/hooks/use-rates-page";
-import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { withRouteGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function RatesPage() {
@@ -93,6 +93,4 @@ function RatesPage() {
   );
 }
 
-export default withRoleGuard(RatesPage, {
-  all: [PERMISSION["settings.read"], PERMISSION["rates.read"]],
-});
+export default withRouteGuard(RatesPage, "/settings/rates");

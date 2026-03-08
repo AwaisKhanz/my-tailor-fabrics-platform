@@ -14,7 +14,7 @@ import { GarmentRatesSection } from "@/components/config/garments/detail/garment
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentDetailPage } from "@/hooks/use-garment-detail-page";
-import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { withRouteGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function GarmentDetailPage() {
@@ -88,6 +88,4 @@ function GarmentDetailPage() {
   );
 }
 
-export default withRoleGuard(GarmentDetailPage, {
-  all: [PERMISSION["settings.read"], PERMISSION["garments.read"]],
-});
+export default withRouteGuard(GarmentDetailPage, "/settings/garments");

@@ -8,7 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
-import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { withRouteGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function DesignTypesPage() {
@@ -113,6 +113,4 @@ function DesignTypesPage() {
   );
 }
 
-export default withRoleGuard(DesignTypesPage, {
-  all: [PERMISSION["settings.read"], PERMISSION["designTypes.read"]],
-});
+export default withRouteGuard(DesignTypesPage, "/settings/design-types");
