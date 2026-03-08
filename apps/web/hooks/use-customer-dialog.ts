@@ -24,6 +24,18 @@ const DEFAULT_VALUES: CustomerFormValues = {
   notes: "",
 };
 
+function toCreateCustomerInput(values: CustomerFormValues): CreateCustomerInput {
+  return {
+    fullName: values.fullName,
+    phone: values.phone,
+    whatsapp: values.whatsapp,
+    email: values.email,
+    address: values.address,
+    city: values.city,
+    notes: values.notes,
+  };
+}
+
 interface UseCustomerDialogParams {
   open: boolean;
   customer?: Customer | null;
@@ -75,10 +87,7 @@ export function useCustomerDialog({
           await customerApi.updateCustomer(customer.id, payload);
           toast({ title: "Customer updated successfully" });
         } else {
-          // Backend create path does not accept status on create.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { status, ...createPayload } = values;
-          const payload: CreateCustomerInput = createPayload;
+          const payload = toCreateCustomerInput(values);
           await customerApi.createCustomer(payload);
           toast({ title: "Customer created successfully" });
         }
