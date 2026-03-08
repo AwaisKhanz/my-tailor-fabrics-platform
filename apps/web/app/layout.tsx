@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
@@ -13,8 +13,14 @@ import {
   type AppTheme,
 } from "@/lib/theme";
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: [
+    {
+      path: "./fonts/GeistVF.woff",
+      style: "normal",
+      weight: "100 900",
+    },
+  ],
   display: "swap",
   variable: "--font-inter",
 });

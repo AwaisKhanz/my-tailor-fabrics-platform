@@ -226,6 +226,37 @@ export function getRedisUrl(): string | undefined {
   return resolveOptionalEnv(process.env.REDIS_URL);
 }
 
+export function isInternalSchedulerEnabled(): boolean {
+  const rawValue = resolveOptionalEnv(process.env.ENABLE_INTERNAL_SCHEDULER);
+
+  if (!rawValue) {
+    return true;
+  }
+
+  const normalized = rawValue.toLowerCase();
+  if (
+    normalized === 'true' ||
+    normalized === '1' ||
+    normalized === 'on' ||
+    normalized === 'yes'
+  ) {
+    return true;
+  }
+
+  if (
+    normalized === 'false' ||
+    normalized === '0' ||
+    normalized === 'off' ||
+    normalized === 'no'
+  ) {
+    return false;
+  }
+
+  throw new Error(
+    'ENABLE_INTERNAL_SCHEDULER must be a boolean-like value (true/false)',
+  );
+}
+
 export function getGoogleMailEnvironment(): GoogleMailEnvironment {
   return {
     clientId: resolveOptionalEnv(process.env.GOOGLE_CLIENT_ID),
@@ -249,4 +280,5 @@ export function assertSecurityEnvironment(): void {
   void getStatusPinPepper();
   void getTrustProxyConfig();
   void getServerPort();
+  void isInternalSchedulerEnabled();
 }

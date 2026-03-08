@@ -1,0 +1,179 @@
+name: my-tailor-and-fabrics
+region: sgp
+
+ingress:
+  rules:
+    - component:
+        name: api-backend
+        preserve_path_prefix: false
+      match:
+        path:
+          prefix: /backend
+    - component:
+        name: web-frontend
+      match:
+        path:
+          prefix: /
+
+services:
+  - name: web-frontend
+    github:
+      repo: AwaisKhanz/my-tailor-fabrics-platform
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile.web
+    source_dir: /
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 10
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 6
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: PORT
+        scope: RUN_TIME
+        value: "8080"
+      - key: NEXT_PUBLIC_API_URL
+        scope: RUN_AND_BUILD_TIME
+        value: /backend
+      - key: INTERNAL_API_URL
+        scope: RUN_TIME
+        value: ${api-backend.PRIVATE_URL}
+      - key: NEXTAUTH_URL
+        scope: RUN_TIME
+        value: ${APP_URL}
+      - key: NEXTAUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_ME_NEXTAUTH_SECRET
+
+  - name: api-backend
+    github:
+      repo: AwaisKhanz/my-tailor-fabrics-platform
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile.api
+    source_dir: /
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 10
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 6
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: PORT
+        scope: RUN_TIME
+        value: "8080"
+      - key: TRUST_PROXY
+        scope: RUN_TIME
+        value: "1"
+      - key: TZ
+        scope: RUN_TIME
+        value: Asia/Karachi
+      - key: FRONTEND_URL
+        scope: RUN_TIME
+        value: ${APP_URL}
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${tbms-production-db.DATABASE_URL}
+      - key: DIRECT_URL
+        scope: RUN_TIME
+        value: ${tbms-production-db.DATABASE_URL}
+      - key: REDIS_URL
+        scope: RUN_TIME
+        value: ${tbms-production-valkey.DATABASE_URL}
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_ME_JWT_SECRET
+      - key: JWT_REFRESH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_ME_JWT_REFRESH_SECRET
+      - key: JWT_EXPIRES_IN
+        scope: RUN_TIME
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        scope: RUN_TIME
+        value: 7d
+      - key: JWT_REFRESH_ROTATION_GRACE_SECONDS
+        scope: RUN_TIME
+        value: "30"
+      - key: STATUS_PIN_PEPPER
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_ME_STATUS_PIN_PEPPER
+      - key: ENABLE_INTERNAL_SCHEDULER
+        scope: RUN_TIME
+        value: "true"
+      - key: ENABLE_PUBLIC_MAIL_ENDPOINTS
+        scope: RUN_TIME
+        value: "false"
+      - key: GOOGLE_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IF_MAIL_IS_ENABLED
+      - key: GOOGLE_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IF_MAIL_IS_ENABLED
+      - key: GOOGLE_REFRESH_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IF_MAIL_IS_ENABLED
+      - key: GOOGLE_EMAIL
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IF_MAIL_IS_ENABLED
+      - key: GOOGLE_REDIRECT_URI
+        scope: RUN_TIME
+        value: https://developers.google.com/oauthplayground
+
+jobs:
+  - name: migrate
+    kind: PRE_DEPLOY
+    github:
+      repo: AwaisKhanz/my-tailor-fabrics-platform
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile.api
+    source_dir: /
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    run_command: npm run migrate:deploy:api
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${tbms-production-db.DATABASE_URL}
+      - key: DIRECT_URL
+        scope: RUN_TIME
+        value: ${tbms-production-db.DATABASE_URL}
+
+databases:
+  - name: tbms-production-db
+    engine: PG
+    version: "18"
+    production: true
+    cluster_name: tbms-production-db
+    db_name: defaultdb
+    db_user: doadmin
+  - name: tbms-production-valkey
+    engine: VALKEY
+    version: "8"
+    production: true
+    cluster_name: tbms-production-valkey

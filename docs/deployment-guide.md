@@ -1,139 +1,163 @@
-Gemini said
-Complete Deployment Guide: Tailor Business Management System
-This document outlines the exact, step-by-step process for deploying the full-stack monorepo (Next.js, NestJS, PostgreSQL) to DigitalOcean, using the custom .pk domain.
+# DigitalOcean App Platform Deployment Guide
 
-Phase 1: Domain Procurement
-Purchase Domain: The domain mytailorandfabrics.pk was successfully purchased via the authorized PKNIC reseller, Websouls.
+This guide describes the production deployment path for the TBMS monorepo on DigitalOcean App Platform.
 
-Prepare DNS: Keep the Websouls dashboard accessible. Once the DigitalOcean App Platform provides the live application URL, you will create a CNAME or ALIAS record in Websouls pointing mytailorandfabrics.pk to the DigitalOcean routing URL.
+Current DigitalOcean account alignment:
 
-Phase 2: Provisioning the Managed Database
-Crucial: Do this before setting up the App Platform so the database is ready to be attached.
+1. Existing App Platform app name: `my-tailor-and-fabrics`
+2. App Platform region: `sgp`
+3. Existing managed PostgreSQL cluster: `tbms-production-db` in `sgp1`
+4. Planned managed Valkey cluster: `tbms-production-valkey` in `sgp1`
 
-Log into the DigitalOcean Dashboard and navigate to Databases -> Create Database Cluster.
+## Architecture
 
-Engine: Select PostgreSQL (v18).
+1. One App Platform app.
+2. One `web` service built from [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web).
+3. One `api` service built from [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api).
+4. One `migrate` pre-deploy job using the API image.
+5. One managed PostgreSQL cluster.
+6. One managed Valkey cluster that provides the API's `REDIS_URL`.
 
-Configuration: Select Basic Shared CPU.
+Key routing decision:
 
-Plan: Select the $13.00/mo tier (1 vCPU / 1 GB RAM / 10 GiB Storage).
+1. The web app owns `/`.
+2. The Nest API is exposed at `/backend`.
+3. The Next app keeps `/api/auth/*` and `/api/status/*`.
+4. Do not route the API to `/api`, or NextAuth and the public status route will break.
 
-Autoscaling: Check Enable Storage Autoscaling.
+## Repo Files That Drive Deployment
 
-Threshold: 80%
+1. App Platform spec: [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml)
+2. Web container: [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web)
+3. API container: [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api)
+4. Root deployment scripts: [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json)
+5. Web health endpoint: [route.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/web/app/healthz/route.ts)
+6. API health endpoint: [app.controller.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/src/app.controller.ts)
 
-Increment: 10 GiB
+## Why The App Uses Repo-Root Build Context
 
-Datacenter Region: Select Singapore (SGP1) to ensure the lowest latency for users in Pakistan.
+This repo is an npm workspace monorepo:
 
-Name: Set a clear identifier (e.g., tbms-production-db).
+1. `apps/web`
+2. `apps/api`
+3. `packages/shared-types`
+4. `packages/shared-constants`
 
-Click Create Database Cluster and wait ~5 minutes for it to provision.
+DigitalOcean App Platform monorepo docs state that when a component uses a subdirectory as `source_dir`, files outside that directory are not available at runtime. Because both apps rely on workspace packages outside their own directories, the deployment spec uses `/` as the build context and separate Dockerfiles to select the correct app.
 
-Phase 3: Monorepo Code Adjustments
-Before deploying, make one critical adjustment to the backend package.json to ensure database migrations work in production.
+## Local Preflight
 
-Open apps/api/package.json in your code editor.
+Run these commands from the repo root:
 
-Move prisma from devDependencies into dependencies:
+```bash
+npm ci
+npm run env:setup
+npm run env:verify
+npm run build:do:api
+npm run build:do:web
+docker build -f Dockerfile.api .
+docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
+```
 
-JSON
-"dependencies": {
-"@prisma/client": "^5.22.0",
-"prisma": "^5.22.0",
-// ... other dependencies
-}
-Commit and push this change to your main branch on GitHub.
+Notes:
 
-Phase 4: App Platform Configuration
-Navigate to Apps -> Create App in DigitalOcean.
+1. The web build no longer depends on Google Fonts at build time. It now uses the local Geist variable font files already present in the repo.
+2. The API scheduler can now be turned on or off with `ENABLE_INTERNAL_SCHEDULER`.
+3. The API stays at one instance in v1 because cron is still embedded in the API process.
 
-Step 1: Add the Next.js Frontend
-Source: Select GitHub, choose your repository (AwaisKhanz/my-tailor-fabrics-platform), and select the main branch.
+## App Platform Create / Update
 
-Source Directory: Type /apps/web and click Next.
+Install and authenticate `doctl`, then use the spec:
 
-Click Edit next to the newly detected Web Service:
+```bash
+doctl auth init
+doctl apps create --spec .do/app.prod.yaml
+```
 
-Name: web-frontend
+For later updates:
 
-Build Command: npm run build
+```bash
+doctl apps update <app-id> --spec .do/app.prod.yaml
+```
 
-Run Command: npm start
+## App Platform Variables
 
-HTTP Port: 3000
+The spec already includes the required variable names and placeholders. Before the first production deploy, replace all `REPLACE_*` placeholder values in [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml).
 
-HTTP Request Route: / (Delete the auto-generated route)
+Important runtime values:
 
-Size: 1 Container (Basic tier)
+1. Web:
+   `NEXT_PUBLIC_API_URL=/backend`
+   `INTERNAL_API_URL=${api-backend.PRIVATE_URL}`
+   `NEXTAUTH_URL=${APP_URL}`
+2. API:
+   `FRONTEND_URL=${APP_URL}`
+   `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
+   `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
+   `REDIS_URL=${tbms-production-valkey.DATABASE_URL}`
+   `ENABLE_INTERNAL_SCHEDULER=true`
 
-Step 2: Add the NestJS Backend
-Click Add Resource -> Web Service.
+Important secret values you must set:
 
-Select the same GitHub repository and main branch.
+1. `NEXTAUTH_SECRET`
+2. `JWT_SECRET`
+3. `JWT_REFRESH_SECRET`
+4. `STATUS_PIN_PEPPER`
+5. Google mail secrets if Gmail integration will remain enabled in production
 
-Source Directory: Type /apps/api and click Next.
+## DigitalOcean Console Steps After App Creation
 
-Click Edit next to this new Web Service:
+Complete these in the App Platform UI after the first app is created from the spec:
 
-Name: api-backend
+1. Keep the App Platform app in `sgp` and keep PostgreSQL, Valkey, and VPC in `sgp1` to match the current account footprint.
+2. Enable App Platform VPC and keep the managed data services in the same VPC.
+3. Configure HTTP health checks:
+   - web: `/healthz`
+   - api: `/healthz`
+4. Verify the `migrate` pre-deploy job runs before both web and API roll out.
+5. Verify the starter `ondigitalocean.app` URL before attaching or changing any custom domain.
 
-Build Command: npm run prisma:generate && npm run build
+## Domain Rollout
 
-Run Command: npx prisma migrate deploy && npm run start:prod
+The intended rollout is:
 
-HTTP Port: 8000
+1. Deploy and verify on the starter `ondigitalocean.app` domain.
+2. Add `mytailorandfabrics.com` as the primary custom domain.
+3. Redirect the starter domain to `.com`.
+4. Later, once `.pk` is ready, add `mytailorandfabrics.pk` and redirect it to `.com`.
 
-HTTP Request Route: /api
+Do not make `.pk` canonical in this phase. The current production plan keeps `.com` canonical first.
 
-Size: 1 Container (Basic tier)
+## Smoke Tests
 
-Step 3: Attach the Database
-Scroll down to the Add a database section.
+After the first deployment:
 
-Click + Attach DigitalOcean database.
+1. Open `/` and confirm the web app renders.
+2. Open `/healthz` and confirm the web health response is `200`.
+3. Open `/backend/healthz` and confirm the API health response is `200`.
+4. Log in and confirm the NextAuth flow still works under `/api/auth/*`.
+5. Confirm authenticated browser API calls hit `/backend/*`.
+6. Confirm the public order status page still works under `/api/status/*`.
+7. Confirm the API boots with PostgreSQL and Valkey connected.
+8. Confirm the `migrate` job completes successfully during deployment.
+9. Confirm scheduled jobs execute only once per interval with exactly one API instance running.
 
-Select the tbms-production-db created in Phase 2.
+## Operational Notes
 
-Phase 5: Production Environment Variables
-Set the following variables for each component inside the App Platform setup screen.
+1. Keep the API at one instance until cron is moved out of the API process into scheduled jobs.
+2. App Platform storage is ephemeral. Do not store uploads on local disk.
+3. If first-party file uploads are added later, use Spaces or another external object store.
+4. CI now checks the env contract and builds both Docker images via [ci.yml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.github/workflows/ci.yml).
 
-For api-backend:
-NODE_ENV: production
+## References
 
-PORT: 8000
-
-FRONTEND_URL: https://mytailorandfabrics.pk
-
-URL: https://mytailorandfabrics.pk
-
-NEXTAUTH_URL: https://mytailorandfabrics.pk
-
-DATABASE_URL: ${db.DATABASE_URL} (DO will auto-inject the live credentials)
-
-DIRECT_URL: ${db.DATABASE_URL}
-
-TZ: Asia/Karachi
-
-JWT_SECRET: (Generate a new random production string)
-
-JWT_REFRESH_SECRET: (Generate a new random production string)
-
-GOOGLE_CLIENT_ID: (Paste existing value)
-
-GOOGLE_CLIENT_SECRET: (Paste existing value)
-
-GOOGLE_EMAIL: admin@mytailorandfabrics.com
-
-GOOGLE_REFRESH_TOKEN: (Paste existing value)
-
-For web-frontend:
-NODE_ENV: production
-
-NEXT_PUBLIC_API_URL: https://mytailorandfabrics.pk/api
-
-INTERNAL_API_URL: https://mytailorandfabrics.pk/api
-
-NEXTAUTH_URL: https://mytailorandfabrics.pk
-
-NEXTAUTH_SECRET: (Generate a new random production string)
+1. [DigitalOcean: Deploy from Monorepos](https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-monorepo/)
+2. [DigitalOcean: App Spec Reference](https://docs.digitalocean.com/products/app-platform/reference/app-spec/)
+3. [DigitalOcean: Use Environment Variables](https://docs.digitalocean.com/products/app-platform/how-to/use-environment-variables/)
+4. [DigitalOcean: Dockerfile Build Reference](https://docs.digitalocean.com/products/app-platform/reference/dockerfile/)
+5. [DigitalOcean: Dockerfile build-time env limitation](https://docs.digitalocean.com/support/why-cant-i-access-my-environment-variables-at-build-time-when-building-from-a-dockerfile-on-app-platform/)
+6. [DigitalOcean: Manage Cron Jobs and Deployment Jobs](https://docs.digitalocean.com/products/app-platform/how-to/manage-jobs/)
+7. [DigitalOcean: Manage Databases](https://docs.digitalocean.com/products/app-platform/how-to/manage-databases/)
+8. [DigitalOcean: Set Up Internal Routing](https://docs.digitalocean.com/products/app-platform/how-to/manage-internal-routing/)
+9. [DigitalOcean: Manage Domains](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains/)
+10. [DigitalOcean: Manage Health Checks](https://docs.digitalocean.com/products/app-platform/how-to/manage-health-checks/)

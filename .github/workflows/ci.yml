@@ -22,6 +22,12 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
+    - name: Create Runtime Env Files
+      run: npm run env:setup
+
+    - name: Verify Environment Contract
+      run: npm run env:verify
+
     - name: Generate Prisma Client
       run: npm run prisma:generate --workspace api
 
@@ -30,3 +36,9 @@ jobs:
 
     - name: Lint Check
       run: npm run lint
+
+    - name: Build API Docker Image
+      run: docker build -f Dockerfile.api .
+
+    - name: Build Web Docker Image
+      run: docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .

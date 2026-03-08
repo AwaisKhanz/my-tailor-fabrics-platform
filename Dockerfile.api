@@ -1,0 +1,40 @@
+FROM node:20-bookworm-slim AS deps
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/shared-types/package.json packages/shared-types/package.json
+COPY packages/shared-constants/package.json packages/shared-constants/package.json
+
+RUN npm ci
+
+FROM deps AS builder
+WORKDIR /app
+COPY . .
+RUN npm run build:do:api
+
+FROM builder AS prod-deps
+WORKDIR /app
+RUN npm prune --omit=dev
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=8080
+
+COPY package.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/shared-types/package.json packages/shared-types/package.json
+COPY packages/shared-constants/package.json packages/shared-constants/package.json
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+COPY --from=builder /app/packages/shared-types ./packages/shared-types
+COPY --from=builder /app/packages/shared-constants ./packages/shared-constants
+
+EXPOSE 8080
+
+CMD ["npm", "run", "start:do:api"]

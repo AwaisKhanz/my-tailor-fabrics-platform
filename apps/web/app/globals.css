@@ -102,7 +102,7 @@
     --snow-radius-48: calc(var(--snow-radius-unit) * 12);
     --snow-radius-80: calc(var(--snow-radius-unit) * 20);
 
-    --snow-font-family: "Inter Variable", Inter, sans-serif;
+    --snow-font-family: "Geist Variable", Geist, sans-serif;
     --snow-weight-regular: 400;
     --snow-weight-semibold: 600;
 

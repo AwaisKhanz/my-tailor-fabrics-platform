@@ -31,9 +31,16 @@ import { RatesModule } from './rates/rates.module';
 import { LedgerModule } from './ledger/ledger.module';
 import { DesignTypesModule } from './design-types/design-types.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
-import { getRedisUrl, isProductionEnvironment } from './common/env';
+import {
+  getRedisUrl,
+  isInternalSchedulerEnabled,
+  isProductionEnvironment,
+} from './common/env';
 
 const cacheLogger = new Logger('CacheModule');
+const schedulerImports = isInternalSchedulerEnabled()
+  ? [ScheduleModule.forRoot(), SchedulerModule]
+  : [];
 
 @Module({
   imports: [
@@ -95,12 +102,10 @@ const cacheLogger = new Logger('CacheModule');
         }
       },
     }),
-    ScheduleModule.forRoot(),
     SearchModule,
     CustomersModule,
     EmployeesModule,
     OrdersModule,
-    SchedulerModule,
     AppConfigModule,
     PaymentsModule,
     ReportsModule,
@@ -113,6 +118,7 @@ const cacheLogger = new Logger('CacheModule');
     LedgerModule,
     DesignTypesModule,
     AuditLogsModule,
+    ...schedulerImports,
   ],
   controllers: [AppController],
   providers: [
