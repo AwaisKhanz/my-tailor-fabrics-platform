@@ -1067,33 +1067,34 @@ export class OrdersService {
     branchId: string,
     dto: UpdateOrderItemAssignmentDto,
   ) {
-    const order = await this.prisma.order.findFirst({
-      where: {
-        id: orderId,
-        deletedAt: null,
-        ...(branchId ? { branchId } : {}),
-      },
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const order = await tx.order.findFirst({
+        where: {
+          id: orderId,
+          deletedAt: null,
+          ...(branchId ? { branchId } : {}),
+        },
+      });
+      if (!order) throw new NotFoundException('Order not found');
+
+      const item = await tx.orderItem.findFirst({
+        where: { id: itemId, orderId },
+      });
+      if (!item) throw new NotFoundException('Order item not found');
+
+      const updated = await tx.orderItem.update({
+        where: { id: itemId },
+        data: {
+          status: dto.status || undefined,
+        },
+      });
+
+      if (dto.status) {
+        await this.recalcOrderTotals(orderId, tx);
+      }
+
+      return updated;
     });
-    if (!order) throw new NotFoundException('Order not found');
-
-    const item = await this.prisma.orderItem.findFirst({
-      where: { id: itemId, orderId },
-    });
-    if (!item) throw new NotFoundException('Order item not found');
-
-    const updated = await this.prisma.orderItem.update({
-      where: { id: itemId },
-      data: {
-        status: dto.status || undefined,
-      },
-    });
-
-    // If status changed to/from CANCELLED, we must recalc order totals
-    if (dto.status) {
-      await this.recalcOrderTotals(orderId);
-    }
-
-    return updated;
   }
 
   async removeItem(orderId: string, itemId: string, branchId: string) {
