@@ -32,7 +32,7 @@ export class SchedulerService {
           lt: now,
         },
       },
-      select: { id: true, status: true },
+      select: { id: true },
     });
 
     if (overdueCandidates.length === 0) {
@@ -49,25 +49,62 @@ export class SchedulerService {
     // Process them sequentially to avoid locking the whole DB
     for (const order of overdueCandidates) {
       try {
-        await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-          // 1. Log transition
-          await tx.orderStatusHistory.create({
-            data: {
-              orderId: order.id,
-              fromStatus: order.status,
-              toStatus: OrderStatus.OVERDUE,
-              actor: 'SYSTEM',
-              note: 'Automated CRON task transitioned to OVERDUE.',
-            },
-          });
+        const transitioned = await this.prisma.$transaction(
+          async (tx: Prisma.TransactionClient) => {
+            const currentOrder = await tx.order.findFirst({
+              where: {
+                id: order.id,
+                deletedAt: null,
+                status: {
+                  in: [
+                    OrderStatus.NEW,
+                    OrderStatus.IN_PROGRESS,
+                    OrderStatus.READY,
+                  ],
+                },
+                dueDate: {
+                  lt: now,
+                },
+              },
+              select: { id: true, status: true },
+            });
 
-          // 2. Update status
-          await tx.order.update({
-            where: { id: order.id },
-            data: { status: OrderStatus.OVERDUE },
-          });
-        });
-        successCount++;
+            if (!currentOrder) {
+              return false;
+            }
+
+            const updated = await tx.order.updateMany({
+              where: {
+                id: currentOrder.id,
+                deletedAt: null,
+                status: currentOrder.status,
+                dueDate: {
+                  lt: now,
+                },
+              },
+              data: { status: OrderStatus.OVERDUE },
+            });
+
+            if (updated.count === 0) {
+              return false;
+            }
+
+            await tx.orderStatusHistory.create({
+              data: {
+                orderId: currentOrder.id,
+                fromStatus: currentOrder.status,
+                toStatus: OrderStatus.OVERDUE,
+                actor: 'SYSTEM',
+                note: 'Automated CRON task transitioned to OVERDUE.',
+              },
+            });
+
+            return true;
+          },
+        );
+        if (transitioned) {
+          successCount++;
+        }
       } catch (error: unknown) {
         this.logger.error(
           `Failed to mark order ${order.id} as OVERDUE`,
