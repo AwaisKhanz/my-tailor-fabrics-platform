@@ -15,7 +15,7 @@
     "build:do:api": "npm run build -w @tbms/shared-types && npm run build -w @tbms/shared-constants && npm exec -w api -- prisma generate && npm run build -w api",
     "lint": "npm run lint --workspaces",
     "start:do:web": "node ./scripts/start-do-web.mjs",
-    "start:do:api": "node apps/api/dist/main",
+    "start:do:api": "node apps/api/dist/src/main.js",
     "migrate:deploy:api": "npm exec -w api -- prisma migrate deploy",
     "rbac:audit": "node scripts/rbac-audit.mjs",
     "security:backend:guardrails": "sh ./scripts/security-backend-guardrails.sh",
