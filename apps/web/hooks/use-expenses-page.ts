@@ -211,6 +211,15 @@ export function useExpensesPage() {
     setAddOpen(false);
   }, [saving]);
 
+  const handleAddDialogChange = useCallback((open: boolean) => {
+    if (open) {
+      openAddDialog();
+      return;
+    }
+
+    closeAddDialog();
+  }, [closeAddDialog, openAddDialog]);
+
   const resetCreateForm = useCallback(() => {
     setForm(getDefaultFormState());
   }, []);
@@ -280,6 +289,12 @@ export function useExpensesPage() {
     }
     setDeleteTarget(null);
   }, [deletingId]);
+
+  const handleDeleteDialogChange = useCallback((open: boolean) => {
+    if (!open) {
+      closeDeleteDialog();
+    }
+  }, [closeDeleteDialog]);
 
   const confirmDeleteExpense = useCallback(async () => {
     if (!deleteTarget) {
@@ -356,10 +371,12 @@ export function useExpensesPage() {
     resetFilters,
     updateFormField,
     openAddDialog,
+    handleAddDialogChange,
     closeAddDialog,
     submitCreateExpense,
     requestDeleteExpense,
     closeDeleteDialog,
+    handleDeleteDialogChange,
     confirmDeleteExpense,
   };
 }

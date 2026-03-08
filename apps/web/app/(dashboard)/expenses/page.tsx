@@ -45,10 +45,10 @@ function ExpensesPage() {
     resetFilters,
     updateFormField,
     openAddDialog,
-    closeAddDialog,
+    handleAddDialogChange,
     submitCreateExpense,
     requestDeleteExpense,
-    closeDeleteDialog,
+    handleDeleteDialogChange,
     confirmDeleteExpense,
   } = useExpensesPage();
 
@@ -122,24 +122,14 @@ function ExpensesPage() {
             form={form}
             formError={formError}
             fieldErrors={fieldErrors}
-            onOpenChange={(open) => {
-              if (open) {
-                openAddDialog();
-              } else {
-                closeAddDialog();
-              }
-            }}
+            onOpenChange={handleAddDialogChange}
             onFormChange={updateFormField}
             onSubmit={submitCreateExpense}
           />
 
           <ConfirmDialog
             open={Boolean(deleteTarget)}
-            onOpenChange={(open) => {
-              if (!open) {
-                closeDeleteDialog();
-              }
-            }}
+            onOpenChange={handleDeleteDialogChange}
             title="Delete this expense?"
             description={
               deleteTarget
