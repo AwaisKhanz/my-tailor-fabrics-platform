@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -11,72 +12,172 @@ import {
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
 
+const MAX_ATTENDANCE_TRANSACTION_RETRIES = 3;
+
 @Injectable()
 export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
+  private isSerializationConflict(error: unknown): error is { code: string } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2034'
+    );
+  }
+
   async clockIn(employeeId: string, branchId: string, note?: string) {
-    // Check if already clocked in today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const existing = await this.prisma.attendanceRecord.findFirst({
-      where: {
-        employeeId,
-        date: { gte: today },
-        clockOut: null,
-        deletedAt: null,
-      },
-    });
-    if (existing) {
-      throw new BadRequestException(
-        'Employee already clocked in today. Please clock out first.',
-      );
+    for (
+      let attempt = 1;
+      attempt <= MAX_ATTENDANCE_TRANSACTION_RETRIES;
+      attempt += 1
+    ) {
+      try {
+        return await this.prisma.$transaction(
+          async (tx) => {
+            const existing = await tx.attendanceRecord.findFirst({
+              where: {
+                employeeId,
+                date: { gte: today },
+                clockOut: null,
+                deletedAt: null,
+              },
+              select: { id: true },
+            });
+
+            if (existing) {
+              throw new BadRequestException(
+                'Employee already clocked in today. Please clock out first.',
+              );
+            }
+
+            const employee = await requireEmployeeInScope(tx, {
+              employeeId,
+              branchId,
+              requireActive: true,
+              inactiveMessage: 'Only active employees can clock in',
+            });
+
+            const recordBranchId = branchId || employee.branchId;
+            const now = new Date();
+
+            return tx.attendanceRecord.create({
+              data: {
+                employeeId,
+                branchId: recordBranchId,
+                date: today,
+                clockIn: now,
+                note,
+              },
+              include: {
+                employee: { select: { fullName: true, employeeCode: true } },
+              },
+            });
+          },
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        );
+      } catch (error) {
+        if (
+          this.isSerializationConflict(error) &&
+          attempt < MAX_ATTENDANCE_TRANSACTION_RETRIES
+        ) {
+          continue;
+        }
+
+        if (this.isSerializationConflict(error)) {
+          throw new ConflictException(
+            'Concurrent attendance clock-in detected. Please retry.',
+          );
+        }
+
+        throw error;
+      }
     }
 
-    const now = new Date();
-
-    const employee = await requireEmployeeInScope(this.prisma, {
-      employeeId,
-      branchId,
-      requireActive: true,
-      inactiveMessage: 'Only active employees can clock in',
-    });
-
-    const recordBranchId = branchId || employee.branchId;
-
-    return this.prisma.attendanceRecord.create({
-      data: {
-        employeeId,
-        branchId: recordBranchId,
-        date: today,
-        clockIn: now,
-        note,
-      },
-      include: { employee: { select: { fullName: true, employeeCode: true } } },
-    });
+    throw new ConflictException('Unable to process attendance clock-in');
   }
 
   async clockOut(recordId: string, branchId: string) {
-    const record = await this.prisma.attendanceRecord.findFirst({
-      where: {
-        id: recordId,
-        deletedAt: null,
-        ...(branchId ? { branchId } : {}),
-      },
-    });
-    if (!record) throw new NotFoundException('Attendance record not found');
-    if (record.clockOut) throw new BadRequestException('Already clocked out');
+    for (
+      let attempt = 1;
+      attempt <= MAX_ATTENDANCE_TRANSACTION_RETRIES;
+      attempt += 1
+    ) {
+      try {
+        return await this.prisma.$transaction(
+          async (tx) => {
+            const record = await tx.attendanceRecord.findFirst({
+              where: {
+                id: recordId,
+                deletedAt: null,
+                ...(branchId ? { branchId } : {}),
+              },
+              select: {
+                id: true,
+                clockIn: true,
+                clockOut: true,
+              },
+            });
 
-    const now = new Date();
-    const diffMs = now.getTime() - record.clockIn.getTime();
-    const hoursWorked = Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100; // 2 dp
+            if (!record) {
+              throw new NotFoundException('Attendance record not found');
+            }
 
-    return this.prisma.attendanceRecord.update({
-      where: { id: recordId },
-      data: { clockOut: now, hoursWorked },
-      include: { employee: { select: { fullName: true, employeeCode: true } } },
-    });
+            if (record.clockOut) {
+              throw new BadRequestException('Already clocked out');
+            }
+
+            const now = new Date();
+            const diffMs = now.getTime() - record.clockIn.getTime();
+            const hoursWorked =
+              Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100;
+
+            const updated = await tx.attendanceRecord.updateMany({
+              where: {
+                id: recordId,
+                deletedAt: null,
+                ...(branchId ? { branchId } : {}),
+                clockOut: null,
+              },
+              data: { clockOut: now, hoursWorked },
+            });
+
+            if (updated.count === 0) {
+              throw new BadRequestException('Already clocked out');
+            }
+
+            return tx.attendanceRecord.findUniqueOrThrow({
+              where: { id: recordId },
+              include: {
+                employee: { select: { fullName: true, employeeCode: true } },
+              },
+            });
+          },
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        );
+      } catch (error) {
+        if (
+          this.isSerializationConflict(error) &&
+          attempt < MAX_ATTENDANCE_TRANSACTION_RETRIES
+        ) {
+          continue;
+        }
+
+        if (this.isSerializationConflict(error)) {
+          throw new ConflictException(
+            'Concurrent attendance clock-out detected. Please retry.',
+          );
+        }
+
+        throw error;
+      }
+    }
+
+    throw new ConflictException('Unable to process attendance clock-out');
   }
 
   async findAll(
