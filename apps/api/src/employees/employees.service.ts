@@ -143,7 +143,9 @@ export class EmployeesService {
       return {
         monthlySalary: null,
         employmentEndDate:
-          params.status === EmployeeStatus.LEFT ? params.employmentEndDate : null,
+          params.status === EmployeeStatus.LEFT
+            ? params.employmentEndDate
+            : null,
       };
     }
 
@@ -208,9 +210,7 @@ export class EmployeesService {
     return `${capability.garmentTypeId ?? '*'}::${capability.stepKey ?? '*'}`;
   }
 
-  private normalizeCapabilityInput(
-    capability: EmployeeCapabilityWindowInput,
-  ): {
+  private normalizeCapabilityInput(capability: EmployeeCapabilityWindowInput): {
     garmentTypeId: string | null;
     stepKey: string | null;
     note?: string;
@@ -233,7 +233,10 @@ export class EmployeesService {
   }
 
   private async validateCapabilityStepKeys(
-    capabilities: Array<{ garmentTypeId: string | null; stepKey: string | null }>,
+    capabilities: Array<{
+      garmentTypeId: string | null;
+      stepKey: string | null;
+    }>,
   ): Promise<void> {
     const scopedStepCapabilities = capabilities.filter(
       (capability): capability is { garmentTypeId: string; stepKey: string } =>
@@ -253,23 +256,25 @@ export class EmployeesService {
       }
 
       const scopedPairs = Array.from(uniqueScopedPairs.values());
-      const matchedWorkflowSteps = await this.prisma.workflowStepTemplate.findMany({
-        where: {
-          deletedAt: null,
-          OR: scopedPairs.map((pair) => ({
-            garmentTypeId: pair.garmentTypeId,
-            stepKey: pair.stepKey,
-          })),
-        },
-        select: {
-          garmentTypeId: true,
-          stepKey: true,
-        },
-      });
+      const matchedWorkflowSteps =
+        await this.prisma.workflowStepTemplate.findMany({
+          where: {
+            deletedAt: null,
+            OR: scopedPairs.map((pair) => ({
+              garmentTypeId: pair.garmentTypeId,
+              stepKey: pair.stepKey,
+            })),
+          },
+          select: {
+            garmentTypeId: true,
+            stepKey: true,
+          },
+        });
 
       const matchedScopedSet = new Set(
         matchedWorkflowSteps.map(
-          (workflowStep) => `${workflowStep.garmentTypeId}::${workflowStep.stepKey}`,
+          (workflowStep) =>
+            `${workflowStep.garmentTypeId}::${workflowStep.stepKey}`,
         ),
       );
 
@@ -286,7 +291,9 @@ export class EmployeesService {
       new Set(
         capabilities
           .filter(
-            (capability): capability is { garmentTypeId: null; stepKey: string } =>
+            (
+              capability,
+            ): capability is { garmentTypeId: null; stepKey: string } =>
               !capability.garmentTypeId && Boolean(capability.stepKey),
           )
           .map((capability) => capability.stepKey),
@@ -297,14 +304,16 @@ export class EmployeesService {
       return;
     }
 
-    const matchedStepOnlyKeys = await this.prisma.workflowStepTemplate.findMany({
-      where: {
-        deletedAt: null,
-        stepKey: { in: stepOnlyKeys },
+    const matchedStepOnlyKeys = await this.prisma.workflowStepTemplate.findMany(
+      {
+        where: {
+          deletedAt: null,
+          stepKey: { in: stepOnlyKeys },
+        },
+        select: { stepKey: true },
+        distinct: ['stepKey'],
       },
-      select: { stepKey: true },
-      distinct: ['stepKey'],
-    });
+    );
 
     const matchedStepOnlySet = new Set(
       matchedStepOnlyKeys.map((workflowStep) => workflowStep.stepKey),
@@ -325,10 +334,16 @@ export class EmployeesService {
     stepKey: string | null,
   ): CapabilityMatchType | null {
     if (stepKey) {
-      if (capability.garmentTypeId === garmentTypeId && capability.stepKey === stepKey) {
+      if (
+        capability.garmentTypeId === garmentTypeId &&
+        capability.stepKey === stepKey
+      ) {
         return 'EXACT';
       }
-      if (capability.garmentTypeId === garmentTypeId && capability.stepKey === null) {
+      if (
+        capability.garmentTypeId === garmentTypeId &&
+        capability.stepKey === null
+      ) {
         return 'GARMENT';
       }
       if (capability.garmentTypeId === null && capability.stepKey === stepKey) {
@@ -345,7 +360,10 @@ export class EmployeesService {
   }
 
   private pickBestCapabilityMatch(
-    capabilities: Array<{ garmentTypeId: string | null; stepKey: string | null }>,
+    capabilities: Array<{
+      garmentTypeId: string | null;
+      stepKey: string | null;
+    }>,
     garmentTypeId: string,
     stepKey: string | null,
   ): CapabilityMatchType | null {
@@ -477,10 +495,13 @@ export class EmployeesService {
     const paymentType = params.change.paymentType;
     const monthlySalary =
       paymentType === PaymentType.MONTHLY_FIXED
-        ? params.change.monthlySalary ?? null
+        ? (params.change.monthlySalary ?? null)
         : null;
 
-    if (paymentType === PaymentType.MONTHLY_FIXED && (!monthlySalary || monthlySalary <= 0)) {
+    if (
+      paymentType === PaymentType.MONTHLY_FIXED &&
+      (!monthlySalary || monthlySalary <= 0)
+    ) {
       throw new BadRequestException(
         'monthlySalary is required for monthly payroll employees',
       );
@@ -582,7 +603,11 @@ export class EmployeesService {
       dateOfJoining,
     });
 
-    for (let attempt = 1; attempt <= MAX_EMPLOYEE_CODE_GENERATION_ATTEMPTS; attempt += 1) {
+    for (
+      let attempt = 1;
+      attempt <= MAX_EMPLOYEE_CODE_GENERATION_ATTEMPTS;
+      attempt += 1
+    ) {
       const employeeCode = await this.generateEmployeeCode(branchId);
 
       try {
@@ -596,7 +621,9 @@ export class EmployeesService {
               address: createEmployeeDto.address,
               city: createEmployeeDto.city,
               cnic: createEmployeeDto.cnic,
-              dateOfBirth: this.parseOptionalDate(createEmployeeDto.dateOfBirth),
+              dateOfBirth: this.parseOptionalDate(
+                createEmployeeDto.dateOfBirth,
+              ),
               dateOfJoining,
               designation: createEmployeeDto.designation,
               paymentType,
@@ -671,7 +698,10 @@ export class EmployeesService {
       return {
         data: results,
         total: results.length,
-        meta: buildPaginationMeta(results.length, { page: 1, limit: safeLimit }),
+        meta: buildPaginationMeta(results.length, {
+          page: 1,
+          limit: safeLimit,
+        }),
       };
     }
 
@@ -801,7 +831,9 @@ export class EmployeesService {
     const uniqueCapabilities = Array.from(uniqueCapabilityMap.values());
     const garmentTypeIds = uniqueCapabilities
       .map((capability) => capability.garmentTypeId)
-      .filter((garmentTypeId): garmentTypeId is string => Boolean(garmentTypeId));
+      .filter((garmentTypeId): garmentTypeId is string =>
+        Boolean(garmentTypeId),
+      );
 
     if (garmentTypeIds.length > 0) {
       const garmentsCount = await this.prisma.garmentType.count({
@@ -954,7 +986,8 @@ export class EmployeesService {
     const eligibleEmployees: EligibleEmployeeResult[] = [];
     for (const employee of employees) {
       const effectiveCompensation = employee.compensationHistory[0];
-      const paymentType = effectiveCompensation?.paymentType ?? employee.paymentType;
+      const paymentType =
+        effectiveCompensation?.paymentType ?? employee.paymentType;
 
       if (paymentType !== PaymentType.PER_PIECE) {
         continue;
@@ -1070,7 +1103,10 @@ export class EmployeesService {
     changedById: string,
   ): Promise<EmployeeCompensationHistoryEntry> {
     const employee = await this.findOne(id, branchId);
-    const effectiveFrom = this.parseRequiredDate(change.effectiveFrom, 'effectiveFrom');
+    const effectiveFrom = this.parseRequiredDate(
+      change.effectiveFrom,
+      'effectiveFrom',
+    );
 
     const created = await this.prisma.$transaction(async (tx) => {
       const createdChange = await this.applyCompensationChange(tx, {
@@ -1126,15 +1162,18 @@ export class EmployeesService {
         : existingEmployee.status;
     const employmentEndDate =
       updateEmployeeDto.employmentEndDate !== undefined
-        ? this.parseOptionalDate(updateEmployeeDto.employmentEndDate) ?? null
+        ? (this.parseOptionalDate(updateEmployeeDto.employmentEndDate) ?? null)
         : existingEmployee.employmentEndDate;
 
     return this.prisma.$transaction(async (tx) => {
-      const currentCompensation =
-        (await this.getEffectiveCompensationAt(tx, id, new Date())) ?? {
-          paymentType: existingEmployee.paymentType,
-          monthlySalary: existingEmployee.monthlySalary,
-        };
+      const currentCompensation = (await this.getEffectiveCompensationAt(
+        tx,
+        id,
+        new Date(),
+      )) ?? {
+        paymentType: existingEmployee.paymentType,
+        monthlySalary: existingEmployee.monthlySalary,
+      };
 
       const hasCompensationInput =
         updateEmployeeDto.paymentType !== undefined ||
@@ -1160,7 +1199,10 @@ export class EmployeesService {
               (currentCompensation.monthlySalary ?? null)
             : currentCompensation.monthlySalary !== null);
 
-        if (updateEmployeeDto.compensationEffectiveFrom !== undefined || snapshotChanged) {
+        if (
+          updateEmployeeDto.compensationEffectiveFrom !== undefined ||
+          snapshotChanged
+        ) {
           await this.applyCompensationChange(tx, {
             employeeId: id,
             change: {
@@ -1173,11 +1215,14 @@ export class EmployeesService {
         }
       }
 
-      const effectiveCompensation =
-        (await this.getEffectiveCompensationAt(tx, id, new Date())) ?? {
-          paymentType: existingEmployee.paymentType,
-          monthlySalary: existingEmployee.monthlySalary,
-        };
+      const effectiveCompensation = (await this.getEffectiveCompensationAt(
+        tx,
+        id,
+        new Date(),
+      )) ?? {
+        paymentType: existingEmployee.paymentType,
+        monthlySalary: existingEmployee.monthlySalary,
+      };
 
       const normalizedPayrollFields = this.ensureValidPayrollFields({
         paymentType: effectiveCompensation.paymentType,
@@ -1185,7 +1230,7 @@ export class EmployeesService {
         status,
         employmentEndDate:
           status === EmployeeStatus.LEFT
-            ? employmentEndDate ?? new Date()
+            ? (employmentEndDate ?? new Date())
             : employmentEndDate,
         dateOfJoining,
       });
@@ -1195,12 +1240,14 @@ export class EmployeesService {
         data: {
           fullName: updateEmployeeDto.fullName ?? existingEmployee.fullName,
           phone: updateEmployeeDto.phone ?? existingEmployee.phone,
-          fatherName: updateEmployeeDto.fatherName ?? existingEmployee.fatherName,
+          fatherName:
+            updateEmployeeDto.fatherName ?? existingEmployee.fatherName,
           phone2: updateEmployeeDto.phone2 ?? existingEmployee.phone2,
           address: updateEmployeeDto.address ?? existingEmployee.address,
           city: updateEmployeeDto.city ?? existingEmployee.city,
           cnic: updateEmployeeDto.cnic ?? existingEmployee.cnic,
-          designation: updateEmployeeDto.designation ?? existingEmployee.designation,
+          designation:
+            updateEmployeeDto.designation ?? existingEmployee.designation,
           accountNumber:
             updateEmployeeDto.accountNumber ?? existingEmployee.accountNumber,
           emergencyName:
@@ -1218,7 +1265,7 @@ export class EmployeesService {
           monthlySalary: normalizedPayrollFields.monthlySalary,
           employmentEndDate:
             status === EmployeeStatus.LEFT
-              ? normalizedPayrollFields.employmentEndDate ?? new Date()
+              ? (normalizedPayrollFields.employmentEndDate ?? new Date())
               : normalizedPayrollFields.employmentEndDate,
         },
       });
@@ -1321,10 +1368,11 @@ export class EmployeesService {
   async getItems(id: string, branchId: string | null, page = 1, limit = 20) {
     await this.findOne(id, branchId);
 
-    const { page: safePage, limit: safeLimit, skip } = this.normalizePagination(
-      page,
-      limit,
-    );
+    const {
+      page: safePage,
+      limit: safeLimit,
+      skip,
+    } = this.normalizePagination(page, limit);
     const [data, total] = await Promise.all([
       this.prisma.orderItem.findMany({
         where: {

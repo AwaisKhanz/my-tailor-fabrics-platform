@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Req } from '@nestjs/common';
 import { RatesService } from './rates.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';

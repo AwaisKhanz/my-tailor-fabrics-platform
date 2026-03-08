@@ -30,7 +30,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User no longer active or exists');
     }
     if (user.email.toLowerCase() !== payload.email.toLowerCase()) {
-      throw new UnauthorizedException('Token payload does not match user state');
+      throw new UnauthorizedException(
+        'Token payload does not match user state',
+      );
     }
     if (!isRole(user.role)) {
       throw new UnauthorizedException('User has invalid role state');

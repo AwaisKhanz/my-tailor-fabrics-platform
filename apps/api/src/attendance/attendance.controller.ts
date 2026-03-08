@@ -1,13 +1,5 @@
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Param,
-  Query,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, Req } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';

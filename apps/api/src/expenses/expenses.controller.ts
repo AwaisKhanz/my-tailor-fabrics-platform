@@ -21,10 +21,7 @@ import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
-import {
-  success,
-  successOnly,
-} from '../common/utils/response.util';
+import { success, successOnly } from '../common/utils/response.util';
 import { ADMIN_ROLES } from '@tbms/shared-constants';
 
 @Controller('expenses')

@@ -43,17 +43,17 @@ export class RolesGuard implements CanActivate {
 
     if (!requiredRoles || requiredRoles.length === 0) {
       const requiredPermissionsAll =
-        this.reflector.getAllAndOverride<Permission[]>(
-          PERMISSIONS_ALL_KEY,
-          [context.getHandler(), context.getClass()],
-        ) ?? [];
+        this.reflector.getAllAndOverride<Permission[]>(PERMISSIONS_ALL_KEY, [
+          context.getHandler(),
+          context.getClass(),
+        ]) ?? [];
       const requiredPermissionsAny =
-        this.reflector.getAllAndOverride<Permission[]>(
-          PERMISSIONS_ANY_KEY,
-          [context.getHandler(), context.getClass()],
-        ) ?? [];
+        this.reflector.getAllAndOverride<Permission[]>(PERMISSIONS_ANY_KEY, [
+          context.getHandler(),
+          context.getClass(),
+        ]) ?? [];
       const allowByPermissionsMetadata =
-        requiredPermissionsAll.length > 0 || requiredPermissionsAny.length > 0
+        requiredPermissionsAll.length > 0 || requiredPermissionsAny.length > 0;
       if (!allowByPermissionsMetadata) {
         const request = context.switchToHttp().getRequest<RolesGuardRequest>();
         emitSecurityEvent(this.logger, 'role_denied', {

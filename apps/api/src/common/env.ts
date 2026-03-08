@@ -74,7 +74,11 @@ export function getJwtRefreshSecret(): string {
 }
 
 export function getJwtExpiresIn(): number | StringValue {
-  return resolveDurationEnv('JWT_EXPIRES_IN', process.env.JWT_EXPIRES_IN, '15m');
+  return resolveDurationEnv(
+    'JWT_EXPIRES_IN',
+    process.env.JWT_EXPIRES_IN,
+    '15m',
+  );
 }
 
 export function getJwtRefreshExpiresIn(): number | StringValue {
@@ -93,7 +97,9 @@ export function getJwtRefreshCookieMaxAgeMs(): number {
 
   const parsed = ms(expiresIn);
   if (typeof parsed !== 'number' || parsed <= 0) {
-    throw new Error('JWT_REFRESH_EXPIRES_IN must resolve to a positive duration');
+    throw new Error(
+      'JWT_REFRESH_EXPIRES_IN must resolve to a positive duration',
+    );
   }
 
   return parsed;

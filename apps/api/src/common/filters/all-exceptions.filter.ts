@@ -33,7 +33,8 @@ function getHttpExceptionMessage(exception: HttpException): string {
     const responseMessage = isRecord(response) ? response.message : undefined;
     if (Array.isArray(responseMessage)) {
       const first = responseMessage.find(
-        (value): value is string => typeof value === 'string' && value.length > 0,
+        (value): value is string =>
+          typeof value === 'string' && value.length > 0,
       );
       if (first) {
         return first;
@@ -78,7 +79,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
           : getUnknownErrorMessage(exception) || 'Internal server error';
 
     const message =
-      isProductionEnvironment() && httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR
+      isProductionEnvironment() &&
+      httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR
         ? 'Internal server error'
         : exceptionMessage;
 
@@ -92,7 +94,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         `Unhandled Exception at ${responseBody.path}: ${responseBody.message}`,
-        exception instanceof Error ? exception.stack : JSON.stringify(exception),
+        exception instanceof Error
+          ? exception.stack
+          : JSON.stringify(exception),
       );
     } else {
       this.logger.warn(

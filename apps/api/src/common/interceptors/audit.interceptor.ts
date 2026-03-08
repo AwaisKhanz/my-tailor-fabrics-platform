@@ -118,10 +118,12 @@ export class AuditInterceptor implements NestInterceptor {
           }),
         ).pipe(concatMap(() => throwError(() => error))),
       ),
-      );
+    );
   }
 
-  private resolveMutationMethod(method: string | undefined): MutationMethod | null {
+  private resolveMutationMethod(
+    method: string | undefined,
+  ): MutationMethod | null {
     const normalized = (method ?? '').toUpperCase();
     if (normalized === 'POST') return 'POST';
     if (normalized === 'PUT') return 'PUT';
@@ -147,7 +149,10 @@ export class AuditInterceptor implements NestInterceptor {
     return pathOnly.toLowerCase();
   }
 
-  private resolveAction(method: MutationMethod, routePath: string): AuditAction {
+  private resolveAction(
+    method: MutationMethod,
+    routePath: string,
+  ): AuditAction {
     if (method === 'POST' && routePath.includes('/auth/login')) {
       return 'LOGIN';
     }
@@ -197,7 +202,10 @@ export class AuditInterceptor implements NestInterceptor {
     return AUDIT_UNKNOWN_ENTITY;
   }
 
-  private resolveEntityId(request: AuditRequest, entity: string): string | null {
+  private resolveEntityId(
+    request: AuditRequest,
+    entity: string,
+  ): string | null {
     const params = request.params ?? {};
 
     if (entity === 'OrderItem' && params.itemId) {
@@ -247,7 +255,9 @@ export class AuditInterceptor implements NestInterceptor {
         case 'OrderItem':
           return this.prisma.orderItem.findFirst({ where: { id: entityId } });
         case 'Task':
-          return this.prisma.orderItemTask.findFirst({ where: { id: entityId } });
+          return this.prisma.orderItemTask.findFirst({
+            where: { id: entityId },
+          });
         case 'Payment':
           return this.prisma.payment.findFirst({ where: { id: entityId } });
         case 'Expense':
@@ -449,7 +459,12 @@ export class AuditInterceptor implements NestInterceptor {
     response,
     error,
   }: PersistAuditLogInput) {
-    const actor = await this.resolveActorForAudit(request, action, response, body);
+    const actor = await this.resolveActorForAudit(
+      request,
+      action,
+      response,
+      body,
+    );
     if (!actor) {
       return;
     }
@@ -571,7 +586,10 @@ export class AuditInterceptor implements NestInterceptor {
     );
   }
 
-  private redactSensitiveFields(value: unknown, seen: WeakSet<object>): unknown {
+  private redactSensitiveFields(
+    value: unknown,
+    seen: WeakSet<object>,
+  ): unknown {
     if (value === null || value === undefined) {
       return value;
     }

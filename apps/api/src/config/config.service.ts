@@ -231,7 +231,9 @@ export class ConfigService {
           AND o."deletedAt" IS NULL
       `,
     );
-    const totalPayoutFromTasks = Number(totalPayoutFromTasksResult[0]?.total ?? 0);
+    const totalPayoutFromTasks = Number(
+      totalPayoutFromTasksResult[0]?.total ?? 0,
+    );
 
     const activeOrdersCount = await this.prisma.orderItem.count({
       where: {
@@ -520,7 +522,9 @@ export class ConfigService {
       },
     });
 
-    const incomingStepKeys = new Set(normalizedSteps.map((step) => step.stepKey));
+    const incomingStepKeys = new Set(
+      normalizedSteps.map((step) => step.stepKey),
+    );
     const removedStepKeys = existingSteps
       .map((step) => step.stepKey)
       .filter((stepKey) => !incomingStepKeys.has(stepKey));
@@ -734,12 +738,7 @@ export class ConfigService {
       includeArchived?: boolean;
     } = {},
   ) {
-    const {
-      search,
-      page = 1,
-      limit = 10,
-      includeArchived = false,
-    } = options;
+    const { search, page = 1, limit = 10, includeArchived = false } = options;
     const pagination = normalizePagination({
       page,
       limit,
@@ -880,7 +879,9 @@ export class ConfigService {
       data: createData,
     });
 
-    const defaultSection = await this.ensureDefaultMeasurementSection(category.id);
+    const defaultSection = await this.ensureDefaultMeasurementSection(
+      category.id,
+    );
     await this.prisma.measurementField.updateMany({
       where: { categoryId: category.id, sectionId: null, deletedAt: null },
       data: { sectionId: defaultSection.id },
@@ -1028,12 +1029,10 @@ export class ConfigService {
     const targetSectionId = dto.targetSectionId?.trim();
     const blockedReasons: { code: string; message: string }[] = [];
 
-    let targetSection:
-      | {
-          id: string;
-          categoryId: string;
-        }
-      | null = null;
+    let targetSection: {
+      id: string;
+      categoryId: string;
+    } | null = null;
 
     if (activeFieldCount > 0) {
       if (!targetSectionId) {
@@ -1110,7 +1109,7 @@ export class ConfigService {
         deletedSectionId: sectionId,
         movedFieldCount: activeFieldCount,
         targetSectionId: targetSection.id,
-      }
+      };
     }
 
     await this.prisma.measurementSection.update({
@@ -1223,9 +1222,10 @@ export class ConfigService {
       select: { id: true, categoryId: true },
     });
 
-    const customerMeasurementCount = await this.prisma.customerMeasurement.count({
-      where: { categoryId: field.categoryId },
-    });
+    const customerMeasurementCount =
+      await this.prisma.customerMeasurement.count({
+        where: { categoryId: field.categoryId },
+      });
 
     if (preview) {
       return {
@@ -1276,8 +1276,8 @@ export class ConfigService {
       },
     });
 
-    const historicalMeasurementCount = await this.prisma.customerMeasurement
-      .count({
+    const historicalMeasurementCount =
+      await this.prisma.customerMeasurement.count({
         where: { categoryId: id },
       });
 

@@ -255,7 +255,10 @@ export class ConfigController {
     @Param('id') categoryId: string,
     @Body() dto: CreateMeasurementSectionDto,
   ) {
-    const data = await this.configService.addMeasurementSection(categoryId, dto);
+    const data = await this.configService.addMeasurementSection(
+      categoryId,
+      dto,
+    );
     return success(data);
   }
 
@@ -266,7 +269,10 @@ export class ConfigController {
     @Param('id') sectionId: string,
     @Body() dto: UpdateMeasurementSectionDto,
   ) {
-    const data = await this.configService.updateMeasurementSection(sectionId, dto);
+    const data = await this.configService.updateMeasurementSection(
+      sectionId,
+      dto,
+    );
     return success(data);
   }
 

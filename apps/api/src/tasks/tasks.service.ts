@@ -81,7 +81,10 @@ export class TasksService {
         return { created: 0, updated: 0, deleted: 0 };
       }
 
-      const deleted = await this.deactivateTaskEarningEntries(tx, params.taskId);
+      const deleted = await this.deactivateTaskEarningEntries(
+        tx,
+        params.taskId,
+      );
       return { created: 0, updated: 0, deleted };
     }
 
@@ -482,7 +485,10 @@ export class TasksService {
         include: { assignedEmployee: { select: { fullName: true, id: true } } },
       });
 
-      if (updatedTask.status === TaskStatus.DONE && updatedTask.assignedEmployeeId) {
+      if (
+        updatedTask.status === TaskStatus.DONE &&
+        updatedTask.assignedEmployeeId
+      ) {
         await this.syncTaskEarningEntry(tx, {
           taskId: updatedTask.id,
           employeeId: updatedTask.assignedEmployeeId,

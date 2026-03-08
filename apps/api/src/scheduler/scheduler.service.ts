@@ -49,26 +49,24 @@ export class SchedulerService {
     // Process them sequentially to avoid locking the whole DB
     for (const order of overdueCandidates) {
       try {
-        await this.prisma.$transaction(
-          async (tx: Prisma.TransactionClient) => {
-            // 1. Log transition
-            await tx.orderStatusHistory.create({
-              data: {
-                orderId: order.id,
-                fromStatus: order.status,
-                toStatus: OrderStatus.OVERDUE,
-                actor: 'SYSTEM',
-                note: 'Automated CRON task transitioned to OVERDUE.',
-              },
-            });
+        await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+          // 1. Log transition
+          await tx.orderStatusHistory.create({
+            data: {
+              orderId: order.id,
+              fromStatus: order.status,
+              toStatus: OrderStatus.OVERDUE,
+              actor: 'SYSTEM',
+              note: 'Automated CRON task transitioned to OVERDUE.',
+            },
+          });
 
-            // 2. Update status
-            await tx.order.update({
-              where: { id: order.id },
-              data: { status: OrderStatus.OVERDUE },
-            });
-          },
-        );
+          // 2. Update status
+          await tx.order.update({
+            where: { id: order.id },
+            data: { status: OrderStatus.OVERDUE },
+          });
+        });
         successCount++;
       } catch (error: unknown) {
         this.logger.error(
@@ -101,7 +99,9 @@ export class SchedulerService {
     });
 
     if (branches.length === 0) {
-      this.logger.log('No active branches found for salary accrual generation.');
+      this.logger.log(
+        'No active branches found for salary accrual generation.',
+      );
       return;
     }
 

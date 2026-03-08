@@ -35,9 +35,7 @@ const LEDGER_ENTRY_TYPE_TO_PRISMA: Record<
 export class LedgerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private parseLedgerEntryType(
-    rawType?: string,
-  ): LedgerEntryType | undefined {
+  private parseLedgerEntryType(rawType?: string): LedgerEntryType | undefined {
     if (!rawType) {
       return undefined;
     }
@@ -281,7 +279,9 @@ export class LedgerService {
       });
 
       if (!entry) {
-        throw new NotFoundException('Ledger entry not found or already reversed');
+        throw new NotFoundException(
+          'Ledger entry not found or already reversed',
+        );
       }
 
       const isSystemGenerated =

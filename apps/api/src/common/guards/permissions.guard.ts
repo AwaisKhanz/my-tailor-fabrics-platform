@@ -77,17 +77,32 @@ export class PermissionsGuard implements CanActivate {
     const role = request.user?.role;
 
     if (!isRole(role)) {
-      this.logDenied('invalid_or_missing_role', request, requireAll, requireAny);
+      this.logDenied(
+        'invalid_or_missing_role',
+        request,
+        requireAll,
+        requireAny,
+      );
       return false;
     }
 
     if (!hasAllPermissions(role, requireAll)) {
-      this.logDenied('missing_required_all_permissions', request, requireAll, requireAny);
+      this.logDenied(
+        'missing_required_all_permissions',
+        request,
+        requireAll,
+        requireAny,
+      );
       return false;
     }
 
     if (!hasAnyPermission(role, requireAny)) {
-      this.logDenied('missing_required_any_permissions', request, requireAll, requireAny);
+      this.logDenied(
+        'missing_required_any_permissions',
+        request,
+        requireAll,
+        requireAny,
+      );
       return false;
     }
 

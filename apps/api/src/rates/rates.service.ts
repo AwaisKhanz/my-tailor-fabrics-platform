@@ -15,7 +15,9 @@ const MAX_LIMIT = 100;
 export class RatesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private buildSearchWhere(search?: string): Prisma.RateCardWhereInput | undefined {
+  private buildSearchWhere(
+    search?: string,
+  ): Prisma.RateCardWhereInput | undefined {
     const searchTerm = search?.trim();
     if (!searchTerm) {
       return undefined;

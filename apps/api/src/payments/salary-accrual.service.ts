@@ -4,11 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  LedgerEntryType,
-  PaymentType,
-  Prisma,
-} from '@prisma/client';
+import { LedgerEntryType, PaymentType, Prisma } from '@prisma/client';
 import type {
   SalaryAccrualGenerationResult,
   SalaryAccrualSource,
@@ -59,7 +55,9 @@ export class SalaryAccrualService {
     const month = Number(parts.find((part) => part.type === 'month')?.value);
 
     if (!Number.isInteger(year) || !Number.isInteger(month)) {
-      throw new BadRequestException('Could not resolve payroll month in configured timezone');
+      throw new BadRequestException(
+        'Could not resolve payroll month in configured timezone',
+      );
     }
 
     return { year, month };
@@ -81,7 +79,9 @@ export class SalaryAccrualService {
 
   private resolveTargetPeriod(month?: string): PayrollPeriod {
     if (!month) {
-      const { year, month: localMonth } = this.getMonthPartsInTimezone(new Date());
+      const { year, month: localMonth } = this.getMonthPartsInTimezone(
+        new Date(),
+      );
       const previousMonth = localMonth === 1 ? 12 : localMonth - 1;
       const previousYear = localMonth === 1 ? year - 1 : year;
       return this.buildPeriod(previousYear, previousMonth);
@@ -98,7 +98,11 @@ export class SalaryAccrualService {
   }
 
   private toUtcDayTimestamp(value: Date): number {
-    return Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
+    return Date.UTC(
+      value.getUTCFullYear(),
+      value.getUTCMonth(),
+      value.getUTCDate(),
+    );
   }
 
   private getEligibleDaysInPeriod(params: {
@@ -174,24 +178,27 @@ export class SalaryAccrualService {
     });
 
     if (params.employeeId && employees.length === 0) {
-      throw new NotFoundException('Employee not found in selected branch scope');
+      throw new NotFoundException(
+        'Employee not found in selected branch scope',
+      );
     }
 
-    const compensationWindows = await this.prisma.employeeCompensationHistory.findMany({
-      where: {
-        employeeId: { in: employees.map((employee) => employee.id) },
-        effectiveFrom: { lte: period.end },
-        OR: [{ effectiveTo: null }, { effectiveTo: { gte: period.start } }],
-      },
-      select: {
-        employeeId: true,
-        paymentType: true,
-        monthlySalary: true,
-        effectiveFrom: true,
-        effectiveTo: true,
-      },
-      orderBy: [{ employeeId: 'asc' }, { effectiveFrom: 'asc' }],
-    });
+    const compensationWindows =
+      await this.prisma.employeeCompensationHistory.findMany({
+        where: {
+          employeeId: { in: employees.map((employee) => employee.id) },
+          effectiveFrom: { lte: period.end },
+          OR: [{ effectiveTo: null }, { effectiveTo: { gte: period.start } }],
+        },
+        select: {
+          employeeId: true,
+          paymentType: true,
+          monthlySalary: true,
+          effectiveFrom: true,
+          effectiveTo: true,
+        },
+        orderBy: [{ employeeId: 'asc' }, { effectiveFrom: 'asc' }],
+      });
 
     const compensationByEmployee = new Map<string, CompensationWindow[]>();
     for (const window of compensationWindows) {
@@ -222,7 +229,11 @@ export class SalaryAccrualService {
       );
 
       if (monthlyWindows.length === 0) {
-        this.pushSkippedItem(result, employee, 'NO_MONTHLY_COMPENSATION_WINDOW');
+        this.pushSkippedItem(
+          result,
+          employee,
+          'NO_MONTHLY_COMPENSATION_WINDOW',
+        );
         continue;
       }
 
@@ -248,10 +259,14 @@ export class SalaryAccrualService {
         ];
 
         const rangeStart = new Date(
-          Math.max(...rangeStartCandidates.map((candidate) => candidate.getTime())),
+          Math.max(
+            ...rangeStartCandidates.map((candidate) => candidate.getTime()),
+          ),
         );
         const rangeEnd = new Date(
-          Math.min(...rangeEndCandidates.map((candidate) => candidate.getTime())),
+          Math.min(
+            ...rangeEndCandidates.map((candidate) => candidate.getTime()),
+          ),
         );
 
         const windowEligibleDays = this.getEligibleDaysInPeriod({

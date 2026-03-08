@@ -1,15 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type {
-  Branch,
-  Customer,
-  Employee,
-  Expense,
-  Order,
-  Payment,
-  Prisma,
-  User,
-} from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import {
   createPdfStream,
   drawPdfHeader,
@@ -19,10 +10,6 @@ import {
   getPdfContentWidth,
   PdfDocument,
 } from '../common/utils/pdf-render.util';
-
-type OrdersPdfRow = Order & { customer: Customer; branch: Branch };
-type PaymentsPdfRow = Payment & { employee: Employee; processedBy: User };
-type ExpensesPdfRow = Expense;
 
 function getColumnWidths(totalWidth: number, ratios: number[]): number[] {
   const widths = ratios.map((ratio) => totalWidth * ratio);
@@ -75,9 +62,10 @@ export class PdfExportService {
 
         renderHeader(doc);
 
-        const columnWidths = getColumnWidths(getPdfContentWidth(doc), [
-          0.15, 0.15, 0.2, 0.15, 0.15, 0.2,
-        ]);
+        const columnWidths = getColumnWidths(
+          getPdfContentWidth(doc),
+          [0.15, 0.15, 0.2, 0.15, 0.15, 0.2],
+        );
 
         drawPdfTable(
           doc,
@@ -165,9 +153,10 @@ export class PdfExportService {
 
       renderHeader(doc);
 
-      const columnWidths = getColumnWidths(getPdfContentWidth(doc), [
-        0.25, 0.35, 0.2, 0.2,
-      ]);
+      const columnWidths = getColumnWidths(
+        getPdfContentWidth(doc),
+        [0.25, 0.35, 0.2, 0.2],
+      );
 
       drawPdfTable(
         doc,
@@ -186,7 +175,8 @@ export class PdfExportService {
             header: 'Amount (Rs)',
             width: columnWidths[2],
             align: 'right',
-            value: (row) => formatPdfCurrency(row.amount, { withPrefix: false }),
+            value: (row) =>
+              formatPdfCurrency(row.amount, { withPrefix: false }),
           },
           {
             header: 'Ref/Note',
@@ -237,9 +227,10 @@ export class PdfExportService {
 
       renderHeader(doc);
 
-      const columnWidths = getColumnWidths(getPdfContentWidth(doc), [
-        0.2, 0.2, 0.6,
-      ]);
+      const columnWidths = getColumnWidths(
+        getPdfContentWidth(doc),
+        [0.2, 0.2, 0.6],
+      );
 
       drawPdfTable(
         doc,
@@ -253,7 +244,8 @@ export class PdfExportService {
             header: 'Amount (Rs)',
             width: columnWidths[1],
             align: 'right',
-            value: (row) => formatPdfCurrency(row.amount, { withPrefix: false }),
+            value: (row) =>
+              formatPdfCurrency(row.amount, { withPrefix: false }),
           },
           {
             header: 'Description',

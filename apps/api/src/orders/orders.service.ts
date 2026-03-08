@@ -67,13 +67,11 @@ const ADDON_TYPE_TO_PRISMA: Record<AddonType, PrismaAddonType> = {
   [AddonType.DESIGN_CHARGE]: PrismaAddonType.DESIGN_CHARGE,
 };
 
-const FABRIC_SOURCE_TO_PRISMA: Record<
-  SharedFabricSource,
-  PrismaFabricSource
-> = {
-  [SharedFabricSource.SHOP]: PrismaFabricSource.SHOP,
-  [SharedFabricSource.CUSTOMER]: PrismaFabricSource.CUSTOMER,
-};
+const FABRIC_SOURCE_TO_PRISMA: Record<SharedFabricSource, PrismaFabricSource> =
+  {
+    [SharedFabricSource.SHOP]: PrismaFabricSource.SHOP,
+    [SharedFabricSource.CUSTOMER]: PrismaFabricSource.CUSTOMER,
+  };
 
 @Injectable()
 export class OrdersService {
@@ -114,9 +112,7 @@ export class OrdersService {
     return ADDON_TYPE_TO_PRISMA[type];
   }
 
-  private toPrismaFabricSource(
-    source: SharedFabricSource,
-  ): PrismaFabricSource {
+  private toPrismaFabricSource(source: SharedFabricSource): PrismaFabricSource {
     return FABRIC_SOURCE_TO_PRISMA[source];
   }
 
@@ -774,7 +770,9 @@ export class OrdersService {
         },
       });
       if (!payment) {
-        throw new NotFoundException('Order payment not found or already reversed');
+        throw new NotFoundException(
+          'Order payment not found or already reversed',
+        );
       }
 
       const reversedAt = new Date();
