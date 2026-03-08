@@ -1,3 +1,5 @@
+const isProduction = process.env.NODE_ENV === 'production';
+
 function resolveOptionalEnv(name) {
   const value = process.env[name];
   if (typeof value !== 'string') {
@@ -6,6 +8,19 @@ function resolveOptionalEnv(name) {
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function resolveSeedSecret(name, devFallback) {
+  const value = resolveOptionalEnv(name);
+  if (value) {
+    return value;
+  }
+
+  if (isProduction) {
+    throw new Error(`${name} is required when running seeds in production`);
+  }
+
+  return devFallback;
 }
 
 function parseRequestedTargets(argv) {
@@ -26,7 +41,7 @@ function getSeedAdminConfig() {
     email:
       resolveOptionalEnv('SEED_ADMIN_EMAIL') ??
       'admin@mytailorandfabrics.com',
-    password: resolveOptionalEnv('SEED_ADMIN_PASSWORD') ?? 'admin123',
+    password: resolveSeedSecret('SEED_ADMIN_PASSWORD', 'admin123'),
     name: resolveOptionalEnv('SEED_ADMIN_NAME') ?? 'Main Admin',
   };
 }

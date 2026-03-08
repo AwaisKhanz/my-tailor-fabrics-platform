@@ -196,17 +196,18 @@ List available seeds:
 npm run prisma:seed:list
 ```
 
-Run the default admin seed:
+Run the admin seed in production with an explicit password:
 
 ```bash
+SEED_ADMIN_PASSWORD='replace-with-a-secure-password' \
 npm run prisma:seed
 ```
 
-Override seeded admin credentials if needed:
+Override email and display name if needed:
 
 ```bash
 SEED_ADMIN_EMAIL=admin@mytailorandfabrics.com \
-SEED_ADMIN_PASSWORD=admin123 \
+SEED_ADMIN_PASSWORD='replace-with-a-secure-password' \
 SEED_ADMIN_NAME="Main Admin" \
 npm run prisma:seed
 ```
@@ -216,7 +217,8 @@ Important:
 1. run Prisma commands in `api-backend`, not `web-frontend`
 2. run them from `/app`, not `/app/apps`
 3. `npm run prisma:seed` now defaults to the `admin` seed and does not depend on `ts-node`
-4. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `npm run prisma:migrate:deploy` before assuming the database is broken
+4. in production, `SEED_ADMIN_PASSWORD` is required and there is no insecure fallback password
+5. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `npm run prisma:migrate:deploy` before assuming the database is broken
 
 ## Domain and DNS
 

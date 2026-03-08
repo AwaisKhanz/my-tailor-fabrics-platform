@@ -32,9 +32,4 @@ export const designTypesApi = {
     const response = await api.delete<ApiResponse<void>>(`/design-types/${id}`);
     return response.data;
   },
-
-  seed: async () => {
-    const response = await api.post<ApiResponse<void>>('/design-types/seed');
-    return response.data;
-  }
 };

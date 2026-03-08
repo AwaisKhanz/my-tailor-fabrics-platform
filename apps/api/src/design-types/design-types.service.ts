@@ -99,21 +99,4 @@ export class DesignTypesService {
       data: { deletedAt: new Date() },
     });
   }
-
-  async seedDefaults() {
-    const defaults = [
-      { name: 'Simple', defaultPrice: 20000, defaultRate: 10000, sortOrder: 1 },
-      { name: 'Heavy', defaultPrice: 50000, defaultRate: 25000, sortOrder: 2 },
-      { name: 'Custom', defaultPrice: 0, defaultRate: 0, sortOrder: 3 },
-    ];
-
-    for (const d of defaults) {
-      const exists = await this.prisma.designType.findFirst({
-        where: { name: d.name, deletedAt: null },
-      });
-      if (!exists) {
-        await this.prisma.designType.create({ data: d });
-      }
-    }
-  }
 }

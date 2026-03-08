@@ -19,7 +19,6 @@ import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
-  SUPER_ADMIN_ONLY_ROLES,
   PERMISSION,
 } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
@@ -70,14 +69,6 @@ export class DesignTypesController {
       search,
     );
     return success(data);
-  }
-
-  @Post('seed')
-  @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions(PERMISSION['designTypes.manage'])
-  async seed() {
-    await this.designTypesService.seedDefaults();
-    return successOnly();
   }
 
   @Get(':id')

@@ -67,9 +67,11 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 
 1. Do not read `process.env` directly in arbitrary backend files.
 2. All backend env access must flow through `apps/api/src/common/env.ts`.
-3. Production-only required values must fail fast through typed env helpers.
-4. Public mail endpoints, scheduler behavior, proxy trust, and security-sensitive flags must remain centrally configured.
-5. Runtime bootstrap security belongs in `main.ts`.
+3. Seed entrypoints may use `apps/api/prisma/seed-env.js` as the dedicated seed-only env boundary.
+   Do not read `process.env` directly outside `env.ts` or `seed-env.js`.
+4. Production-only required values must fail fast through typed env helpers.
+5. Public mail endpoints, scheduler behavior, proxy trust, and security-sensitive flags must remain centrally configured.
+6. Runtime bootstrap security belongs in `main.ts`.
    Do not bypass:
    - helmet
    - CORS policy
@@ -102,8 +104,10 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 1. Production-safe seeds must run without dev-only tooling.
 2. Keep seeds under `apps/api/prisma/`.
 3. Seed entrypoints must remain runnable in the production API container.
-4. Default seeds should be narrowly scoped and operationally safe.
-5. If a new seed becomes part of normal operations, document it in the deployment guide.
+4. Runtime API routes must not be used as seed endpoints.
+5. Default seeds should be narrowly scoped and operationally safe.
+6. Production seed secrets must never fall back to known default credentials.
+7. If a new seed becomes part of normal operations, document it in the deployment guide.
 
 ## 11. Backend Verification Rules
 
