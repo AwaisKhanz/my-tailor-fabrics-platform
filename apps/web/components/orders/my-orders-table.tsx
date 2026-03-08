@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { ItemStatus } from "@tbms/shared-types";
-import { ITEM_STATUS_LABELS } from "@tbms/shared-constants";
+import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
@@ -15,16 +15,6 @@ interface MyOrdersTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
 }
-
-const ITEM_STATUS_BADGE: Record<
-  ItemStatus,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  [ItemStatus.PENDING]: "outline",
-  [ItemStatus.IN_PROGRESS]: "default",
-  [ItemStatus.COMPLETED]: "secondary",
-  [ItemStatus.CANCELLED]: "destructive",
-};
 
 function parseItemStatus(value: string): ItemStatus {
   switch (value) {
@@ -85,9 +75,8 @@ export function MyOrdersTable({
         cell: (item) => {
           const status = parseItemStatus(item.status);
           return (
-            <Badge variant={ITEM_STATUS_BADGE[status]} size="xs">
-              {ITEM_STATUS_LABELS[status] ||
-                ITEM_STATUS_LABELS[ItemStatus.PENDING]}
+            <Badge variant={ITEM_STATUS_CONFIG[status].variant} size="xs">
+              {ITEM_STATUS_CONFIG[status].label}
             </Badge>
           );
         },

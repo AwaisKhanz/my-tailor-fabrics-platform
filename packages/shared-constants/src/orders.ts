@@ -28,6 +28,28 @@ export const ITEM_STATUS_LABELS: Record<ItemStatus, string> = {
   [ItemStatus.CANCELLED]: 'Cancelled',
 };
 
+export const ITEM_STATUS_CONFIG: Record<
+  ItemStatus,
+  { label: string; variant: BadgeVariant }
+> = {
+  [ItemStatus.PENDING]: {
+    label: ITEM_STATUS_LABELS[ItemStatus.PENDING],
+    variant: 'outline',
+  },
+  [ItemStatus.IN_PROGRESS]: {
+    label: ITEM_STATUS_LABELS[ItemStatus.IN_PROGRESS],
+    variant: 'info',
+  },
+  [ItemStatus.COMPLETED]: {
+    label: ITEM_STATUS_LABELS[ItemStatus.COMPLETED],
+    variant: 'success',
+  },
+  [ItemStatus.CANCELLED]: {
+    label: ITEM_STATUS_LABELS[ItemStatus.CANCELLED],
+    variant: 'destructive',
+  },
+};
+
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TaskStatus.PENDING]: 'Pending',
   [TaskStatus.IN_PROGRESS]: 'In Progress',

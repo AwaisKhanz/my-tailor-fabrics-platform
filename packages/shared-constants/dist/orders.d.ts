@@ -5,6 +5,10 @@ export declare const ORDER_STATUS_CONFIG: Record<OrderStatus, {
 }>;
 export declare const OPEN_ORDER_STATUSES: readonly [OrderStatus.NEW, OrderStatus.IN_PROGRESS, OrderStatus.READY, OrderStatus.OVERDUE];
 export declare const ITEM_STATUS_LABELS: Record<ItemStatus, string>;
+export declare const ITEM_STATUS_CONFIG: Record<ItemStatus, {
+    label: string;
+    variant: BadgeVariant;
+}>;
 export declare const TASK_STATUS_LABELS: Record<TaskStatus, string>;
 export declare const TASK_STATUS_CONFIG: Record<TaskStatus, {
     label: string;
