@@ -146,6 +146,11 @@ After the first deployment:
 3. This deployment path currently omits the pre-deploy migration job because the App Platform job was failing before service rollout. There were no schema changes in this cutover, so skipping it is safe for this release. Run `npm run migrate:deploy:api` manually from a trusted environment when a future release includes Prisma migrations.
 4. If first-party file uploads are added later, use Spaces or another external object store.
 5. CI now checks the env contract and builds both Docker images via [ci.yml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.github/workflows/ci.yml).
+6. The production-safe seed command is `npm run prisma:seed`. It defaults to the `admin` seed and works inside the App Platform `api-backend` console because Prisma now runs a plain Node entrypoint instead of `ts-node`.
+7. To inspect or target seeds later, use:
+   - `npm run prisma:seed:list`
+   - `SEED_TARGET=admin npm run prisma:seed`
+   - optional overrides: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME`
 
 ## References
 
