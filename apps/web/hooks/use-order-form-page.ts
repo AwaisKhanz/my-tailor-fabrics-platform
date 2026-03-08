@@ -57,7 +57,7 @@ export function useOrderFormPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const form = useForm<OrderFormValues>({
+  const form = useForm<OrderFormValues, unknown, OrderFormValues>({
     resolver: typedZodResolver(orderSchema),
     defaultValues: {
       customerId: "",

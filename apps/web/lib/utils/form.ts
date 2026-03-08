@@ -1,18 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Resolver } from "react-hook-form";
-import type { ZodSchema } from "zod";
+import type { FieldValues, Resolver } from "react-hook-form";
+import type * as z4 from "zod/v4/core";
 
 /**
- * Keep the resolver compatibility cast centralized.
- * This avoids leaking `as` assertions into individual form hooks/components.
+ * React Hook Form expects form state to use the schema's parsed output shape in this app.
+ * Keep the unavoidable resolver cast narrow and local at this framework boundary.
  */
 export function typedZodResolver<
-  T extends Record<string, unknown>,
+  TSchema extends z4.$ZodType<unknown, FieldValues>,
+  Context = unknown,
 >(
-  schema: ZodSchema<T>
-): Resolver<T> {
-  const resolver = zodResolver(
-    schema as unknown as Parameters<typeof zodResolver>[0]
-  );
-  return resolver as Resolver<T>;
+  schema: TSchema,
+): Resolver<z4.output<TSchema> & FieldValues, Context, z4.output<TSchema>> {
+  return zodResolver(schema) as Resolver<
+    z4.output<TSchema> & FieldValues,
+    Context,
+    z4.output<TSchema>
+  >;
 }
