@@ -76,6 +76,37 @@ export class LedgerService {
     }
   }
 
+  private async queryBalanceSummary(
+    employeeId: string,
+    client: PrismaService | Prisma.TransactionClient,
+    branchId?: string | null,
+  ): Promise<LedgerSummary> {
+    const branchCondition = branchId
+      ? Prisma.sql`AND "branchId" = ${branchId}`
+      : Prisma.empty;
+
+    const result = await client.$queryRaw<
+      [{ total_earned: bigint; total_deducted: bigint }]
+    >`
+      SELECT
+        COALESCE(SUM(amount) FILTER (WHERE amount > 0), 0) AS total_earned,
+        COALESCE(SUM(amount) FILTER (WHERE amount < 0), 0) AS total_deducted
+      FROM "EmployeeLedgerEntry"
+      WHERE "employeeId" = ${employeeId}
+        AND "deletedAt" IS NULL
+        ${branchCondition}
+    `;
+
+    const totalEarned = Number(result[0]?.total_earned ?? 0);
+    const totalDeducted = Number(result[0]?.total_deducted ?? 0);
+
+    return {
+      totalEarned,
+      totalDeducted: Math.abs(totalDeducted),
+      currentBalance: totalEarned + totalDeducted,
+    };
+  }
+
   /**
    * Create a single ledger entry.
    * Positive amount = EARNING / SALARY / ADJUSTMENT.
@@ -109,31 +140,11 @@ export class LedgerService {
   async getBalance(
     employeeId: string,
     branchId?: string | null,
+    tx?: Prisma.TransactionClient,
   ): Promise<LedgerSummary> {
-    await this.assertEmployeeScope(employeeId, branchId);
-    const branchCondition = branchId
-      ? Prisma.sql`AND "branchId" = ${branchId}`
-      : Prisma.empty;
-
-    const result = await this.prisma.$queryRaw<
-      [{ total_earned: bigint; total_deducted: bigint }]
-    >`
-      SELECT
-        COALESCE(SUM(amount) FILTER (WHERE amount > 0), 0) AS total_earned,
-        COALESCE(SUM(amount) FILTER (WHERE amount < 0), 0) AS total_deducted
-      FROM "EmployeeLedgerEntry"
-      WHERE "employeeId" = ${employeeId}
-        AND "deletedAt" IS NULL
-        ${branchCondition}
-    `;
-
-    const totalEarned = Number(result[0]?.total_earned ?? 0);
-    const totalDeducted = Number(result[0]?.total_deducted ?? 0); // negative number
-    return {
-      totalEarned,
-      totalDeducted: Math.abs(totalDeducted),
-      currentBalance: totalEarned + totalDeducted, // totalDeducted is already negative
-    };
+    const client = tx ?? this.prisma;
+    await this.assertEmployeeScope(employeeId, branchId, tx);
+    return this.queryBalanceSummary(employeeId, client, branchId);
   }
 
   /**

@@ -103,16 +103,16 @@ export class PaymentsService {
       try {
         return await this.prisma.$transaction(
           async (tx) => {
-            const aggregate = await tx.employeeLedgerEntry.aggregate({
-              where: { employeeId, deletedAt: null },
-              _sum: { amount: true },
-            });
+            const balance = await this.ledgerService.getBalance(
+              employeeId,
+              actorBranchId,
+              tx,
+            );
 
-            const currentBalance = aggregate._sum.amount ?? 0;
-            if (amount > currentBalance) {
+            if (amount > balance.currentBalance) {
               throw new UnprocessableEntityException({
                 code: 'PAYMENT_EXCEEDS_BALANCE',
-                message: `Cannot disburse ${amount / 100}. Balance is ${currentBalance / 100}`,
+                message: `Cannot disburse ${amount / 100}. Balance is ${balance.currentBalance / 100}`,
               });
             }
 
