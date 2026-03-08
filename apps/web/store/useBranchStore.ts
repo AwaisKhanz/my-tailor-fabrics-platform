@@ -1,5 +1,8 @@
 import { create } from 'zustand';
-import Cookies from 'js-cookie';
+import {
+  readActiveBranchCookie,
+  writeActiveBranchCookie,
+} from '@/lib/branch-context';
 
 interface Branch {
   id: string;
@@ -20,7 +23,7 @@ export const useBranchStore = create<BranchState>((set) => ({
   availableBranches: [],
 
   setActiveBranch: (branchId: string) => {
-    Cookies.set('tbms_active_branch', branchId, { expires: 7 });
+    writeActiveBranchCookie(branchId);
     set({ activeBranchId: branchId });
   },
 
@@ -29,7 +32,7 @@ export const useBranchStore = create<BranchState>((set) => ({
   },
 
   hydrate: () => {
-    const savedBranchId = Cookies.get('tbms_active_branch');
+    const savedBranchId = readActiveBranchCookie();
     if (savedBranchId) {
       set({ activeBranchId: savedBranchId });
     }

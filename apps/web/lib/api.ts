@@ -5,6 +5,7 @@ import { getSession, signOut } from 'next-auth/react';
 import { getWebApiBaseUrl } from './env';
 import { logDevError } from './logger';
 import { isTokenExpiringSoon } from './auth/jwt';
+import { readActiveBranchCookie } from './branch-context';
 
 export const API_BASE_URL = getWebApiBaseUrl();
 const AUTH_REDIRECT_DEBOUNCE_MS = 5000;
@@ -192,16 +193,9 @@ api.interceptors.request.use(
       setAuthorizationHeader(config.headers, token);
     }
     
-    // Auth role/branch info is now in session
-    // But for SUPER_ADMINs, we respect the globally selected branch id from cookies (Stripe-like switching)
-    const getCookieValue = (name: string) => {
-      if (typeof document === 'undefined') return null;
-      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      return match ? match[2] : null;
-    };
-    
-    // We get the selected global branch identifier if one was set by the Admin
-    const selectedBranchId = getCookieValue('tbms_active_branch');
+    // Auth role/branch info is now in session.
+    // For cross-branch admin flows, prefer the branch explicitly selected in the UI.
+    const selectedBranchId = readActiveBranchCookie();
     const activeBranchId = selectedBranchId || session?.user?.branchId;
     
     if (activeBranchId) {

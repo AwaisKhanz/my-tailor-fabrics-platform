@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Cookies from "js-cookie";
 import { useAuthz } from "@/hooks/use-authz";
+import { readActiveBranchCookie } from "@/lib/branch-context";
 import { cn } from "@/lib/utils";
 import { PERMISSION } from '@tbms/shared-constants';
 
@@ -46,7 +46,7 @@ export function BranchSelector({ className }: BranchSelectorProps) {
             setAvailableBranches(response.data);
 
             // Auto-select first branch if none selected
-            const savedBranchId = Cookies.get("tbms_active_branch");
+            const savedBranchId = readActiveBranchCookie();
             if (!savedBranchId && response.data.length > 0) {
               setActiveBranch(response.data[0].id);
             }
