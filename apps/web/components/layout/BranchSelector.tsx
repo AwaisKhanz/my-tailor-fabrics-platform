@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useBranchStore } from "@/store/useBranchStore";
 import { branchesApi } from "@/lib/api/branches";
