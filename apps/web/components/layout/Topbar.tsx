@@ -19,13 +19,14 @@ import {
 import Link from "next/link";
 import { useAuthz } from "@/hooks/use-authz";
 import { siteConfig } from "@/lib/config";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function Topbar() {
   const { data: session } = useSession();
   const { canAll } = useAuthz();
   const user = session?.user;
   const role = user?.role;
-  const canAccessSettings = canAll(["users.manage"]);
+  const canAccessSettings = canAll([PERMISSION["users.manage"]]);
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-4 lg:px-5 text-primary-foreground">

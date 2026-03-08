@@ -11,7 +11,7 @@ import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { isPublicMailEndpointsEnabled } from '../common/env';
 import { success } from '../common/utils/response.util';
-import { SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
+import { SUPER_ADMIN_ONLY_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { SendTestMailDto } from './dto/send-test-mail.dto';
 
 @Controller('mail')
@@ -34,7 +34,7 @@ export class MailController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('mail.manage')
+  @RequirePermissions(PERMISSION['mail.manage'])
   @Get('status')
   getStatus() {
     const data = this.mailService.getStatus();
@@ -42,7 +42,7 @@ export class MailController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('mail.manage')
+  @RequirePermissions(PERMISSION['mail.manage'])
   @Get('auth-url')
   getAuthUrl() {
     this.assertPublicAccessEnabled();
@@ -59,7 +59,7 @@ export class MailController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('mail.manage')
+  @RequirePermissions(PERMISSION['mail.manage'])
   @Post('test')
   async sendTestMail(@Body() dto: SendTestMailDto) {
     this.assertPublicAccessEnabled();

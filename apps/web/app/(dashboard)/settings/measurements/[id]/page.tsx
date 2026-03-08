@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { MeasurementCategoryDetail } from "@/components/config/MeasurementCategoryDetail";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function MeasurementDetailPage() {
   const params = useParams<{ id: string }>();
@@ -12,5 +13,5 @@ function MeasurementDetailPage() {
 }
 
 export default withRoleGuard(MeasurementDetailPage, {
-  all: ["settings.read", "measurements.read"],
+  all: [PERMISSION["settings.read"], PERMISSION["measurements.read"]],
 });

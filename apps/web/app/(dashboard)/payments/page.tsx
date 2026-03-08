@@ -15,10 +15,11 @@ import { usePaymentsPage } from "@/hooks/use-payments-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function PaymentsPage() {
   const { canAll } = useAuthz();
-  const canManagePayments = canAll(["payments.manage"]);
+  const canManagePayments = canAll([PERMISSION["payments.manage"]]);
   const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
     null,
   );
@@ -210,4 +211,4 @@ function PaymentsPage() {
   );
 }
 
-export default withRoleGuard(PaymentsPage, { all: ["payments.manage"] });
+export default withRoleGuard(PaymentsPage, { all: [PERMISSION["payments.manage"]] });

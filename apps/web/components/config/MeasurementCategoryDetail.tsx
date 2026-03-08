@@ -25,11 +25,12 @@ import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { useAuthz } from "@/hooks/use-authz";
 import { Heading, Text } from "@/components/ui/typography";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function MeasurementCategoryDetail({ id }: { id: string }) {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canManageMeasurements = canAll(["measurements.manage"]);
+  const canManageMeasurements = canAll([PERMISSION["measurements.manage"]]);
 
   const {
     loading,

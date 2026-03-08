@@ -10,10 +10,11 @@ import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useRatesPage } from "@/hooks/use-rates-page";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function RatesPage() {
   const { canAll } = useAuthz();
-  const canManageRates = canAll(["rates.manage"]);
+  const canManageRates = canAll([PERMISSION["rates.manage"]]);
 
   const {
     loading,
@@ -93,5 +94,5 @@ function RatesPage() {
 }
 
 export default withRoleGuard(RatesPage, {
-  all: ["settings.read", "rates.read"],
+  all: [PERMISSION["settings.read"], PERMISSION["rates.read"]],
 });

@@ -5,7 +5,7 @@ import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { success } from '../common/utils/response.util';
-import { ADMIN_ROLES } from '@tbms/shared-constants';
+import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { resolveBranchScopeForReadOrNull } from '../common/utils/branch-resolution.util';
 
 @Controller('audit-logs')
@@ -13,7 +13,7 @@ export class AuditLogsController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('audit.read')
+  @RequirePermissions(PERMISSION['audit.read'])
   @Get()
   async findAll(
     @Req() req: AuthenticatedRequest,
@@ -44,7 +44,7 @@ export class AuditLogsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('audit.read')
+  @RequirePermissions(PERMISSION['audit.read'])
   @Get('stats')
   async getStats(
     @Req() req: AuthenticatedRequest,

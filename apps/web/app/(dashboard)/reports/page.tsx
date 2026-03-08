@@ -13,6 +13,7 @@ import { ReportsWorkspaceFilters } from "@/components/reports/reports-workspace-
 import { useReportsWorkspace } from "@/hooks/use-reports-workspace";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 const REPORT_TABS = [
   { key: "overview", label: "Overview" },
@@ -29,7 +30,7 @@ function isReportTabKey(
 
 function ReportsPage() {
   const { canAll } = useAuthz();
-  const canExportReports = canAll(["reports.export"]);
+  const canExportReports = canAll([PERMISSION["reports.export"]]);
   const {
     activeTab,
     setActiveTab,
@@ -147,4 +148,4 @@ function ReportsPage() {
   );
 }
 
-export default withRoleGuard(ReportsPage, { all: ["reports.read"] });
+export default withRoleGuard(ReportsPage, { all: [PERMISSION["reports.read"]] });

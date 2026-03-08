@@ -21,10 +21,3 @@ This directory contains the current operational and engineering documentation fo
 
 6. [Development Rules](./rules/README.md)
    Detailed backend, frontend, shared-package, and change-management rules used for implementation and code review.
-
-## Reference Inputs
-
-These PDFs are retained as product reference material:
-
-1. [MyTailorFabrics_PRD_v2.pdf](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/MyTailorFabrics_PRD_v2.pdf)
-2. [TBMS_PRD_v2_1_FINAL.pdf](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/TBMS_PRD_v2_1_FINAL.pdf)

@@ -4,7 +4,7 @@ import { SearchService } from './search.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { OPERATOR_ROLES } from '@tbms/shared-constants';
+import { OPERATOR_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { resolveBranchScopeForReadOrNull } from '../common/utils/branch-resolution.util';
 import { success } from '../common/utils/response.util';
 
@@ -14,7 +14,7 @@ export class SearchController {
 
   @Get('customers')
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('search.global')
+  @RequirePermissions(PERMISSION['search.global'])
   async queryCustomers(
     @Query('q') query: string,
     @Req() req: AuthenticatedRequest,
@@ -32,7 +32,7 @@ export class SearchController {
 
   @Get('employees')
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('search.global')
+  @RequirePermissions(PERMISSION['search.global'])
   async queryEmployees(
     @Query('q') query: string,
     @Req() req: AuthenticatedRequest,

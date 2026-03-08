@@ -15,6 +15,7 @@ import {
 import Cookies from "js-cookie";
 import { useAuthz } from "@/hooks/use-authz";
 import { cn } from "@/lib/utils";
+import { PERMISSION } from '@tbms/shared-constants';
 
 interface BranchSelectorProps {
   className?: string;
@@ -23,7 +24,7 @@ interface BranchSelectorProps {
 export function BranchSelector({ className }: BranchSelectorProps) {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canSwitchBranch = canAll(["branch.switch"]);
+  const canSwitchBranch = canAll([PERMISSION["branch.switch"]]);
   const {
     activeBranchId,
     availableBranches,

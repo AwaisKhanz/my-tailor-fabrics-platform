@@ -2,11 +2,12 @@
 
 import { AttendanceSettingsPage } from "@/components/config/attendance/attendance-settings-page";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function SettingsAttendancePage() {
   return <AttendanceSettingsPage />;
 }
 
 export default withRoleGuard(SettingsAttendancePage, {
-  all: ["settings.read", "attendance.read"],
+  all: [PERMISSION["settings.read"], PERMISSION["attendance.read"]],
 });

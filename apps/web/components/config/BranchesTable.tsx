@@ -13,11 +13,12 @@ import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useBranchesPage } from "@/hooks/use-branches-page";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function BranchesTable() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canManageBranches = canAll(["branches.manage"]);
+  const canManageBranches = canAll([PERMISSION["branches.manage"]]);
 
   const {
     loading,

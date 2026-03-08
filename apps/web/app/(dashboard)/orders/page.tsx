@@ -21,12 +21,13 @@ import { OrdersListToolbar } from "@/components/orders/orders-list-toolbar";
 import { OrdersListTable } from "@/components/orders/orders-list-table";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function OrdersPage() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canEditOrder = canAll(["orders.update"]);
-  const canPrintReceipt = canAll(["orders.receipt"]);
+  const canEditOrder = canAll([PERMISSION["orders.update"]]);
+  const canPrintReceipt = canAll([PERMISSION["orders.receipt"]]);
 
   const {
     loading,
@@ -54,7 +55,7 @@ function OrdersPage() {
           description="Manage customer orders and production workflow from one place."
           density="compact"
           actions={
-            <Can all={["orders.create"]}>
+            <Can all={[PERMISSION["orders.create"]]}>
               <Button
                 variant="default"
                 size="lg"
@@ -139,4 +140,4 @@ function OrdersPage() {
   );
 }
 
-export default withRoleGuard(OrdersPage, { all: ["orders.read"] });
+export default withRoleGuard(OrdersPage, { all: [PERMISSION["orders.read"]] });

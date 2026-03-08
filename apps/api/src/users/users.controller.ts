@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { SUPER_ADMIN_ONLY_ROLES } from '@tbms/shared-constants';
+import { SUPER_ADMIN_ONLY_ROLES, PERMISSION } from '@tbms/shared-constants';
 import {
   CreateUserDto,
   ListUsersQueryDto,
@@ -25,7 +25,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('users.read')
+  @RequirePermissions(PERMISSION['users.read'])
   @Get()
   async findAll(@Query() query: ListUsersQueryDto) {
     const data = await this.usersService.findAll(query);
@@ -33,7 +33,7 @@ export class UsersController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('users.read')
+  @RequirePermissions(PERMISSION['users.read'])
   @Get('stats')
   async getStats() {
     const data = await this.usersService.getStats();
@@ -41,7 +41,7 @@ export class UsersController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('users.manage')
+  @RequirePermissions(PERMISSION['users.manage'])
   @Post()
   async create(@Body() body: CreateUserDto) {
     const data = await this.usersService.create(body);
@@ -49,7 +49,7 @@ export class UsersController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('users.manage')
+  @RequirePermissions(PERMISSION['users.manage'])
   @Patch(':id/status')
   async setActive(@Param('id') id: string, @Body() body: SetUserActiveDto) {
     const data = await this.usersService.setActive(id, body.isActive);
@@ -57,7 +57,7 @@ export class UsersController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('users.manage')
+  @RequirePermissions(PERMISSION['users.manage'])
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.usersService.remove(id);
@@ -65,7 +65,7 @@ export class UsersController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('users.manage')
+  @RequirePermissions(PERMISSION['users.manage'])
   @Patch(':id')
   async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
     const data = await this.usersService.update(id, body);

@@ -30,6 +30,7 @@ import {
   ADMIN_ROLES,
   DASHBOARD_READ_ROLES,
   OPERATOR_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 
 @Controller('orders')
@@ -40,7 +41,7 @@ export class OrdersController {
   ) {}
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('orders.create')
+  @RequirePermissions(PERMISSION['orders.create'])
   @Post()
   async create(
     @Body() createOrderDto: CreateOrderDto,
@@ -56,7 +57,7 @@ export class OrdersController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('orders.read')
+  @RequirePermissions(PERMISSION['orders.read'])
   @Get()
   async findAll(
     @Query() pagination: PaginationQueryDto,
@@ -79,7 +80,7 @@ export class OrdersController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('orders.read')
+  @RequirePermissions(PERMISSION['orders.read'])
   @Get('summary')
   async getSummary(
     @Query('status') status: string,
@@ -100,7 +101,7 @@ export class OrdersController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('orders.read')
+  @RequirePermissions(PERMISSION['orders.read'])
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.findOne(id, req.branchId);
@@ -108,7 +109,7 @@ export class OrdersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('orders.update')
+  @RequirePermissions(PERMISSION['orders.update'])
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -124,7 +125,7 @@ export class OrdersController {
     return success(data);
   }
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('orders.cancel')
+  @RequirePermissions(PERMISSION['orders.cancel'])
   @Delete(':id')
   async cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.cancelOrder(
@@ -136,7 +137,7 @@ export class OrdersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('orderItems.manage')
+  @RequirePermissions(PERMISSION['orderItems.manage'])
   @Post(':id/items')
   async addItem(
     @Param('id') id: string,
@@ -152,7 +153,7 @@ export class OrdersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('orderItems.manage')
+  @RequirePermissions(PERMISSION['orderItems.manage'])
   @Patch(':id/items/:itemId')
   async updateItem(
     @Param('id') id: string,
@@ -170,7 +171,7 @@ export class OrdersController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('orderItems.manage')
+  @RequirePermissions(PERMISSION['orderItems.manage'])
   @Delete(':id/items/:itemId')
   async removeItem(
     @Param('id') id: string,
@@ -182,7 +183,7 @@ export class OrdersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('payments.manage')
+  @RequirePermissions(PERMISSION['payments.manage'])
   @Post(':id/payment')
   async addPayment(
     @Param('id') id: string,
@@ -199,7 +200,7 @@ export class OrdersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('payments.manage')
+  @RequirePermissions(PERMISSION['payments.manage'])
   @Post(':id/payments/:paymentId/reverse')
   async reversePayment(
     @Param('id') id: string,
@@ -218,7 +219,7 @@ export class OrdersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('orders.update')
+  @RequirePermissions(PERMISSION['orders.update'])
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
@@ -235,7 +236,7 @@ export class OrdersController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('orders.receipt')
+  @RequirePermissions(PERMISSION['orders.receipt'])
   @Get(':id/receipt')
   async getReceipt(
     @Param('id') id: string,
@@ -255,7 +256,7 @@ export class OrdersController {
 
   /** Generate/regenerate a shareable public link + PIN for the customer */
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('orders.share')
+  @RequirePermissions(PERMISSION['orders.share'])
   @Post(':id/share')
   async shareOrder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.ordersService.generateShareLink(

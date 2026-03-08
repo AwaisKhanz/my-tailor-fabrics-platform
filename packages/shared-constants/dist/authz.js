@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FRONTEND_ROUTE_ROLES = exports.ENTRY_OPERATOR_BLOCKED_PREFIXES = exports.ADMIN_ONLY_PREFIXES = exports.EMPLOYEE_ALLOWED_PREFIXES = exports.APP_PROTECTED_PREFIXES = exports.FRONTEND_ROUTE_PERMISSIONS = exports.ROUTE_PERMISSION_POLICIES = exports.DEFAULT_HOME_BY_ROLE = exports.ROLE_PERMISSIONS = exports.ALL_ROLES = exports.EMPLOYEE_AND_OPERATOR_ROLES = exports.EMPLOYEE_SELF_ROLES = exports.DASHBOARD_READ_ROLES = exports.OPERATOR_ROLES = exports.MANAGEMENT_ROLES = exports.STAFF_ROLES = exports.SUPER_ADMIN_ONLY_ROLES = exports.ADMIN_ROLES = void 0;
+exports.FRONTEND_ROUTE_ROLES = exports.ENTRY_OPERATOR_BLOCKED_PREFIXES = exports.ADMIN_ONLY_PREFIXES = exports.EMPLOYEE_ALLOWED_PREFIXES = exports.APP_PROTECTED_PREFIXES = exports.FRONTEND_ROUTE_PERMISSIONS = exports.ROUTE_PERMISSION_POLICIES = exports.DEFAULT_HOME_BY_ROLE = exports.ROLE_PERMISSIONS = exports.ALL_ROLES = exports.EMPLOYEE_AND_OPERATOR_ROLES = exports.EMPLOYEE_SELF_ROLES = exports.DASHBOARD_READ_ROLES = exports.OPERATOR_ROLES = exports.MANAGEMENT_ROLES = exports.STAFF_ROLES = exports.SUPER_ADMIN_ONLY_ROLES = exports.ADMIN_ROLES = exports.PERMISSION = void 0;
 exports.isRole = isRole;
 exports.getRolePermissions = getRolePermissions;
 exports.hasAllPermissions = hasAllPermissions;
@@ -8,6 +8,59 @@ exports.hasAnyPermission = hasAnyPermission;
 exports.resolveRoutePermissionPolicy = resolveRoutePermissionPolicy;
 exports.canRoleAccessPathname = canRoleAccessPathname;
 const shared_types_1 = require("@tbms/shared-types");
+exports.PERMISSION = {
+    'dashboard.read': 'dashboard.read',
+    'orders.read': 'orders.read',
+    'orders.create': 'orders.create',
+    'orders.update': 'orders.update',
+    'orders.financial.manage': 'orders.financial.manage',
+    'orders.cancel': 'orders.cancel',
+    'orders.share': 'orders.share',
+    'orders.receipt': 'orders.receipt',
+    'orderItems.manage': 'orderItems.manage',
+    'customers.read': 'customers.read',
+    'customers.create': 'customers.create',
+    'customers.update': 'customers.update',
+    'customers.delete': 'customers.delete',
+    'customers.measurements.manage': 'customers.measurements.manage',
+    'employees.read': 'employees.read',
+    'employees.manage': 'employees.manage',
+    'payments.read': 'payments.read',
+    'payments.manage': 'payments.manage',
+    'expenses.read': 'expenses.read',
+    'expenses.manage': 'expenses.manage',
+    'reports.read': 'reports.read',
+    'reports.export': 'reports.export',
+    'settings.read': 'settings.read',
+    'settings.manage': 'settings.manage',
+    'tasks.read': 'tasks.read',
+    'tasks.assign': 'tasks.assign',
+    'tasks.update': 'tasks.update',
+    'tasks.rate.override': 'tasks.rate.override',
+    'rates.read': 'rates.read',
+    'rates.manage': 'rates.manage',
+    'designTypes.read': 'designTypes.read',
+    'designTypes.manage': 'designTypes.manage',
+    'garments.read': 'garments.read',
+    'garments.manage': 'garments.manage',
+    'measurements.read': 'measurements.read',
+    'measurements.manage': 'measurements.manage',
+    'ledger.read': 'ledger.read',
+    'ledger.manage': 'ledger.manage',
+    'branch.switch': 'branch.switch',
+    'branches.read': 'branches.read',
+    'branches.manage': 'branches.manage',
+    'users.read': 'users.read',
+    'users.manage': 'users.manage',
+    'attendance.read': 'attendance.read',
+    'attendance.manage': 'attendance.manage',
+    'attendance.checkin': 'attendance.checkin',
+    'audit.read': 'audit.read',
+    'integrations.manage': 'integrations.manage',
+    'mail.manage': 'mail.manage',
+    'system.manage': 'system.manage',
+    'search.global': 'search.global',
+};
 exports.ADMIN_ROLES = [shared_types_1.Role.ADMIN, shared_types_1.Role.SUPER_ADMIN];
 exports.SUPER_ADMIN_ONLY_ROLES = [shared_types_1.Role.SUPER_ADMIN];
 exports.STAFF_ROLES = [
@@ -217,59 +270,7 @@ function canRoleAccessPathname(role, pathname) {
     }
     return true;
 }
-const PERMISSION_UNIVERSE = [
-    'dashboard.read',
-    'orders.read',
-    'orders.create',
-    'orders.update',
-    'orders.financial.manage',
-    'orders.cancel',
-    'orders.share',
-    'orders.receipt',
-    'orderItems.manage',
-    'customers.read',
-    'customers.create',
-    'customers.update',
-    'customers.delete',
-    'customers.measurements.manage',
-    'employees.read',
-    'employees.manage',
-    'payments.read',
-    'payments.manage',
-    'expenses.read',
-    'expenses.manage',
-    'reports.read',
-    'reports.export',
-    'settings.read',
-    'settings.manage',
-    'tasks.read',
-    'tasks.assign',
-    'tasks.update',
-    'tasks.rate.override',
-    'rates.read',
-    'rates.manage',
-    'designTypes.read',
-    'designTypes.manage',
-    'garments.read',
-    'garments.manage',
-    'measurements.read',
-    'measurements.manage',
-    'ledger.read',
-    'ledger.manage',
-    'branch.switch',
-    'branches.read',
-    'branches.manage',
-    'users.read',
-    'users.manage',
-    'attendance.read',
-    'attendance.manage',
-    'attendance.checkin',
-    'audit.read',
-    'integrations.manage',
-    'mail.manage',
-    'system.manage',
-    'search.global',
-];
+const PERMISSION_UNIVERSE = shared_types_1.PERMISSIONS;
 exports.FRONTEND_ROUTE_ROLES = {
     '/': [...exports.DASHBOARD_READ_ROLES],
     '/my-orders': [...exports.EMPLOYEE_SELF_ROLES],

@@ -17,13 +17,14 @@ import { formatPKR } from "@/lib/utils";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function CustomerDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canEditCustomer = canAll(["customers.update"]);
-  const canManageMeasurements = canAll(["customers.measurements.manage"]);
+  const canEditCustomer = canAll([PERMISSION["customers.update"]]);
+  const canManageMeasurements = canAll([PERMISSION["customers.measurements.manage"]]);
 
   const customerId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -161,4 +162,4 @@ function CustomerDetailPage() {
   );
 }
 
-export default withRoleGuard(CustomerDetailPage, { all: ["customers.read"] });
+export default withRoleGuard(CustomerDetailPage, { all: [PERMISSION["customers.read"]] });

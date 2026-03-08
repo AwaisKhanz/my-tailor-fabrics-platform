@@ -9,10 +9,11 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function DesignTypesPage() {
   const { canAll } = useAuthz();
-  const canManageDesignTypes = canAll(["designTypes.manage"]);
+  const canManageDesignTypes = canAll([PERMISSION["designTypes.manage"]]);
 
   const {
     loading,
@@ -113,5 +114,5 @@ function DesignTypesPage() {
 }
 
 export default withRoleGuard(DesignTypesPage, {
-  all: ["settings.read", "designTypes.read"],
+  all: [PERMISSION["settings.read"], PERMISSION["designTypes.read"]],
 });

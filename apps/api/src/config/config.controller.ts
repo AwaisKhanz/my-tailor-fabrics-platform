@@ -33,6 +33,7 @@ import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
   SUPER_ADMIN_ONLY_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 import { success } from '../common/utils/response.util';
 
@@ -49,7 +50,7 @@ export class ConfigController {
   constructor(private readonly configService: ConfigService) {}
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('branches.read')
+  @RequirePermissions(PERMISSION['branches.read'])
   @Get('branches')
   async getBranches() {
     const data = await this.configService.getBranches();
@@ -58,7 +59,7 @@ export class ConfigController {
 
   // --- System Settings ---
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('settings.read')
+  @RequirePermissions(PERMISSION['settings.read'])
   @Get('settings')
   async getSystemSettings() {
     const data = await this.configService.getSystemSettings();
@@ -66,7 +67,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('system.manage')
+  @RequirePermissions(PERMISSION['system.manage'])
   @Put('settings')
   async updateSystemSettings(@Body() dto: UpdateSystemSettingsDto) {
     const data = await this.configService.updateSystemSettings(dto);
@@ -76,7 +77,7 @@ export class ConfigController {
   // --- Garment Types ---
   // Operators and above can read garment types; pricing remains branch-scoped via BranchGuard.
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('garments.read')
+  @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-types')
   async getGarmentTypes(
     @Query() pagination: PaginationQueryDto,
@@ -93,7 +94,7 @@ export class ConfigController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('garments.read')
+  @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-types/:id')
   async getGarmentType(@Param('id') id: string) {
     const data = await this.configService.getGarmentType(id);
@@ -101,7 +102,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.read')
+  @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-stats')
   async getGarmentStats() {
     const data = await this.configService.getGarmentStats();
@@ -109,7 +110,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.manage')
+  @RequirePermissions(PERMISSION['garments.manage'])
   @Post('garment-types')
   async createGarmentType(@Body() dto: CreateGarmentTypeDto) {
     const data = await this.configService.createGarmentType(dto);
@@ -117,7 +118,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.manage')
+  @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id')
   async updateGarmentType(
     @Param('id') id: string,
@@ -133,7 +134,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.read')
+  @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-types/:id/history')
   async getGarmentPriceHistory(@Param('id') garmentTypeId: string) {
     const data = await this.configService.getGarmentPriceHistory(garmentTypeId);
@@ -141,7 +142,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.manage')
+  @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id/steps')
   async updateGarmentWorkflowSteps(
     @Param('id') garmentTypeId: string,
@@ -155,7 +156,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.manage')
+  @RequirePermissions(PERMISSION['garments.manage'])
   @Delete('garment-types/:id')
   async deleteGarmentType(
     @Param('id') id: string,
@@ -169,7 +170,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.manage')
+  @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id/restore')
   async restoreGarmentType(@Param('id') id: string) {
     const data = await this.configService.restoreGarmentType(id);
@@ -177,7 +178,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('garments.manage')
+  @RequirePermissions(PERMISSION['garments.manage'])
   @Put('garment-types/:id/steps/:stepKey/restore')
   async restoreGarmentWorkflowStep(
     @Param('id') garmentTypeId: string,
@@ -192,7 +193,7 @@ export class ConfigController {
 
   // --- Measurement Categories ---
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('measurements.read')
+  @RequirePermissions(PERMISSION['measurements.read'])
   @Get('measurement-categories')
   async getMeasurementCategories(
     @Query() pagination: PaginationQueryDto,
@@ -209,7 +210,7 @@ export class ConfigController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('measurements.read')
+  @RequirePermissions(PERMISSION['measurements.read'])
   @Get('measurement-categories/:id')
   async getMeasurementCategory(
     @Param('id') id: string,
@@ -222,7 +223,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.read')
+  @RequirePermissions(PERMISSION['measurements.read'])
   @Get('measurement-stats')
   async getMeasurementStats() {
     const data = await this.configService.getMeasurementStats();
@@ -230,7 +231,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Post('measurement-categories')
   async createMeasurementCategory(@Body() dto: CreateMeasurementCategoryDto) {
     const data = await this.configService.createMeasurementCategory(dto);
@@ -238,7 +239,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-categories/:id')
   async updateMeasurementCategory(
     @Param('id') id: string,
@@ -249,7 +250,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Post('measurement-categories/:id/sections')
   async addMeasurementSection(
     @Param('id') categoryId: string,
@@ -263,7 +264,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-sections/:id')
   async updateMeasurementSection(
     @Param('id') sectionId: string,
@@ -277,7 +278,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Delete('measurement-sections/:id')
   async deleteMeasurementSection(
     @Param('id') sectionId: string,
@@ -294,7 +295,7 @@ export class ConfigController {
 
   // --- Measurement Fields ---
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Post('measurement-categories/:id/fields')
   async addMeasurementField(
     @Param('id') categoryId: string,
@@ -305,7 +306,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-fields/:id')
   async updateMeasurementField(
     @Param('id') id: string,
@@ -316,7 +317,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Delete('measurement-fields/:id')
   async deleteMeasurementField(
     @Param('id') id: string,
@@ -330,7 +331,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-fields/:id/restore')
   async restoreMeasurementField(@Param('id') id: string) {
     const data = await this.configService.restoreMeasurementField(id);
@@ -338,7 +339,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Delete('measurement-categories/:id')
   async deleteMeasurementCategory(
     @Param('id') id: string,
@@ -352,7 +353,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-categories/:id/restore')
   async restoreMeasurementCategory(@Param('id') id: string) {
     const data = await this.configService.restoreMeasurementCategory(id);
@@ -360,7 +361,7 @@ export class ConfigController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('measurements.manage')
+  @RequirePermissions(PERMISSION['measurements.manage'])
   @Put('measurement-sections/:id/restore')
   async restoreMeasurementSection(@Param('id') id: string) {
     const data = await this.configService.restoreMeasurementSection(id);

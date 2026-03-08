@@ -20,6 +20,7 @@ import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
   SUPER_ADMIN_ONLY_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import {
@@ -34,7 +35,7 @@ export class DesignTypesController {
 
   @Post()
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('designTypes.manage')
+  @RequirePermissions(PERMISSION['designTypes.manage'])
   async create(
     @Body() createDesignTypeDto: CreateDesignTypeDto,
     @Req() req: AuthenticatedRequest,
@@ -53,7 +54,7 @@ export class DesignTypesController {
 
   @Get()
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('designTypes.read')
+  @RequirePermissions(PERMISSION['designTypes.read'])
   async findAll(
     @Req() req: AuthenticatedRequest,
     @Query('branchId') branchId?: string,
@@ -73,7 +74,7 @@ export class DesignTypesController {
 
   @Post('seed')
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('designTypes.manage')
+  @RequirePermissions(PERMISSION['designTypes.manage'])
   async seed() {
     await this.designTypesService.seedDefaults();
     return successOnly();
@@ -81,7 +82,7 @@ export class DesignTypesController {
 
   @Get(':id')
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('designTypes.read')
+  @RequirePermissions(PERMISSION['designTypes.read'])
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.designTypesService.findOne(
       id,
@@ -92,7 +93,7 @@ export class DesignTypesController {
 
   @Patch(':id')
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('designTypes.manage')
+  @RequirePermissions(PERMISSION['designTypes.manage'])
   async update(
     @Param('id') id: string,
     @Body() updateDesignTypeDto: UpdateDesignTypeDto,
@@ -108,7 +109,7 @@ export class DesignTypesController {
 
   @Delete(':id')
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('designTypes.manage')
+  @RequirePermissions(PERMISSION['designTypes.manage'])
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     await this.designTypesService.remove(id, req.branchId ?? undefined);
     return successOnly();

@@ -10,6 +10,7 @@ import { ClockInDto } from './dto/clock-in.dto';
 import {
   DASHBOARD_READ_ROLES,
   EMPLOYEE_AND_OPERATOR_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 
 @Controller('attendance')
@@ -18,7 +19,7 @@ export class AttendanceController {
 
   /** Clock in — can be done by any authenticated user on behalf of an employee */
   @Roles(...EMPLOYEE_AND_OPERATOR_ROLES)
-  @RequirePermissions('attendance.checkin')
+  @RequirePermissions(PERMISSION['attendance.checkin'])
   @Post('clock-in')
   async clockIn(@Body() dto: ClockInDto, @Req() req: AuthenticatedRequest) {
     const data = await this.attendanceService.clockIn(
@@ -31,7 +32,7 @@ export class AttendanceController {
 
   /** Clock out for a specific attendance record */
   @Roles(...EMPLOYEE_AND_OPERATOR_ROLES)
-  @RequirePermissions('attendance.checkin')
+  @RequirePermissions(PERMISSION['attendance.checkin'])
   @Post('clock-out/:recordId')
   async clockOut(
     @Param('recordId') recordId: string,
@@ -46,7 +47,7 @@ export class AttendanceController {
 
   /** Get paginated attendance records, optionally filtered by employee */
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('attendance.read')
+  @RequirePermissions(PERMISSION['attendance.read'])
   @Get()
   async findAll(
     @Query('employeeId') employeeId: string | undefined,
@@ -64,7 +65,7 @@ export class AttendanceController {
 
   /** Get attendance summary for a specific employee */
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('attendance.read')
+  @RequirePermissions(PERMISSION['attendance.read'])
   @Get('employee/:employeeId/summary')
   async getEmployeeSummary(
     @Param('employeeId') employeeId: string,

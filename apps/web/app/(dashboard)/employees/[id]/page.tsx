@@ -19,6 +19,7 @@ import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function EmployeeDetailPage() {
   const params = useParams<{ id: string }>();
@@ -27,10 +28,10 @@ function EmployeeDetailPage() {
   const [ledgerEntryToReverseId, setLedgerEntryToReverseId] = useState<
     string | null
   >(null);
-  const canManageEmployees = canAll(["employees.manage"]);
-  const canManageAccounts = canAll(["users.manage"]);
-  const canManageLedger = canAll(["ledger.manage"]);
-  const canManageTaskStatus = canAll(["tasks.update"]);
+  const canManageEmployees = canAll([PERMISSION["employees.manage"]]);
+  const canManageAccounts = canAll([PERMISSION["users.manage"]]);
+  const canManageLedger = canAll([PERMISSION["ledger.manage"]]);
+  const canManageTaskStatus = canAll([PERMISSION["tasks.update"]]);
   const employeeId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const {
@@ -267,4 +268,4 @@ function EmployeeDetailPage() {
   );
 }
 
-export default withRoleGuard(EmployeeDetailPage, { all: ["employees.read"] });
+export default withRoleGuard(EmployeeDetailPage, { all: [PERMISSION["employees.read"]] });

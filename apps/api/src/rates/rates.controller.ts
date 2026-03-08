@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Query, Req } from '@nestjs/common';
 import { RatesService } from './rates.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { ADMIN_ROLES } from '@tbms/shared-constants';
+import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateRateDto } from './dto/create-rate.dto';
@@ -14,7 +14,7 @@ import {
 import { success } from '../common/utils/response.util';
 
 @Controller('rates')
-@RequirePermissions('rates.read')
+@RequirePermissions(PERMISSION['rates.read'])
 export class RatesController {
   constructor(private readonly ratesService: RatesService) {}
 
@@ -51,7 +51,7 @@ export class RatesController {
 
   @Post()
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('rates.manage')
+  @RequirePermissions(PERMISSION['rates.manage'])
   async create(@Body() dto: CreateRateDto, @Req() req: AuthenticatedRequest) {
     const data = await this.ratesService.create({
       ...dto,

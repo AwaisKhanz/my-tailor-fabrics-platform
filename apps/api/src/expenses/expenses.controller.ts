@@ -22,14 +22,14 @@ import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success, successOnly } from '../common/utils/response.util';
-import { ADMIN_ROLES } from '@tbms/shared-constants';
+import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 
 @Controller('expenses')
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.manage')
+  @RequirePermissions(PERMISSION['expenses.manage'])
   @Post()
   async create(
     @Body() dto: CreateExpenseDto,
@@ -44,7 +44,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.read')
+  @RequirePermissions(PERMISSION['expenses.read'])
   @Get()
   async findAll(
     @Req() req: AuthenticatedRequest,
@@ -70,7 +70,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.read')
+  @RequirePermissions(PERMISSION['expenses.read'])
   @Get('categories/paginated')
   async findAllCategoriesPaginated(@Query() pagination: PaginationQueryDto) {
     const data = await this.expensesService.findAllCategoriesPaginated(
@@ -82,7 +82,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.read')
+  @RequirePermissions(PERMISSION['expenses.read'])
   @Get('categories')
   async findAllCategories() {
     const data = await this.expensesService.findAllCategories();
@@ -90,7 +90,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.manage')
+  @RequirePermissions(PERMISSION['expenses.manage'])
   @Post('categories')
   async createCategory(@Body() dto: CreateExpenseCategoryDto) {
     const data = await this.expensesService.createCategory(dto);
@@ -98,7 +98,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.manage')
+  @RequirePermissions(PERMISSION['expenses.manage'])
   @Put('categories/:id')
   async updateCategory(
     @Param('id') id: string,
@@ -109,7 +109,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.manage')
+  @RequirePermissions(PERMISSION['expenses.manage'])
   @Delete('categories/:id')
   async removeCategory(@Param('id') id: string) {
     await this.expensesService.removeCategory(id);
@@ -117,7 +117,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.read')
+  @RequirePermissions(PERMISSION['expenses.read'])
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.expensesService.findOne(id, req.branchId);
@@ -125,7 +125,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.manage')
+  @RequirePermissions(PERMISSION['expenses.manage'])
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -141,7 +141,7 @@ export class ExpensesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('expenses.manage')
+  @RequirePermissions(PERMISSION['expenses.manage'])
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     await this.expensesService.remove(id, requireBranchScope(req));

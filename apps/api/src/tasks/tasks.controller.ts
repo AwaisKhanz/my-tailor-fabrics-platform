@@ -19,6 +19,7 @@ import {
   ADMIN_ROLES,
   DASHBOARD_READ_ROLES,
   EMPLOYEE_AND_OPERATOR_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 import { AssignTaskDto } from './dto/create-task.dto';
 import { UpdateTaskRateDto, UpdateTaskStatusDto } from './dto/update-task.dto';
@@ -28,7 +29,7 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('tasks.assign')
+  @RequirePermissions(PERMISSION['tasks.assign'])
   @Patch(':id/assign')
   async assignTask(
     @Param('id') id: string,
@@ -45,7 +46,7 @@ export class TasksController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('tasks.assign')
+  @RequirePermissions(PERMISSION['tasks.assign'])
   @Get(':id/eligible-employees')
   async getEligibleEmployees(
     @Param('id') id: string,
@@ -59,7 +60,7 @@ export class TasksController {
   }
 
   @Roles(...EMPLOYEE_AND_OPERATOR_ROLES)
-  @RequirePermissions('tasks.update')
+  @RequirePermissions(PERMISSION['tasks.update'])
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
@@ -78,7 +79,7 @@ export class TasksController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('tasks.rate.override')
+  @RequirePermissions(PERMISSION['tasks.rate.override'])
   @Patch(':id/rate')
   async updateRate(
     @Param('id') id: string,
@@ -95,7 +96,7 @@ export class TasksController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('tasks.rate.override')
+  @RequirePermissions(PERMISSION['tasks.rate.override'])
   @Post('reconcile-earnings')
   async reconcileEarnings(
     @Req() req: AuthenticatedRequest,
@@ -112,7 +113,7 @@ export class TasksController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('tasks.read')
+  @RequirePermissions(PERMISSION['tasks.read'])
   @Get('order/:orderId')
   async findByOrder(
     @Param('orderId') orderId: string,
@@ -123,7 +124,7 @@ export class TasksController {
   }
 
   @Roles(...EMPLOYEE_AND_OPERATOR_ROLES)
-  @RequirePermissions('tasks.read')
+  @RequirePermissions(PERMISSION['tasks.read'])
   @Get('employee/:employeeId')
   async findByEmployee(
     @Param('employeeId') employeeId: string,

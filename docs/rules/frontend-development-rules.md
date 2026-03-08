@@ -54,6 +54,7 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `apps/web/components/auth/can.tsx`
 2. Do not duplicate permission matrices or role logic in page files.
 3. Route gating and component gating must stay aligned with shared RBAC contracts.
+4. When frontend code references a permission, use the shared `PERMISSION` export from `@tbms/shared-constants` instead of repeating a raw permission string.
 
 ## 6. Shared Contract Rules
 

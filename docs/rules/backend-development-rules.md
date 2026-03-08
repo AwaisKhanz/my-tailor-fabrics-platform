@@ -56,8 +56,9 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 1. Public/private access must be enforced through the existing decorators and guards.
 2. Do not scatter role or permission enforcement as controller-local string checks when shared guard paths already exist.
 3. Roles, permissions, and route policy definitions belong in shared packages, not backend-local duplicates.
-4. Branch scoping must use the existing branch resolution and scope helpers, not one-off branch filters.
-5. If a new protected capability is added, update:
+4. When backend code references a permission, use the shared `PERMISSION` export from `@tbms/shared-constants` instead of repeating a raw string literal.
+5. Branch scoping must use the existing branch resolution and scope helpers, not one-off branch filters.
+6. If a new protected capability is added, update:
    - shared permission contracts
    - shared role/permission matrix
    - frontend access logic if the route is user-facing

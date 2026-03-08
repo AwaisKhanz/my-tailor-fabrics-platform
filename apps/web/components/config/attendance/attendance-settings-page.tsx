@@ -32,6 +32,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
+import { PERMISSION } from '@tbms/shared-constants';
 import {
   ALL_EMPLOYEES_FILTER,
   useAttendanceSettingsPage,
@@ -40,7 +41,7 @@ import {
 export function AttendanceSettingsPage() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canManageAttendanceEntries = canAll(["attendance.checkin"]);
+  const canManageAttendanceEntries = canAll([PERMISSION["attendance.checkin"]]);
 
   const {
     loading,

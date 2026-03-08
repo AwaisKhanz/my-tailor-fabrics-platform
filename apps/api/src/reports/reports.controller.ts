@@ -5,13 +5,13 @@ import { ExportService } from './export.service';
 import { PdfExportService } from './pdf-export.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { DASHBOARD_READ_ROLES } from '@tbms/shared-constants';
+import { DASHBOARD_READ_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { resolveBranchScopeForRead } from '../common/utils/branch-resolution.util';
 import { parseOptionalPositiveInt } from '../common/utils/query-parsing.util';
 import { success } from '../common/utils/response.util';
 
 @Controller('reports')
-@RequirePermissions('reports.read')
+@RequirePermissions(PERMISSION['reports.read'])
 export class ReportsController {
   constructor(
     private readonly reportsService: ReportsService,
@@ -20,7 +20,7 @@ export class ReportsController {
   ) {}
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('dashboard.read')
+  @RequirePermissions(PERMISSION['dashboard.read'])
   @Get('dashboard')
   async getDashboard(
     @Req() req: AuthenticatedRequest,
@@ -180,7 +180,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('reports.read', 'reports.export')
+  @RequirePermissions(PERMISSION['reports.read'], PERMISSION['reports.export'])
   @Get('export/orders')
   async exportOrders(
     @Req() req: AuthenticatedRequest,
@@ -217,7 +217,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('reports.read', 'reports.export')
+  @RequirePermissions(PERMISSION['reports.read'], PERMISSION['reports.export'])
   @Get('export/payments')
   async exportPayments(
     @Req() req: AuthenticatedRequest,
@@ -258,7 +258,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('reports.read', 'reports.export')
+  @RequirePermissions(PERMISSION['reports.read'], PERMISSION['reports.export'])
   @Get('export/expenses')
   async exportExpenses(
     @Req() req: AuthenticatedRequest,
@@ -299,7 +299,7 @@ export class ReportsController {
   }
 
   @Roles(...DASHBOARD_READ_ROLES)
-  @RequirePermissions('reports.read', 'reports.export')
+  @RequirePermissions(PERMISSION['reports.read'], PERMISSION['reports.export'])
   @Get('export/employees')
   async exportEmployees(
     @Req() req: AuthenticatedRequest,

@@ -23,10 +23,11 @@ import {
 } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useExpenseCategoriesPage } from "@/hooks/use-expense-categories-page";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function ExpenseCategoriesPage() {
   const { canAll } = useAuthz();
-  const canManageExpenseCategories = canAll(["expenses.manage"]);
+  const canManageExpenseCategories = canAll([PERMISSION["expenses.manage"]]);
 
   const {
     loading,

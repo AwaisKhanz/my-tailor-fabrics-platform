@@ -21,6 +21,7 @@ import { customerApi } from "@/lib/api/customers";
 import { designTypesApi } from "@/lib/api/design-types";
 import { ordersApi } from "@/lib/api/orders";
 import { useAuthz } from "@/hooks/use-authz";
+import { PERMISSION } from '@tbms/shared-constants';
 
 interface OrderTotals {
   subtotal: number;
@@ -48,7 +49,7 @@ export function useOrderFormPage() {
 
   const editOrderId = searchParams.get("edit");
   const isEditMode = Boolean(editOrderId);
-  const canManageDiscounts = canAll(["orders.financial.manage"]);
+  const canManageDiscounts = canAll([PERMISSION["orders.financial.manage"]]);
 
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);

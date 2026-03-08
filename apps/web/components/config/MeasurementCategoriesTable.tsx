@@ -11,11 +11,12 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function MeasurementCategoriesTable() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canManageMeasurements = canAll(["measurements.manage"]);
+  const canManageMeasurements = canAll([PERMISSION["measurements.manage"]]);
 
   const {
     loading,

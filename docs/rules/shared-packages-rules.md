@@ -17,6 +17,7 @@ These rules apply to `packages/shared-types` and `packages/shared-constants`.
 1. If both apps consume a type or constant, prefer placing it in a shared package.
 2. Do not duplicate role names, permission strings, enum values, or shared status labels inside app-local code.
 3. If a change is not truly cross-app, keep it in the owning app instead of forcing it into shared packages.
+4. Permission references used by app code should come from the exported `PERMISSION` map in `@tbms/shared-constants`, not from repeated raw string literals.
 
 ## 3. File Structure Rules
 
@@ -39,6 +40,7 @@ These rules apply to `packages/shared-types` and `packages/shared-constants`.
    - `apps/api`
    - `apps/web`
 3. Contract changes that affect RBAC, auth, or route policy must also update the relevant docs and operational guidance.
+4. If a permission is added, removed, or renamed, update the shared type union, the shared constant exports, the role matrix, and every app consumer in the same task.
 
 ## 6. Type Safety Rules
 

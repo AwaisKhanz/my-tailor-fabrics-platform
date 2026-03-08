@@ -23,6 +23,7 @@ import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { useOrderDetailPage } from "@/hooks/use-order-detail-page";
 import { TaskAssignmentDialog } from "@/components/orders/task-assignment/task-assignment-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function OrderDetailPage() {
   const params = useParams<{ id: string }>();
@@ -108,12 +109,12 @@ function OrderDetailPage() {
     label: order.status,
     variant: "outline" as const,
   };
-  const canEditAction = canAll(["orders.update"]);
-  const canShareAction = canAll(["orders.share"]);
-  const canCancelAction = canAll(["orders.cancel"]);
-  const canPrintReceipt = canAll(["orders.receipt"]);
-  const canCapturePayment = canAll(["payments.manage"]);
-  const canManageTasks = canAll(["tasks.assign"]);
+  const canEditAction = canAll([PERMISSION["orders.update"]]);
+  const canShareAction = canAll([PERMISSION["orders.share"]]);
+  const canCancelAction = canAll([PERMISSION["orders.cancel"]]);
+  const canPrintReceipt = canAll([PERMISSION["orders.receipt"]]);
+  const canCapturePayment = canAll([PERMISSION["payments.manage"]]);
+  const canManageTasks = canAll([PERMISSION["tasks.assign"]]);
 
   return (
     <PageShell>
@@ -299,4 +300,4 @@ function OrderDetailPage() {
   );
 }
 
-export default withRoleGuard(OrderDetailPage, { all: ["orders.read"] });
+export default withRoleGuard(OrderDetailPage, { all: [PERMISSION["orders.read"]] });

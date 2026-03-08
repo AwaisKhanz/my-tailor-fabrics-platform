@@ -12,7 +12,7 @@ import { LedgerService } from './ledger.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { LedgerEntryType } from '@tbms/shared-types';
-import { ADMIN_ROLES } from '@tbms/shared-constants';
+import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
@@ -23,7 +23,7 @@ import { parsePositiveInt } from '../common/utils/query-parsing.util';
 import { success } from '../common/utils/response.util';
 
 @Controller('ledger')
-@RequirePermissions('ledger.read')
+@RequirePermissions(PERMISSION['ledger.read'])
 export class LedgerController {
   constructor(private readonly ledgerService: LedgerService) {}
 
@@ -33,7 +33,7 @@ export class LedgerController {
    */
   @Post()
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('ledger.manage')
+  @RequirePermissions(PERMISSION['ledger.manage'])
   async createManualEntry(
     @Body() dto: CreateLedgerEntryDto,
     @Req() req: AuthenticatedRequest,
@@ -117,7 +117,7 @@ export class LedgerController {
 
   @Post(':id/reverse')
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('ledger.manage')
+  @RequirePermissions(PERMISSION['ledger.manage'])
   async reverseEntry(
     @Param('id') id: string,
     @Body() dto: ReverseLedgerEntryDto,

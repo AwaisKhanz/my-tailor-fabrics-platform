@@ -16,6 +16,7 @@ import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-c
 import { OrderFormItemsCard } from "@/components/orders/order-form-items-card";
 import { OrderFormSummaryCard } from "@/components/orders/order-form-summary-card";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function NewOrderPage() {
   const router = useRouter();
@@ -133,4 +134,4 @@ function NewOrderPage() {
   );
 }
 
-export default withRoleGuard(NewOrderPage, { all: ["orders.create"] });
+export default withRoleGuard(NewOrderPage, { all: [PERMISSION["orders.create"]] });

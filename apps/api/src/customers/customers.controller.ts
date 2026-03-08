@@ -24,7 +24,11 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import { CustomerStatus } from '@tbms/shared-types';
-import { ADMIN_ROLES, OPERATOR_ROLES } from '@tbms/shared-constants';
+import {
+  ADMIN_ROLES,
+  OPERATOR_ROLES,
+  PERMISSION,
+} from '@tbms/shared-constants';
 
 const CUSTOMER_STATUS_VALUES = new Set<string>(Object.values(CustomerStatus));
 
@@ -45,7 +49,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.create')
+  @RequirePermissions(PERMISSION['customers.create'])
   @Post()
   async create(
     @Body() createCustomerDto: CreateCustomerDto,
@@ -59,7 +63,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.read')
+  @RequirePermissions(PERMISSION['customers.read'])
   @Get()
   async findAll(
     @Query() pagination: PaginationQueryDto,
@@ -83,7 +87,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.read')
+  @RequirePermissions(PERMISSION['customers.read'])
   @Get('summary')
   async getSummary(
     @Query('search') search: string,
@@ -104,7 +108,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.read')
+  @RequirePermissions(PERMISSION['customers.read'])
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.findOne(id, req.branchId);
@@ -112,7 +116,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.update')
+  @RequirePermissions(PERMISSION['customers.update'])
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -128,7 +132,7 @@ export class CustomersController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('customers.delete')
+  @RequirePermissions(PERMISSION['customers.delete'])
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.customersService.remove(
@@ -139,7 +143,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.read')
+  @RequirePermissions(PERMISSION['customers.read'])
   @Get(':id/orders')
   async getOrders(
     @Param('id') id: string,
@@ -156,7 +160,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.measurements.manage')
+  @RequirePermissions(PERMISSION['customers.measurements.manage'])
   @Post(':id/measurements')
   async upsertMeasurement(
     @Param('id') id: string,
@@ -172,7 +176,7 @@ export class CustomersController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('customers.update')
+  @RequirePermissions(PERMISSION['customers.update'])
   @Patch(':id/vip')
   async toggleVip(
     @Param('id') id: string,
@@ -188,7 +192,7 @@ export class CustomersController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('customers.measurements.manage')
+  @RequirePermissions(PERMISSION['customers.measurements.manage'])
   @Post('measurements/backfill-snapshots')
   async backfillMeasurementSnapshots(@Req() req: AuthenticatedRequest) {
     const data = await this.customersService.backfillMeasurementValueSnapshots(

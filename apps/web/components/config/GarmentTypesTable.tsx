@@ -13,11 +13,12 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function GarmentTypesTable() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canManageGarments = canAll(["garments.manage"]);
+  const canManageGarments = canAll([PERMISSION["garments.manage"]]);
 
   const {
     loading,

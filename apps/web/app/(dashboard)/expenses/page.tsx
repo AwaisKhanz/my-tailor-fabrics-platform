@@ -14,10 +14,11 @@ import { formatPKR } from "@/lib/utils";
 import { useExpensesPage } from "@/hooks/use-expenses-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function ExpensesPage() {
   const { canAll } = useAuthz();
-  const canManageExpenses = canAll(["expenses.manage"]);
+  const canManageExpenses = canAll([PERMISSION["expenses.manage"]]);
   const {
     loading,
     categoriesLoading,
@@ -156,4 +157,4 @@ function ExpensesPage() {
   );
 }
 
-export default withRoleGuard(ExpensesPage, { all: ["expenses.manage"] });
+export default withRoleGuard(ExpensesPage, { all: [PERMISSION["expenses.manage"]] });

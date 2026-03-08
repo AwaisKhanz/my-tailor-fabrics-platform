@@ -35,6 +35,7 @@ import {
   ADMIN_ROLES,
   EMPLOYEE_SELF_ROLES,
   OPERATOR_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 
 @Controller('employees')
@@ -42,7 +43,7 @@ export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Post()
   async create(
     @Body() createEmployeeDto: CreateEmployeeDto,
@@ -56,7 +57,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get()
   async findAll(
     @Query() pagination: PaginationQueryDto,
@@ -73,7 +74,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get('eligible')
   async getEligibleEmployees(
     @Query() query: EligibleEmployeesQueryDto,
@@ -89,7 +90,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.findOne(id, req.branchId);
@@ -97,7 +98,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/capabilities')
   async getCapabilities(
     @Param('id') id: string,
@@ -116,7 +117,7 @@ export class EmployeesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Put(':id/capabilities')
   async replaceCapabilities(
     @Param('id') id: string,
@@ -133,7 +134,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/compensation')
   async getCompensationHistory(
     @Param('id') id: string,
@@ -147,7 +148,7 @@ export class EmployeesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Post(':id/compensation')
   async createCompensationChange(
     @Param('id') id: string,
@@ -164,7 +165,7 @@ export class EmployeesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -181,7 +182,7 @@ export class EmployeesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.remove(
@@ -192,7 +193,7 @@ export class EmployeesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Post(':id/user-account')
   async createUserAccount(
     @Param('id') id: string,
@@ -210,7 +211,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/stats')
   async getStats(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getStats(id, req.branchId);
@@ -218,7 +219,7 @@ export class EmployeesController {
   }
 
   @Roles(...OPERATOR_ROLES)
-  @RequirePermissions('employees.read')
+  @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/items')
   async getItems(
     @Param('id') id: string,
@@ -235,7 +236,7 @@ export class EmployeesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('employees.manage')
+  @RequirePermissions(PERMISSION['employees.manage'])
   @Post(':id/documents')
   async addDocument(
     @Param('id') id: string,
@@ -255,7 +256,7 @@ export class EmployeesController {
 
   // Employee Portal Endpoints
   @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions('employees.read', 'tasks.read')
+  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
   @Get('my/profile')
   async getMyProfile(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyProfile(
@@ -266,7 +267,7 @@ export class EmployeesController {
   }
 
   @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions('employees.read', 'tasks.read')
+  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
   @Get('my/stats')
   async getMyStats(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyStats(
@@ -277,7 +278,7 @@ export class EmployeesController {
   }
 
   @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions('employees.read', 'tasks.read')
+  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
   @Get('my/items')
   async getMyItems(
     @Query() pagination: PaginationQueryDto,

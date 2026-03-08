@@ -11,12 +11,13 @@ import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useCustomersPage } from "@/hooks/use-customers-page";
 import { useAuthz } from "@/hooks/use-authz";
+import { PERMISSION } from '@tbms/shared-constants';
 
 export function CustomerTable() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canCreateCustomer = canAll(["customers.create"]);
-  const canEditCustomer = canAll(["customers.update"]);
+  const canCreateCustomer = canAll([PERMISSION["customers.create"]]);
+  const canEditCustomer = canAll([PERMISSION["customers.update"]]);
 
   const {
     loading,

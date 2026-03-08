@@ -31,6 +31,7 @@ import { StatsGrid } from "@/components/ui/stats-grid";
 import { Heading, Text } from "@/components/ui/typography";
 import { Can } from "@/components/auth/can";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function DashboardPage() {
   const router = useRouter();
@@ -74,7 +75,7 @@ function DashboardPage() {
           density="default"
           actions={
             <>
-              <Can all={["orders.create"]}>
+              <Can all={[PERMISSION["orders.create"]]}>
                 <Button
                   variant="default"
                   size="lg"
@@ -85,7 +86,7 @@ function DashboardPage() {
                   New Order
                 </Button>
               </Can>
-              <Can all={["reports.read"]}>
+              <Can all={[PERMISSION["reports.read"]]}>
                 <Button
                   variant="outline"
                   size="lg"
@@ -221,4 +222,4 @@ function DashboardPage() {
   );
 }
 
-export default withRoleGuard(DashboardPage, { all: ["dashboard.read"] });
+export default withRoleGuard(DashboardPage, { all: [PERMISSION["dashboard.read"]] });

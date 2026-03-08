@@ -14,11 +14,12 @@ import { TableSurface } from "@/components/ui/table-layout";
 import { useEmployeesPage } from "@/hooks/use-employees-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function EmployeesPage() {
   const router = useRouter();
   const { canAll } = useAuthz();
-  const canManageEmployees = canAll(["employees.manage"]);
+  const canManageEmployees = canAll([PERMISSION["employees.manage"]]);
 
   const {
     loading,
@@ -128,4 +129,4 @@ function EmployeesPage() {
   );
 }
 
-export default withRoleGuard(EmployeesPage, { all: ["employees.read"] });
+export default withRoleGuard(EmployeesPage, { all: [PERMISSION["employees.read"]] });

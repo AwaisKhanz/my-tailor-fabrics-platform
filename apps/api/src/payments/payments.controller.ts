@@ -20,7 +20,7 @@ import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
-import { ADMIN_ROLES } from '@tbms/shared-constants';
+import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 
 import { WeeklyPdfService } from './weekly-pdf.service';
 import { SalaryAccrualService } from './salary-accrual.service';
@@ -34,7 +34,7 @@ export class PaymentsController {
   ) {}
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.read')
+  @RequirePermissions(PERMISSION['payments.read'])
   @Get('employee/:id/summary')
   async getSummary(
     @Param('id') employeeId: string,
@@ -48,7 +48,7 @@ export class PaymentsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.manage')
+  @RequirePermissions(PERMISSION['payments.manage'])
   @Post()
   async disbursePay(
     @Body() dto: DisbursePaymentDto,
@@ -65,7 +65,7 @@ export class PaymentsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.manage')
+  @RequirePermissions(PERMISSION['payments.manage'])
   @Post(':id/reverse')
   async reversePayment(
     @Param('id') id: string,
@@ -82,7 +82,7 @@ export class PaymentsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.manage')
+  @RequirePermissions(PERMISSION['payments.manage'])
   @Post('salary-accruals/generate')
   async generateSalaryAccruals(
     @Body() dto: GenerateSalaryAccrualsDto,
@@ -99,7 +99,7 @@ export class PaymentsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.read')
+  @RequirePermissions(PERMISSION['payments.read'])
   @Get('employee/:id/history')
   async getHistory(
     @Param('id') employeeId: string,
@@ -124,7 +124,7 @@ export class PaymentsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.read')
+  @RequirePermissions(PERMISSION['payments.read'])
   @Get('weekly-report')
   async getWeeklyReport(@Req() req: AuthenticatedRequest) {
     const data = await this.paymentsService.getWeeklyReport(req.branchId);
@@ -132,7 +132,7 @@ export class PaymentsController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('payments.read')
+  @RequirePermissions(PERMISSION['payments.read'])
   @Get('weekly-report/pdf')
   async getWeeklyReportPdf(
     @Req() req: AuthenticatedRequest,

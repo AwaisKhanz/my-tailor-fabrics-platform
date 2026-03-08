@@ -8,6 +8,7 @@ import { MyOrdersTable } from "@/components/orders/my-orders-table";
 import { MyOrdersToolbar } from "@/components/orders/my-orders-toolbar";
 import { useMyOrdersPage } from "@/hooks/use-my-orders-page";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { PERMISSION } from '@tbms/shared-constants';
 
 function MyOrdersPage() {
   const {
@@ -58,5 +59,5 @@ function MyOrdersPage() {
 
 export default withRoleGuard(MyOrdersPage, {
   roles: [Role.EMPLOYEE],
-  all: ["orders.read"],
+  all: [PERMISSION["orders.read"]],
 });

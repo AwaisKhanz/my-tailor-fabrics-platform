@@ -17,6 +17,7 @@ import {
   ADMIN_ROLES,
   ALL_ROLES,
   SUPER_ADMIN_ONLY_ROLES,
+  PERMISSION,
 } from '@tbms/shared-constants';
 import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
 
@@ -25,7 +26,7 @@ export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
   @Roles(...ALL_ROLES)
-  @RequirePermissions('branches.read')
+  @RequirePermissions(PERMISSION['branches.read'])
   @Get()
   async findAll(
     @Query() pagination: PaginationQueryDto,
@@ -40,7 +41,7 @@ export class BranchesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('branches.read')
+  @RequirePermissions(PERMISSION['branches.read'])
   @Get('stats')
   async getStats() {
     const data = await this.branchesService.getStats();
@@ -48,7 +49,7 @@ export class BranchesController {
   }
 
   @Roles(...ADMIN_ROLES)
-  @RequirePermissions('branches.read')
+  @RequirePermissions(PERMISSION['branches.read'])
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.branchesService.findOne(id);
@@ -56,7 +57,7 @@ export class BranchesController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('branches.manage')
+  @RequirePermissions(PERMISSION['branches.manage'])
   @Post()
   async createBranch(@Body() body: CreateBranchDto) {
     const data = await this.branchesService.create(body);
@@ -64,7 +65,7 @@ export class BranchesController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('branches.manage')
+  @RequirePermissions(PERMISSION['branches.manage'])
   @Put(':id')
   async updateBranch(@Param('id') id: string, @Body() body: UpdateBranchDto) {
     const data = await this.branchesService.update(id, body);
@@ -72,7 +73,7 @@ export class BranchesController {
   }
 
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
-  @RequirePermissions('branches.manage')
+  @RequirePermissions(PERMISSION['branches.manage'])
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.branchesService.remove(id);
