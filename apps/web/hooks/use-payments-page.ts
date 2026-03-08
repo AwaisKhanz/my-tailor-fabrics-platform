@@ -104,6 +104,9 @@ export function usePaymentsPage() {
   const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
     null,
   );
+  const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
+    null,
+  );
   const [generateSalariesOpen, setGenerateSalariesOpen] = useState(false);
   const [salaryAccrualForm, setSalaryAccrualForm] = useState<SalaryAccrualForm>({
     month: getPreviousPayrollMonth(),
@@ -479,6 +482,27 @@ export function usePaymentsPage() {
     ],
   );
 
+  const requestReversePayment = useCallback((paymentId: string) => {
+    setPaymentToReverseId(paymentId);
+  }, []);
+
+  const closeReversePaymentDialog = useCallback((open: boolean) => {
+    if (!open) {
+      setPaymentToReverseId(null);
+    }
+  }, []);
+
+  const confirmReversePayment = useCallback(async () => {
+    if (!paymentToReverseId) {
+      return;
+    }
+
+    const reversed = await reversePayment(paymentToReverseId);
+    if (reversed) {
+      setPaymentToReverseId(null);
+    }
+  }, [paymentToReverseId, reversePayment]);
+
   const selectedEmployee = useMemo(
     () => employees.find((employee) => employee.id === selectedEmployeeId) ?? null,
     [employees, selectedEmployeeId],
@@ -514,6 +538,7 @@ export function usePaymentsPage() {
     disburseValidationError,
     disbursing,
     reversingPaymentId,
+    paymentToReverseId,
     generateSalariesOpen,
     salaryAccrualForm,
     salaryAccrualValidationError,
@@ -536,6 +561,8 @@ export function usePaymentsPage() {
     setSalaryAccrualMonth,
     setSalaryAccrualScope,
     submitSalaryAccrualGeneration,
-    reversePayment,
+    requestReversePayment,
+    closeReversePaymentDialog,
+    confirmReversePayment,
   };
 }

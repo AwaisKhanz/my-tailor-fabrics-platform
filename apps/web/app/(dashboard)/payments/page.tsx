@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Banknote, CalendarClock } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -20,9 +19,6 @@ import { PERMISSION } from '@tbms/shared-constants';
 function PaymentsPage() {
   const { canAll } = useAuthz();
   const canManagePayments = canAll([PERMISSION["payments.manage"]]);
-  const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
-    null,
-  );
   const {
     employees,
     employeesLoading,
@@ -42,6 +38,7 @@ function PaymentsPage() {
     disburseValidationError,
     disbursing,
     reversingPaymentId,
+    paymentToReverseId,
     generateSalariesOpen,
     salaryAccrualForm,
     salaryAccrualValidationError,
@@ -64,7 +61,9 @@ function PaymentsPage() {
     setSalaryAccrualMonth,
     setSalaryAccrualScope,
     submitSalaryAccrualGeneration,
-    reversePayment,
+    requestReversePayment,
+    closeReversePaymentDialog,
+    confirmReversePayment,
   } = usePaymentsPage();
 
   return (
@@ -143,7 +142,7 @@ function PaymentsPage() {
               onFromChange={setHistoryFrom}
               onToChange={setHistoryTo}
               onResetFilters={resetHistoryFilters}
-              onReversePayment={setPaymentToReverseId}
+              onReversePayment={requestReversePayment}
             />
           </>
         ) : (
@@ -187,20 +186,10 @@ function PaymentsPage() {
 
       <ConfirmDialog
         open={Boolean(paymentToReverseId)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPaymentToReverseId(null);
-          }
-        }}
+        onOpenChange={closeReversePaymentDialog}
         title="Reverse this payment?"
         description="This will create a reversal audit entry and restore the employee balance."
-        onConfirm={async () => {
-          if (!paymentToReverseId) {
-            return;
-          }
-          await reversePayment(paymentToReverseId);
-          setPaymentToReverseId(null);
-        }}
+        onConfirm={confirmReversePayment}
         confirmText="Reverse Payment"
         variant="destructive"
         loading={Boolean(
