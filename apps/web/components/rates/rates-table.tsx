@@ -1,20 +1,20 @@
 import { useMemo } from "react";
 import { Clock, GitBranch, Pencil } from "lucide-react";
+import { type RateCardListItem } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
-import { type RateWithIncludes } from "@/hooks/use-rates-page";
 
 interface RatesTableProps {
-  rates: RateWithIncludes[];
+  rates: RateCardListItem[];
   loading: boolean;
   page: number;
   total: number;
   pageSize: number;
   onPageChange: (page: number) => void;
-  onAdjustRate?: (rate: RateWithIncludes) => void;
+  onAdjustRate?: (rate: RateCardListItem) => void;
 }
 
 export function RatesTable({
@@ -26,8 +26,8 @@ export function RatesTable({
   onPageChange,
   onAdjustRate,
 }: RatesTableProps) {
-  const columns = useMemo<ColumnDef<RateWithIncludes>[]>(() => {
-    const baseColumns: ColumnDef<RateWithIncludes>[] = [
+  const columns = useMemo<ColumnDef<RateCardListItem>[]>(() => {
+    const baseColumns: ColumnDef<RateCardListItem>[] = [
       {
         header: "Garment Type",
         cell: (rate) => (

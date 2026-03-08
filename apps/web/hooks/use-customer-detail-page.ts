@@ -2,14 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { type Customer, type CustomerMeasurement, type MeasurementCategory, type Order } from "@tbms/shared-types";
+import {
+  type CustomerDetail,
+  type CustomerMeasurement,
+  type MeasurementCategory,
+  type Order,
+} from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { customerApi } from "@/lib/api/customers";
 import { useToast } from "@/hooks/use-toast";
-
-interface CustomerWithMeasurements extends Customer {
-  measurements: CustomerMeasurement[];
-}
 
 interface UseCustomerDetailPageParams {
   customerId: string | null;
@@ -20,7 +21,7 @@ export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParam
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
-  const [customer, setCustomer] = useState<CustomerWithMeasurements | null>(null);
+  const [customer, setCustomer] = useState<CustomerDetail | null>(null);
   const [categories, setCategories] = useState<MeasurementCategory[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);

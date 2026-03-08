@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type GarmentType, type WorkflowStepTemplate } from "@tbms/shared-types";
+import { type GarmentType } from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
@@ -9,10 +9,6 @@ import { logDevError } from "@/lib/logger";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
-
-export type GarmentTypeWithWorkflow = GarmentType & {
-  workflowSteps?: WorkflowStepTemplate[];
-};
 
 export interface GarmentTypesStats {
   totalCount: number;
@@ -38,7 +34,7 @@ export function useGarmentTypesPage() {
   });
 
   const [loading, setLoading] = useState(true);
-  const [garmentTypes, setGarmentTypes] = useState<GarmentTypeWithWorkflow[]>([]);
+  const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [stats, setStats] = useState<GarmentTypesStats>(EMPTY_GARMENT_STATS);
 
@@ -50,8 +46,8 @@ export function useGarmentTypesPage() {
 
   const [restoringId, setRestoringId] = useState<string | null>(null);
 
-  const [selectedType, setSelectedType] = useState<GarmentTypeWithWorkflow | null>(null);
-  const [typeToDelete, setTypeToDelete] = useState<GarmentTypeWithWorkflow | null>(null);
+  const [selectedType, setSelectedType] = useState<GarmentType | null>(null);
+  const [typeToDelete, setTypeToDelete] = useState<GarmentType | null>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -129,22 +125,22 @@ export function useGarmentTypesPage() {
     setIsDialogOpen(true);
   }, []);
 
-  const openEditDialog = useCallback((garmentType: GarmentTypeWithWorkflow) => {
+  const openEditDialog = useCallback((garmentType: GarmentType) => {
     setSelectedType(garmentType);
     setIsDialogOpen(true);
   }, []);
 
-  const openHistoryDialog = useCallback((garmentType: GarmentTypeWithWorkflow) => {
+  const openHistoryDialog = useCallback((garmentType: GarmentType) => {
     setSelectedType(garmentType);
     setIsHistoryOpen(true);
   }, []);
 
-  const openWorkflowDialog = useCallback((garmentType: GarmentTypeWithWorkflow) => {
+  const openWorkflowDialog = useCallback((garmentType: GarmentType) => {
     setSelectedType(garmentType);
     setIsWorkflowOpen(true);
   }, []);
 
-  const requestDelete = useCallback((garmentType: GarmentTypeWithWorkflow) => {
+  const requestDelete = useCallback((garmentType: GarmentType) => {
     setTypeToDelete(garmentType);
     setIsConfirmOpen(true);
   }, []);
@@ -173,7 +169,7 @@ export function useGarmentTypesPage() {
   }, [fetchGarmentTypes, toast, typeToDelete]);
 
   const restoreType = useCallback(
-    async (garmentType: GarmentTypeWithWorkflow) => {
+    async (garmentType: GarmentType) => {
       if (!garmentType.deletedAt) {
         return;
       }

@@ -15,6 +15,16 @@ export interface RateCard {
   deletedAt?: Date | string | null;
 }
 
+export interface RateCardListItem extends RateCard {
+  garmentType?: {
+    name: string;
+  };
+  branch?: {
+    code: string;
+    name: string;
+  } | null;
+}
+
 export interface CreateRateCardInput {
   branchId?: string | null;
   garmentTypeId: string;
@@ -37,7 +47,7 @@ export interface RateCardsListQueryInput {
   limit?: number;
 }
 
-export type RateCardsListResult = PaginatedResponse<RateCard>;
+export type RateCardsListResult = PaginatedResponse<RateCardListItem>;
 
 export interface RateStatsQueryInput {
   search?: string;

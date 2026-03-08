@@ -1,27 +1,27 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { Clock, Edit2, RotateCcw, Shirt, Trash2 } from "lucide-react";
+import { type GarmentType } from "@tbms/shared-types";
 import { GARMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
-import { type GarmentTypeWithWorkflow } from "@/hooks/use-garment-types-page";
 
 interface GarmentTypesInventoryTableProps {
-  garmentTypes: GarmentTypeWithWorkflow[];
+  garmentTypes: GarmentType[];
   loading: boolean;
   page: number;
   total: number;
   pageSize: number;
   onPageChange: (page: number) => void;
-  onOpen: (type: GarmentTypeWithWorkflow) => void;
-  onEdit: (type: GarmentTypeWithWorkflow) => void;
-  onOpenHistory: (type: GarmentTypeWithWorkflow) => void;
-  onOpenWorkflow: (type: GarmentTypeWithWorkflow) => void;
-  onDelete: (type: GarmentTypeWithWorkflow) => void;
-  onRestore: (type: GarmentTypeWithWorkflow) => void;
+  onOpen: (type: GarmentType) => void;
+  onEdit: (type: GarmentType) => void;
+  onOpenHistory: (type: GarmentType) => void;
+  onOpenWorkflow: (type: GarmentType) => void;
+  onDelete: (type: GarmentType) => void;
+  onRestore: (type: GarmentType) => void;
   restoringId?: string | null;
   canManageGarments?: boolean;
 }
@@ -42,7 +42,7 @@ export function GarmentTypesInventoryTable({
   restoringId = null,
   canManageGarments = true,
 }: GarmentTypesInventoryTableProps) {
-  const columns = useMemo<ColumnDef<GarmentTypeWithWorkflow>[]>(
+  const columns = useMemo<ColumnDef<GarmentType>[]>(
     () => [
       {
         header: "Garment Name",

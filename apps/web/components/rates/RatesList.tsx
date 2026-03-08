@@ -3,17 +3,15 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Clock, GitBranch } from "lucide-react";
-import { type RateCard } from "@tbms/shared-types";
+import { type RateCardListItem } from "@tbms/shared-types";
 import { formatPKR } from "@/lib/utils";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 
-type RateWithIncludes = RateCard & { branch?: { code: string; name: string } | null };
-
 interface RatesListProps {
-  rates: RateWithIncludes[];
+  rates: RateCardListItem[];
   showBranch?: boolean;
   paginationPrefix?: string;
 }
@@ -50,8 +48,8 @@ export function RatesList({
     return rates.slice(start, start + pageSize);
   }, [page, pageSize, rates]);
 
-  const columns = useMemo<ColumnDef<RateWithIncludes>[]>(() => {
-    const baseColumns: ColumnDef<RateWithIncludes>[] = [
+  const columns = useMemo<ColumnDef<RateCardListItem>[]>(() => {
+    const baseColumns: ColumnDef<RateCardListItem>[] = [
       {
         header: "Step",
         accessorKey: "stepKey",
@@ -108,7 +106,7 @@ export function RatesList({
   }, [showBranch]);
 
   return (
-    <DataTable<RateWithIncludes>
+    <DataTable<RateCardListItem>
       columns={columns}
       data={pagedRates}
       emptyMessage="No rates defined yet."

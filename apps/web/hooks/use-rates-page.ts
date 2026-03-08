@@ -6,7 +6,7 @@ import {
   type Branch,
   type CreateRateCardInput,
   type GarmentType,
-  type RateCard,
+  type RateCardListItem,
   type RateStatsSummary,
 } from "@tbms/shared-types";
 import { branchesApi } from "@/lib/api/branches";
@@ -63,11 +63,6 @@ function normalizeEffectiveFromForSubmit(value: Date | string): string {
   return parsed.toISOString();
 }
 
-export type RateWithIncludes = RateCard & {
-  garmentType?: { name: string };
-  branch?: { code: string; name: string } | null;
-};
-
 export function useRatesPage() {
   const { toast } = useToast();
   const { values, setValues, getPositiveInt } = useUrlTableState({
@@ -79,7 +74,7 @@ export function useRatesPage() {
   });
 
   const [loading, setLoading] = useState(true);
-  const [rates, setRates] = useState<RateWithIncludes[]>([]);
+  const [rates, setRates] = useState<RateCardListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<RateStatsSummary>(EMPTY_RATE_STATS);
   const page = getPositiveInt("page", 1);
@@ -89,7 +84,7 @@ export function useRatesPage() {
   const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedRateForAdjust, setSelectedRateForAdjust] = useState<RateWithIncludes | null>(
+  const [selectedRateForAdjust, setSelectedRateForAdjust] = useState<RateCardListItem | null>(
     null,
   );
 
@@ -205,7 +200,7 @@ export function useRatesPage() {
     setCreateDialogOpen(true);
   }, []);
 
-  const openAdjustRateDialog = useCallback((rate: RateWithIncludes) => {
+  const openAdjustRateDialog = useCallback((rate: RateCardListItem) => {
     setSelectedRateForAdjust(rate);
     setCreateDialogOpen(true);
   }, []);
