@@ -64,6 +64,39 @@ My Tailor & Fabrics is deployed as one App Platform app with separate service co
 6. API seed runner:
    [seed.js](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/prisma/seed.js)
 
+## Current Commands
+
+These are the exact commands that define the current deployment workflow.
+
+Repo-root verification commands:
+
+```bash
+npm ci
+npm run env:setup
+npm run env:verify
+npm run build:do:web
+npm run build:do:api
+docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
+docker build -f Dockerfile.api .
+```
+
+Repo-root runtime commands used by App Platform:
+
+```bash
+npm run start:do:web
+npm run start:do:api
+```
+
+Resolved runtime entrypoints:
+
+1. Web:
+   `npm run start:do:web` -> `node ./scripts/start-do-web.mjs`
+
+2. API:
+   `npm run start:do:api` -> `node apps/api/dist/main.js`
+
+Do not change the API entrypoint to `apps/api/dist/src/main.js`. The current Nest build outputs [main.js](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/dist/main.js) directly under `dist`.
+
 ## Local Preflight
 
 Run these commands from the repo root before changing production:
@@ -145,6 +178,12 @@ API service:
 
 Open the `api-backend` console and run from `/app`.
 
+Check migration state first:
+
+```bash
+npm run prisma:migrate:status
+```
+
 Deploy Prisma migrations:
 
 ```bash
@@ -177,6 +216,7 @@ Important:
 1. run Prisma commands in `api-backend`, not `web-frontend`
 2. run them from `/app`, not `/app/apps`
 3. `npm run prisma:seed` now defaults to the `admin` seed and does not depend on `ts-node`
+4. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `npm run prisma:migrate:deploy` before assuming the database is broken
 
 ## Domain and DNS
 
@@ -229,6 +269,12 @@ If the API console command fails:
 3. confirm the deployment has the latest commit
 4. run `npm run prisma:seed:list` first to verify the seed entrypoint is available
 
+If the API container exits with `Cannot find module '/app/apps/api/dist/src/main.js'`:
+
+1. confirm [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json) still defines `start:do:api` as `node apps/api/dist/main.js`
+2. confirm the latest deployment includes that commit
+3. rebuild and redeploy from `main`
+
 If the web looks unstyled:
 
 1. confirm the latest deployment is active
@@ -240,6 +286,14 @@ If auth breaks on a custom domain:
 1. confirm `NEXTAUTH_URL` matches the canonical live domain
 2. confirm the domain is active in App Platform
 3. confirm DNS points to `jellyfish-app-n3bi3.ondigitalocean.app`
+
+If TablePlus connects but shows no tables:
+
+1. confirm the selected database is `defaultdb`
+2. confirm you are viewing schema `public`
+3. run `npm run prisma:migrate:status` in the `api-backend` console
+4. run `npm run prisma:migrate:deploy` if migrations are pending
+5. refresh or reconnect TablePlus after migrations complete
 
 ## References
 
