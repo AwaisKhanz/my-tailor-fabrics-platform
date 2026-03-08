@@ -26,7 +26,6 @@ import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
   AddonType,
   FabricSource as SharedFabricSource,
-  DiscountType,
   ItemStatus,
   LedgerEntryType,
   OrderStatus,
@@ -36,7 +35,12 @@ import {
 } from '@tbms/shared-types';
 import { PERMISSION, hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
-import { calculateDiscountAmount, calculateOrderTotals } from './money';
+import {
+  calculateOrderSubtotal,
+  calculateOrderTotals,
+  discountExceedsSubtotal,
+  paymentExceedsTotal,
+} from './money';
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
 import { getStatusPinPepper } from '../common/env';
 import {
@@ -52,6 +56,21 @@ type OrdersFindFilters = {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+};
+
+type ResolvedOrderItemDraft = {
+  garmentTypeId: string;
+  garmentTypeName: string;
+  pieceNo: number;
+  quantity: number;
+  unitPrice: number;
+  designPrice: number;
+  addonsTotal: number;
+  description: string | undefined;
+  fabricSource: SharedFabricSource;
+  dueDate: Date | null;
+  designTypeId: string | null;
+  addons: OrderItemAddonDto[];
 };
 
 const ORDER_STATUS_TO_PRISMA: Record<OrderStatus, PrismaOrderStatus> = {
@@ -122,6 +141,48 @@ export class OrdersService {
 
   private toPrismaFabricSource(source: SharedFabricSource): PrismaFabricSource {
     return FABRIC_SOURCE_TO_PRISMA[source];
+  }
+
+  private calculateDraftOrderSubtotal(
+    items: readonly ResolvedOrderItemDraft[],
+  ) {
+    return calculateOrderSubtotal(
+      items.map((item) => ({
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        designPrice: item.designPrice,
+        addonsTotal: item.addonsTotal,
+      })),
+    );
+  }
+
+  private async calculateActiveOrderSubtotal(
+    orderId: string,
+    db: PrismaService | Prisma.TransactionClient,
+  ) {
+    const items = await db.orderItem.findMany({
+      where: {
+        orderId,
+        status: { not: ItemStatus.CANCELLED },
+        deletedAt: null,
+      },
+      include: {
+        addons: { where: { deletedAt: null } },
+        designType: true,
+      },
+    });
+
+    return calculateOrderSubtotal(
+      items.map((item) => ({
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        designPrice: item.designType?.defaultPrice ?? 0,
+        addonsTotal: item.addons.reduce(
+          (sum, addon) => sum + (addon.price || 0),
+          0,
+        ),
+      })),
+    );
   }
 
   private async cancelActiveTasksForOrderItems(
@@ -236,19 +297,7 @@ export class OrdersService {
 
       const orderBranchId = branchId || customer.branchId;
       // 2. Resolve Prices and compute item subtotals
-      let subtotal = 0;
-      const resolvedItems: Array<{
-        garmentTypeId: string;
-        garmentTypeName: string;
-        pieceNo: number;
-        quantity: number;
-        unitPrice: number;
-        description: string | undefined;
-        fabricSource: SharedFabricSource;
-        dueDate: Date | null;
-        designTypeId: string | null;
-        addons: OrderItemAddonDto[];
-      }> = [];
+      const resolvedItems: ResolvedOrderItemDraft[] = [];
       const pieceMap: Record<string, number> = {};
 
       for (const item of createOrderDto.items) {
@@ -283,9 +332,7 @@ export class OrdersService {
             (sum, a) => sum + (a.price || 0),
             0,
           );
-
-          subtotal +=
-            customerPrice + (designType?.defaultPrice || 0) + addonsPrice;
+          const designPrice = designType?.defaultPrice || 0;
 
           resolvedItems.push({
             garmentTypeId: type.id,
@@ -293,6 +340,8 @@ export class OrdersService {
             pieceNo: currentPieceNo, // SEQUENTIAL per garment type
             quantity: 1, // ALWAYS 1
             unitPrice: customerPrice,
+            designPrice,
+            addonsTotal: addonsPrice,
             description: item.description,
             fabricSource: item.fabricSource ?? SharedFabricSource.SHOP,
             dueDate: item.dueDate ? new Date(item.dueDate) : null,
@@ -302,30 +351,29 @@ export class OrdersService {
         }
       }
 
+      const subtotal = this.calculateDraftOrderSubtotal(resolvedItems);
+
       // 3. Compute Discount and Total
       if (
-        createOrderDto.discountType &&
-        createOrderDto.discountValue !== undefined
+        discountExceedsSubtotal(
+          subtotal,
+          createOrderDto.discountType,
+          createOrderDto.discountValue ?? 0,
+        )
       ) {
-        const rawDiscountAmount =
-          createOrderDto.discountType === DiscountType.FIXED
-            ? createOrderDto.discountValue
-            : Math.floor(subtotal * (createOrderDto.discountValue / 10000));
-        if (rawDiscountAmount > subtotal) {
-          throw new BadRequestException('Discount cannot exceed subtotal');
-        }
+        throw new BadRequestException('Discount cannot exceed subtotal');
       }
 
-      const discountAmount = calculateDiscountAmount(
+      const initialPayment = createOrderDto.advancePayment || 0;
+      const { totalAmount } = calculateOrderTotals(
         subtotal,
+        initialPayment,
         createOrderDto.discountType,
         createOrderDto.discountValue ?? 0,
       );
-      const totalAmount = subtotal - discountAmount;
 
       // Advance Payments handling
-      const initialPayment = createOrderDto.advancePayment || 0;
-      if (initialPayment > totalAmount) {
+      if (paymentExceedsTotal(initialPayment, totalAmount)) {
         throw new BadRequestException(
           'Advance payment cannot exceed total amount',
         );
@@ -431,29 +479,7 @@ export class OrdersService {
 
   async recalcOrderTotals(orderId: string, tx?: Prisma.TransactionClient) {
     const db = tx ?? this.prisma;
-
-    // 1. Get all active items
-    const items = await db.orderItem.findMany({
-      where: {
-        orderId,
-        status: { not: ItemStatus.CANCELLED },
-        deletedAt: null,
-      },
-      include: {
-        addons: { where: { deletedAt: null } },
-        designType: true,
-      },
-    });
-
-    const subtotal = items.reduce((sum: number, item) => {
-      const itemBase = item.unitPrice * item.quantity;
-      const designPrice = (item.designType?.defaultPrice || 0) * item.quantity;
-      const addonsTotal = item.addons.reduce(
-        (aSum, addon) => aSum + (addon.price || 0),
-        0,
-      );
-      return sum + itemBase + designPrice + addonsTotal;
-    }, 0);
+    const subtotal = await this.calculateActiveOrderSubtotal(orderId, db);
 
     // 2. Get order for discount info and totalPaid
     const order = await db.order.findUnique({
@@ -1002,6 +1028,40 @@ export class OrdersService {
             'Only admins can change financial details',
           );
         }
+
+        const subtotal = await this.calculateActiveOrderSubtotal(id, tx);
+        const nextDiscountType =
+          dto.discountType !== undefined
+            ? dto.discountType
+            : order.discountType;
+        const nextDiscountValue =
+          dto.discountValue !== undefined
+            ? dto.discountValue
+            : order.discountValue;
+
+        if (
+          discountExceedsSubtotal(
+            subtotal,
+            nextDiscountType,
+            nextDiscountValue ?? 0,
+          )
+        ) {
+          throw new BadRequestException('Discount cannot exceed subtotal');
+        }
+
+        const { totalAmount } = calculateOrderTotals(
+          subtotal,
+          order.totalPaid,
+          nextDiscountType,
+          nextDiscountValue ?? 0,
+        );
+
+        if (paymentExceedsTotal(order.totalPaid, totalAmount)) {
+          throw new BadRequestException(
+            'Existing payments exceed the updated order total',
+          );
+        }
+
         if (dto.discountType !== undefined)
           data.discountType = dto.discountType;
         if (dto.discountValue !== undefined)
