@@ -41,18 +41,18 @@ export function LoginFormPanel({
 }: LoginFormPanelProps) {
   return (
     <section className="flex h-full w-full flex-1 flex-col justify-center bg-card px-6 py-8 sm:px-8 lg:px-10">
-      <div className="mx-auto w-full max-w-[390px] space-y-7 md:space-y-8">
+      <div className="mx-auto w-full max-w-sm space-y-7 md:space-y-8">
         <div className="space-y-3 text-center md:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-semibold uppercase  text-muted-foreground">
             {siteConfig.shortName}
           </div>
-          <Heading as="h2" variant="page" className="text-3xl sm:text-[2rem]">
+          <Heading as="h2" variant="page">
             Welcome Back
           </Heading>
           <Text
             as="p"
             variant="lead"
-            className="mx-auto max-w-[320px] leading-relaxed md:mx-0"
+            className="mx-auto max-w-xs leading-relaxed md:mx-0"
           >
             Sign in to manage your tailoring business operations.
           </Text>
@@ -61,12 +61,7 @@ export function LoginFormPanel({
         <FormStack as="form" density="default" onSubmit={onSubmit}>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label
-                htmlFor="email"
-                className="text-xs font-semibold text-muted-foreground"
-              >
-                Email Address
-              </Label>
+              <Label htmlFor="email">Email Address</Label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -86,12 +81,7 @@ export function LoginFormPanel({
             </div>
 
             <div className="space-y-1.5">
-              <Label
-                htmlFor="password"
-                className="text-xs font-semibold text-muted-foreground"
-              >
-                Password
-              </Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -167,11 +157,7 @@ export function LoginFormPanel({
         </FormStack>
 
         <div className="border-t border-border pt-4 text-center md:text-left">
-          <Text
-            as="p"
-            variant="muted"
-            className="text-xs font-medium leading-relaxed text-muted-foreground"
-          >
+          <Text as="p" variant="muted" className="leading-relaxed">
             &copy; {new Date().getFullYear()} {siteConfig.name}. All rights
             reserved.
             <br />
