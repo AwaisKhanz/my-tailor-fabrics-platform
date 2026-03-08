@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -74,6 +75,8 @@ function toSharedFieldType(fieldType: string): FieldType {
   }
 }
 
+const MAX_SIZE_NUMBER_GENERATION_ATTEMPTS = 5;
+
 @Injectable()
 export class CustomersService {
   constructor(
@@ -128,11 +131,62 @@ export class CustomersService {
     return `${prefix}${String(nextNumber).padStart(4, '0')}`;
   }
 
+  private isSizeNumberUniqueConstraintError(error: unknown): boolean {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+      return false;
+    }
+
+    if (error.code !== 'P2002') {
+      return false;
+    }
+
+    const target = error.meta?.target;
+    if (Array.isArray(target)) {
+      return target.some((value) => value === 'sizeNumber');
+    }
+
+    if (typeof target === 'string') {
+      return target.includes('sizeNumber');
+    }
+
+    return false;
+  }
+
   async create(createCustomerDto: CreateCustomerDto, branchId: string) {
-    const sizeNumber = await this.generateSizeNumber(branchId);
-    return this.prisma.customer.create({
-      data: { ...createCustomerDto, sizeNumber, branchId },
-    });
+    for (
+      let attempt = 1;
+      attempt <= MAX_SIZE_NUMBER_GENERATION_ATTEMPTS;
+      attempt += 1
+    ) {
+      const sizeNumber = await this.generateSizeNumber(branchId);
+
+      try {
+        return await this.prisma.$transaction(async (tx) => {
+          return tx.customer.create({
+            data: { ...createCustomerDto, sizeNumber, branchId },
+          });
+        });
+      } catch (error: unknown) {
+        if (
+          this.isSizeNumberUniqueConstraintError(error) &&
+          attempt < MAX_SIZE_NUMBER_GENERATION_ATTEMPTS
+        ) {
+          continue;
+        }
+
+        if (this.isSizeNumberUniqueConstraintError(error)) {
+          throw new ConflictException(
+            'Could not generate a unique customer size number. Please try again.',
+          );
+        }
+
+        throw error;
+      }
+    }
+
+    throw new ConflictException(
+      'Unable to create customer with a unique size number.',
+    );
   }
 
   async findAll(
