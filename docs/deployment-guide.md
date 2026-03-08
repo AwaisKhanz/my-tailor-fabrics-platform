@@ -14,9 +14,8 @@ Current DigitalOcean account alignment:
 1. One App Platform app.
 2. One `web` service built from [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web).
 3. One `api` service built from [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api).
-4. One `migrate` pre-deploy job using the API image.
-5. One managed PostgreSQL cluster.
-6. One managed Valkey cluster that provides the API's `REDIS_URL`.
+4. One managed PostgreSQL cluster.
+5. One managed Valkey cluster that provides the API's `REDIS_URL`.
 
 Key routing decision:
 
@@ -114,8 +113,7 @@ Complete these in the App Platform UI after the first app is created from the sp
 3. Configure HTTP health checks:
    - web: `/healthz`
    - api: `/healthz`
-4. Verify the `migrate` pre-deploy job runs before both web and API roll out.
-5. Verify the starter `ondigitalocean.app` URL before attaching or changing any custom domain.
+4. Verify the starter `ondigitalocean.app` URL before attaching or changing any custom domain.
 
 ## Domain Rollout
 
@@ -139,15 +137,15 @@ After the first deployment:
 5. Confirm authenticated browser API calls hit `/backend/*`.
 6. Confirm the public order status page still works under `/api/status/*`.
 7. Confirm the API boots with PostgreSQL and Valkey connected.
-8. Confirm the `migrate` job completes successfully during deployment.
-9. Confirm scheduled jobs execute only once per interval with exactly one API instance running.
+8. Confirm scheduled jobs execute only once per interval with exactly one API instance running.
 
 ## Operational Notes
 
 1. Keep the API at one instance until cron is moved out of the API process into scheduled jobs.
 2. App Platform storage is ephemeral. Do not store uploads on local disk.
-3. If first-party file uploads are added later, use Spaces or another external object store.
-4. CI now checks the env contract and builds both Docker images via [ci.yml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.github/workflows/ci.yml).
+3. This deployment path currently omits the pre-deploy migration job because the App Platform job was failing before service rollout. There were no schema changes in this cutover, so skipping it is safe for this release. Run `npm run migrate:deploy:api` manually from a trusted environment when a future release includes Prisma migrations.
+4. If first-party file uploads are added later, use Spaces or another external object store.
+5. CI now checks the env contract and builds both Docker images via [ci.yml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.github/workflows/ci.yml).
 
 ## References
 

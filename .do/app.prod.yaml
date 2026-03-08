@@ -141,29 +141,6 @@ services:
         scope: RUN_TIME
         value: https://developers.google.com/oauthplayground
 
-jobs:
-  - name: migrate
-    kind: PRE_DEPLOY
-    github:
-      repo: AwaisKhanz/my-tailor-fabrics-platform
-      branch: main
-      deploy_on_push: true
-    dockerfile_path: Dockerfile.api
-    source_dir: /
-    instance_count: 1
-    instance_size_slug: apps-s-1vcpu-0.5gb
-    run_command: npm run migrate:deploy:api
-    envs:
-      - key: NODE_ENV
-        scope: RUN_TIME
-        value: production
-      - key: DATABASE_URL
-        scope: RUN_TIME
-        value: ${tbms-production-db.DATABASE_URL}
-      - key: DIRECT_URL
-        scope: RUN_TIME
-        value: ${tbms-production-db.DATABASE_URL}
-
 databases:
   - name: tbms-production-db
     engine: PG
