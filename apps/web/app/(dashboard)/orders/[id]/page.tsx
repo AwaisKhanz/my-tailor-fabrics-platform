@@ -1,15 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertCircle, CircleDollarSign, Package, TimerReset, UserCog } from "lucide-react";
-import { ordersApi } from "@/lib/api/orders";
-import { useToast } from "@/hooks/use-toast";
-import { useOrderDetail } from "@/hooks/use-order-detail";
-import { OrderItem, OrderStatus } from "@tbms/shared-types";
-import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
+import { OrderStatus } from "@tbms/shared-types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TaskAssignmentDialog } from "./TaskAssignmentDialog";
 import { formatDate, formatPKR } from "@/lib/utils";
 import { OrderDetailBreadcrumb } from "@/components/orders/order-detail-breadcrumb";
 import { OrderDetailHeaderCard } from "@/components/orders/order-detail-header-card";
@@ -26,12 +20,14 @@ import { StatCard } from "@/components/ui/stat-card";
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { useOrderDetailPage } from "@/hooks/use-order-detail-page";
+import { TaskAssignmentDialog } from "@/components/orders/task-assignment/task-assignment-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { canAll } = useAuthz();
-  const { toast } = useToast();
 
   const orderId = Array.isArray(params.id) ? params.id[0] : params.id;
   const {
@@ -45,63 +41,36 @@ function OrderDetailPage() {
     reversingPaymentId,
     sharing,
     shareData,
-    fetchOrder,
-    updateStatus,
-    addPayment,
     clearPaymentValidation,
-    reversePayment,
-    generateShareLink,
-    clearShareData,
-  } = useOrderDetail(orderId);
-
-  const [paymentOpen, setPaymentOpen] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [note, setNote] = useState("");
-  const [taskOpen, setTaskOpen] = useState(false);
-  const [taskItem, setTaskItem] = useState<OrderItem | null>(null);
-  const [shareOpen, setShareOpen] = useState(false);
-
-  const handleAddPayment = async () => {
-    const success = await addPayment(amount, note);
-    if (!success) {
-      return;
-    }
-
-    setPaymentOpen(false);
-    setAmount("");
-    setNote("");
-  };
-
-  const refreshOrder = () => {
-    void fetchOrder();
-  };
-
-  const handleShareStatus = async () => {
-    const result = await generateShareLink();
-    if (result) {
-      setShareOpen(true);
-    }
-  };
-
-  const handleShareDialogChange = (open: boolean) => {
-    setShareOpen(open);
-    if (!open) {
-      clearShareData();
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({ title: "Copied to clipboard" });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to copy text",
-        variant: "destructive",
-      });
-    }
-  };
+    paymentOpen,
+    setPaymentOpen,
+    amount,
+    setAmount,
+    note,
+    setNote,
+    taskOpen,
+    setTaskOpen,
+    taskItem,
+    shareOpen,
+    handleAddPayment,
+    refreshOrder,
+    handleShareStatus,
+    handleShareDialogChange,
+    copyToClipboard,
+    handlePrintReceipt,
+    paymentToReverseId,
+    requestPaymentReversal,
+    closePaymentReversalDialog,
+    confirmPaymentReversal,
+    handleCancelOrder,
+    handleAdvanceStatus,
+    handleManageTasks,
+    statusConfig,
+    totalPieces,
+    assignedTailorsCount,
+    totalTaskCount,
+    publicShareUrl,
+  } = useOrderDetailPage(orderId);
 
   if (loading) {
     return (
@@ -132,71 +101,19 @@ function OrderDetailPage() {
     );
   }
 
-  const statusConfig = ORDER_STATUS_CONFIG[order.status] ?? {
-    label: order.status,
-    variant: "outline",
-  };
-
   const canCancel =
     order.status !== OrderStatus.CANCELLED &&
     order.status !== OrderStatus.COMPLETED;
+  const resolvedStatusConfig = statusConfig ?? {
+    label: order.status,
+    variant: "outline" as const,
+  };
   const canEditAction = canAll(["orders.update"]);
   const canShareAction = canAll(["orders.share"]);
   const canCancelAction = canAll(["orders.cancel"]);
   const canPrintReceipt = canAll(["orders.receipt"]);
   const canCapturePayment = canAll(["payments.manage"]);
   const canManageTasks = canAll(["tasks.assign"]);
-
-  const publicShareUrl =
-    shareData && typeof window !== "undefined"
-      ? `${window.location.origin}/status/${shareData.token}`
-      : "";
-
-  const totalPieces = order.items.reduce(
-    (sum, item) => sum + Math.max(item.quantity ?? 1, 1),
-    0,
-  );
-  const assignedTailorsCount = new Set(
-    order.items.flatMap((item) =>
-      (item.tasks ?? [])
-        .map((task) => task.assignedEmployeeId)
-        .filter((value): value is string => Boolean(value)),
-    ),
-  ).size;
-  const totalTaskCount = order.items.reduce(
-    (sum, item) => sum + (item.tasks?.length ?? 0),
-    0,
-  );
-
-  const handlePrintReceipt = async () => {
-    try {
-      const receiptBlob = await ordersApi.getReceiptPdf(order.id);
-      const receiptUrl = window.URL.createObjectURL(receiptBlob);
-      window.open(receiptUrl, "_blank", "noopener,noreferrer");
-      window.setTimeout(() => {
-        window.URL.revokeObjectURL(receiptUrl);
-      }, 60_000);
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to generate receipt",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCancelOrder = () => {
-    void updateStatus(OrderStatus.CANCELLED);
-  };
-
-  const handleAdvanceStatus = (status: OrderStatus) => {
-    void updateStatus(status);
-  };
-
-  const handleManageTasks = (item: OrderItem) => {
-    setTaskItem(item);
-    setTaskOpen(true);
-  };
 
   return (
     <PageShell>
@@ -208,8 +125,8 @@ function OrderDetailPage() {
 
         <OrderDetailHeaderCard
           orderNumber={order.orderNumber}
-          statusLabel={statusConfig.label}
-          statusVariant={statusConfig.variant}
+          statusLabel={resolvedStatusConfig.label}
+          statusVariant={resolvedStatusConfig.variant}
           createdAtLabel={formatDate(order.createdAt)}
           dueDateLabel={formatDate(order.dueDate)}
           canCancel={canCancel}
@@ -298,15 +215,7 @@ function OrderDetailPage() {
                 canReversePayment={canCapturePayment}
                 reversingPaymentId={reversingPaymentId}
                 onCapturePayment={() => setPaymentOpen(true)}
-                onReversePayment={(paymentId) => {
-                  if (
-                    confirm(
-                      "Reverse this payment? This will create a reversal audit entry.",
-                    )
-                  ) {
-                    void reversePayment(paymentId);
-                  }
-                }}
+                onReversePayment={requestPaymentReversal}
               />
 
               <OrderLifecycleCard
@@ -368,6 +277,23 @@ function OrderDetailPage() {
         onCopy={(value) => {
           void copyToClipboard(value);
         }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(paymentToReverseId)}
+        onOpenChange={(open) => {
+          if (!open) {
+            closePaymentReversalDialog();
+          }
+        }}
+        title="Reverse this payment?"
+        description="This will create a reversal audit entry and restore the order balance."
+        onConfirm={confirmPaymentReversal}
+        confirmText="Reverse Payment"
+        variant="destructive"
+        loading={Boolean(
+          paymentToReverseId && reversingPaymentId === paymentToReverseId,
+        )}
       />
     </PageShell>
   );

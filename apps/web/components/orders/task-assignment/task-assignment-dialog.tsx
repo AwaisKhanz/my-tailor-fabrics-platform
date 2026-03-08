@@ -3,8 +3,8 @@
 import { type Employee, type OrderItem } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { TaskAssignmentTable } from "@/components/orders/task-assignment/task-assignment-table";
 import { useTaskAssignmentDialog } from "@/hooks/use-task-assignment-dialog";
+import { TaskAssignmentTable } from "@/components/orders/task-assignment/task-assignment-table";
 
 interface TaskAssignmentDialogProps {
   open: boolean;
@@ -40,21 +40,19 @@ export function TaskAssignmentDialog({
     return null;
   }
 
-  const footerActions = (
-    <div className="flex w-full justify-end gap-2">
-      <Button variant="outline" onClick={() => onOpenChange(false)}>
-        Close
-      </Button>
-    </div>
-  );
-
   return (
     <ScrollableDialog
       open={open}
       onOpenChange={onOpenChange}
       title={`Production Tasks: ${orderItem.garmentTypeName} (Piece #${orderItem.pieceNo})`}
       description="Manage production steps for this specific piece. Assignments and statuses are tracked independently per piece."
-      footerActions={footerActions}
+      footerActions={
+        <div className="flex w-full justify-end gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </div>
+      }
       maxWidthClass="sm:max-w-[850px]"
       maxHeightClass="max-h-[90vh]"
     >

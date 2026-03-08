@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Banknote, CalendarClock } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -13,10 +14,14 @@ import { PaymentsSummaryCards } from "@/components/payments/payments-summary-car
 import { usePaymentsPage } from "@/hooks/use-payments-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 function PaymentsPage() {
   const { canAll } = useAuthz();
   const canManagePayments = canAll(["payments.manage"]);
+  const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
+    null,
+  );
   const {
     employees,
     employeesLoading,
@@ -137,15 +142,7 @@ function PaymentsPage() {
               onFromChange={setHistoryFrom}
               onToChange={setHistoryTo}
               onResetFilters={resetHistoryFilters}
-              onReversePayment={(paymentId) => {
-                if (
-                  confirm(
-                    "Reverse this payment? This will create a reversal audit entry.",
-                  )
-                ) {
-                  void reversePayment(paymentId);
-                }
-              }}
+              onReversePayment={setPaymentToReverseId}
             />
           </>
         ) : (
@@ -186,6 +183,29 @@ function PaymentsPage() {
           onSubmit={submitSalaryAccrualGeneration}
         />
       ) : null}
+
+      <ConfirmDialog
+        open={Boolean(paymentToReverseId)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPaymentToReverseId(null);
+          }
+        }}
+        title="Reverse this payment?"
+        description="This will create a reversal audit entry and restore the employee balance."
+        onConfirm={async () => {
+          if (!paymentToReverseId) {
+            return;
+          }
+          await reversePayment(paymentToReverseId);
+          setPaymentToReverseId(null);
+        }}
+        confirmText="Reverse Payment"
+        variant="destructive"
+        loading={Boolean(
+          paymentToReverseId && reversingPaymentId === paymentToReverseId,
+        )}
+      />
     </PageShell>
   );
 }
