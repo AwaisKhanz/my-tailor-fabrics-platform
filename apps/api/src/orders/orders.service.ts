@@ -1300,6 +1300,8 @@ export class OrdersService {
         branchId,
         garmentTypeId,
         t.stepKey,
+        new Date(),
+        tx,
       );
 
       tasksToCreate.push({

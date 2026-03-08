@@ -11,6 +11,8 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 100;
 
+type RatesPrismaClient = PrismaService | Prisma.TransactionClient;
+
 @Injectable()
 export class RatesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -40,9 +42,10 @@ export class RatesService {
     garmentTypeId: string,
     stepKey: string,
     date: Date = new Date(),
+    client: RatesPrismaClient = this.prisma,
   ) {
     // 1. Try branch-specific rate
-    let rateCard = await this.prisma.rateCard.findFirst({
+    let rateCard = await client.rateCard.findFirst({
       where: {
         branchId,
         garmentTypeId,
@@ -56,7 +59,7 @@ export class RatesService {
 
     // 2. Fallback to global rate if not found
     if (!rateCard) {
-      rateCard = await this.prisma.rateCard.findFirst({
+      rateCard = await client.rateCard.findFirst({
         where: {
           branchId: null,
           garmentTypeId,
