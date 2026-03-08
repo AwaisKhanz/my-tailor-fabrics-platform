@@ -1,8 +1,8 @@
 "use client";
 
 import { LoginFormPanel } from "@/components/auth/login-form-panel";
+import { StatusPageFrame } from "@/components/status/status-page-frame";
 import { Card } from "@/components/ui/card";
-import { PageShell } from "@/components/ui/page-shell";
 import { useLoginPage } from "@/hooks/use-login-page";
 
 export default function LoginPage() {
@@ -22,12 +22,7 @@ export default function LoginPage() {
   } = useLoginPage();
 
   return (
-    <PageShell
-      width="full"
-      spacing="compact"
-      inset="none"
-      className="relative flex min-h-screen w-full items-center justify-center bg-background px-4 py-6 sm:px-6 sm:py-10"
-    >
+    <StatusPageFrame width="full" layout="centered">
       <Card className="relative w-full max-w-[28rem] overflow-hidden rounded-snow-32 border-border shadow">
         <LoginFormPanel
           email={email}
@@ -44,6 +39,6 @@ export default function LoginPage() {
           onSubmit={handleSubmit}
         />
       </Card>
-    </PageShell>
+    </StatusPageFrame>
   );
 }
