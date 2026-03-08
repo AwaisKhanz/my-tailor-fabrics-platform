@@ -32,8 +32,7 @@
     "schema": "apps/api/prisma/schema.prisma"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
-    "pdf-parse": "^2.4.5"
+    "@prisma/client": "^5.22.0"
   },
   "overrides": {
     "react": "18.3.1",

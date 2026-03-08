@@ -51,7 +51,6 @@ export const PERMISSIONS = [
   'integrations.manage',
   'mail.manage',
   'system.manage',
-  'appearance.manage',
   'search.global',
 ] as const;
 

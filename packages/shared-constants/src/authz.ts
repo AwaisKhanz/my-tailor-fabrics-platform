@@ -65,7 +65,6 @@ const rolePermissionMatrix: Record<Role, readonly Permission[]> = {
     'attendance.manage',
     'attendance.checkin',
     'audit.read',
-    'appearance.manage',
     'integrations.manage',
     'system.manage',
     'search.global',
@@ -293,7 +292,6 @@ const PERMISSION_UNIVERSE = [
   'integrations.manage',
   'mail.manage',
   'system.manage',
-  'appearance.manage',
   'search.global',
 ] as const satisfies readonly Permission[];
 

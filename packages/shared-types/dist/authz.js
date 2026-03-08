@@ -52,6 +52,5 @@ exports.PERMISSIONS = [
     'integrations.manage',
     'mail.manage',
     'system.manage',
-    'appearance.manage',
     'search.global',
 ];
