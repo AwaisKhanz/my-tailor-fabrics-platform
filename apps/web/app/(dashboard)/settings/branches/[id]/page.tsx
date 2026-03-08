@@ -1,12 +1,11 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { BranchHubConfig } from "@/components/config/BranchHubConfig";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
+import { useRequiredRouteParam } from "@/hooks/use-route-param";
 
 function BranchHubPage() {
-  const params = useParams<{ id: string }>();
-  const branchId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const branchId = useRequiredRouteParam("id");
 
   return <BranchHubConfig branchId={branchId} />;
 }

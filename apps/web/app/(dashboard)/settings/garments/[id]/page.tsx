@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { GarmentAnalyticsStatsGrid } from "@/components/config/garments/detail/garment-analytics-stats-grid";
 import { GarmentDetailBreadcrumb } from "@/components/config/garments/detail/garment-detail-breadcrumb";
 import { GarmentDetailHeader } from "@/components/config/garments/detail/garment-detail-header";
@@ -14,16 +14,15 @@ import { GarmentRatesSection } from "@/components/config/garments/detail/garment
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentDetailPage } from "@/hooks/use-garment-detail-page";
+import { useRequiredRouteParam } from "@/hooks/use-route-param";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function GarmentDetailPage() {
-  const params = useParams<{ id: string }>();
   const router = useRouter();
+  const garmentId = useRequiredRouteParam("id");
   const { canAll } = useAuthz();
   const canManageRates = canAll([PERMISSION["rates.manage"]]);
-
-  const garmentId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const {
     loading,

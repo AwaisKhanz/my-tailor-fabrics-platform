@@ -1,12 +1,11 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { MeasurementCategoryDetail } from "@/components/config/MeasurementCategoryDetail";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
+import { useRequiredRouteParam } from "@/hooks/use-route-param";
 
 function MeasurementDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = useRequiredRouteParam("id");
 
   return <MeasurementCategoryDetail id={id} />;
 }

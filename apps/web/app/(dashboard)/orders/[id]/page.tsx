@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AlertCircle, CircleDollarSign, Package, TimerReset, UserCog } from "lucide-react";
 import { OrderStatus } from "@tbms/shared-types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +19,7 @@ import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell"
 import { StatCard } from "@/components/ui/stat-card";
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { useAuthz } from "@/hooks/use-authz";
+import { useRequiredRouteParam } from "@/hooks/use-route-param";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { useOrderDetailPage } from "@/hooks/use-order-detail-page";
 import { TaskAssignmentDialog } from "@/components/orders/task-assignment/task-assignment-dialog";
@@ -26,11 +27,9 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function OrderDetailPage() {
-  const params = useParams<{ id: string }>();
   const router = useRouter();
+  const orderId = useRequiredRouteParam("id");
   const { canAll } = useAuthz();
-
-  const orderId = Array.isArray(params.id) ? params.id[0] : params.id;
   const {
     loading,
     order,

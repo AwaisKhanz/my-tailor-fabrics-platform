@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, Banknote, Ruler, ShoppingBag, Wallet } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { CustomerDialog } from "@/components/customers/CustomerDialog";
 import { CustomerDetailBreadcrumb } from "@/components/customers/detail/customer-detail-breadcrumb";
 import { CustomerDetailHeader } from "@/components/customers/detail/customer-detail-header";
@@ -16,17 +16,16 @@ import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
+import { useRequiredRouteParam } from "@/hooks/use-route-param";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function CustomerDetailPage() {
-  const params = useParams<{ id: string }>();
   const router = useRouter();
+  const customerId = useRequiredRouteParam("id");
   const { canAll } = useAuthz();
   const canEditCustomer = canAll([PERMISSION["customers.update"]]);
   const canManageMeasurements = canAll([PERMISSION["customers.measurements.manage"]]);
-
-  const customerId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const {
     loading,

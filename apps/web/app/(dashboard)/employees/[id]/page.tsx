@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { AccountCreationDialog } from "@/components/employees/AccountCreationDialog";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
@@ -16,20 +16,19 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
+import { useRequiredRouteParam } from "@/hooks/use-route-param";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function EmployeeDetailPage() {
-  const params = useParams<{ id: string }>();
   const router = useRouter();
+  const employeeId = useRequiredRouteParam("id");
   const { canAll } = useAuthz();
   const canManageEmployees = canAll([PERMISSION["employees.manage"]]);
   const canManageAccounts = canAll([PERMISSION["users.manage"]]);
   const canManageLedger = canAll([PERMISSION["ledger.manage"]]);
   const canManageTaskStatus = canAll([PERMISSION["tasks.update"]]);
-  const employeeId = Array.isArray(params.id) ? params.id[0] : params.id;
-
   const {
     loading,
     employee,
