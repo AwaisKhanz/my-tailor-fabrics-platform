@@ -4,6 +4,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 type TrustProxyConfig = boolean | number | string | string[];
 const DEFAULT_GOOGLE_REDIRECT_URI =
   'https://developers.google.com/oauthplayground';
+const DURATION_ENV_PATTERN =
+  /^-?(?:\d+|\d*\.\d+)(?:\s*(?:years?|yrs?|yr|y|weeks?|week|w|days?|day|d|hours?|hour|hrs?|hr|h|minutes?|minute|mins?|min|m|seconds?|second|secs?|sec|s|milliseconds?|millisecond|msecs?|msec|ms))?$/i;
 
 export type GoogleMailEnvironment = {
   clientId?: string;
@@ -34,8 +36,12 @@ function resolveDurationEnv(
   value: string | undefined,
   devFallback: StringValue,
 ): StringValue {
-  if (value && value.trim().length > 0) {
-    return value as StringValue;
+  const trimmedValue = resolveOptionalEnv(value);
+  if (trimmedValue) {
+    if (!isDurationStringValue(trimmedValue)) {
+      throw new Error(`${name} must be a valid duration string`);
+    }
+    return trimmedValue;
   }
 
   if (isProduction) {
@@ -51,6 +57,10 @@ function resolveOptionalEnv(value: string | undefined): string | undefined {
   }
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function isDurationStringValue(value: string): value is StringValue {
+  return DURATION_ENV_PATTERN.test(value);
 }
 
 export function isProductionEnvironment(): boolean {

@@ -73,7 +73,7 @@ function setForwardedRef<T>(ref: React.ForwardedRef<T>, value: T | null) {
   }
 
   if (ref) {
-    (ref as React.MutableRefObject<T | null>).current = value;
+    ref.current = value;
   }
 }
 
