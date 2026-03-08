@@ -1,6 +1,7 @@
 import { Check, Clock3, Dot } from "lucide-react";
 import { type ReactNode } from "react";
 import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
+import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
@@ -148,7 +149,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
                 className="rounded-md"
               >
                 <p className="text-xs font-semibold text-foreground">
-                  {entry.toStatus.replace("_", " ")}
+                  {ORDER_STATUS_CONFIG[entry.toStatus].label}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatHistoryTime(entry.createdAt)}

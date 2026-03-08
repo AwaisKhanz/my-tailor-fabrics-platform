@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { CalendarDays, Scissors } from "lucide-react";
 import { ItemStatus, OrderItem } from "@tbms/shared-types";
+import { ITEM_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -150,7 +151,7 @@ export function OrderItemsTable({
               : "outline";
         return (
           <Badge variant={statusVariant} size="xs" className="uppercase ">
-            {item.status.replace("_", " ")}
+            {ITEM_STATUS_LABELS[item.status]}
           </Badge>
         );
       },

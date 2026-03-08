@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import { useAuthz } from "@/hooks/use-authz";
 import { siteConfig } from "@/lib/config";
-import { PERMISSION } from '@tbms/shared-constants';
+import { isRole, PERMISSION, ROLE_LABELS } from '@tbms/shared-constants';
 
 export function Topbar() {
   const { data: session } = useSession();
@@ -66,7 +66,7 @@ export function Topbar() {
                       {user?.email || "User Account"}
                     </p>
                     <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                      {role?.replace("_", " ") || "Member"}
+                      {role && isRole(role) ? ROLE_LABELS[role] : "Member"}
                     </Label>
                   </div>
                 </DropdownMenuLabel>

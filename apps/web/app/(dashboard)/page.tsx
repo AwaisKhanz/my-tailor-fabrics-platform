@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Banknote, Plus, ReceiptText, ShoppingBag, Wallet } from "lucide-react";
-import { Role } from "@tbms/shared-types";
 import { formatPKR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,7 @@ import { StatsGrid } from "@/components/ui/stats-grid";
 import { Heading, Text } from "@/components/ui/typography";
 import { Can } from "@/components/auth/can";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
-import { PERMISSION } from '@tbms/shared-constants';
+import { isRole, PERMISSION, ROLE_LABELS } from '@tbms/shared-constants';
 
 function DashboardPage() {
   const router = useRouter();
@@ -48,11 +47,8 @@ function DashboardPage() {
     totalGarmentItems,
   } = useDashboardPage();
 
-  const roleLabel = session?.user?.role
-    ? session.user.role === Role.SUPER_ADMIN
-      ? "Super Admin"
-      : session.user.role.replace("_", " ")
-    : undefined;
+  const role = session?.user?.role;
+  const roleLabel = role && isRole(role) ? ROLE_LABELS[role] : undefined;
 
   const userLabel = session?.user?.name ? session?.user?.name : undefined;
 

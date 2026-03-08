@@ -61,7 +61,8 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 1. Use `@tbms/shared-types` for shared DTOs, enums, auth/session shapes, and response contracts.
 2. Use `@tbms/shared-constants` for labels, status mappings, permissions, route policy, and shared constants.
 3. Do not create web-local duplicates of shared enums, permission names, or status labels.
-4. If a cross-app contract changes, update the shared package first and then adapt the web code.
+4. Do not hand-format enum labels in UI code with string replacement when a shared label map already exists.
+5. If a cross-app contract changes, update the shared package first and then adapt the web code.
 
 ## 7. Environment Rules
 

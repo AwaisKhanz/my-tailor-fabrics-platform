@@ -8,6 +8,10 @@ export const ROLES: { value: Role; label: string }[] = [
   { value: Role.EMPLOYEE, label: 'Employee' },
 ];
 
+export const ROLE_LABELS: Record<Role, string> = Object.fromEntries(
+  ROLES.map((role) => [role.value, role.label]),
+) as Record<Role, string>;
+
 export const ROLE_BADGE: Record<Role, BadgeVariant> = {
   [Role.SUPER_ADMIN]: 'default',
   [Role.ADMIN]: 'secondary',

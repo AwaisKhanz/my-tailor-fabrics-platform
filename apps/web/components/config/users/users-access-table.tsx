@@ -1,6 +1,5 @@
-import { useMemo } from "react";
 import { Pencil, Trash2, Users } from "lucide-react";
-import { ROLE_BADGE, ROLES } from "@tbms/shared-constants";
+import { ROLE_BADGE, ROLE_LABELS } from "@tbms/shared-constants";
 import { type UserAccount } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,12 +31,7 @@ export function UsersAccessTable({
   onPageChange,
   onToggleActive,
 }: UsersAccessTableProps) {
-  const roleLabels = useMemo(() => {
-    return new Map(ROLES.map((role) => [role.value, role.label]));
-  }, []);
-
-  const columns = useMemo<ColumnDef<UserAccount>[]>(
-    () => [
+  const columns: ColumnDef<UserAccount>[] = [
       {
         header: "Staff Member",
         cell: (user) => (
@@ -71,7 +65,7 @@ export function UsersAccessTable({
         header: "Role",
         cell: (user) => (
           <Badge variant={ROLE_BADGE[user.role] ?? "outline"} size="xs">
-            {roleLabels.get(user.role) ?? user.role.replaceAll("_", " ")}
+            {ROLE_LABELS[user.role]}
           </Badge>
         ),
       },
@@ -130,9 +124,7 @@ export function UsersAccessTable({
           </div>
         ),
       },
-    ],
-    [onDelete, onEdit, onToggleActive, roleLabels],
-  );
+    ];
 
   return (
     <DataTable
