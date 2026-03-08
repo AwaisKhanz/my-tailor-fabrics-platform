@@ -1,6 +1,12 @@
 name: my-tailor-and-fabrics
 region: sgp
 
+domains:
+  - domain: mytailorandfabrics.com
+    type: PRIMARY
+  - domain: www.mytailorandfabrics.com
+    type: ALIAS
+
 ingress:
   rules:
     - component:
