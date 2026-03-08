@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { AccountCreationDialog } from "@/components/employees/AccountCreationDialog";
@@ -25,9 +24,6 @@ function EmployeeDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { canAll } = useAuthz();
-  const [ledgerEntryToReverseId, setLedgerEntryToReverseId] = useState<
-    string | null
-  >(null);
   const canManageEmployees = canAll([PERMISSION["employees.manage"]]);
   const canManageAccounts = canAll([PERMISSION["users.manage"]]);
   const canManageLedger = canAll([PERMISSION["ledger.manage"]]);
@@ -90,8 +86,11 @@ function EmployeeDetailPage() {
     ledgerEntryFieldErrors,
     ledgerEntryValidationError,
     submittingLedgerEntry,
+    ledgerEntryToReverseId,
     submitLedgerEntry,
-    reverseLedgerEntry,
+    requestLedgerEntryReverse,
+    closeLedgerEntryReverseDialog,
+    confirmLedgerEntryReverse,
   } = useEmployeeDetailPage({ employeeId });
 
   const refreshEmployeeData = () => {
@@ -172,7 +171,7 @@ function EmployeeDetailPage() {
               onTaskStatusChange={(taskId, status) => {
                 void handleTaskStatusChange(taskId, status);
               }}
-              onReverseLedgerEntry={setLedgerEntryToReverseId}
+              onReverseLedgerEntry={requestLedgerEntryReverse}
               onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
               onOpenDocumentDialog={() => setDocumentDialogOpen(true)}
               onOpenAccountDialog={() => setAccountDialogOpen(true)}
@@ -247,20 +246,10 @@ function EmployeeDetailPage() {
 
       <ConfirmDialog
         open={Boolean(ledgerEntryToReverseId)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setLedgerEntryToReverseId(null);
-          }
-        }}
+        onOpenChange={closeLedgerEntryReverseDialog}
         title="Reverse this ledger entry?"
         description="This will create an audit reversal and recalculate the employee ledger."
-        onConfirm={async () => {
-          if (!ledgerEntryToReverseId) {
-            return;
-          }
-          await reverseLedgerEntry(ledgerEntryToReverseId);
-          setLedgerEntryToReverseId(null);
-        }}
+        onConfirm={confirmLedgerEntryReverse}
         confirmText="Reverse Entry"
         variant="destructive"
       />

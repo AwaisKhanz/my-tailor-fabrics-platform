@@ -117,6 +117,9 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   }>({});
   const [ledgerEntryValidationError, setLedgerEntryValidationError] = useState("");
   const [submittingLedgerEntry, setSubmittingLedgerEntry] = useState(false);
+  const [ledgerEntryToReverseId, setLedgerEntryToReverseId] = useState<string | null>(
+    null,
+  );
 
   const fetchEmployeeData = useCallback(async () => {
     if (!employeeId) {
@@ -348,6 +351,25 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     [fetchEmployeeData, fetchLedger, ledgerPage, toast],
   );
 
+  const requestLedgerEntryReverse = useCallback((entryId: string) => {
+    setLedgerEntryToReverseId(entryId);
+  }, []);
+
+  const closeLedgerEntryReverseDialog = useCallback((open: boolean) => {
+    if (!open) {
+      setLedgerEntryToReverseId(null);
+    }
+  }, []);
+
+  const confirmLedgerEntryReverse = useCallback(async () => {
+    if (!ledgerEntryToReverseId) {
+      return;
+    }
+
+    await reverseLedgerEntry(ledgerEntryToReverseId);
+    setLedgerEntryToReverseId(null);
+  }, [ledgerEntryToReverseId, reverseLedgerEntry]);
+
   const uploadDocument = useCallback(async () => {
     if (!employeeId) {
       return;
@@ -559,7 +581,10 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     ledgerEntryFieldErrors,
     ledgerEntryValidationError,
     submittingLedgerEntry,
+    ledgerEntryToReverseId,
     submitLedgerEntry,
-    reverseLedgerEntry,
+    requestLedgerEntryReverse,
+    closeLedgerEntryReverseDialog,
+    confirmLedgerEntryReverse,
   };
 }
