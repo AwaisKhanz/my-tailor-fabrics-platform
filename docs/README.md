@@ -19,6 +19,9 @@ This directory contains the current operational and engineering documentation fo
 5. [Auth Architecture](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/auth-architecture.md)
    Authentication model and token/session responsibilities.
 
+6. [Development Rules](./rules/README.md)
+   Detailed backend, frontend, shared-package, and change-management rules used for implementation and code review.
+
 ## Reference Inputs
 
 These PDFs are retained as product reference material:

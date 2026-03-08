@@ -43,3 +43,4 @@ Canonical production docs:
 3. [Deployment Guide](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/deployment-guide.md)
 4. [Environment Setup](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/environment-setup.md)
 5. [Coding Standards](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/coding-standards.md)
+6. [Development Rules](./docs/rules/README.md)
