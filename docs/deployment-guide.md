@@ -1,52 +1,72 @@
 # DigitalOcean App Platform Deployment Guide
 
-This guide describes the production deployment path for the TBMS monorepo on DigitalOcean App Platform.
+This document is the current production runbook for TBMS on DigitalOcean App Platform.
 
-Current DigitalOcean account alignment:
+## Live Footprint
 
-1. Existing App Platform app name: `my-tailor-and-fabrics`
-2. App Platform region: `sgp`
-3. Existing managed PostgreSQL cluster: `tbms-production-db` in `sgp1`
-4. Planned managed Valkey cluster: `tbms-production-valkey` in `sgp1`
+Current production topology:
 
-## Architecture
+1. App Platform app:
+   `my-tailor-and-fabrics`
 
-1. One App Platform app.
-2. One `web` service built from [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web).
-3. One `api` service built from [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api).
-4. One managed PostgreSQL cluster.
-5. One managed Valkey cluster that provides the API's `REDIS_URL`.
+2. App Platform region:
+   `sgp`
 
-Key routing decision:
+3. Services:
+   - `web-frontend`
+   - `api-backend`
 
-1. The web app owns `/`.
-2. The Nest API is exposed at `/backend`.
-3. The Next app keeps `/api/auth/*` and `/api/status/*`.
-4. Do not route the API to `/api`, or NextAuth and the public status route will break.
+4. Managed databases:
+   - PostgreSQL: `tbms-production-db` in `sgp1`
+   - Valkey: `tbms-production-valkey` in `sgp1`
 
-## Repo Files That Drive Deployment
+5. Domains:
+   - primary: `mytailorandfabrics.com`
+   - alias: `www.mytailorandfabrics.com`
+   - starter: `jellyfish-app-n3bi3.ondigitalocean.app`
 
-1. App Platform spec: [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml)
-2. Web container: [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web)
-3. API container: [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api)
-4. Root deployment scripts: [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json)
-5. Web health endpoint: [route.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/web/app/healthz/route.ts)
-6. API health endpoint: [app.controller.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/src/app.controller.ts)
+## Deployment Model
 
-## Why The App Uses Repo-Root Build Context
+TBMS is deployed as one App Platform app with separate service containers.
 
-This repo is an npm workspace monorepo:
+1. Web service:
+   built from [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web)
 
-1. `apps/web`
-2. `apps/api`
-3. `packages/shared-types`
-4. `packages/shared-constants`
+2. API service:
+   built from [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api)
 
-DigitalOcean App Platform monorepo docs state that when a component uses a subdirectory as `source_dir`, files outside that directory are not available at runtime. Because both apps rely on workspace packages outside their own directories, the deployment spec uses `/` as the build context and separate Dockerfiles to select the correct app.
+3. Shared workspace build context:
+   both services use repo-root build context so `apps/*` and `packages/*` are available during Docker builds
+
+4. Public routing:
+   - web owns `/`
+   - API owns `/backend`
+   - NextAuth remains on `/api/auth/*`
+   - public order status remains on `/api/status/*`
+
+## Files That Define Production
+
+1. App spec:
+   [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml)
+
+2. Root runtime and build commands:
+   [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json)
+
+3. Web bootstrap:
+   [start-do-web.mjs](/Users/muhammadawais/Documents/My%20Tailors/tbms/scripts/start-do-web.mjs)
+
+4. Web health endpoint:
+   [route.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/web/app/healthz/route.ts)
+
+5. API health endpoint:
+   [app.controller.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/src/app.controller.ts)
+
+6. API seed runner:
+   [seed.js](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/prisma/seed.js)
 
 ## Local Preflight
 
-Run these commands from the repo root:
+Run these commands from the repo root before changing production:
 
 ```bash
 npm ci
@@ -58,99 +78,168 @@ docker build -f Dockerfile.api .
 docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
 ```
 
-Notes:
+What these checks cover:
 
-1. The web build no longer depends on Google Fonts at build time. It now uses the local Geist variable font files already present in the repo.
-2. The API scheduler can now be turned on or off with `ENABLE_INTERNAL_SCHEDULER`.
-3. The API stays at one instance in v1 because cron is still embedded in the API process.
+1. env files exist and match the contract
+2. shared packages build cleanly
+3. Prisma client generation works
+4. both App Platform Docker images build with the repo-root context
 
-## App Platform Create / Update
+## Create or Update the App
 
-Install and authenticate `doctl`, then use the spec:
+DigitalOcean is configured to deploy on push from `main`, but the app spec remains the source of truth.
+
+Create the app from scratch:
 
 ```bash
 doctl auth init
 doctl apps create --spec .do/app.prod.yaml
 ```
 
-For later updates:
+Update an existing app:
 
 ```bash
 doctl apps update <app-id> --spec .do/app.prod.yaml
 ```
 
-## App Platform Variables
+Current repo behavior:
 
-The spec already includes the required variable names and placeholders. Before the first production deploy, replace all `REPLACE_*` placeholder values in [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml).
+1. pushes to `main` trigger deployment automatically
+2. spec changes should still be committed to [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml)
+3. service names in the live app must remain `web-frontend` and `api-backend` to match internal references such as `${api-backend.PRIVATE_URL}`
 
-Important runtime values:
+## Required Environment and Secrets
 
-1. Web:
-   `NEXT_PUBLIC_API_URL=/backend`
-   `INTERNAL_API_URL=${api-backend.PRIVATE_URL}`
-   `NEXTAUTH_URL=${APP_URL}`
-2. API:
-   `FRONTEND_URL=${APP_URL}`
-   `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
-   `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
-   `REDIS_URL=${tbms-production-valkey.DATABASE_URL}`
-   `ENABLE_INTERNAL_SCHEDULER=true`
+The spec contains the required variable names. Before initial create or any environment reset, replace all placeholder secret values.
 
-Important secret values you must set:
+Web service:
 
-1. `NEXTAUTH_SECRET`
-2. `JWT_SECRET`
-3. `JWT_REFRESH_SECRET`
-4. `STATUS_PIN_PEPPER`
-5. Google mail secrets if Gmail integration will remain enabled in production
+1. `NODE_ENV=production`
+2. `PORT=8080`
+3. `NEXT_PUBLIC_API_URL=/backend`
+4. `INTERNAL_API_URL=${api-backend.PRIVATE_URL}`
+5. `NEXTAUTH_URL=${APP_URL}`
+6. `NEXTAUTH_SECRET`
 
-## DigitalOcean Console Steps After App Creation
+API service:
 
-Complete these in the App Platform UI after the first app is created from the spec:
+1. `NODE_ENV=production`
+2. `PORT=8080`
+3. `TRUST_PROXY=1`
+4. `TZ=Asia/Karachi`
+5. `FRONTEND_URL=${APP_URL}`
+6. `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
+7. `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
+8. `REDIS_URL=${tbms-production-valkey.DATABASE_URL}`
+9. `JWT_SECRET`
+10. `JWT_REFRESH_SECRET`
+11. `JWT_EXPIRES_IN=15m`
+12. `JWT_REFRESH_EXPIRES_IN=7d`
+13. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
+14. `STATUS_PIN_PEPPER`
+15. `ENABLE_INTERNAL_SCHEDULER=true`
+16. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
+17. Google mail secrets only if Gmail integration is in use
 
-1. Keep the App Platform app in `sgp` and keep PostgreSQL, Valkey, and VPC in `sgp1` to match the current account footprint.
-2. Enable App Platform VPC and keep the managed data services in the same VPC.
-3. Configure HTTP health checks:
-   - web: `/healthz`
-   - api: `/healthz`
-4. Verify the starter `ondigitalocean.app` URL before attaching or changing any custom domain.
+## Current DigitalOcean Console Operations
 
-## Domain Rollout
+Open the `api-backend` console and run from `/app`.
 
-The intended rollout is:
+Deploy Prisma migrations:
 
-1. Deploy and verify on the starter `ondigitalocean.app` domain.
-2. Add `mytailorandfabrics.com` as the primary custom domain.
-3. Redirect the starter domain to `.com`.
-4. Later, once `.pk` is ready, add `mytailorandfabrics.pk` and redirect it to `.com`.
+```bash
+npm run prisma:migrate:deploy
+```
 
-Do not make `.pk` canonical in this phase. The current production plan keeps `.com` canonical first.
+List available seeds:
 
-## Smoke Tests
+```bash
+npm run prisma:seed:list
+```
 
-After the first deployment:
+Run the default admin seed:
 
-1. Open `/` and confirm the web app renders.
-2. Open `/healthz` and confirm the web health response is `200`.
-3. Open `/backend/healthz` and confirm the API health response is `200`.
-4. Log in and confirm the NextAuth flow still works under `/api/auth/*`.
-5. Confirm authenticated browser API calls hit `/backend/*`.
-6. Confirm the public order status page still works under `/api/status/*`.
-7. Confirm the API boots with PostgreSQL and Valkey connected.
-8. Confirm scheduled jobs execute only once per interval with exactly one API instance running.
+```bash
+npm run prisma:seed
+```
 
-## Operational Notes
+Override seeded admin credentials if needed:
 
-1. Keep the API at one instance until cron is moved out of the API process into scheduled jobs.
-2. App Platform storage is ephemeral. Do not store uploads on local disk.
-3. This deployment path currently omits the pre-deploy migration job because the App Platform job was failing before service rollout. There were no schema changes in this cutover, so skipping it is safe for this release. Run `npm run migrate:deploy:api` manually from a trusted environment when a future release includes Prisma migrations.
-4. If first-party file uploads are added later, use Spaces or another external object store.
-5. CI now checks the env contract and builds both Docker images via [ci.yml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.github/workflows/ci.yml).
-6. The production-safe seed command is `npm run prisma:seed`. It defaults to the `admin` seed and works inside the App Platform `api-backend` console because Prisma now runs a plain Node entrypoint instead of `ts-node`.
-7. To inspect or target seeds later, use:
-   - `npm run prisma:seed:list`
-   - `SEED_TARGET=admin npm run prisma:seed`
-   - optional overrides: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME`
+```bash
+SEED_ADMIN_EMAIL=admin@tbms.com \
+SEED_ADMIN_PASSWORD=admin123 \
+SEED_ADMIN_NAME="Main Admin" \
+npm run prisma:seed
+```
+
+Important:
+
+1. run Prisma commands in `api-backend`, not `web-frontend`
+2. run them from `/app`, not `/app/apps`
+3. `npm run prisma:seed` now defaults to the `admin` seed and does not depend on `ts-node`
+
+## Domain and DNS
+
+Current target domain rollout:
+
+1. verify starter domain first
+2. keep `.com` as canonical
+3. add `.pk` later only when you intentionally switch or redirect it
+
+Squarespace DNS records for the current `.com` setup:
+
+1. `@` -> `ALIAS` -> `jellyfish-app-n3bi3.ondigitalocean.app`
+2. `www` -> `CNAME` -> `jellyfish-app-n3bi3.ondigitalocean.app`
+
+Do not change:
+
+1. Google Workspace `MX`
+2. SPF `TXT`
+3. DKIM `TXT`
+4. DMARC `TXT`
+
+## Smoke Test Checklist
+
+After every production deployment:
+
+1. `/healthz` returns `200`
+2. `/backend/healthz` returns `200`
+3. `/login` renders correctly
+4. login succeeds
+5. `/api/auth/*` still works
+6. authenticated browser traffic goes to `/backend/*`
+7. `/api/status/*` still works
+8. API starts with PostgreSQL and Valkey connected
+9. both App Platform components become `HEALTHY`
+
+## Operational Rules
+
+1. Keep `api-backend` at one instance until the scheduler is extracted into dedicated jobs.
+2. Do not rely on local filesystem persistence in App Platform.
+3. Use managed database backups and DigitalOcean database tooling for backups. Repo-local backup scripts are intentionally not part of the supported production workflow anymore.
+4. If a future release includes Prisma migrations, run `npm run prisma:migrate:deploy` as part of the release checklist.
+5. If uploads are introduced later, store them in an external object store such as Spaces.
+
+## Troubleshooting
+
+If the API console command fails:
+
+1. confirm you are in the `api-backend` console
+2. confirm your current directory is `/app`
+3. confirm the deployment has the latest commit
+4. run `npm run prisma:seed:list` first to verify the seed entrypoint is available
+
+If the web looks unstyled:
+
+1. confirm the latest deployment is active
+2. confirm `/_next/static/*` assets return `200`
+3. confirm the active image was built from [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web)
+
+If auth breaks on a custom domain:
+
+1. confirm `NEXTAUTH_URL` matches the canonical live domain
+2. confirm the domain is active in App Platform
+3. confirm DNS points to `jellyfish-app-n3bi3.ondigitalocean.app`
 
 ## References
 
@@ -158,9 +247,7 @@ After the first deployment:
 2. [DigitalOcean: App Spec Reference](https://docs.digitalocean.com/products/app-platform/reference/app-spec/)
 3. [DigitalOcean: Use Environment Variables](https://docs.digitalocean.com/products/app-platform/how-to/use-environment-variables/)
 4. [DigitalOcean: Dockerfile Build Reference](https://docs.digitalocean.com/products/app-platform/reference/dockerfile/)
-5. [DigitalOcean: Dockerfile build-time env limitation](https://docs.digitalocean.com/support/why-cant-i-access-my-environment-variables-at-build-time-when-building-from-a-dockerfile-on-app-platform/)
-6. [DigitalOcean: Manage Cron Jobs and Deployment Jobs](https://docs.digitalocean.com/products/app-platform/how-to/manage-jobs/)
-7. [DigitalOcean: Manage Databases](https://docs.digitalocean.com/products/app-platform/how-to/manage-databases/)
-8. [DigitalOcean: Set Up Internal Routing](https://docs.digitalocean.com/products/app-platform/how-to/manage-internal-routing/)
-9. [DigitalOcean: Manage Domains](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains/)
-10. [DigitalOcean: Manage Health Checks](https://docs.digitalocean.com/products/app-platform/how-to/manage-health-checks/)
+5. [DigitalOcean: Manage Databases](https://docs.digitalocean.com/products/app-platform/how-to/manage-databases/)
+6. [DigitalOcean: Set Up Internal Routing](https://docs.digitalocean.com/products/app-platform/how-to/manage-internal-routing/)
+7. [DigitalOcean: Manage Domains](https://docs.digitalocean.com/products/app-platform/how-to/manage-domains/)
+8. [DigitalOcean: Manage Health Checks](https://docs.digitalocean.com/products/app-platform/how-to/manage-health-checks/)

@@ -1,72 +1,65 @@
-# TBMS Environment Setup (Separate Per App)
+# TBMS Environment Setup
 
-## Target Structure
+TBMS keeps environment files separate per app. Local development uses app-local `.env` files, while production uses App Platform environment injection.
 
-Each app manages its own runtime env files:
+## App-Local Files
+
+Web:
 
 1. `apps/web/.env`
 2. `apps/web/.env.local`
 3. `apps/web/.env.production`
-4. `apps/api/.env`
-5. `apps/api/.env.local`
-6. `apps/api/.env.production`
+4. `apps/web/.env.example`
+5. `apps/web/.env.local.example`
+6. `apps/web/.env.production.example`
 
-Templates are versioned:
+API:
 
-1. `apps/web/.env.example`
-2. `apps/web/.env.local.example`
-3. `apps/web/.env.production.example`
+1. `apps/api/.env`
+2. `apps/api/.env.local`
+3. `apps/api/.env.production`
 4. `apps/api/.env.example`
 5. `apps/api/.env.local.example`
 6. `apps/api/.env.production.example`
 
-## Setup Flow
+## Setup
 
-1. Run:
+Initialize missing env files:
 
 ```bash
 npm run env:setup
 ```
 
-2. This creates missing app env files from app templates (no symlinks).
-3. Update values per environment.
-4. Verify contract:
+Verify the repo contract:
 
 ```bash
 npm run env:verify
 ```
 
-## Runtime Loading
+## Runtime Loading Rules
 
-1. API:
-   - `start`: loads `apps/api/.env`
-   - `start:dev` / `start:debug`: load `apps/api/.env.local`
-2. Web:
-   - Next.js loads app-local env files from `apps/web/*` according to Next env rules.
+API:
+
+1. `npm run start -w api` loads `apps/api/.env`
+2. `npm run start:dev -w api` loads `apps/api/.env` and `apps/api/.env.local`
+3. `npm run start:debug -w api` loads `apps/api/.env` and `apps/api/.env.local`
+
+Web:
+
+1. Next.js reads env files from `apps/web`
+2. only `NEXT_PUBLIC_*` values are safe for client-side exposure
 
 ## Guardrails
 
-`npm run env:verify` enforces:
+`npm run env:verify` checks:
 
-1. Required app env templates exist.
-2. Required runtime app env files exist and are regular files (not symlinks).
-3. Env keys used by code are present in:
-   - `apps/api/.env.example`
-   - `apps/api/.env.production.example`
-   - `apps/web/.env.example`
-   - `apps/web/.env.production.example`
-4. `process.env` access is centralized:
-   - allowed only in `apps/api/src/common/env.ts`
-   - allowed only in `apps/web/lib/env.ts`
+1. required templates exist
+2. runtime env files exist as regular files, not symlinks
+3. env keys used by code are declared in the correct examples
+4. direct env access stays centralized in:
+   - [env.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/src/common/env.ts)
+   - [env.ts](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/web/lib/env.ts)
 
-## Production Notes
+## Production Rule
 
-1. Prefer platform secret injection in production.
-2. Keep `NEXT_PUBLIC_*` client-safe only.
-3. Keep API secrets server-only and unprefixed.
-
-## References
-
-1. Next.js environment variables: [https://nextjs.org/docs/pages/guides/environment-variables](https://nextjs.org/docs/pages/guides/environment-variables)
-2. Nest CLI `--env-file`: [https://docs.nestjs.com/techniques/configuration](https://docs.nestjs.com/techniques/configuration)
-3. NextAuth environment variables: [https://next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options)
+Production secrets belong in DigitalOcean App Platform, not in repo-local `.env.production` files. The example files remain useful as the contract and onboarding template.

@@ -17,7 +17,6 @@
     "start:do:web": "node ./scripts/start-do-web.mjs",
     "start:do:api": "node apps/api/dist/src/main.js",
     "migrate:deploy:api": "npm exec -w api -- prisma migrate deploy",
-    "rbac:audit": "node scripts/rbac-audit.mjs",
     "security:backend:guardrails": "sh ./scripts/security-backend-guardrails.sh",
     "prisma:generate": "npm run prisma:generate -w api",
     "prisma:migrate:dev": "npm exec -w api -- prisma migrate dev",
@@ -26,15 +25,8 @@
     "prisma:migrate:reset": "npm exec -w api -- prisma migrate reset",
     "prisma:db:push": "npm exec -w api -- prisma db push",
     "prisma:seed": "npm exec -w api -- prisma db seed",
-    "prisma:seed:admin": "SEED_TARGET=admin npm exec -w api -- prisma db seed",
     "prisma:seed:list": "npm exec -w api -- prisma db seed -- --list",
-    "prisma:studio": "npm exec -w api -- prisma studio",
-    "refactor:manifest:generate": "sh ./scripts/generate-refactor-manifest.sh",
-    "refactor:manifest:verify": "sh ./scripts/verify-refactor-manifest.sh",
-    "theme:migration:verify": "sh ./scripts/verify-theme-token-migration.sh",
-    "theme:usage:audit": "node ./scripts/audit-theme-usage.mjs",
-    "db:backup": "sh scripts/db-backup.sh",
-    "db:restore": "sh scripts/db-restore.sh"
+    "prisma:studio": "npm exec -w api -- prisma studio"
   },
   "prisma": {
     "schema": "apps/api/prisma/schema.prisma"

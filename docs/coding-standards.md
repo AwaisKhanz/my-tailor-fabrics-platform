@@ -1,33 +1,41 @@
 # TBMS Coding Standards
 
-## 1) Design System First
-- Use shared UI primitives from `apps/web/components/ui` before custom markup.
-- Prefer `PageHeader` + `Typography` over raw styled `h1/p` blocks in page-level layout.
-- Use canonical shadcn variants (`button`, `badge`, `input`, `card`, `dialog`) and avoid one-off inline style drift.
+## 1. Shared Contracts First
 
-## 2) Shared Contracts
-- Cross-app enums/contracts live in `packages/shared-types`.
-- Cross-app labels/policies/route-role config live in `packages/shared-constants`.
-- Avoid `any` in API client responses; use explicit shared response shapes.
+1. Put cross-app DTOs and response shapes in `packages/shared-types`.
+2. Put shared labels, RBAC policy, workflow presets, and business constants in `packages/shared-constants`.
+3. Avoid duplicating enums, permission names, and business labels inside app-local code.
 
-## 3) RBAC and Route Policy
-- Role groups are centralized in `packages/shared-constants/src/rbac.ts`.
-- Frontend route visibility, middleware checks, and backend `@Roles(...)` should use shared role groups.
-- Additive role changes must update shared constants first, then both frontend/backend consumers.
+## 2. Frontend Composition
 
-## 4) Backend Financial Logic
-- Keep order total/discount logic centralized in `apps/api/src/orders/money.ts`.
-- Task completion earnings must be idempotent (one active earning entry per task completion).
-- Prefer transaction boundaries for coupled status/ledger operations.
+1. Prefer shared primitives from `apps/web/components/ui` before introducing route-local markup.
+2. Use `PageShell`, `PageHeader`, `EmptyState`, and other established layout primitives instead of inventing new page scaffolding.
+3. Keep styling in the existing design system and avoid one-off visual patterns unless a route has a clear reason.
 
-## 5) Security and Env
-- No production fallback secrets in runtime-critical code paths.
-- Env access must go through typed helpers (`apps/web/lib/env.ts`, `apps/api/src/common/env.ts`).
-- Public/non-auth endpoints must be explicitly guarded and production-gated where needed.
+## 3. Backend Business Rules
 
-## 6) Tracking and Completion
-- `docs/refactor-manifest.csv` is the source of truth for file-level modernization status.
-- `NJ` requires a non-empty reason in `notes`.
-- Use:
-  - `npm run refactor:manifest:generate`
-  - `npm run refactor:manifest:verify`
+1. Keep money and order calculations centralized in `apps/api/src/orders/money.ts`.
+2. Wrap coupled write flows in transactions.
+3. Make ledger and payroll side effects idempotent.
+4. Keep branch scoping and permission enforcement in backend guards and services, not only in the frontend.
+
+## 4. Security and Environment
+
+1. No production fallback secrets in runtime code.
+2. Env access must go through:
+   - `apps/api/src/common/env.ts`
+   - `apps/web/lib/env.ts`
+3. Public endpoints must be explicitly marked and intentionally production-gated where needed.
+4. Avoid direct `process.env` reads outside the typed env helpers.
+
+## 5. Deployment Discipline
+
+1. The App Platform spec in [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml) is the deployment source of truth.
+2. Build and runtime behavior for production must continue to work from repo-root Docker context.
+3. Any change that affects routes, service names, domains, or secrets must be reflected in the deployment guide.
+
+## 6. Documentation Standard
+
+1. Keep documentation current and operational.
+2. Remove migration trackers and one-off audit notes once they stop representing the live system.
+3. Prefer a small set of maintained docs over a large archive of stale checklists.
