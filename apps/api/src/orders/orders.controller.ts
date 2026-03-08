@@ -27,6 +27,7 @@ import {
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success, successOnly } from '../common/utils/response.util';
 import {
@@ -103,7 +104,10 @@ export class OrdersController {
   @Roles(...DASHBOARD_READ_ROLES)
   @RequirePermissions(PERMISSION['orders.read'])
   @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async findOne(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.ordersService.findOne(id, req.branchId);
     return success(data);
   }
@@ -112,7 +116,7 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orders.update'])
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateOrderDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -127,7 +131,10 @@ export class OrdersController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['orders.cancel'])
   @Delete(':id')
-  async cancel(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async cancel(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.ordersService.cancelOrder(
       id,
       requireBranchScope(req),
@@ -140,7 +147,7 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orderItems.manage'])
   @Post(':id/items')
   async addItem(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: OrderItemDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -156,8 +163,8 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orderItems.manage'])
   @Patch(':id/items/:itemId')
   async updateItem(
-    @Param('id') id: string,
-    @Param('itemId') itemId: string,
+    @Param('id', ParseCuidPipe) id: string,
+    @Param('itemId', ParseCuidPipe) itemId: string,
     @Body() dto: UpdateOrderItemAssignmentDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -174,8 +181,8 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orderItems.manage'])
   @Delete(':id/items/:itemId')
   async removeItem(
-    @Param('id') id: string,
-    @Param('itemId') itemId: string,
+    @Param('id', ParseCuidPipe) id: string,
+    @Param('itemId', ParseCuidPipe) itemId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     await this.ordersService.removeItem(id, itemId, requireBranchScope(req));
@@ -186,7 +193,7 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['payments.manage'])
   @Post(':id/payment')
   async addPayment(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() addPaymentDto: AddPaymentDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -203,8 +210,8 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['payments.manage'])
   @Post(':id/payments/:paymentId/reverse')
   async reversePayment(
-    @Param('id') id: string,
-    @Param('paymentId') paymentId: string,
+    @Param('id', ParseCuidPipe) id: string,
+    @Param('paymentId', ParseCuidPipe) paymentId: string,
     @Body() dto: ReverseOrderPaymentDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -222,7 +229,7 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orders.update'])
   @Patch(':id/status')
   async updateStatus(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() updateStatusDto: UpdateOrderStatusDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -239,7 +246,7 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orders.receipt'])
   @Get(':id/receipt')
   async getReceipt(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Req() req: AuthenticatedRequest,
     @Res() res: express.Response,
   ) {
@@ -258,7 +265,10 @@ export class OrdersController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['orders.share'])
   @Post(':id/share')
-  async shareOrder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async shareOrder(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.ordersService.generateShareLink(
       id,
       requireBranchScope(req),

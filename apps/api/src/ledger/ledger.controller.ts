@@ -11,6 +11,7 @@ import {
 import { LedgerService } from './ledger.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { LedgerEntryType } from '@tbms/shared-types';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
@@ -64,7 +65,7 @@ export class LedgerController {
   @Get(':employeeId/balance')
   @Roles(...ADMIN_ROLES)
   async getBalance(
-    @Param('employeeId') employeeId: string,
+    @Param('employeeId', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const summary = await this.ledgerService.getBalance(
@@ -77,7 +78,7 @@ export class LedgerController {
   @Get(':employeeId/statement')
   @Roles(...ADMIN_ROLES)
   async getStatement(
-    @Param('employeeId') employeeId: string,
+    @Param('employeeId', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
     @Query() query: LedgerStatementQueryDto,
   ) {
@@ -102,7 +103,7 @@ export class LedgerController {
   @Get(':employeeId/earnings')
   @Roles(...ADMIN_ROLES)
   async getEarnings(
-    @Param('employeeId') employeeId: string,
+    @Param('employeeId', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
     @Query() query: LedgerEarningsQueryDto,
   ) {
@@ -118,7 +119,7 @@ export class LedgerController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['ledger.manage'])
   async reverseEntry(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: ReverseLedgerEntryDto,
     @Req() req: AuthenticatedRequest,
   ) {

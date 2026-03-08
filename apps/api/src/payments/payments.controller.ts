@@ -18,6 +18,7 @@ import {
 import { PaymentsHistoryQueryDto } from './dto/payment-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
@@ -37,7 +38,7 @@ export class PaymentsController {
   @RequirePermissions(PERMISSION['payments.read'])
   @Get('employee/:id/summary')
   async getSummary(
-    @Param('id') employeeId: string,
+    @Param('id', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.paymentsService.getEmployeeBalanceSummary(
@@ -68,7 +69,7 @@ export class PaymentsController {
   @RequirePermissions(PERMISSION['payments.manage'])
   @Post(':id/reverse')
   async reversePayment(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: ReversePaymentDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -102,7 +103,7 @@ export class PaymentsController {
   @RequirePermissions(PERMISSION['payments.read'])
   @Get('employee/:id/history')
   async getHistory(
-    @Param('id') employeeId: string,
+    @Param('id', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
     @Query() query: PaymentsHistoryQueryDto,
   ) {
