@@ -85,8 +85,7 @@ export class AuthService {
 
     const authUser = this.toAuthUserPayload(user);
     const tokenPair = await this.issueTokenPair(authUser);
-    await this.storeRefreshTokenHash(user.id, tokenPair.refreshToken);
-    await this.usersService.markLastLogin(user.id);
+    await this.storeLoginState(user.id, tokenPair.refreshToken);
 
     return {
       ...tokenPair,
@@ -202,12 +201,12 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async storeRefreshTokenHash(userId: string, refreshToken: string) {
+  private async storeLoginState(userId: string, refreshToken: string) {
     const refreshTokenHash = await bcrypt.hash(
       refreshToken,
       REFRESH_TOKEN_HASH_ROUNDS,
     );
-    await this.usersService.setRefreshTokenState(userId, {
+    await this.usersService.recordLoginState(userId, {
       currentTokenHash: refreshTokenHash,
       previousTokenHash: null,
       previousTokenExpiresAt: null,

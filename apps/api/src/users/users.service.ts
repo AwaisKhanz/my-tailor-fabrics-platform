@@ -58,6 +58,33 @@ export class UsersService {
     });
   }
 
+  async recordLoginState(
+    userId: string,
+    state: {
+      currentTokenHash: string;
+      previousTokenHash?: string | null;
+      previousTokenExpiresAt?: Date | null;
+    },
+    at: Date = new Date(),
+  ) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        refreshToken: state.currentTokenHash,
+        previousRefreshToken: state.previousTokenHash ?? null,
+        previousRefreshTokenExpiresAt: state.previousTokenExpiresAt ?? null,
+        lastLoginAt: at,
+      },
+      select: {
+        id: true,
+        lastLoginAt: true,
+        refreshToken: true,
+        previousRefreshToken: true,
+        previousRefreshTokenExpiresAt: true,
+      },
+    });
+  }
+
   private normalizeEmail(email: string): string {
     return normalizeEmailAddress(email);
   }
