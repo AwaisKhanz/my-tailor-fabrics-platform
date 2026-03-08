@@ -3,10 +3,13 @@ import { Controller, Get, Query, Req } from '@nestjs/common';
 import { AuditLogsService } from './audit-logs.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { success } from '../common/utils/response.util';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { resolveBranchScopeForReadOrNull } from '../common/utils/branch-resolution.util';
+import {
+  AuditLogsListQueryDto,
+  AuditLogsStatsQueryDto,
+} from './dto/audit-log-query.dto';
 
 @Controller('audit-logs')
 export class AuditLogsController {
@@ -17,28 +20,25 @@ export class AuditLogsController {
   @Get()
   async findAll(
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationQueryDto,
-    @Query('action') action?: string,
-    @Query('entity') entity?: string,
-    @Query('userId') userId?: string,
-    @Query('search') search?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('branchId') branchId?: string,
+    @Query() query: AuditLogsListQueryDto,
   ) {
-    const scopedBranchId = resolveBranchScopeForReadOrNull(req, branchId, {
-      allowAllForSuperAdmin: true,
-    });
+    const scopedBranchId = resolveBranchScopeForReadOrNull(
+      req,
+      query.branchId,
+      {
+        allowAllForSuperAdmin: true,
+      },
+    );
     const data = await this.auditLogsService.findAll({
       branchId: scopedBranchId,
-      page: pagination.page ?? 1,
-      limit: pagination.limit ?? 20,
-      action,
-      entity,
-      userId,
-      search,
-      from,
-      to,
+      page: query.page ?? 1,
+      limit: query.limit ?? 20,
+      action: query.action,
+      entity: query.entity,
+      userId: query.userId,
+      search: query.search,
+      from: query.from,
+      to: query.to,
     });
     return success(data);
   }
@@ -48,25 +48,23 @@ export class AuditLogsController {
   @Get('stats')
   async getStats(
     @Req() req: AuthenticatedRequest,
-    @Query('action') action?: string,
-    @Query('entity') entity?: string,
-    @Query('userId') userId?: string,
-    @Query('search') search?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('branchId') branchId?: string,
+    @Query() query: AuditLogsStatsQueryDto,
   ) {
-    const scopedBranchId = resolveBranchScopeForReadOrNull(req, branchId, {
-      allowAllForSuperAdmin: true,
-    });
+    const scopedBranchId = resolveBranchScopeForReadOrNull(
+      req,
+      query.branchId,
+      {
+        allowAllForSuperAdmin: true,
+      },
+    );
     const data = await this.auditLogsService.getStats({
       branchId: scopedBranchId,
-      action,
-      entity,
-      userId,
-      search,
-      from,
-      to,
+      action: query.action,
+      entity: query.entity,
+      userId: query.userId,
+      search: query.search,
+      from: query.from,
+      to: query.to,
     });
     return success(data);
   }

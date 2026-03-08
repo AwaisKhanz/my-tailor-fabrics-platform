@@ -7,8 +7,15 @@ import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { DASHBOARD_READ_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { resolveBranchScopeForRead } from '../common/utils/branch-resolution.util';
-import { parseOptionalPositiveInt } from '../common/utils/query-parsing.util';
 import { success } from '../common/utils/response.util';
+import {
+  BranchScopedReportQueryDto,
+  DateRangeReportQueryDto,
+  ExportReportQueryDto,
+  FinancialTrendQueryDto,
+  ProductivityQueryDto,
+  RevenueVsExpensesQueryDto,
+} from './dto/report-query.dto';
 
 @Controller('reports')
 @RequirePermissions(PERMISSION['reports.read'])
@@ -24,9 +31,9 @@ export class ReportsController {
   @Get('dashboard')
   async getDashboard(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
+    @Query() query: BranchScopedReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getDashboardStats(branchId);
@@ -37,17 +44,15 @@ export class ReportsController {
   @Get('designs')
   async getDesigns(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
+    @Query() query: DateRangeReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getDesignAnalytics(
       branchId,
-      from,
-      to,
+      query.from,
+      query.to,
     );
     return success(data);
   }
@@ -56,17 +61,15 @@ export class ReportsController {
   @Get('addons')
   async getAddons(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
+    @Query() query: DateRangeReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getAddonAnalytics(
       branchId,
-      from,
-      to,
+      query.from,
+      query.to,
     );
     return success(data);
   }
@@ -75,14 +78,16 @@ export class ReportsController {
   @Get('summary')
   async getSummary(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
+    @Query() query: DateRangeReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
-    const data = await this.reportsService.getSummary(branchId, from, to);
+    const data = await this.reportsService.getSummary(
+      branchId,
+      query.from,
+      query.to,
+    );
     return success(data);
   }
 
@@ -90,19 +95,16 @@ export class ReportsController {
   @Get('financial-trend')
   async getFinancialTrend(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('granularity') granularity?: string,
+    @Query() query: FinancialTrendQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getFinancialTrend(
       branchId,
-      from,
-      to,
-      granularity,
+      query.from,
+      query.to,
+      query.granularity,
     );
     return success(data);
   }
@@ -111,14 +113,16 @@ export class ReportsController {
   @Get('distributions')
   async getDistributions(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
+    @Query() query: DateRangeReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
-    const data = await this.reportsService.getDistributions(branchId, from, to);
+    const data = await this.reportsService.getDistributions(
+      branchId,
+      query.from,
+      query.to,
+    );
     return success(data);
   }
 
@@ -126,15 +130,14 @@ export class ReportsController {
   @Get('revenue-vs-expenses')
   async getRevenueVsExpenses(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('months') months?: string,
+    @Query() query: RevenueVsExpensesQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getRevenueVsExpenses(
       branchId,
-      parseOptionalPositiveInt(months),
+      query.months,
     );
     return success(data);
   }
@@ -143,17 +146,15 @@ export class ReportsController {
   @Get('garments')
   async getGarmentRevenue(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
+    @Query() query: DateRangeReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getGarmentTypesRevenue(
       branchId,
-      from,
-      to,
+      query.from,
+      query.to,
     );
     return success(data);
   }
@@ -162,19 +163,16 @@ export class ReportsController {
   @Get('productivity')
   async getEmployeeProductivity(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('limit') limit?: string,
+    @Query() query: ProductivityQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.reportsService.getProductivityPoints(
       branchId,
-      from,
-      to,
-      parseOptionalPositiveInt(limit),
+      query.from,
+      query.to,
+      query.limit,
     );
     return success(data);
   }
@@ -185,20 +183,17 @@ export class ReportsController {
   async exportOrders(
     @Req() req: AuthenticatedRequest,
     @Res() res: import('express').Response,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('format') format?: string,
+    @Query() query: ExportReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
 
-    if (format === 'pdf') {
+    if (query.format === 'pdf') {
       const stream = await this.pdfExportService.exportOrdersPdf(
         branchId,
-        from,
-        to,
+        query.from,
+        query.to,
       );
       res.set({
         'Content-Type': 'application/pdf',
@@ -206,7 +201,11 @@ export class ReportsController {
       });
       stream.pipe(res);
     } else {
-      const stream = await this.exportService.exportOrders(branchId, from, to);
+      const stream = await this.exportService.exportOrders(
+        branchId,
+        query.from,
+        query.to,
+      );
       res.set({
         'Content-Type':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -222,20 +221,17 @@ export class ReportsController {
   async exportPayments(
     @Req() req: AuthenticatedRequest,
     @Res() res: import('express').Response,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('format') format?: string,
+    @Query() query: ExportReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
 
-    if (format === 'pdf') {
+    if (query.format === 'pdf') {
       const stream = await this.pdfExportService.exportPaymentsPdf(
         branchId,
-        from,
-        to,
+        query.from,
+        query.to,
       );
       res.set({
         'Content-Type': 'application/pdf',
@@ -245,8 +241,8 @@ export class ReportsController {
     } else {
       const stream = await this.exportService.exportPayments(
         branchId,
-        from,
-        to,
+        query.from,
+        query.to,
       );
       res.set({
         'Content-Type':
@@ -263,20 +259,17 @@ export class ReportsController {
   async exportExpenses(
     @Req() req: AuthenticatedRequest,
     @Res() res: import('express').Response,
-    @Query('branchId') targetBranchId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('format') format?: string,
+    @Query() query: ExportReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
 
-    if (format === 'pdf') {
+    if (query.format === 'pdf') {
       const stream = await this.pdfExportService.exportExpensesPdf(
         branchId,
-        from,
-        to,
+        query.from,
+        query.to,
       );
       res.set({
         'Content-Type': 'application/pdf',
@@ -286,8 +279,8 @@ export class ReportsController {
     } else {
       const stream = await this.exportService.exportExpenses(
         branchId,
-        from,
-        to,
+        query.from,
+        query.to,
       );
       res.set({
         'Content-Type':
@@ -304,9 +297,9 @@ export class ReportsController {
   async exportEmployees(
     @Req() req: AuthenticatedRequest,
     @Res() res: import('express').Response,
-    @Query('branchId') targetBranchId?: string,
+    @Query() query: BranchScopedReportQueryDto,
   ) {
-    const branchId = resolveBranchScopeForRead(req, targetBranchId, {
+    const branchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const stream = await this.exportService.exportEmployeeSummaries(branchId);

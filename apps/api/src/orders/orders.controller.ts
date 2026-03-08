@@ -20,10 +20,13 @@ import {
   UpdateOrderItemAssignmentDto,
 } from './dto/update-order.dto';
 import { AddPaymentDto, ReverseOrderPaymentDto } from './dto/add-payment.dto';
+import {
+  OrdersListQueryDto,
+  OrdersSummaryQueryDto,
+} from './dto/order-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success, successOnly } from '../common/utils/response.util';
 import {
@@ -60,21 +63,22 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orders.read'])
   @Get()
   async findAll(
-    @Query() pagination: PaginationQueryDto,
-    @Query('status') status: string,
-    @Query('from') from: string,
-    @Query('to') to: string,
-    @Query('employeeId') employeeId: string,
-    @Query('search') search: string,
-    @Query('sortBy') sortBy: string,
-    @Query('sortOrder') sortOrder: 'asc' | 'desc',
+    @Query() query: OrdersListQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.ordersService.findAll(
       req.branchId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
-      { status, from, to, employeeId, search, sortBy, sortOrder },
+      query.page ?? 1,
+      query.limit ?? 20,
+      {
+        status: query.status,
+        from: query.from,
+        to: query.to,
+        employeeId: query.employeeId,
+        search: query.search,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
+      },
     );
     return success(data);
   }
@@ -83,19 +87,15 @@ export class OrdersController {
   @RequirePermissions(PERMISSION['orders.read'])
   @Get('summary')
   async getSummary(
-    @Query('status') status: string,
-    @Query('from') from: string,
-    @Query('to') to: string,
-    @Query('employeeId') employeeId: string,
-    @Query('search') search: string,
+    @Query() query: OrdersSummaryQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.ordersService.getSummary(req.branchId, {
-      status,
-      from,
-      to,
-      employeeId,
-      search,
+      status: query.status,
+      from: query.from,
+      to: query.to,
+      employeeId: query.employeeId,
+      search: query.search,
     });
     return success(data);
   }
