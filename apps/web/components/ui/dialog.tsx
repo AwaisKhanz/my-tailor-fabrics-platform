@@ -37,21 +37,21 @@ const FOCUSABLE_SELECTOR =
 type TabDirection = "forward" | "backward";
 
 function getTabbableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (element) => {
-      if (element.getAttribute("aria-hidden") === "true") {
-        return false;
-      }
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+  ).filter((element) => {
+    if (element.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
 
-      const style = window.getComputedStyle(element);
-      const isVisible =
-        style.visibility !== "hidden" &&
-        style.display !== "none" &&
-        (element.offsetParent !== null || style.position === "fixed");
+    const style = window.getComputedStyle(element);
+    const isVisible =
+      style.visibility !== "hidden" &&
+      style.display !== "none" &&
+      (element.offsetParent !== null || style.position === "fixed");
 
-      return isVisible;
-    },
-  );
+    return isVisible;
+  });
 }
 
 function focusWithinDialog(container: HTMLElement, direction: TabDirection) {
@@ -61,9 +61,7 @@ function focusWithinDialog(container: HTMLElement, direction: TabDirection) {
   }
 
   const target =
-    direction === "backward"
-      ? tabbables[tabbables.length - 1]
-      : tabbables[0];
+    direction === "backward" ? tabbables[tabbables.length - 1] : tabbables[0];
 
   target.focus();
 }
@@ -106,19 +104,12 @@ const DialogContent = React.forwardRef<
     VariantProps<typeof dialogContentSizes>
 >(
   (
-    {
-      className,
-      children,
-      size,
-      onKeyDownCapture,
-      onFocusCapture,
-      ...props
-    },
+    { className, children, size, onKeyDownCapture, onFocusCapture, ...props },
     ref,
   ) => {
-    const [contentNode, setContentNode] = React.useState<
-      React.ElementRef<typeof DialogPrimitive.Content> | null
-    >(null);
+    const [contentNode, setContentNode] = React.useState<React.ElementRef<
+      typeof DialogPrimitive.Content
+    > | null>(null);
     const lastTabDirectionRef = React.useRef<TabDirection>("forward");
 
     const setRefs = React.useCallback(
@@ -267,10 +258,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn(
-      "text-[1.125rem] font-semibold leading-none tracking-[-0.02em]",
-      className,
-    )}
+    className={cn("text-[1.125rem] font-semibold leading-none ", className)}
     {...props}
   />
 ));

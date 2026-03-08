@@ -189,7 +189,7 @@ function DistributionDonut({
           </svg>
           {activePoint ? (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="text-xs uppercase  text-muted-foreground">
                 Selected
               </p>
               <p className="mt-1 text-sm font-semibold text-foreground">

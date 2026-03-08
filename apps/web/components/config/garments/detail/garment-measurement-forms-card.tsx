@@ -72,12 +72,12 @@ export function GarmentMeasurementFormsCard({
                   <div>
                     <Text
                       as="p"
-                       variant="body"
+                      variant="body"
                       className="font-bold transition-colors group-hover:text-primary"
                     >
                       {category.name}
                     </Text>
-                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
                       {category.fields?.length ?? 0} measurement fields
                     </Label>
                   </div>
@@ -93,10 +93,10 @@ export function GarmentMeasurementFormsCard({
             radius="xl"
             className="col-span-full py-8 text-center"
           >
-            <Text as="p"  variant="lead">
+            <Text as="p" variant="lead">
               No measurement forms attached.
             </Text>
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-1 block">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-1 block">
               Attach forms from garment management settings.
             </Label>
           </InfoTile>

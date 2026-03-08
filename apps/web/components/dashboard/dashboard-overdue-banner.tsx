@@ -36,7 +36,7 @@ export function DashboardOverdueBanner({
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground block text-destructive">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground block text-destructive">
                 {overdueCount} Overdue {overdueCount === 1 ? "Order" : "Orders"}
               </Label>
               <p className="text-sm text-destructive/80">

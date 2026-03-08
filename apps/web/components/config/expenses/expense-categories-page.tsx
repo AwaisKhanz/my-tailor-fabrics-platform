@@ -64,9 +64,7 @@ export function ExpenseCategoriesPage() {
       {
         header: "Category Name",
         cell: (category) => (
-          <span className="font-semibold text-foreground">
-            {category.name}
-          </span>
+          <span className="font-semibold text-foreground">{category.name}</span>
         ),
       },
       {
@@ -266,12 +264,14 @@ export function ExpenseCategoriesPage() {
                   <p className="text-sm text-destructive">{formError}</p>
                 ) : null}
                 <div className="space-y-2">
-                  <Label htmlFor="expense-category-name" className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                  <Label
+                    htmlFor="expense-category-name"
+                    className="text-sm font-bold uppercase  text-muted-foreground"
+                  >
                     Name
                   </Label>
                   <Input
                     id="expense-category-name"
-                   
                     value={form.name}
                     onChange={(event) =>
                       updateFormField("name", event.target.value)

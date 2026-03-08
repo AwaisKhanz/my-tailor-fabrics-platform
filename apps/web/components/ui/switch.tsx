@@ -5,8 +5,9 @@ import * as SwitchPrimitive from "@radix-ui/react-switch";
 
 import { cn } from "@/lib/utils";
 
-export type SwitchProps =
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>;
+export type SwitchProps = React.ComponentPropsWithoutRef<
+  typeof SwitchPrimitive.Root
+>;
 
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitive.Root>,
@@ -15,7 +16,7 @@ const Switch = React.forwardRef<
   <SwitchPrimitive.Root
     data-ui="switch"
     className={cn(
-      "peer inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border border-input bg-muted transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/16 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=unchecked]:bg-card",
+      "peer inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border border-input bg-[hsl(var(--input)/0.12)] transition-colors focus:outline-none focus:ring-4 focus:ring-offset-0 focus:[--tw-ring-color:hsl(var(--ring)/0.24)] disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=unchecked]:bg-[hsl(var(--input)/0.12)]",
       className,
     )}
     {...props}

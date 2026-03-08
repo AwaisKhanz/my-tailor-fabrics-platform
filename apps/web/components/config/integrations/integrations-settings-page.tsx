@@ -191,7 +191,7 @@ export function IntegrationsSettingsPage() {
             </div>
 
             <InfoTile padding="content" className="rounded-md">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="text-xs font-semibold uppercase  text-muted-foreground">
                 Sender
               </p>
               <p className="mt-1 text-sm font-medium text-foreground">
@@ -200,7 +200,7 @@ export function IntegrationsSettingsPage() {
             </InfoTile>
 
             <InfoTile padding="content" className="rounded-md">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="text-xs font-semibold uppercase  text-muted-foreground">
                 Redirect URI
               </p>
               <p className="mt-1 break-all text-sm text-foreground">
@@ -270,13 +270,15 @@ export function IntegrationsSettingsPage() {
 
             <InfoTile padding="contentLg" className="space-y-3">
               <div className="space-y-1">
-                <Label htmlFor="integration-test-email" className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                <Label
+                  htmlFor="integration-test-email"
+                  className="text-sm font-bold uppercase  text-muted-foreground"
+                >
                   Test recipient email
                 </Label>
                 <Input
                   id="integration-test-email"
                   type="email"
-                 
                   placeholder="name@example.com"
                   value={testEmail}
                   onChange={(event) => setTestEmail(event.target.value)}

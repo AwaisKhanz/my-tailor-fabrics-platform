@@ -16,7 +16,11 @@ interface BranchHubMetaCardProps {
 export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Branch Profile"
           icon={
@@ -32,10 +36,12 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary">
-          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch ID</Label>
+          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            Branch ID
+          </Label>
           <Text
             as="p"
-             variant="body"
+            variant="body"
             className="mt-1 truncate text-sm font-semibold text-foreground"
           >
             {branch?.id || "N/A"}
@@ -43,10 +49,12 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
         </InfoTile>
 
         <InfoTile tone="secondary">
-          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch Code</Label>
+          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            Branch Code
+          </Label>
           <Text
             as="p"
-             variant="body"
+            variant="body"
             className="mt-1 text-sm font-semibold uppercase text-foreground"
           >
             {branch?.code || "N/A"}
@@ -67,7 +75,9 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
 
         <div className="grid grid-cols-1 gap-3 border-t border-border  sm:grid-cols-2">
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Created</Label>
+            <Label className="text-sm font-bold uppercase  text-muted-foreground">
+              Created
+            </Label>
             <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
               <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
               <span>
@@ -76,7 +86,9 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
             </div>
           </InfoTile>
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Last Updated</Label>
+            <Label className="text-sm font-bold uppercase  text-muted-foreground">
+              Last Updated
+            </Label>
             <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
               <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
               <span>

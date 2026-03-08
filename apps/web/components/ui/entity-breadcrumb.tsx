@@ -21,7 +21,7 @@ export function EntityBreadcrumb({
   return (
     <div
       className={cn(
-        "mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground",
+        "mb-1 flex items-center gap-2 text-xs font-semibold uppercase  text-muted-foreground",
         className,
       )}
     >
@@ -33,7 +33,9 @@ export function EntityBreadcrumb({
         {sectionLabel}
       </button>
       <ChevronRight className={cn("h-3 w-3", separatorClassName)} />
-      <span className={cn("font-medium text-foreground", currentClassName)}>{currentLabel}</span>
+      <span className={cn("font-medium text-foreground", currentClassName)}>
+        {currentLabel}
+      </span>
     </div>
   );
 }

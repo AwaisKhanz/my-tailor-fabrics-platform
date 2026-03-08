@@ -22,8 +22,7 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
-          size="icon"
+          variant="secondary"
           className="relative"
           aria-label="Toggle theme"
         >

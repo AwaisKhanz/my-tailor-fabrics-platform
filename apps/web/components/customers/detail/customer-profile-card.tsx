@@ -30,7 +30,11 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Customer Profile"
           icon={
@@ -49,7 +53,9 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary">
-          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            Size Number
+          </Label>
           <p className="mt-1 text-sm font-semibold text-foreground">
             {customer.sizeNumber}
           </p>
@@ -74,7 +80,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
         <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
           <div>
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1">
               Total Orders
             </Label>
             <div className="flex items-center gap-2">
@@ -86,7 +92,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
           </div>
 
           <div>
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1">
               Total Spent
             </Label>
             <div className="flex items-center gap-2">
@@ -99,7 +105,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
         </div>
 
         <div className="border-t flex justify-between items-center border-border pt-4">
-          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1">
+          <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1">
             Account Type
           </Label>
           <Badge variant={customer.isVip ? "warning" : "secondary"} size="xs">

@@ -32,7 +32,9 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/schedule": "^6.1.1",
     "@nestjs/throttler": "^6.5.0",
+    "@nestjs/cli": "^11.0.0",
     "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0",
     "@react-pdf/renderer": "^4.3.2",
     "@tbms/shared-constants": "*",
     "@tbms/shared-types": "*",
@@ -56,7 +58,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
-    "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
     "@types/bcrypt": "^6.0.0",

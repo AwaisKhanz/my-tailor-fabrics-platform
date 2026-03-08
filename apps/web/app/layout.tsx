@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
@@ -11,6 +12,12 @@ import {
   THEME_STORAGE_KEY,
   type AppTheme,
 } from "@/lib/theme";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: `${siteConfig.name} - ${siteConfig.description}`,
@@ -53,7 +60,7 @@ export default async function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className="font-sans min-h-screen bg-background text-foreground antialiased"
+        className={`${inter.variable} ${inter.className} min-h-screen bg-background text-foreground antialiased`}
       >
         <AuthProvider>
           <ThemeProvider initialTheme={serverTheme ?? undefined}>

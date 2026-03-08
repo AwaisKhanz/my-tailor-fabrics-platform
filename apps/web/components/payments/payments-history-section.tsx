@@ -49,21 +49,27 @@ export function PaymentsHistorySection({
         cell: (payment) => (
           <div className="flex items-center gap-2">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium">{formatDate(payment.paidAt)}</span>
+            <span className="text-xs font-medium">
+              {formatDate(payment.paidAt)}
+            </span>
           </div>
         ),
       },
       {
         header: "Note",
         cell: (payment) => (
-          <span className="text-xs text-muted-foreground">{payment.note || "—"}</span>
+          <span className="text-xs text-muted-foreground">
+            {payment.note || "—"}
+          </span>
         ),
       },
       {
         header: "Amount",
         align: "right",
         cell: (payment) => (
-          <span className="font-bold text-primary">{formatPKR(payment.amount)}</span>
+          <span className="font-bold text-primary">
+            {formatPKR(payment.amount)}
+          </span>
         ),
       },
       ...(canManagePayments && onReversePayment
@@ -79,7 +85,9 @@ export function PaymentsHistorySection({
                   disabled={reversingPaymentId === payment.id}
                   onClick={() => onReversePayment(payment.id)}
                 >
-                  {reversingPaymentId === payment.id ? "Reversing..." : "Reverse"}
+                  {reversingPaymentId === payment.id
+                    ? "Reversing..."
+                    : "Reverse"}
                 </Button>
               ),
             },
@@ -101,11 +109,10 @@ export function PaymentsHistorySection({
         controls={
           <>
             <div className="w-full sm:w-[180px]">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
                 Paid From
               </Label>
               <Input
-               
                 type="date"
                 value={filters.from}
                 onChange={(event) => onFromChange(event.target.value)}
@@ -113,11 +120,10 @@ export function PaymentsHistorySection({
             </div>
 
             <div className="w-full sm:w-[180px]">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
                 Paid To
               </Label>
               <Input
-               
                 type="date"
                 value={filters.to}
                 onChange={(event) => onToChange(event.target.value)}

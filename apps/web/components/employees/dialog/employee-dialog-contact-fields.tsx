@@ -1,5 +1,11 @@
 import type { UseFormReturn } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Heading } from "@/components/ui/typography";
@@ -9,10 +15,16 @@ interface EmployeeDialogContactFieldsProps {
   form: UseFormReturn<EmployeeFormValues>;
 }
 
-export function EmployeeDialogContactFields({ form }: EmployeeDialogContactFieldsProps) {
+export function EmployeeDialogContactFields({
+  form,
+}: EmployeeDialogContactFieldsProps) {
   return (
     <FormStack className="border-t pt-4">
-      <Heading as="h3"  variant="section" className="text-sm uppercase tracking-wide text-muted-foreground">
+      <Heading
+        as="h3"
+        variant="section"
+        className="text-sm uppercase  text-muted-foreground"
+      >
         Personal &amp; Emergency Details
       </Heading>
 
@@ -21,7 +33,9 @@ export function EmployeeDialogContactFields({ form }: EmployeeDialogContactField
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Residential Address</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+              Residential Address
+            </FormLabel>
             <FormControl>
               <Input placeholder="Street, Area..." {...field} />
             </FormControl>
@@ -36,7 +50,9 @@ export function EmployeeDialogContactFields({ form }: EmployeeDialogContactField
           name="emergencyName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Emergency Contact</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Emergency Contact
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Contact name" {...field} />
               </FormControl>
@@ -49,7 +65,9 @@ export function EmployeeDialogContactFields({ form }: EmployeeDialogContactField
           name="emergencyPhone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Emergency Phone</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Emergency Phone
+              </FormLabel>
               <FormControl>
                 <Input placeholder="03XXXXXXXXX" {...field} />
               </FormControl>

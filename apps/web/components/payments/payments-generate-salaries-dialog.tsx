@@ -40,7 +40,9 @@ interface PaymentsGenerateSalariesDialogProps {
   onSubmit: () => void;
 }
 
-function isSalaryAccrualScope(value: string): value is SalaryAccrualForm["scope"] {
+function isSalaryAccrualScope(
+  value: string,
+): value is SalaryAccrualForm["scope"] {
   return value === "ALL" || value === "SELECTED";
 }
 
@@ -60,7 +62,8 @@ export function PaymentsGenerateSalariesDialog({
     month: form.month,
   };
 
-  const parsedResult = salaryAccrualGenerationFormSchema.safeParse(validationInput);
+  const parsedResult =
+    salaryAccrualGenerationFormSchema.safeParse(validationInput);
   const isValid = parsedResult.success;
 
   return (
@@ -83,22 +86,25 @@ export function PaymentsGenerateSalariesDialog({
             }}
           >
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Payroll Month</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                Payroll Month
+              </Label>
               <Input
-               
                 type="month"
                 value={form.month}
                 onChange={(event) => onMonthChange(event.target.value)}
               />
               {validationError ? (
-                <Text as="p"  variant="muted" className="text-destructive">
+                <Text as="p" variant="muted" className="text-destructive">
                   {validationError}
                 </Text>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Scope</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                Scope
+              </Label>
               <Select
                 value={form.scope}
                 onValueChange={(value) => {
@@ -112,16 +118,20 @@ export function PaymentsGenerateSalariesDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All monthly employees in branch</SelectItem>
+                  <SelectItem value="ALL">
+                    All monthly employees in branch
+                  </SelectItem>
                   {hasSelectedEmployee ? (
                     <SelectItem value="SELECTED">
-                      Only selected employee{selectedEmployeeName ? ` (${selectedEmployeeName})` : ""}
+                      Only selected employee
+                      {selectedEmployeeName ? ` (${selectedEmployeeName})` : ""}
                     </SelectItem>
                   ) : null}
                 </SelectContent>
               </Select>
-              <Text as="p"  variant="muted" className="text-xs">
-                System is idempotent and skips already generated employee-month accruals.
+              <Text as="p" variant="muted" className="text-xs">
+                System is idempotent and skips already generated employee-month
+                accruals.
               </Text>
             </div>
           </FormStack>

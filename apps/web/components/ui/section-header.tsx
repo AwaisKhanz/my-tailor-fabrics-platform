@@ -6,13 +6,15 @@ type SectionHeaderTitleVariant = "section" | "dashboard" | "dashboardSection";
 type SectionHeaderDescriptionVariant = "default" | "header" | "compact";
 
 const titleVariantClasses: Record<SectionHeaderTitleVariant, string> = {
-  section: "text-base font-semibold tracking-[-0.02em]",
-  dashboard:
-    "text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground",
-  dashboardSection: "text-base font-semibold tracking-[-0.02em]",
+  section: "text-base font-semibold ",
+  dashboard: "",
+  dashboardSection: "text-base font-semibold ",
 };
 
-const descriptionVariantClasses: Record<SectionHeaderDescriptionVariant, string> = {
+const descriptionVariantClasses: Record<
+  SectionHeaderDescriptionVariant,
+  string
+> = {
   default: "",
   header: "mt-1 text-[0.875rem] leading-6",
   compact: "text-xs",

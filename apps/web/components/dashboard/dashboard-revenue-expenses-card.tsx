@@ -130,13 +130,9 @@ export function DashboardRevenueExpensesCard({
 
   return (
     <Card className="flex h-full flex-col">
-      <CardHeader
-        layout="rowBetweenStart"
-        surface="mutedSection"
-        trimBottom
-      >
+      <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
         <div className="space-y-1">
-          <CardTitle className="text-base font-bold normal-case tracking-tight">
+          <CardTitle className="text-base font-bold normal-case ">
             Revenue vs. Expenses
           </CardTitle>
           <p className="text-xs text-muted-foreground">
@@ -149,7 +145,7 @@ export function DashboardRevenueExpensesCard({
           padding="xs"
           className="rounded-md gap-1"
         >
-          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+          <Label className="text-sm font-bold uppercase  text-muted-foreground">
             Last 6 Months
           </Label>
           <Clock className="ml-1 h-3 w-3" />
@@ -160,7 +156,7 @@ export function DashboardRevenueExpensesCard({
           <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
-              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
                 Revenue
               </Label>
             </div>
@@ -171,7 +167,7 @@ export function DashboardRevenueExpensesCard({
           <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
-              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
                 Expenses
               </Label>
             </div>
@@ -182,7 +178,7 @@ export function DashboardRevenueExpensesCard({
           <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
-              <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
                 Net
               </Label>
             </div>

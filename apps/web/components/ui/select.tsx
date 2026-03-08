@@ -8,7 +8,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-snow-16 border border-input bg-card text-foreground ring-offset-background shadow-sm transition-[border-color,box-shadow,background-color] focus:border-ring focus:outline-none focus:ring-4 focus:ring-ring/16 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full items-center justify-between rounded-snow-16 bg-input text-foreground ring-offset-background shadow-sm transition-[border-color,box-shadow,background-color] focus:border-ring focus:outline-none focus:ring-4 focus:ring-offset-0 focus:[--tw-ring-color:hsl(var(--ring)/0.24)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
   {
     variants: {
       uiSize: {
@@ -126,7 +126,7 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground",
+      "px-3 pb-1 pt-2 text-xs font-semibold uppercase  text-muted-foreground",
       className,
     )}
     {...props}

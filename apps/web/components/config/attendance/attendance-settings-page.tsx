@@ -27,11 +27,7 @@ import {
 } from "@/components/ui/select";
 import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -246,7 +242,7 @@ export function AttendanceSettingsPage() {
               className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end"
             >
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <p className="text-xs font-semibold uppercase  text-muted-foreground">
                   Employee
                 </p>
                 <Select
@@ -279,11 +275,10 @@ export function AttendanceSettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <p className="text-xs font-semibold uppercase  text-muted-foreground">
                   Note (Optional)
                 </p>
                 <Input
-                 
                   placeholder="Shift note or context..."
                   value={clockInNote}
                   onChange={(event) => setClockInNote(event.target.value)}

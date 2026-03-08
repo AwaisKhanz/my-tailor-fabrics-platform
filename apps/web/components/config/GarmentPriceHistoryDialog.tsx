@@ -11,7 +11,14 @@ import { DialogSection } from "@/components/ui/form-layout";
 import { configApi } from "@/lib/api/config";
 import { GarmentPriceLog } from "@tbms/shared-types";
 import { format } from "date-fns";
-import { History, User, ArrowRight, RotateCcw, Edit3, Loader2 } from "lucide-react";
+import {
+  History,
+  User,
+  ArrowRight,
+  RotateCcw,
+  Edit3,
+  Loader2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
@@ -19,7 +26,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { formatPKR } from "@/lib/utils";
 import { logDevError } from "@/lib/logger";
-
 
 interface GarmentPriceHistoryDialogProps {
   open: boolean;
@@ -67,13 +73,22 @@ export function GarmentPriceHistoryDialog({
       <DialogContent size="2xl" className="gap-0 overflow-hidden p-0">
         <DialogHeader surface="mutedSection" padding="md" trimBottom>
           <div className="flex items-center gap-3 mb-2">
-             <SectionIcon tone="default" size="lg" framed={false} className="h-10 w-10">
-                <History className="h-5 w-5 text-primary" />
-             </SectionIcon>
-             <div className="flex flex-col">
-                <DialogTitle className="text-2xl font-extrabold tracking-tight">Price History</DialogTitle>
-                 <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground opacity-100 text-foreground text-xs">{garmentName} • Global Pricing</Label>
-             </div>
+            <SectionIcon
+              tone="default"
+              size="lg"
+              framed={false}
+              className="h-10 w-10"
+            >
+              <History className="h-5 w-5 text-primary" />
+            </SectionIcon>
+            <div className="flex flex-col">
+              <DialogTitle className="text-2xl font-extrabold ">
+                Price History
+              </DialogTitle>
+              <Label className=" font-bold uppercase  text-muted-foreground opacity-100 text-foreground text-xs">
+                {garmentName} • Global Pricing
+              </Label>
+            </div>
           </div>
         </DialogHeader>
 
@@ -81,7 +96,9 @@ export function GarmentPriceHistoryDialog({
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground animate-pulse">Loading timeline...</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground animate-pulse">
+                Loading timeline...
+              </Label>
             </div>
           ) : logs.length === 0 ? (
             <InfoTile
@@ -90,13 +107,15 @@ export function GarmentPriceHistoryDialog({
               radius="xl"
               className="h-64 flex flex-col items-center justify-center gap-4 p-8 text-center"
             >
-               <SectionIcon framed={false} className="h-12 w-12 rounded-full">
-                  <History className="h-6 w-6 text-muted-foreground" />
-               </SectionIcon>
-               <div className="space-y-1">
-                  <p className="font-bold text-foreground">No History Found</p>
-                   <p className="text-xs text-muted-foreground max-w-[240px]">This garment hasn&apos;t had any price updates yet.</p>
-               </div>
+              <SectionIcon framed={false} className="h-12 w-12 rounded-full">
+                <History className="h-6 w-6 text-muted-foreground" />
+              </SectionIcon>
+              <div className="space-y-1">
+                <p className="font-bold text-foreground">No History Found</p>
+                <p className="text-xs text-muted-foreground max-w-[240px]">
+                  This garment hasn&apos;t had any price updates yet.
+                </p>
+              </div>
             </InfoTile>
           ) : (
             <ScrollArea className="h-[400px] pr-4">
@@ -104,24 +123,38 @@ export function GarmentPriceHistoryDialog({
                 {logs.map((log) => (
                   <div key={log.id} className="relative pl-12">
                     {/* Dot */}
-                    <div className={`absolute left-0 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-background shadow-sm ${
-                      log.action === "UPDATE" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      {log.action === "UPDATE" ? <Edit3 className="h-4 w-4" /> : <RotateCcw className="h-4 w-4" />}
+                    <div
+                      className={`absolute left-0 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-background shadow-sm ${
+                        log.action === "UPDATE"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {log.action === "UPDATE" ? (
+                        <Edit3 className="h-4 w-4" />
+                      ) : (
+                        <RotateCcw className="h-4 w-4" />
+                      )}
                     </div>
 
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                           <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
-                             Price Updated
-                           </p>
-                           <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground opacity-100 text-xs mt-0.5">
-                             {format(new Date(log.createdAt), "MMM d, yyyy • h:mm a")}
-                           </Label>
+                          <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
+                            Price Updated
+                          </p>
+                          <Label className="text-sm font-bold uppercase  text-muted-foreground opacity-100 text-xs mt-0.5">
+                            {format(
+                              new Date(log.createdAt),
+                              "MMM d, yyyy • h:mm a",
+                            )}
+                          </Label>
                         </div>
-                        <Badge variant="secondary" className="text-xs font-bold uppercase tracking-widest">
-                           {log.action}
+                        <Badge
+                          variant="secondary"
+                          className="text-xs font-bold uppercase "
+                        >
+                          {log.action}
                         </Badge>
                       </div>
 
@@ -133,26 +166,36 @@ export function GarmentPriceHistoryDialog({
                         className="grid grid-cols-1 gap-4 hover:border-primary/35 hover:bg-primary/5"
                       >
                         <div className="space-y-2">
-                           <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Retail Price</Label>
-                           <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
-                                 {formatPrice(log.oldCustomerPrice)}
-                              </span>
-                              <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                              <span className={`text-sm font-extrabold ${log.action === 'RESET' ? 'text-muted-foreground' : 'text-primary'}`}>
-                                 {formatPrice(log.newCustomerPrice)}
-                              </span>
-                           </div>
+                          <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                            Retail Price
+                          </Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
+                              {formatPrice(log.oldCustomerPrice)}
+                            </span>
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                            <span
+                              className={`text-sm font-extrabold ${log.action === "RESET" ? "text-muted-foreground" : "text-primary"}`}
+                            >
+                              {formatPrice(log.newCustomerPrice)}
+                            </span>
+                          </div>
                         </div>
                       </InfoTile>
 
                       <div className="flex items-center gap-2 pl-1">
-                         <SectionIcon framed={false} className="h-5 w-5 rounded-full">
-                            <User className="h-3 w-3 text-muted-foreground" />
-                         </SectionIcon>
-                         <p className="text-xs font-bold text-muted-foreground">
-                            Changed by <span className="text-foreground">{log.changedBy.name}</span>
-                         </p>
+                        <SectionIcon
+                          framed={false}
+                          className="h-5 w-5 rounded-full"
+                        >
+                          <User className="h-3 w-3 text-muted-foreground" />
+                        </SectionIcon>
+                        <p className="text-xs font-bold text-muted-foreground">
+                          Changed by{" "}
+                          <span className="text-foreground">
+                            {log.changedBy.name}
+                          </span>
+                        </p>
                       </div>
                     </div>
                   </div>

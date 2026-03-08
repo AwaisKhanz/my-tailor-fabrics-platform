@@ -63,7 +63,9 @@ export function OrderLifecycleCard({
   return (
     <Card>
       <CardHeader density="comfortable" surface="mutedSection" trimBottom>
-        <CardTitle className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Lifecycle Action</CardTitle>
+        <CardTitle className="text-sm font-bold uppercase  text-muted-foreground">
+          Lifecycle Action
+        </CardTitle>
         <p className="text-xs text-muted-foreground">
           Advance this order to the next stage.
         </p>

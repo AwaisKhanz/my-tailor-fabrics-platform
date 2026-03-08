@@ -266,11 +266,13 @@ export function GlobalSearchCommand({
       ) : null}
 
       {open ? (
-        <Card
-          className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-snow-28"
-        >
-          <CardHeader density="compact" layout="rowBetween" surface="secondarySection">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <Card className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-[70] overflow-hidden rounded-snow-28">
+          <CardHeader
+            density="compact"
+            layout="rowBetween"
+            surface="secondarySection"
+          >
+            <p className="text-xs font-semibold uppercase  text-muted-foreground">
               Global Search
             </p>
             <p className="text-xs text-muted-foreground">
@@ -398,7 +400,7 @@ function ResultGroup({
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between px-1">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <p className="text-xs font-semibold uppercase  text-muted-foreground">
           {title}
         </p>
         <p className="text-xs text-muted-foreground">{count}</p>

@@ -16,7 +16,10 @@ interface MyOrdersTableProps {
   onPageChange: (page: number) => void;
 }
 
-const ITEM_STATUS_BADGE: Record<ItemStatus, "default" | "secondary" | "outline" | "destructive"> = {
+const ITEM_STATUS_BADGE: Record<
+  ItemStatus,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
   [ItemStatus.PENDING]: "outline",
   [ItemStatus.IN_PROGRESS]: "default",
   [ItemStatus.COMPLETED]: "secondary",
@@ -43,12 +46,15 @@ export function MyOrdersTable({
   pageSize,
   onPageChange,
 }: MyOrdersTableProps) {
-
   const columns = useMemo<ColumnDef<MyAssignedWorkItem>[]>(
     () => [
       {
         header: "Order #",
-        cell: (item) => <span className="font-bold text-primary">{item.order.orderNumber}</span>,
+        cell: (item) => (
+          <span className="font-bold text-primary">
+            {item.order.orderNumber}
+          </span>
+        ),
       },
       {
         header: "Garment Type",
@@ -57,7 +63,7 @@ export function MyOrdersTable({
             <span className="text-sm font-semibold leading-tight text-foreground">
               {item.garmentTypeName}
             </span>
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
               {item.description || "—"}
             </Label>
           </div>
@@ -67,7 +73,11 @@ export function MyOrdersTable({
         header: "Due Date",
         cell: (item) => {
           const dueDate = item.dueDate ?? item.order.dueDate ?? "";
-          return <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{formatDate(dueDate)}</Label>;
+          return (
+            <Label className="text-sm font-bold uppercase  text-muted-foreground">
+              {formatDate(dueDate)}
+            </Label>
+          );
         },
       },
       {
@@ -76,7 +86,8 @@ export function MyOrdersTable({
           const status = parseItemStatus(item.status);
           return (
             <Badge variant={ITEM_STATUS_BADGE[status]} size="xs">
-              {ITEM_STATUS_LABELS[status] || ITEM_STATUS_LABELS[ItemStatus.PENDING]}
+              {ITEM_STATUS_LABELS[status] ||
+                ITEM_STATUS_LABELS[ItemStatus.PENDING]}
             </Badge>
           );
         },

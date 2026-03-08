@@ -236,7 +236,9 @@ export function MeasurementForm({
   return (
     <FormStack density="relaxed">
       <div className="space-y-2">
-        <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Measurement Category</Label>
+        <Label className="text-sm font-bold uppercase  text-muted-foreground">
+          Measurement Category
+        </Label>
         <Select
           onValueChange={handleCategoryChange}
           defaultValue={initialCategoryId}
@@ -279,7 +281,7 @@ export function MeasurementForm({
                           name={field.id}
                           render={({ field: formField }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
                                 {field.label}{" "}
                                 {field.unit && (
                                   <span className="text-xs text-muted-foreground">
@@ -315,7 +317,6 @@ export function MeasurementForm({
                                   </Select>
                                 ) : (
                                   <Input
-                                   
                                     placeholder={`Enter ${field.label.toLowerCase()}`}
                                     type={
                                       field.fieldType === FieldType.NUMBER

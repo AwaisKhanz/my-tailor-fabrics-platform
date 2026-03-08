@@ -36,7 +36,10 @@ interface WorkflowStepDraft extends WorkflowStepTemplateInput {
 }
 
 function createClientId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
 
@@ -96,8 +99,12 @@ export function GarmentWorkflowStepsDialog({
     }
 
     setSteps((current) => {
-      const sourceIndex = current.findIndex((step) => step.clientId === sourceId);
-      const targetIndex = current.findIndex((step) => step.clientId === targetId);
+      const sourceIndex = current.findIndex(
+        (step) => step.clientId === sourceId,
+      );
+      const targetIndex = current.findIndex(
+        (step) => step.clientId === targetId,
+      );
 
       if (sourceIndex < 0 || targetIndex < 0) {
         return current;
@@ -146,7 +153,9 @@ export function GarmentWorkflowStepsDialog({
   const handleRemoveStep = (index: number) => {
     setValidationError(null);
     setSteps((current) =>
-      normalizeStepOrder(current.filter((_, currentIndex) => currentIndex !== index)),
+      normalizeStepOrder(
+        current.filter((_, currentIndex) => currentIndex !== index),
+      ),
     );
   };
 
@@ -235,7 +244,9 @@ export function GarmentWorkflowStepsDialog({
       isActive: step.isActive,
     }));
 
-    const parsedResult = garmentWorkflowStepsFormSchema.safeParse({ steps: payload });
+    const parsedResult = garmentWorkflowStepsFormSchema.safeParse({
+      steps: payload,
+    });
     if (!parsedResult.success) {
       setValidationError(getFirstZodErrorMessage(parsedResult.error));
       return;
@@ -244,7 +255,10 @@ export function GarmentWorkflowStepsDialog({
 
     try {
       setLoading(true);
-      await configApi.updateGarmentWorkflowSteps(garmentId, parsedResult.data.steps);
+      await configApi.updateGarmentWorkflowSteps(
+        garmentId,
+        parsedResult.data.steps,
+      );
 
       toast({
         title: "Success",
@@ -323,7 +337,9 @@ export function GarmentWorkflowStepsDialog({
 
               <div className="grid flex-1 grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Step Name</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Step Name
+                  </Label>
                   <Input
                     placeholder="e.g. Cutting"
                     value={step.stepName || ""}
@@ -334,7 +350,9 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Unique Key</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Unique Key
+                  </Label>
                   <Input
                     placeholder="e.g. CUTTING"
                     value={step.stepKey || ""}
@@ -352,21 +370,25 @@ export function GarmentWorkflowStepsDialog({
 
               <div className="flex items-center gap-4 border-l border-r px-2">
                 <div className="flex flex-col items-center gap-1">
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
                     Required
                   </Label>
                   <Switch
                     checked={step.isRequired}
-                    onCheckedChange={(value) => handleChange(index, "isRequired", value)}
+                    onCheckedChange={(value) =>
+                      handleChange(index, "isRequired", value)
+                    }
                   />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
                     Active
                   </Label>
                   <Switch
                     checked={step.isActive}
-                    onCheckedChange={(value) => handleChange(index, "isActive", value)}
+                    onCheckedChange={(value) =>
+                      handleChange(index, "isActive", value)
+                    }
                   />
                 </div>
               </div>
@@ -394,7 +416,6 @@ export function GarmentWorkflowStepsDialog({
                 </Button>
                 <Button
                   type="button"
-                 
                   size="icon"
                   className="h-8 w-8 shrink-0"
                   onClick={() => handleRemoveStep(index)}

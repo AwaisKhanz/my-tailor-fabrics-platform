@@ -28,7 +28,9 @@ export function DashboardDesignPopularityCard({
   return (
     <Card className="flex h-full flex-col">
       <CardHeader density="compact" surface="mutedSection" trimBottom>
-        <CardTitle className="text-base font-bold normal-case tracking-tight">Design Popularity</CardTitle>
+        <CardTitle className="text-base font-bold normal-case ">
+          Design Popularity
+        </CardTitle>
         <p className="text-xs text-muted-foreground">
           Most requested designs in the selected period.
         </p>
@@ -77,7 +79,9 @@ export function DashboardDesignPopularityCard({
                   onMouseEnter={() => setHoveredDesignName(design.name)}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{design.name}</Label>
+                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                      {design.name}
+                    </Label>
                     <span className="font-medium text-muted-foreground">
                       {design.count}
                     </span>

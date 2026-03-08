@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 import { cva } from "class-variance-authority";
-import { Heading, Text } from '@/components/ui/typography';
-import { cn } from '@/lib/utils';
+import { Heading, Text } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 
 const pageHeaderVariants = cva(
-  "items-start justify-between rounded-snow-28 border border-border shadow-sm",
+  "items-start justify-between rounded-snow-28 border border-border",
   {
     variants: {
       layout: {
@@ -93,7 +93,9 @@ export function PageHeader({
       </div>
       {actions ? (
         <div
-          className={cn(pageHeaderActionsVariants({ layout: resolvedActionLayout }))}
+          className={cn(
+            pageHeaderActionsVariants({ layout: resolvedActionLayout }),
+          )}
         >
           {actions}
         </div>

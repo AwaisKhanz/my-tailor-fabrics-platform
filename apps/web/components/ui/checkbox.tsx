@@ -6,8 +6,9 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export type CheckboxProps =
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;
+export type CheckboxProps = React.ComponentPropsWithoutRef<
+  typeof CheckboxPrimitive.Root
+>;
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
@@ -17,7 +18,7 @@ const Checkbox = React.forwardRef<
     ref={ref}
     data-ui="checkbox"
     className={cn(
-      "grid h-5 w-5 place-content-center peer shrink-0 rounded-snow-12 border border-input bg-card shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/16 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+      "grid h-5 w-5 place-content-center peer shrink-0 rounded-snow-12 border border-input bg-[hsl(var(--input)/0.08)] shadow-sm focus:outline-none focus:ring-4 focus:ring-offset-0 focus:[--tw-ring-color:hsl(var(--ring)/0.24)] disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
       className,
     )}
     {...props}

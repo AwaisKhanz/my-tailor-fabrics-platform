@@ -76,10 +76,14 @@ export function ExpenseCreateDialog({
             }}
           >
             <InfoTile padding="contentLg" radius="xl">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1 block">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1 block">
                 Entry Scope
               </Label>
-              <Text as="p"  variant="body" className="inline-flex items-center gap-2 font-semibold">
+              <Text
+                as="p"
+                variant="body"
+                className="inline-flex items-center gap-2 font-semibold"
+              >
                 <ReceiptText className="h-4 w-4 text-primary" />
                 Branch expense record
               </Text>
@@ -90,7 +94,7 @@ export function ExpenseCreateDialog({
             ) : null}
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
                 Category <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -101,7 +105,9 @@ export function ExpenseCreateDialog({
                 <SelectTrigger className="h-11">
                   <SelectValue
                     placeholder={
-                      categoriesLoading ? "Loading categories..." : "Select category"
+                      categoriesLoading
+                        ? "Loading categories..."
+                        : "Select category"
                     }
                   />
                 </SelectTrigger>
@@ -121,11 +127,10 @@ export function ExpenseCreateDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
                 Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
-               
                 type="number"
                 placeholder="e.g. 500"
                 className="h-11"
@@ -139,15 +144,16 @@ export function ExpenseCreateDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
                 Expense Date <span className="text-destructive">*</span>
               </Label>
               <Input
-               
                 type="date"
                 className="h-11"
                 value={form.expenseDate}
-                onChange={(event) => onFormChange("expenseDate", event.target.value)}
+                onChange={(event) =>
+                  onFormChange("expenseDate", event.target.value)
+                }
               />
               {fieldErrors.expenseDate ? (
                 <p className="text-xs text-destructive">
@@ -157,12 +163,16 @@ export function ExpenseCreateDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Description</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                Description
+              </Label>
               <Textarea
                 placeholder="What was this for?"
                 className="min-h-[96px] resize-y"
                 value={form.description}
-                onChange={(event) => onFormChange("description", event.target.value)}
+                onChange={(event) =>
+                  onFormChange("description", event.target.value)
+                }
               />
               {fieldErrors.description ? (
                 <p className="text-xs text-destructive">

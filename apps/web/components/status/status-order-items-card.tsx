@@ -13,7 +13,7 @@ export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
       <Heading
         as="h2"
         variant="section"
-        className="text-sm font-semibold uppercase tracking-wide text-muted-foreground"
+        className="text-sm font-semibold uppercase  text-muted-foreground"
       >
         Items
       </Heading>
@@ -25,21 +25,21 @@ export function StatusOrderItemsCard({ order }: StatusOrderItemsCardProps) {
             className="flex flex-col gap-2 py-2 text-sm sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
-              <Text as="p"  variant="body" className="font-medium">
+              <Text as="p" variant="body" className="font-medium">
                 {item.garmentTypeName}
               </Text>
               {item.description ? (
-                <Text as="p"  variant="muted" className="text-xs">
+                <Text as="p" variant="muted" className="text-xs">
                   {item.description}
                 </Text>
               ) : null}
             </div>
 
             <div className="text-left sm:text-right">
-              <Text as="p"  variant="body" className="font-medium">
+              <Text as="p" variant="body" className="font-medium">
                 x{item.quantity}
               </Text>
-              <Text as="p"  variant="muted" className="text-xs">
+              <Text as="p" variant="muted" className="text-xs">
                 {formatPKR(item.unitPrice * item.quantity)}
               </Text>
             </div>

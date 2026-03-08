@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { Eye, Pencil } from "lucide-react";
-import { CUSTOMER_STATUS_BADGE, CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
+import {
+  CUSTOMER_STATUS_BADGE,
+  CUSTOMER_STATUS_LABELS,
+} from "@tbms/shared-constants";
 import { type Customer } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -105,18 +108,22 @@ export function CustomersDirectoryTable({
         header: "Contact Info",
         cell: (customer) => (
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold tabular-nums text-foreground">{customer.phone}</span>
+            <span className="text-sm font-semibold tabular-nums text-foreground">
+              {customer.phone}
+            </span>
             {customer.whatsapp ? (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-primary/50" />
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-primary opacity-100">
+                <Label className="text-sm font-bold uppercase  text-muted-foreground text-primary opacity-100">
                   WhatsApp Connected
                 </Label>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">No WhatsApp</Label>
+                <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                  No WhatsApp
+                </Label>
               </div>
             )}
           </div>
@@ -124,7 +131,11 @@ export function CustomersDirectoryTable({
       },
       {
         header: "City",
-        cell: (customer) => <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{customer.city || "—"}</Label>,
+        cell: (customer) => (
+          <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            {customer.city || "—"}
+          </Label>
+        ),
       },
       {
         header: "Lifetime Value",
@@ -137,7 +148,10 @@ export function CustomersDirectoryTable({
       {
         header: "Status",
         cell: (customer) => (
-          <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"} size="xs">
+          <Badge
+            variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
+            size="xs"
+          >
             {CUSTOMER_STATUS_LABELS[customer.status] || customer.status}
           </Badge>
         ),

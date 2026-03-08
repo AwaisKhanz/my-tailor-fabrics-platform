@@ -48,7 +48,9 @@ export function MeasurementFieldDialogBasicFields({
         name="label"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Label</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+              Label
+            </FormLabel>
             <FormControl>
               <Input placeholder="e.g., Shoulder, Chest, Collar" {...field} />
             </FormControl>
@@ -73,7 +75,9 @@ export function MeasurementFieldDialogBasicFields({
 
           return (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Section</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Section
+              </FormLabel>
               <div className="space-y-3">
                 <Select
                   value={matchingSection?.id ?? NEW_SECTION_VALUE}
@@ -112,11 +116,7 @@ export function MeasurementFieldDialogBasicFields({
 
                 {isCustomSection ? (
                   <FormControl>
-                    <Input
-                     
-                      placeholder="Type a new section name"
-                      {...field}
-                    />
+                    <Input placeholder="Type a new section name" {...field} />
                   </FormControl>
                 ) : null}
               </div>
@@ -135,7 +135,9 @@ export function MeasurementFieldDialogBasicFields({
           name="fieldType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Field Type</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Field Type
+              </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -157,7 +159,9 @@ export function MeasurementFieldDialogBasicFields({
           name="unit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Unit</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Unit
+              </FormLabel>
               <FormControl>
                 <Input placeholder="e.g., inches, cm" {...field} />
               </FormControl>

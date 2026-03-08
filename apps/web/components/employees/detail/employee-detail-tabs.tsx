@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -40,12 +47,7 @@ import {
 import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
@@ -94,8 +96,12 @@ interface EmployeeDetailTabsProps {
   onOpenDocumentDialog: () => void;
   onOpenAccountDialog: () => void;
   onOpenLedgerDialog: () => void;
-  onSaveCapabilitiesSnapshot: (snapshot: EmployeeCapabilitySnapshot) => Promise<boolean>;
-  onScheduleCompensationChange: (change: CompensationChangeInput) => Promise<boolean>;
+  onSaveCapabilitiesSnapshot: (
+    snapshot: EmployeeCapabilitySnapshot,
+  ) => Promise<boolean>;
+  onScheduleCompensationChange: (
+    change: CompensationChangeInput,
+  ) => Promise<boolean>;
   canManageTaskStatus?: boolean;
   canManageLedger?: boolean;
   canManageDocuments?: boolean;
@@ -148,13 +154,17 @@ function EmployeeSection({
 
   return (
     <Card id={id}>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <CardTitle>{title}</CardTitle>
             {badge}
           </div>
-          <Text as="p"  variant="muted">
+          <Text as="p" variant="muted">
             {description}
           </Text>
         </div>
@@ -249,27 +259,30 @@ export function EmployeeDetailTabs({
   canManageAccount = true,
   canManageWorkforceGovernance = true,
 }: EmployeeDetailTabsProps) {
-  const { setValues: setTaskValues, getPositiveInt: getTaskInt } = useUrlTableState({
-    prefix: "employeeTasks",
-    defaults: {
-      page: "1",
-      limit: String(DEFAULT_TABLE_PAGE_SIZE),
-    },
-  });
-  const { setValues: setHistoryValues, getPositiveInt: getHistoryInt } = useUrlTableState({
-    prefix: "employeeHistory",
-    defaults: {
-      page: "1",
-      limit: String(DEFAULT_TABLE_PAGE_SIZE),
-    },
-  });
-  const { setValues: setAttendanceValues, getPositiveInt: getAttendanceInt } = useUrlTableState({
-    prefix: "employeeAttendance",
-    defaults: {
-      page: "1",
-      limit: String(DEFAULT_TABLE_PAGE_SIZE),
-    },
-  });
+  const { setValues: setTaskValues, getPositiveInt: getTaskInt } =
+    useUrlTableState({
+      prefix: "employeeTasks",
+      defaults: {
+        page: "1",
+        limit: String(DEFAULT_TABLE_PAGE_SIZE),
+      },
+    });
+  const { setValues: setHistoryValues, getPositiveInt: getHistoryInt } =
+    useUrlTableState({
+      prefix: "employeeHistory",
+      defaults: {
+        page: "1",
+        limit: String(DEFAULT_TABLE_PAGE_SIZE),
+      },
+    });
+  const { setValues: setAttendanceValues, getPositiveInt: getAttendanceInt } =
+    useUrlTableState({
+      prefix: "employeeAttendance",
+      defaults: {
+        page: "1",
+        limit: String(DEFAULT_TABLE_PAGE_SIZE),
+      },
+    });
 
   const taskPage = getTaskInt("page", 1);
   const taskLimit = getTaskInt("limit", DEFAULT_TABLE_PAGE_SIZE);
@@ -284,19 +297,31 @@ export function EmployeeDetailTabs({
   const attendancePage = getAttendanceInt("page", 1);
   const attendanceLimit = getAttendanceInt("limit", DEFAULT_TABLE_PAGE_SIZE);
   const attendanceTotal = attendance.length;
-  const attendanceTotalPages = Math.max(1, Math.ceil(attendanceTotal / attendanceLimit));
+  const attendanceTotalPages = Math.max(
+    1,
+    Math.ceil(attendanceTotal / attendanceLimit),
+  );
 
-  const setTaskPage = useCallback((nextPage: number) => {
-    setTaskValues({ page: String(nextPage) });
-  }, [setTaskValues]);
+  const setTaskPage = useCallback(
+    (nextPage: number) => {
+      setTaskValues({ page: String(nextPage) });
+    },
+    [setTaskValues],
+  );
 
-  const setHistoryPage = useCallback((nextPage: number) => {
-    setHistoryValues({ page: String(nextPage) });
-  }, [setHistoryValues]);
+  const setHistoryPage = useCallback(
+    (nextPage: number) => {
+      setHistoryValues({ page: String(nextPage) });
+    },
+    [setHistoryValues],
+  );
 
-  const setAttendancePage = useCallback((nextPage: number) => {
-    setAttendanceValues({ page: String(nextPage) });
-  }, [setAttendanceValues]);
+  const setAttendancePage = useCallback(
+    (nextPage: number) => {
+      setAttendanceValues({ page: String(nextPage) });
+    },
+    [setAttendanceValues],
+  );
 
   useEffect(() => {
     if (taskPage > taskTotalPages) {
@@ -346,7 +371,10 @@ export function EmployeeDetailTabs({
     });
   }, [capabilities]);
   const garmentNameById = useMemo(
-    () => new Map(garmentTypes.map((garmentType) => [garmentType.id, garmentType.name])),
+    () =>
+      new Map(
+        garmentTypes.map((garmentType) => [garmentType.id, garmentType.name]),
+      ),
     [garmentTypes],
   );
   const stepKeysByGarmentId = useMemo(() => {
@@ -354,7 +382,11 @@ export function EmployeeDetailTabs({
 
     for (const garmentType of garmentTypes) {
       const orderedUniqueStepKeys = Array.from(
-        new Set((garmentType.workflowSteps ?? []).map((workflowStep) => workflowStep.stepKey)),
+        new Set(
+          (garmentType.workflowSteps ?? []).map(
+            (workflowStep) => workflowStep.stepKey,
+          ),
+        ),
       );
       map.set(garmentType.id, orderedUniqueStepKeys);
     }
@@ -365,7 +397,9 @@ export function EmployeeDetailTabs({
     return Array.from(
       new Set(
         garmentTypes.flatMap((garmentType) =>
-          (garmentType.workflowSteps ?? []).map((workflowStep) => workflowStep.stepKey),
+          (garmentType.workflowSteps ?? []).map(
+            (workflowStep) => workflowStep.stepKey,
+          ),
         ),
       ),
     );
@@ -380,9 +414,8 @@ export function EmployeeDetailTabs({
     [allWorkflowStepKeys, stepKeysByGarmentId],
   );
 
-  const [capabilityEffectiveFrom, setCapabilityEffectiveFrom] = useState<string>(
-    toDateInputValue(new Date().toISOString()),
-  );
+  const [capabilityEffectiveFrom, setCapabilityEffectiveFrom] =
+    useState<string>(toDateInputValue(new Date().toISOString()));
   const [capabilityNote, setCapabilityNote] = useState<string>("");
   const [capabilityRows, setCapabilityRows] = useState<
     EmployeeCapabilityWindowInput[]
@@ -406,7 +439,9 @@ export function EmployeeDetailTabs({
     useState<PaymentType>(employee.paymentType);
   const [compensationMonthlySalary, setCompensationMonthlySalary] =
     useState<string>(
-      employee.monthlySalary != null ? String(employee.monthlySalary / 100) : "",
+      employee.monthlySalary != null
+        ? String(employee.monthlySalary / 100)
+        : "",
     );
   const [compensationEffectiveFrom, setCompensationEffectiveFrom] =
     useState<string>(toDateInputValue(new Date().toISOString()));
@@ -423,7 +458,9 @@ export function EmployeeDetailTabs({
   useEffect(() => {
     setCompensationPaymentType(employee.paymentType);
     setCompensationMonthlySalary(
-      employee.monthlySalary != null ? String(employee.monthlySalary / 100) : "",
+      employee.monthlySalary != null
+        ? String(employee.monthlySalary / 100)
+        : "",
     );
   }, [employee.monthlySalary, employee.paymentType]);
 
@@ -476,7 +513,8 @@ export function EmployeeDetailTabs({
       note: capabilityNote || undefined,
       capabilities: normalizedRows,
     };
-    const parsedResult = employeeCapabilitySnapshotFormSchema.safeParse(snapshot);
+    const parsedResult =
+      employeeCapabilitySnapshotFormSchema.safeParse(snapshot);
     if (!parsedResult.success) {
       setCapabilityValidationError(getFirstZodErrorMessage(parsedResult.error));
       return;
@@ -503,7 +541,8 @@ export function EmployeeDetailTabs({
       note: compensationNote || undefined,
     };
 
-    const parsedResult = employeeCompensationChangeFormSchema.safeParse(payload);
+    const parsedResult =
+      employeeCompensationChangeFormSchema.safeParse(payload);
     if (!parsedResult.success) {
       const flattenedErrors = parsedResult.error.flatten().fieldErrors;
       setCompensationFieldErrors({
@@ -512,7 +551,9 @@ export function EmployeeDetailTabs({
         effectiveFrom: flattenedErrors.effectiveFrom?.[0],
         note: flattenedErrors.note?.[0],
       });
-      setCompensationValidationError(getFirstZodErrorMessage(parsedResult.error));
+      setCompensationValidationError(
+        getFirstZodErrorMessage(parsedResult.error),
+      );
       return;
     }
 
@@ -635,7 +676,7 @@ export function EmployeeDetailTabs({
           <span className="font-medium">
             {task.item?.garmentTypeName || "-"}
           </span>
-          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground font-mono">
+          <Label className="text-sm font-bold uppercase  text-muted-foreground font-mono">
             {task.stepName}
           </Label>
         </div>
@@ -736,9 +777,7 @@ export function EmployeeDetailTabs({
             </span>
           ) : null}
           {entry.note ? (
-            <span className="text-xs text-muted-foreground">
-              {entry.note}
-            </span>
+            <span className="text-xs text-muted-foreground">{entry.note}</span>
           ) : null}
         </div>
       ),
@@ -757,7 +796,6 @@ export function EmployeeDetailTabs({
       cell: (entry) =>
         canManageLedger ? (
           <Button
-           
             size="icon"
             className="h-7 w-7"
             onClick={() => onReverseLedgerEntry(entry.id)}
@@ -768,46 +806,8 @@ export function EmployeeDetailTabs({
     },
   ];
 
-  const quickLinks = useMemo(
-    () => [
-      { id: "employee-capabilities", label: "Capabilities" },
-      { id: "employee-compensation", label: "Compensation" },
-      ...(systemSettings?.useTaskWorkflow
-        ? [{ id: "employee-production", label: "Production Tasks" }]
-        : []),
-      { id: "employee-history", label: "Work History" },
-      { id: "employee-ledger", label: "Ledger" },
-      { id: "employee-attendance", label: "Attendance" },
-      { id: "employee-documents", label: "Documents" },
-      { id: "employee-account", label: "Account" },
-    ],
-    [systemSettings?.useTaskWorkflow],
-  );
-
   return (
     <div className="space-y-6">
-      <Card>
-        <CardContent
-          spacing="section"
-          className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Workspace Sections</Label>
-            <Text as="p"  variant="muted">
-              Jump between work logs, ledger, attendance, documents, and account
-              controls.
-            </Text>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {quickLinks.map((link) => (
-              <Button key={link.id} variant="secondary" size="sm" asChild>
-                <a href={`#${link.id}`}>{link.label}</a>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       <EmployeeSection
         id="employee-capabilities"
         title="Capabilities"
@@ -827,8 +827,8 @@ export function EmployeeDetailTabs({
                 cell: (capability) => (
                   <span className="font-medium">
                     {capability.garmentTypeId
-                      ? garmentNameById.get(capability.garmentTypeId) ??
-                        capability.garmentTypeId
+                      ? (garmentNameById.get(capability.garmentTypeId) ??
+                        capability.garmentTypeId)
                       : "Any"}
                   </span>
                 ),
@@ -863,18 +863,22 @@ export function EmployeeDetailTabs({
             <InfoTile tone="default" padding="contentLg" className="space-y-4">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Effective From</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Effective From
+                  </Label>
                   <Input
                     type="date"
-                   
                     value={capabilityEffectiveFrom}
-                    onChange={(event) => setCapabilityEffectiveFrom(event.target.value)}
+                    onChange={(event) =>
+                      setCapabilityEffectiveFrom(event.target.value)
+                    }
                   />
                 </div>
                 <div>
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Snapshot Note</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Snapshot Note
+                  </Label>
                   <Input
-                   
                     value={capabilityNote}
                     onChange={(event) => setCapabilityNote(event.target.value)}
                     placeholder="Optional context for this update"
@@ -897,94 +901,113 @@ export function EmployeeDetailTabs({
                       key={`capability-row-${index}`}
                       className="grid grid-cols-1 gap-2 rounded-xl border border-border p-3 md:grid-cols-12"
                     >
-                    <div className="md:col-span-4">
-                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Garment Type</Label>
-                      <Select
-                        value={row.garmentTypeId || "ANY"}
-                        onValueChange={(value) => {
-                          const nextGarmentTypeId = value === "ANY" ? "" : value;
-                          const stepOptions = getStepOptionsForCapabilityRow(nextGarmentTypeId);
-                          updateCapabilityRow(index, {
-                            garmentTypeId: nextGarmentTypeId,
-                            stepKey:
-                              row.stepKey && stepOptions.includes(row.stepKey)
-                                ? row.stepKey
-                                : "",
-                          });
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Any garment" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ANY">Any garment</SelectItem>
-                          {garmentTypes.map((garmentType) => (
-                            <SelectItem key={garmentType.id} value={garmentType.id}>
-                              {garmentType.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="md:col-span-4">
+                        <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                          Garment Type
+                        </Label>
+                        <Select
+                          value={row.garmentTypeId || "ANY"}
+                          onValueChange={(value) => {
+                            const nextGarmentTypeId =
+                              value === "ANY" ? "" : value;
+                            const stepOptions =
+                              getStepOptionsForCapabilityRow(nextGarmentTypeId);
+                            updateCapabilityRow(index, {
+                              garmentTypeId: nextGarmentTypeId,
+                              stepKey:
+                                row.stepKey && stepOptions.includes(row.stepKey)
+                                  ? row.stepKey
+                                  : "",
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Any garment" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ANY">Any garment</SelectItem>
+                            {garmentTypes.map((garmentType) => (
+                              <SelectItem
+                                key={garmentType.id}
+                                value={garmentType.id}
+                              >
+                                {garmentType.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="md:col-span-4">
+                        <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                          Step Key
+                        </Label>
+                        <Select
+                          value={row.stepKey || "ANY_STEP"}
+                          onValueChange={(value) =>
+                            updateCapabilityRow(index, {
+                              stepKey: value === "ANY_STEP" ? "" : value,
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Any step" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ANY_STEP">Any step</SelectItem>
+                            {visibleStepOptions.map((stepKey) => (
+                              <SelectItem key={stepKey} value={stepKey}>
+                                {stepKey}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {row.garmentTypeId && stepOptions.length === 0 ? (
+                          <Text
+                            as="p"
+                            variant="muted"
+                            className="mt-1 text-xs text-secondary-foreground"
+                          >
+                            No workflow steps configured for this garment.
+                          </Text>
+                        ) : null}
+                      </div>
+                      <div className="md:col-span-3">
+                        <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                          Note
+                        </Label>
+                        <Input
+                          value={row.note ?? ""}
+                          onChange={(event) =>
+                            updateCapabilityRow(index, {
+                              note: event.target.value,
+                            })
+                          }
+                          placeholder="Optional"
+                        />
+                      </div>
+                      <div className="flex items-end md:col-span-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => removeCapabilityRow(index)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="md:col-span-4">
-                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Step Key</Label>
-                      <Select
-                        value={row.stepKey || "ANY_STEP"}
-                        onValueChange={(value) =>
-                          updateCapabilityRow(index, {
-                            stepKey: value === "ANY_STEP" ? "" : value,
-                          })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Any step" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ANY_STEP">Any step</SelectItem>
-                          {visibleStepOptions.map((stepKey) => (
-                            <SelectItem key={stepKey} value={stepKey}>
-                              {stepKey}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {row.garmentTypeId && stepOptions.length === 0 ? (
-                        <Text as="p"  variant="muted" className="mt-1 text-xs text-secondary-foreground">
-                          No workflow steps configured for this garment.
-                        </Text>
-                      ) : null}
-                    </div>
-                    <div className="md:col-span-3">
-                      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Note</Label>
-                      <Input
-                       
-                        value={row.note ?? ""}
-                        onChange={(event) =>
-                          updateCapabilityRow(index, {
-                            note: event.target.value,
-                          })
-                        }
-                        placeholder="Optional"
-                      />
-                    </div>
-                    <div className="flex items-end md:col-span-1">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => removeCapabilityRow(index)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </div>
                   );
                 })}
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={addCapabilityRow}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addCapabilityRow}
+                >
                   <Plus className="h-4 w-4" />
                   Add Capability
                 </Button>
@@ -994,7 +1017,11 @@ export function EmployeeDetailTabs({
                       {capabilityValidationError}
                     </p>
                   ) : null}
-                  <Button type="button" size="sm" onClick={submitCapabilitiesSnapshot}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={submitCapabilitiesSnapshot}
+                  >
                     Save Capability Snapshot
                   </Button>
                 </div>
@@ -1031,7 +1058,9 @@ export function EmployeeDetailTabs({
                 align: "right",
                 cell: (entry) => (
                   <span className="font-medium">
-                    {entry.monthlySalary != null ? formatPKR(entry.monthlySalary) : "-"}
+                    {entry.monthlySalary != null
+                      ? formatPKR(entry.monthlySalary)
+                      : "-"}
                   </span>
                 ),
               },
@@ -1062,7 +1091,9 @@ export function EmployeeDetailTabs({
               ) : null}
               <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <div>
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Payment Model</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Payment Model
+                  </Label>
                   <Select
                     value={compensationPaymentType}
                     onValueChange={(value) => {
@@ -1083,7 +1114,9 @@ export function EmployeeDetailTabs({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={PaymentType.PER_PIECE}>Per Piece</SelectItem>
+                      <SelectItem value={PaymentType.PER_PIECE}>
+                        Per Piece
+                      </SelectItem>
                       <SelectItem value={PaymentType.MONTHLY_FIXED}>
                         Monthly Fixed
                       </SelectItem>
@@ -1098,11 +1131,12 @@ export function EmployeeDetailTabs({
 
                 {compensationPaymentType === PaymentType.MONTHLY_FIXED ? (
                   <div>
-                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Monthly Salary (Rs)</Label>
+                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                      Monthly Salary (Rs)
+                    </Label>
                     <Input
                       type="number"
                       min={0}
-                     
                       value={compensationMonthlySalary}
                       onChange={(event) => {
                         setCompensationFieldErrors((previous) => ({
@@ -1122,10 +1156,11 @@ export function EmployeeDetailTabs({
                 ) : null}
 
                 <div>
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Effective From</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Effective From
+                  </Label>
                   <Input
                     type="date"
-                   
                     value={compensationEffectiveFrom}
                     onChange={(event) => {
                       setCompensationFieldErrors((previous) => ({
@@ -1143,9 +1178,10 @@ export function EmployeeDetailTabs({
                   ) : null}
                 </div>
                 <div>
-                  <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Note</Label>
+                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    Note
+                  </Label>
                   <Input
-                   
                     value={compensationNote}
                     onChange={(event) => {
                       setCompensationFieldErrors((previous) => ({
@@ -1166,7 +1202,11 @@ export function EmployeeDetailTabs({
               </div>
 
               <div className="flex justify-end">
-                <Button type="button" size="sm" onClick={submitCompensationChange}>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={submitCompensationChange}
+                >
                   Schedule Compensation Change
                 </Button>
               </div>
@@ -1258,23 +1298,18 @@ export function EmployeeDetailTabs({
           <div className="flex flex-col gap-2 md:flex-row md:items-center">
             <Input
               type="date"
-             
               className="h-8 w-full px-2 text-xs md:w-36"
               value={ledgerFrom}
               onChange={(event) => setLedgerFrom(event.target.value)}
             />
             <Input
               type="date"
-             
               className="h-8 w-full px-2 text-xs md:w-36"
               value={ledgerTo}
               onChange={(event) => setLedgerTo(event.target.value)}
             />
             <Select value={ledgerType} onValueChange={setLedgerType}>
-              <SelectTrigger
-               
-                className="h-8 w-full text-xs md:w-[140px]"
-              >
+              <SelectTrigger className="h-8 w-full text-xs md:w-[140px]">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -1376,7 +1411,7 @@ export function EmployeeDetailTabs({
                 </SectionIcon>
                 <div>
                   <p className="text-sm font-bold">{document.label}</p>
-                  <p className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
+                  <p className="text-xs font-bold uppercase  text-muted-foreground">
                     {document.fileType}
                   </p>
                 </div>
@@ -1438,7 +1473,7 @@ export function EmployeeDetailTabs({
               <CardContent spacing="section" className="space-y-4">
                 <div className="flex items-center justify-between border-b border-border py-2 text-sm">
                   <span className="text-muted-foreground">Login Email</span>
-                  <span className="font-bold tracking-tight">
+                  <span className="font-bold ">
                     {employee.userAccount.email}
                   </span>
                 </div>
@@ -1460,7 +1495,7 @@ export function EmployeeDetailTabs({
                 <ShieldCheck className="h-10 w-10 text-muted-foreground opacity-30" />
               </InfoTile>
               <div>
-                <Heading as="h3"  variant="section">
+                <Heading as="h3" variant="section">
                   No Portal Account
                 </Heading>
                 <p className="mt-1 max-w-[300px] text-sm text-muted-foreground">

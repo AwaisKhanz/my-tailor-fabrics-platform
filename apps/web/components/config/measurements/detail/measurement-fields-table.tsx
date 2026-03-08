@@ -64,7 +64,11 @@ export function MeasurementFieldsTable({
 
   const sectionOptions = useMemo(
     () =>
-      [...(showArchived ? sections : sections.filter((section) => !section.deletedAt))].sort((left, right) => {
+      [
+        ...(showArchived
+          ? sections
+          : sections.filter((section) => !section.deletedAt)),
+      ].sort((left, right) => {
         if (left.sortOrder !== right.sortOrder) {
           return left.sortOrder - right.sortOrder;
         }
@@ -117,9 +121,12 @@ export function MeasurementFieldsTable({
     (search.trim().length > 0 ? 1 : 0) +
     (sectionFilter !== ALL_SECTIONS_FILTER ? 1 : 0);
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const updateSearch = useCallback(
     (value: string) => {
@@ -191,7 +198,9 @@ export function MeasurementFieldsTable({
     () => [
       {
         header: "Field Label",
-        cell: (field) => <span className="font-semibold text-foreground">{field.label}</span>,
+        cell: (field) => (
+          <span className="font-semibold text-foreground">{field.label}</span>
+        ),
       },
       {
         header: "Section",
@@ -267,14 +276,16 @@ export function MeasurementFieldsTable({
             ) : field.isRequired ? (
               <div className="flex items-center gap-1.5 text-primary">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-primary">
+                <Label className="text-sm font-bold uppercase  text-muted-foreground text-primary">
                   Required
                 </Label>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <div className="h-3.5 w-3.5 rounded-full border-2 border-muted" />
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Optional</Label>
+                <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                  Optional
+                </Label>
               </div>
             )}
           </div>
@@ -318,7 +329,9 @@ export function MeasurementFieldsTable({
                 )}
               </>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Read only
+              </span>
             )}
           </div>
         ),
@@ -358,7 +371,9 @@ export function MeasurementFieldsTable({
                 <SelectValue placeholder="All Sections" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SECTIONS_FILTER}>All Sections</SelectItem>
+                <SelectItem value={ALL_SECTIONS_FILTER}>
+                  All Sections
+                </SelectItem>
                 {sectionOptions.map((section) => (
                   <SelectItem key={section.id} value={section.id}>
                     {section.name}

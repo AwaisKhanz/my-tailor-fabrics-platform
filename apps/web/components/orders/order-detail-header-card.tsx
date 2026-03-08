@@ -99,19 +99,21 @@ export function OrderDetailHeaderCard({
       <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Order Command</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Order Command
+            </Label>
 
             <div className="flex flex-wrap items-center gap-3">
               <Heading
                 as="h1"
-                 variant="page"
+                variant="page"
                 className="font-semibold sm:text-4xl"
               >
                 {orderNumber}
               </Heading>
               <Badge
                 variant={statusVariant}
-                className="px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em]"
+                className="px-2.5 py-1 text-xs font-bold uppercase "
               >
                 {statusLabel}
               </Badge>

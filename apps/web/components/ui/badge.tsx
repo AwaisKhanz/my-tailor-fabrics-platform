@@ -5,21 +5,21 @@ import { statusSurfaceStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] transition-colors focus:outline-none focus:ring-2 focus:ring-ring/55 focus:ring-offset-2 focus:ring-offset-background",
+  "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-ring/55 focus:ring-offset-2 focus:ring-offset-background",
   {
     variants: {
       variant: {
         default: "border-primary/12 bg-primary text-primary-foreground",
         secondary: "border-secondary bg-secondary text-secondary-foreground",
-        outline: "border-input bg-card text-muted-foreground",
-        success: statusSurfaceStyles.success,
-        warning: statusSurfaceStyles.warning,
-        info: statusSurfaceStyles.info,
-        destructive: statusSurfaceStyles.destructive,
+        outline: "border-primary bg-card text-muted-foreground",
+        success: `${statusSurfaceStyles.success}`,
+        warning: `${statusSurfaceStyles.warning}`,
+        info: `${statusSurfaceStyles.info}`,
+        destructive: `${statusSurfaceStyles.destructive}`,
       },
       size: {
         default: "px-2.5 py-1",
-        xs: "px-2 py-0.5 text-xs tracking-[0.16em]",
+        xs: "px-2 py-0.5 text-xs ",
       },
     },
     defaultVariants: {

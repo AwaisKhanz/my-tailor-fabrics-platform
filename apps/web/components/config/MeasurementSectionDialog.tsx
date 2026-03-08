@@ -8,7 +8,14 @@ import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { typedZodResolver } from "@/lib/utils/form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
@@ -17,7 +24,9 @@ const measurementSectionDialogFormSchema = z.object({
   name: z.string().trim().min(1, "Section name is required"),
 });
 
-type MeasurementSectionDialogFormValues = z.infer<typeof measurementSectionDialogFormSchema>;
+type MeasurementSectionDialogFormValues = z.infer<
+  typeof measurementSectionDialogFormSchema
+>;
 
 interface MeasurementSectionDialogProps {
   open: boolean;
@@ -96,7 +105,9 @@ export function MeasurementSectionDialog({
       submitText={initialSection?.id ? "Save Section" : "Add Section"}
       submitting={loading}
       cancelVariant="outline"
-      submittingText={initialSection?.id ? "Saving Section..." : "Adding Section..."}
+      submittingText={
+        initialSection?.id ? "Saving Section..." : "Adding Section..."
+      }
       submitClassName="min-w-[130px]"
     />
   );
@@ -105,21 +116,31 @@ export function MeasurementSectionDialog({
     <ScrollableDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={initialSection?.id ? "Edit Measurement Section" : "Add Measurement Section"}
+      title={
+        initialSection?.id
+          ? "Edit Measurement Section"
+          : "Add Measurement Section"
+      }
       footerActions={footerActions}
       maxWidthClass="sm:max-w-md"
     >
       <Form {...form}>
-        <FormStack as="form" id="measurement-section-form" onSubmit={submitForm} density="relaxed">
+        <FormStack
+          as="form"
+          id="measurement-section-form"
+          onSubmit={submitForm}
+          density="relaxed"
+        >
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Section Name</FormLabel>
+                <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                  Section Name
+                </FormLabel>
                 <FormControl>
                   <Input
-                   
                     placeholder="e.g., Upper Body, Lower Body, Extras"
                     {...field}
                   />

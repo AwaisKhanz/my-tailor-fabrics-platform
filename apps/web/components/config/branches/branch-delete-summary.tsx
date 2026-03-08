@@ -12,7 +12,7 @@ function ImpactMetric({ label, value }: { label: string; value: number }) {
   return (
     <InfoTile tone="secondary" padding="xs" className="flex-col rounded-md">
       <span className="text-xs font-bold text-foreground">{value}</span>
-      <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-xs">
+      <Label className="text-sm font-bold uppercase  text-muted-foreground text-xs">
         {label}
       </Label>
     </InfoTile>
@@ -28,19 +28,19 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
     <div className="space-y-4 pt-2">
       <Text
         as="p"
-         variant="body"
+        variant="body"
         className="font-medium leading-relaxed text-muted-foreground"
       >
         Are you sure you want to delete{" "}
-        <strong className="text-foreground">
-          &quot;{branch?.name}&quot;
-        </strong>
-        ? This action will hide the branch and deactivate it. Historic data will
+        <strong className="text-foreground">&quot;{branch?.name}&quot;</strong>?
+        This action will hide the branch and deactivate it. Historic data will
         be preserved, but new operations will be blocked.
       </Text>
 
       <InfoTile padding="content" className="space-y-2">
-        <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Linked Records Impact</Label>
+        <Label className="text-sm font-bold uppercase  text-muted-foreground">
+          Linked Records Impact
+        </Label>
         <div className="grid grid-cols-3 gap-2">
           <ImpactMetric label="Staff" value={employeesCount} />
           <ImpactMetric label="Clients" value={customersCount} />
@@ -52,7 +52,7 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
         <InfoTile tone="warning" padding="content">
           <Text
             as="p"
-             variant="muted"
+            variant="muted"
             className="flex items-start gap-1.5 text-xs font-bold leading-snug text-secondary-foreground"
           >
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />

@@ -51,13 +51,17 @@ export function DashboardGarmentBreakdownCard({
       <CardContent spacing="section" className="flex flex-1 flex-col gap-4">
         <InfoTile tone="secondary" layout="between">
           <div>
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Total Value</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Total Value
+            </Label>
             <p className="mt-1 text-lg font-bold text-foreground">
               {formatPKR(totalItems)}
             </p>
           </div>
           <div className="text-right">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Types</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Active Types
+            </Label>
             <p className="mt-1 text-lg font-bold text-foreground">
               {topGarments.length}
             </p>
@@ -122,7 +126,7 @@ export function DashboardGarmentBreakdownCard({
 
                 {activeGarment ? (
                   <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
+                    <p className="text-xs uppercase  text-muted-foreground">
                       Selected
                     </p>
                     <p className="mt-1 max-w-[88px] truncate text-xs font-semibold leading-tight text-foreground">

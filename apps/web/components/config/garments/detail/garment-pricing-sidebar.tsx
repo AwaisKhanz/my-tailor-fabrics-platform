@@ -27,7 +27,11 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+        <CardHeader
+          layout="rowBetweenResponsive"
+          surface="mutedSection"
+          trimBottom
+        >
           <SectionHeader
             title="Global Pricing"
             icon={
@@ -47,7 +51,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
               <span className="text-xs font-medium text-muted-foreground">
                 Customer Price
               </span>
-              <Heading as="span"  variant="section" className="text-lg">
+              <Heading as="span" variant="section" className="text-lg">
                 {formatPKR(customerPrice)}
               </Heading>
             </div>
@@ -56,17 +60,19 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
               <span className="text-xs font-medium text-muted-foreground">
                 Workflow Labour Baseline
               </span>
-              <Heading as="span"  variant="section" className="text-lg">
+              <Heading as="span" variant="section" className="text-lg">
                 {formatPKR(baselineLabourRate)}
               </Heading>
             </div>
 
             <div className="pt-2">
               <div className="mb-2 flex items-center justify-between">
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Revenue Share</Label>
+                <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                  Revenue Share
+                </Label>
                 <Text
                   as="span"
-                   variant="muted"
+                  variant="muted"
                   className="text-xs font-bold text-primary"
                 >
                   {formatPKR(marginAmount)}
@@ -82,18 +88,10 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
               />
 
               <div className="mt-1 flex justify-between">
-                <Text
-                  as="span"
-                   variant="muted"
-                  className="text-xs font-bold"
-                >
+                <Text as="span" variant="muted" className="text-xs font-bold">
                   Owner {marginPercentage}%
                 </Text>
-                <Text
-                  as="span"
-                   variant="muted"
-                  className="text-xs font-bold"
-                >
+                <Text as="span" variant="muted" className="text-xs font-bold">
                   Tailor {tailorSharePercentage}%
                 </Text>
               </div>
@@ -103,7 +101,11 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
       </Card>
 
       <Card>
-        <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+        <CardHeader
+          layout="rowBetweenResponsive"
+          surface="mutedSection"
+          trimBottom
+        >
           <SectionHeader
             title="Top Tailors"
             icon={
@@ -132,7 +134,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
                   >
                     {index + 1}
                   </div>
-                  <Text as="p"  variant="body" className="font-bold">
+                  <Text as="p" variant="body" className="font-bold">
                     {tailor.name}
                   </Text>
                 </div>
@@ -147,11 +149,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
               </InfoTile>
             ))
           ) : (
-            <Text
-              as="p"
-               variant="lead"
-              className="py-4 text-center text-xs"
-            >
+            <Text as="p" variant="lead" className="py-4 text-center text-xs">
               No production data yet.
             </Text>
           )}

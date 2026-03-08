@@ -37,7 +37,12 @@ export function OrderFormItemsCard({
 }: OrderFormItemsCardProps) {
   return (
     <Card>
-      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        density="comfortable"
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <CardTitle>Order Items</CardTitle>
@@ -45,7 +50,7 @@ export function OrderFormItemsCard({
               {fields.length} PIECES
             </Badge>
           </div>
-          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Configure garment, pricing, and design per piece.
           </Label>
         </div>

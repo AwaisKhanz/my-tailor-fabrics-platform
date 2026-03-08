@@ -60,7 +60,7 @@ export function GarmentTypesInventoryTable({
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover/link:text-primary">
                 {item.name}
               </span>
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
                 ID: GT-{item.id.slice(-4).toUpperCase()}
               </Label>
             </Link>
@@ -79,7 +79,9 @@ export function GarmentTypesInventoryTable({
         header: "Status",
         cell: (item) => (
           <Badge
-            variant={item.deletedAt ? "outline" : item.isActive ? "success" : "outline"}
+            variant={
+              item.deletedAt ? "outline" : item.isActive ? "success" : "outline"
+            }
             size="xs"
           >
             {item.deletedAt

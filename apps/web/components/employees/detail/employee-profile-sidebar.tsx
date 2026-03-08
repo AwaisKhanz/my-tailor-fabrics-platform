@@ -23,7 +23,12 @@ export function EmployeeProfileSidebar({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader density="compact" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+        <CardHeader
+          density="compact"
+          layout="rowBetweenResponsive"
+          surface="mutedSection"
+          trimBottom
+        >
           <SectionHeader
             title="Personal Info"
             icon={
@@ -52,7 +57,9 @@ export function EmployeeProfileSidebar({
           </div>
           <Separator />
           <div className="space-y-3">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Emergency Contact</Label>
+            <Label className="text-sm font-bold uppercase  text-muted-foreground">
+              Emergency Contact
+            </Label>
             <div>
               <p className="text-sm font-bold">
                 {employee.emergencyName || "Not set"}
@@ -66,7 +73,12 @@ export function EmployeeProfileSidebar({
       </Card>
 
       <Card>
-        <CardHeader density="compact" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+        <CardHeader
+          density="compact"
+          layout="rowBetweenResponsive"
+          surface="mutedSection"
+          trimBottom
+        >
           <SectionHeader
             title="Employment"
             icon={

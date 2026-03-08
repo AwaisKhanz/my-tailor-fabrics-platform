@@ -64,9 +64,10 @@ export function EmployeeLedgerEntryDialog({
   onNoteChange,
   onSubmit,
 }: EmployeeLedgerEntryDialogProps) {
-  const reducesBalance = [LedgerEntryType.ADVANCE, LedgerEntryType.DEDUCTION].includes(
-    entryType,
-  );
+  const reducesBalance = [
+    LedgerEntryType.ADVANCE,
+    LedgerEntryType.DEDUCTION,
+  ].includes(entryType);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,15 +108,21 @@ export function EmployeeLedgerEntryDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={LedgerEntryType.ADVANCE}>Advance Payment</SelectItem>
-                  <SelectItem value={LedgerEntryType.DEDUCTION}>Deduction</SelectItem>
-                  <SelectItem value={LedgerEntryType.ADJUSTMENT}>General Adjustment</SelectItem>
+                  <SelectItem value={LedgerEntryType.ADVANCE}>
+                    Advance Payment
+                  </SelectItem>
+                  <SelectItem value={LedgerEntryType.DEDUCTION}>
+                    Deduction
+                  </SelectItem>
+                  <SelectItem value={LedgerEntryType.ADJUSTMENT}>
+                    General Adjustment
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {fieldErrors.type ? (
                 <p className="text-xs text-destructive">{fieldErrors.type}</p>
               ) : null}
-              <p className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
+              <p className="text-xs font-bold uppercase  text-muted-foreground">
                 {reducesBalance
                   ? "This entry will decrease employee balance"
                   : "This entry will increase employee balance"}
@@ -138,7 +145,6 @@ export function EmployeeLedgerEntryDialog({
             <div className="space-y-2">
               <Label>Note / Description</Label>
               <Textarea
-               
                 className="min-h-[90px] resize-y"
                 placeholder="e.g. Advance for medical bill"
                 value={note}

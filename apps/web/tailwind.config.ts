@@ -10,8 +10,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        ui: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"],
-        sans: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"],
+        ui: ["var(--font-inter)"],
+        sans: ["var(--font-inter)"],
+        mono: ["var(--font-inter)"],
       },
       spacing: {
         "snow-0": "var(--snow-space-0)",
@@ -71,6 +72,18 @@ const config: Config = {
           DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
           foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
         },
+        info: {
+          DEFAULT: "hsl(var(--info) / <alpha-value>)",
+          foreground: "hsl(var(--info-foreground) / <alpha-value>)",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success) / <alpha-value>)",
+          foreground: "hsl(var(--success-foreground) / <alpha-value>)",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning) / <alpha-value>)",
+          foreground: "hsl(var(--warning-foreground) / <alpha-value>)",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar) / <alpha-value>)",
           foreground: "hsl(var(--sidebar-foreground) / <alpha-value>)",
@@ -89,6 +102,13 @@ const config: Config = {
           "green-b": "#baedbd",
           yellow: "#ffe999",
           red: "#ff4747",
+        },
+        chart: {
+          1: "hsl(var(--chart-1) / <alpha-value>)",
+          2: "hsl(var(--chart-2) / <alpha-value>)",
+          3: "hsl(var(--chart-3) / <alpha-value>)",
+          4: "hsl(var(--chart-4) / <alpha-value>)",
+          5: "hsl(var(--chart-5) / <alpha-value>)",
         },
       },
       borderRadius: {
@@ -112,8 +132,9 @@ const config: Config = {
         "snow-80": "var(--snow-radius-80)",
       },
       boxShadow: {
-        sm: "var(--shadow-sm)",
-        DEFAULT: "var(--shadow)",
+        sm: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--shadow-sm)",
+        DEFAULT:
+          "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--shadow)",
         focus: "0 0 0 4px hsl(var(--ring) / 0.18)",
       },
     },

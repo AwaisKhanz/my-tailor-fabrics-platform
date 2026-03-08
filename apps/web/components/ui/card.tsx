@@ -10,7 +10,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       ref={ref}
       data-ui="card"
       className={cn(
-        "overflow-hidden rounded-snow-24 border border-border bg-card text-card-foreground shadow",
+        "overflow-hidden rounded-snow-24 border border-border bg-card text-card-foreground",
         className,
       )}
       {...props}
@@ -39,8 +39,7 @@ const cardHeaderVariants = cva("flex flex-col", {
     layout: {
       default: "",
       rowBetween: "flex-row items-center justify-between gap-3 space-y-0",
-      rowBetweenStart:
-        "flex-row items-start justify-between gap-3 space-y-0",
+      rowBetweenStart: "flex-row items-start justify-between gap-3 space-y-0",
       rowBetweenResponsive:
         "flex-row items-start justify-between gap-3 space-y-0 sm:items-center",
     },
@@ -88,6 +87,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
           trimBottom,
           className,
         }),
+        "bg-default",
       )}
       {...props}
     />
@@ -102,7 +102,7 @@ const CardTitle = React.forwardRef<HTMLDivElement, CardTitleProps>(
     <div
       ref={ref}
       className={cn(
-        "text-[1rem] font-semibold leading-none tracking-[-0.02em] text-foreground",
+        "text-[1rem] font-semibold leading-none  text-foreground",
         className,
       )}
       {...props}

@@ -40,7 +40,7 @@ export type TableToolbarProps = {
 const tableToolbarVariants = cva("border-b border-border px-4 py-5", {
   variants: {
     surface: {
-      secondary: "bg-secondary",
+      secondary: "bg-card",
       muted: "bg-muted",
       card: "bg-card",
     },
@@ -66,10 +66,7 @@ export function TableSurface({
   ...props
 }: TableSurfaceProps) {
   return (
-    <div
-      className={cn(tableSurfaceVariants({ shadow }), className)}
-      {...props}
-    >
+    <div className={cn(tableSurfaceVariants({ shadow }), className)} {...props}>
       {children}
     </div>
   );
@@ -88,15 +85,10 @@ export function TableToolbar({
   const hasActiveFilters = Boolean(activeFilterCount && activeFilterCount > 0);
 
   return (
-    <div
-      className={cn(
-        tableToolbarVariants({ surface, density }),
-        className,
-      )}
-    >
+    <div className={cn(tableToolbarVariants({ surface, density }), className)}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          <Heading as="h2"  variant="section">
+          <Heading as="h2" variant="section">
             {title}
           </Heading>
           <Badge variant="secondary" size="xs">
@@ -120,11 +112,7 @@ export function TableToolbar({
   );
 }
 
-export function TableSearch({
-  icon,
-  className,
-  ...props
-}: TableSearchProps) {
+export function TableSearch({ icon, className, ...props }: TableSearchProps) {
   return (
     <div className="group relative w-full md:min-w-[280px] md:flex-1">
       <Input className={cn("pl-9", className)} {...props} />

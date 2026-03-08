@@ -24,7 +24,10 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     data-ui="table-head"
-    className={cn("bg-secondary [&_tr]:border-b [&_tr]:border-border", className)}
+    className={cn(
+      "bg-secondary [&_tr]:border-b [&_tr]:border-border",
+      className,
+    )}
     {...props}
   />
 ));
@@ -80,7 +83,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "h-12 px-4 text-left align-middle text-[0.75rem] font-semibold uppercase  text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className,
     )}
     {...props}

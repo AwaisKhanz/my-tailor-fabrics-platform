@@ -1,11 +1,7 @@
 import { Check, Clock3, Dot } from "lucide-react";
 import { type ReactNode } from "react";
 import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -74,7 +70,12 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
 
   return (
     <Card>
-      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        density="comfortable"
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Order Timeline"
           titleVariant="dashboard"
@@ -91,12 +92,12 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         <div className="space-y-3">
           {timelineSteps.map((step, index) => {
             const isLast = index === timelineSteps.length - 1;
-            let markerClass =
-              "border-border bg-muted text-muted-foreground";
+            let markerClass = "border-border bg-muted text-muted-foreground";
             let markerIcon: ReactNode = <Dot className="h-4 w-4" />;
 
             if (step.done) {
-              markerClass = "border-primary/20 bg-primary text-primary-foreground";
+              markerClass =
+                "border-primary/20 bg-primary text-primary-foreground";
               markerIcon = <Check className="h-3.5 w-3.5" />;
             } else if (step.active) {
               markerClass = "border-primary bg-primary text-primary-foreground";
@@ -135,7 +136,9 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         </div>
 
         <InfoTile tone="secondary" padding="content">
-          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recent Events</Label>
+          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            Recent Events
+          </Label>
           <div className="mt-2 space-y-2">
             {history.slice(0, 4).map((entry) => (
               <InfoTile

@@ -8,7 +8,7 @@ const sectionIconVariants = cva(
   {
     variants: {
       tone: {
-        default: "border-primary/10 bg-primary/10 text-primary dark:border-primary/20 dark:bg-primary/12",
+        default: "border-primary/10 bg-primary/10 text-primary ",
         info: statusIconStyles.info,
         success: statusIconStyles.success,
         warning: statusIconStyles.warning,
@@ -33,7 +33,8 @@ const sectionIconVariants = cva(
 );
 
 export interface SectionIconProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof sectionIconVariants> {}
 
 export function SectionIcon({
@@ -44,6 +45,9 @@ export function SectionIcon({
   ...props
 }: SectionIconProps) {
   return (
-    <div className={cn(sectionIconVariants({ tone, size, framed, className }))} {...props} />
+    <div
+      className={cn(sectionIconVariants({ tone, size, framed, className }))}
+      {...props}
+    />
   );
 }

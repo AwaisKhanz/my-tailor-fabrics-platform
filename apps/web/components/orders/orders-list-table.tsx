@@ -94,7 +94,7 @@ export function OrdersListTable({
         cell: (order) => (
           <div className="flex items-center gap-2.5">
             <Avatar size="sm">
-              <AvatarFallback className="bg-primary/15 text-xs font-bold text-primary">
+              <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
                 {getInitials(order.customer.fullName)}
               </AvatarFallback>
             </Avatar>
@@ -102,7 +102,7 @@ export function OrdersListTable({
               <span className="truncate text-sm font-semibold leading-tight text-foreground">
                 {order.customer.fullName}
               </span>
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
                 {order.customer.phone}
               </Label>
             </div>
@@ -134,10 +134,10 @@ export function OrdersListTable({
               <Label
                 className={
                   isOverdue
-                    ? "text-sm font-bold uppercase tracking-tight text-destructive"
+                    ? "text-sm font-bold uppercase  text-destructive"
                     : isCompleted
-                      ? "text-sm font-bold uppercase tracking-tight text-primary"
-                      : "text-sm font-bold uppercase tracking-tight text-muted-foreground"
+                      ? "text-sm font-bold uppercase  text-primary"
+                      : "text-sm font-bold uppercase  text-muted-foreground"
                 }
               >
                 {isOverdue ? "Overdue" : isCompleted ? "Closed" : "Scheduled"}
@@ -242,7 +242,13 @@ export function OrdersListTable({
         },
       },
     ],
-    [canEditOrder, canPrintReceipt, handlePrintReceipt, onEditOrder, onViewOrder],
+    [
+      canEditOrder,
+      canPrintReceipt,
+      handlePrintReceipt,
+      onEditOrder,
+      onViewOrder,
+    ],
   );
 
   return (

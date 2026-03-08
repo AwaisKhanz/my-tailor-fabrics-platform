@@ -24,7 +24,11 @@ export function BranchGlobalPricingCard({
 
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Global Pricing Model"
           icon={
@@ -39,7 +43,7 @@ export function BranchGlobalPricingCard({
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-5">
-        <Text as="p"  variant="lead" className="text-sm leading-relaxed">
+        <Text as="p" variant="lead" className="text-sm leading-relaxed">
           Customer garment prices are controlled from one shared catalog in{" "}
           <span className="font-semibold text-foreground">
             {" "}
@@ -50,30 +54,36 @@ export function BranchGlobalPricingCard({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Price Source</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Customer Price Source
+            </Label>
             <Text
               as="p"
-               variant="body"
+              variant="body"
               className="mt-1 text-sm font-semibold text-foreground"
             >
               Global Garment Catalog
             </Text>
           </InfoTile>
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Branch-level Price List</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Branch-level Price List
+            </Label>
             <Text
               as="p"
-               variant="body"
+              variant="body"
               className="mt-1 text-sm font-semibold text-foreground"
             >
               Not Supported for Customer Prices
             </Text>
           </InfoTile>
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active Garment Types</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Active Garment Types
+            </Label>
             <Text
               as="p"
-               variant="body"
+              variant="body"
               className="mt-1 text-sm font-semibold text-foreground"
             >
               {garmentTypesCount.toLocaleString()}
@@ -83,10 +93,12 @@ export function BranchGlobalPricingCard({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Task Rate Overrides</Label>
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Task Rate Overrides
+            </Label>
             <Text
               as="p"
-               variant="body"
+              variant="body"
               className="mt-1 text-sm font-semibold text-foreground"
             >
               {hasBranchRateOverrides
@@ -94,15 +106,13 @@ export function BranchGlobalPricingCard({
                 : "Disabled (no branch-specific rate cards)"}
             </Text>
           </InfoTile>
-          <InfoTile
-            padding="md"
-            className="sm:col-span-2"
-            tone="secondary"
-          >
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Global Task Rate Cards</Label>
+          <InfoTile padding="md" className="sm:col-span-2" tone="secondary">
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Global Task Rate Cards
+            </Label>
             <Text
               as="p"
-               variant="body"
+              variant="body"
               className="mt-1 text-sm font-semibold text-foreground"
             >
               {globalRateCards.toLocaleString()} default rate cards are
@@ -112,12 +122,7 @@ export function BranchGlobalPricingCard({
         </div>
 
         <div className="flex justify-start">
-          <Button
-           
-            size="lg"
-            className="w-full sm:w-auto"
-            asChild
-          >
+          <Button size="lg" className="w-full sm:w-auto" asChild>
             <Link href="/settings/garments">Manage Global Price List</Link>
           </Button>
         </div>

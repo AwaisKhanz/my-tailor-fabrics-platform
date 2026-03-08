@@ -48,9 +48,12 @@ export function OrderItemsTable({
   const total = items.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   useEffect(() => {
     if (page > totalPages) {
@@ -94,7 +97,7 @@ export function OrderItemsTable({
               {item.garmentTypeName}
             </p>
             {item.designType ? (
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5 text-primary">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5 text-primary">
                 {item.designType.name}
               </Label>
             ) : null}
@@ -146,11 +149,7 @@ export function OrderItemsTable({
               ? "info"
               : "outline";
         return (
-          <Badge
-            variant={statusVariant}
-            size="xs"
-            className="uppercase tracking-[0.08em]"
-          >
+          <Badge variant={statusVariant} size="xs" className="uppercase ">
             {item.status.replace("_", " ")}
           </Badge>
         );
@@ -188,34 +187,29 @@ export function OrderItemsTable({
 
   return (
     <Card>
-      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        density="comfortable"
+        layout="default"
+        surface="default"
+        trimBottom
+      >
         <div>
-          <CardTitle className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Order Items</CardTitle>
+          <CardTitle className="text-sm font-bold uppercase  text-muted-foreground">
+            Order Items
+          </CardTitle>
           <CardDescription className="mt-1 text-xs">
             Piece breakdown, assignments, and task controls.
           </CardDescription>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge
-            variant="default"
-            size="xs"
-            className="font-bold uppercase tracking-[0.08em]"
-          >
+          <Badge variant="default" size="xs" className="font-bold uppercase ">
             {summary.total} pieces
           </Badge>
-          <Badge
-            variant="info"
-            size="xs"
-            className="font-bold uppercase tracking-[0.08em]"
-          >
+          <Badge variant="info" size="xs" className="font-bold uppercase ">
             {summary.inProgress} in progress
           </Badge>
-          <Badge
-            variant="success"
-            size="xs"
-            className="font-bold uppercase tracking-[0.08em]"
-          >
+          <Badge variant="success" size="xs" className="font-bold uppercase ">
             {summary.completed} completed
           </Badge>
         </div>

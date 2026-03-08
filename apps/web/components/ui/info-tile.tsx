@@ -4,16 +4,16 @@ import { statusSurfaceStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 export const infoTileVariants = cva(
-  "rounded-snow-20 border border-border bg-card text-foreground shadow-sm",
+  "rounded-snow-20 border border-border bg-card text-foreground",
   {
     variants: {
       tone: {
-        default: "",
-        secondary: "border-secondary bg-secondary text-secondary-foreground",
-        success: statusSurfaceStyles.success,
-        destructive: statusSurfaceStyles.destructive,
-        info: statusSurfaceStyles.info,
-        warning: statusSurfaceStyles.warning,
+        default: " border-primary bg-primary/5 text-secondary-foreground",
+        secondary: " border-secondary bg-secondary text-secondary-foreground ",
+        success: `${statusSurfaceStyles.success}`,
+        destructive: `${statusSurfaceStyles.destructive}`,
+        info: `${statusSurfaceStyles.info}`,
+        warning: `${statusSurfaceStyles.warning}`,
       },
       padding: {
         none: "",

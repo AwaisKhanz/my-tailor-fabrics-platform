@@ -20,18 +20,16 @@ interface BranchSelectorProps {
   className?: string;
 }
 
-export function BranchSelector({
-  className,
-}: BranchSelectorProps) {
+export function BranchSelector({ className }: BranchSelectorProps) {
   const router = useRouter();
   const { canAll } = useAuthz();
   const canSwitchBranch = canAll(["branch.switch"]);
-  const { 
-    activeBranchId, 
-    availableBranches, 
-    setActiveBranch, 
+  const {
+    activeBranchId,
+    availableBranches,
+    setActiveBranch,
     setAvailableBranches,
-    hydrate 
+    hydrate,
   } = useBranchStore();
 
   useEffect(() => {
@@ -45,9 +43,9 @@ export function BranchSelector({
           const response = await api.get("/config/branches");
           if (response.data.success) {
             setAvailableBranches(response.data.data);
-            
+
             // Auto-select first branch if none selected
-            const savedBranchId = Cookies.get('tbms_active_branch');
+            const savedBranchId = Cookies.get("tbms_active_branch");
             if (!savedBranchId && response.data.data.length > 0) {
               setActiveBranch(response.data.data[0].id);
             }
@@ -58,7 +56,12 @@ export function BranchSelector({
       };
       fetchBranches();
     }
-  }, [availableBranches.length, canSwitchBranch, setAvailableBranches, setActiveBranch]);
+  }, [
+    availableBranches.length,
+    canSwitchBranch,
+    setAvailableBranches,
+    setActiveBranch,
+  ]);
 
   if (!canSwitchBranch) return null;
 
@@ -72,7 +75,7 @@ export function BranchSelector({
     >
       <SelectTrigger
         className={cn(
-          "h-10 w-full text-sm font-semibold tracking-[0.08em] sm:text-[0.875rem]",
+          "h-10 w-full text-sm font-semibold  sm:text-[0.875rem]",
           className,
         )}
       >

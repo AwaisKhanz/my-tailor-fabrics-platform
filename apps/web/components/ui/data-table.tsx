@@ -126,7 +126,7 @@ export function DataTable<T extends { id: string | number }>({
                   colSpan={columns.length}
                   className="px-5 py-16 text-center"
                 >
-                  <Text as="p"  variant="lead">
+                  <Text as="p" variant="lead">
                     {emptyMessage}
                   </Text>
                 </TableCell>
@@ -145,7 +145,7 @@ export function DataTable<T extends { id: string | number }>({
                     <TableCell
                       key={colIdx}
                       className={cn(
-                        "px-4 py-3.5",
+                        "px-4 py-3.5 whitespace-nowrap",
                         column.align === "right" && "text-right",
                         column.align === "center" && "text-center",
                         column.className,
@@ -168,9 +168,9 @@ export function DataTable<T extends { id: string | number }>({
       {/* Pagination Footer */}
       {totalPages > 0 && onPageChange && page && (
         <div className="flex items-center justify-between border-t border-border bg-card px-5 py-3.5">
-          <Text as="p"  variant="muted">
-            Showing <span className="font-bold text-foreground">{from}</span>{" "}
-            to <span className="font-bold text-foreground">{to}</span> of{" "}
+          <Text as="p" variant="muted">
+            Showing <span className="font-bold text-foreground">{from}</span> to{" "}
+            <span className="font-bold text-foreground">{to}</span> of{" "}
             <span className="font-bold text-foreground">{total}</span>{" "}
             {itemLabel}
           </Text>
@@ -190,7 +190,7 @@ export function DataTable<T extends { id: string | number }>({
               p === "..." ? (
                 <Text
                   as="span"
-                   variant="body"
+                  variant="body"
                   key={`ellipsis-${i}`}
                   className="h-8 w-8 flex items-center justify-center text-muted-foreground text-sm"
                 >
@@ -206,9 +206,9 @@ export function DataTable<T extends { id: string | number }>({
                       onPageChange(p);
                     }
                   }}
-                    className={cn(
-                      "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
-                      page === p
+                  className={cn(
+                    "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
+                    page === p
                       ? "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary"
                       : "border-border bg-card text-foreground hover:bg-accent",
                   )}

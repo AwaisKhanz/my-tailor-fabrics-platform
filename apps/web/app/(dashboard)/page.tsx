@@ -53,6 +53,8 @@ function DashboardPage() {
       : session.user.role.replace("_", " ")
     : undefined;
 
+  const userLabel = session?.user?.name ? session?.user?.name : undefined;
+
   return (
     <PageShell spacing="default">
       <PageSection spacing="compact">
@@ -61,17 +63,15 @@ function DashboardPage() {
           description={
             <span className="text-muted-foreground">
               Welcome back,{" "}
-              <span className="font-medium text-foreground">
-                {session?.user?.email}
-              </span>
+              <span className="font-medium text-foreground">{userLabel}</span>
               {session?.user?.role ? (
-                <Badge variant="secondary" size="xs" className="ml-2">
+                <Badge variant="outline" size="xs" className="ml-2">
                   {roleLabel}
                 </Badge>
               ) : null}
             </span>
           }
-          density="compact"
+          density="default"
           actions={
             <>
               <Can all={["orders.create"]}>

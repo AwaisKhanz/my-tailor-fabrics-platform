@@ -6,7 +6,10 @@ import {
   type OrderItemTask,
   TaskStatus,
 } from "@tbms/shared-types";
-import { TASK_STATUS_LABELS, getEffectiveTaskRate } from "@tbms/shared-constants";
+import {
+  TASK_STATUS_LABELS,
+  getEffectiveTaskRate,
+} from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
@@ -25,7 +28,10 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 interface TaskAssignmentTableProps {
   tasks: OrderItemTask[];
   employees: Array<Pick<Employee, "id" | "fullName">>;
-  eligibleEmployeesByTask: Record<string, Array<Pick<Employee, "id" | "fullName">>>;
+  eligibleEmployeesByTask: Record<
+    string,
+    Array<Pick<Employee, "id" | "fullName">>
+  >;
   loadingId: string | null;
   editingRateId: string | null;
   tempRate: string;
@@ -87,9 +93,12 @@ export function TaskAssignmentTable({
   const total = tasks.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   useEffect(() => {
     if (page > totalPages) {
@@ -109,7 +118,7 @@ export function TaskAssignmentTable({
         cell: (task) => (
           <div className="flex flex-col">
             <span className="font-bold text-foreground">{task.stepName}</span>
-            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            <span className="font-mono text-xs uppercase  text-muted-foreground">
               {task.stepKey}
             </span>
           </div>
@@ -120,48 +129,51 @@ export function TaskAssignmentTable({
         cell: (task) => {
           const eligibleEmployees = eligibleEmployeesByTask[task.id] ?? [];
           const assignedEmployeeOption = task.assignedEmployeeId
-            ? employees.find((employee) => employee.id === task.assignedEmployeeId)
+            ? employees.find(
+                (employee) => employee.id === task.assignedEmployeeId,
+              )
             : undefined;
           const assignmentOptions = assignedEmployeeOption
             ? [
                 ...eligibleEmployees,
-                ...eligibleEmployees.some(
+                ...(eligibleEmployees.some(
                   (employee) => employee.id === assignedEmployeeOption.id,
                 )
                   ? []
-                  : [assignedEmployeeOption],
+                  : [assignedEmployeeOption]),
               ]
             : eligibleEmployees;
           const hasSelectableEmployee = assignmentOptions.length > 0;
           const canModifyAssignment =
-            loadingId !== task.id && (hasSelectableEmployee || Boolean(task.assignedEmployeeId));
+            loadingId !== task.id &&
+            (hasSelectableEmployee || Boolean(task.assignedEmployeeId));
 
           return (
             <div className="min-w-[180px]">
-            <Select
-              disabled={!canModifyAssignment}
-              value={task.assignedEmployeeId || "unassigned"}
-              onValueChange={(value) => {
-                onAssign(task.id, value === "unassigned" ? null : value);
-              }}
-            >
-              <SelectTrigger className="h-8 text-xs font-semibold">
-                <SelectValue placeholder="Assign Employee" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
-                {assignmentOptions.map((employee) => (
-                  <SelectItem key={employee.id} value={employee.id}>
-                    {employee.fullName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {!hasSelectableEmployee && !task.assignedEmployeeId ? (
-              <p className="mt-1 text-xs text-secondary-foreground">
-                No eligible employees for this step.
-              </p>
-            ) : null}
+              <Select
+                disabled={!canModifyAssignment}
+                value={task.assignedEmployeeId || "unassigned"}
+                onValueChange={(value) => {
+                  onAssign(task.id, value === "unassigned" ? null : value);
+                }}
+              >
+                <SelectTrigger className="h-8 text-xs font-semibold">
+                  <SelectValue placeholder="Assign Employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {assignmentOptions.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!hasSelectableEmployee && !task.assignedEmployeeId ? (
+                <p className="mt-1 text-xs text-secondary-foreground">
+                  No eligible employees for this step.
+                </p>
+              ) : null}
             </div>
           );
         },
@@ -180,7 +192,10 @@ export function TaskAssignmentTable({
               }}
             >
               <SelectTrigger className="h-8 border-transparent bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground focus:ring-0 focus:ring-offset-0">
-                <Badge variant={STATUS_VARIANTS[task.status] || "outline"} className="w-full justify-center uppercase">
+                <Badge
+                  variant={STATUS_VARIANTS[task.status] || "outline"}
+                  className="w-full justify-center uppercase"
+                >
                   {TASK_STATUS_LABELS[task.status]}
                 </Badge>
               </SelectTrigger>
@@ -212,7 +227,6 @@ export function TaskAssignmentTable({
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center justify-end gap-1">
                   <Input
-                   
                     className="h-7 w-20 text-right text-xs"
                     type="number"
                     value={tempRate}
@@ -236,7 +250,6 @@ export function TaskAssignmentTable({
                     <Check className="h-3 w-3" />
                   </Button>
                   <Button
-                   
                     size="icon"
                     className="h-7 w-7"
                     onClick={onCancelRateEdit}

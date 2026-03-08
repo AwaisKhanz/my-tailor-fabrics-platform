@@ -25,7 +25,11 @@ export function CustomerMeasurementsTab({
 }: CustomerMeasurementsTabProps) {
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <CardTitle>Measurements</CardTitle>
@@ -33,7 +37,7 @@ export function CustomerMeasurementsTab({
               {measurements.length} SETS
             </Badge>
           </div>
-          <Text as="p"  variant="muted">
+          <Text as="p" variant="muted">
             Keep sizing data updated for better fit accuracy and quicker order
             entry.
           </Text>
@@ -58,7 +62,7 @@ export function CustomerMeasurementsTab({
                 <CardHeader density="compact" surface="cardSection" trimBottom>
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
-                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground font-normal opacity-60">
+                    <Label className="text-sm font-bold uppercase  text-muted-foreground font-normal opacity-60">
                       Updated:{" "}
                       {new Date(measurement.updatedAt).toLocaleDateString()}
                     </Label>
@@ -69,14 +73,10 @@ export function CustomerMeasurementsTab({
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Object.entries(measurement.values).map(([key, value]) => (
                       <div key={key}>
-                        <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-0.5 block">
+                        <Label className="text-sm font-bold uppercase  text-muted-foreground mb-0.5 block">
                           {getMeasurementLabel(measurement, key)}
                         </Label>
-                        <Text
-                          as="p"
-                           variant="body"
-                          className="font-semibold"
-                        >
+                        <Text as="p" variant="body" className="font-semibold">
                           {String(value)}
                         </Text>
                       </div>

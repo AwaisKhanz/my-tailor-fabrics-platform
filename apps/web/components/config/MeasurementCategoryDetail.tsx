@@ -61,9 +61,8 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
   } = useMeasurementCategoryDetailPage(id);
 
   const [isSectionDeleteOpen, setIsSectionDeleteOpen] = useState(false);
-  const [sectionToDelete, setSectionToDelete] = useState<MeasurementSection | null>(
-    null,
-  );
+  const [sectionToDelete, setSectionToDelete] =
+    useState<MeasurementSection | null>(null);
   const [targetSectionId, setTargetSectionId] = useState("");
   const [isDeletingSection, setIsDeletingSection] = useState(false);
 
@@ -92,7 +91,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
   );
 
   const fieldsInDeletingSection = sectionToDelete
-    ? sectionFieldCounts.get(sectionToDelete.id) ?? 0
+    ? (sectionFieldCounts.get(sectionToDelete.id) ?? 0)
     : 0;
   const requiresMoveTarget = fieldsInDeletingSection > 0;
   const cannotDeleteSection =
@@ -153,14 +152,14 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
         <PageSection spacing="compact">
           <Card>
             <CardContent className="flex min-h-[340px] flex-col items-center justify-center p-6 text-center">
-              <Heading as="h2"  variant="section">
+              <Heading as="h2" variant="section">
                 Category Not Found
               </Heading>
-              <Text as="p"  variant="lead" className="mt-2 max-w-md">
-                This measurement category may have been removed or is no longer available.
+              <Text as="p" variant="lead" className="mt-2 max-w-md">
+                This measurement category may have been removed or is no longer
+                available.
               </Text>
               <Button
-               
                 className="mt-6 w-full sm:w-auto"
                 onClick={() => router.push("/settings/measurements")}
               >
@@ -303,14 +302,14 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
             }
           >
             {cannotDeleteSection ? (
-              <Text as="p"  variant="body" className="text-destructive">
+              <Text as="p" variant="body" className="text-destructive">
                 This section contains {fieldsInDeletingSection} field
                 {fieldsInDeletingSection === 1 ? "" : "s"}, but there is no
                 other section to move them into. Create another section first.
               </Text>
             ) : (
               <div className="space-y-4">
-                <Text as="p"  variant="body">
+                <Text as="p" variant="body">
                   {requiresMoveTarget
                     ? `This section has ${fieldsInDeletingSection} field${fieldsInDeletingSection === 1 ? "" : "s"}. Choose where these fields should move before archiving.`
                     : "This section has no active fields and will be archived immediately."}
@@ -320,8 +319,8 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
                   <div className="space-y-2">
                     <Text
                       as="p"
-                       variant="muted"
-                      className="font-semibold uppercase tracking-[0.08em]"
+                      variant="muted"
+                      className="font-semibold uppercase "
                     >
                       Move existing fields to
                     </Text>

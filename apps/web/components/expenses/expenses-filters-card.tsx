@@ -56,7 +56,7 @@ export function ExpensesFiltersCard({
           />
 
           <div className="w-full sm:w-[220px]">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
               <span className="inline-flex items-center gap-1.5">
                 <Filter className="h-3.5 w-3.5" />
                 Category
@@ -88,11 +88,10 @@ export function ExpensesFiltersCard({
           </div>
 
           <div className="w-full sm:w-[180px]">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
               Date From
             </Label>
             <Input
-             
               type="date"
               value={filters.from}
               onChange={(event) => onFromChange(event.target.value)}
@@ -100,11 +99,10 @@ export function ExpensesFiltersCard({
           </div>
 
           <div className="w-full sm:w-[180px]">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-2 block">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
               Date To
             </Label>
             <Input
-             
               type="date"
               value={filters.to}
               onChange={(event) => onToChange(event.target.value)}

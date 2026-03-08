@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Heading, Text } from "@/components/ui/typography";
-import { statusIconStyles, statusTextStyles } from "@/lib/ui-styles";
+import { statusTextStyles } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 
 const statCardTone = cva("", {
@@ -39,24 +39,21 @@ const statValueTone = cva("text-3xl", {
   },
 });
 
-const statIconTone = cva(
-  "flex h-11 w-11 items-center justify-center rounded-snow-16 border shadow-sm",
-  {
-    variants: {
-      tone: {
-        default: "border-border bg-muted text-muted-foreground",
-        primary: "border-primary/12 bg-primary text-primary-foreground",
-        success: statusIconStyles.success,
-        warning: statusIconStyles.warning,
-        destructive: statusIconStyles.destructive,
-        info: statusIconStyles.info,
-      },
-    },
-    defaultVariants: {
-      tone: "default",
+const statIconTone = cva("", {
+  variants: {
+    tone: {
+      default: "border-border bg-card text-muted-foreground",
+      primary: "border-border bg-card text-primary",
+      success: "border-border bg-card text-foreground",
+      warning: "border-border bg-card text-foreground",
+      destructive: "border-border bg-card text-destructive",
+      info: "border-border bg-card text-foreground",
     },
   },
-);
+  defaultVariants: {
+    tone: "default",
+  },
+});
 
 const statBadgeTone: Record<
   NonNullable<StatCardProps["tone"]>,
@@ -122,7 +119,7 @@ export function StatCard({
             {title}
           </CardTitle>
           {subtitle ? (
-            <Label className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            <Label className="text-xs font-medium uppercase  text-muted-foreground">
               {subtitle}
             </Label>
           ) : null}

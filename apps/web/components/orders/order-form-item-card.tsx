@@ -59,6 +59,9 @@ function isAddonType(value: string): value is AddonType {
   return ADDON_TYPE_OPTIONS.some((option) => option.type === value);
 }
 
+const fieldLabelClassName =
+  "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground";
+
 export function OrderFormItemCard({
   index,
   form,
@@ -130,13 +133,15 @@ export function OrderFormItemCard({
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-        <div className="md:col-span-5">
+        <div className="md:col-span-6">
           <FormField
             control={form.control}
             name={`items.${index}.garmentTypeId`}
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Garment Type</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className={fieldLabelClassName}>
+                  Garment Type
+                </FormLabel>
                 <Select
                   onValueChange={(value) => onSelectGarmentType(index, value)}
                   value={field.value}
@@ -160,13 +165,15 @@ export function OrderFormItemCard({
           />
         </div>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-3">
           <FormField
             control={form.control}
             name={`items.${index}.quantity`}
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Quantity</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className={fieldLabelClassName}>
+                  Quantity
+                </FormLabel>
                 <FormControl>
                   <Input type="number" min={1} {...field} />
                 </FormControl>
@@ -181,8 +188,10 @@ export function OrderFormItemCard({
             control={form.control}
             name={`items.${index}.unitPrice`}
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Unit Price (Rs)</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className={fieldLabelClassName}>
+                  Unit Price (Rs)
+                </FormLabel>
                 <FormControl>
                   <Input type="number" min={0} {...field} />
                 </FormControl>
@@ -196,8 +205,10 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.designTypeId`}
           render={({ field }) => (
-            <FormItem className="md:col-span-8">
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Design Type</FormLabel>
+            <FormItem className="space-y-2 md:col-span-7">
+              <FormLabel className={fieldLabelClassName}>
+                Design Type
+              </FormLabel>
               <Select
                 onValueChange={(value) => {
                   field.onChange(value === "NONE" ? undefined : value);
@@ -227,8 +238,10 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.fabricSource`}
           render={({ field }) => (
-            <FormItem className="md:col-span-4">
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Fabric Source</FormLabel>
+            <FormItem className="space-y-2 md:col-span-5">
+              <FormLabel className={fieldLabelClassName}>
+                Fabric Source
+              </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -251,8 +264,10 @@ export function OrderFormItemCard({
           control={form.control}
           name={`items.${index}.description`}
           render={({ field }) => (
-            <FormItem className="md:col-span-6">
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Notes</FormLabel>
+            <FormItem className="space-y-2 md:col-span-12">
+              <FormLabel className={fieldLabelClassName}>
+                Notes
+              </FormLabel>
               <FormControl>
                 <Textarea
                   className="min-h-[84px] resize-y"
@@ -266,14 +281,11 @@ export function OrderFormItemCard({
         />
       </div>
 
-      <InfoTile
-        tone="secondary"
-        borderStyle="dashed"
-        padding="xs"
-        className=""
-      >
+      <InfoTile tone="secondary" borderStyle="dashed" padding="xs">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Addons & Custom Charges</Label>
+          <Label className={fieldLabelClassName}>
+            Addons & Custom Charges
+          </Label>
           <Button
             type="button"
             variant="secondary"
@@ -305,9 +317,13 @@ export function OrderFormItemCard({
                       if (!isAddonType(value)) {
                         return;
                       }
-                      form.setValue(`items.${index}.addons.${addonIndex}.type`, value, {
-                        shouldDirty: true,
-                      });
+                      form.setValue(
+                        `items.${index}.addons.${addonIndex}.type`,
+                        value,
+                        {
+                          shouldDirty: true,
+                        },
+                      );
                     }}
                   >
                     <SelectTrigger className="h-8">
@@ -325,7 +341,6 @@ export function OrderFormItemCard({
 
                 <div className="md:col-span-6">
                   <Input
-                   
                     className="h-8"
                     placeholder="Charge name"
                     {...form.register(
@@ -336,7 +351,6 @@ export function OrderFormItemCard({
 
                 <div className="md:col-span-2">
                   <Input
-                   
                     type="number"
                     className="h-8"
                     placeholder="Amount"

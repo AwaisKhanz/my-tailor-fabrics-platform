@@ -56,21 +56,27 @@ export function ConfirmDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="md" className="gap-0 overflow-hidden p-0">
-        <div className={cn(
-          "h-2 w-full",
-          variant === "destructive" ? "bg-destructive" : "bg-primary"
-        )} />
-        
+        <div
+          className={cn(
+            "h-2 w-full",
+            variant === "destructive" ? "bg-destructive" : "bg-primary",
+          )}
+        />
+
         <div className="p-6">
           <DialogHeader spacing="relaxed">
-            <div className={cn(
-               "flex h-12 w-12 items-center justify-center rounded-full shrink-0",
-               variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
-            )}>
+            <div
+              className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-full shrink-0",
+                variant === "destructive"
+                  ? "bg-destructive/10 text-destructive"
+                  : "bg-primary/10 text-primary",
+              )}
+            >
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div className="space-y-1">
-              <DialogTitle className="text-xl font-bold tracking-tight">{title}</DialogTitle>
+              <DialogTitle className="text-xl font-bold ">{title}</DialogTitle>
               {typeof description === "string" ? (
                 <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
                   {description}

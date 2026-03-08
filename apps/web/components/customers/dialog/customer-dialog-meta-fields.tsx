@@ -1,7 +1,13 @@
 import type { UseFormReturn } from "react-hook-form";
 import { CustomerStatus } from "@tbms/shared-types";
 import { CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -16,7 +22,9 @@ interface CustomerDialogMetaFieldsProps {
   form: UseFormReturn<CustomerFormValues>;
 }
 
-export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps) {
+export function CustomerDialogMetaFields({
+  form,
+}: CustomerDialogMetaFieldsProps) {
   return (
     <>
       <FormField
@@ -24,7 +32,9 @@ export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Email (opt.)</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+              Email (opt.)
+            </FormLabel>
             <FormControl>
               <Input placeholder="john@example.com" {...field} />
             </FormControl>
@@ -39,7 +49,9 @@ export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps
           name="city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">City</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                City
+              </FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Lahore" {...field} />
               </FormControl>
@@ -53,7 +65,9 @@ export function CustomerDialogMetaFields({ form }: CustomerDialogMetaFieldsProps
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Status</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Status
+              </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>

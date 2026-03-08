@@ -32,14 +32,18 @@ export function DashboardProductivityCard({
   return (
     <Card className="flex h-full flex-col">
       <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
-        <CardTitle className="text-base font-bold normal-case tracking-tight">Employee Productivity</CardTitle>
+        <CardTitle className="text-base font-bold normal-case ">
+          Employee Productivity
+        </CardTitle>
         <div className="flex flex-col items-end">
           {loading ? (
             <Skeleton className="h-6 w-16" />
           ) : (
             <span className="text-xl font-bold text-primary">{average}</span>
           )}
-          <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Avg Items / Tailor</Label>
+          <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            Avg Items / Tailor
+          </Label>
         </div>
       </CardHeader>
       <CardContent spacing="section" className="flex flex-1 flex-col gap-6">
@@ -94,7 +98,9 @@ export function DashboardProductivityCard({
                     <span className="font-bold text-foreground">
                       {employee.label}
                     </span>
-                    <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">{employee.value} Items</Label>
+                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                      {employee.value} Items
+                    </Label>
                   </div>
                   <ProgressBar
                     value={percentage}

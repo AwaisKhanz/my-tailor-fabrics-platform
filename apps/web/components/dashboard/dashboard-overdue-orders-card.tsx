@@ -19,7 +19,9 @@ export function DashboardOverdueOrdersCard({
   return (
     <Card>
       <CardHeader layout="rowBetween" surface="mutedSection" trimBottom>
-        <CardTitle className="text-base font-bold normal-case tracking-tight">Recent Overdue Orders</CardTitle>
+        <CardTitle className="text-base font-bold normal-case ">
+          Recent Overdue Orders
+        </CardTitle>
         <Button variant="ghost" size="sm" onClick={onViewOverdueOrders}>
           View all
         </Button>
@@ -44,7 +46,7 @@ export function DashboardOverdueOrdersCard({
                 </button>
               </div>
               <div className="flex min-w-0 justify-start">
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground truncate opacity-100">
+                <Label className="text-sm font-bold uppercase  text-muted-foreground truncate opacity-100">
                   {order.customer.fullName}
                 </Label>
               </div>
@@ -52,7 +54,7 @@ export function DashboardOverdueOrdersCard({
                 <Badge variant="destructive" size="xs">
                   <Clock className="mr-1 h-3 w-3" /> Overdue
                 </Badge>
-                <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+                <Label className="text-sm font-bold uppercase  text-muted-foreground">
                   Needs attention
                 </Label>
               </div>

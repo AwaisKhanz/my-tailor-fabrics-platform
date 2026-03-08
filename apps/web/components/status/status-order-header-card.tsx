@@ -18,17 +18,17 @@ export function StatusOrderHeaderCard({
 }: StatusOrderHeaderCardProps) {
   return (
     <Card className="p-6 text-center">
-      <Text as="p"  variant="muted" className="mb-1 text-xs">
+      <Text as="p" variant="muted" className="mb-1 text-xs">
         Order Number
       </Text>
-      <Heading as="h1"  variant="page" className="text-2xl text-primary">
+      <Heading as="h1" variant="page" className="text-2xl text-primary">
         {order.orderNumber}
       </Heading>
 
       <div className="mt-3 flex justify-center">
         <Badge
           variant={variant}
-          className="px-4 py-1.5 text-sm font-semibold uppercase tracking-wider"
+          className="px-4 py-1.5 text-sm font-semibold uppercase"
         >
           <Icon className="mr-1.5 h-4 w-4" />
           {label}

@@ -1,53 +1,53 @@
 export const statusTextStyles = {
-  info: "text-snow-blue-a dark:text-snow-blue-b",
-  success: "text-snow-green-a dark:text-snow-green-b",
-  warning: "text-snow-black dark:text-snow-yellow",
+  info: "text-info",
+  success: "text-success",
+  warning: "text-warning",
   destructive: "text-destructive",
 } as const;
 
 export const statusSurfaceStyles = {
-  info:
-    "border-snow-blue-a/35 bg-snow-blue-b/55 text-snow-black dark:border-snow-blue-b/25 dark:bg-snow-blue-a/15 dark:text-snow-blue-b",
-  success:
-    "border-snow-green-a/35 bg-snow-green-b/60 text-snow-black dark:border-snow-green-b/25 dark:bg-snow-green-a/15 dark:text-snow-green-b",
-  warning:
-    "border-snow-yellow/55 bg-snow-yellow/70 text-snow-black dark:border-snow-yellow/20 dark:bg-snow-yellow/12 dark:text-snow-yellow",
-  destructive: "border-snow-red/25 bg-snow-red/10 text-snow-red dark:bg-snow-red/14",
+  info: "border-info/30 bg-info/12 text-info",
+  success: "border-success/30 bg-success/10 text-success",
+  warning: "border-warning/35 bg-warning/16 text-warning",
+  destructive: "border-destructive/30 bg-destructive/10 text-destructive",
 } as const;
 
 export const statusIconStyles = {
-  info:
-    "border-snow-blue-a/35 bg-snow-blue-b/55 text-snow-black dark:border-snow-blue-b/25 dark:bg-snow-blue-a/16 dark:text-snow-blue-b",
-  success:
-    "border-snow-green-a/35 bg-snow-green-b/60 text-snow-black dark:border-snow-green-b/25 dark:bg-snow-green-a/16 dark:text-snow-green-b",
-  warning:
-    "border-snow-yellow/55 bg-snow-yellow/72 text-snow-black dark:border-snow-yellow/20 dark:bg-snow-yellow/12 dark:text-snow-yellow",
-  destructive: "border-snow-red/25 bg-snow-red/10 text-snow-red dark:bg-snow-red/14",
+  info: "border-info/35 bg-info/16 text-info",
+  success: "border-success/35 bg-success/16 text-success",
+  warning: "border-warning/38 bg-warning/18 text-warning",
+  destructive: "border-destructive/32 bg-destructive/14 text-destructive",
 } as const;
 
 export const chartToneStyles = [
   {
-    bg: "bg-snow-purple-a",
-    stroke: "stroke-snow-purple-a",
-    text: "text-snow-purple-a dark:text-snow-purple-b",
-    fill: "fill-snow-purple-a/16 dark:fill-snow-purple-a/22",
+    bg: "bg-chart-1",
+    stroke: "stroke-chart-1",
+    text: "text-chart-1",
+    fill: "fill-chart-1/18",
   },
   {
-    bg: "bg-snow-blue-b",
-    stroke: "stroke-snow-blue-b",
-    text: "text-snow-blue-a dark:text-snow-blue-b",
-    fill: "fill-snow-blue-b/22 dark:fill-snow-blue-b/18",
+    bg: "bg-chart-2",
+    stroke: "stroke-chart-2",
+    text: "text-chart-2",
+    fill: "fill-chart-2/18",
   },
   {
-    bg: "bg-snow-green-a",
-    stroke: "stroke-snow-green-a",
-    text: "text-snow-green-a dark:text-snow-green-b",
-    fill: "fill-snow-green-a/18 dark:fill-snow-green-a/24",
+    bg: "bg-chart-3",
+    stroke: "stroke-chart-3",
+    text: "text-chart-3",
+    fill: "fill-chart-3/18",
   },
   {
-    bg: "bg-snow-yellow",
-    stroke: "stroke-snow-yellow",
-    text: "text-snow-black dark:text-snow-yellow",
-    fill: "fill-snow-yellow/35 dark:fill-snow-yellow/20",
+    bg: "bg-chart-4",
+    stroke: "stroke-chart-4",
+    text: "text-chart-4",
+    fill: "fill-chart-4/20",
+  },
+  {
+    bg: "bg-chart-5",
+    stroke: "stroke-chart-5",
+    text: "text-chart-5",
+    fill: "fill-chart-5/20",
   },
 ] as const;

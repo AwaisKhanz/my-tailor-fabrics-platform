@@ -219,12 +219,13 @@ function NavList({
     const ItemIcon = item.icon;
 
     const baseClasses =
-      "dashboard-nav-item group flex w-full cursor-pointer items-center gap-3 rounded-snow-20 px-4 py-3.5 text-[0.875rem] font-medium transition-all";
+      "group flex w-full cursor-pointer items-center gap-3 rounded-snow-20 border border-transparent bg-transparent px-4 py-3.5 text-[0.875rem] font-medium transition-all duration-200 ease-out";
 
-    const activeClasses = "text-sidebar-foreground";
+    const activeClasses =
+      "border-secondary bg-secondary text-primary font-semibold";
 
     const inactiveClasses =
-      "text-sidebar-foreground hover:text-sidebar-foreground";
+      "text-sidebar-foreground hover:-translate-y-px hover:border-secondary hover:bg-background hover:text-primary";
 
     return (
       <div
@@ -235,8 +236,8 @@ function NavList({
           className={cn(
             "h-5 w-5 shrink-0 transition-colors",
             isActive
-              ? "text-sidebar-foreground"
-              : "text-sidebar-foreground group-hover:text-sidebar-foreground",
+              ? "!text-primary"
+              : "text-sidebar-foreground group-hover:text-primary",
           )}
         />
         <span className="flex-1 truncate transition-colors">{item.title}</span>
@@ -249,7 +250,9 @@ function NavList({
       {sections.map((section) => (
         <section key={section.title} className="space-y-1.5">
           <div className="px-3">
-            <Label className="dashboard-nav-label">{section.title}</Label>
+            <Label className="text-xs font-bold uppercase tracking-[0.08em] text-sidebar-foreground">
+              {section.title}
+            </Label>
           </div>
 
           <div className="space-y-1">
@@ -276,7 +279,7 @@ export function Sidebar() {
   const sections = getVisibleNavSections(role);
 
   return (
-    <aside className="dashboard-shell-sidebar fixed bottom-4 left-4 top-[5.75rem] z-30 hidden w-[19rem] flex-col rounded-snow-32 text-sidebar-foreground md:flex lg:left-5 lg:top-[6rem] lg:bottom-5">
+    <aside className="fixed bottom-4 left-4 top-[5.75rem] z-30 hidden w-[19rem] flex-col rounded-snow-32 border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm md:flex lg:bottom-5 lg:left-5 lg:top-[6rem]">
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <NavList sections={sections} pathname={pathname} />
       </div>
@@ -310,7 +313,7 @@ export function MobileSidebarTrigger() {
             onClick={() => setOpen(false)}
           />
 
-          <div className="dashboard-shell-sidebar relative m-3 flex h-[calc(100%-1.5rem)] w-[19rem] flex-col rounded-snow-32 text-sidebar-foreground">
+          <div className="relative m-3 flex h-[calc(100%-1.5rem)] w-[19rem] flex-col rounded-snow-32 border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm ">
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
               <div className="flex min-w-0 items-center gap-2">
                 <SectionIcon
@@ -326,7 +329,7 @@ export function MobileSidebarTrigger() {
                     className="object-contain p-1"
                   />
                 </SectionIcon>
-                <span className="truncate text-base font-semibold tracking-[-0.02em] text-sidebar-foreground">
+                <span className="truncate text-base font-semibold  text-sidebar-foreground">
                   {siteConfig.shortName}
                 </span>
               </div>
@@ -349,7 +352,9 @@ export function MobileSidebarTrigger() {
             </div>
 
             <div className="flex shrink-0 items-center justify-between border-t border-sidebar-border px-4 py-4">
-              <Label className="dashboard-nav-label">Theme</Label>
+              <Label className="text-xs font-bold uppercase tracking-[0.08em] text-sidebar-foreground">
+                Theme
+              </Label>
               <ThemeToggle />
             </div>
           </div>

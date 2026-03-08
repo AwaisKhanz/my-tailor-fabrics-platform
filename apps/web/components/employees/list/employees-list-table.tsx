@@ -45,7 +45,7 @@ export function EmployeesListTable({
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
                 {employee.fullName}
               </span>
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
                 {employee.employeeCode}
               </Label>
             </div>
@@ -72,7 +72,11 @@ export function EmployeesListTable({
       {
         header: "Status",
         cell: (employee) => (
-          <Badge variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"} size="xs" className="font-semibold">
+          <Badge
+            variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"}
+            size="xs"
+            className="font-semibold"
+          >
             {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
           </Badge>
         ),

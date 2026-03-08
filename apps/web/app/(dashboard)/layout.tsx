@@ -67,7 +67,7 @@ export default function DashboardLayout({
     <div className="dashboard-shell">
       <Topbar />
       <Sidebar />
-      <main className="dashboard-shell-scroll !mt-14 sm:!mt-0">
+      <main className="dashboard-shell-scroll !mt-14 sm:!mt-[4px]">
         <div className="dashboard-shell-workspace">{children}</div>
       </main>
     </div>

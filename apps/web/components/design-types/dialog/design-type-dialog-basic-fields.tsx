@@ -1,5 +1,11 @@
 import type { UseFormReturn } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { type DesignTypeFormValues } from "@/hooks/use-design-type-dialog";
 
@@ -7,7 +13,9 @@ interface DesignTypeDialogBasicFieldsProps {
   form: UseFormReturn<DesignTypeFormValues>;
 }
 
-export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicFieldsProps) {
+export function DesignTypeDialogBasicFields({
+  form,
+}: DesignTypeDialogBasicFieldsProps) {
   return (
     <>
       <FormField
@@ -15,13 +23,11 @@ export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicField
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Design Name</FormLabel>
+            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+              Design Name
+            </FormLabel>
             <FormControl>
-              <Input
-               
-                placeholder="e.g. Simple, Heavy, Embroidery"
-                {...field}
-              />
+              <Input placeholder="e.g. Simple, Heavy, Embroidery" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -34,7 +40,9 @@ export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicField
           name="defaultPrice"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Customer Price (Rs)</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Customer Price (Rs)
+              </FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
@@ -47,7 +55,9 @@ export function DesignTypeDialogBasicFields({ form }: DesignTypeDialogBasicField
           name="defaultRate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Employee Rate (Rs)</FormLabel>
+              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                Employee Rate (Rs)
+              </FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>

@@ -162,7 +162,7 @@ const BANNED_TAILWIND_SNIPPETS = [
   "button-shadow",
 ];
 
-const ALLOWED_EXTRA_TOKEN_PREFIXES = ["--snow-"];
+const ALLOWED_EXTRA_TOKEN_PREFIXES = ["--snow-", "--chart-"];
 
 function extractBlock(content, selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -29,10 +29,10 @@ export function MeasurementFieldDialogDropdownOptions({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Text as="p"  variant="body" className="font-medium leading-none">
+        <Text as="p" variant="body" className="font-medium leading-none">
           Dropdown Options
         </Text>
-        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        <span className="text-xs font-bold uppercase  text-muted-foreground">
           Manage Options
         </span>
       </div>
@@ -111,7 +111,6 @@ function AddOptionInline({
   return (
     <Button
       type="button"
-     
       size="sm"
       onClick={() => setEditing(true)}
       className="h-7 border-dashed px-3 text-sm font-medium"

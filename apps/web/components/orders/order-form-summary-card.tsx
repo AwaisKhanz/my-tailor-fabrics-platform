@@ -48,6 +48,9 @@ interface OrderFormSummaryCardProps {
   isEditMode: boolean;
 }
 
+const fieldLabelClassName =
+  "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground";
+
 export function OrderFormSummaryCard({
   form,
   totals,
@@ -60,7 +63,11 @@ export function OrderFormSummaryCard({
 }: OrderFormSummaryCardProps) {
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Order Summary"
           description="Review totals and finalize payment details."
@@ -77,8 +84,10 @@ export function OrderFormSummaryCard({
 
       <CardContent spacing="section" className="space-y-5">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <InfoTile tone="secondary" className="space-y-1">
-            <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
+          <InfoTile tone="secondary" className="min-h-[84px] space-y-1.5">
+            <span
+              className={`inline-flex items-center gap-1 ${fieldLabelClassName}`}
+            >
               <UserRound className="h-3.5 w-3.5" />
               Customer
             </span>
@@ -87,8 +96,10 @@ export function OrderFormSummaryCard({
             </p>
           </InfoTile>
 
-          <InfoTile tone="secondary" className="space-y-1">
-            <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
+          <InfoTile tone="secondary" className="min-h-[84px] space-y-1.5">
+            <span
+              className={`inline-flex items-center gap-1 ${fieldLabelClassName}`}
+            >
               <CalendarDays className="h-3.5 w-3.5" />
               Due Date
             </span>
@@ -100,7 +111,9 @@ export function OrderFormSummaryCard({
 
         <InfoTile tone="secondary" padding="content" className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Subtotal</Label>
+            <Label className={fieldLabelClassName}>
+              Subtotal
+            </Label>
             <span className="font-semibold text-foreground">
               {formatPKR(Math.round(totals.subtotal * 100))}
             </span>
@@ -111,11 +124,13 @@ export function OrderFormSummaryCard({
               control={form.control}
               name="discountType"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Discount Type</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className={fieldLabelClassName}>
+                    Discount Type
+                  </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger className="h-10">
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
@@ -137,15 +152,12 @@ export function OrderFormSummaryCard({
               control={form.control}
               name="discountValue"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Discount Value</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className={fieldLabelClassName}>
+                    Discount Value
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                     
-                      type="number"
-                      className="h-9"
-                      {...field}
-                    />
+                    <Input type="number" className="h-10" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,7 +166,7 @@ export function OrderFormSummaryCard({
           </div>
 
           <div className="flex items-center justify-between rounded-md bg-primary/10 px-2 py-1.5 text-sm text-primary">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-primary">
+            <Label className={`${fieldLabelClassName} !text-primary`}>
               Discount
             </Label>
             <span className="font-semibold">
@@ -175,14 +187,12 @@ export function OrderFormSummaryCard({
             control={form.control}
             name="advancePayment"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Advance Payment</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className={fieldLabelClassName}>
+                  Advance Payment
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    className="border-primary/20 bg-primary/10 text-primary font-semibold"
-                  />
+                  <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -190,7 +200,7 @@ export function OrderFormSummaryCard({
           />
 
           <div className="flex items-center justify-between border-t border-border pt-2.5">
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground text-destructive">
+            <Label className={`${fieldLabelClassName} !text-destructive`}>
               Balance Due
             </Label>
             <span className="text-lg font-bold text-destructive">
@@ -203,11 +213,12 @@ export function OrderFormSummaryCard({
           control={form.control}
           name="notes"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Internal Notes</FormLabel>
+            <FormItem className="space-y-2">
+              <FormLabel className={fieldLabelClassName}>
+                Internal Notes
+              </FormLabel>
               <FormControl>
                 <Input
-                 
                   placeholder="Priority, delivery notes, handling instructions"
                   {...field}
                 />

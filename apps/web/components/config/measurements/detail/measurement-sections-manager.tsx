@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { FolderPlus, PencilLine, RotateCcw, Search, Trash2 } from "lucide-react";
+import {
+  FolderPlus,
+  PencilLine,
+  RotateCcw,
+  Search,
+  Trash2,
+} from "lucide-react";
 import {
   type MeasurementField,
   type MeasurementSection,
@@ -102,7 +108,9 @@ export function MeasurementSectionsManager({
         const sectionFields = visibleFields.filter(
           (field) => field.sectionId === section.id,
         );
-        const requiredCount = sectionFields.filter((field) => field.isRequired).length;
+        const requiredCount = sectionFields.filter(
+          (field) => field.isRequired,
+        ).length;
 
         return {
           id: section.id,
@@ -161,7 +169,9 @@ export function MeasurementSectionsManager({
             <Badge variant="outline" size="xs">
               #{row.section.sortOrder + 1}
             </Badge>
-            <span className="font-semibold text-foreground">{row.section.name}</span>
+            <span className="font-semibold text-foreground">
+              {row.section.name}
+            </span>
           </div>
         ),
       },
@@ -184,7 +194,7 @@ export function MeasurementSectionsManager({
       {
         header: "Sort",
         cell: (row) => (
-          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
             {row.section.sortOrder}
           </Label>
         ),
@@ -248,7 +258,9 @@ export function MeasurementSectionsManager({
                 ) : null}
               </>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground">Read only</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Read only
+              </span>
             )}
           </div>
         ),

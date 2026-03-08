@@ -70,20 +70,23 @@ export function PaymentsDisburseDialog({
             }}
           >
             <InfoTile tone="secondary" padding="contentLg" radius="xl">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mb-1 block">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1 block">
                 Available to pay
               </Label>
-              <Heading as="div" variant="stat" className="text-secondary-foreground">
+              <Heading
+                as="div"
+                variant="stat"
+                className="text-secondary-foreground"
+              >
                 {formatPKR(currentBalance)}
               </Heading>
             </InfoTile>
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
                 Amount (Rs.) <span className="text-destructive">*</span>
               </Label>
               <Input
-               
                 type="number"
                 placeholder="e.g. 5000"
                 className="h-11 text-lg font-bold"
@@ -92,20 +95,21 @@ export function PaymentsDisburseDialog({
                 min="1"
               />
               {validationError ? (
-                <Text as="p"  variant="muted" className="text-destructive">
+                <Text as="p" variant="muted" className="text-destructive">
                   {validationError}
                 </Text>
               ) : exceedsBalance ? (
-                <Text as="p"  variant="muted" className="text-destructive">
+                <Text as="p" variant="muted" className="text-destructive">
                   Amount cannot be greater than outstanding balance.
                 </Text>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Note / Remarks</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                Note / Remarks
+              </Label>
               <Input
-               
                 className="h-11"
                 placeholder="e.g. Weekly settlement, advance payment..."
                 value={form.note}

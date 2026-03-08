@@ -41,10 +41,10 @@ export function StatusPinGateCard({
             />
           </InfoTile>
 
-          <Heading as="h1"  variant="section" className="text-2xl">
+          <Heading as="h1" variant="section" className="text-2xl">
             Track Your Order
           </Heading>
-          <Text as="p"  variant="lead" className="mt-1 text-sm">
+          <Text as="p" variant="lead" className="mt-1 text-sm">
             Enter the 4-digit PIN from {siteConfig.shortName} to view your order
             status.
           </Text>
@@ -54,7 +54,6 @@ export function StatusPinGateCard({
           <div>
             <Input
               type="text"
-             
               inputMode="numeric"
               maxLength={4}
               pattern="\d{4}"
@@ -63,13 +62,13 @@ export function StatusPinGateCard({
               onChange={(event) =>
                 onPinChange(event.target.value.replace(/\D/g, ""))
               }
-              className="h-14 text-center text-2xl font-bold tracking-widest"
+              className="h-14 text-center text-2xl font-bold "
               autoFocus
             />
             {error ? (
               <Text
                 as="p"
-                 variant="muted"
+                variant="muted"
                 className="mt-1.5 text-xs text-destructive"
               >
                 {error}
@@ -87,7 +86,7 @@ export function StatusPinGateCard({
           </Button>
         </FormStack>
 
-        <Text as="p"  variant="muted" className="text-center text-xs">
+        <Text as="p" variant="muted" className="text-center text-xs">
           This link was shared by the tailor shop. It expires when the order is
           completed.
         </Text>

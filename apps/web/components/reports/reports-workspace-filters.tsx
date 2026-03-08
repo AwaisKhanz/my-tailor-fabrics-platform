@@ -61,7 +61,9 @@ export function ReportsWorkspaceFilters({
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Date Range</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                Date Range
+              </Label>
               <Select
                 value={preset}
                 onValueChange={(value) => {
@@ -85,7 +87,9 @@ export function ReportsWorkspaceFilters({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Granularity</Label>
+              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                Granularity
+              </Label>
               <Select
                 value={granularity}
                 onValueChange={(value) => {
@@ -125,11 +129,10 @@ export function ReportsWorkspaceFilters({
         {preset === "custom" ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:ml-auto lg:max-w-[440px]">
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground sr-only">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground sr-only">
                 Start Date
               </Label>
               <Input
-               
                 type="date"
                 value={dateRange.from}
                 onChange={(event) => onDateChange("from", event.target.value)}
@@ -138,11 +141,10 @@ export function ReportsWorkspaceFilters({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground sr-only">
+              <Label className="text-sm font-bold uppercase  text-muted-foreground sr-only">
                 End Date
               </Label>
               <Input
-               
                 type="date"
                 value={dateRange.to}
                 onChange={(event) => onDateChange("to", event.target.value)}

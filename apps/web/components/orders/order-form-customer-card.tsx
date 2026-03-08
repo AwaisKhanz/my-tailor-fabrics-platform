@@ -1,10 +1,6 @@
 import { Customer } from "@tbms/shared-types";
 import { UserRound } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
@@ -35,6 +31,9 @@ interface OrderFormCustomerCardProps {
   selectedCustomer: Customer | null;
 }
 
+const fieldLabelClassName =
+  "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground";
+
 export function OrderFormCustomerCard({
   form,
   customers,
@@ -43,10 +42,15 @@ export function OrderFormCustomerCard({
 }: OrderFormCustomerCardProps) {
   return (
     <Card>
-      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        density="comfortable"
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Customer Information"
-          titleVariant="dashboard"
+          titleVariant="section"
           description="Select the customer and set a delivery timeline."
           icon={
             <SectionIcon tone="info" size="lg">
@@ -56,14 +60,16 @@ export function OrderFormCustomerCard({
         />
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-5">
+      <CardContent spacing="section" padding="inset" className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="customerId"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Customer</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className={fieldLabelClassName}>
+                  Customer
+                </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger disabled={loading}>
@@ -91,8 +97,10 @@ export function OrderFormCustomerCard({
             control={form.control}
             name="dueDate"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Order Completion Date</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className={fieldLabelClassName}>
+                  Order Completion Date
+                </FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -104,19 +112,25 @@ export function OrderFormCustomerCard({
 
         <div className="grid gap-3 sm:grid-cols-3">
           <InfoTile tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Size Number</Label>
+            <Label className={fieldLabelClassName}> 
+              Size Number
+            </Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.sizeNumber || "-"}
             </p>
           </InfoTile>
           <InfoTile tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
+            <Label className={fieldLabelClassName}>
+              City
+            </Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.city || "-"}
             </p>
           </InfoTile>
           <InfoTile tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Lifetime Value</Label>
+            <Label className={fieldLabelClassName}>
+              Lifetime Value
+            </Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer
                 ? formatPKR(selectedCustomer.lifetimeValue)

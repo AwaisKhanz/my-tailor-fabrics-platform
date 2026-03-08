@@ -1,9 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -49,7 +45,12 @@ export function OrderCustomerInsightCard({
 
   return (
     <Card>
-      <CardHeader density="comfortable" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader
+        density="comfortable"
+        layout="rowBetweenResponsive"
+        surface="mutedSection"
+        trimBottom
+      >
         <SectionHeader
           title="Customer Profile"
           titleVariant="dashboard"
@@ -60,45 +61,45 @@ export function OrderCustomerInsightCard({
             </SectionIcon>
           }
         />
-        <Badge
-          variant="outline"
-          size="xs"
-          className="font-bold uppercase tracking-[0.08em]"
-        >
+        <Badge variant="outline" size="xs" className="font-bold uppercase ">
           {customer.sizeNumber}
         </Badge>
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoTile tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Full Name</Label>
+          <InfoTile tone="default">
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Full Name
+            </Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.fullName}
             </p>
           </InfoTile>
-          <InfoTile tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Phone</Label>
+          <InfoTile tone="default">
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Phone
+            </Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.phone || "-"}
             </p>
           </InfoTile>
-          <InfoTile tone="secondary">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">City</Label>
+          <InfoTile tone="default">
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              City
+            </Label>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {customer.city || "-"}
             </p>
           </InfoTile>
         </div>
 
-        <InfoTile tone="secondary" padding="contentLg">
+        <InfoTile tone="default" padding="contentLg">
           <div className="mb-3 flex items-center justify-between">
-            <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Measurement Snapshot</Label>
-            <Badge
-              variant="info"
-              size="xs"
-              className="font-bold uppercase tracking-[0.08em]"
-            >
+            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              Measurement Snapshot
+            </Label>
+            <Badge variant="info" size="xs" className="font-bold uppercase ">
               Synced
             </Badge>
           </div>

@@ -14,7 +14,7 @@ const buttonVariants = cva(
         secondary:
           "border-secondary bg-secondary text-secondary-foreground shadow-sm hover:border-ring/30 hover:bg-secondary",
         outline:
-          "border-input bg-card text-foreground shadow-sm hover:border-ring/30 hover:bg-accent hover:text-accent-foreground",
+          "border-primary bg-card text-foreground shadow-sm hover:border-ring/30 hover:bg-accent hover:text-accent-foreground",
         ghost:
           "border-transparent bg-transparent text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground",
         destructive:

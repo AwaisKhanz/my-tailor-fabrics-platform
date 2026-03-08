@@ -10,8 +10,10 @@ export function CustomerNotesTab({ notes }: CustomerNotesTabProps) {
   return (
     <Card>
       <CardContent spacing="section" padding="inset" className="space-y-2">
-        <Label className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Preferences & Internal Notes</Label>
-        <Text as="p"  variant="lead" className="whitespace-pre-wrap">
+        <Label className="text-xs uppercase  text-muted-foreground">
+          Preferences & Internal Notes
+        </Label>
+        <Text as="p" variant="lead" className="whitespace-pre-wrap">
           {notes ||
             "No special notes or preferences recorded for this customer."}
         </Text>

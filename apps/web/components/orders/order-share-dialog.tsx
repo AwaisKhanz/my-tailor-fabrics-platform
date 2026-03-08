@@ -46,7 +46,7 @@ export function OrderShareDialog({
         {shareData ? (
           <DialogSection density="relaxed">
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
+              <Label className="text-xs font-bold uppercase  text-muted-foreground">
                 Public URL
               </Label>
               <div className="flex gap-2">
@@ -55,22 +55,23 @@ export function OrderShareDialog({
                   value={publicUrl}
                   className="flex-1 rounded-xl border-border bg-foreground font-mono text-xs text-background shadow-none"
                 />
-                <Button
-                  size="icon"
-                 
-                  onClick={() => onCopy(publicUrl)}
-                >
+                <Button size="icon" onClick={() => onCopy(publicUrl)}>
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            <InfoTile tone="info" padding="contentLg" layout="betweenGap" radius="xl">
+            <InfoTile
+              tone="info"
+              padding="contentLg"
+              layout="betweenGap"
+              radius="xl"
+            >
               <div>
-                <p className="text-xs font-bold uppercase tracking-tight text-primary/70">
+                <p className="text-xs font-bold uppercase  text-primary/70">
                   Access PIN
                 </p>
-                <p className="text-3xl font-bold tracking-tight text-primary">
+                <p className="text-3xl font-bold  text-primary">
                   {shareData.pin}
                 </p>
               </div>
@@ -92,7 +93,11 @@ export function OrderShareDialog({
         ) : null}
 
         <DialogActionRow bordered={false}>
-          <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => onOpenChange(false)}
+          >
             Close
           </Button>
         </DialogActionRow>

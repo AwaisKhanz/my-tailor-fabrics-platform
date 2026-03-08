@@ -1,5 +1,10 @@
 import type { UseFormReturn } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -39,15 +44,22 @@ export function DesignTypeDialogScopeFields({
         name="garmentTypeId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Applicable Garment</FormLabel>
-            <Select value={field.value || DESIGN_TYPE_ALL_SCOPE} onValueChange={field.onChange}>
+            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+              Applicable Garment
+            </FormLabel>
+            <Select
+              value={field.value || DESIGN_TYPE_ALL_SCOPE}
+              onValueChange={field.onChange}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="All Garments" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value={DESIGN_TYPE_ALL_SCOPE}>All Garments</SelectItem>
+                <SelectItem value={DESIGN_TYPE_ALL_SCOPE}>
+                  All Garments
+                </SelectItem>
                 {garmentTypes.map((garment) => (
                   <SelectItem key={garment.id} value={garment.id}>
                     {garment.name}
@@ -64,15 +76,22 @@ export function DesignTypeDialogScopeFields({
         name="branchId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase tracking-tight text-muted-foreground">Branch Scoping</FormLabel>
-            <Select value={field.value || DESIGN_TYPE_ALL_SCOPE} onValueChange={field.onChange}>
+            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+              Branch Scoping
+            </FormLabel>
+            <Select
+              value={field.value || DESIGN_TYPE_ALL_SCOPE}
+              onValueChange={field.onChange}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Global (All Branches)" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value={DESIGN_TYPE_ALL_SCOPE}>Global (All Branches)</SelectItem>
+                <SelectItem value={DESIGN_TYPE_ALL_SCOPE}>
+                  Global (All Branches)
+                </SelectItem>
                 {branches.map((branch) => (
                   <SelectItem key={branch.id} value={branch.id}>
                     {branch.name} ({branch.code})

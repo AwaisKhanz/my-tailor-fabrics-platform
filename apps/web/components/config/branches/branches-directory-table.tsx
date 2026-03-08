@@ -1,6 +1,13 @@
 import { useMemo } from "react";
 import Link from "next/link";
-import { Ban, CheckCircle, LayoutDashboard, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  Ban,
+  CheckCircle,
+  LayoutDashboard,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { type Branch } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,11 +53,14 @@ export function BranchesDirectoryTable({
       {
         header: "Branch",
         cell: (branch) => (
-          <Link href={`/settings/branches/${branch.id}`} className="group inline-flex max-w-[220px] flex-col">
+          <Link
+            href={`/settings/branches/${branch.id}`}
+            className="group inline-flex max-w-[220px] flex-col"
+          >
             <span className="truncate text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
               {branch.name}
             </span>
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
               {branch.code.toUpperCase()}
             </Label>
           </Link>
@@ -63,7 +73,7 @@ export function BranchesDirectoryTable({
             <span className="text-sm font-semibold text-foreground">
               {branch.phone || "No phone provided"}
             </span>
-            <Label className="text-sm font-bold uppercase tracking-tight text-muted-foreground mt-0.5">
+            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
               Branch Hotline
             </Label>
           </div>
@@ -72,7 +82,11 @@ export function BranchesDirectoryTable({
       {
         header: "Address",
         cell: (branch) => (
-          <Text as="p"  variant="body" className="max-w-[260px] font-medium leading-snug text-muted-foreground">
+          <Text
+            as="p"
+            variant="body"
+            className="max-w-[260px] font-medium leading-snug text-muted-foreground"
+          >
             {branch.address || "No address provided"}
           </Text>
         ),
@@ -89,7 +103,10 @@ export function BranchesDirectoryTable({
         header: "Actions",
         align: "right",
         cell: (branch) => (
-          <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
+          <div
+            className="flex justify-end"
+            onClick={(event) => event.stopPropagation()}
+          >
             {canManageBranches ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
