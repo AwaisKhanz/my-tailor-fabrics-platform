@@ -3,6 +3,7 @@ import { Controller, Post, Get, Body, Param, Query, Req } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import { ClockInDto } from './dto/clock-in.dto';
@@ -35,7 +36,7 @@ export class AttendanceController {
   @RequirePermissions(PERMISSION['attendance.checkin'])
   @Post('clock-out/:recordId')
   async clockOut(
-    @Param('recordId') recordId: string,
+    @Param('recordId', ParseCuidPipe) recordId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.attendanceService.clockOut(
@@ -67,7 +68,7 @@ export class AttendanceController {
   @RequirePermissions(PERMISSION['attendance.read'])
   @Get('employee/:employeeId/summary')
   async getEmployeeSummary(
-    @Param('employeeId') employeeId: string,
+    @Param('employeeId', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.attendanceService.getEmployeeSummary(

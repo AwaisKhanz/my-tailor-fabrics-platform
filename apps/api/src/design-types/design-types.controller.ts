@@ -23,6 +23,7 @@ import {
   PERMISSION,
 } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import {
   resolveBranchScopeForMutation,
   resolveBranchScopeForRead,
@@ -73,7 +74,10 @@ export class DesignTypesController {
   @Get(':id')
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['designTypes.read'])
-  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async findOne(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.designTypesService.findOne(
       id,
       req.branchId ?? undefined,
@@ -85,7 +89,7 @@ export class DesignTypesController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['designTypes.manage'])
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() updateDesignTypeDto: UpdateDesignTypeDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -100,7 +104,10 @@ export class DesignTypesController {
   @Delete(':id')
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['designTypes.manage'])
-  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async remove(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     await this.designTypesService.remove(id, req.branchId ?? undefined);
     return successOnly();
   }

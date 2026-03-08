@@ -12,6 +12,7 @@ import type { AuthenticatedRequest } from '../common/interfaces/request.interfac
 import { TasksService } from './tasks.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { resolveBranchScopeForRead } from '../common/utils/branch-resolution.util';
 import { success } from '../common/utils/response.util';
@@ -33,7 +34,7 @@ export class TasksController {
   @RequirePermissions(PERMISSION['tasks.assign'])
   @Patch(':id/assign')
   async assignTask(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: AssignTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -50,7 +51,7 @@ export class TasksController {
   @RequirePermissions(PERMISSION['tasks.assign'])
   @Get(':id/eligible-employees')
   async getEligibleEmployees(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.tasksService.getEligibleEmployeesForTask(
@@ -64,7 +65,7 @@ export class TasksController {
   @RequirePermissions(PERMISSION['tasks.update'])
   @Patch(':id/status')
   async updateStatus(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateTaskStatusDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -83,7 +84,7 @@ export class TasksController {
   @RequirePermissions(PERMISSION['tasks.rate.override'])
   @Patch(':id/rate')
   async updateRate(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateTaskRateDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -117,7 +118,7 @@ export class TasksController {
   @RequirePermissions(PERMISSION['tasks.read'])
   @Get('order/:orderId')
   async findByOrder(
-    @Param('orderId') orderId: string,
+    @Param('orderId', ParseCuidPipe) orderId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.tasksService.findAllByOrder(orderId, req.branchId);
@@ -128,7 +129,7 @@ export class TasksController {
   @RequirePermissions(PERMISSION['tasks.read'])
   @Get('employee/:employeeId')
   async findByEmployee(
-    @Param('employeeId') employeeId: string,
+    @Param('employeeId', ParseCuidPipe) employeeId: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.tasksService.findAllByEmployee(

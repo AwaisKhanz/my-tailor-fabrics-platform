@@ -11,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { SUPER_ADMIN_ONLY_ROLES, PERMISSION } from '@tbms/shared-constants';
 import {
   CreateUserDto,
@@ -51,7 +52,10 @@ export class UsersController {
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @RequirePermissions(PERMISSION['users.manage'])
   @Patch(':id/status')
-  async setActive(@Param('id') id: string, @Body() body: SetUserActiveDto) {
+  async setActive(
+    @Param('id', ParseCuidPipe) id: string,
+    @Body() body: SetUserActiveDto,
+  ) {
     const data = await this.usersService.setActive(id, body.isActive);
     return success(data);
   }
@@ -59,7 +63,7 @@ export class UsersController {
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @RequirePermissions(PERMISSION['users.manage'])
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseCuidPipe) id: string) {
     await this.usersService.remove(id);
     return successOnly();
   }
@@ -67,7 +71,10 @@ export class UsersController {
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @RequirePermissions(PERMISSION['users.manage'])
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
+  async update(
+    @Param('id', ParseCuidPipe) id: string,
+    @Body() body: UpdateUserDto,
+  ) {
     const data = await this.usersService.update(id, body);
     return success(data);
   }

@@ -21,6 +21,7 @@ import { UpsertMeasurementDto } from './dto/upsert-measurement.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import {
@@ -87,7 +88,10 @@ export class CustomersController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['customers.read'])
   @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async findOne(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.customersService.findOne(id, req.branchId);
     return success(data);
   }
@@ -96,7 +100,7 @@ export class CustomersController {
   @RequirePermissions(PERMISSION['customers.update'])
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -111,7 +115,10 @@ export class CustomersController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['customers.delete'])
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async remove(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.customersService.remove(
       id,
       requireBranchScope(req),
@@ -123,7 +130,7 @@ export class CustomersController {
   @RequirePermissions(PERMISSION['customers.read'])
   @Get(':id/orders')
   async getOrders(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() pagination: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -140,7 +147,7 @@ export class CustomersController {
   @RequirePermissions(PERMISSION['customers.measurements.manage'])
   @Post(':id/measurements')
   async upsertMeasurement(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpsertMeasurementDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -156,7 +163,7 @@ export class CustomersController {
   @RequirePermissions(PERMISSION['customers.update'])
   @Patch(':id/vip')
   async toggleVip(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() body: ToggleVipDto,
     @Req() req: AuthenticatedRequest,
   ) {

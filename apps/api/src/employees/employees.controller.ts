@@ -29,6 +29,7 @@ import {
   RequirePermissions,
 } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import {
@@ -91,7 +92,10 @@ export class EmployeesController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async findOne(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.employeesService.findOne(id, req.branchId);
     return success(data);
   }
@@ -100,7 +104,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/capabilities')
   async getCapabilities(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() query: EmployeeCapabilitiesQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -119,7 +123,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.manage'])
   @Put(':id/capabilities')
   async replaceCapabilities(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateEmployeeCapabilitiesDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -136,7 +140,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/compensation')
   async getCompensationHistory(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.employeesService.getCompensationHistory(
@@ -150,7 +154,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.manage'])
   @Post(':id/compensation')
   async createCompensationChange(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: CompensationChangeDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -167,7 +171,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.manage'])
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -183,7 +187,10 @@ export class EmployeesController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['employees.manage'])
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async remove(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.employeesService.remove(
       id,
       requireBranchScope(req),
@@ -195,7 +202,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.manage'])
   @Post(':id/user-account')
   async createUserAccount(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: CreateEmployeeUserAccountDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -212,7 +219,10 @@ export class EmployeesController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/stats')
-  async getStats(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async getStats(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.employeesService.getStats(id, req.branchId);
     return success(data);
   }
@@ -221,7 +231,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/items')
   async getItems(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Query() pagination: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -238,7 +248,7 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.manage'])
   @Post(':id/documents')
   async addDocument(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: AddEmployeeDocumentDto,
     @Req() req: AuthenticatedRequest,
   ) {

@@ -21,6 +21,7 @@ import { ListExpensesQueryDto } from './dto/expense-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success, successOnly } from '../common/utils/response.util';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
@@ -97,7 +98,7 @@ export class ExpensesController {
   @RequirePermissions(PERMISSION['expenses.manage'])
   @Put('categories/:id')
   async updateCategory(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateExpenseCategoryDto,
   ) {
     const data = await this.expensesService.updateCategory(id, dto);
@@ -107,7 +108,7 @@ export class ExpensesController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['expenses.manage'])
   @Delete('categories/:id')
-  async removeCategory(@Param('id') id: string) {
+  async removeCategory(@Param('id', ParseCuidPipe) id: string) {
     await this.expensesService.removeCategory(id);
     return successOnly();
   }
@@ -115,7 +116,10 @@ export class ExpensesController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['expenses.read'])
   @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async findOne(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const data = await this.expensesService.findOne(id, req.branchId);
     return success(data);
   }
@@ -124,7 +128,7 @@ export class ExpensesController {
   @RequirePermissions(PERMISSION['expenses.manage'])
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateExpenseDto,
     @Req() req: AuthenticatedRequest,
   ) {
@@ -139,7 +143,10 @@ export class ExpensesController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['expenses.manage'])
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async remove(
+    @Param('id', ParseCuidPipe) id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     await this.expensesService.remove(id, requireBranchScope(req));
     return successOnly();
   }
