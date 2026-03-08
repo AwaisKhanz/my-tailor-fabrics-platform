@@ -44,6 +44,8 @@ const toSharedFieldType = (fieldType: string): FieldType => {
   }
 };
 
+type ConfigPrismaClient = PrismaService | Prisma.TransactionClient;
+
 @Injectable()
 export class ConfigService {
   constructor(private readonly prisma: PrismaService) {}
@@ -349,44 +351,47 @@ export class ConfigService {
     dto: UpdateGarmentTypeDto,
     userId: string,
   ) {
-    const current = await this.prisma.garmentType.findFirst({
-      where: { id, deletedAt: null },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.garmentType.findFirst({
+        where: { id, deletedAt: null },
+      });
 
-    if (!current) {
-      throw new NotFoundException('Garment type not found.');
-    }
-    const { measurementCategoryIds, ...data } = dto;
+      if (!current) {
+        throw new NotFoundException('Garment type not found.');
+      }
+      const { measurementCategoryIds, ...data } = dto;
 
-    const result = await this.prisma.garmentType.update({
-      where: { id },
-      data: {
-        ...data,
-        measurementCategories: measurementCategoryIds
-          ? {
-              set: measurementCategoryIds.map((id) => ({ id })),
-            }
-          : undefined,
-      },
-    });
-
-    // Create log if price changed
-    if (
-      dto.customerPrice !== undefined &&
-      dto.customerPrice !== current.customerPrice
-    ) {
-      await this.prisma.garmentPriceLog.create({
+      const result = await tx.garmentType.update({
+        where: { id },
         data: {
-          garmentType: { connect: { id } },
-          changedBy: { connect: { id: userId } },
-          oldCustomerPrice: current.customerPrice,
-          newCustomerPrice: dto.customerPrice ?? current.customerPrice,
-          action: 'UPDATE',
+          ...data,
+          measurementCategories: measurementCategoryIds
+            ? {
+                set: measurementCategoryIds.map((categoryId) => ({
+                  id: categoryId,
+                })),
+              }
+            : undefined,
         },
       });
-    }
 
-    return result;
+      if (
+        dto.customerPrice !== undefined &&
+        dto.customerPrice !== current.customerPrice
+      ) {
+        await tx.garmentPriceLog.create({
+          data: {
+            garmentType: { connect: { id } },
+            changedBy: { connect: { id: userId } },
+            oldCustomerPrice: current.customerPrice,
+            newCustomerPrice: dto.customerPrice,
+            action: 'UPDATE',
+          },
+        });
+      }
+
+      return result;
+    });
   }
 
   async deleteGarmentType(id: string, preview = false) {
@@ -654,16 +659,22 @@ export class ConfigService {
   }
 
   // --- Measurement Categories & Fields ---
-  private async getNextSectionSortOrder(categoryId: string) {
-    const aggregate = await this.prisma.measurementSection.aggregate({
+  private async getNextSectionSortOrder(
+    categoryId: string,
+    client: ConfigPrismaClient = this.prisma,
+  ) {
+    const aggregate = await client.measurementSection.aggregate({
       where: { categoryId, deletedAt: null },
       _max: { sortOrder: true },
     });
     return (aggregate._max.sortOrder ?? -1) + 1;
   }
 
-  private async ensureDefaultMeasurementSection(categoryId: string) {
-    const existingDefault = await this.prisma.measurementSection.findFirst({
+  private async ensureDefaultMeasurementSection(
+    categoryId: string,
+    client: ConfigPrismaClient = this.prisma,
+  ) {
+    const existingDefault = await client.measurementSection.findFirst({
       where: {
         categoryId,
         deletedAt: null,
@@ -675,8 +686,11 @@ export class ConfigService {
       return existingDefault;
     }
 
-    const nextSortOrder = await this.getNextSectionSortOrder(categoryId);
-    return this.prisma.measurementSection.create({
+    const nextSortOrder = await this.getNextSectionSortOrder(
+      categoryId,
+      client,
+    );
+    return client.measurementSection.create({
       data: {
         categoryId,
         name: 'General',
@@ -689,10 +703,11 @@ export class ConfigService {
     categoryId: string,
     sectionId?: string,
     sectionName?: string,
+    client: ConfigPrismaClient = this.prisma,
   ) {
     const normalizedSectionId = sectionId?.trim();
     if (normalizedSectionId) {
-      const section = await this.prisma.measurementSection.findFirst({
+      const section = await client.measurementSection.findFirst({
         where: { id: normalizedSectionId, deletedAt: null },
       });
 
@@ -705,7 +720,7 @@ export class ConfigService {
 
     const normalizedSectionName = sectionName?.trim();
     if (normalizedSectionName) {
-      const existing = await this.prisma.measurementSection.findFirst({
+      const existing = await client.measurementSection.findFirst({
         where: {
           categoryId,
           deletedAt: null,
@@ -717,8 +732,11 @@ export class ConfigService {
         return existing;
       }
 
-      const nextSortOrder = await this.getNextSectionSortOrder(categoryId);
-      return this.prisma.measurementSection.create({
+      const nextSortOrder = await this.getNextSectionSortOrder(
+        categoryId,
+        client,
+      );
+      return client.measurementSection.create({
         data: {
           categoryId,
           name: normalizedSectionName,
@@ -727,7 +745,7 @@ export class ConfigService {
       });
     }
 
-    return this.ensureDefaultMeasurementSection(categoryId);
+    return this.ensureDefaultMeasurementSection(categoryId, client);
   }
 
   async getMeasurementCategories(
@@ -875,19 +893,24 @@ export class ConfigService {
         : undefined,
     };
 
-    const category = await this.prisma.measurementCategory.create({
-      data: createData,
+    const categoryId = await this.prisma.$transaction(async (tx) => {
+      const category = await tx.measurementCategory.create({
+        data: createData,
+      });
+
+      const defaultSection = await this.ensureDefaultMeasurementSection(
+        category.id,
+        tx,
+      );
+      await tx.measurementField.updateMany({
+        where: { categoryId: category.id, sectionId: null, deletedAt: null },
+        data: { sectionId: defaultSection.id },
+      });
+
+      return category.id;
     });
 
-    const defaultSection = await this.ensureDefaultMeasurementSection(
-      category.id,
-    );
-    await this.prisma.measurementField.updateMany({
-      where: { categoryId: category.id, sectionId: null, deletedAt: null },
-      data: { sectionId: defaultSection.id },
-    });
-
-    return this.getMeasurementCategory(category.id);
+    return this.getMeasurementCategory(categoryId);
   }
 
   async updateMeasurementCategory(

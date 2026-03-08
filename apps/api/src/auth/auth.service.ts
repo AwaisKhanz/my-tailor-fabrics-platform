@@ -17,13 +17,12 @@ import type {
   RefreshTokenClaims,
 } from '@tbms/shared-types';
 
-type AuthUserPayload = {
+type AuthUserPayload = Pick<
+  AuthTokenClaims,
+  'email' | 'role' | 'branchId' | 'employeeId'
+> & {
   id: string;
-  email: string;
   name: string;
-  role: string;
-  branchId: string | null;
-  employeeId: string | null;
 };
 
 const REFRESH_TOKEN_HASH_ROUNDS = 12;
@@ -50,6 +49,28 @@ export class AuthService {
     return null;
   }
 
+  private toAuthUserPayload(user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    branchId: string | null;
+    employeeId: string | null;
+  }): AuthUserPayload {
+    if (!isRole(user.role)) {
+      throw new UnauthorizedException('Invalid user role state');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      branchId: user.branchId,
+      employeeId: user.employeeId,
+    };
+  }
+
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
@@ -62,7 +83,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid user role state');
     }
 
-    const tokenPair = await this.issueTokenPair(user);
+    const authUser = this.toAuthUserPayload(user);
+    const tokenPair = await this.issueTokenPair(authUser);
     await this.storeRefreshTokenHash(user.id, tokenPair.refreshToken);
     await this.usersService.markLastLogin(user.id);
 
@@ -131,7 +153,8 @@ export class AuthService {
       });
     }
 
-    const nextTokenPair = await this.issueTokenPair(user);
+    const authUser = this.toAuthUserPayload(user);
+    const nextTokenPair = await this.issueTokenPair(authUser);
     await this.rotateRefreshTokenHash(
       user.id,
       user.refreshToken,

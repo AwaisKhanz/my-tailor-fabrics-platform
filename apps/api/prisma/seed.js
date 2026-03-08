@@ -1,24 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 const adminSeed = require('./seeds/admin');
+const { parseRequestedTargets, getSeedAdminConfig } = require('./seed-env');
 
 const seedRegistry = {
   admin: adminSeed,
 };
-
-function parseRequestedTargets(argv, env) {
-  const cliTarget = argv
-    .slice(2)
-    .find((arg) => arg.startsWith('--target='));
-  const rawTargets =
-    cliTarget?.slice('--target='.length) ??
-    env.SEED_TARGET ??
-    'admin';
-
-  return rawTargets
-    .split(',')
-    .map((target) => target.trim().toLowerCase())
-    .filter(Boolean);
-}
 
 function printAvailableSeeds() {
   console.log('Available seeds:');
@@ -33,7 +19,7 @@ async function main() {
     return;
   }
 
-  const requestedTargets = parseRequestedTargets(process.argv, process.env);
+  const requestedTargets = parseRequestedTargets(process.argv);
   const unknownTargets = requestedTargets.filter(
     (target) => !(target in seedRegistry),
   );
@@ -45,12 +31,15 @@ async function main() {
   }
 
   const prisma = new PrismaClient();
+  const config = {
+    admin: getSeedAdminConfig(),
+  };
 
   try {
     console.log(`Running seed target(s): ${requestedTargets.join(', ')}`);
 
     for (const target of requestedTargets) {
-      await seedRegistry[target].run({ prisma, env: process.env });
+      await seedRegistry[target].run({ prisma, config });
     }
 
     console.log('Seed complete! 🚀');

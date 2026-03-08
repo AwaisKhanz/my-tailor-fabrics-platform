@@ -1,10 +1,10 @@
 const { Role } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
-async function run({ prisma, env }) {
-  const email = env.SEED_ADMIN_EMAIL || 'admin@mytailorandfabrics.com';
-  const password = env.SEED_ADMIN_PASSWORD || 'admin123';
-  const name = env.SEED_ADMIN_NAME || 'Main Admin';
+async function run({ prisma, config }) {
+  const email = config.admin.email;
+  const password = config.admin.password;
+  const name = config.admin.name;
 
   const passwordHash = await bcrypt.hash(password, 10);
 
