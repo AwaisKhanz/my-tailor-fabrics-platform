@@ -13,6 +13,11 @@ import type {
 export type { Branch };
 
 export const branchesApi = {
+  getActiveBranchesForSwitcher: async () => {
+    const response = await api.get<ApiResponse<Branch[]>>('/config/branches');
+    return response.data;
+  },
+
   getBranches: async (params?: BranchListQueryInput) => {
     const response = await api.get<ApiResponse<BranchListResult>>(
       '/branches',

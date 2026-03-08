@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useBranchStore } from "@/store/useBranchStore";
-import { api } from "@/lib/api";
+import { branchesApi } from "@/lib/api/branches";
 import { logDevError } from "@/lib/logger";
 import {
   Select,
@@ -40,14 +40,14 @@ export function BranchSelector({ className }: BranchSelectorProps) {
     if (canSwitchBranch && availableBranches.length === 0) {
       const fetchBranches = async () => {
         try {
-          const response = await api.get("/config/branches");
-          if (response.data.success) {
-            setAvailableBranches(response.data.data);
+          const response = await branchesApi.getActiveBranchesForSwitcher();
+          if (response.success) {
+            setAvailableBranches(response.data);
 
             // Auto-select first branch if none selected
             const savedBranchId = Cookies.get("tbms_active_branch");
-            if (!savedBranchId && response.data.data.length > 0) {
-              setActiveBranch(response.data.data[0].id);
+            if (!savedBranchId && response.data.length > 0) {
+              setActiveBranch(response.data[0].id);
             }
           }
         } catch (error) {

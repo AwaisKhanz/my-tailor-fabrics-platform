@@ -1,12 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import {
-  type ApiResponse,
-  OrderStatus,
-  type PublicOrderStatusResult,
-  publicStatusPinSchema,
-} from "@tbms/shared-types";
+import { OrderStatus, type PublicOrderStatusResult, publicStatusPinSchema } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import {
   AlertCircle,
@@ -16,6 +11,7 @@ import {
   AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
+import { getPublicOrderStatus } from "@/lib/api/public-status";
 
 const PUBLIC_STATUS_LABELS: Record<OrderStatus, string> = {
   [OrderStatus.NEW]: "New",
@@ -41,20 +37,6 @@ interface UsePublicOrderStatusPageParams {
   token: string;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object";
-}
-
-function isPublicStatusResponse(
-  value: unknown,
-): value is ApiResponse<PublicOrderStatusResult | null> {
-  if (!isRecord(value)) {
-    return false;
-  }
-
-  return typeof value.success === "boolean" && "data" in value;
-}
-
 export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPageParams) {
   const [pin, setPin] = useState("");
   const [order, setOrder] = useState<PublicOrderStatusResult | null>(null);
@@ -76,18 +58,16 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
       setError("");
 
       try {
-        const response = await fetch(
-          `/api/status/${token}?pin=${parsedResult.data.pin}`,
+        const { ok, payload } = await getPublicOrderStatus(
+          token,
+          parsedResult.data.pin,
         );
-        const payloadRaw: unknown = await response.json();
-        if (!isPublicStatusResponse(payloadRaw)) {
+        if (!payload) {
           setError("Unexpected response received. Please try again.");
           return;
         }
 
-        const payload = payloadRaw;
-
-        if (!response.ok || !payload.success) {
+        if (!ok || !payload.success) {
           setError(payload.message ?? "Invalid PIN or link. Please check and try again.");
           return;
         }
