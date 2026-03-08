@@ -1,4 +1,4 @@
-# TBMS Web
+# My Tailor & Fabrics Web
 
 Next.js 14 frontend for My Tailor & Fabrics.
 

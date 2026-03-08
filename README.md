@@ -1,6 +1,6 @@
-# TBMS
+# My Tailor & Fabrics Platform
 
-TBMS is a monorepo for My Tailor & Fabrics. It contains:
+This monorepo contains the production applications and shared packages for My Tailor & Fabrics. It contains:
 
 1. `apps/web`: the Next.js 14 web application.
 2. `apps/api`: the NestJS API.
@@ -31,6 +31,10 @@ npm run prisma:seed:list
 ## Production
 
 Production runs on DigitalOcean App Platform as a single app with separate `web-frontend` and `api-backend` services, managed PostgreSQL, and managed Valkey.
+
+## Internal Naming
+
+The internal technical slug remains `tbms` in package names, workspace paths, and infrastructure identifiers such as `@tbms/*` and `tbms-production-db`. That slug is intentional and should be treated as an internal namespace, not the public-facing brand.
 
 Canonical production docs:
 

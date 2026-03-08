@@ -1,4 +1,4 @@
-# TBMS Coding Standards
+# My Tailor & Fabrics Coding Standards
 
 ## 1. Shared Contracts First
 

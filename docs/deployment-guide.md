@@ -1,6 +1,6 @@
 # DigitalOcean App Platform Deployment Guide
 
-This document is the current production runbook for TBMS on DigitalOcean App Platform.
+This document is the current production runbook for My Tailor & Fabrics on DigitalOcean App Platform.
 
 ## Live Footprint
 
@@ -27,7 +27,7 @@ Current production topology:
 
 ## Deployment Model
 
-TBMS is deployed as one App Platform app with separate service containers.
+My Tailor & Fabrics is deployed as one App Platform app with separate service containers.
 
 1. Web service:
    built from [Dockerfile.web](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.web)
@@ -166,7 +166,7 @@ npm run prisma:seed
 Override seeded admin credentials if needed:
 
 ```bash
-SEED_ADMIN_EMAIL=admin@tbms.com \
+SEED_ADMIN_EMAIL=admin@mytailorandfabrics.com \
 SEED_ADMIN_PASSWORD=admin123 \
 SEED_ADMIN_NAME="Main Admin" \
 npm run prisma:seed

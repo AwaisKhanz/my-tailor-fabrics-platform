@@ -1,4 +1,4 @@
-# TBMS API
+# My Tailor & Fabrics API
 
 NestJS API for My Tailor & Fabrics.
 

@@ -1,4 +1,4 @@
-# TBMS Authentication Architecture (Long-Term Decision)
+# My Tailor & Fabrics Authentication Architecture (Long-Term Decision)
 
 ## Decision
 Use **single auth authority in backend** with NextAuth as a **web-session façade**, not a second independent auth system.

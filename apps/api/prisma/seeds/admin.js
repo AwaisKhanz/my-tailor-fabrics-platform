@@ -2,7 +2,7 @@ const { Role } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
 async function run({ prisma, env }) {
-  const email = env.SEED_ADMIN_EMAIL || 'admin@tbms.com';
+  const email = env.SEED_ADMIN_EMAIL || 'admin@mytailorandfabrics.com';
   const password = env.SEED_ADMIN_PASSWORD || 'admin123';
   const name = env.SEED_ADMIN_NAME || 'Main Admin';
 

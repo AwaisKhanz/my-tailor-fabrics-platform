@@ -1,6 +1,6 @@
-# TBMS Environment Setup
+# My Tailor & Fabrics Environment Setup
 
-TBMS keeps environment files separate per app. Local development uses app-local `.env` files, while production uses App Platform environment injection.
+The My Tailor & Fabrics codebase keeps environment files separate per app. Local development uses app-local `.env` files, while production uses App Platform environment injection.
 
 ## App-Local Files
 
