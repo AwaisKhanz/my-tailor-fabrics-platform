@@ -50,8 +50,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
       throw new UnauthorizedException('Refresh token missing');
     }
 
-    const user = await this.usersService.findById(payload.sub);
-    if (!user || !user.isActive) {
+    const user = await this.usersService.findAuthUserById(payload.sub);
+    if (!this.usersService.isAuthEligible(user)) {
       throw new UnauthorizedException('User no longer active or exists');
     }
     if (user.email.toLowerCase() !== payload.email.toLowerCase()) {

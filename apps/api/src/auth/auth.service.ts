@@ -37,15 +37,18 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (user && user.isActive) {
-      const isMatch = await bcrypt.compare(pass, user.passwordHash);
-      if (isMatch) {
-        const { passwordHash, ...result } = user;
-        void passwordHash;
-        return result;
-      }
+    const user = await this.usersService.findAuthUserByEmail(email);
+    if (!this.usersService.isAuthEligible(user)) {
+      return null;
     }
+
+    const isMatch = await bcrypt.compare(pass, user.passwordHash);
+    if (isMatch) {
+      const { passwordHash, ...result } = user;
+      void passwordHash;
+      return result;
+    }
+
     return null;
   }
 
@@ -105,15 +108,19 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, refreshToken: string) {
-    const user = await this.usersService.findById(userId);
-    if (!user || !user.isActive || !user.refreshToken) {
+    const user = await this.usersService.findAuthUserById(userId);
+    if (!this.usersService.isAuthEligible(user)) {
       emitSecurityEvent(this.logger, 'auth_refresh_failed', {
         userId,
-        reason: !user
-          ? 'user_not_found'
-          : !user.isActive
-            ? 'user_inactive'
-            : 'missing_refresh_token_state',
+        reason: !user ? 'user_not_found' : 'user_inactive',
+      });
+      throw new UnauthorizedException('Access Denied');
+    }
+
+    if (!user.refreshToken) {
+      emitSecurityEvent(this.logger, 'auth_refresh_failed', {
+        userId,
+        reason: 'missing_refresh_token_state',
       });
       throw new UnauthorizedException('Access Denied');
     }
@@ -142,7 +149,10 @@ export class AuthService {
         userId,
         reason: 'refresh_token_reuse_or_mismatch',
       });
-      await this.usersService.clearRefreshTokenState(userId);
+      await this.usersService.clearRefreshTokenStateIfCurrent(
+        userId,
+        user.refreshToken,
+      );
       throw new UnauthorizedException('Access Denied');
     }
 
@@ -154,11 +164,19 @@ export class AuthService {
 
     const authUser = this.toAuthUserPayload(user);
     const nextTokenPair = await this.issueTokenPair(authUser);
-    await this.rotateRefreshTokenHash(
+    const rotated = await this.rotateRefreshTokenHash(
       user.id,
       user.refreshToken,
       nextTokenPair.refreshToken,
     );
+
+    if (!rotated) {
+      emitSecurityEvent(this.logger, 'auth_refresh_failed', {
+        userId,
+        reason: 'refresh_state_race',
+      });
+      throw new UnauthorizedException('Access Denied');
+    }
 
     return nextTokenPair;
   }
@@ -226,10 +244,14 @@ export class AuthService {
       Date.now() + getJwtRefreshRotationGraceMs(),
     );
 
-    await this.usersService.setRefreshTokenState(userId, {
-      currentTokenHash: nextRefreshTokenHash,
-      previousTokenHash: currentRefreshTokenHash,
-      previousTokenExpiresAt,
-    });
+    return this.usersService.rotateRefreshTokenStateIfCurrent(
+      userId,
+      currentRefreshTokenHash,
+      {
+        currentTokenHash: nextRefreshTokenHash,
+        previousTokenHash: currentRefreshTokenHash,
+        previousTokenExpiresAt,
+      },
+    );
   }
 }

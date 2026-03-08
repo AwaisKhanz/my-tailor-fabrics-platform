@@ -1236,7 +1236,7 @@ export class EmployeesService {
         dateOfJoining,
       });
 
-      return tx.employee.update({
+      const updatedEmployee = await tx.employee.update({
         where: { id },
         data: {
           fullName: updateEmployeeDto.fullName ?? existingEmployee.fullName,
@@ -1270,6 +1270,20 @@ export class EmployeesService {
               : normalizedPayrollFields.employmentEndDate,
         },
       });
+
+      if (status !== EmployeeStatus.ACTIVE) {
+        await tx.user.updateMany({
+          where: { employeeId: id, deletedAt: null },
+          data: {
+            isActive: false,
+            refreshToken: null,
+            previousRefreshToken: null,
+            previousRefreshTokenExpiresAt: null,
+          },
+        });
+      }
+
+      return updatedEmployee;
     });
   }
 
@@ -1297,13 +1311,27 @@ export class EmployeesService {
       );
     }
 
-    return this.prisma.employee.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-        status: EmployeeStatus.LEFT,
-        employmentEndDate: new Date(),
-      },
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const deletedAt = new Date();
+
+      await tx.user.updateMany({
+        where: { employeeId: id, deletedAt: null },
+        data: {
+          isActive: false,
+          refreshToken: null,
+          previousRefreshToken: null,
+          previousRefreshTokenExpiresAt: null,
+        },
+      });
+
+      return tx.employee.update({
+        where: { id },
+        data: {
+          deletedAt,
+          status: EmployeeStatus.LEFT,
+          employmentEndDate: deletedAt,
+        },
+      });
     });
   }
 

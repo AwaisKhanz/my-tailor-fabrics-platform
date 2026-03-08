@@ -4,7 +4,11 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Role as PrismaRole } from '@prisma/client';
+import {
+  Prisma,
+  Role as PrismaRole,
+  EmployeeStatus as PrismaEmployeeStatus,
+} from '@prisma/client';
 import {
   Role,
   CreateUserInput,
@@ -33,6 +37,21 @@ const USER_SELECT = {
   createdAt: true,
   branch: { select: { name: true, code: true } },
 } satisfies Prisma.UserSelect;
+
+const AUTH_USER_INCLUDE = {
+  branch: true,
+  employee: {
+    select: {
+      id: true,
+      status: true,
+      deletedAt: true,
+    },
+  },
+} satisfies Prisma.UserInclude;
+
+type AuthUserRecord = Prisma.UserGetPayload<{
+  include: typeof AUTH_USER_INCLUDE;
+}>;
 
 const ROLE_TO_PRISMA_ROLE: Record<Role, PrismaRole> = {
   [Role.SUPER_ADMIN]: PrismaRole.SUPER_ADMIN,
@@ -136,6 +155,38 @@ export class UsersService {
     });
   }
 
+  async findAuthUserByEmail(email: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        email: { equals: this.normalizeEmail(email), mode: 'insensitive' },
+        deletedAt: null,
+      },
+      include: AUTH_USER_INCLUDE,
+    });
+  }
+
+  async findAuthUserById(id: string) {
+    return this.prisma.user.findFirst({
+      where: { id, deletedAt: null },
+      include: AUTH_USER_INCLUDE,
+    });
+  }
+
+  isAuthEligible(user: AuthUserRecord | null): user is AuthUserRecord {
+    if (!user || !user.isActive) {
+      return false;
+    }
+
+    if (!user.employee) {
+      return true;
+    }
+
+    return (
+      user.employee.deletedAt === null &&
+      user.employee.status === PrismaEmployeeStatus.ACTIVE
+    );
+  }
+
   async setRefreshTokenState(
     userId: string,
     state: {
@@ -168,6 +219,51 @@ export class UsersService {
       previousTokenHash: null,
       previousTokenExpiresAt: null,
     });
+  }
+
+  async clearRefreshTokenStateIfCurrent(
+    userId: string,
+    expectedCurrentTokenHash: string | null,
+  ) {
+    const result = await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+        refreshToken: expectedCurrentTokenHash,
+      },
+      data: {
+        refreshToken: null,
+        previousRefreshToken: null,
+        previousRefreshTokenExpiresAt: null,
+      },
+    });
+
+    return result.count === 1;
+  }
+
+  async rotateRefreshTokenStateIfCurrent(
+    userId: string,
+    expectedCurrentTokenHash: string,
+    state: {
+      currentTokenHash: string;
+      previousTokenHash?: string | null;
+      previousTokenExpiresAt?: Date | null;
+    },
+  ) {
+    const result = await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+        refreshToken: expectedCurrentTokenHash,
+      },
+      data: {
+        refreshToken: state.currentTokenHash,
+        previousRefreshToken: state.previousTokenHash ?? null,
+        previousRefreshTokenExpiresAt: state.previousTokenExpiresAt ?? null,
+      },
+    });
+
+    return result.count === 1;
   }
 
   async findAll(options: UserAccountsQueryInput = {}) {

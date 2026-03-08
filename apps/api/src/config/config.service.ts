@@ -1164,55 +1164,11 @@ export class ConfigService {
     if (!label) {
       throw new BadRequestException('Field label is required.');
     }
-    const category = await this.prisma.measurementCategory.findFirstOrThrow({
-      where: { id: categoryId, deletedAt: null },
-      include: { fields: { where: { deletedAt: null } } },
-    });
 
-    const isDuplicate = category.fields.some(
-      (f) => f.label.toLowerCase() === label.toLowerCase(),
-    );
-    if (isDuplicate) {
-      throw new ConflictException(
-        `A field with label "${label}" already exists in this category.`,
-      );
-    }
-
-    const section = await this.resolveMeasurementSection(
-      categoryId,
-      dto.sectionId,
-      dto.sectionName,
-    );
-
-    return this.prisma.measurementField.create({
-      data: {
-        label,
-        ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
-        ...(dto.isRequired !== undefined ? { isRequired: dto.isRequired } : {}),
-        ...(dto.dropdownOptions !== undefined
-          ? { dropdownOptions: dto.dropdownOptions }
-          : {}),
-        ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
-        ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
-        categoryId,
-        sectionId: section.id,
-      },
-    });
-  }
-
-  async updateMeasurementField(id: string, dto: UpdateMeasurementFieldDto) {
-    const field = await this.prisma.measurementField.findFirstOrThrow({
-      where: { id, deletedAt: null },
-    });
-
-    if (dto.label) {
-      const label = dto.label.trim();
-      if (!label) {
-        throw new BadRequestException('Field label is required.');
-      }
-      const category = await this.prisma.measurementCategory.findUniqueOrThrow({
-        where: { id: field.categoryId },
-        include: { fields: { where: { deletedAt: null, NOT: { id } } } },
+    return this.prisma.$transaction(async (tx) => {
+      const category = await tx.measurementCategory.findFirstOrThrow({
+        where: { id: categoryId, deletedAt: null },
+        include: { fields: { where: { deletedAt: null } } },
       });
 
       const isDuplicate = category.fields.some(
@@ -1223,31 +1179,86 @@ export class ConfigService {
           `A field with label "${label}" already exists in this category.`,
         );
       }
-    }
 
-    let resolvedSectionId: string | undefined;
-    if (dto.sectionId !== undefined || dto.sectionName !== undefined) {
       const section = await this.resolveMeasurementSection(
-        field.categoryId,
+        categoryId,
         dto.sectionId,
         dto.sectionName,
+        tx,
       );
-      resolvedSectionId = section.id;
-    }
 
-    return this.prisma.measurementField.update({
-      where: { id },
-      data: {
-        ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
-        ...(dto.isRequired !== undefined ? { isRequired: dto.isRequired } : {}),
-        ...(dto.dropdownOptions !== undefined
-          ? { dropdownOptions: dto.dropdownOptions }
-          : {}),
-        ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
-        ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
-        ...(dto.label !== undefined ? { label: dto.label.trim() } : {}),
-        ...(resolvedSectionId ? { sectionId: resolvedSectionId } : {}),
-      },
+      return tx.measurementField.create({
+        data: {
+          label,
+          ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
+          ...(dto.isRequired !== undefined
+            ? { isRequired: dto.isRequired }
+            : {}),
+          ...(dto.dropdownOptions !== undefined
+            ? { dropdownOptions: dto.dropdownOptions }
+            : {}),
+          ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
+          ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+          categoryId,
+          sectionId: section.id,
+        },
+      });
+    });
+  }
+
+  async updateMeasurementField(id: string, dto: UpdateMeasurementFieldDto) {
+    return this.prisma.$transaction(async (tx) => {
+      const field = await tx.measurementField.findFirstOrThrow({
+        where: { id, deletedAt: null },
+      });
+
+      if (dto.label) {
+        const label = dto.label.trim();
+        if (!label) {
+          throw new BadRequestException('Field label is required.');
+        }
+        const category = await tx.measurementCategory.findUniqueOrThrow({
+          where: { id: field.categoryId },
+          include: { fields: { where: { deletedAt: null, NOT: { id } } } },
+        });
+
+        const isDuplicate = category.fields.some(
+          (f) => f.label.toLowerCase() === label.toLowerCase(),
+        );
+        if (isDuplicate) {
+          throw new ConflictException(
+            `A field with label "${label}" already exists in this category.`,
+          );
+        }
+      }
+
+      let resolvedSectionId: string | undefined;
+      if (dto.sectionId !== undefined || dto.sectionName !== undefined) {
+        const section = await this.resolveMeasurementSection(
+          field.categoryId,
+          dto.sectionId,
+          dto.sectionName,
+          tx,
+        );
+        resolvedSectionId = section.id;
+      }
+
+      return tx.measurementField.update({
+        where: { id },
+        data: {
+          ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
+          ...(dto.isRequired !== undefined
+            ? { isRequired: dto.isRequired }
+            : {}),
+          ...(dto.dropdownOptions !== undefined
+            ? { dropdownOptions: dto.dropdownOptions }
+            : {}),
+          ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
+          ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+          ...(dto.label !== undefined ? { label: dto.label.trim() } : {}),
+          ...(resolvedSectionId ? { sectionId: resolvedSectionId } : {}),
+        },
+      });
     });
   }
 
