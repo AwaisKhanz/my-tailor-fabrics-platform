@@ -22,6 +22,7 @@ import {
   PERMISSION,
 } from '@tbms/shared-constants';
 import { AssignTaskDto } from './dto/create-task.dto';
+import { ReconcileTaskEarningsQueryDto } from './dto/task-query.dto';
 import { UpdateTaskRateDto, UpdateTaskStatusDto } from './dto/update-task.dto';
 
 @Controller('tasks')
@@ -100,9 +101,9 @@ export class TasksController {
   @Post('reconcile-earnings')
   async reconcileEarnings(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') branchId?: string,
+    @Query() query: ReconcileTaskEarningsQueryDto,
   ) {
-    const scopedBranchId = resolveBranchScopeForRead(req, branchId, {
+    const scopedBranchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.tasksService.reconcileTaskEarnings(

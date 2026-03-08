@@ -1,20 +1,6 @@
-import { Transform, type TransformFnParams } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { parseOptionalPositiveInt } from '../../common/utils/query-parsing.util';
-
-function transformOptionalPositiveInt({
-  value,
-}: TransformFnParams): number | undefined {
-  if (typeof value === 'number') {
-    return Number.isInteger(value) && value > 0 ? value : undefined;
-  }
-
-  if (typeof value === 'string') {
-    return parseOptionalPositiveInt(value);
-  }
-
-  return undefined;
-}
+import { transformOptionalPositiveInt } from '../../common/dto/query-transformers';
 
 export class BranchScopedReportQueryDto {
   @IsOptional()

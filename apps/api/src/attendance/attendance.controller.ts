@@ -3,10 +3,10 @@ import { Controller, Post, Get, Body, Param, Query, Req } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import { ClockInDto } from './dto/clock-in.dto';
+import { AttendanceListQueryDto } from './dto/attendance-query.dto';
 import {
   DASHBOARD_READ_ROLES,
   EMPLOYEE_AND_OPERATOR_ROLES,
@@ -50,15 +50,14 @@ export class AttendanceController {
   @RequirePermissions(PERMISSION['attendance.read'])
   @Get()
   async findAll(
-    @Query('employeeId') employeeId: string | undefined,
-    @Query() pagination: PaginationQueryDto,
+    @Query() query: AttendanceListQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.attendanceService.findAll(
       req.branchId,
-      employeeId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
+      query.employeeId,
+      query.page ?? 1,
+      query.limit ?? 20,
     );
     return success(data);
   }

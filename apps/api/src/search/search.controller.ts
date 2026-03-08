@@ -3,10 +3,10 @@ import { Controller, Get, Query, Req } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { OPERATOR_ROLES, PERMISSION } from '@tbms/shared-constants';
 import { resolveBranchScopeForReadOrNull } from '../common/utils/branch-resolution.util';
 import { success } from '../common/utils/response.util';
+import { SearchLookupQueryDto } from './dto/search-query.dto';
 
 @Controller('search')
 export class SearchController {
@@ -16,16 +16,15 @@ export class SearchController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['search.global'])
   async queryCustomers(
-    @Query('q') query: string,
+    @Query() query: SearchLookupQueryDto,
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationQueryDto,
   ) {
     const branchId = resolveBranchScopeForReadOrNull(req);
 
     const data = await this.searchService.searchCustomers(
-      query || '',
+      query.q ?? '',
       branchId,
-      pagination.limit ?? 10,
+      query.limit ?? 10,
     );
     return success(data);
   }
@@ -34,16 +33,15 @@ export class SearchController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['search.global'])
   async queryEmployees(
-    @Query('q') query: string,
+    @Query() query: SearchLookupQueryDto,
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationQueryDto,
   ) {
     const branchId = resolveBranchScopeForReadOrNull(req);
 
     const data = await this.searchService.searchEmployees(
-      query || '',
+      query.q ?? '',
       branchId,
-      pagination.limit ?? 10,
+      query.limit ?? 10,
     );
     return success(data);
   }

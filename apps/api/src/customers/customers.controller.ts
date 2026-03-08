@@ -23,30 +23,19 @@ import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
-import { CustomerStatus } from '@tbms/shared-types';
 import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
   PERMISSION,
 } from '@tbms/shared-constants';
-
-const CUSTOMER_STATUS_VALUES = new Set<string>(Object.values(CustomerStatus));
-
-function isCustomerStatus(value: string): value is CustomerStatus {
-  return CUSTOMER_STATUS_VALUES.has(value);
-}
+import {
+  CustomersListQueryDto,
+  CustomersSummaryQueryDto,
+} from './dto/customer-query.dto';
 
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
-
-  private parseStatus(value?: string): CustomerStatus | undefined {
-    if (!value) {
-      return undefined;
-    }
-
-    return isCustomerStatus(value) ? value : undefined;
-  }
 
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['customers.create'])
@@ -66,22 +55,16 @@ export class CustomersController {
   @RequirePermissions(PERMISSION['customers.read'])
   @Get()
   async findAll(
-    @Query() pagination: PaginationQueryDto,
-    @Query('search') search: string,
-    @Query('isVip') isVip: string,
-    @Query('status') status: string | undefined,
+    @Query() query: CustomersListQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const vipFilter =
-      isVip === 'true' ? true : isVip === 'false' ? false : undefined;
-    const parsedStatus = this.parseStatus(status);
     const data = await this.customersService.findAll(
       req.branchId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
-      search,
-      vipFilter,
-      parsedStatus,
+      query.page ?? 1,
+      query.limit ?? 20,
+      query.search,
+      query.isVip,
+      query.status,
     );
     return success(data);
   }
@@ -90,19 +73,13 @@ export class CustomersController {
   @RequirePermissions(PERMISSION['customers.read'])
   @Get('summary')
   async getSummary(
-    @Query('search') search: string,
-    @Query('isVip') isVip: string,
-    @Query('status') status: string | undefined,
+    @Query() query: CustomersSummaryQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const vipFilter =
-      isVip === 'true' ? true : isVip === 'false' ? false : undefined;
-    const parsedStatus = this.parseStatus(status);
-
     const data = await this.customersService.getSummary(req.branchId, {
-      search,
-      isVip: vipFilter,
-      status: parsedStatus,
+      search: query.search,
+      isVip: query.isVip,
+      status: query.status,
     });
     return success(data);
   }

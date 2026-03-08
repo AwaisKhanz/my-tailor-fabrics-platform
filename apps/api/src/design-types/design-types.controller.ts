@@ -14,6 +14,7 @@ import {
   CreateDesignTypeDto,
   UpdateDesignTypeDto,
 } from './dto/design-type.dto';
+import { ListDesignTypesQueryDto } from './dto/design-type-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import {
@@ -56,17 +57,15 @@ export class DesignTypesController {
   @RequirePermissions(PERMISSION['designTypes.read'])
   async findAll(
     @Req() req: AuthenticatedRequest,
-    @Query('branchId') branchId?: string,
-    @Query('garmentTypeId') garmentTypeId?: string,
-    @Query('search') search?: string,
+    @Query() query: ListDesignTypesQueryDto,
   ) {
-    const scopedBranchId = resolveBranchScopeForRead(req, branchId, {
+    const scopedBranchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.designTypesService.findAll(
       scopedBranchId ?? undefined,
-      garmentTypeId,
-      search,
+      query.garmentTypeId,
+      query.search,
     );
     return success(data);
   }

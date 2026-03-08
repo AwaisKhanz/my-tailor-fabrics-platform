@@ -3,23 +3,17 @@ import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import {
   transformOptionalPositiveInt,
   transformOptionalString,
-} from './query-transformers';
+} from '../../common/dto/query-transformers';
 
-export class PaginationQueryDto {
+export class SearchLookupQueryDto {
   @IsOptional()
-  @Transform(transformOptionalPositiveInt)
-  @IsInt()
-  @Min(1)
-  page?: number;
+  @Transform(transformOptionalString)
+  @IsString()
+  q?: string;
 
   @IsOptional()
   @Transform(transformOptionalPositiveInt)
   @IsInt()
   @Min(1)
   limit?: number;
-
-  @IsOptional()
-  @Transform(transformOptionalString)
-  @IsString()
-  search?: string;
 }

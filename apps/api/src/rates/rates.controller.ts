@@ -6,6 +6,7 @@ import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateRateDto } from './dto/create-rate.dto';
+import { RateHistoryQueryDto, SearchRatesQueryDto } from './dto/rate-query.dto';
 import {
   resolveBranchScopeForMutation,
   resolveBranchScopeForRead,
@@ -22,14 +23,13 @@ export class RatesController {
   @Roles(...ADMIN_ROLES)
   async findAll(
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationQueryDto,
-    @Query('search') search?: string,
+    @Query() query: PaginationQueryDto,
   ) {
     const data = await this.ratesService.findAll({
       branchId: resolveBranchScopeForReadOrNull(req),
-      search,
-      page: pagination.page,
-      limit: pagination.limit,
+      search: query.search,
+      page: query.page,
+      limit: query.limit,
     });
 
     return success(data);
@@ -39,11 +39,11 @@ export class RatesController {
   @Roles(...ADMIN_ROLES)
   async getStats(
     @Req() req: AuthenticatedRequest,
-    @Query('search') search?: string,
+    @Query() query: SearchRatesQueryDto,
   ) {
     const data = await this.ratesService.getStats({
       branchId: resolveBranchScopeForReadOrNull(req),
-      search,
+      search: query.search,
     });
 
     return success(data);
@@ -65,16 +65,14 @@ export class RatesController {
   @Roles(...ADMIN_ROLES)
   async getHistory(
     @Req() req: AuthenticatedRequest,
-    @Query('garmentTypeId') garmentTypeId: string,
-    @Query('stepKey') stepKey: string,
-    @Query('branchId') branchId?: string,
+    @Query() query: RateHistoryQueryDto,
   ) {
-    const scopedBranchId = resolveBranchScopeForRead(req, branchId, {
+    const scopedBranchId = resolveBranchScopeForRead(req, query.branchId, {
       allowAllForSuperAdmin: true,
     });
     const data = await this.ratesService.getHistory(
-      garmentTypeId,
-      stepKey,
+      query.garmentTypeId,
+      query.stepKey,
       scopedBranchId ?? undefined,
     );
     return success(data);

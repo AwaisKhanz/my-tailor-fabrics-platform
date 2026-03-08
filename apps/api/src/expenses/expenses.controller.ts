@@ -17,6 +17,7 @@ import {
   UpdateExpenseCategoryDto,
   UpdateExpenseDto,
 } from './dto/expense.dto';
+import { ListExpensesQueryDto } from './dto/expense-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
@@ -48,23 +49,18 @@ export class ExpensesController {
   @Get()
   async findAll(
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationQueryDto,
-    @Query('categoryId') categoryId?: string,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query() query: ListExpensesQueryDto,
   ) {
     const data = await this.expensesService.findAll(
       req.branchId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
-      pagination.search,
-      categoryId,
-      from,
-      to,
-      sortBy,
-      sortOrder,
+      query.page ?? 1,
+      query.limit ?? 20,
+      query.search,
+      query.categoryId,
+      query.from,
+      query.to,
+      query.sortBy,
+      query.sortOrder,
     );
     return success(data);
   }

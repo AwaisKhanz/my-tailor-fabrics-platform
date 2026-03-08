@@ -26,9 +26,13 @@ import {
 } from './dto/measurement-category.dto';
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
 import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
+import {
+  ConfigIncludeArchivedQueryDto,
+  ConfigListQueryDto,
+  ConfigPreviewQueryDto,
+} from './dto/config-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
@@ -36,14 +40,6 @@ import {
   PERMISSION,
 } from '@tbms/shared-constants';
 import { success } from '../common/utils/response.util';
-
-function parseBooleanQueryFlag(value?: string): boolean {
-  if (!value) {
-    return false;
-  }
-  const normalized = value.trim().toLowerCase();
-  return normalized === '1' || normalized === 'true';
-}
 
 @Controller('config')
 export class ConfigController {
@@ -79,16 +75,12 @@ export class ConfigController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['garments.read'])
   @Get('garment-types')
-  async getGarmentTypes(
-    @Query() pagination: PaginationQueryDto,
-    @Query('search') search?: string,
-    @Query('includeArchived') includeArchived?: string,
-  ) {
+  async getGarmentTypes(@Query() query: ConfigListQueryDto) {
     const data = await this.configService.getGarmentTypes({
-      search,
-      page: pagination.page ?? 1,
-      limit: pagination.limit ?? 10,
-      includeArchived: parseBooleanQueryFlag(includeArchived),
+      search: query.search,
+      page: query.page ?? 1,
+      limit: query.limit ?? 10,
+      includeArchived: query.includeArchived ?? false,
     });
     return success(data);
   }
@@ -160,11 +152,11 @@ export class ConfigController {
   @Delete('garment-types/:id')
   async deleteGarmentType(
     @Param('id') id: string,
-    @Query('preview') preview?: string,
+    @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteGarmentType(
       id,
-      parseBooleanQueryFlag(preview),
+      query.preview ?? false,
     );
     return success(data);
   }
@@ -195,16 +187,12 @@ export class ConfigController {
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['measurements.read'])
   @Get('measurement-categories')
-  async getMeasurementCategories(
-    @Query() pagination: PaginationQueryDto,
-    @Query('search') search?: string,
-    @Query('includeArchived') includeArchived?: string,
-  ) {
+  async getMeasurementCategories(@Query() query: ConfigListQueryDto) {
     const data = await this.configService.getMeasurementCategories({
-      search,
-      page: pagination.page ?? 1,
-      limit: pagination.limit ?? 10,
-      includeArchived: parseBooleanQueryFlag(includeArchived),
+      search: query.search,
+      page: query.page ?? 1,
+      limit: query.limit ?? 10,
+      includeArchived: query.includeArchived ?? false,
     });
     return success(data);
   }
@@ -214,10 +202,10 @@ export class ConfigController {
   @Get('measurement-categories/:id')
   async getMeasurementCategory(
     @Param('id') id: string,
-    @Query('includeArchived') includeArchived?: string,
+    @Query() query: ConfigIncludeArchivedQueryDto,
   ) {
     const data = await this.configService.getMeasurementCategory(id, {
-      includeArchived: parseBooleanQueryFlag(includeArchived),
+      includeArchived: query.includeArchived ?? false,
     });
     return success(data);
   }
@@ -283,12 +271,12 @@ export class ConfigController {
   async deleteMeasurementSection(
     @Param('id') sectionId: string,
     @Body() dto: DeleteMeasurementSectionDto,
-    @Query('preview') preview?: string,
+    @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteMeasurementSection(
       sectionId,
       dto,
-      parseBooleanQueryFlag(preview),
+      query.preview ?? false,
     );
     return success(data);
   }
@@ -321,11 +309,11 @@ export class ConfigController {
   @Delete('measurement-fields/:id')
   async deleteMeasurementField(
     @Param('id') id: string,
-    @Query('preview') preview?: string,
+    @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteMeasurementField(
       id,
-      parseBooleanQueryFlag(preview),
+      query.preview ?? false,
     );
     return success(data);
   }
@@ -343,11 +331,11 @@ export class ConfigController {
   @Delete('measurement-categories/:id')
   async deleteMeasurementCategory(
     @Param('id') id: string,
-    @Query('preview') preview?: string,
+    @Query() query: ConfigPreviewQueryDto,
   ) {
     const data = await this.configService.deleteMeasurementCategory(
       id,
-      parseBooleanQueryFlag(preview),
+      query.preview ?? false,
     );
     return success(data);
   }

@@ -15,9 +15,9 @@ import {
   GenerateSalaryAccrualsDto,
   ReversePaymentDto,
 } from './dto/payment.dto';
+import { PaymentsHistoryQueryDto } from './dto/payment-query.dto';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
 import { success } from '../common/utils/response.util';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
@@ -104,20 +104,16 @@ export class PaymentsController {
   async getHistory(
     @Param('id') employeeId: string,
     @Req() req: AuthenticatedRequest,
-    @Query() pagination: PaginationQueryDto,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query() query: PaymentsHistoryQueryDto,
   ) {
     const data = await this.paymentsService.getHistory(
       employeeId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
-      from,
-      to,
-      sortBy,
-      sortOrder,
+      query.page ?? 1,
+      query.limit ?? 20,
+      query.from,
+      query.to,
+      query.sortBy,
+      query.sortOrder,
       req.branchId,
     );
     return success(data);

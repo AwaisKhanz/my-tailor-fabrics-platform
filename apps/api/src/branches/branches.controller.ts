@@ -28,14 +28,11 @@ export class BranchesController {
   @Roles(...ALL_ROLES)
   @RequirePermissions(PERMISSION['branches.read'])
   @Get()
-  async findAll(
-    @Query() pagination: PaginationQueryDto,
-    @Query('search') search?: string,
-  ) {
+  async findAll(@Query() query: PaginationQueryDto) {
     const data = await this.branchesService.findAll({
-      page: pagination.page,
-      limit: pagination.limit,
-      search,
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
     });
     return success(data);
   }

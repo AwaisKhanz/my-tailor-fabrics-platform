@@ -60,15 +60,14 @@ export class EmployeesController {
   @RequirePermissions(PERMISSION['employees.read'])
   @Get()
   async findAll(
-    @Query() pagination: PaginationQueryDto,
-    @Query('search') search: string,
+    @Query() query: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.employeesService.findAll(
       req.branchId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
-      search,
+      query.page ?? 1,
+      query.limit ?? 20,
+      query.search,
     );
     return success(data);
   }

@@ -14,13 +14,15 @@ import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { LedgerEntryType } from '@tbms/shared-types';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   CreateLedgerEntryDto,
   ReverseLedgerEntryDto,
 } from './dto/create-ledger-entry.dto';
-import { parsePositiveInt } from '../common/utils/query-parsing.util';
 import { success } from '../common/utils/response.util';
+import {
+  LedgerEarningsQueryDto,
+  LedgerStatementQueryDto,
+} from './dto/ledger-query.dto';
 
 @Controller('ledger')
 @RequirePermissions(PERMISSION['ledger.read'])
@@ -77,19 +79,16 @@ export class LedgerController {
   async getStatement(
     @Param('employeeId') employeeId: string,
     @Req() req: AuthenticatedRequest,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-    @Query('type') type?: LedgerEntryType,
-    @Query() pagination?: PaginationQueryDto,
+    @Query() query: LedgerStatementQueryDto,
   ) {
     const result = await this.ledgerService.getStatement(
       employeeId,
       {
-        from,
-        to,
-        type,
-        page: pagination?.page ?? 1,
-        limit: pagination?.limit ?? 20,
+        from: query.from,
+        to: query.to,
+        type: query.type,
+        page: query.page ?? 1,
+        limit: query.limit ?? 20,
       },
       req.branchId,
     );
@@ -105,11 +104,11 @@ export class LedgerController {
   async getEarnings(
     @Param('employeeId') employeeId: string,
     @Req() req: AuthenticatedRequest,
-    @Query('weeksBack') weeksBack?: string,
+    @Query() query: LedgerEarningsQueryDto,
   ) {
     const data = await this.ledgerService.getEarningsByPeriod(
       employeeId,
-      parsePositiveInt(weeksBack, 12),
+      query.weeksBack ?? 12,
       req.branchId,
     );
     return success(data);

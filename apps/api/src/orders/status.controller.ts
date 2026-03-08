@@ -20,6 +20,7 @@ import { Public } from '../common/decorators/auth.decorators';
 import { emitSecurityEvent } from '../common/utils/security-event.util';
 import { success } from '../common/utils/response.util';
 import { OrdersService } from './orders.service';
+import { PublicStatusQueryDto } from './dto/status-query.dto';
 
 const MAX_FAILED_ATTEMPTS = 5;
 const ATTEMPT_WINDOW_MS = 15 * 60_000;
@@ -70,8 +71,10 @@ export class StatusController {
   async getStatus(
     @Param('token') token: string,
     @Req() req: Request,
-    @Query('pin') pin?: string,
+    @Query() query: PublicStatusQueryDto,
   ) {
+    const { pin } = query;
+
     if (!pin || !/^\d{4}$/.test(pin)) {
       throw new BadRequestException('A valid 4-digit pin is required');
     }
