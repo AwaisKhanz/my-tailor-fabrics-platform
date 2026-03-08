@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as ExcelJS from 'exceljs';
 import * as stream from 'stream';
+import { LedgerEntryType } from '@tbms/shared-types';
 
 @Injectable()
 export class ExportService {
@@ -181,7 +182,7 @@ export class ExportService {
       const earned = await this.prisma.employeeLedgerEntry.aggregate({
         where: {
           employeeId: emp.id,
-          type: 'EARNING',
+          type: LedgerEntryType.EARNING,
           deletedAt: null,
         },
         _sum: { amount: true },

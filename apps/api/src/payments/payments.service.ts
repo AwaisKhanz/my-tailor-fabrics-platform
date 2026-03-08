@@ -380,7 +380,7 @@ export class PaymentsService {
                 AND p."reversedAt" IS NULL
                 AND le."deletedAt" IS NULL
                 AND le."reversedAt" IS NULL
-                AND le.type = 'PAYOUT'
+                AND le.type = ${LedgerEntryType.PAYOUT}
                 ${ledgerBranchFilter}
             )
             SELECT

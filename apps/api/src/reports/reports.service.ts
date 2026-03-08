@@ -3,13 +3,17 @@ import {
   AddonAnalytics,
   DesignAnalytics,
   DistributionPoint,
+  EmployeeStatus,
+  ItemStatus,
+  LedgerEntryType,
   EmployeeProductivity,
+  OrderStatus,
   FinancialTrend,
   GarmentRevenue,
-  OrderStatus,
   ProductivityPoint,
   ReportDistributions,
   RevenueVsExpenses,
+  TaskStatus,
   TrendGranularity,
 } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
@@ -264,7 +268,7 @@ export class ReportsService {
       Prisma.sql`
         SELECT COALESCE(SUM(le.amount), 0) AS total
         FROM "EmployeeLedgerEntry" le
-        WHERE le.type = 'EARNING'
+        WHERE le.type = ${LedgerEntryType.EARNING}
           AND le."deletedAt" IS NULL
           ${earnedBranchCondition}
       `,
@@ -313,8 +317,8 @@ export class ReportsService {
       }),
       this.prisma.employee.count({
         where: branchId
-          ? { branchId, status: 'ACTIVE', deletedAt: null }
-          : { status: 'ACTIVE', deletedAt: null },
+          ? { branchId, status: EmployeeStatus.ACTIVE, deletedAt: null }
+          : { status: EmployeeStatus.ACTIVE, deletedAt: null },
       }),
       this.prisma.order.findMany({
         where: {
@@ -507,7 +511,7 @@ export class ReportsService {
         SELECT oi."garmentTypeName" as label, SUM(oi."unitPrice" * oi.quantity) as value
         FROM "OrderItem" oi
         JOIN "Order" o ON o.id = oi."orderId"
-        WHERE oi.status NOT IN ('CANCELLED')
+        WHERE oi.status NOT IN (${ItemStatus.CANCELLED})
           AND o."deletedAt" IS NULL
           ${branchCondition}
           ${this.getSqlDateCondition('orderCreatedAt', range)}
@@ -540,7 +544,7 @@ export class ReportsService {
           JOIN "Order" o ON o.id = oi."orderId"
           LEFT JOIN "DesignType" dt ON dt.id = oi."designTypeId"
           WHERE o."deletedAt" IS NULL
-            AND oi.status NOT IN ('CANCELLED')
+            AND oi.status NOT IN (${ItemStatus.CANCELLED})
             AND oi."designTypeId" IS NOT NULL
             ${branchCondition}
             ${this.getSqlDateCondition('orderCreatedAt', range)}
@@ -559,7 +563,7 @@ export class ReportsService {
           JOIN "Order" o ON o.id = oi."orderId"
           WHERE o."deletedAt" IS NULL
             AND a."deletedAt" IS NULL
-            AND oi.status NOT IN ('CANCELLED')
+            AND oi.status NOT IN (${ItemStatus.CANCELLED})
             ${branchCondition}
             ${this.getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY a.type
@@ -575,7 +579,7 @@ export class ReportsService {
           FROM "OrderItem" oi
           JOIN "Order" o ON o.id = oi."orderId"
           WHERE o."deletedAt" IS NULL
-            AND oi.status NOT IN ('CANCELLED')
+            AND oi.status NOT IN (${ItemStatus.CANCELLED})
             ${branchCondition}
             ${this.getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY oi."garmentTypeName"
@@ -632,7 +636,7 @@ export class ReportsService {
           JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
           JOIN "Order" o ON o.id = oi."orderId"
           JOIN "Employee" emp ON emp.id = oit."assignedEmployeeId"
-          WHERE oit.status = 'DONE'
+          WHERE oit.status = ${TaskStatus.DONE}
             AND o."deletedAt" IS NULL
             AND emp."deletedAt" IS NULL
             ${branchCondition}
@@ -712,7 +716,7 @@ export class ReportsService {
             AND oit."designTypeId" = oi."designTypeId"
         ) AS task_payout ON TRUE
         WHERE o."deletedAt" IS NULL
-          AND oi.status NOT IN ('CANCELLED')
+          AND oi.status NOT IN (${ItemStatus.CANCELLED})
           ${branchCondition}
           ${this.getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY dt.id, dt.name
@@ -752,7 +756,7 @@ export class ReportsService {
         JOIN "Order" o ON o.id = oi."orderId"
         WHERE o."deletedAt" IS NULL
           AND a."deletedAt" IS NULL
-          AND oi.status NOT IN ('CANCELLED')
+          AND oi.status NOT IN (${ItemStatus.CANCELLED})
           ${branchCondition}
           ${this.getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY a.type

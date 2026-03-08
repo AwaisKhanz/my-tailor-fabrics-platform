@@ -26,10 +26,13 @@ import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
   AddonType,
   FabricSource as SharedFabricSource,
-  OrderStatus,
   DiscountType,
+  ItemStatus,
+  LedgerEntryType,
+  OrderStatus,
   OrdersListSummary,
   Role,
+  TaskStatus,
 } from '@tbms/shared-types';
 import { hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
@@ -132,7 +135,7 @@ export class OrdersService {
     const activeTasks = await tx.orderItemTask.findMany({
       where: {
         orderItemId: { in: orderItemIds },
-        status: { in: ['PENDING', 'IN_PROGRESS'] },
+        status: { in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS] },
         deletedAt: null,
       },
       select: { id: true },
@@ -152,14 +155,14 @@ export class OrdersService {
           deletedAt: null,
         },
         data: {
-          status: 'CANCELLED',
+          status: TaskStatus.CANCELLED,
           deletedAt: now,
         },
       }),
       tx.employeeLedgerEntry.updateMany({
         where: {
           orderItemTaskId: { in: taskIds },
-          type: 'EARNING',
+          type: LedgerEntryType.EARNING,
           deletedAt: null,
         },
         data: {
@@ -431,7 +434,11 @@ export class OrdersService {
 
     // 1. Get all active items
     const items = await db.orderItem.findMany({
-      where: { orderId, status: { not: 'CANCELLED' }, deletedAt: null },
+      where: {
+        orderId,
+        status: { not: ItemStatus.CANCELLED },
+        deletedAt: null,
+      },
       include: {
         addons: { where: { deletedAt: null } },
         designType: true,
@@ -1112,7 +1119,7 @@ export class OrdersService {
 
       await tx.orderItem.update({
         where: { id: item.id },
-        data: { deletedAt: new Date(), status: 'CANCELLED' },
+        data: { deletedAt: new Date(), status: ItemStatus.CANCELLED },
       });
 
       return this.recalcOrderTotals(orderId, tx);
@@ -1138,19 +1145,19 @@ export class OrdersService {
 
       await tx.orderItem.updateMany({
         where: { orderId: id, deletedAt: null },
-        data: { status: 'CANCELLED', deletedAt: new Date() },
+        data: { status: ItemStatus.CANCELLED, deletedAt: new Date() },
       });
 
       const updated = await tx.order.update({
         where: { id },
-        data: { status: 'CANCELLED', deletedAt: new Date() },
+        data: { status: OrderStatus.CANCELLED, deletedAt: new Date() },
       });
 
       await tx.orderStatusHistory.create({
         data: {
           orderId: id,
           fromStatus: order.status,
-          toStatus: 'CANCELLED',
+          toStatus: OrderStatus.CANCELLED,
           changedById: userId,
           actor: 'USER',
           note: 'Order soft-cancelled by user',
@@ -1271,7 +1278,7 @@ export class OrdersService {
       stepKey: string;
       stepName: string;
       sortOrder: number;
-      status: 'PENDING';
+      status: TaskStatus;
       rateCardId: string | null;
       rateSnapshot: number;
       designRateSnapshot?: number | null;
@@ -1300,7 +1307,7 @@ export class OrdersService {
         stepKey: t.stepKey,
         stepName: t.stepName,
         sortOrder: t.sortOrder,
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         rateCardId: rateCard?.id || null,
         rateSnapshot: rateCard?.amount || 0,
         designRateSnapshot: isDesignStep

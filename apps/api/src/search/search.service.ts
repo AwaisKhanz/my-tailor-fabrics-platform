@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { Customer, Employee, Prisma } from '@prisma/client';
+import { EmployeeStatus } from '@tbms/shared-types';
 
 const MIN_QUERY_LENGTH = 2;
 const DEFAULT_LIMIT = 10;
@@ -147,7 +148,7 @@ export class SearchService {
         FROM "Employee"
         WHERE "deletedAt" IS NULL
           ${branchFilter}
-          AND status = 'ACTIVE'
+          AND status = ${EmployeeStatus.ACTIVE}
           AND "searchVector" @@ to_tsquery('simple', ${tsQuery})
         ORDER BY ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) DESC, "createdAt" DESC
         LIMIT ${safeLimit}
@@ -161,7 +162,7 @@ export class SearchService {
         FROM "Employee"
         WHERE "deletedAt" IS NULL
           ${branchFilter}
-          AND status = 'ACTIVE'
+          AND status = ${EmployeeStatus.ACTIVE}
           AND (
             "fullName" ILIKE ${likeQuery}
             OR "employeeCode" ILIKE ${likeQuery}

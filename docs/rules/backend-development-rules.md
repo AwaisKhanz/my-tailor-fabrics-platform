@@ -89,6 +89,7 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 1. Request validation belongs in DTO classes or shared schemas, not ad hoc controller logic.
 2. Shared DTOs and cross-app response shapes belong in `packages/shared-types` when consumed by both apps.
 3. Do not duplicate enums, role names, permission names, or auth payload shapes inside `apps/api`.
+4. When a typed enum already exists, use the enum value in Prisma filters and service logic instead of repeating raw status or type strings.
 
 ## 9. Scheduler and Background Work Rules
 

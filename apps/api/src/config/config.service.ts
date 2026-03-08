@@ -24,7 +24,9 @@ import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import {
   GarmentTypeWithAnalytics,
   FieldType,
+  ItemStatus,
   SystemSettings,
+  TaskStatus,
 } from '@tbms/shared-types';
 import {
   normalizePagination,
@@ -229,7 +231,7 @@ export class ConfigService {
         JOIN "Order" o ON o.id = oi."orderId"
         WHERE oi."garmentTypeId" = ${id}
           AND oit."deletedAt" IS NULL
-          AND oit.status = 'DONE'
+          AND oit.status = ${TaskStatus.DONE}
           AND o."deletedAt" IS NULL
       `,
     );
@@ -240,7 +242,7 @@ export class ConfigService {
     const activeOrdersCount = await this.prisma.orderItem.count({
       where: {
         garmentTypeId: id,
-        status: { in: ['PENDING', 'IN_PROGRESS'] },
+        status: { in: [ItemStatus.PENDING, ItemStatus.IN_PROGRESS] },
         deletedAt: null,
       },
     });
@@ -258,7 +260,7 @@ export class ConfigService {
         JOIN "Order" o ON o.id = oi."orderId"
         WHERE oi."garmentTypeId" = ${id}
           AND oit."assignedEmployeeId" IS NOT NULL
-          AND oit."status" = 'DONE'
+          AND oit."status" = ${TaskStatus.DONE}
           AND oit."deletedAt" IS NULL
           AND oi."deletedAt" IS NULL
           AND o."deletedAt" IS NULL
@@ -538,7 +540,7 @@ export class ConfigService {
       const openTasksCount = await this.prisma.orderItemTask.count({
         where: {
           stepKey: { in: removedStepKeys },
-          status: { in: ['PENDING', 'IN_PROGRESS'] },
+          status: { in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS] },
           deletedAt: null,
           orderItem: {
             garmentTypeId,

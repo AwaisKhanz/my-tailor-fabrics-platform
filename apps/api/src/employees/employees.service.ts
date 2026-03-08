@@ -29,6 +29,7 @@ import type {
 } from '@tbms/shared-types';
 import {
   EmployeeStatus as SharedEmployeeStatus,
+  TaskStatus,
   PaymentType as SharedPaymentType,
 } from '@tbms/shared-types';
 
@@ -1279,7 +1280,7 @@ export class EmployeesService {
       where: {
         assignedEmployeeId: id,
         deletedAt: null,
-        status: { in: ['PENDING', 'IN_PROGRESS'] },
+        status: { in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS] },
         orderItem: {
           order: {
             branchId,

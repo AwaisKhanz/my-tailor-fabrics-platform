@@ -18,6 +18,7 @@ import {
   FieldType,
   MeasurementValuesMeta,
 } from '@tbms/shared-types';
+import { OPEN_ORDER_STATUSES } from '@tbms/shared-constants';
 import {
   buildPaginationMeta,
   normalizePagination,
@@ -274,7 +275,7 @@ export class CustomersService {
         customerId: id,
         branchId,
         deletedAt: null,
-        status: { in: ['NEW', 'IN_PROGRESS', 'READY', 'OVERDUE'] },
+        status: { in: [...OPEN_ORDER_STATUSES] },
       },
     });
 
