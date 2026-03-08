@@ -34,7 +34,7 @@ import {
   Role,
   TaskStatus,
 } from '@tbms/shared-types';
-import { hasAllPermissions, isRole } from '@tbms/shared-constants';
+import { PERMISSION, hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
 import { calculateDiscountAmount, calculateOrderTotals } from './money';
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
@@ -217,7 +217,7 @@ export class OrdersService {
     if (
       (createOrderDto.discountType || createOrderDto.discountValue) &&
       (!isRole(userRole) ||
-        !hasAllPermissions(userRole, ['orders.financial.manage']))
+        !hasAllPermissions(userRole, [PERMISSION['orders.financial.manage']]))
     ) {
       throw new ForbiddenException('Only Admins can apply discounts');
     }
@@ -996,7 +996,7 @@ export class OrdersService {
       if (dto.discountType !== undefined || dto.discountValue !== undefined) {
         if (
           !isRole(userRole) ||
-          !hasAllPermissions(userRole, ['orders.financial.manage'])
+          !hasAllPermissions(userRole, [PERMISSION['orders.financial.manage']])
         ) {
           throw new ForbiddenException(
             'Only admins can change financial details',
