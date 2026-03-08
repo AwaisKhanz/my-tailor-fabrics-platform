@@ -22,6 +22,12 @@ const REQUIRED_ROOT_TOKENS = [
   "--accent-foreground",
   "--destructive",
   "--destructive-foreground",
+  "--info",
+  "--info-foreground",
+  "--success",
+  "--success-foreground",
+  "--warning",
+  "--warning-foreground",
   "--border",
   "--input",
   "--ring",
@@ -121,8 +127,8 @@ const DELETED_PATHS = [
 ];
 
 const REQUIRED_TAILWIND_SNIPPETS = [
-  'ui: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"]',
-  'sans: ["Inter", "SF Pro Text", "Segoe UI", "sans-serif"]',
+  'ui: ["var(--font-inter)"]',
+  'sans: ["var(--font-inter)"]',
   'background: "hsl(var(--background) / <alpha-value>)"',
   'foreground: "hsl(var(--foreground) / <alpha-value>)"',
   'border: "hsl(var(--border) / <alpha-value>)"',
@@ -137,8 +143,8 @@ const REQUIRED_TAILWIND_SNIPPETS = [
   'destructive: {',
   'sidebar: {',
   'lg: "var(--radius)"',
-  'sm: "var(--shadow-sm)"',
-  'DEFAULT: "var(--shadow)"',
+  'sm: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--shadow-sm)"',
+  'DEFAULT:\n          "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--shadow)"',
 ];
 
 const BANNED_TAILWIND_SNIPPETS = [

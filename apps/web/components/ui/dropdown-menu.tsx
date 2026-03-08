@@ -27,7 +27,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center gap-2 rounded-snow-16 px-3 py-2.5 text-[0.875rem] outline-none transition-colors focus:bg-accent focus:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+      "flex cursor-default select-none items-center gap-2 rounded-snow-16 px-3 py-2.5 text-snow-14 outline-none transition-colors focus:bg-accent focus:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       inset && "pl-8",
       className,
     )}
@@ -86,7 +86,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-snow-16 px-3 py-2.5 text-[0.875rem] outline-none transition-colors focus:bg-secondary focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
+      "relative flex cursor-default select-none items-center gap-2 rounded-snow-16 px-3 py-2.5 text-snow-14 outline-none transition-colors focus:bg-secondary focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
       inset && "pl-8",
       className,
     )}
@@ -102,7 +102,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-[0.875rem] outline-none transition-colors focus:bg-accent focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-snow-14 outline-none transition-colors focus:bg-accent focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     checked={checked}
@@ -126,7 +126,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-[0.875rem] outline-none transition-colors focus:bg-accent focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-snow-14 outline-none transition-colors focus:bg-accent focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}
@@ -150,7 +150,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 py-1.5 text-xs font-semibold uppercase  text-muted-foreground",
+      "px-3 py-1.5 text-snow-12 font-semibold uppercase text-muted-foreground",
       inset && "pl-8",
       className,
     )}
@@ -176,7 +176,10 @@ const DropdownMenuShortcut = ({
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
-    <span className={cn("ml-auto text-xs  opacity-60", className)} {...props} />
+    <span
+      className={cn("ml-auto text-snow-12 opacity-60", className)}
+      {...props}
+    />
   );
 };
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut";

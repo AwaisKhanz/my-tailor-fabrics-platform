@@ -8,12 +8,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-snow-16 bg-input text-foreground ring-offset-background shadow-sm transition-[border-color,box-shadow,background-color] focus:border-ring focus:outline-none focus:ring-4 focus:ring-offset-0 focus:[--tw-ring-color:hsl(var(--ring)/0.24)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full items-center justify-between rounded-snow-16 bg-input text-foreground ring-offset-background shadow-sm transition-[border-color,box-shadow,background-color] focus:border-ring focus:outline-none focus:ring-4 focus:ring-ring/25 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
   {
     variants: {
       uiSize: {
-        default: "h-11 px-4 py-2 text-[0.875rem]",
-        sm: "h-10 px-3.5 py-2 text-[0.875rem]",
+        default: "h-11 px-4 py-2 text-snow-14",
+        sm: "h-10 px-3.5 py-2 text-snow-14",
       },
     },
     defaultVariants: {
@@ -126,7 +126,7 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 pb-1 pt-2 text-xs font-semibold uppercase  text-muted-foreground",
+      "px-3 pb-1 pt-2 text-snow-12 font-semibold uppercase text-muted-foreground",
       className,
     )}
     {...props}
@@ -141,7 +141,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-[0.875rem] outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-default select-none items-center rounded-snow-16 py-2.5 pl-10 pr-3 text-snow-14 outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}

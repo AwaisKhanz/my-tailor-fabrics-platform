@@ -5,10 +5,9 @@ import { cn } from "@/lib/utils";
 const headingVariants = cva("", {
   variants: {
     variant: {
-      page: "text-[2rem] font-semibold leading-[1.02]  text-foreground md:text-[2rem] lg:text-[2.6rem]",
-      section:
-        "text-[1.125rem] font-semibold leading-[1.18]  text-foreground md:text-[1.125rem]",
-      stat: "text-[2rem] font-semibold leading-none  text-foreground",
+      page: "text-snow-32 font-semibold text-foreground lg:text-snow-48",
+      section: "text-snow-18 font-semibold text-foreground",
+      stat: "text-snow-32 font-semibold text-foreground",
     },
   },
   defaultVariants: {
@@ -19,10 +18,10 @@ const headingVariants = cva("", {
 const textVariants = cva("", {
   variants: {
     variant: {
-      lead: "text-base leading-7 text-muted-foreground md:text-base",
-      body: "text-[0.875rem] leading-6 text-foreground",
-      muted: "text-[0.875rem] leading-6 text-muted-foreground",
-      meta: "text-[0.75rem] font-semibold uppercase text-muted-foreground",
+      lead: "text-snow-16 text-muted-foreground",
+      body: "text-snow-14 text-foreground",
+      muted: "text-snow-14 text-muted-foreground",
+      meta: "text-snow-12 font-semibold uppercase text-muted-foreground",
     },
   },
   defaultVariants: {

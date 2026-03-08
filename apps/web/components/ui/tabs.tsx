@@ -11,7 +11,7 @@ const tabsListVariants = cva(
 );
 
 const tabsTriggerVariants = cva(
-  "inline-flex h-10 items-center justify-center whitespace-nowrap rounded-snow-16 px-4 text-[0.75rem] font-semibold uppercase  text-muted-foreground ring-offset-background transition-[background-color,color,box-shadow] duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex h-10 items-center justify-center whitespace-nowrap rounded-snow-16 px-4 text-snow-12 font-semibold uppercase text-muted-foreground ring-offset-background transition-[background-color,color,box-shadow] duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
 );
 
 const Tabs = TabsPrimitive.Root;

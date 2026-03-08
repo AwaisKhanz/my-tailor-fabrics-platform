@@ -6,9 +6,9 @@ type SectionHeaderTitleVariant = "section" | "dashboard" | "dashboardSection";
 type SectionHeaderDescriptionVariant = "default" | "header" | "compact";
 
 const titleVariantClasses: Record<SectionHeaderTitleVariant, string> = {
-  section: "text-base font-semibold ",
+  section: "text-snow-16 font-semibold",
   dashboard: "",
-  dashboardSection: "text-base font-semibold ",
+  dashboardSection: "text-snow-16 font-semibold",
 };
 
 const descriptionVariantClasses: Record<
@@ -16,8 +16,8 @@ const descriptionVariantClasses: Record<
   string
 > = {
   default: "",
-  header: "mt-1 text-[0.875rem] leading-6",
-  compact: "text-xs",
+  header: "mt-1 text-snow-14",
+  compact: "text-snow-12",
 };
 
 interface SectionHeaderProps {

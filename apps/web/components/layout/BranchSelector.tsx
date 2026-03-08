@@ -76,7 +76,7 @@ export function BranchSelector({ className }: BranchSelectorProps) {
     >
       <SelectTrigger
         className={cn(
-          "h-10 w-full text-sm font-semibold  sm:text-[0.875rem]",
+          "h-10 w-full text-snow-14 font-semibold",
           className,
         )}
       >
