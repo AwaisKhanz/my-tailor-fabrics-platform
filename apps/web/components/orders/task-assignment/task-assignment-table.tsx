@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { Check, Edit2, X } from "lucide-react";
 import {
-  type BadgeVariant,
   type Employee,
   type OrderItemTask,
   TaskStatus,
 } from "@tbms/shared-types";
 import {
+  TASK_STATUS_CONFIG,
   TASK_STATUS_LABELS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
@@ -45,13 +45,6 @@ interface TaskAssignmentTableProps {
 }
 
 const PAGE_SIZE = 10;
-
-const STATUS_VARIANTS: Record<TaskStatus, BadgeVariant> = {
-  [TaskStatus.PENDING]: "outline",
-  [TaskStatus.IN_PROGRESS]: "default",
-  [TaskStatus.DONE]: "success",
-  [TaskStatus.CANCELLED]: "destructive",
-};
 
 function isTaskStatus(value: string): value is TaskStatus {
   switch (value) {
@@ -193,10 +186,10 @@ export function TaskAssignmentTable({
             >
               <SelectTrigger className="h-8 border-transparent bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground focus:ring-0 focus:ring-offset-0">
                 <Badge
-                  variant={STATUS_VARIANTS[task.status] || "outline"}
+                  variant={TASK_STATUS_CONFIG[task.status].variant}
                   className="w-full justify-center uppercase"
                 >
-                  {TASK_STATUS_LABELS[task.status]}
+                  {TASK_STATUS_CONFIG[task.status].label}
                 </Badge>
               </SelectTrigger>
               <SelectContent>

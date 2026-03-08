@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ADDON_TYPE_LABELS = exports.TASK_STATUS_LABELS = exports.ITEM_STATUS_LABELS = exports.OPEN_ORDER_STATUSES = exports.ORDER_STATUS_CONFIG = void 0;
+exports.ADDON_TYPE_LABELS = exports.TASK_STATUS_CONFIG = exports.TASK_STATUS_LABELS = exports.ITEM_STATUS_LABELS = exports.OPEN_ORDER_STATUSES = exports.ORDER_STATUS_CONFIG = void 0;
 const shared_types_1 = require("@tbms/shared-types");
 exports.ORDER_STATUS_CONFIG = {
     [shared_types_1.OrderStatus.NEW]: { label: "NEW", variant: "outline" },
@@ -29,6 +29,24 @@ exports.TASK_STATUS_LABELS = {
     [shared_types_1.TaskStatus.IN_PROGRESS]: 'In Progress',
     [shared_types_1.TaskStatus.DONE]: 'Done',
     [shared_types_1.TaskStatus.CANCELLED]: 'Cancelled',
+};
+exports.TASK_STATUS_CONFIG = {
+    [shared_types_1.TaskStatus.PENDING]: {
+        label: exports.TASK_STATUS_LABELS[shared_types_1.TaskStatus.PENDING],
+        variant: 'outline',
+    },
+    [shared_types_1.TaskStatus.IN_PROGRESS]: {
+        label: exports.TASK_STATUS_LABELS[shared_types_1.TaskStatus.IN_PROGRESS],
+        variant: 'default',
+    },
+    [shared_types_1.TaskStatus.DONE]: {
+        label: exports.TASK_STATUS_LABELS[shared_types_1.TaskStatus.DONE],
+        variant: 'success',
+    },
+    [shared_types_1.TaskStatus.CANCELLED]: {
+        label: exports.TASK_STATUS_LABELS[shared_types_1.TaskStatus.CANCELLED],
+        variant: 'destructive',
+    },
 };
 exports.ADDON_TYPE_LABELS = {
     [shared_types_1.AddonType.EXTRA]: 'Extra Charge',

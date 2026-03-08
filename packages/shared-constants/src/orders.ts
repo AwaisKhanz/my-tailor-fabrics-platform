@@ -35,6 +35,28 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TaskStatus.CANCELLED]: 'Cancelled',
 };
 
+export const TASK_STATUS_CONFIG: Record<
+  TaskStatus,
+  { label: string; variant: BadgeVariant }
+> = {
+  [TaskStatus.PENDING]: {
+    label: TASK_STATUS_LABELS[TaskStatus.PENDING],
+    variant: 'outline',
+  },
+  [TaskStatus.IN_PROGRESS]: {
+    label: TASK_STATUS_LABELS[TaskStatus.IN_PROGRESS],
+    variant: 'default',
+  },
+  [TaskStatus.DONE]: {
+    label: TASK_STATUS_LABELS[TaskStatus.DONE],
+    variant: 'success',
+  },
+  [TaskStatus.CANCELLED]: {
+    label: TASK_STATUS_LABELS[TaskStatus.CANCELLED],
+    variant: 'destructive',
+  },
+};
+
 export const ADDON_TYPE_LABELS: Record<AddonType, string> = {
   [AddonType.EXTRA]: 'Extra Charge',
   [AddonType.ALTERATION]: 'Alteration',
