@@ -42,13 +42,13 @@ function OrderDetailPage() {
     reversingPaymentId,
     sharing,
     shareData,
-    clearPaymentValidation,
     paymentOpen,
-    setPaymentOpen,
+    openPaymentDialog,
     amount,
-    setAmount,
     note,
-    setNote,
+    handlePaymentDialogChange,
+    handlePaymentAmountChange,
+    handlePaymentNoteChange,
     taskOpen,
     setTaskOpen,
     taskItem,
@@ -215,7 +215,7 @@ function OrderDetailPage() {
                 canCapturePayment={canCapturePayment}
                 canReversePayment={canCapturePayment}
                 reversingPaymentId={reversingPaymentId}
-                onCapturePayment={() => setPaymentOpen(true)}
+                onCapturePayment={openPaymentDialog}
                 onReversePayment={requestPaymentReversal}
               />
 
@@ -236,12 +236,7 @@ function OrderDetailPage() {
 
       <OrderPaymentDialog
         open={paymentOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            clearPaymentValidation();
-          }
-          setPaymentOpen(open);
-        }}
+        onOpenChange={handlePaymentDialogChange}
         orderNumber={order.orderNumber}
         balanceDue={order.balanceDue}
         amount={amount}
@@ -249,14 +244,8 @@ function OrderDetailPage() {
         processing={processingPayment}
         fieldErrors={paymentFieldErrors}
         validationError={paymentValidationError}
-        onAmountChange={(value) => {
-          clearPaymentValidation();
-          setAmount(value);
-        }}
-        onNoteChange={(value) => {
-          clearPaymentValidation();
-          setNote(value);
-        }}
+        onAmountChange={handlePaymentAmountChange}
+        onNoteChange={handlePaymentNoteChange}
         onSubmit={() => {
           void handleAddPayment();
         }}

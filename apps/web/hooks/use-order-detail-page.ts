@@ -32,6 +32,36 @@ export function useOrderDetailPage(orderId: string) {
     setNote("");
   }, [amount, note, orderDetail]);
 
+  const handlePaymentDialogChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        orderDetail.clearPaymentValidation();
+      }
+      setPaymentOpen(open);
+    },
+    [orderDetail],
+  );
+
+  const openPaymentDialog = useCallback(() => {
+    setPaymentOpen(true);
+  }, []);
+
+  const handlePaymentAmountChange = useCallback(
+    (value: string) => {
+      orderDetail.clearPaymentValidation();
+      setAmount(value);
+    },
+    [orderDetail],
+  );
+
+  const handlePaymentNoteChange = useCallback(
+    (value: string) => {
+      orderDetail.clearPaymentValidation();
+      setNote(value);
+    },
+    [orderDetail],
+  );
+
   const refreshOrder = useCallback(() => {
     void orderDetail.fetchOrder();
   }, [orderDetail]);
@@ -160,11 +190,12 @@ export function useOrderDetailPage(orderId: string) {
   return {
     ...orderDetail,
     paymentOpen,
-    setPaymentOpen,
+    openPaymentDialog,
     amount,
-    setAmount,
     note,
-    setNote,
+    handlePaymentDialogChange,
+    handlePaymentAmountChange,
+    handlePaymentNoteChange,
     taskOpen,
     setTaskOpen,
     taskItem,
