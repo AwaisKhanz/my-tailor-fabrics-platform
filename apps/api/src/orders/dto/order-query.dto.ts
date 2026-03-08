@@ -1,6 +1,7 @@
 import { IsEnum, IsIn, IsOptional, IsString } from 'class-validator';
 import { OrderStatus } from '@tbms/shared-types';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 const ORDER_SORT_FIELDS = [
   'orderNumber',
@@ -26,6 +27,7 @@ export class OrdersListQueryDto extends PaginationQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   declare employeeId?: string;
 
   @IsOptional()
@@ -56,6 +58,7 @@ export class OrdersSummaryQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   employeeId?: string;
 
   @IsOptional()

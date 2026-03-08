@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 import { transformOptionalString } from '../../common/dto/query-transformers';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class SearchRatesQueryDto {
   @IsOptional()
@@ -12,6 +13,7 @@ export class SearchRatesQueryDto {
 export class RateHistoryQueryDto {
   @Transform(transformOptionalString)
   @IsString()
+  @IsCuidString()
   garmentTypeId!: string;
 
   @Transform(transformOptionalString)
@@ -21,5 +23,6 @@ export class RateHistoryQueryDto {
   @IsOptional()
   @Transform(transformOptionalString)
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }

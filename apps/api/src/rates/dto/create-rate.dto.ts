@@ -6,17 +6,21 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class CreateRateDto {
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string | null;
 
   @IsString()
+  @IsCuidString()
   garmentTypeId!: string;
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   stepTemplateId?: string | null;
 
   @IsString()

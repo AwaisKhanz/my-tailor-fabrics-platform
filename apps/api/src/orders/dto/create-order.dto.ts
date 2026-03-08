@@ -11,10 +11,12 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AddonType, DiscountType, FabricSource } from '@tbms/shared-types';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class OrderItemDto {
   @IsString()
   @IsNotEmpty()
+  @IsCuidString()
   garmentTypeId!: string;
 
   @IsNumber()
@@ -35,6 +37,7 @@ export class OrderItemDto {
 
   @IsString()
   @IsOptional()
+  @IsCuidString()
   designTypeId?: string;
 
   @IsArray()
@@ -70,6 +73,7 @@ export class OrderItemAddonDto {
 export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
+  @IsCuidString()
   customerId!: string;
 
   @IsDateString()

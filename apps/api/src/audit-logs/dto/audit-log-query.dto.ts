@@ -1,5 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 class AuditLogFiltersQueryDto {
   @IsOptional()
@@ -12,6 +13,7 @@ class AuditLogFiltersQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   userId?: string;
 
   @IsOptional()
@@ -28,6 +30,7 @@ class AuditLogFiltersQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }
 
@@ -42,6 +45,7 @@ export class AuditLogsListQueryDto extends PaginationQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   declare userId?: string;
 
   @IsOptional()
@@ -58,6 +62,7 @@ export class AuditLogsListQueryDto extends PaginationQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }
 

@@ -6,13 +6,16 @@ import {
   NotEquals,
 } from 'class-validator';
 import { LedgerEntryType } from '@tbms/shared-types';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class CreateLedgerEntryDto {
   @IsString()
+  @IsCuidString()
   employeeId!: string;
 
   @IsString()
   @IsOptional()
+  @IsCuidString()
   branchId?: string;
 
   @IsEnum(LedgerEntryType)
@@ -24,14 +27,17 @@ export class CreateLedgerEntryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   orderItemTaskId?: string | null;
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   paymentId?: string | null;
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   createdById?: string | null;
 
   @IsOptional()

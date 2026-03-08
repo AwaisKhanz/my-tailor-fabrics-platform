@@ -15,6 +15,7 @@ import {
   FabricSource,
   ItemStatus,
 } from '@tbms/shared-types';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class UpdateOrderItemAddonDto {
   @IsEnum(AddonType)
@@ -35,10 +36,12 @@ export class UpdateOrderItemAddonDto {
 export class UpdateOrderItemDto {
   @IsString()
   @IsOptional()
+  @IsCuidString()
   id?: string;
 
   @IsString()
   @IsOptional()
+  @IsCuidString()
   garmentTypeId?: string;
 
   @IsNumber()
@@ -60,6 +63,7 @@ export class UpdateOrderItemDto {
 
   @IsString()
   @IsOptional()
+  @IsCuidString()
   designTypeId?: string;
 
   @IsArray()

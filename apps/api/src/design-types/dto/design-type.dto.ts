@@ -1,4 +1,5 @@
 import { IsString, IsNumber, IsOptional, IsBoolean } from 'class-validator';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class CreateDesignTypeDto {
   @IsString()
@@ -12,10 +13,12 @@ export class CreateDesignTypeDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   garmentTypeId?: string;
 
   @IsOptional()

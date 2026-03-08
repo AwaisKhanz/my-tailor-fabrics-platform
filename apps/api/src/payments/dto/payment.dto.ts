@@ -1,7 +1,9 @@
 import { IsString, IsInt, IsOptional, Matches, Min } from 'class-validator';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class DisbursePaymentDto {
   @IsString()
+  @IsCuidString()
   employeeId!: string;
 
   @IsInt()
@@ -21,6 +23,7 @@ export class GenerateSalaryAccrualsDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   employeeId?: string;
 }
 

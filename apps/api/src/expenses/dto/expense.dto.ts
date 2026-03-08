@@ -7,9 +7,11 @@ import {
   IsBoolean,
   IsNotEmpty,
 } from 'class-validator';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class CreateExpenseDto {
   @IsString()
+  @IsCuidString()
   categoryId!: string;
 
   @IsInt()
@@ -31,6 +33,7 @@ export class CreateExpenseDto {
 export class UpdateExpenseDto {
   @IsString()
   @IsOptional()
+  @IsCuidString()
   categoryId?: string;
 
   @IsInt()

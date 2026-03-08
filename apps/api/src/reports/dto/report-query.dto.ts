@@ -1,10 +1,12 @@
 import { Transform } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { transformOptionalPositiveInt } from '../../common/dto/query-transformers';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class BranchScopedReportQueryDto {
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }
 

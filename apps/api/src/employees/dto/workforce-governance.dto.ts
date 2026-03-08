@@ -11,10 +11,12 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { PaymentType } from '@tbms/shared-types';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class EmployeeCapabilityWindowInputDto {
   @IsString()
   @IsOptional()
+  @IsCuidString()
   garmentTypeId?: string;
 
   @IsString()
@@ -72,6 +74,7 @@ export class CompensationChangeDto {
 export class EligibleEmployeesQueryDto {
   @IsString()
   @IsNotEmpty()
+  @IsCuidString()
   garmentTypeId!: string;
 
   @IsString()

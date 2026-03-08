@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Role } from '@tbms/shared-types';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class CreateUserDto {
   @IsString()
@@ -28,6 +29,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }
 
@@ -52,6 +54,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }
 
@@ -67,5 +70,6 @@ export class ListUsersQueryDto extends PaginationQueryDto {
 
   @IsOptional()
   @IsString()
+  @IsCuidString()
   branchId?: string;
 }

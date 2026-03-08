@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { FieldType } from '@tbms/shared-types';
+import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class CreateMeasurementCategoryDto {
   @IsString()
@@ -65,6 +66,7 @@ export class UpdateMeasurementSectionDto {
 export class DeleteMeasurementSectionDto {
   @IsString()
   @IsOptional()
+  @IsCuidString()
   targetSectionId?: string;
 }
 
@@ -74,6 +76,7 @@ export class CreateMeasurementFieldDto {
 
   @IsString()
   @IsOptional()
+  @IsCuidString()
   sectionId?: string;
 
   @IsString()
@@ -109,6 +112,7 @@ export class UpdateMeasurementFieldDto {
 
   @IsString()
   @IsOptional()
+  @IsCuidString()
   sectionId?: string;
 
   @IsString()
