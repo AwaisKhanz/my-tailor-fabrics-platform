@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -15,11 +16,10 @@ import {
 async function bootstrap() {
   assertSecurityEnvironment();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Security Hardening
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.set('trust proxy', getTrustProxyConfig());
+  app.set('trust proxy', getTrustProxyConfig());
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({

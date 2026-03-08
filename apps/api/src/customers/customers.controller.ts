@@ -26,6 +26,12 @@ import { success } from '../common/utils/response.util';
 import { CustomerStatus } from '@tbms/shared-types';
 import { ADMIN_ROLES, OPERATOR_ROLES } from '@tbms/shared-constants';
 
+const CUSTOMER_STATUS_VALUES = new Set<string>(Object.values(CustomerStatus));
+
+function isCustomerStatus(value: string): value is CustomerStatus {
+  return CUSTOMER_STATUS_VALUES.has(value);
+}
+
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
@@ -35,8 +41,7 @@ export class CustomersController {
       return undefined;
     }
 
-    const statuses = Object.values(CustomerStatus);
-    return statuses.find((status) => status === value);
+    return isCustomerStatus(value) ? value : undefined;
   }
 
   @Roles(...OPERATOR_ROLES)

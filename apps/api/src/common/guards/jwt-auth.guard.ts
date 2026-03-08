@@ -41,8 +41,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     user: TUser | false | null,
     info?: { message?: string },
     context?: ExecutionContext,
-    _status?: unknown,
+    status?: unknown,
   ): TUser {
+    void status;
     if (err || !user) {
       const request = context?.switchToHttp().getRequest<JwtGuardRequest>();
       emitSecurityEvent(this.logger, 'jwt_auth_failed', {

@@ -1159,11 +1159,16 @@ export class ConfigService {
       dto.sectionName,
     );
 
-    const { sectionId: _sectionId, sectionName: _sectionName, ...rest } = dto;
     return this.prisma.measurementField.create({
       data: {
-        ...rest,
         label,
+        ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
+        ...(dto.isRequired !== undefined ? { isRequired: dto.isRequired } : {}),
+        ...(dto.dropdownOptions !== undefined
+          ? { dropdownOptions: dto.dropdownOptions }
+          : {}),
+        ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
+        ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
         categoryId,
         sectionId: section.id,
       },
@@ -1205,11 +1210,16 @@ export class ConfigService {
       resolvedSectionId = section.id;
     }
 
-    const { sectionId: _sectionId, sectionName: _sectionName, ...rest } = dto;
     return this.prisma.measurementField.update({
       where: { id },
       data: {
-        ...rest,
+        ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
+        ...(dto.isRequired !== undefined ? { isRequired: dto.isRequired } : {}),
+        ...(dto.dropdownOptions !== undefined
+          ? { dropdownOptions: dto.dropdownOptions }
+          : {}),
+        ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
+        ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
         ...(dto.label !== undefined ? { label: dto.label.trim() } : {}),
         ...(resolvedSectionId ? { sectionId: resolvedSectionId } : {}),
       },

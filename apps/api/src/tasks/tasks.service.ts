@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, TaskStatus as PrismaTaskStatus } from '@prisma/client';
 import { TaskStatus, LedgerEntryType, Role } from '@tbms/shared-types';
 import { getEffectiveTaskRate } from '@tbms/shared-constants';
 import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
@@ -176,7 +176,7 @@ export class TasksService {
       };
 
       for (const task of tasks) {
-        if (task.status === TaskStatus.DONE && task.assignedEmployeeId) {
+        if (task.status === PrismaTaskStatus.DONE && task.assignedEmployeeId) {
           counters.doneTasks += 1;
           const syncResult = await this.syncTaskEarningEntry(tx, {
             taskId: task.id,
@@ -275,7 +275,7 @@ export class TasksService {
         },
       });
 
-      if (updatedTask.status === TaskStatus.DONE && employeeId) {
+      if (updatedTask.status === PrismaTaskStatus.DONE && employeeId) {
         await this.syncTaskEarningEntry(tx, {
           taskId: updatedTask.id,
           employeeId,
@@ -337,7 +337,7 @@ export class TasksService {
     status: TaskStatus,
     branchId: string,
     updatedById: string,
-    userRole: string,
+    userRole: Role,
     requesterEmployeeId: string | null,
   ) {
     return this.prisma.$transaction(async (tx) => {
@@ -418,7 +418,7 @@ export class TasksService {
   async findAllByEmployee(
     employeeId: string,
     branchId: string | null,
-    userRole: string,
+    userRole: Role,
     requesterEmployeeId: string | null,
   ) {
     if (
@@ -486,7 +486,7 @@ export class TasksService {
       });
 
       if (
-        updatedTask.status === TaskStatus.DONE &&
+        updatedTask.status === PrismaTaskStatus.DONE &&
         updatedTask.assignedEmployeeId
       ) {
         await this.syncTaskEarningEntry(tx, {

@@ -27,9 +27,9 @@ import {
   AddonType,
   FabricSource as SharedFabricSource,
   OrderStatus,
-  ItemStatus,
   DiscountType,
   OrdersListSummary,
+  Role,
 } from '@tbms/shared-types';
 import { hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
@@ -73,6 +73,12 @@ const FABRIC_SOURCE_TO_PRISMA: Record<SharedFabricSource, PrismaFabricSource> =
     [SharedFabricSource.CUSTOMER]: PrismaFabricSource.CUSTOMER,
   };
 
+const ORDER_STATUS_VALUES = new Set<string>(Object.values(OrderStatus));
+
+function isOrderStatus(value: string): value is OrderStatus {
+  return ORDER_STATUS_VALUES.has(value);
+}
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -100,8 +106,7 @@ export class OrdersService {
       return undefined;
     }
 
-    const statuses = Object.values(OrderStatus);
-    return statuses.find((status) => status === rawStatus);
+    return isOrderStatus(rawStatus) ? rawStatus : undefined;
   }
 
   private toPrismaOrderStatus(status: OrderStatus): PrismaOrderStatus {
@@ -200,7 +205,7 @@ export class OrdersService {
     createOrderDto: CreateOrderDto,
     branchId: string,
     createdById: string,
-    userRole: string,
+    userRole: Role,
   ) {
     if (!createOrderDto.items || createOrderDto.items.length === 0) {
       throw new BadRequestException('Order must contain at least one item');
@@ -716,7 +721,6 @@ export class OrdersService {
       }
 
       const newTotalPaid = order.totalPaid + addPaymentDto.amount;
-      const newBalanceDue = order.balanceDue - addPaymentDto.amount;
 
       // 1. Log Payment
       await tx.orderPayment.create({
@@ -826,8 +830,9 @@ export class OrdersService {
         where: { id, deletedAt: null, ...(branchId ? { branchId } : {}) },
       });
       if (!order) throw new NotFoundException('Order not found');
+      const nextStatus = this.toPrismaOrderStatus(dto.status);
 
-      if (order.status === dto.status) {
+      if (order.status === nextStatus) {
         return order; // no change
       }
 
@@ -836,7 +841,7 @@ export class OrdersService {
         data: {
           orderId: id,
           fromStatus: order.status,
-          toStatus: dto.status,
+          toStatus: nextStatus,
           changedById,
           actor: 'USER',
           note: dto.note,
@@ -846,7 +851,7 @@ export class OrdersService {
       // 2. Update
       return tx.order.update({
         where: { id },
-        data: { status: dto.status },
+        data: { status: nextStatus },
       });
     });
   }
@@ -952,21 +957,23 @@ export class OrdersService {
         .catch(() => undefined);
     }
 
-    const {
-      sharePin: _legacyPin,
-      sharePinHash: _sharePinHash,
-      sharePinMigratedAt: _sharePinMigratedAt,
-      ...publicOrder
-    } = order;
-
-    return publicOrder;
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      dueDate: order.dueDate,
+      totalAmount: order.totalAmount,
+      balanceDue: order.balanceDue,
+      status: order.status,
+      customer: order.customer,
+      items: order.items,
+    };
   }
 
   async update(
     id: string,
     branchId: string,
     dto: UpdateOrderDto,
-    userRole: string,
+    userRole: Role,
   ) {
     return await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findFirst({

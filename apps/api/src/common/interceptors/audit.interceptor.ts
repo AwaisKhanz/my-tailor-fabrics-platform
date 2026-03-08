@@ -77,7 +77,8 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const { user, body } = request;
+    const user = request.user;
+    const body: unknown = request.body;
 
     const routePath = this.getRoutePath(request);
     const action = this.resolveAction(method, routePath);
@@ -90,8 +91,9 @@ export class AuditInterceptor implements NestInterceptor {
     const oldValue = await this.loadOldValue(method, entity, entityId);
 
     return next.handle().pipe(
-      concatMap((response) =>
-        from(
+      concatMap((response: unknown) => {
+        const responseValue = response;
+        return from(
           this.safelyPersistAuditLog({
             request,
             method,
@@ -100,10 +102,10 @@ export class AuditInterceptor implements NestInterceptor {
             fallbackEntityId: entityId,
             oldValue,
             body,
-            response,
+            response: responseValue,
           }),
-        ).pipe(map(() => response)),
-      ),
+        ).pipe(map((): unknown => responseValue));
+      }),
       catchError((error: unknown) =>
         from(
           this.safelyPersistAuditLog({
@@ -291,7 +293,7 @@ export class AuditInterceptor implements NestInterceptor {
         default:
           return null;
       }
-    } catch (error: unknown) {
+    } catch {
       this.logger.warn(`Could not fetch old value for ${entity}:${entityId}`);
       return null;
     }
@@ -476,7 +478,7 @@ export class AuditInterceptor implements NestInterceptor {
       actor.userId ??
       actor.actorEmail ??
       'unknown';
-    const userAgentHeader = request.headers?.['user-agent'];
+    const userAgent = request.get('user-agent');
     const errorSummary = error ? this.resolveErrorSummary(error) : null;
 
     const newValuePayload =
@@ -503,9 +505,7 @@ export class AuditInterceptor implements NestInterceptor {
           oldValue: this.toAuditJsonValue(oldValue),
           newValue: newValuePayload,
           ipAddress: request.ip,
-          userAgent: Array.isArray(userAgentHeader)
-            ? userAgentHeader[0]
-            : userAgentHeader,
+          userAgent,
         },
       })
       .catch((persistError: unknown) => {

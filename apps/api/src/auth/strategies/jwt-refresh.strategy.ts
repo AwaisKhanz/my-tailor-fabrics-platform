@@ -7,6 +7,20 @@ import { getJwtRefreshSecret } from '../../common/env';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
 import type { RefreshTokenClaims } from '@tbms/shared-types';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function getRefreshTokenCookie(request: Request): string | null {
+  const cookies: unknown = Reflect.get(request, 'cookies');
+  if (!isRecord(cookies)) {
+    return null;
+  }
+
+  const token = cookies['Refresh-Token'];
+  return typeof token === 'string' ? token : null;
+}
+
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -15,10 +29,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(private readonly usersService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request): string | null => {
-          const token = request?.cookies?.['Refresh-Token'];
-          return typeof token === 'string' ? token : null;
-        },
+        (request: Request): string | null => getRefreshTokenCookie(request),
       ]),
       secretOrKey: getJwtRefreshSecret(),
       passReqToCallback: true,
@@ -34,9 +45,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
       throw new UnauthorizedException('Invalid role in token');
     }
 
-    const tokenFromCookie = req.cookies?.['Refresh-Token'];
-    const refreshToken =
-      typeof tokenFromCookie === 'string' ? tokenFromCookie : undefined;
+    const refreshToken = getRefreshTokenCookie(req) ?? undefined;
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token missing');
     }

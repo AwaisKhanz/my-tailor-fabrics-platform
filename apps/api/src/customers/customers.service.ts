@@ -63,13 +63,14 @@ function isJsonRecord(value: Prisma.JsonValue): value is JsonRecord {
 }
 
 function toSharedFieldType(fieldType: string): FieldType {
-  if (fieldType === FieldType.TEXT) {
-    return FieldType.TEXT;
+  switch (fieldType) {
+    case 'TEXT':
+      return FieldType.TEXT;
+    case 'DROPDOWN':
+      return FieldType.DROPDOWN;
+    default:
+      return FieldType.NUMBER;
   }
-  if (fieldType === FieldType.DROPDOWN) {
-    return FieldType.DROPDOWN;
-  }
-  return FieldType.NUMBER;
 }
 
 @Injectable()

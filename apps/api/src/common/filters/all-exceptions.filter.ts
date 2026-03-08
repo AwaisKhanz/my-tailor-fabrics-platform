@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import type { Request } from 'express';
 import { isProductionEnvironment } from '../env';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -65,11 +66,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
 
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
 
     const httpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
+    const isServerError = httpStatus >= 500;
 
     const exceptionMessage =
       exception instanceof HttpException
@@ -79,19 +82,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
           : getUnknownErrorMessage(exception) || 'Internal server error';
 
     const message =
-      isProductionEnvironment() &&
-      httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR
+      isProductionEnvironment() && isServerError
         ? 'Internal server error'
         : exceptionMessage;
 
     const responseBody = {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
+      path: (() => {
+        const requestUrl: unknown = httpAdapter.getRequestUrl(request);
+        return typeof requestUrl === 'string'
+          ? requestUrl
+          : (request.originalUrl ?? request.url);
+      })(),
       message,
     };
 
-    if (httpStatus >= HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (isServerError) {
       this.logger.error(
         `Unhandled Exception at ${responseBody.path}: ${responseBody.message}`,
         exception instanceof Error

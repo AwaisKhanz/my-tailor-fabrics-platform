@@ -31,6 +31,14 @@ const LEDGER_ENTRY_TYPE_TO_PRISMA: Record<
   [LedgerEntryType.SALARY]: PrismaLedgerEntryType.SALARY,
 };
 
+const LEDGER_ENTRY_TYPE_VALUES = new Set<string>(
+  Object.values(LedgerEntryType),
+);
+
+function isLedgerEntryType(value: string): value is LedgerEntryType {
+  return LEDGER_ENTRY_TYPE_VALUES.has(value);
+}
+
 @Injectable()
 export class LedgerService {
   constructor(private readonly prisma: PrismaService) {}
@@ -39,8 +47,7 @@ export class LedgerService {
     if (!rawType) {
       return undefined;
     }
-    const types = Object.values(LedgerEntryType);
-    return types.find((type) => type === rawType);
+    return isLedgerEntryType(rawType) ? rawType : undefined;
   }
 
   private toPrismaLedgerEntryType(
@@ -253,7 +260,9 @@ export class LedgerService {
     }));
   }
 
-  async remove(id: string, branchId?: string | null) {
+  remove(id: string, branchId?: string | null) {
+    void id;
+    void branchId;
     throw new BadRequestException(
       'Ledger delete is disabled. Use reversal instead.',
     );
@@ -289,7 +298,7 @@ export class LedgerService {
         Boolean(entry.orderItemTaskId) ||
         Boolean(entry.salaryAccrual) ||
         Boolean(entry.reversalOfId) ||
-        entry.type === LedgerEntryType.SALARY;
+        entry.type === PrismaLedgerEntryType.SALARY;
 
       if (isSystemGenerated) {
         throw new BadRequestException(
