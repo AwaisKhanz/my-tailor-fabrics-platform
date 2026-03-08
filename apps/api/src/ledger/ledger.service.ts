@@ -18,6 +18,7 @@ import {
   normalizePagination,
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
+import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 
 const LEDGER_ENTRY_TYPE_TO_PRISMA: Record<
   LedgerEntryType,
@@ -62,18 +63,7 @@ export class LedgerService {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx ?? this.prisma;
-    const employee = await client.employee.findFirst({
-      where: {
-        id: employeeId,
-        deletedAt: null,
-        ...(branchId ? { branchId } : {}),
-      },
-      select: { id: true },
-    });
-
-    if (!employee) {
-      throw new NotFoundException('Employee not found');
-    }
+    await requireEmployeeInScope(client, { employeeId, branchId });
   }
 
   private async queryBalanceSummary(
