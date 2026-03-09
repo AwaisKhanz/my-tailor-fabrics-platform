@@ -13,6 +13,19 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 20;
 export const ALL_FILTER = "all";
+const ALL_ACTIONS_FILTER_OPTION = {
+  value: ALL_FILTER,
+  label: "All Actions",
+} as const;
+const ALL_ENTITIES_FILTER_OPTION = {
+  value: ALL_FILTER,
+  label: "All Entities",
+} as const;
+
+type AuditFilterOption = {
+  value: string;
+  label: string;
+};
 
 type FiltersState = {
   search: string;
@@ -141,6 +154,22 @@ export function useAuditLogsPage() {
     return Array.from(values).sort((a, b) => a.localeCompare(b));
   }, [records]);
 
+  const actionFilterOptions = useMemo<AuditFilterOption[]>(
+    () => [
+      ALL_ACTIONS_FILTER_OPTION,
+      ...actionOptions.map((action) => ({ value: action, label: action })),
+    ],
+    [actionOptions],
+  );
+
+  const entityFilterOptions = useMemo<AuditFilterOption[]>(
+    () => [
+      ALL_ENTITIES_FILTER_OPTION,
+      ...entityOptions.map((entity) => ({ value: entity, label: entity })),
+    ],
+    [entityOptions],
+  );
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.search.trim()) count += 1;
@@ -160,8 +189,8 @@ export function useAuditLogsPage() {
     pageSize,
     filters,
     activeFilterCount,
-    actionOptions,
-    entityOptions,
+    actionFilterOptions,
+    entityFilterOptions,
     setPage,
     setFilter,
     resetFilters,

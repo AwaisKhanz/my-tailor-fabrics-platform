@@ -19,7 +19,7 @@ import {
 import { StatCard } from "@/components/ui/stat-card";
 import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { formatDateTime } from "@/lib/utils";
-import { ALL_FILTER, useAuditLogsPage } from "@/hooks/use-audit-logs-page";
+import { useAuditLogsPage } from "@/hooks/use-audit-logs-page";
 
 const ACTION_SUMMARY_MAP: Record<string, string> = {
   LOGIN: "Session authentication event",
@@ -90,8 +90,8 @@ export function AuditLogsPage() {
     pageSize,
     filters,
     activeFilterCount,
-    actionOptions,
-    entityOptions,
+    actionFilterOptions,
+    entityFilterOptions,
     setPage,
     setFilter,
     resetFilters,
@@ -253,10 +253,9 @@ export function AuditLogsPage() {
                       <SelectValue placeholder="Action" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ALL_FILTER}>All Actions</SelectItem>
-                      {actionOptions.map((action) => (
-                        <SelectItem key={action} value={action}>
-                          {action}
+                      {actionFilterOptions.map((action) => (
+                        <SelectItem key={action.value} value={action.value}>
+                          {action.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -271,10 +270,9 @@ export function AuditLogsPage() {
                       <SelectValue placeholder="Entity" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ALL_FILTER}>All Entities</SelectItem>
-                      {entityOptions.map((entity) => (
-                        <SelectItem key={entity} value={entity}>
-                          {entity}
+                      {entityFilterOptions.map((entity) => (
+                        <SelectItem key={entity.value} value={entity.value}>
+                          {entity.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
