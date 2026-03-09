@@ -35,7 +35,11 @@ import {
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
 import {
+  buildPublicShareLinkUpdateData,
+  buildPublicStatusPinMigrationData,
   createPublicShareCredentials,
+  PUBLIC_ORDER_STATUS_SELECT,
+  toPublicOrderStatusResponse,
   verifyPublicStatusPin,
 } from './order-public-status';
 import {
@@ -606,12 +610,7 @@ export class OrdersService {
 
     const updated = await this.prisma.order.update({
       where: { id },
-      data: {
-        shareToken: token,
-        sharePin: null,
-        sharePinHash: pinHash,
-        sharePinMigratedAt: null,
-      },
+      data: buildPublicShareLinkUpdateData({ token, pinHash }),
       select: { id: true, orderNumber: true, shareToken: true },
     });
 
@@ -627,37 +626,7 @@ export class OrdersService {
         shareToken: token,
         deletedAt: null,
       },
-      select: {
-        id: true,
-        sharePin: true,
-        sharePinHash: true,
-        sharePinMigratedAt: true,
-        orderNumber: true,
-        dueDate: true,
-        totalAmount: true,
-        balanceDue: true,
-        status: true,
-        customer: {
-          select: {
-            fullName: true,
-          },
-        },
-        items: {
-          where: {
-            deletedAt: null,
-          },
-          orderBy: {
-            pieceNo: 'asc',
-          },
-          select: {
-            id: true,
-            garmentTypeName: true,
-            quantity: true,
-            unitPrice: true,
-            description: true,
-          },
-        },
-      },
+      select: PUBLIC_ORDER_STATUS_SELECT,
     });
 
     if (!order) {
@@ -680,25 +649,15 @@ export class OrdersService {
       await this.prisma.order
         .update({
           where: { id: order.id },
-          data: {
-            sharePinHash: providedPinHash,
-            sharePin: null,
-            sharePinMigratedAt: new Date(),
-          },
+          data: buildPublicStatusPinMigrationData({
+            providedPinHash,
+            migratedAt: new Date(),
+          }),
         })
         .catch(() => undefined);
     }
 
-    return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      dueDate: order.dueDate,
-      totalAmount: order.totalAmount,
-      balanceDue: order.balanceDue,
-      status: order.status,
-      customer: order.customer,
-      items: order.items,
-    };
+    return toPublicOrderStatusResponse(order);
   }
 
   async update(

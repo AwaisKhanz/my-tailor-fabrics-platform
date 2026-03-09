@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
+import { type Prisma } from '@prisma/client';
 import { getStatusPinPepper } from '../common/env';
 
 function safeStringEqual(left: string, right: string): boolean {
@@ -55,5 +56,77 @@ export function verifyPublicStatusPin(params: {
     providedPinHash,
     matchesHashedPin,
     matchesLegacyPin,
+  };
+}
+
+export const PUBLIC_ORDER_STATUS_SELECT = {
+  id: true,
+  sharePin: true,
+  sharePinHash: true,
+  sharePinMigratedAt: true,
+  orderNumber: true,
+  dueDate: true,
+  totalAmount: true,
+  balanceDue: true,
+  status: true,
+  customer: {
+    select: {
+      fullName: true,
+    },
+  },
+  items: {
+    where: {
+      deletedAt: null,
+    },
+    orderBy: {
+      pieceNo: 'asc' as const,
+    },
+    select: {
+      id: true,
+      garmentTypeName: true,
+      quantity: true,
+      unitPrice: true,
+      description: true,
+    },
+  },
+} satisfies Prisma.OrderSelect;
+
+export type PublicOrderStatusRecord = Prisma.OrderGetPayload<{
+  select: typeof PUBLIC_ORDER_STATUS_SELECT;
+}>;
+
+export function buildPublicShareLinkUpdateData(params: {
+  token: string;
+  pinHash: string;
+}): Prisma.OrderUpdateInput {
+  return {
+    shareToken: params.token,
+    sharePin: null,
+    sharePinHash: params.pinHash,
+    sharePinMigratedAt: null,
+  };
+}
+
+export function buildPublicStatusPinMigrationData(params: {
+  providedPinHash: string;
+  migratedAt: Date;
+}): Prisma.OrderUpdateInput {
+  return {
+    sharePinHash: params.providedPinHash,
+    sharePin: null,
+    sharePinMigratedAt: params.migratedAt,
+  };
+}
+
+export function toPublicOrderStatusResponse(order: PublicOrderStatusRecord) {
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    dueDate: order.dueDate,
+    totalAmount: order.totalAmount,
+    balanceDue: order.balanceDue,
+    status: order.status,
+    customer: order.customer,
+    items: order.items,
   };
 }
