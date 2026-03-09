@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import {
+  CUSTOMER_ALL_STATUSES_LABEL,
   DEFAULT_CUSTOMER_STATUS_TAB,
   CUSTOMER_STATUS_TAB_OPTIONS,
   isCustomerStatusTab,
@@ -62,7 +63,7 @@ export function CustomersListToolbar({
               }}
             >
               <SelectTrigger className="text-sm font-semibold">
-                <SelectValue placeholder="All Statuses" />
+                <SelectValue placeholder={CUSTOMER_ALL_STATUSES_LABEL} />
               </SelectTrigger>
               <SelectContent>
                 {CUSTOMER_STATUS_TAB_OPTIONS.map((tab) => (

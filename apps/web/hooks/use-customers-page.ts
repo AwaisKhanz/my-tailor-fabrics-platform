@@ -20,12 +20,14 @@ export const CUSTOMER_STATUS_TAB_VALUES: readonly CustomerStatusTab[] = [
   CustomerStatus.BLACKLISTED,
 ];
 
+export const CUSTOMER_ALL_STATUSES_LABEL = "All Statuses";
+
 export const CUSTOMER_STATUS_TAB_OPTIONS = CUSTOMER_STATUS_TAB_VALUES.map(
   (status) => ({
     key: status,
     label:
       status === "ALL"
-        ? "All"
+        ? CUSTOMER_ALL_STATUSES_LABEL
         : CUSTOMER_STATUS_LABELS[status],
   }),
 );

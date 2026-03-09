@@ -1,4 +1,3 @@
-import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +10,7 @@ import {
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import {
   isOrdersDateRange,
+  ORDERS_ALL_STATUSES_LABEL,
   ORDER_STATUS_FILTER_OPTIONS,
   ORDER_DATE_RANGE_OPTIONS,
   isOrdersStatusFilter,
@@ -69,15 +69,16 @@ export function OrdersListToolbar({
                 }}
               >
                 <SelectTrigger className="text-xs font-bold">
-                  <SelectValue placeholder="All Statuses" />
+                  <SelectValue placeholder={ORDERS_ALL_STATUSES_LABEL} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL" className="text-xs font-medium">
-                    All Statuses
-                  </SelectItem>
-                  {ORDER_STATUS_FILTER_OPTIONS.map((status) => (
-                    <SelectItem key={status} value={status} className="text-xs font-medium">
-                      {ORDER_STATUS_CONFIG[status].label}
+                  {ORDER_STATUS_FILTER_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-xs font-medium"
+                    >
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

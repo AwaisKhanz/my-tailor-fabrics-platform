@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
 import { Order, OrdersListSummary, OrderStatus } from "@tbms/shared-types";
@@ -22,8 +23,16 @@ export const ORDER_STATUS_FILTER_VALUES: readonly OrdersStatusFilter[] = [
   OrderStatus.CANCELLED,
 ];
 
-export const ORDER_STATUS_FILTER_OPTIONS = ORDER_STATUS_FILTER_VALUES.filter(
-  (status): status is OrderStatus => status !== "ALL",
+export const ORDERS_ALL_STATUSES_LABEL = "All Statuses";
+
+export const ORDER_STATUS_FILTER_OPTIONS = ORDER_STATUS_FILTER_VALUES.map(
+  (status) => ({
+    value: status,
+    label:
+      status === "ALL"
+        ? ORDERS_ALL_STATUSES_LABEL
+        : ORDER_STATUS_CONFIG[status].label,
+  }),
 );
 
 export const ORDER_DATE_RANGE_VALUES: readonly OrdersDateRange[] = [
