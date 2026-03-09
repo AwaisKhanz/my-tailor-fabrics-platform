@@ -235,7 +235,7 @@ export const ENTRY_OPERATOR_BLOCKED_PREFIXES = [
 ] as const;
 
 export function isRole(value: unknown): value is Role {
-  return typeof value === 'string' && (Object.values(Role) as string[]).includes(value);
+  return typeof value === 'string' && ALL_ROLES.some((role) => role === value);
 }
 
 export function getRolePermissions(role: Role): Permission[] {
