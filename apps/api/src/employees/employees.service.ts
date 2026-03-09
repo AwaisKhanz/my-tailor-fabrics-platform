@@ -19,6 +19,11 @@ import {
   normalizePagination,
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
+import {
+  applyCompensationChange,
+  getEffectiveCompensationAt,
+  shiftDateByDays,
+} from './employee-compensation-window';
 import type {
   CompensationChangeInput,
   EmployeeCapability,
@@ -38,7 +43,6 @@ const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const MIN_SEARCH_QUERY_LENGTH = 2;
 const MAX_EMPLOYEE_CODE_GENERATION_ATTEMPTS = 5;
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const CAPABILITY_MATCH_SCORES = {
   EXACT: 1,
   GARMENT: 2,
@@ -198,10 +202,6 @@ export class EmployeesService {
     }
     const normalized = stepKey.trim().toUpperCase();
     return normalized.length > 0 ? normalized : null;
-  }
-
-  private shiftDateByDays(date: Date, days: number): Date {
-    return new Date(date.getTime() + days * DAY_IN_MS);
   }
 
   private capabilityIdentity(capability: {
@@ -425,137 +425,6 @@ export class EmployeesService {
       ...activeWindowWhere,
       garmentTypeId,
     };
-  }
-
-  private async getEffectiveCompensationAt(
-    client: Prisma.TransactionClient | PrismaService,
-    employeeId: string,
-    at: Date,
-  ) {
-    return client.employeeCompensationHistory.findFirst({
-      where: {
-        employeeId,
-        effectiveFrom: { lte: at },
-        OR: [{ effectiveTo: null }, { effectiveTo: { gte: at } }],
-      },
-      orderBy: { effectiveFrom: 'desc' },
-      select: {
-        paymentType: true,
-        monthlySalary: true,
-      },
-    });
-  }
-
-  private async syncCurrentCompensationSnapshot(
-    client: Prisma.TransactionClient | PrismaService,
-    employeeId: string,
-    at = new Date(),
-  ) {
-    const effectiveCompensation = await this.getEffectiveCompensationAt(
-      client,
-      employeeId,
-      at,
-    );
-
-    if (!effectiveCompensation) {
-      return null;
-    }
-
-    await client.employee.update({
-      where: { id: employeeId },
-      data: {
-        paymentType: effectiveCompensation.paymentType,
-        monthlySalary:
-          effectiveCompensation.paymentType === PaymentType.MONTHLY_FIXED
-            ? effectiveCompensation.monthlySalary
-            : null,
-      },
-    });
-
-    return effectiveCompensation;
-  }
-
-  private async applyCompensationChange(
-    client: Prisma.TransactionClient | PrismaService,
-    params: {
-      employeeId: string;
-      change: {
-        paymentType: PaymentType;
-        monthlySalary?: number;
-        effectiveFrom: string;
-        note?: string;
-      };
-      changedById?: string;
-    },
-  ) {
-    const effectiveFrom = new Date(params.change.effectiveFrom);
-    if (Number.isNaN(effectiveFrom.getTime())) {
-      throw new BadRequestException('Invalid compensation effectiveFrom date');
-    }
-
-    const paymentType = params.change.paymentType;
-    const monthlySalary =
-      paymentType === PaymentType.MONTHLY_FIXED
-        ? (params.change.monthlySalary ?? null)
-        : null;
-
-    if (
-      paymentType === PaymentType.MONTHLY_FIXED &&
-      (!monthlySalary || monthlySalary <= 0)
-    ) {
-      throw new BadRequestException(
-        'monthlySalary is required for monthly payroll employees',
-      );
-    }
-
-    const nextWindow = await client.employeeCompensationHistory.findFirst({
-      where: {
-        employeeId: params.employeeId,
-        effectiveFrom: { gt: effectiveFrom },
-      },
-      orderBy: { effectiveFrom: 'asc' },
-      select: {
-        effectiveFrom: true,
-      },
-    });
-
-    await client.employeeCompensationHistory.updateMany({
-      where: {
-        employeeId: params.employeeId,
-        effectiveFrom: { lte: effectiveFrom },
-        OR: [{ effectiveTo: null }, { effectiveTo: { gte: effectiveFrom } }],
-      },
-      data: {
-        effectiveTo: this.shiftDateByDays(effectiveFrom, -1),
-      },
-    });
-
-    const created = await client.employeeCompensationHistory.create({
-      data: {
-        employeeId: params.employeeId,
-        paymentType,
-        monthlySalary,
-        effectiveFrom,
-        effectiveTo: nextWindow
-          ? this.shiftDateByDays(nextWindow.effectiveFrom, -1)
-          : null,
-        note: params.change.note?.trim() || null,
-        changedById: params.changedById ?? null,
-      },
-      select: {
-        id: true,
-        paymentType: true,
-        monthlySalary: true,
-        effectiveFrom: true,
-        effectiveTo: true,
-        note: true,
-        createdAt: true,
-      },
-    });
-
-    await this.syncCurrentCompensationSnapshot(client, params.employeeId);
-
-    return created;
   }
 
   private async generateEmployeeCode(branchId: string): Promise<string> {
@@ -861,7 +730,7 @@ export class EmployeesService {
           OR: [{ effectiveTo: null }, { effectiveTo: { gte: effectiveFrom } }],
         },
         data: {
-          effectiveTo: this.shiftDateByDays(effectiveFrom, -1),
+          effectiveTo: shiftDateByDays(effectiveFrom, -1),
         },
       });
 
@@ -886,7 +755,7 @@ export class EmployeesService {
             stepKey: capability.stepKey,
             effectiveFrom,
             effectiveTo: nextWindow
-              ? this.shiftDateByDays(nextWindow.effectiveFrom, -1)
+              ? shiftDateByDays(nextWindow.effectiveFrom, -1)
               : null,
             note: capability.note ?? snapshot.note?.trim() ?? null,
             createdById,
@@ -1100,8 +969,8 @@ export class EmployeesService {
   async createCompensationChange(
     id: string,
     branchId: string,
-    change: CompensationChangeInput,
-    changedById: string,
+      change: CompensationChangeInput,
+      changedById: string,
   ): Promise<EmployeeCompensationHistoryEntry> {
     const employee = await this.findOne(id, branchId);
     const effectiveFrom = this.parseRequiredDate(
@@ -1110,7 +979,7 @@ export class EmployeesService {
     );
 
     const created = await this.prisma.$transaction(async (tx) => {
-      const createdChange = await this.applyCompensationChange(tx, {
+      const createdChange = await applyCompensationChange(tx, {
         employeeId: id,
         changedById,
         change: {
@@ -1167,7 +1036,7 @@ export class EmployeesService {
         : existingEmployee.employmentEndDate;
 
     return this.prisma.$transaction(async (tx) => {
-      const currentCompensation = (await this.getEffectiveCompensationAt(
+      const currentCompensation = (await getEffectiveCompensationAt(
         tx,
         id,
         new Date(),
@@ -1204,7 +1073,7 @@ export class EmployeesService {
           updateEmployeeDto.compensationEffectiveFrom !== undefined ||
           snapshotChanged
         ) {
-          await this.applyCompensationChange(tx, {
+          await applyCompensationChange(tx, {
             employeeId: id,
             change: {
               paymentType: desiredPaymentType,
@@ -1216,7 +1085,7 @@ export class EmployeesService {
         }
       }
 
-      const effectiveCompensation = (await this.getEffectiveCompensationAt(
+      const effectiveCompensation = (await getEffectiveCompensationAt(
         tx,
         id,
         new Date(),
