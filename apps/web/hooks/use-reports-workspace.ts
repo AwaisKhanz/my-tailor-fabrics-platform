@@ -12,10 +12,10 @@ import { reportsApi } from "@/lib/api/reports";
 import { paymentsApi } from "@/lib/api/payments";
 import {
   type DateRangeValue,
-  formatPresetLabel,
   getDefaultReportRange,
   getPresetRange,
   type ReportDatePreset,
+  REPORT_DATE_PRESET_OPTIONS,
   resolveGranularityByRange,
   sanitizeRange,
 } from "@/lib/reports-date";
@@ -177,15 +177,6 @@ export function useReportsWorkspace() {
     }
   }, [toast]);
 
-  const datePresetOptions = useMemo(
-    () =>
-      (["7d", "30d", "90d", "mtd", "qtd", "ytd", "custom"] as const).map((value) => ({
-        value,
-        label: formatPresetLabel(value),
-      })),
-    [],
-  );
-
   return {
     activeTab,
     setActiveTab,
@@ -195,7 +186,7 @@ export function useReportsWorkspace() {
     setDateRangeValue,
     granularity,
     setGranularity,
-    datePresetOptions,
+    datePresetOptions: REPORT_DATE_PRESET_OPTIONS,
     loading,
     summary,
     financialTrend,

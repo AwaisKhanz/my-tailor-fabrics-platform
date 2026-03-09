@@ -16,6 +16,7 @@ import {
   isTrendGranularity,
   type DateRangeValue,
   type ReportDatePreset,
+  TREND_GRANULARITY_OPTIONS,
 } from "@/lib/reports-date";
 
 interface ReportsWorkspaceFiltersProps {
@@ -28,12 +29,6 @@ interface ReportsWorkspaceFiltersProps {
   onDateChange: (field: keyof DateRangeValue, value: string) => void;
   onGranularityChange: (value: TrendGranularity) => void;
 }
-
-const GRANULARITY_OPTIONS: Array<{ value: TrendGranularity; label: string }> = [
-  { value: "day", label: "Day" },
-  { value: "week", label: "Week" },
-  { value: "month", label: "Month" },
-];
 
 export function ReportsWorkspaceFilters({
   preset,
@@ -103,7 +98,7 @@ export function ReportsWorkspaceFilters({
                   <SelectValue placeholder="Select granularity" />
                 </SelectTrigger>
                 <SelectContent>
-                  {GRANULARITY_OPTIONS.map((option) => (
+                  {TREND_GRANULARITY_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>

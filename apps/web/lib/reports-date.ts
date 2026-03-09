@@ -7,7 +7,7 @@ export interface DateRangeValue {
   to: string;
 }
 
-const REPORT_DATE_PRESET_VALUES: readonly ReportDatePreset[] = [
+export const REPORT_DATE_PRESET_VALUES: readonly ReportDatePreset[] = [
   "7d",
   "30d",
   "90d",
@@ -17,11 +17,25 @@ const REPORT_DATE_PRESET_VALUES: readonly ReportDatePreset[] = [
   "custom",
 ];
 
-const TREND_GRANULARITY_VALUES: readonly TrendGranularity[] = [
+export const TREND_GRANULARITY_VALUES: readonly TrendGranularity[] = [
   "day",
   "week",
   "month",
 ];
+
+export const REPORT_DATE_PRESET_OPTIONS = REPORT_DATE_PRESET_VALUES.map(
+  (value) => ({
+    value,
+    label: formatPresetLabel(value),
+  }),
+);
+
+export const TREND_GRANULARITY_OPTIONS = TREND_GRANULARITY_VALUES.map(
+  (value) => ({
+    value,
+    label: value.charAt(0).toUpperCase() + value.slice(1),
+  }),
+);
 
 export function isReportDatePreset(value: string): value is ReportDatePreset {
   return REPORT_DATE_PRESET_VALUES.some((preset) => preset === value);
