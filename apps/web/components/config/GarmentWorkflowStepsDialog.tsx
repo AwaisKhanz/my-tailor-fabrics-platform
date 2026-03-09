@@ -1,12 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2 } from "lucide-react";
-import {
-  garmentWorkflowStepsFormSchema,
-  type WorkflowStepTemplate,
-  type WorkflowStepTemplateInput,
-} from "@tbms/shared-types";
+import { type WorkflowStepTemplate } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import {
   DialogFormActions,
@@ -18,9 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { configApi } from "@/lib/api/config";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+import { useGarmentWorkflowStepEditor } from "@/hooks/use-garment-workflow-step-editor";
 
 interface GarmentWorkflowStepsDialogProps {
   open: boolean;
@@ -31,28 +25,6 @@ interface GarmentWorkflowStepsDialogProps {
   onSuccess: () => void;
 }
 
-interface WorkflowStepDraft extends WorkflowStepTemplateInput {
-  clientId: string;
-}
-
-function createClientId() {
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-    return crypto.randomUUID();
-  }
-
-  return `step_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function normalizeStepOrder(steps: WorkflowStepDraft[]): WorkflowStepDraft[] {
-  return steps.map((step, index) => ({
-    ...step,
-    sortOrder: index + 1,
-  }));
-}
-
 export function GarmentWorkflowStepsDialog({
   open,
   onOpenChange,
@@ -61,221 +33,28 @@ export function GarmentWorkflowStepsDialog({
   initialSteps,
   onSuccess,
 }: GarmentWorkflowStepsDialogProps) {
-  const [steps, setSteps] = useState<WorkflowStepDraft[]>([]);
-  const [draggingStepId, setDraggingStepId] = useState<string | null>(null);
-  const [dragOverStepId, setDragOverStepId] = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (open) {
-      setValidationError(null);
-      setSteps(
-        normalizeStepOrder(
-          [...initialSteps]
-            .sort((a, b) => a.sortOrder - b.sortOrder)
-            .map((step) => ({
-              clientId: step.id ?? createClientId(),
-              id: step.id,
-              stepKey: step.stepKey,
-              stepName: step.stepName,
-              sortOrder: step.sortOrder,
-              isRequired: step.isRequired,
-              isActive: step.isActive,
-            })),
-        ),
-      );
-    } else {
-      setValidationError(null);
-      setDraggingStepId(null);
-      setDragOverStepId(null);
-    }
-  }, [open, initialSteps]);
-
-  const moveStep = (sourceId: string, targetId: string) => {
-    if (sourceId === targetId) {
-      return;
-    }
-
-    setSteps((current) => {
-      const sourceIndex = current.findIndex(
-        (step) => step.clientId === sourceId,
-      );
-      const targetIndex = current.findIndex(
-        (step) => step.clientId === targetId,
-      );
-
-      if (sourceIndex < 0 || targetIndex < 0) {
-        return current;
-      }
-
-      const reordered = [...current];
-      const [movedStep] = reordered.splice(sourceIndex, 1);
-      reordered.splice(targetIndex, 0, movedStep);
-
-      return normalizeStepOrder(reordered);
-    });
-  };
-
-  const moveStepByIndex = (index: number, direction: "up" | "down") => {
-    setSteps((current) => {
-      const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= current.length) {
-        return current;
-      }
-
-      const reordered = [...current];
-      const [movedStep] = reordered.splice(index, 1);
-      reordered.splice(targetIndex, 0, movedStep);
-
-      return normalizeStepOrder(reordered);
-    });
-  };
-
-  const handleAddStep = () => {
-    setValidationError(null);
-    setSteps((current) =>
-      normalizeStepOrder([
-        ...current,
-        {
-          clientId: createClientId(),
-          stepKey: "",
-          stepName: "",
-          sortOrder: current.length + 1,
-          isRequired: true,
-          isActive: true,
-        },
-      ]),
-    );
-  };
-
-  const handleRemoveStep = (index: number) => {
-    setValidationError(null);
-    setSteps((current) =>
-      normalizeStepOrder(
-        current.filter((_, currentIndex) => currentIndex !== index),
-      ),
-    );
-  };
-
-  const handleChange = <K extends keyof WorkflowStepTemplateInput>(
-    index: number,
-    field: K,
-    value: WorkflowStepTemplateInput[K],
-  ) => {
-    setValidationError(null);
-    setSteps((current) => {
-      const nextSteps = [...current];
-
-      if (
-        field === "stepName" &&
-        typeof value === "string" &&
-        !nextSteps[index].stepKey
-      ) {
-        nextSteps[index] = {
-          ...nextSteps[index],
-          stepName: value,
-          stepKey: value
-            .toUpperCase()
-            .replace(/\s+/g, "_")
-            .replace(/[^A-Z0-9_]/g, ""),
-        };
-      } else {
-        nextSteps[index] = { ...nextSteps[index], [field]: value };
-      }
-
-      return nextSteps;
-    });
-  };
-
-  const handleDragStart = (
-    event: React.DragEvent<HTMLDivElement>,
-    stepId: string,
-  ) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", stepId);
-    setDraggingStepId(stepId);
-    setDragOverStepId(stepId);
-  };
-
-  const handleDragOver = (
-    event: React.DragEvent<HTMLDivElement>,
-    targetId: string,
-  ) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-
-    if (dragOverStepId !== targetId) {
-      setDragOverStepId(targetId);
-    }
-  };
-
-  const handleDrop = (
-    event: React.DragEvent<HTMLDivElement>,
-    targetId: string,
-  ) => {
-    event.preventDefault();
-
-    const sourceId = event.dataTransfer.getData("text/plain") || draggingStepId;
-    if (!sourceId) {
-      setDraggingStepId(null);
-      setDragOverStepId(null);
-      return;
-    }
-
-    moveStep(sourceId, targetId);
-    setDraggingStepId(null);
-    setDragOverStepId(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggingStepId(null);
-    setDragOverStepId(null);
-  };
-
-  const onSubmit = async () => {
-    const payload = normalizeStepOrder([...steps]).map((step) => ({
-      id: step.id,
-      stepKey: step.stepKey,
-      stepName: step.stepName,
-      sortOrder: step.sortOrder,
-      isRequired: step.isRequired,
-      isActive: step.isActive,
-    }));
-
-    const parsedResult = garmentWorkflowStepsFormSchema.safeParse({
-      steps: payload,
-    });
-    if (!parsedResult.success) {
-      setValidationError(getFirstZodErrorMessage(parsedResult.error));
-      return;
-    }
-    setValidationError(null);
-
-    try {
-      setLoading(true);
-      await configApi.updateGarmentWorkflowSteps(
-        garmentId,
-        parsedResult.data.steps,
-      );
-
-      toast({
-        title: "Success",
-        description: "Workflow steps updated successfully.",
-      });
-      onSuccess();
-      onOpenChange(false);
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to update workflow steps.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    steps,
+    draggingStepId,
+    dragOverStepId,
+    validationError,
+    loading,
+    handleAddStep,
+    handleRemoveStep,
+    handleChange,
+    moveStepByIndex,
+    handleDragStart,
+    handleDragOver,
+    handleDrop,
+    handleDragEnd,
+    submitSteps,
+  } = useGarmentWorkflowStepEditor({
+    open,
+    garmentId,
+    initialSteps,
+    onOpenChange,
+    onSuccess,
+  });
 
   return (
     <ScrollableDialog
@@ -303,7 +82,7 @@ export function GarmentWorkflowStepsDialog({
           id="garment-workflow-steps-form"
           onSubmit={(event) => {
             event.preventDefault();
-            void onSubmit();
+            void submitSteps();
           }}
         >
           {validationError ? (
