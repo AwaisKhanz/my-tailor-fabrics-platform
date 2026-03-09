@@ -7,15 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { StatCard } from "@/components/ui/stat-card";
-import { Switch } from "@/components/ui/switch";
 import {
   TableSearch,
   TableSurface,
@@ -23,7 +17,8 @@ import {
 } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useExpenseCategoriesPage } from "@/hooks/use-expense-categories-page";
-import { PERMISSION } from '@tbms/shared-constants';
+import { PERMISSION } from "@tbms/shared-constants";
+import { ExpenseCategoryDialog } from "@/components/config/expenses/expense-category-dialog";
 
 export function ExpenseCategoriesPage() {
   const { canAll } = useAuthz();
@@ -232,81 +227,17 @@ export function ExpenseCategoriesPage() {
 
       {canManageExpenseCategories ? (
         <>
-          <ScrollableDialog
+          <ExpenseCategoryDialog
             open={dialogOpen}
             onOpenChange={closeDialog}
-            title={
-              editingCategory
-                ? "Edit Expense Category"
-                : "Create Expense Category"
-            }
-            footerActions={
-              <DialogFormActions
-                onCancel={() => closeDialog(false)}
-                submitFormId="expense-category-form"
-                submitting={saving}
-                submitText={
-                  editingCategory ? "Save Changes" : "Create Category"
-                }
-                submitVariant="default"
-              />
-            }
-          >
-            <FormStack
-              as="form"
-              id="expense-category-form"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void saveCategory();
-              }}
-            >
-              <div className="space-y-4">
-                {formError ? (
-                  <p className="text-sm text-destructive">{formError}</p>
-                ) : null}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="expense-category-name"
-                    className="text-sm font-bold uppercase  text-muted-foreground"
-                  >
-                    Name
-                  </Label>
-                  <Input
-                    id="expense-category-name"
-                    value={form.name}
-                    onChange={(event) =>
-                      updateFormField("name", event.target.value)
-                    }
-                    placeholder="e.g. Utilities"
-                    disabled={saving}
-                  />
-                  {fieldErrors.name ? (
-                    <p className="text-xs text-destructive">
-                      {fieldErrors.name}
-                    </p>
-                  ) : null}
-                </div>
-
-                <InfoTile layout="betweenGap" className="rounded-md">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Active
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Active categories are available in expense entry forms.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={form.isActive}
-                    onCheckedChange={(checked) =>
-                      updateFormField("isActive", checked)
-                    }
-                    disabled={saving}
-                  />
-                </InfoTile>
-              </div>
-            </FormStack>
-          </ScrollableDialog>
+            editingCategory={editingCategory}
+            saving={saving}
+            form={form}
+            formError={formError}
+            fieldErrors={fieldErrors}
+            onUpdateField={updateFormField}
+            onSubmit={saveCategory}
+          />
 
           <ConfirmDialog
             open={Boolean(deleteTarget)}
