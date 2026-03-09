@@ -57,6 +57,7 @@ import {
   reverseRecordedOrderPayment,
 } from './order-payment-lifecycle';
 import { toOrderItemCreateData } from './order-create-mapping';
+import { recordOrderStatusHistory } from './order-status-history';
 
 @Injectable()
 export class OrdersService {
@@ -299,15 +300,12 @@ export class OrdersService {
       }
 
       // 7. Record History
-      await tx.orderStatusHistory.create({
-        data: {
-          orderId: updatedOrder.id,
-          fromStatus: null,
-          toStatus: OrderStatus.NEW,
-          changedById: createdById,
-          actor: 'USER',
-          note: 'Order Created',
-        },
+      await recordOrderStatusHistory(tx, {
+        orderId: updatedOrder.id,
+        fromStatus: null,
+        toStatus: PrismaOrderStatus.NEW,
+        changedById: createdById,
+        note: 'Order Created',
       });
 
       return updatedOrder;
@@ -590,15 +588,12 @@ export class OrdersService {
       }
 
       // 1. History
-      await tx.orderStatusHistory.create({
-        data: {
-          orderId: id,
-          fromStatus: order.status,
-          toStatus: nextStatus,
-          changedById,
-          actor: 'USER',
-          note: dto.note,
-        },
+      await recordOrderStatusHistory(tx, {
+        orderId: id,
+        fromStatus: order.status,
+        toStatus: nextStatus,
+        changedById,
+        note: dto.note,
       });
 
       // 2. Update
@@ -909,18 +904,15 @@ export class OrdersService {
 
       const updated = await tx.order.update({
         where: { id },
-        data: { status: OrderStatus.CANCELLED, deletedAt: new Date() },
+        data: { status: PrismaOrderStatus.CANCELLED, deletedAt: new Date() },
       });
 
-      await tx.orderStatusHistory.create({
-        data: {
-          orderId: id,
-          fromStatus: order.status,
-          toStatus: OrderStatus.CANCELLED,
-          changedById: userId,
-          actor: 'USER',
-          note: 'Order soft-cancelled by user',
-        },
+      await recordOrderStatusHistory(tx, {
+        orderId: id,
+        fromStatus: order.status,
+        toStatus: PrismaOrderStatus.CANCELLED,
+        changedById: userId,
+        note: 'Order soft-cancelled by user',
       });
 
       return updated;
