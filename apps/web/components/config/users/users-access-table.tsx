@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   USERS_ALL_BRANCHES_LABEL,
   USERS_MASTER_ACCESS_LABEL,
-} from "@/hooks/use-users-page";
+} from "@/hooks/use-user-account-manager";
 
 interface UsersAccessTableProps {
   users: UserAccount[];

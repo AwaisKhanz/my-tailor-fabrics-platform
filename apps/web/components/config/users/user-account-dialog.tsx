@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   type UpdateUserFormField,
   type UserFormState,
-} from "@/hooks/use-users-page";
+} from "@/hooks/use-user-account-manager";
 
 interface UserAccountDialogProps {
   open: boolean;
