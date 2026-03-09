@@ -2,15 +2,43 @@ import { OrderStatus, ItemStatus, TaskStatus, BadgeVariant, AddonType } from '@t
 
 export const ORDER_STATUS_CONFIG: Record<
   OrderStatus,
-  { label: string; variant: BadgeVariant }
+  { label: string; publicLabel: string; variant: BadgeVariant }
 > = {
-  [OrderStatus.NEW]: { label: "NEW", variant: "outline" },
-  [OrderStatus.IN_PROGRESS]: { label: "IN PROGRESS", variant: "warning" },
-  [OrderStatus.READY]: { label: "READY", variant: "success" },
-  [OrderStatus.OVERDUE]: { label: "OVERDUE", variant: "destructive" },
-  [OrderStatus.DELIVERED]: { label: "DELIVERED", variant: "info" },
-  [OrderStatus.COMPLETED]: { label: "COMPLETED", variant: "success" },
-  [OrderStatus.CANCELLED]: { label: "CANCELLED", variant: "outline" },
+  [OrderStatus.NEW]: {
+    label: "NEW",
+    publicLabel: "New",
+    variant: "outline",
+  },
+  [OrderStatus.IN_PROGRESS]: {
+    label: "IN PROGRESS",
+    publicLabel: "In Progress",
+    variant: "warning",
+  },
+  [OrderStatus.READY]: {
+    label: "READY",
+    publicLabel: "Ready for Pickup",
+    variant: "success",
+  },
+  [OrderStatus.OVERDUE]: {
+    label: "OVERDUE",
+    publicLabel: "Overdue",
+    variant: "destructive",
+  },
+  [OrderStatus.DELIVERED]: {
+    label: "DELIVERED",
+    publicLabel: "Delivered",
+    variant: "info",
+  },
+  [OrderStatus.COMPLETED]: {
+    label: "COMPLETED",
+    publicLabel: "Completed",
+    variant: "success",
+  },
+  [OrderStatus.CANCELLED]: {
+    label: "CANCELLED",
+    publicLabel: "Cancelled",
+    variant: "outline",
+  },
 };
 
 // Statuses that represent active work still in the production/delivery pipeline.

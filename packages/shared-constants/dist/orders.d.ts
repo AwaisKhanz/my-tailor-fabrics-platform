@@ -1,6 +1,7 @@
 import { OrderStatus, ItemStatus, TaskStatus, BadgeVariant, AddonType } from '@tbms/shared-types';
 export declare const ORDER_STATUS_CONFIG: Record<OrderStatus, {
     label: string;
+    publicLabel: string;
     variant: BadgeVariant;
 }>;
 export declare const OPEN_ORDER_STATUSES: readonly [OrderStatus.NEW, OrderStatus.IN_PROGRESS, OrderStatus.READY, OrderStatus.OVERDUE];

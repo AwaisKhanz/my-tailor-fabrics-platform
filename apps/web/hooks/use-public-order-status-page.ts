@@ -13,16 +13,6 @@ import {
 } from "lucide-react";
 import { getPublicOrderStatus } from "@/lib/api/public-status";
 
-const PUBLIC_STATUS_LABELS: Record<OrderStatus, string> = {
-  [OrderStatus.NEW]: "New",
-  [OrderStatus.IN_PROGRESS]: "In Progress",
-  [OrderStatus.READY]: "Ready for Pickup",
-  [OrderStatus.OVERDUE]: "Overdue",
-  [OrderStatus.DELIVERED]: "Delivered",
-  [OrderStatus.COMPLETED]: "Completed",
-  [OrderStatus.CANCELLED]: "Cancelled",
-};
-
 const PUBLIC_STATUS_ICONS: Record<OrderStatus, LucideIcon> = {
   [OrderStatus.NEW]: AlertCircle,
   [OrderStatus.IN_PROGRESS]: Clock,
@@ -91,10 +81,11 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
     const status = order.status;
     const fallbackStatus = OrderStatus.NEW;
     const resolvedStatus = ORDER_STATUS_CONFIG[status] ? status : fallbackStatus;
+    const statusConfig = ORDER_STATUS_CONFIG[resolvedStatus];
 
     return {
-      label: PUBLIC_STATUS_LABELS[resolvedStatus],
-      variant: ORDER_STATUS_CONFIG[resolvedStatus].variant,
+      label: statusConfig.publicLabel,
+      variant: statusConfig.variant,
       icon: PUBLIC_STATUS_ICONS[resolvedStatus],
     };
   }, [order]);
