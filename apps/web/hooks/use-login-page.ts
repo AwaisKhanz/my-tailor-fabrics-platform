@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { loginFormSchema } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
+import { buildExpiredLoginRoute, HOME_ROUTE } from "@/lib/auth-routes";
 
 export function useLoginPage() {
   const router = useRouter();
@@ -39,10 +40,10 @@ export function useLoginPage() {
         }
         handledInvalidSessionRef.current = true;
         void signOut({ redirect: false });
-        router.replace("/login?expired=1");
+        router.replace(buildExpiredLoginRoute());
         return;
       }
-      router.replace("/");
+      router.replace(HOME_ROUTE);
     }
   }, [router, session?.accessToken, session?.error, status]);
 
@@ -95,7 +96,7 @@ export function useLoginPage() {
           description: "You have successfully logged in.",
         });
 
-        router.push("/");
+        router.push(HOME_ROUTE);
       } catch {
         toast({
           variant: "destructive",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { buildExpiredLoginRoute, LOGIN_ROUTE } from "@/lib/auth-routes";
 
 export default function DashboardLayout({
   children,
@@ -17,7 +18,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.replace("/login");
+      router.replace(LOGIN_ROUTE);
       return;
     }
 
@@ -35,7 +36,7 @@ export default function DashboardLayout({
       }
       handledInvalidSessionRef.current = true;
       void signOut({ redirect: false });
-      router.replace("/login?expired=1");
+      router.replace(buildExpiredLoginRoute());
     }
   }, [router, session?.accessToken, session?.error, status]);
 
