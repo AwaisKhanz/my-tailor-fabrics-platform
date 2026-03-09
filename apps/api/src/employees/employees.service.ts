@@ -42,6 +42,7 @@ import type {
 } from '@tbms/shared-types';
 import { TaskStatus } from '@tbms/shared-types';
 import {
+  buildEmployeeCreateData,
   buildEmployeeUpdateData,
   toPrismaEmployeeStatus,
   toPrismaPaymentType,
@@ -222,29 +223,16 @@ export class EmployeesService {
       try {
         return await this.prisma.$transaction(async (tx) => {
           const createdEmployee = await tx.employee.create({
-            data: {
-              fullName: createEmployeeDto.fullName,
-              phone: createEmployeeDto.phone,
-              fatherName: createEmployeeDto.fatherName,
-              phone2: createEmployeeDto.phone2,
-              address: createEmployeeDto.address,
-              city: createEmployeeDto.city,
-              cnic: createEmployeeDto.cnic,
-              dateOfBirth: this.parseOptionalDate(
-                createEmployeeDto.dateOfBirth,
-              ),
+            data: buildEmployeeCreateData({
+              branchId,
+              employeeCode,
+              input: createEmployeeDto,
+              dateOfBirth: this.parseOptionalDate(createEmployeeDto.dateOfBirth),
               dateOfJoining,
-              designation: createEmployeeDto.designation,
               paymentType,
               monthlySalary: payrollFields.monthlySalary,
-              accountNumber: createEmployeeDto.accountNumber,
-              emergencyName: createEmployeeDto.emergencyName,
-              emergencyPhone: createEmployeeDto.emergencyPhone,
-              notes: createEmployeeDto.notes,
               employmentEndDate: payrollFields.employmentEndDate,
-              employeeCode,
-              branchId,
-            },
+            }),
           });
 
           await tx.employeeCompensationHistory.create({

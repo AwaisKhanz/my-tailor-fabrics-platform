@@ -105,6 +105,54 @@ type EmployeeUpdateSource = Pick<
   | 'dateOfBirth'
 >;
 
+export function buildEmployeeCreateData(params: {
+  branchId: string;
+  employeeCode: string;
+  input: {
+    fullName: string;
+    phone: string;
+    fatherName?: string;
+    phone2?: string;
+    address?: string;
+    city?: string;
+    cnic?: string;
+    designation?: string;
+    accountNumber?: string;
+    emergencyName?: string;
+    emergencyPhone?: string;
+    notes?: string;
+  };
+  dateOfBirth?: Date | null;
+  dateOfJoining: Date;
+  paymentType: PaymentType;
+  monthlySalary: number | null;
+  employmentEndDate: Date | null;
+}): Prisma.EmployeeUncheckedCreateInput {
+  const { input } = params;
+
+  return {
+    fullName: input.fullName,
+    phone: input.phone,
+    fatherName: input.fatherName,
+    phone2: input.phone2,
+    address: input.address,
+    city: input.city,
+    cnic: input.cnic,
+    dateOfBirth: params.dateOfBirth,
+    dateOfJoining: params.dateOfJoining,
+    designation: input.designation,
+    paymentType: params.paymentType,
+    monthlySalary: params.monthlySalary,
+    accountNumber: input.accountNumber,
+    emergencyName: input.emergencyName,
+    emergencyPhone: input.emergencyPhone,
+    notes: input.notes,
+    employmentEndDate: params.employmentEndDate,
+    employeeCode: params.employeeCode,
+    branchId: params.branchId,
+  };
+}
+
 export function buildEmployeeUpdateData(params: {
   employee: EmployeeUpdateSource;
   input: {
