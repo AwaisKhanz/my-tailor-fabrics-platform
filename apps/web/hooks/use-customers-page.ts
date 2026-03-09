@@ -2,21 +2,33 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Customer, CustomersListSummary, CustomerStatus } from "@tbms/shared-types";
+import { CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
 import { customerApi } from "@/lib/api/customers";
 import { logDevError } from "@/lib/logger";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
-const DEFAULT_STATUS_TAB: CustomerStatusTab = CustomerStatus.ACTIVE;
+export const DEFAULT_CUSTOMER_STATUS_TAB: CustomerStatusTab =
+  CustomerStatus.ACTIVE;
 
 export type CustomerStatusTab = CustomerStatus | "ALL";
 
-const CUSTOMER_STATUS_TAB_VALUES: readonly CustomerStatusTab[] = [
+export const CUSTOMER_STATUS_TAB_VALUES: readonly CustomerStatusTab[] = [
   "ALL",
   CustomerStatus.ACTIVE,
   CustomerStatus.INACTIVE,
   CustomerStatus.BLACKLISTED,
 ];
+
+export const CUSTOMER_STATUS_TAB_OPTIONS = CUSTOMER_STATUS_TAB_VALUES.map(
+  (status) => ({
+    key: status,
+    label:
+      status === "ALL"
+        ? "All"
+        : CUSTOMER_STATUS_LABELS[status],
+  }),
+);
 
 export function isCustomerStatusTab(value: string): value is CustomerStatusTab {
   return CUSTOMER_STATUS_TAB_VALUES.some((status) => status === value);
@@ -27,7 +39,7 @@ function parseCustomerStatusTab(value: string): CustomerStatusTab {
     return "ALL";
   }
 
-  return isCustomerStatusTab(value) ? value : DEFAULT_STATUS_TAB;
+  return isCustomerStatusTab(value) ? value : DEFAULT_CUSTOMER_STATUS_TAB;
 }
 
 export function useCustomersPage() {
@@ -36,7 +48,7 @@ export function useCustomersPage() {
       page: "1",
       limit: String(PAGE_SIZE),
       search: "",
-      status: DEFAULT_STATUS_TAB,
+      status: DEFAULT_CUSTOMER_STATUS_TAB,
     },
   });
 
@@ -139,7 +151,7 @@ export function useCustomersPage() {
   }, []);
 
   const hasActiveFilters = useMemo(
-    () => search.trim().length > 0 || statusTab !== DEFAULT_STATUS_TAB,
+    () => search.trim().length > 0 || statusTab !== DEFAULT_CUSTOMER_STATUS_TAB,
     [search, statusTab],
   );
 

@@ -1,6 +1,4 @@
 import { RotateCcw } from "lucide-react";
-import { CustomerStatus } from "@tbms/shared-types";
-import { CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,16 +9,11 @@ import {
 } from "@/components/ui/select";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import {
+  DEFAULT_CUSTOMER_STATUS_TAB,
+  CUSTOMER_STATUS_TAB_OPTIONS,
   isCustomerStatusTab,
   type CustomerStatusTab,
 } from "@/hooks/use-customers-page";
-
-const STATUS_TABS: { key: CustomerStatusTab; label: string }[] = [
-  { key: "ALL", label: "All" },
-  { key: CustomerStatus.ACTIVE, label: CUSTOMER_STATUS_LABELS[CustomerStatus.ACTIVE] },
-  { key: CustomerStatus.INACTIVE, label: CUSTOMER_STATUS_LABELS[CustomerStatus.INACTIVE] },
-  { key: CustomerStatus.BLACKLISTED, label: CUSTOMER_STATUS_LABELS[CustomerStatus.BLACKLISTED] },
-];
 
 interface CustomersListToolbarProps {
   total: number;
@@ -43,7 +36,7 @@ export function CustomersListToolbar({
 }: CustomersListToolbarProps) {
   const activeFilterCount =
     (search.trim().length > 0 ? 1 : 0) +
-    (statusTab !== CustomerStatus.ACTIVE ? 1 : 0);
+    (statusTab !== DEFAULT_CUSTOMER_STATUS_TAB ? 1 : 0);
 
   return (
     <TableToolbar
@@ -72,7 +65,7 @@ export function CustomersListToolbar({
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
-                {STATUS_TABS.map((tab) => (
+                {CUSTOMER_STATUS_TAB_OPTIONS.map((tab) => (
                   <SelectItem key={tab.key} value={tab.key} className="text-sm font-medium">
                     {tab.label}
                   </SelectItem>
