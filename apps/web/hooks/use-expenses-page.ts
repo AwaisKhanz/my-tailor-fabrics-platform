@@ -8,6 +8,7 @@ import {
 } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateExpenseManager } from "@/hooks/use-create-expense-manager";
+import { useDeleteExpenseManager } from "@/hooks/use-delete-expense-manager";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
@@ -53,9 +54,6 @@ export function useExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
-
-  const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const filters = useMemo<ExpensesFilters>(
@@ -184,49 +182,19 @@ export function useExpensesPage() {
     refreshExpenses: fetchExpenses,
   });
 
-  const requestDeleteExpense = useCallback((expense: Expense) => {
-    setDeleteTarget(expense);
-  }, []);
-
-  const closeDeleteDialog = useCallback(() => {
-    if (deletingId) {
-      return;
-    }
-    setDeleteTarget(null);
-  }, [deletingId]);
-
-  const handleDeleteDialogChange = useCallback((open: boolean) => {
-    if (!open) {
-      closeDeleteDialog();
-    }
-  }, [closeDeleteDialog]);
-
-  const confirmDeleteExpense = useCallback(async () => {
-    if (!deleteTarget) {
-      return;
-    }
-
-    setDeletingId(deleteTarget.id);
-    try {
-      await expensesApi.deleteExpense(deleteTarget.id);
-      toast({ title: "Expense deleted" });
-      setDeleteTarget(null);
-
-      if (expenses.length === 1 && page > 1) {
-        setPage(page - 1);
-      } else {
-        await fetchExpenses();
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to delete expense",
-        variant: "destructive",
-      });
-    } finally {
-      setDeletingId(null);
-    }
-  }, [deleteTarget, expenses?.length, fetchExpenses, page, setPage, toast]);
+  const {
+    deleteTarget,
+    deletingId,
+    requestDeleteExpense,
+    closeDeleteDialog,
+    handleDeleteDialogChange,
+    confirmDeleteExpense,
+  } = useDeleteExpenseManager({
+    expensesCount: expenses.length,
+    page,
+    setPage,
+    refreshExpenses: fetchExpenses,
+  });
 
   const listedAmount = useMemo(
     () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
