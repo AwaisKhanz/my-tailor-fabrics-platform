@@ -27,13 +27,10 @@ import {
   Role,
   TaskStatus,
 } from '@tbms/shared-types';
-import { PERMISSION, hasAllPermissions, isRole } from '@tbms/shared-constants';
 import { RatesService } from '../rates/rates.service';
 import {
-  calculateOrderSubtotal,
   calculateOrderTotals,
-  discountExceedsSubtotal,
-  paymentExceedsTotal,
+  calculateOrderSubtotal,
 } from './money';
 import {
   normalizePagination,
@@ -43,6 +40,10 @@ import {
   createPublicShareCredentials,
   verifyPublicStatusPin,
 } from './order-public-status';
+import {
+  assertOrderFinancialManagePermission,
+  resolveValidatedOrderTotals,
+} from './order-financial-rules';
 import {
   buildOrdersOrderBy,
   buildOrdersWhereClause,
@@ -206,12 +207,11 @@ export class OrdersService {
       throw new BadRequestException('Order must contain at least one item');
     }
 
-    if (
-      (createOrderDto.discountType || createOrderDto.discountValue) &&
-      (!isRole(userRole) ||
-        !hasAllPermissions(userRole, [PERMISSION['orders.financial.manage']]))
-    ) {
-      throw new ForbiddenException('Only Admins can apply discounts');
+    if (createOrderDto.discountType || createOrderDto.discountValue) {
+      assertOrderFinancialManagePermission(
+        userRole,
+        'Only Admins can apply discounts',
+      );
     }
 
     // Wrap everything in a transaction for atomicity
@@ -285,30 +285,14 @@ export class OrdersService {
       const subtotal = this.calculateDraftOrderSubtotal(resolvedItems);
 
       // 3. Compute Discount and Total
-      if (
-        discountExceedsSubtotal(
-          subtotal,
-          createOrderDto.discountType,
-          createOrderDto.discountValue ?? 0,
-        )
-      ) {
-        throw new BadRequestException('Discount cannot exceed subtotal');
-      }
-
       const initialPayment = createOrderDto.advancePayment || 0;
-      const { totalAmount } = calculateOrderTotals(
+      const { totalAmount } = resolveValidatedOrderTotals({
         subtotal,
-        initialPayment,
-        createOrderDto.discountType,
-        createOrderDto.discountValue ?? 0,
-      );
-
-      // Advance Payments handling
-      if (paymentExceedsTotal(initialPayment, totalAmount)) {
-        throw new BadRequestException(
-          'Advance payment cannot exceed total amount',
-        );
-      }
+        totalPaid: initialPayment,
+        discountType: createOrderDto.discountType,
+        discountValue: createOrderDto.discountValue,
+        paymentErrorMessage: 'Advance payment cannot exceed total amount',
+      });
 
       // 4. Generate Number
       const orderNumber = await this.generateOrderNumber(orderBranchId, tx);
@@ -866,14 +850,10 @@ export class OrdersService {
       if (dto.notes !== undefined) data.notes = dto.notes;
 
       if (dto.discountType !== undefined || dto.discountValue !== undefined) {
-        if (
-          !isRole(userRole) ||
-          !hasAllPermissions(userRole, [PERMISSION['orders.financial.manage']])
-        ) {
-          throw new ForbiddenException(
-            'Only admins can change financial details',
-          );
-        }
+        assertOrderFinancialManagePermission(
+          userRole,
+          'Only admins can change financial details',
+        );
 
         const subtotal = await this.calculateActiveOrderSubtotal(id, tx);
         const nextDiscountType =
@@ -885,28 +865,13 @@ export class OrdersService {
             ? dto.discountValue
             : order.discountValue;
 
-        if (
-          discountExceedsSubtotal(
-            subtotal,
-            nextDiscountType,
-            nextDiscountValue ?? 0,
-          )
-        ) {
-          throw new BadRequestException('Discount cannot exceed subtotal');
-        }
-
-        const { totalAmount } = calculateOrderTotals(
+        const { totalAmount } = resolveValidatedOrderTotals({
           subtotal,
-          order.totalPaid,
-          nextDiscountType,
-          nextDiscountValue ?? 0,
-        );
-
-        if (paymentExceedsTotal(order.totalPaid, totalAmount)) {
-          throw new BadRequestException(
-            'Existing payments exceed the updated order total',
-          );
-        }
+          totalPaid: order.totalPaid,
+          discountType: nextDiscountType,
+          discountValue: nextDiscountValue,
+          paymentErrorMessage: 'Existing payments exceed the updated order total',
+        });
 
         if (dto.discountType !== undefined)
           data.discountType = dto.discountType;
