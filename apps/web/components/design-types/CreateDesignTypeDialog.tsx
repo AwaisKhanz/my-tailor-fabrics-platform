@@ -33,11 +33,19 @@ export function CreateDesignTypeDialog({
   garmentTypes,
   branches,
 }: CreateDesignTypeDialogProps) {
-  const { form, submitting, submitForm } = useDesignTypeDialog({
+  const {
+    form,
+    submitting,
+    garmentScopeOptions,
+    branchScopeOptions,
+    submitForm,
+  } = useDesignTypeDialog({
     open,
     initialData,
     onOpenChange,
     onSubmit,
+    garmentTypes,
+    branches,
   });
 
   const footerActions = (
@@ -69,7 +77,11 @@ export function CreateDesignTypeDialog({
       <Form {...form}>
         <FormStack as="form" id="design-type-form" onSubmit={submitForm} className="py-1">
           <DesignTypeDialogBasicFields form={form} />
-          <DesignTypeDialogScopeFields form={form} garmentTypes={garmentTypes} branches={branches} />
+          <DesignTypeDialogScopeFields
+            form={form}
+            garmentScopeOptions={garmentScopeOptions}
+            branchScopeOptions={branchScopeOptions}
+          />
           <DesignTypeDialogSortField form={form} />
         </FormStack>
       </Form>

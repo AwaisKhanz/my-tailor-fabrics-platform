@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   designTypeFormSchema,
@@ -20,6 +20,8 @@ interface UseDesignTypeDialogParams {
   initialData?: DesignType | null;
   onOpenChange: (open: boolean) => void;
   onSubmit: (payload: DesignTypeSubmitPayload) => Promise<void>;
+  garmentTypes: { id: string; name: string }[];
+  branches: { id: string; name: string; code: string }[];
 }
 
 export type DesignTypeSubmitPayload =
@@ -41,6 +43,8 @@ export function useDesignTypeDialog({
   initialData,
   onOpenChange,
   onSubmit,
+  garmentTypes,
+  branches,
 }: UseDesignTypeDialogParams) {
   const [submitting, setSubmitting] = useState(false);
 
@@ -104,9 +108,39 @@ export function useDesignTypeDialog({
     [initialData, onOpenChange, onSubmit],
   );
 
+  const garmentScopeOptions = useMemo(
+    () => [
+      {
+        value: DESIGN_TYPE_ALL_SCOPE,
+        label: "All Garments",
+      },
+      ...garmentTypes.map((garmentType) => ({
+        value: garmentType.id,
+        label: garmentType.name,
+      })),
+    ],
+    [garmentTypes],
+  );
+
+  const branchScopeOptions = useMemo(
+    () => [
+      {
+        value: DESIGN_TYPE_ALL_SCOPE,
+        label: "Global (All Branches)",
+      },
+      ...branches.map((branch) => ({
+        value: branch.id,
+        label: `${branch.name} (${branch.code})`,
+      })),
+    ],
+    [branches],
+  );
+
   return {
     form,
     submitting,
+    garmentScopeOptions,
+    branchScopeOptions,
     submitForm: form.handleSubmit(submitDesignType),
   };
 }

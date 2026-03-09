@@ -18,24 +18,20 @@ import {
 } from "@/hooks/use-design-type-dialog";
 
 interface ScopeOption {
-  id: string;
-  name: string;
-}
-
-interface BranchOption extends ScopeOption {
-  code: string;
+  value: string;
+  label: string;
 }
 
 interface DesignTypeDialogScopeFieldsProps {
   form: UseFormReturn<DesignTypeFormValues>;
-  garmentTypes: ScopeOption[];
-  branches: BranchOption[];
+  garmentScopeOptions: ScopeOption[];
+  branchScopeOptions: ScopeOption[];
 }
 
 export function DesignTypeDialogScopeFields({
   form,
-  garmentTypes,
-  branches,
+  garmentScopeOptions,
+  branchScopeOptions,
 }: DesignTypeDialogScopeFieldsProps) {
   return (
     <>
@@ -57,12 +53,9 @@ export function DesignTypeDialogScopeFields({
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value={DESIGN_TYPE_ALL_SCOPE}>
-                  All Garments
-                </SelectItem>
-                {garmentTypes.map((garment) => (
-                  <SelectItem key={garment.id} value={garment.id}>
-                    {garment.name}
+                {garmentScopeOptions.map((garment) => (
+                  <SelectItem key={garment.value} value={garment.value}>
+                    {garment.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -89,12 +82,9 @@ export function DesignTypeDialogScopeFields({
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value={DESIGN_TYPE_ALL_SCOPE}>
-                  Global (All Branches)
-                </SelectItem>
-                {branches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name} ({branch.code})
+                {branchScopeOptions.map((branch) => (
+                  <SelectItem key={branch.value} value={branch.value}>
+                    {branch.label}
                   </SelectItem>
                 ))}
               </SelectContent>
