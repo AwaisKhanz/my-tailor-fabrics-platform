@@ -1,1 +1,1 @@
-{"version":3,"file":"garments.js","sourceRoot":"","sources":["../src/garments.ts"],"names":[],"mappings":";;;AAAa,QAAA,qBAAqB,GAAG;IACnC,MAAM,EAAE,QAAQ;IAChB,QAAQ,EAAE,UAAU;IACpB,MAAM,EAAE,QAAQ;IAChB,QAAQ,EAAE,UAAU;CACrB,CAAC"}
+{"version":3,"file":"garments.js","sourceRoot":"","sources":["../src/garments.ts"],"names":[],"mappings":";;;AAAa,QAAA,qBAAqB,GAAG;IACnC,MAAM,EAAE,QAAQ;IAChB,QAAQ,EAAE,UAAU;CACZ,CAAC"}
