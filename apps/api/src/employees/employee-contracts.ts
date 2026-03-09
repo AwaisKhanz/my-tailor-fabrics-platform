@@ -2,6 +2,8 @@ import {
   type EmployeeCapability as PrismaEmployeeCapability,
   EmployeeStatus,
   PaymentType,
+  type Prisma,
+  type Employee as PrismaEmployee,
   type EmployeeCompensationHistory,
 } from '@prisma/client';
 import type {
@@ -83,5 +85,69 @@ export function toSharedEmployeeCapability(
     createdById: capability.createdById,
     createdAt: capability.createdAt.toISOString(),
     deletedAt: capability.deletedAt?.toISOString() ?? null,
+  };
+}
+
+type EmployeeUpdateSource = Pick<
+  PrismaEmployee,
+  | 'fullName'
+  | 'phone'
+  | 'fatherName'
+  | 'phone2'
+  | 'address'
+  | 'city'
+  | 'cnic'
+  | 'designation'
+  | 'accountNumber'
+  | 'emergencyName'
+  | 'emergencyPhone'
+  | 'notes'
+  | 'dateOfBirth'
+>;
+
+export function buildEmployeeUpdateData(params: {
+  employee: EmployeeUpdateSource;
+  input: {
+    fullName?: string;
+    phone?: string;
+    fatherName?: string;
+    phone2?: string;
+    address?: string;
+    city?: string;
+    cnic?: string;
+    designation?: string;
+    accountNumber?: string;
+    emergencyName?: string;
+    emergencyPhone?: string;
+    notes?: string;
+  };
+  status: EmployeeStatus;
+  dateOfBirth: Date | null;
+  dateOfJoining: Date;
+  paymentType: PaymentType;
+  monthlySalary: number | null;
+  employmentEndDate: Date | null;
+}): Prisma.EmployeeUpdateInput {
+  const { employee, input } = params;
+
+  return {
+    fullName: input.fullName ?? employee.fullName,
+    phone: input.phone ?? employee.phone,
+    fatherName: input.fatherName ?? employee.fatherName,
+    phone2: input.phone2 ?? employee.phone2,
+    address: input.address ?? employee.address,
+    city: input.city ?? employee.city,
+    cnic: input.cnic ?? employee.cnic,
+    designation: input.designation ?? employee.designation,
+    accountNumber: input.accountNumber ?? employee.accountNumber,
+    emergencyName: input.emergencyName ?? employee.emergencyName,
+    emergencyPhone: input.emergencyPhone ?? employee.emergencyPhone,
+    notes: input.notes ?? employee.notes,
+    status: params.status,
+    dateOfBirth: params.dateOfBirth,
+    dateOfJoining: params.dateOfJoining,
+    paymentType: params.paymentType,
+    monthlySalary: params.monthlySalary,
+    employmentEndDate: params.employmentEndDate,
   };
 }

@@ -42,6 +42,7 @@ import type {
 } from '@tbms/shared-types';
 import { TaskStatus } from '@tbms/shared-types';
 import {
+  buildEmployeeUpdateData,
   toPrismaEmployeeStatus,
   toPrismaPaymentType,
   toSharedEmployeeCapability,
@@ -807,28 +808,13 @@ export class EmployeesService {
 
       const updatedEmployee = await tx.employee.update({
         where: { id },
-        data: {
-          fullName: updateEmployeeDto.fullName ?? existingEmployee.fullName,
-          phone: updateEmployeeDto.phone ?? existingEmployee.phone,
-          fatherName:
-            updateEmployeeDto.fatherName ?? existingEmployee.fatherName,
-          phone2: updateEmployeeDto.phone2 ?? existingEmployee.phone2,
-          address: updateEmployeeDto.address ?? existingEmployee.address,
-          city: updateEmployeeDto.city ?? existingEmployee.city,
-          cnic: updateEmployeeDto.cnic ?? existingEmployee.cnic,
-          designation:
-            updateEmployeeDto.designation ?? existingEmployee.designation,
-          accountNumber:
-            updateEmployeeDto.accountNumber ?? existingEmployee.accountNumber,
-          emergencyName:
-            updateEmployeeDto.emergencyName ?? existingEmployee.emergencyName,
-          emergencyPhone:
-            updateEmployeeDto.emergencyPhone ?? existingEmployee.emergencyPhone,
-          notes: updateEmployeeDto.notes ?? existingEmployee.notes,
+        data: buildEmployeeUpdateData({
+          employee: existingEmployee,
+          input: updateEmployeeDto,
           status,
           dateOfBirth:
             updateEmployeeDto.dateOfBirth !== undefined
-              ? this.parseOptionalDate(updateEmployeeDto.dateOfBirth)
+              ? (this.parseOptionalDate(updateEmployeeDto.dateOfBirth) ?? null)
               : existingEmployee.dateOfBirth,
           dateOfJoining,
           paymentType: effectiveCompensation.paymentType,
@@ -837,7 +823,7 @@ export class EmployeesService {
             status === EmployeeStatus.LEFT
               ? (normalizedPayrollFields.employmentEndDate ?? new Date())
               : normalizedPayrollFields.employmentEndDate,
-        },
+        }),
       });
 
       if (status !== EmployeeStatus.ACTIVE) {
