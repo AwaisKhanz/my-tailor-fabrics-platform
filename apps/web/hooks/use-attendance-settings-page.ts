@@ -21,8 +21,8 @@ const ALL_EMPLOYEES_FILTER_OPTION = {
   label: ALL_EMPLOYEES_FILTER_LABEL,
 } as const;
 
-type ClockInFieldErrors = Partial<Record<"employeeId" | "note", string>>;
-type EmployeeOption = {
+export type ClockInFieldErrors = Partial<Record<"employeeId" | "note", string>>;
+export type EmployeeOption = {
   value: string;
   label: string;
 };
