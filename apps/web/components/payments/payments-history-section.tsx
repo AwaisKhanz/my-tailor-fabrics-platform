@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { formatDate, formatPKR } from "@/lib/utils";
-import { type PaymentHistoryFilters } from "@/hooks/use-payments-page";
+import { type PaymentHistoryFilters } from "@/hooks/use-payments-data";
 
 interface PaymentsHistorySectionProps {
   history: Payment[];
