@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  paymentDisbursementFormSchema,
   salaryAccrualGenerationFormSchema,
   type Payment,
   type PaymentSummary,
@@ -11,9 +10,9 @@ import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
-import { toPaisaFromRupees } from "@/lib/utils/money";
 import { type Employee } from "@/types/employees";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import { usePaymentDisbursementManager } from "@/hooks/use-payment-disbursement-manager";
 
 const PAGE_SIZE = 10;
 
@@ -22,19 +21,9 @@ export interface PaymentHistoryFilters {
   to: string;
 }
 
-export interface PaymentDisbursementForm {
-  amount: string;
-  note: string;
-}
-
 const DEFAULT_HISTORY_FILTERS: PaymentHistoryFilters = {
   from: "",
   to: "",
-};
-
-const DEFAULT_DISBURSEMENT_FORM: PaymentDisbursementForm = {
-  amount: "",
-  note: "",
 };
 
 export interface SalaryAccrualForm {
@@ -96,11 +85,6 @@ export function usePaymentsPage() {
     [values.from, values.to],
   );
 
-  const [disburseOpen, setDisburseOpen] = useState(false);
-  const [disburseForm, setDisburseForm] =
-    useState<PaymentDisbursementForm>(DEFAULT_DISBURSEMENT_FORM);
-  const [disburseValidationError, setDisburseValidationError] = useState<string | null>(null);
-  const [disbursing, setDisbursing] = useState(false);
   const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
     null,
   );
@@ -209,6 +193,40 @@ export function usePaymentsPage() {
     void fetchHistory();
   }, [fetchHistory, selectedEmployeeId]);
 
+  const currentBalance = summary?.currentBalance ?? 0;
+
+  const refreshPayments = useCallback(async () => {
+    if (!selectedEmployeeId) {
+      return;
+    }
+
+    await fetchSummary(selectedEmployeeId);
+    if (historyPage !== 1) {
+      setValues({ page: "1" });
+      return;
+    }
+
+    await fetchHistory(1);
+  }, [fetchHistory, fetchSummary, historyPage, selectedEmployeeId, setValues]);
+
+  const {
+    disburseOpen,
+    disburseForm,
+    disburseValidationError,
+    disbursing,
+    openDisburseDialog,
+    closeDisburseDialog,
+    setDisbursementAmount,
+    setDisbursementNote,
+    submitDisbursement,
+    resetDisbursement,
+  } = usePaymentDisbursementManager({
+    selectedEmployeeId,
+    currentBalance,
+    refreshPayments,
+    toast,
+  });
+
   const handleEmployeeChange = useCallback((employeeId: string) => {
     setValues({
       employeeId,
@@ -219,14 +237,13 @@ export function usePaymentsPage() {
     setSummary(null);
     setHistory([]);
     setHistoryTotal(0);
-    setDisburseOpen(false);
-    setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
     setGenerateSalariesOpen(false);
     setSalaryAccrualForm({
       month: getPreviousPayrollMonth(),
       scope: employeeId ? "SELECTED" : "ALL",
     });
-  }, [setValues]);
+    resetDisbursement();
+  }, [resetDisbursement, setValues]);
 
   const setHistoryFrom = useCallback((value: string) => {
     setValues({
@@ -253,19 +270,6 @@ export function usePaymentsPage() {
   const setHistoryPage = useCallback((nextPage: number) => {
     setValues({ page: String(nextPage) });
   }, [setValues]);
-
-  const openDisburseDialog = useCallback(() => {
-    setDisburseValidationError(null);
-    setDisburseOpen(true);
-  }, []);
-
-  const closeDisburseDialog = useCallback((open: boolean) => {
-    setDisburseOpen(open);
-    if (!open && !disbursing) {
-      setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
-      setDisburseValidationError(null);
-    }
-  }, [disbursing]);
 
   const openGenerateSalariesDialog = useCallback(() => {
     setSalaryAccrualForm({
@@ -296,83 +300,6 @@ export function usePaymentsPage() {
     setSalaryAccrualForm((previous) => ({ ...previous, scope }));
     setSalaryAccrualValidationError(null);
   }, []);
-
-  const setDisbursementAmount = useCallback((value: string) => {
-    setDisburseForm((previous) => ({ ...previous, amount: value }));
-    setDisburseValidationError(null);
-  }, []);
-
-  const setDisbursementNote = useCallback((value: string) => {
-    setDisburseForm((previous) => ({ ...previous, note: value }));
-    setDisburseValidationError(null);
-  }, []);
-
-  const currentBalance = summary?.currentBalance ?? 0;
-
-  const submitDisbursement = useCallback(async () => {
-    if (!selectedEmployeeId) {
-      return;
-    }
-
-    const parsedResult = paymentDisbursementFormSchema.safeParse({
-      amount: disburseForm.amount,
-      note: disburseForm.note,
-    });
-    if (!parsedResult.success) {
-      const firstIssue = parsedResult.error.issues[0]?.message;
-      setDisburseValidationError(firstIssue ?? "Please complete required fields.");
-      return;
-    }
-    setDisburseValidationError(null);
-
-    const amountInPaisa = toPaisaFromRupees(parsedResult.data.amount);
-
-    if (amountInPaisa > currentBalance) {
-      setDisburseValidationError(
-        "Disbursement amount cannot be greater than the outstanding payable balance.",
-      );
-      return;
-    }
-
-    setDisbursing(true);
-    try {
-      await paymentsApi.disburse({
-        employeeId: selectedEmployeeId,
-        amount: parsedResult.data.amount,
-        note: parsedResult.data.note || undefined,
-      });
-
-      toast({ title: "Payment disbursed successfully" });
-      setDisburseOpen(false);
-      setDisburseForm(DEFAULT_DISBURSEMENT_FORM);
-      setDisburseValidationError(null);
-
-      await fetchSummary(selectedEmployeeId);
-      if (historyPage !== 1) {
-        setValues({ page: "1" });
-      } else {
-        await fetchHistory(1);
-      }
-    } catch (error: unknown) {
-      toast({
-        title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to disburse payment"),
-        variant: "destructive",
-      });
-    } finally {
-      setDisbursing(false);
-    }
-  }, [
-    currentBalance,
-    disburseForm.amount,
-    disburseForm.note,
-    fetchHistory,
-    fetchSummary,
-    historyPage,
-    setValues,
-    selectedEmployeeId,
-    toast,
-  ]);
 
   const submitSalaryAccrualGeneration = useCallback(async () => {
     const selectedScopeEmployeeId =

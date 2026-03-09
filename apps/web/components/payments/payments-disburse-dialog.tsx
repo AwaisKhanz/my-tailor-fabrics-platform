@@ -15,10 +15,10 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Heading, Text } from "@/components/ui/typography";
+import { type PaymentDisbursementForm } from "@/hooks/use-payment-disbursement-manager";
 import { formatPKR } from "@/lib/utils";
 import { toPaisaFromRupees } from "@/lib/utils/money";
 import { paymentDisbursementFormSchema } from "@tbms/shared-types";
-import { type PaymentDisbursementForm } from "@/hooks/use-payments-page";
 
 interface PaymentsDisburseDialogProps {
   open: boolean;
