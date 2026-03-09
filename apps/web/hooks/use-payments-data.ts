@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Payment, type PaymentSummary } from "@tbms/shared-types";
 import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
@@ -52,6 +52,13 @@ export function usePaymentsData(toast: ToastFn) {
     }),
     [values.from, values.to],
   );
+  const latestSelectedEmployeeIdRef = useRef(selectedEmployeeId);
+  const summaryRequestVersionRef = useRef(0);
+  const historyRequestVersionRef = useRef(0);
+
+  useEffect(() => {
+    latestSelectedEmployeeIdRef.current = selectedEmployeeId;
+  }, [selectedEmployeeId]);
 
   const fetchEmployees = useCallback(async () => {
     setEmployeesLoading(true);
@@ -77,18 +84,37 @@ export function usePaymentsData(toast: ToastFn) {
         return;
       }
 
+      const requestVersion = summaryRequestVersionRef.current + 1;
+      summaryRequestVersionRef.current = requestVersion;
       setSummaryLoading(true);
       try {
         const response = await paymentsApi.getEmployeeSummary(employeeId);
+        if (
+          summaryRequestVersionRef.current !== requestVersion ||
+          latestSelectedEmployeeIdRef.current !== employeeId
+        ) {
+          return;
+        }
         setSummary(response.data);
       } catch {
+        if (
+          summaryRequestVersionRef.current !== requestVersion ||
+          latestSelectedEmployeeIdRef.current !== employeeId
+        ) {
+          return;
+        }
         toast({
           title: "Error",
           description: "Could not load payment summary",
           variant: "destructive",
         });
       } finally {
-        setSummaryLoading(false);
+        if (
+          summaryRequestVersionRef.current === requestVersion &&
+          latestSelectedEmployeeIdRef.current === employeeId
+        ) {
+          setSummaryLoading(false);
+        }
       }
     },
     [toast],
@@ -100,27 +126,48 @@ export function usePaymentsData(toast: ToastFn) {
         return;
       }
 
+      const requestVersion = historyRequestVersionRef.current + 1;
+      historyRequestVersionRef.current = requestVersion;
+      const requestEmployeeId = selectedEmployeeId;
       setHistoryLoading(true);
       try {
-        const response = await paymentsApi.getPaymentHistory(selectedEmployeeId, {
+        const response = await paymentsApi.getPaymentHistory(requestEmployeeId, {
           page: targetPage,
           limit: historyPageSize,
           from: historyFilters.from || undefined,
           to: historyFilters.to || undefined,
         });
 
+        if (
+          historyRequestVersionRef.current !== requestVersion ||
+          latestSelectedEmployeeIdRef.current !== requestEmployeeId
+        ) {
+          return;
+        }
+
         if (response.success) {
           setHistory(response.data.data);
           setHistoryTotal(response.data.total);
         }
       } catch {
+        if (
+          historyRequestVersionRef.current !== requestVersion ||
+          latestSelectedEmployeeIdRef.current !== requestEmployeeId
+        ) {
+          return;
+        }
         toast({
           title: "Error",
           description: "Could not load payment history",
           variant: "destructive",
         });
       } finally {
-        setHistoryLoading(false);
+        if (
+          historyRequestVersionRef.current === requestVersion &&
+          latestSelectedEmployeeIdRef.current === requestEmployeeId
+        ) {
+          setHistoryLoading(false);
+        }
       }
     },
     [historyFilters.from, historyFilters.to, historyPage, historyPageSize, selectedEmployeeId, toast],
