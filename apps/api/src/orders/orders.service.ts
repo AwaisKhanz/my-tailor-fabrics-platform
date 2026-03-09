@@ -46,7 +46,6 @@ import {
   buildOrdersOrderBy,
   buildOrdersWhereClause,
   type OrdersFindFilters,
-  toPrismaFabricSource,
   toPrismaOrderStatus,
 } from './order-query-resolver';
 import { resolveOrderItemDrafts, type ResolvedOrderItemDraft } from './order-item-draft-resolver';
@@ -55,7 +54,8 @@ import {
   reverseRecordedOrderPayment,
 } from './order-payment-lifecycle';
 import {
-  toOrderItemAddonCreateData,
+  toOrderItemUpdateData,
+  toSingleOrderItemCreateData,
   toOrderItemCreateData,
 } from './order-create-mapping';
 import { recordOrderStatusHistory } from './order-status-history';
@@ -783,17 +783,7 @@ export class OrdersService {
             // But from the frontend's perspective, they might be sending IDs of specific pieces.
             await tx.orderItem.update({
               where: { id: existingItem.id },
-              data: {
-                unitPrice: itemDto.unitPrice,
-                designTypeId: itemDto.designTypeId || null,
-                description: itemDto.description,
-                addons: itemDto.addons
-                  ? {
-                      deleteMany: {},
-                      create: toOrderItemAddonCreateData(itemDto.addons),
-                    }
-                  : undefined,
-              },
+              data: toOrderItemUpdateData(itemDto),
             });
           }
         }
@@ -944,23 +934,19 @@ export class OrdersService {
 
       for (let i = 0; i < quantity; i++) {
         const orderItem = await tx.orderItem.create({
-          data: {
+          data: toSingleOrderItemCreateData({
             orderId,
-            garmentTypeId: type.id,
-            garmentTypeName: type.name,
+            garmentType: type,
             pieceNo: nextPieceNo++,
-            quantity: 1, // ALWAYS 1
             unitPrice: customerPrice,
-            description: itemDto.description,
-            fabricSource: toPrismaFabricSource(
-              itemDto.fabricSource ?? SharedFabricSource.SHOP,
-            ),
-            dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null,
-            designTypeId: itemDto.designTypeId || null,
-            addons: {
-              create: toOrderItemAddonCreateData(itemDto.addons || []),
+            item: {
+              description: itemDto.description,
+              fabricSource: itemDto.fabricSource ?? SharedFabricSource.SHOP,
+              dueDate: itemDto.dueDate,
+              designTypeId: itemDto.designTypeId,
+              addons: itemDto.addons,
             },
-          },
+          }),
         });
         createdItems.push(orderItem);
 
