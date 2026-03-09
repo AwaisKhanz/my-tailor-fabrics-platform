@@ -10,6 +10,7 @@ import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useRatesPage } from "@/hooks/use-rates-page";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
+import { RATES_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function RatesPage() {
@@ -93,4 +94,4 @@ function RatesPage() {
   );
 }
 
-export default withRouteGuard(RatesPage, "/settings/rates");
+export default withRouteGuard(RatesPage, RATES_SETTINGS_ROUTE);

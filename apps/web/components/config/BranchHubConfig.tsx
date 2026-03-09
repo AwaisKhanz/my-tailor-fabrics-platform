@@ -9,6 +9,7 @@ import { BranchHubRelationsGrid } from "@/components/config/branches/hub/branch-
 import { BranchHubSkeleton } from "@/components/config/branches/hub/branch-hub-skeleton";
 import { PageShell, PageSection } from "@/components/ui/page-shell";
 import { useBranchHubConfigPage } from "@/hooks/use-branch-hub-config-page";
+import { BRANCHES_SETTINGS_ROUTE } from "@/lib/settings-routes";
 
 interface BranchHubConfigProps {
   branchId: string;
@@ -31,7 +32,7 @@ export function BranchHubConfig({ branchId }: BranchHubConfigProps) {
       <PageSection spacing="compact">
         <BranchHubBreadcrumbs
           branchCode={branch?.code}
-          onBack={() => router.push("/settings/branches")}
+          onBack={() => router.push(BRANCHES_SETTINGS_ROUTE)}
         />
         <BranchHubOverviewHeader branch={branch} />
       </PageSection>

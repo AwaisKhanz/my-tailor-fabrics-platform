@@ -13,6 +13,7 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
+import { buildGarmentSettingsDetailRoute } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 export function GarmentTypesTable() {
@@ -91,7 +92,7 @@ export function GarmentTypesTable() {
             onPageChange={setCurrentPage}
             onOpen={(garment) => {
               if (!garment.deletedAt) {
-                router.push(`/settings/garments/${garment.id}`);
+                router.push(buildGarmentSettingsDetailRoute(garment.id));
               }
             }}
             onEdit={openEditDialog}

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/typography";
+import { buildBranchHubRoute } from "@/lib/settings-routes";
 
 interface BranchesDirectoryTableProps {
   branches: Branch[];
@@ -54,7 +55,7 @@ export function BranchesDirectoryTable({
         header: "Branch",
         cell: (branch) => (
           <Link
-            href={`/settings/branches/${branch.id}`}
+            href={buildBranchHubRoute(branch.id)}
             className="group inline-flex max-w-[220px] flex-col"
           >
             <span className="truncate text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
@@ -121,7 +122,7 @@ export function BranchesDirectoryTable({
                 <DropdownMenuContent align="end" className="w-44 rounded-lg">
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/settings/branches/${branch.id}`}
+                      href={buildBranchHubRoute(branch.id)}
                       className="flex cursor-pointer items-center p-3 text-xs font-bold"
                     >
                       <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />

@@ -25,6 +25,7 @@ import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { useAuthz } from "@/hooks/use-authz";
 import { Heading, Text } from "@/components/ui/typography";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
+import { MEASUREMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 export function MeasurementCategoryDetail({ id }: { id: string }) {
@@ -162,7 +163,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
               </Text>
               <Button
                 className="mt-6 w-full sm:w-auto"
-                onClick={() => router.push("/settings/measurements")}
+                onClick={() => router.push(MEASUREMENTS_SETTINGS_ROUTE)}
               >
                 Back to Measurements
               </Button>
@@ -178,7 +179,7 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
       <PageSection spacing="compact">
         <MeasurementCategoryBreadcrumbs
           categoryName={category?.name}
-          onBack={() => router.push("/settings/measurements")}
+          onBack={() => router.push(MEASUREMENTS_SETTINGS_ROUTE)}
         />
 
         <MeasurementCategoryDetailHeader

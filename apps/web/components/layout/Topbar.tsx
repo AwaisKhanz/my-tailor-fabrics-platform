@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { useAuthz } from "@/hooks/use-authz";
 import { siteConfig } from "@/lib/config";
+import { USERS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { isRole, PERMISSION, ROLE_LABELS } from '@tbms/shared-constants';
 
 export function Topbar() {
@@ -79,7 +80,7 @@ export function Topbar() {
                 <DropdownMenuSeparator />
                 {canAccessSettings && (
                   <DropdownMenuItem asChild className="cursor-pointer py-2.5">
-                    <Link href="/settings/users">
+                    <Link href={USERS_SETTINGS_ROUTE}>
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile Settings</span>
                     </Link>

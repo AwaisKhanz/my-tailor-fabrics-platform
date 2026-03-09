@@ -9,6 +9,7 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
+import { DESIGN_TYPES_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function DesignTypesPage() {
@@ -113,4 +114,4 @@ function DesignTypesPage() {
   );
 }
 
-export default withRouteGuard(DesignTypesPage, "/settings/design-types");
+export default withRouteGuard(DesignTypesPage, DESIGN_TYPES_SETTINGS_ROUTE);

@@ -8,6 +8,10 @@ import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Text } from "@/components/ui/typography";
+import {
+  buildMeasurementCategoryRoute,
+  MEASUREMENTS_SETTINGS_ROUTE,
+} from "@/lib/settings-routes";
 import { cn } from "@/lib/utils";
 
 interface GarmentMeasurementFormsCardProps {
@@ -38,7 +42,7 @@ export function GarmentMeasurementFormsCard({
             {categories.length} Form{categories.length === 1 ? "" : "s"}
           </Badge> */}
           <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href="/settings/measurements">
+            <Link href={MEASUREMENTS_SETTINGS_ROUTE}>
               <Settings className="h-3.5 w-3.5" />
               Manage Forms
             </Link>
@@ -52,7 +56,7 @@ export function GarmentMeasurementFormsCard({
             {categories.map((category) => (
               <Link
                 key={category.id}
-                href={`/settings/measurements/${category.id}`}
+                href={buildMeasurementCategoryRoute(category.id)}
                 className={cn(
                   infoTileVariants({
                     padding: "content",

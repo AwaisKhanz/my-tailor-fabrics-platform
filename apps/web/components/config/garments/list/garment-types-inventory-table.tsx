@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
+import { buildGarmentSettingsDetailRoute } from "@/lib/settings-routes";
 import { formatPKR } from "@/lib/utils";
 
 interface GarmentTypesInventoryTableProps {
@@ -49,7 +50,7 @@ export function GarmentTypesInventoryTable({
         cell: (item) => (
           <div className="group/row flex items-center gap-4">
             <Link
-              href={`/settings/garments/${item.id}`}
+              href={buildGarmentSettingsDetailRoute(item.id)}
               onClick={(event) => {
                 if (item.deletedAt) {
                   event.preventDefault();

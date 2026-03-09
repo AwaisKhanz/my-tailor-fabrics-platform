@@ -13,6 +13,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useBranchesPage } from "@/hooks/use-branches-page";
+import { buildBranchHubRoute } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 export function BranchesTable() {
@@ -113,7 +114,7 @@ export function BranchesTable() {
             total={totalCount}
             pageSize={itemsPerPage}
             onPageChange={setCurrentPage}
-            onOpenBranch={(branch) => router.push(`/settings/branches/${branch.id}`)}
+            onOpenBranch={(branch) => router.push(buildBranchHubRoute(branch.id))}
             onEdit={openEditDialog}
             onDelete={requestDelete}
             onToggleActive={toggleBranchActive}

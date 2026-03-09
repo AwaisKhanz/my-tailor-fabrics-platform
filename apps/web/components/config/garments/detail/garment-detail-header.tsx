@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
 import { Heading } from "@/components/ui/typography";
+import { GARMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { formatDate } from "@/lib/utils";
 
 interface GarmentDetailHeaderProps {
@@ -97,7 +98,7 @@ export function GarmentDetailHeader({
               size="lg"
               className="w-full justify-center sm:w-auto sm:min-w-[180px]"
             >
-              <Link href="/settings/garments">
+              <Link href={GARMENTS_SETTINGS_ROUTE}>
                 <Settings className="h-4 w-4" />
                 Manage Garments
               </Link>

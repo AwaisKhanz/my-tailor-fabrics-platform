@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Text } from "@/components/ui/typography";
+import { GARMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 
 interface BranchGlobalPricingCardProps {
   branch: BranchDetail | null;
@@ -123,7 +124,7 @@ export function BranchGlobalPricingCard({
 
         <div className="flex justify-start">
           <Button size="lg" className="w-full sm:w-auto" asChild>
-            <Link href="/settings/garments">Manage Global Price List</Link>
+            <Link href={GARMENTS_SETTINGS_ROUTE}>Manage Global Price List</Link>
           </Button>
         </div>
       </CardContent>

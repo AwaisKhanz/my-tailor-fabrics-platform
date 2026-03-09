@@ -10,6 +10,20 @@ import {
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
 import { CUSTOMERS_ROUTE, EMPLOYEES_ROUTE } from "@/lib/people-routes";
+import {
+  ATTENDANCE_SETTINGS_ROUTE,
+  AUDIT_LOGS_SETTINGS_ROUTE,
+  BRANCHES_SETTINGS_ROUTE,
+  DESIGN_TYPES_SETTINGS_ROUTE,
+  EXPENSE_CATEGORIES_SETTINGS_ROUTE,
+  GARMENTS_SETTINGS_ROUTE,
+  INTEGRATIONS_SETTINGS_ROUTE,
+  MEASUREMENTS_SETTINGS_ROUTE,
+  RATES_SETTINGS_ROUTE,
+  SETTINGS_ROUTE,
+  SYSTEM_SETTINGS_ROUTE,
+  USERS_SETTINGS_ROUTE,
+} from "@/lib/settings-routes";
 import Image from "next/image";
 import {
   PieChart,
@@ -51,7 +65,7 @@ interface NavSection {
   items: NavItem[];
 }
 
-const SETTINGS_ROLES = FRONTEND_ROUTE_ROLES["/settings"];
+const SETTINGS_ROLES = FRONTEND_ROUTE_ROLES[SETTINGS_ROUTE];
 
 const NAV_SECTIONS: NavSection[] = [
   {
@@ -117,37 +131,37 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         title: "Branches",
-        href: "/settings/branches",
+        href: BRANCHES_SETTINGS_ROUTE,
         icon: Building2,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Garments",
-        href: "/settings/garments",
+        href: GARMENTS_SETTINGS_ROUTE,
         icon: Shirt,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Labor Rates",
-        href: "/settings/rates",
+        href: RATES_SETTINGS_ROUTE,
         icon: Banknote,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Expense Categories",
-        href: "/settings/expense-categories",
+        href: EXPENSE_CATEGORIES_SETTINGS_ROUTE,
         icon: Wallet,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Design Types",
-        href: "/settings/design-types",
+        href: DESIGN_TYPES_SETTINGS_ROUTE,
         icon: Layout,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Measurements",
-        href: "/settings/measurements",
+        href: MEASUREMENTS_SETTINGS_ROUTE,
         icon: Ruler,
         roles: SETTINGS_ROLES,
       },
@@ -158,31 +172,31 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         title: "Staff Accounts",
-        href: "/settings/users",
+        href: USERS_SETTINGS_ROUTE,
         icon: UserCog,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Attendance",
-        href: "/settings/attendance",
+        href: ATTENDANCE_SETTINGS_ROUTE,
         icon: Clock3,
         roles: SETTINGS_ROLES,
       },
       {
         title: "System Controls",
-        href: "/settings/system",
+        href: SYSTEM_SETTINGS_ROUTE,
         icon: SlidersHorizontal,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Integrations",
-        href: "/settings/integrations",
+        href: INTEGRATIONS_SETTINGS_ROUTE,
         icon: PlugZap,
         roles: SETTINGS_ROLES,
       },
       {
         title: "Audit Logs",
-        href: "/settings/audit-logs",
+        href: AUDIT_LOGS_SETTINGS_ROUTE,
         icon: ClipboardList,
         roles: SETTINGS_ROLES,
       },

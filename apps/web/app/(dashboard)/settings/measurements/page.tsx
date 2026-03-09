@@ -2,6 +2,7 @@
 
 import { MeasurementCategoriesTable } from "@/components/config/MeasurementCategoriesTable";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
+import { MEASUREMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 
 function MeasurementsSettingsPage() {
   return <MeasurementCategoriesTable />;
@@ -9,5 +10,5 @@ function MeasurementsSettingsPage() {
 
 export default withRouteGuard(
   MeasurementsSettingsPage,
-  "/settings/measurements",
+  MEASUREMENTS_SETTINGS_ROUTE,
 );

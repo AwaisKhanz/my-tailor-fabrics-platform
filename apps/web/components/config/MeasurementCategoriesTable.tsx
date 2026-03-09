@@ -11,6 +11,7 @@ import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
+import { buildMeasurementCategoryRoute } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 export function MeasurementCategoriesTable() {
@@ -82,7 +83,7 @@ export function MeasurementCategoriesTable() {
             pageSize={pageSize}
             onPageChange={setPage}
             onView={(category) => {
-              router.push(`/settings/measurements/${category.id}`);
+              router.push(buildMeasurementCategoryRoute(category.id));
             }}
             onEdit={openEditDialog}
             onDelete={requestDelete}

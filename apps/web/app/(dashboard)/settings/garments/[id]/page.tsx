@@ -16,6 +16,7 @@ import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentDetailPage } from "@/hooks/use-garment-detail-page";
 import { useRequiredRouteParam } from "@/hooks/use-route-param";
 import { withRouteGuard } from "@/components/auth/with-role-guard";
+import { GARMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function GarmentDetailPage() {
@@ -48,7 +49,7 @@ function GarmentDetailPage() {
       <PageSection spacing="compact">
         <GarmentDetailBreadcrumb
           garmentName={garment.name}
-          onBack={() => router.push("/settings/garments")}
+          onBack={() => router.push(GARMENTS_SETTINGS_ROUTE)}
         />
         <GarmentDetailHeader
           garment={garment}
@@ -87,4 +88,4 @@ function GarmentDetailPage() {
   );
 }
 
-export default withRouteGuard(GarmentDetailPage, "/settings/garments");
+export default withRouteGuard(GarmentDetailPage, GARMENTS_SETTINGS_ROUTE);
