@@ -16,7 +16,6 @@
     "lint": "npm run lint --workspaces",
     "start:do:web": "node ./scripts/start-do-web.mjs",
     "start:do:api": "node apps/api/dist/main.js",
-    "migrate:deploy:api": "npm exec -w api -- prisma migrate deploy",
     "security:backend:guardrails": "sh ./scripts/security-backend-guardrails.sh",
     "prisma:generate": "npm run prisma:generate -w api",
     "prisma:migrate:dev": "npm exec -w api -- prisma migrate dev",
