@@ -40,11 +40,14 @@ import type {
   EmployeeCompensationHistoryEntry,
   EligibleEmployeeResult,
 } from '@tbms/shared-types';
+import { TaskStatus } from '@tbms/shared-types';
 import {
-  EmployeeStatus as SharedEmployeeStatus,
-  TaskStatus,
-  PaymentType as SharedPaymentType,
-} from '@tbms/shared-types';
+  toPrismaEmployeeStatus,
+  toPrismaPaymentType,
+  toSharedCompensationHistoryEntry,
+  toSharedEmployeeStatus,
+  toSharedPaymentType,
+} from './employee-contracts';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -161,42 +164,6 @@ export class EmployeesService {
     };
   }
 
-  private toSharedPaymentType(value: PaymentType): SharedPaymentType {
-    return value === PaymentType.MONTHLY_FIXED
-      ? SharedPaymentType.MONTHLY_FIXED
-      : SharedPaymentType.PER_PIECE;
-  }
-
-  private toPrismaPaymentType(value: SharedPaymentType): PaymentType {
-    return value === SharedPaymentType.MONTHLY_FIXED
-      ? PaymentType.MONTHLY_FIXED
-      : PaymentType.PER_PIECE;
-  }
-
-  private toSharedEmployeeStatus(value: EmployeeStatus): SharedEmployeeStatus {
-    if (value === EmployeeStatus.INACTIVE) {
-      return SharedEmployeeStatus.INACTIVE;
-    }
-
-    if (value === EmployeeStatus.LEFT) {
-      return SharedEmployeeStatus.LEFT;
-    }
-
-    return SharedEmployeeStatus.ACTIVE;
-  }
-
-  private toPrismaEmployeeStatus(value: SharedEmployeeStatus): EmployeeStatus {
-    if (value === SharedEmployeeStatus.INACTIVE) {
-      return EmployeeStatus.INACTIVE;
-    }
-
-    if (value === SharedEmployeeStatus.LEFT) {
-      return EmployeeStatus.LEFT;
-    }
-
-    return EmployeeStatus.ACTIVE;
-  }
-
   private async generateEmployeeCode(branchId: string): Promise<string> {
     const branch = await this.prisma.branch.findUnique({
       where: { id: branchId },
@@ -228,7 +195,7 @@ export class EmployeesService {
       this.parseOptionalDate(createEmployeeDto.dateOfJoining) ?? new Date();
     const paymentType =
       createEmployeeDto.paymentType !== undefined
-        ? this.toPrismaPaymentType(createEmployeeDto.paymentType)
+        ? toPrismaPaymentType(createEmployeeDto.paymentType)
         : PaymentType.PER_PIECE;
     const status = EmployeeStatus.ACTIVE;
     const normalizedEmploymentEndDate =
@@ -657,8 +624,8 @@ export class EmployeesService {
           address: employee.address,
           city: employee.city,
           designation: employee.designation,
-          status: this.toSharedEmployeeStatus(employee.status),
-          paymentType: this.toSharedPaymentType(paymentType),
+          status: toSharedEmployeeStatus(employee.status),
+          paymentType: toSharedPaymentType(paymentType),
           monthlySalary: null,
           dateOfJoining: employee.dateOfJoining.toISOString(),
           employmentEndDate: employee.employmentEndDate?.toISOString() ?? null,
@@ -723,17 +690,7 @@ export class EmployeesService {
       orderBy: [{ effectiveFrom: 'desc' }, { createdAt: 'desc' }],
     });
 
-    return history.map((entry) => ({
-      id: entry.id,
-      employeeId: entry.employeeId,
-      paymentType: this.toSharedPaymentType(entry.paymentType),
-      monthlySalary: entry.monthlySalary,
-      effectiveFrom: entry.effectiveFrom.toISOString(),
-      effectiveTo: entry.effectiveTo?.toISOString() ?? null,
-      note: entry.note,
-      changedById: entry.changedById,
-      createdAt: entry.createdAt.toISOString(),
-    }));
+    return history.map(toSharedCompensationHistoryEntry);
   }
 
   async createCompensationChange(
@@ -753,7 +710,7 @@ export class EmployeesService {
         employeeId: id,
         changedById,
         change: {
-          paymentType: this.toPrismaPaymentType(change.paymentType),
+          paymentType: toPrismaPaymentType(change.paymentType),
           monthlySalary: change.monthlySalary,
           effectiveFrom: effectiveFrom.toISOString(),
           note: change.note,
@@ -772,17 +729,11 @@ export class EmployeesService {
       return createdChange;
     });
 
-    return {
-      id: created.id,
+    return toSharedCompensationHistoryEntry({
+      ...created,
       employeeId: id,
-      paymentType: this.toSharedPaymentType(created.paymentType),
-      monthlySalary: created.monthlySalary,
-      effectiveFrom: created.effectiveFrom.toISOString(),
-      effectiveTo: created.effectiveTo?.toISOString() ?? null,
-      note: created.note,
-      changedById,
-      createdAt: created.createdAt.toISOString(),
-    };
+      changedById: changedById ?? null,
+    });
   }
 
   async update(
@@ -798,7 +749,7 @@ export class EmployeesService {
         : existingEmployee.dateOfJoining;
     const status =
       updateEmployeeDto.status !== undefined
-        ? this.toPrismaEmployeeStatus(updateEmployeeDto.status)
+        ? toPrismaEmployeeStatus(updateEmployeeDto.status)
         : existingEmployee.status;
     const employmentEndDate =
       updateEmployeeDto.employmentEndDate !== undefined
@@ -823,7 +774,7 @@ export class EmployeesService {
       if (hasCompensationInput) {
         const desiredPaymentType =
           updateEmployeeDto.paymentType !== undefined
-            ? this.toPrismaPaymentType(updateEmployeeDto.paymentType)
+            ? toPrismaPaymentType(updateEmployeeDto.paymentType)
             : currentCompensation.paymentType;
         const desiredMonthlySalary =
           updateEmployeeDto.monthlySalary !== undefined
