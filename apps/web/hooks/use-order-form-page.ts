@@ -1,19 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
-  AddonType,
-  CreateOrderInput,
   Customer,
+  CreateOrderInput,
   DesignType,
   DiscountType,
   FabricSource,
   GarmentType,
   UpdateOrderInput,
 } from "@tbms/shared-types";
+import { PERMISSION } from "@tbms/shared-constants";
 import { typedZodResolver } from "@/lib/utils/form";
+import { useOrderFormItems } from "@/hooks/use-order-form-items";
 import { useToast } from "@/hooks/use-toast";
 import { orderSchema, type OrderFormValues } from "@/types/orders/schemas";
 import { configApi } from "@/lib/api/config";
@@ -22,22 +23,6 @@ import { designTypesApi } from "@/lib/api/design-types";
 import { ordersApi } from "@/lib/api/orders";
 import { useAuthz } from "@/hooks/use-authz";
 import { buildOrderDetailRoute } from "@/lib/order-routes";
-import { PERMISSION } from '@tbms/shared-constants';
-
-interface OrderTotals {
-  subtotal: number;
-  discountAmount: number;
-  totalAmount: number;
-  balanceDue: number;
-}
-
-const createDefaultOrderItem = (): OrderFormValues["items"][number] => ({
-  garmentTypeId: "",
-  quantity: 1,
-  unitPrice: 0,
-  fabricSource: FabricSource.SHOP,
-  addons: [],
-});
 
 const toDateInputValue = (value: Date | string) =>
   new Date(value).toISOString().split("T")[0];
@@ -63,17 +48,20 @@ export function useOrderFormPage() {
     defaultValues: {
       customerId: "",
       dueDate: toDateInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
-      items: [createDefaultOrderItem()],
+      items: [
+        {
+          garmentTypeId: "",
+          quantity: 1,
+          unitPrice: 0,
+          fabricSource: FabricSource.SHOP,
+          addons: [],
+        },
+      ],
       discountType: DiscountType.FIXED,
       discountValue: 0,
       advancePayment: 0,
       notes: "",
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "items",
   });
 
   const watchedItems = form.watch("items");
@@ -82,6 +70,10 @@ export function useOrderFormPage() {
   const advancePayment = form.watch("advancePayment");
   const watchedCustomerId = form.watch("customerId");
   const watchedDueDate = form.watch("dueDate");
+  const normalizedDiscountType = discountType ?? DiscountType.FIXED;
+  const normalizedDiscountValue = discountValue ?? 0;
+  const normalizedAdvancePayment = advancePayment ?? 0;
+  const normalizedCustomerId = watchedCustomerId ?? "";
 
   useEffect(() => {
     let isCancelled = false;
@@ -169,115 +161,28 @@ export function useOrderFormPage() {
     };
   }, [editOrderId, form, toast]);
 
-  const designTypeMap = useMemo(
-    () => new Map(designTypes.map((designType) => [designType.id, designType])),
-    [designTypes],
-  );
-
-  const getItemLineTotal = useCallback(
-    (item: OrderFormValues["items"][number]) => {
-      const quantity = Number(item.quantity || 0);
-      const itemBase = Number(item.unitPrice || 0) * quantity;
-      const designPrice =
-        ((designTypeMap.get(item.designTypeId || "")?.defaultPrice || 0) / 100) *
-        quantity;
-      const addonsTotalPerPiece = (item.addons || []).reduce(
-        (total, addon) => total + Number(addon.price || 0),
-        0,
-      );
-      return itemBase + designPrice + addonsTotalPerPiece * quantity;
-    },
-    [designTypeMap],
-  );
-
-  const totals = useMemo<OrderTotals>(() => {
-    const subtotal = watchedItems.reduce((total, item) => total + getItemLineTotal(item), 0);
-
-    const normalizedDiscountValue = Number(discountValue || 0);
-    const discountAmount =
-      discountType === DiscountType.FIXED
-        ? normalizedDiscountValue
-        : (subtotal * normalizedDiscountValue) / 100;
-
-    const totalAmount = Math.max(0, subtotal - discountAmount);
-    const balanceDue = totalAmount - Number(advancePayment || 0);
-
-    return {
-      subtotal,
-      discountAmount,
-      totalAmount,
-      balanceDue,
-    };
-  }, [watchedItems, getItemLineTotal, discountType, discountValue, advancePayment]);
-
-  const selectedCustomer = useMemo(
-    () => customers.find((customer) => customer.id === watchedCustomerId) || null,
-    [customers, watchedCustomerId],
-  );
-
-  const addItem = useCallback(() => {
-    append(createDefaultOrderItem());
-  }, [append]);
-
-  const removeItem = useCallback(
-    (index: number) => {
-      if (fields.length <= 1) {
-        return;
-      }
-      remove(index);
-    },
-    [fields.length, remove],
-  );
-
-  const addAddon = useCallback(
-    (itemIndex: number) => {
-      const currentAddons = form.getValues(`items.${itemIndex}.addons`) || [];
-      form.setValue(
-        `items.${itemIndex}.addons`,
-        [...currentAddons, { type: AddonType.EXTRA, name: "", price: 0 }],
-        { shouldDirty: true },
-      );
-    },
-    [form],
-  );
-
-  const removeAddon = useCallback(
-    (itemIndex: number, addonIndex: number) => {
-      const currentAddons = form.getValues(`items.${itemIndex}.addons`) || [];
-      form.setValue(
-        `items.${itemIndex}.addons`,
-        currentAddons.filter((_, index) => index !== addonIndex),
-        { shouldDirty: true },
-      );
-    },
-    [form],
-  );
-
-  const applyGarmentDefaults = useCallback(
-    (itemIndex: number, garmentTypeId: string) => {
-      form.setValue(`items.${itemIndex}.garmentTypeId`, garmentTypeId, {
-        shouldDirty: true,
-      });
-
-      const selectedGarment = garmentTypes.find((garment) => garment.id === garmentTypeId);
-      if (!selectedGarment) {
-        return;
-      }
-
-      form.setValue(`items.${itemIndex}.unitPrice`, selectedGarment.customerPrice / 100, {
-        shouldDirty: true,
-      });
-    },
-    [form, garmentTypes],
-  );
-
-  const getAvailableDesignTypes = useCallback(
-    (garmentTypeId?: string) =>
-      designTypes.filter(
-        (designType) => !designType.garmentTypeId || designType.garmentTypeId === garmentTypeId,
-      ),
-    [designTypes],
-  );
+  const {
+    fields,
+    totals,
+    selectedCustomer,
+    addItem,
+    removeItem,
+    addAddon,
+    removeAddon,
+    applyGarmentDefaults,
+    getAvailableDesignTypes,
+    getItemLineTotal,
+  } = useOrderFormItems({
+    form,
+    garmentTypes,
+    designTypes,
+    customers,
+    watchedItems,
+    discountType: normalizedDiscountType,
+    discountValue: normalizedDiscountValue,
+    advancePayment: normalizedAdvancePayment,
+    watchedCustomerId: normalizedCustomerId,
+  });
 
   const onSubmit = useCallback(
     async (values: OrderFormValues) => {
