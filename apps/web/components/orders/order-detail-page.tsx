@@ -3,18 +3,15 @@
 import { useRouter } from "next/navigation";
 import { AlertCircle, CircleDollarSign, Package, TimerReset, UserCog } from "lucide-react";
 import { OrderStatus } from "@tbms/shared-types";
-import { TaskAssignmentDialog } from "@/components/orders/task-assignment/task-assignment-dialog";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OrderCustomerInsightCard } from "@/components/orders/order-customer-insight-card";
 import { OrderDetailBreadcrumb } from "@/components/orders/order-detail-breadcrumb";
+import { OrderDetailDialogs } from "@/components/orders/order-detail-dialogs";
 import { OrderDetailHeaderCard } from "@/components/orders/order-detail-header-card";
 import { OrderFinancialSummaryCard } from "@/components/orders/order-financial-summary-card";
 import { OrderItemsTable } from "@/components/orders/order-items-table";
 import { OrderLifecycleCard } from "@/components/orders/order-lifecycle-card";
-import { OrderPaymentDialog } from "@/components/orders/order-payment-dialog";
-import { OrderShareDialog } from "@/components/orders/order-share-dialog";
 import { OrderTimelineCard } from "@/components/orders/order-timeline-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/ui/stat-card";
@@ -235,56 +232,33 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         />
       </PageSection>
 
-      <OrderPaymentDialog
-        open={paymentOpen}
-        onOpenChange={handlePaymentDialogChange}
-        orderNumber={order.orderNumber}
-        balanceDue={order.balanceDue}
+      <OrderDetailDialogs
         amount={amount}
-        note={note}
-        processing={processingPayment}
-        fieldErrors={paymentFieldErrors}
-        validationError={paymentValidationError}
-        onAmountChange={handlePaymentAmountChange}
-        onNoteChange={handlePaymentNoteChange}
-        onSubmit={() => {
-          void handleAddPayment();
-        }}
-      />
-
-      <TaskAssignmentDialog
-        orderItem={taskItem}
+        confirmPaymentReversal={confirmPaymentReversal}
+        copyToClipboard={copyToClipboard}
+        closePaymentReversalDialog={closePaymentReversalDialog}
         employees={employees}
-        onSuccess={refreshOrder}
-        open={taskOpen}
-        onOpenChange={setTaskOpen}
-      />
-
-      <OrderShareDialog
-        open={shareOpen}
-        onOpenChange={handleShareDialogChange}
+        handleAddPayment={handleAddPayment}
+        handlePaymentAmountChange={handlePaymentAmountChange}
+        handlePaymentDialogChange={handlePaymentDialogChange}
+        handlePaymentNoteChange={handlePaymentNoteChange}
+        handleShareDialogChange={handleShareDialogChange}
+        note={note}
+        orderBalanceDue={order.balanceDue}
+        orderNumber={order.orderNumber}
+        paymentFieldErrors={paymentFieldErrors}
+        paymentOpen={paymentOpen}
+        paymentToReverseId={paymentToReverseId}
+        paymentValidationError={paymentValidationError}
+        processingPayment={processingPayment}
+        publicShareUrl={publicShareUrl}
+        refreshOrder={refreshOrder}
+        reversingPaymentId={reversingPaymentId}
+        setTaskOpen={setTaskOpen}
         shareData={shareData}
-        publicUrl={publicShareUrl}
-        onCopy={(value) => {
-          void copyToClipboard(value);
-        }}
-      />
-
-      <ConfirmDialog
-        open={Boolean(paymentToReverseId)}
-        onOpenChange={(open) => {
-          if (!open) {
-            closePaymentReversalDialog();
-          }
-        }}
-        title="Reverse this payment?"
-        description="This will create a reversal audit entry and restore the order balance."
-        onConfirm={confirmPaymentReversal}
-        confirmText="Reverse Payment"
-        variant="destructive"
-        loading={Boolean(
-          paymentToReverseId && reversingPaymentId === paymentToReverseId,
-        )}
+        shareOpen={shareOpen}
+        taskItem={taskItem}
+        taskOpen={taskOpen}
       />
     </PageShell>
   );
