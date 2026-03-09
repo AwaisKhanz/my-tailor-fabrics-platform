@@ -18,6 +18,7 @@ import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell"
 import { useAuthz } from "@/hooks/use-authz";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
 import { buildOrderDetailRoute } from "@/lib/order-routes";
+import { EMPLOYEES_ROUTE } from "@/lib/people-routes";
 import { PERMISSION } from "@tbms/shared-constants";
 
 type EmployeeDetailPageProps = {
@@ -108,7 +109,7 @@ export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
           description="The requested employee record is unavailable or may have been removed."
           action={{
             label: "Back to Employees",
-            onClick: () => router.push("/employees"),
+            onClick: () => router.push(EMPLOYEES_ROUTE),
           }}
         />
       </PageShell>
@@ -120,7 +121,7 @@ export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
       <PageSection spacing="compact">
         <EmployeeDetailBreadcrumb
           employeeCode={employee.employeeCode}
-          onBack={() => router.push("/employees")}
+          onBack={() => router.push(EMPLOYEES_ROUTE)}
         />
 
         <EmployeeDetailHeader

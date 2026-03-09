@@ -10,6 +10,7 @@ import {
 } from "@tbms/shared-types";
 import { configApi } from "@/lib/api/config";
 import { customerApi } from "@/lib/api/customers";
+import { CUSTOMERS_ROUTE } from "@/lib/people-routes";
 import { useToast } from "@/hooks/use-toast";
 
 interface UseCustomerDetailPageParams {
@@ -60,7 +61,7 @@ export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParam
         description: "Failed to load customer data",
         variant: "destructive",
       });
-      router.push("/customers");
+      router.push(CUSTOMERS_ROUTE);
     } finally {
       setLoading(false);
     }

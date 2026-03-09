@@ -9,6 +9,7 @@ import {
 } from "@tbms/shared-constants";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
+import { CUSTOMERS_ROUTE, EMPLOYEES_ROUTE } from "@/lib/people-routes";
 import Image from "next/image";
 import {
   PieChart,
@@ -76,15 +77,15 @@ const NAV_SECTIONS: NavSection[] = [
       },
       {
         title: "Customers",
-        href: "/customers",
+        href: CUSTOMERS_ROUTE,
         icon: Users,
-        roles: FRONTEND_ROUTE_ROLES["/customers"],
+        roles: FRONTEND_ROUTE_ROLES[CUSTOMERS_ROUTE],
       },
       {
         title: "Employees",
-        href: "/employees",
+        href: EMPLOYEES_ROUTE,
         icon: Briefcase,
-        roles: FRONTEND_ROUTE_ROLES["/employees"],
+        roles: FRONTEND_ROUTE_ROLES[EMPLOYEES_ROUTE],
       },
     ],
   },

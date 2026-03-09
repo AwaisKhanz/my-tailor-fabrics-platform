@@ -19,6 +19,10 @@ import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { MetaPill } from "@/components/ui/meta-pill";
 import { buildOrderDetailRoute } from "@/lib/order-routes";
+import {
+  buildCustomerDetailRoute,
+  buildEmployeeDetailRoute,
+} from "@/lib/people-routes";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatDate } from "@/lib/utils";
@@ -66,13 +70,13 @@ export function GlobalSearchCommand({
 
   const firstResultPath = useMemo(() => {
     if (results.orders[0]) {
-      return `/orders/${results.orders[0].id}`;
+      return buildOrderDetailRoute(results.orders[0].id);
     }
     if (results.customers[0]) {
-      return `/customers/${results.customers[0].id}`;
+      return buildCustomerDetailRoute(results.customers[0].id);
     }
     if (results.employees[0]) {
-      return `/employees/${results.employees[0].id}`;
+      return buildEmployeeDetailRoute(results.employees[0].id);
     }
     return null;
   }, [results]);
@@ -357,7 +361,9 @@ export function GlobalSearchCommand({
                           icon={Users}
                           title={customer.fullName}
                           subtitle={`${customer.sizeNumber} • ${customer.phone}`}
-                          onClick={() => navigate(`/customers/${customer.id}`)}
+                          onClick={() =>
+                            navigate(buildCustomerDetailRoute(customer.id))
+                          }
                         />
                       ))}
                     </ResultGroup>
@@ -374,7 +380,9 @@ export function GlobalSearchCommand({
                           icon={UserSquare2}
                           title={employee.fullName}
                           subtitle={`${employee.employeeCode} • ${employee.phone}`}
-                          onClick={() => navigate(`/employees/${employee.id}`)}
+                          onClick={() =>
+                            navigate(buildEmployeeDetailRoute(employee.id))
+                          }
                         />
                       ))}
                     </ResultGroup>

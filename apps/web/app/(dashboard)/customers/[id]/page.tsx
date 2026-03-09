@@ -18,6 +18,7 @@ import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { useRequiredRouteParam } from "@/hooks/use-route-param";
 import { buildOrderDetailRoute } from "@/lib/order-routes";
+import { CUSTOMERS_ROUTE } from "@/lib/people-routes";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
@@ -61,7 +62,7 @@ function CustomerDetailPage() {
           description="The requested customer record is unavailable or was removed."
           action={{
             label: "Back to Customers",
-            onClick: () => router.push("/customers"),
+            onClick: () => router.push(CUSTOMERS_ROUTE),
           }}
         />
       </PageShell>
@@ -73,7 +74,7 @@ function CustomerDetailPage() {
       <PageSection spacing="compact">
         <CustomerDetailBreadcrumb
           sizeNumber={customer.sizeNumber}
-          onBack={() => router.push("/customers")}
+          onBack={() => router.push(CUSTOMERS_ROUTE)}
         />
         <CustomerDetailHeader
           customer={customer}

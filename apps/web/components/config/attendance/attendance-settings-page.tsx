@@ -30,6 +30,7 @@ import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
+import { buildEmployeeDetailRoute } from "@/lib/people-routes";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
 import { PERMISSION } from '@tbms/shared-constants';
@@ -360,7 +361,7 @@ export function AttendanceSettingsPage() {
             emptyMessage="No attendance records found for the selected filter."
             onPageChange={setPage}
             onRowClick={(record) => {
-              router.push(`/employees/${record.employeeId}`);
+              router.push(buildEmployeeDetailRoute(record.employeeId));
             }}
           />
         </TableSurface>

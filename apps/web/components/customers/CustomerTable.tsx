@@ -11,6 +11,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { TableSurface } from "@/components/ui/table-layout";
 import { useCustomersPage } from "@/hooks/use-customers-page";
 import { useAuthz } from "@/hooks/use-authz";
+import { buildCustomerDetailRoute } from "@/lib/people-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 export function CustomerTable() {
@@ -98,7 +99,7 @@ export function CustomerTable() {
             pageSize={pageSize}
             onPageChange={setPage}
             onView={(customer) => {
-              router.push(`/customers/${customer.id}`);
+              router.push(buildCustomerDetailRoute(customer.id));
             }}
             onEdit={openEditDialog}
             canEditCustomer={canEditCustomer}

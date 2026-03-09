@@ -14,6 +14,7 @@ import { TableSurface } from "@/components/ui/table-layout";
 import { useEmployeesPage } from "@/hooks/use-employees-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { buildEmployeeDetailRoute } from "@/lib/people-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function EmployeesPage() {
@@ -110,7 +111,7 @@ function EmployeesPage() {
             pageSize={pageSize}
             onPageChange={setPage}
             onViewEmployee={(employee) =>
-              router.push(`/employees/${employee.id}`)
+              router.push(buildEmployeeDetailRoute(employee.id))
             }
           />
         </TableSurface>
