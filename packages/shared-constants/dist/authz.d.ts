@@ -47,7 +47,6 @@ export declare const PERMISSION: {
     readonly 'attendance.manage': "attendance.manage";
     readonly 'attendance.checkin': "attendance.checkin";
     readonly 'audit.read': "audit.read";
-    readonly 'integrations.manage': "integrations.manage";
     readonly 'mail.manage': "mail.manage";
     readonly 'system.manage': "system.manage";
     readonly 'search.global': "search.global";

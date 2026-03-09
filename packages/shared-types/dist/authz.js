@@ -49,7 +49,6 @@ exports.PERMISSIONS = [
     'attendance.manage',
     'attendance.checkin',
     'audit.read',
-    'integrations.manage',
     'mail.manage',
     'system.manage',
     'search.global',
