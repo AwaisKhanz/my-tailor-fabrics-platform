@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { attendanceApi } from "@/lib/api/attendance";
 import { configApi } from "@/lib/api/config";
@@ -30,6 +30,8 @@ export function useEmployeeDetailData({
   employeeId,
 }: UseEmployeeDetailDataParams) {
   const { toast } = useToast();
+  const latestEmployeeIdRef = useRef(employeeId);
+  const requestVersionRef = useRef(0);
 
   const [loading, setLoading] = useState(true);
   const [employee, setEmployee] = useState<EmployeeWithRelations | null>(null);
@@ -48,11 +50,18 @@ export function useEmployeeDetailData({
     EmployeeCompensationHistoryEntry[]
   >([]);
 
+  useEffect(() => {
+    latestEmployeeIdRef.current = employeeId;
+  }, [employeeId]);
+
   const fetchEmployeeData = useCallback(async () => {
     if (!employeeId) {
       return;
     }
 
+    const requestVersion = requestVersionRef.current + 1;
+    requestVersionRef.current = requestVersion;
+    const requestedEmployeeId = employeeId;
     setLoading(true);
     try {
       const [
@@ -76,6 +85,13 @@ export function useEmployeeDetailData({
         employeesApi.getCapabilities(employeeId),
         employeesApi.getCompensationHistory(employeeId),
       ]);
+
+      if (
+        requestVersionRef.current !== requestVersion ||
+        latestEmployeeIdRef.current !== requestedEmployeeId
+      ) {
+        return;
+      }
 
       if (employeeResponse.success) {
         setEmployee(employeeResponse.data);
@@ -110,13 +126,25 @@ export function useEmployeeDetailData({
         setCompensationHistory(compensationResponse.data);
       }
     } catch {
+      if (
+        requestVersionRef.current !== requestVersion ||
+        latestEmployeeIdRef.current !== requestedEmployeeId
+      ) {
+        return;
+      }
+
       toast({
         title: "Error",
         description: "Employee data could not be loaded",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      if (
+        requestVersionRef.current === requestVersion &&
+        latestEmployeeIdRef.current === requestedEmployeeId
+      ) {
+        setLoading(false);
+      }
     }
   }, [employeeId, toast]);
 
