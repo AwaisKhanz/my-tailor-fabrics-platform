@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Heading, Text } from "@/components/ui/typography";
 import { siteConfig } from "@/lib/config";
+import { ADMIN_LOGIN_EMAIL_PLACEHOLDER } from "@/lib/form-placeholders";
 
 interface LoginFormPanelProps {
   email: string;
@@ -67,7 +68,7 @@ export function LoginFormPanel({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@mytailors.com"
+                  placeholder={ADMIN_LOGIN_EMAIL_PLACEHOLDER}
                   value={email}
                   onChange={(event) => onEmailChange(event.target.value)}
                   className="bg-transparent pl-10"

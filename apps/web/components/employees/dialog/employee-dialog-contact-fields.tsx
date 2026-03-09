@@ -9,6 +9,7 @@ import {
 import { FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Heading } from "@/components/ui/typography";
+import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type EmployeeFormValues } from "@/types/employees";
 
 interface EmployeeDialogContactFieldsProps {
@@ -69,7 +70,7 @@ export function EmployeeDialogContactFields({
                 Emergency Phone
               </FormLabel>
               <FormControl>
-                <Input placeholder="03XXXXXXXXX" {...field} />
+                <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

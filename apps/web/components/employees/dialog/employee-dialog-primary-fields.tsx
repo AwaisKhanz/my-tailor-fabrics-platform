@@ -7,6 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type EmployeeFormValues } from "@/types/employees";
 
 interface EmployeeDialogPrimaryFieldsProps {
@@ -42,7 +43,7 @@ export function EmployeeDialogPrimaryFields({
               Primary Phone
             </FormLabel>
             <FormControl>
-              <Input placeholder="03XXXXXXXXX" {...field} />
+              <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

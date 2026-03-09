@@ -7,6 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type CustomerFormValues } from "@/types/customers";
 
 interface CustomerDialogPrimaryFieldsProps {
@@ -43,7 +44,7 @@ export function CustomerDialogPrimaryFields({
               Phone
             </FormLabel>
             <FormControl>
-              <Input placeholder="03XXXXXXXXX" {...field} />
+              <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -59,7 +60,7 @@ export function CustomerDialogPrimaryFields({
               WhatsApp (opt.)
             </FormLabel>
             <FormControl>
-              <Input placeholder="03XXXXXXXXX" {...field} />
+              <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
