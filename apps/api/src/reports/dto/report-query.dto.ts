@@ -1,10 +1,21 @@
 import { Transform } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { transformOptionalPositiveInt } from '../../common/dto/query-transformers';
+import {
+  IsDateString,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import {
+  transformOptionalPositiveInt,
+  transformOptionalString,
+} from '../../common/dto/query-transformers';
 import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class BranchScopedReportQueryDto {
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsString()
   @IsCuidString()
   branchId?: string;
@@ -12,16 +23,19 @@ export class BranchScopedReportQueryDto {
 
 export class DateRangeReportQueryDto extends BranchScopedReportQueryDto {
   @IsOptional()
-  @IsString()
+  @Transform(transformOptionalString)
+  @IsDateString()
   from?: string;
 
   @IsOptional()
-  @IsString()
+  @Transform(transformOptionalString)
+  @IsDateString()
   to?: string;
 }
 
 export class FinancialTrendQueryDto extends DateRangeReportQueryDto {
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsIn(['day', 'week', 'month'])
   granularity?: 'day' | 'week' | 'month';
 }
@@ -44,6 +58,7 @@ export class ProductivityQueryDto extends DateRangeReportQueryDto {
 
 export class ExportReportQueryDto extends DateRangeReportQueryDto {
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsIn(['pdf', 'xlsx'])
   format?: 'pdf' | 'xlsx';
 }

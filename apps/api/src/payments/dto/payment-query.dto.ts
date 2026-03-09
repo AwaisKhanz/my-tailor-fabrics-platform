@@ -22,6 +22,7 @@ export class PaymentsHistoryQueryDto extends PaginationQueryDto {
   sortBy?: (typeof PAYMENT_HISTORY_SORT_FIELDS)[number];
 
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc';
 }
