@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { ItemStatus } from "@tbms/shared-types";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
@@ -14,18 +13,6 @@ interface MyOrdersTableProps {
   total: number;
   pageSize: number;
   onPageChange: (page: number) => void;
-}
-
-function parseItemStatus(value: string): ItemStatus {
-  switch (value) {
-    case ItemStatus.PENDING:
-    case ItemStatus.IN_PROGRESS:
-    case ItemStatus.COMPLETED:
-    case ItemStatus.CANCELLED:
-      return value;
-    default:
-      return ItemStatus.PENDING;
-  }
 }
 
 export function MyOrdersTable({
@@ -73,7 +60,7 @@ export function MyOrdersTable({
       {
         header: "Status",
         cell: (item) => {
-          const status = parseItemStatus(item.status);
+          const status = item.status;
           return (
             <Badge variant={ITEM_STATUS_CONFIG[status].variant} size="xs">
               {ITEM_STATUS_CONFIG[status].label}
