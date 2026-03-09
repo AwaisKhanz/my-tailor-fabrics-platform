@@ -10,7 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
-import { type ExpensesFilters } from "@/hooks/use-expenses-page";
+import {
+  EXPENSES_ALL_CATEGORIES_LABEL,
+  type ExpensesFilters,
+} from "@/hooks/use-expenses-page";
 
 interface ExpensesFiltersCardProps {
   total: number;
@@ -74,7 +77,7 @@ export function ExpensesFiltersCard({
                   placeholder={
                     categoriesLoading
                       ? "Loading categories..."
-                      : "All Categories"
+                      : EXPENSES_ALL_CATEGORIES_LABEL
                   }
                 />
               </SelectTrigger>

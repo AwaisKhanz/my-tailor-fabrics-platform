@@ -12,6 +12,7 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
 export const EXPENSES_ALL_CATEGORIES_FILTER = "all";
+export const EXPENSES_ALL_CATEGORIES_LABEL = "All Categories";
 
 type ExpenseFilterOption = {
   value: string;
@@ -338,7 +339,7 @@ export function useExpensesPage() {
     () => [
       {
         value: EXPENSES_ALL_CATEGORIES_FILTER,
-        label: "All Categories",
+        label: EXPENSES_ALL_CATEGORIES_LABEL,
       },
       ...categories.map((category) => ({
         value: category.id,
