@@ -5,10 +5,10 @@ import { type Payment, type PaymentSummary } from "@tbms/shared-types";
 import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
 import { useToast } from "@/hooks/use-toast";
-import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { type Employee } from "@/types/employees";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { usePaymentDisbursementManager } from "@/hooks/use-payment-disbursement-manager";
+import { usePaymentReversalManager } from "@/hooks/use-payment-reversal-manager";
 import { useSalaryAccrualManager } from "@/hooks/use-salary-accrual-manager";
 
 const PAGE_SIZE = 10;
@@ -54,13 +54,6 @@ export function usePaymentsPage() {
       to: values.to,
     }),
     [values.from, values.to],
-  );
-
-  const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
-    null,
-  );
-  const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
-    null,
   );
 
   const fetchEmployees = useCallback(async () => {
@@ -207,6 +200,18 @@ export function usePaymentsPage() {
     toast,
   });
 
+  const {
+    reversingPaymentId,
+    paymentToReverseId,
+    requestReversePayment,
+    closeReversePaymentDialog,
+    confirmReversePayment,
+  } = usePaymentReversalManager({
+    selectedEmployeeId,
+    refreshPayments,
+    toast,
+  });
+
   const handleEmployeeChange = useCallback((employeeId: string) => {
     setValues({
       employeeId,
@@ -246,69 +251,6 @@ export function usePaymentsPage() {
   const setHistoryPage = useCallback((nextPage: number) => {
     setValues({ page: String(nextPage) });
   }, [setValues]);
-
-  const reversePayment = useCallback(
-    async (paymentId: string) => {
-      if (!selectedEmployeeId) {
-        return false;
-      }
-
-      setReversingPaymentId(paymentId);
-      try {
-        await paymentsApi.reverse(paymentId);
-        toast({ title: "Payment reversed successfully" });
-
-        await fetchSummary(selectedEmployeeId);
-        await fetchHistory(1);
-        if (historyPage !== 1) {
-          setValues({ page: "1" });
-        }
-
-        return true;
-      } catch (error: unknown) {
-        toast({
-          title: "Error",
-          description: getApiErrorMessageOrFallback(
-            error,
-            "Failed to reverse payment",
-          ),
-          variant: "destructive",
-        });
-        return false;
-      } finally {
-        setReversingPaymentId(null);
-      }
-    },
-    [
-      fetchHistory,
-      fetchSummary,
-      historyPage,
-      selectedEmployeeId,
-      setValues,
-      toast,
-    ],
-  );
-
-  const requestReversePayment = useCallback((paymentId: string) => {
-    setPaymentToReverseId(paymentId);
-  }, []);
-
-  const closeReversePaymentDialog = useCallback((open: boolean) => {
-    if (!open) {
-      setPaymentToReverseId(null);
-    }
-  }, []);
-
-  const confirmReversePayment = useCallback(async () => {
-    if (!paymentToReverseId) {
-      return;
-    }
-
-    const reversed = await reversePayment(paymentToReverseId);
-    if (reversed) {
-      setPaymentToReverseId(null);
-    }
-  }, [paymentToReverseId, reversePayment]);
 
   const selectedEmployee = useMemo(
     () => employees.find((employee) => employee.id === selectedEmployeeId) ?? null,
