@@ -1,10 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
 import {
-  createMeasurementValuesFormSchema,
-  type MeasurementCategory,
   type MeasurementValues,
   FieldType,
 } from "@tbms/shared-types";
@@ -27,12 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { customerApi } from "@/lib/api/customers";
-import { configApi } from "@/lib/api/config";
-import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { logDevError } from "@/lib/logger";
 import { Card } from "../ui/card";
+import { useMeasurementForm } from "@/hooks/use-measurement-form";
 
 interface MeasurementFormProps {
   customerId: string;
@@ -47,184 +40,21 @@ export function MeasurementForm({
   initialCategoryId,
   initialValues,
 }: MeasurementFormProps) {
-  const { toast } = useToast();
-  const [categories, setCategories] = useState<MeasurementCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] =
-    useState<MeasurementCategory | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-
-  const form = useForm<MeasurementValues>({
-    defaultValues: initialValues ?? {},
+  const {
+    form,
+    categories,
+    selectedCategory,
+    loading,
+    submitting,
+    groupedFields,
+    handleCategoryChange,
+    onSubmit,
+  } = useMeasurementForm({
+    customerId,
+    onSuccess,
+    initialCategoryId,
+    initialValues,
   });
-  const measurementValuesSchema = useMemo(
-    () =>
-      selectedCategory
-        ? createMeasurementValuesFormSchema(selectedCategory.fields)
-        : null,
-    [selectedCategory],
-  );
-
-  const groupedFields = useMemo(() => {
-    if (!selectedCategory) {
-      return [];
-    }
-
-    const groups = new Map<
-      string,
-      {
-        id: string;
-        name: string;
-        sortOrder: number;
-        fields: typeof selectedCategory.fields;
-      }
-    >();
-
-    (selectedCategory.sections || []).forEach((section) => {
-      groups.set(section.id, {
-        id: section.id,
-        name: section.name,
-        sortOrder: section.sortOrder,
-        fields: [],
-      });
-    });
-
-    const FALLBACK_SECTION_ID = "__general__";
-    if (!groups.has(FALLBACK_SECTION_ID)) {
-      groups.set(FALLBACK_SECTION_ID, {
-        id: FALLBACK_SECTION_ID,
-        name: "General",
-        sortOrder: Number.MAX_SAFE_INTEGER,
-        fields: [],
-      });
-    }
-
-    selectedCategory.fields.forEach((field) => {
-      const targetKey =
-        field.sectionId && groups.has(field.sectionId)
-          ? field.sectionId
-          : FALLBACK_SECTION_ID;
-      groups.get(targetKey)?.fields.push(field);
-    });
-
-    return Array.from(groups.values())
-      .map((group) => ({
-        ...group,
-        fields: [...group.fields].sort((a, b) => a.sortOrder - b.sortOrder),
-      }))
-      .filter((group) => group.fields.length > 0)
-      .sort((a, b) => {
-        if (a.sortOrder !== b.sortOrder) {
-          return a.sortOrder - b.sortOrder;
-        }
-        return a.name.localeCompare(b.name);
-      });
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    async function loadCategories() {
-      try {
-        const response = await configApi.getMeasurementCategories();
-        if (response.success && response.data?.data) {
-          const categoriesData = response.data.data;
-          setCategories(categoriesData);
-          if (initialCategoryId) {
-            const cat = categoriesData.find((c) => c.id === initialCategoryId);
-            if (cat) setSelectedCategory(cat);
-          }
-        }
-      } catch (error) {
-        logDevError("Failed to load measurement categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadCategories();
-  }, [initialCategoryId]);
-
-  const handleCategoryChange = (categoryId: string) => {
-    const cat = categories.find((c) => c.id === categoryId);
-    if (cat) {
-      setSelectedCategory(cat);
-      form.clearErrors();
-      if (categoryId === initialCategoryId) {
-        form.reset(initialValues || {});
-      } else {
-        form.reset({});
-      }
-    }
-  };
-
-  async function onSubmit(values: MeasurementValues) {
-    if (!selectedCategory || !measurementValuesSchema) return;
-
-    const parsedResult = measurementValuesSchema.safeParse(values);
-    if (!parsedResult.success) {
-      parsedResult.error.issues.forEach((issue) => {
-        const fieldId = issue.path[0];
-        if (typeof fieldId !== "string") {
-          return;
-        }
-        form.setError(fieldId, {
-          type: "manual",
-          message: issue.message,
-        });
-      });
-
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const fieldById = new Map(
-        selectedCategory.fields.map((field) => [field.id, field]),
-      );
-      const sanitizedValues: MeasurementValues = {};
-      Object.entries(parsedResult.data).forEach(([key, value]) => {
-        if (value === undefined) {
-          return;
-        }
-
-        if (typeof value === "string") {
-          const trimmedValue = value.trim();
-          if (trimmedValue.length === 0) {
-            return;
-          }
-
-          const field = fieldById.get(key);
-          if (field?.fieldType === FieldType.NUMBER) {
-            const parsedNumber = Number(trimmedValue);
-            if (Number.isFinite(parsedNumber)) {
-              sanitizedValues[key] = parsedNumber;
-              return;
-            }
-          }
-
-          sanitizedValues[key] = trimmedValue;
-          return;
-        }
-
-        sanitizedValues[key] = value;
-      });
-
-      await customerApi.upsertMeasurements(
-        customerId,
-        selectedCategory.id,
-        sanitizedValues,
-      );
-      toast({ title: "Measurements saved successfully" });
-      onSuccess();
-    } catch (error) {
-      logDevError("Failed to save measurements:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save measurements.",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   if (loading)
     return (
