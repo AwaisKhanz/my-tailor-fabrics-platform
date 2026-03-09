@@ -57,6 +57,7 @@ import { Text } from "@/components/ui/typography";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-page";
 import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
+import { EmployeeAttendanceSection } from "@/components/employees/detail/employee-attendance-section";
 import { EmployeeDocumentsSection } from "@/components/employees/detail/employee-documents-section";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 import { EmployeeWorkHistorySection } from "@/components/employees/detail/employee-work-history-section";
@@ -1230,29 +1231,15 @@ export function EmployeeDetailTabs({
         </div>
       </EmployeeSection>
 
-      <EmployeeSection
-        id="employee-attendance"
-        title="Attendance"
-        description="Review attendance logs and worked hours for this employee."
-        badge={
-          <Badge variant="default" size="xs" className="font-semibold">
-            {attendance.length} RECORDS
-          </Badge>
-        }
-        defaultOpen={false}
-      >
-        <DataTable
-          columns={attendanceColumns}
-          data={pagedAttendance}
-          loading={loading}
-          emptyMessage="No attendance records found."
-          chrome="flat"
-          page={attendancePage}
-          total={attendanceTotal}
-          limit={attendanceLimit}
-          onPageChange={setAttendancePage}
-        />
-      </EmployeeSection>
+      <EmployeeAttendanceSection
+        attendance={pagedAttendance}
+        loading={loading}
+        page={attendancePage}
+        total={attendanceTotal}
+        limit={attendanceLimit}
+        columns={attendanceColumns}
+        onPageChange={setAttendancePage}
+      />
 
       <EmployeeDocumentsSection
         documents={employee.documents}
