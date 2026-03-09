@@ -9,7 +9,6 @@ import { Prisma, OrderStatus as PrismaOrderStatus } from '@prisma/client';
 import {
   CreateOrderDto,
   OrderItemDto,
-  OrderItemAddonDto,
 } from './dto/create-order.dto';
 import {
   UpdateOrderDto,
@@ -57,6 +56,7 @@ import {
   recordOrderPayment,
   reverseRecordedOrderPayment,
 } from './order-payment-lifecycle';
+import { toOrderItemCreateData } from './order-create-mapping';
 
 @Injectable()
 export class OrdersService {
@@ -254,25 +254,7 @@ export class OrdersService {
           notes: createOrderDto.notes,
           createdById,
           items: {
-            create: resolvedItems.map((item) => ({
-              pieceNo: item.pieceNo,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              description: item.description,
-              fabricSource: toPrismaFabricSource(item.fabricSource),
-              dueDate: item.dueDate,
-              garmentTypeName: item.garmentTypeName,
-              garmentType: { connect: { id: item.garmentTypeId } },
-              designTypeId: item.designTypeId,
-              addons: {
-                create: (item.addons || []).map((a: OrderItemAddonDto) => ({
-                  type: toPrismaAddonType(a.type),
-                  name: a.name,
-                  price: a.price,
-                  cost: a.cost,
-                })),
-              },
-            })),
+            create: toOrderItemCreateData(resolvedItems),
           },
         },
         include: {
