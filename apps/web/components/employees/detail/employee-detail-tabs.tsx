@@ -4,12 +4,9 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
-  type ReactNode,
 } from "react";
 import {
-  ChevronDown,
   ChevronRight,
   ExternalLink,
   FileText,
@@ -48,7 +45,7 @@ import {
 import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
@@ -65,7 +62,8 @@ import {
 import { Heading, Text } from "@/components/ui/typography";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-page";
-import { cn, formatDate, formatDateTime, formatPKR } from "@/lib/utils";
+import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
+import { formatDate, formatDateTime, formatPKR } from "@/lib/utils";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const DEFAULT_TABLE_PAGE_SIZE = 10;
@@ -113,96 +111,6 @@ interface EmployeeDetailTabsProps {
   canManageDocuments?: boolean;
   canManageAccount?: boolean;
   canManageWorkforceGovernance?: boolean;
-}
-
-interface EmployeeSectionProps {
-  id: string;
-  title: string;
-  description: string;
-  badge?: ReactNode;
-  action?: ReactNode;
-  defaultOpen?: boolean;
-  onFirstOpen?: () => void;
-  children: ReactNode;
-}
-
-function EmployeeSection({
-  id,
-  title,
-  description,
-  badge,
-  action,
-  defaultOpen = true,
-  onFirstOpen,
-  children,
-}: EmployeeSectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  const openedRef = useRef(false);
-
-  useEffect(() => {
-    if (!defaultOpen || openedRef.current || !onFirstOpen) {
-      return;
-    }
-
-    openedRef.current = true;
-    onFirstOpen();
-  }, [defaultOpen, onFirstOpen]);
-
-  const handleToggle = () => {
-    const next = !isOpen;
-    setIsOpen(next);
-
-    if (next && !openedRef.current && onFirstOpen) {
-      openedRef.current = true;
-      onFirstOpen();
-    }
-  };
-
-  return (
-    <Card id={id}>
-      <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <CardTitle>{title}</CardTitle>
-            {badge}
-          </div>
-          <Text as="p" variant="muted">
-            {description}
-          </Text>
-        </div>
-
-        <div className="ml-auto flex w-full items-center justify-end gap-2 sm:w-auto">
-          {action}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="shrink-0"
-            aria-expanded={isOpen}
-            aria-controls={`${id}-content`}
-            onClick={handleToggle}
-          >
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 transition-transform",
-                isOpen && "rotate-180",
-              )}
-            />
-          </Button>
-        </div>
-      </CardHeader>
-
-      {isOpen ? (
-        <CardContent id={`${id}-content`} spacing="section" className="p-0">
-          {children}
-        </CardContent>
-      ) : null}
-    </Card>
-  );
 }
 
 function toDateInputValue(value?: string | null): string {
