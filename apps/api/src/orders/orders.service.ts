@@ -55,6 +55,7 @@ import {
 } from './order-payment-lifecycle';
 import {
   buildOrderCreateData,
+  buildOrderUpdateData,
   toOrderItemUpdateData,
   toSingleOrderItemCreateData,
 } from './order-create-mapping';
@@ -713,9 +714,7 @@ export class OrdersService {
       });
       if (!order) throw new NotFoundException('Order not found');
 
-      const data: Prisma.OrderUpdateInput = {};
-      if (dto.dueDate) data.dueDate = new Date(dto.dueDate);
-      if (dto.notes !== undefined) data.notes = dto.notes;
+      const data = buildOrderUpdateData(dto);
 
       if (dto.discountType !== undefined || dto.discountValue !== undefined) {
         assertOrderFinancialManagePermission(
@@ -741,10 +740,6 @@ export class OrdersService {
           paymentErrorMessage: 'Existing payments exceed the updated order total',
         });
 
-        if (dto.discountType !== undefined)
-          data.discountType = dto.discountType;
-        if (dto.discountValue !== undefined)
-          data.discountValue = dto.discountValue;
       }
 
       await tx.order.update({
