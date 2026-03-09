@@ -18,6 +18,7 @@ import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell"
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { Heading, Text } from "@/components/ui/typography";
 import { useDashboardPage } from "@/hooks/use-dashboard-page";
+import { REPORTS_ROUTE } from "@/lib/finance-routes";
 import {
   buildOrderDetailRoute,
   NEW_ORDER_ROUTE,
@@ -81,7 +82,7 @@ export function DashboardPage() {
                   variant="outline"
                   size="lg"
                   className="w-full font-semibold sm:w-auto"
-                  onClick={() => router.push("/reports")}
+                  onClick={() => router.push(REPORTS_ROUTE)}
                 >
                   Open Reports
                 </Button>
@@ -189,7 +190,7 @@ export function DashboardPage() {
             <DashboardDesignPopularityCard
               loading={loading}
               designs={designs}
-              onViewAnalytics={() => router.push("/reports")}
+              onViewAnalytics={() => router.push(REPORTS_ROUTE)}
             />
           }
         />

@@ -9,6 +9,11 @@ import {
 } from "@tbms/shared-constants";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
+import {
+  EXPENSES_ROUTE,
+  PAYMENTS_ROUTE,
+  REPORTS_ROUTE,
+} from "@/lib/finance-routes";
 import { CUSTOMERS_ROUTE, EMPLOYEES_ROUTE } from "@/lib/people-routes";
 import {
   ATTENDANCE_SETTINGS_ROUTE,
@@ -108,21 +113,21 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         title: "Payments",
-        href: "/payments",
+        href: PAYMENTS_ROUTE,
         icon: Banknote,
-        roles: FRONTEND_ROUTE_ROLES["/payments"],
+        roles: FRONTEND_ROUTE_ROLES[PAYMENTS_ROUTE],
       },
       {
         title: "Expenses",
-        href: "/expenses",
+        href: EXPENSES_ROUTE,
         icon: Banknote,
-        roles: FRONTEND_ROUTE_ROLES["/expenses"],
+        roles: FRONTEND_ROUTE_ROLES[EXPENSES_ROUTE],
       },
       {
         title: "Reports",
-        href: "/reports",
+        href: REPORTS_ROUTE,
         icon: BarChart,
-        roles: FRONTEND_ROUTE_ROLES["/reports"],
+        roles: FRONTEND_ROUTE_ROLES[REPORTS_ROUTE],
       },
     ],
   },
