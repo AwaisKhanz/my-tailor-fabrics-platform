@@ -22,6 +22,12 @@ import {
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
 import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import {
+  archiveRemovedWorkflowStepDependents,
+  assertNoOpenTasksForRemovedWorkflowSteps,
+  getRemovedWorkflowStepKeys,
+  normalizeWorkflowSteps,
+} from './garment-workflow-step-planner';
+import {
   ensureDefaultMeasurementSection,
   getNextSectionSortOrder,
   resolveMeasurementSection,
@@ -494,44 +500,7 @@ export class ConfigService {
   ) {
     await this.getActiveGarmentTypeOrThrow(garmentTypeId);
 
-    const normalizedSteps = dto.steps.map((step, index) => {
-      const stepKey = step.stepKey.trim().toUpperCase();
-      const stepName = step.stepName.trim();
-
-      if (!/^[A-Z0-9_]+$/.test(stepKey)) {
-        throw new BadRequestException(
-          `Invalid stepKey at position ${index + 1}. Use only A-Z, 0-9, and _.`,
-        );
-      }
-
-      if (!stepName) {
-        throw new BadRequestException(
-          `stepName is required at position ${index + 1}.`,
-        );
-      }
-
-      if (!Number.isInteger(step.sortOrder) || step.sortOrder < 1) {
-        throw new BadRequestException(
-          `sortOrder must be a positive integer at position ${index + 1}.`,
-        );
-      }
-
-      return {
-        ...step,
-        stepKey,
-        stepName,
-      };
-    });
-
-    const seenStepKeys = new Set<string>();
-    for (const step of normalizedSteps) {
-      if (seenStepKeys.has(step.stepKey)) {
-        throw new BadRequestException(
-          `Duplicate stepKey "${step.stepKey}" is not allowed.`,
-        );
-      }
-      seenStepKeys.add(step.stepKey);
-    }
+    const normalizedSteps = normalizeWorkflowSteps(dto.steps);
 
     const existingSteps = await this.prisma.workflowStepTemplate.findMany({
       where: {
@@ -543,35 +512,15 @@ export class ConfigService {
       },
     });
 
-    const incomingStepKeys = new Set(
-      normalizedSteps.map((step) => step.stepKey),
+    const removedStepKeys = getRemovedWorkflowStepKeys(
+      existingSteps,
+      normalizedSteps,
     );
-    const removedStepKeys = existingSteps
-      .map((step) => step.stepKey)
-      .filter((stepKey) => !incomingStepKeys.has(stepKey));
-
-    if (removedStepKeys.length > 0) {
-      const openTasksCount = await this.prisma.orderItemTask.count({
-        where: {
-          stepKey: { in: removedStepKeys },
-          status: { in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS] },
-          deletedAt: null,
-          orderItem: {
-            garmentTypeId,
-            deletedAt: null,
-            order: {
-              deletedAt: null,
-            },
-          },
-        },
-      });
-
-      if (openTasksCount > 0) {
-        throw new BadRequestException(
-          `Cannot remove workflow steps with ${openTasksCount} open task(s). Complete or cancel those tasks first.`,
-        );
-      }
-    }
+    await assertNoOpenTasksForRemovedWorkflowSteps(
+      this.prisma,
+      garmentTypeId,
+      removedStepKeys,
+    );
 
     return this.prisma.$transaction(async (tx) => {
       const now = new Date();
@@ -605,32 +554,12 @@ export class ConfigService {
         });
       }
 
-      if (removedStepKeys.length > 0) {
-        await tx.rateCard.updateMany({
-          where: {
-            garmentTypeId,
-            stepKey: { in: removedStepKeys },
-            deletedAt: null,
-            effectiveTo: null,
-          },
-          data: {
-            effectiveTo: now,
-          },
-        });
-
-        await tx.employeeCapability.updateMany({
-          where: {
-            garmentTypeId,
-            stepKey: { in: removedStepKeys },
-            deletedAt: null,
-            OR: [{ effectiveTo: null }, { effectiveTo: { gte: now } }],
-          },
-          data: {
-            effectiveTo: now,
-            note: 'Auto-closed because the workflow step was archived.',
-          },
-        });
-      }
+      await archiveRemovedWorkflowStepDependents(
+        tx,
+        garmentTypeId,
+        removedStepKeys,
+        now,
+      );
 
       return tx.workflowStepTemplate.findMany({
         where: { garmentTypeId, deletedAt: null },
