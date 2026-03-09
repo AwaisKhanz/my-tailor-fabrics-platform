@@ -1,9 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { Activity, History, RefreshCcw, RotateCcw, Search, ShieldCheck, Trash2, UserCheck } from "lucide-react";
-import type { AuditLogEntry, JsonValue } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
+import {
+  Activity,
+  History,
+  RefreshCcw,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  Trash2,
+  UserCheck,
+} from "lucide-react";
+import type { AuditLogEntry } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
@@ -17,72 +25,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatCard } from "@/components/ui/stat-card";
-import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-layout";
-import { formatDateTime } from "@/lib/utils";
+import {
+  TableSearch,
+  TableSurface,
+  TableToolbar,
+} from "@/components/ui/table-layout";
 import {
   AUDIT_ALL_ACTIONS_LABEL,
   AUDIT_ALL_ENTITIES_LABEL,
   useAuditLogsPage,
 } from "@/hooks/use-audit-logs-page";
-
-const ACTION_SUMMARY_MAP: Record<string, string> = {
-  LOGIN: "Session authentication event",
-  TOKEN_REFRESH: "Access token refresh event",
-  LOGOUT: "Session logout event",
-  LOGIN_FAILED: "Failed login attempt",
-};
-
-const ACTION_BADGE_VARIANT_MAP: Record<string, "success" | "info" | "destructive" | "warning" | "outline"> = {
-  CREATE: "success",
-  UPDATE: "info",
-  DELETE: "destructive",
-  LOGIN: "warning",
-  TOKEN_REFRESH: "warning",
-  LOGOUT: "info",
-  LOGIN_FAILED: "destructive",
-};
-
-function toRecord(value: JsonValue | null | undefined): Record<string, JsonValue> | null {
-  if (isJsonRecord(value)) {
-    return value;
-  }
-  return null;
-}
-
-function isJsonRecord(
-  value: JsonValue | null | undefined,
-): value is Record<string, JsonValue> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function getChangeSummary(record: AuditLogEntry): string {
-  const summary = ACTION_SUMMARY_MAP[record.action];
-  if (summary) {
-    return summary;
-  }
-
-  const oldValue = toRecord(record.oldValue);
-  const newValue = toRecord(record.newValue);
-  const fields = new Set<string>([
-    ...Object.keys(oldValue ?? {}),
-    ...Object.keys(newValue ?? {}),
-  ]);
-
-  if (fields.size === 0) {
-    return record.entityId ? `Target ${record.entityId}` : "No payload";
-  }
-
-  const fieldList = Array.from(fields);
-  if (fieldList.length <= 3) {
-    return fieldList.join(", ");
-  }
-
-  return `${fieldList.slice(0, 3).join(", ")} +${fieldList.length - 3} more`;
-}
-
-function getActionBadgeVariant(action: string): "success" | "info" | "destructive" | "warning" | "outline" {
-  return ACTION_BADGE_VARIANT_MAP[action.toUpperCase()] ?? "outline";
-}
+import { createAuditLogColumns } from "@/components/config/audit-logs/audit-log-table-columns";
 
 export function AuditLogsPage() {
   const {
@@ -103,66 +56,7 @@ export function AuditLogsPage() {
   } = useAuditLogsPage();
 
   const columns = useMemo<ColumnDef<AuditLogEntry>[]>(
-    () => [
-      {
-        header: "Timestamp",
-        cell: (record) => (
-          <span className="text-sm font-medium text-foreground">
-            {formatDateTime(record.createdAt)}
-          </span>
-        ),
-      },
-      {
-        header: "Action",
-        cell: (record) => (
-          <Badge variant={getActionBadgeVariant(record.action)} size="xs">
-            {record.action}
-          </Badge>
-        ),
-      },
-      {
-        header: "Entity",
-        cell: (record) => (
-          <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-foreground">{record.entity}</p>
-            <p className="text-xs text-muted-foreground">{record.entityId}</p>
-          </div>
-        ),
-      },
-      {
-        header: "Actor",
-        cell: (record) => (
-          <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-foreground">
-              {record.user?.name || (record.actorEmail ? "Unknown account" : "Unknown user")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {record.user?.email || record.actorEmail || "—"}
-            </p>
-          </div>
-        ),
-      },
-      {
-        header: "Change Summary",
-        cell: (record) => (
-          <span className="line-clamp-2 text-sm text-muted-foreground">
-            {getChangeSummary(record)}
-          </span>
-        ),
-      },
-      {
-        header: "Source",
-        cell: (record) => (
-          <div className="space-y-0.5 text-right">
-            <p className="text-sm font-medium text-foreground">{record.ipAddress || "Unknown IP"}</p>
-            <p className="line-clamp-1 max-w-[240px] text-xs text-muted-foreground">
-              {record.userAgent || "User agent unavailable"}
-            </p>
-          </div>
-        ),
-        align: "right",
-      },
-    ],
+    () => createAuditLogColumns(),
     [],
   );
 
