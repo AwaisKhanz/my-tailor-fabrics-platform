@@ -215,9 +215,9 @@ export const FRONTEND_ROUTE_PERMISSIONS: Record<string, readonly Permission[]> =
   '/settings': ['settings.read'],
 };
 
-export const APP_PROTECTED_PREFIXES = ROUTE_PERMISSION_POLICIES.map(
+export const APP_PROTECTED_PREFIXES: readonly string[] = ROUTE_PERMISSION_POLICIES.map(
   (policy) => policy.pathnamePrefix,
-) as readonly string[];
+);
 
 export const EMPLOYEE_ALLOWED_PREFIXES = [
   '/my-orders',

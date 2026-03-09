@@ -31,6 +31,6 @@ export const AUDIT_ENTITIES = [
   AUDIT_UNKNOWN_ENTITY,
 ] as const;
 
-export const AUDIT_FILTER_ENTITIES = AUDIT_ENTITIES.filter(
+export const AUDIT_FILTER_ENTITIES: readonly string[] = AUDIT_ENTITIES.filter(
   (entity) => entity !== AUDIT_UNKNOWN_ENTITY,
-) as readonly string[];
+);
