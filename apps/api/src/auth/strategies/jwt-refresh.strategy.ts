@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
 import { getJwtRefreshSecret } from '../../common/env';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
-import type { RefreshTokenClaims } from '@tbms/shared-types';
+import type { RefreshTokenClaims } from '../types/auth-tokens';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;

@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { getJwtSecret } from '../../common/env';
 import { getRolePermissions, isRole } from '@tbms/shared-constants';
-import type { AccessTokenClaims } from '@tbms/shared-types';
+import type { AccessTokenClaims } from '../types/auth-tokens';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

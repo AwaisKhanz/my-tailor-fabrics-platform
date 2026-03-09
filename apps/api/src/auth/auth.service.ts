@@ -15,7 +15,7 @@ import type {
   AuthTokenClaims,
   AuthTokenPair,
   RefreshTokenClaims,
-} from '@tbms/shared-types';
+} from './types/auth-tokens';
 
 type AuthUserPayload = Pick<
   AuthTokenClaims,
