@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  salaryAccrualGenerationFormSchema,
-  type Payment,
-  type PaymentSummary,
-} from "@tbms/shared-types";
+import { type Payment, type PaymentSummary } from "@tbms/shared-types";
 import { employeesApi } from "@/lib/api/employees";
 import { paymentsApi } from "@/lib/api/payments";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +9,7 @@ import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { type Employee } from "@/types/employees";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { usePaymentDisbursementManager } from "@/hooks/use-payment-disbursement-manager";
+import { useSalaryAccrualManager } from "@/hooks/use-salary-accrual-manager";
 
 const PAGE_SIZE = 10;
 
@@ -25,32 +22,6 @@ const DEFAULT_HISTORY_FILTERS: PaymentHistoryFilters = {
   from: "",
   to: "",
 };
-
-export interface SalaryAccrualForm {
-  month: string;
-  scope: "ALL" | "SELECTED";
-}
-
-const PAYROLL_TIMEZONE = "Asia/Karachi";
-
-function getPreviousPayrollMonth(referenceDate = new Date()): string {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: PAYROLL_TIMEZONE,
-    year: "numeric",
-    month: "2-digit",
-  });
-  const parts = formatter.formatToParts(referenceDate);
-  const year = Number(parts.find((part) => part.type === "year")?.value);
-  const month = Number(parts.find((part) => part.type === "month")?.value);
-
-  if (!Number.isFinite(year) || !Number.isFinite(month)) {
-    return new Date().toISOString().slice(0, 7);
-  }
-
-  const previousMonth = month === 1 ? 12 : month - 1;
-  const previousYear = month === 1 ? year - 1 : year;
-  return `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
-}
 
 export function usePaymentsPage() {
   const { toast } = useToast();
@@ -91,14 +62,6 @@ export function usePaymentsPage() {
   const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
     null,
   );
-  const [generateSalariesOpen, setGenerateSalariesOpen] = useState(false);
-  const [salaryAccrualForm, setSalaryAccrualForm] = useState<SalaryAccrualForm>({
-    month: getPreviousPayrollMonth(),
-    scope: "ALL",
-  });
-  const [salaryAccrualValidationError, setSalaryAccrualValidationError] =
-    useState<string | null>(null);
-  const [generatingSalaries, setGeneratingSalaries] = useState(false);
 
   const fetchEmployees = useCallback(async () => {
     setEmployeesLoading(true);
@@ -227,6 +190,23 @@ export function usePaymentsPage() {
     toast,
   });
 
+  const {
+    generateSalariesOpen,
+    salaryAccrualForm,
+    salaryAccrualValidationError,
+    generatingSalaries,
+    openGenerateSalariesDialog,
+    closeGenerateSalariesDialog,
+    setSalaryAccrualMonth,
+    setSalaryAccrualScope,
+    submitSalaryAccrualGeneration,
+    resetSalaryAccrualForm,
+  } = useSalaryAccrualManager({
+    selectedEmployeeId,
+    refreshPayments,
+    toast,
+  });
+
   const handleEmployeeChange = useCallback((employeeId: string) => {
     setValues({
       employeeId,
@@ -237,13 +217,9 @@ export function usePaymentsPage() {
     setSummary(null);
     setHistory([]);
     setHistoryTotal(0);
-    setGenerateSalariesOpen(false);
-    setSalaryAccrualForm({
-      month: getPreviousPayrollMonth(),
-      scope: employeeId ? "SELECTED" : "ALL",
-    });
     resetDisbursement();
-  }, [resetDisbursement, setValues]);
+    resetSalaryAccrualForm(employeeId);
+  }, [resetDisbursement, resetSalaryAccrualForm, setValues]);
 
   const setHistoryFrom = useCallback((value: string) => {
     setValues({
@@ -270,102 +246,6 @@ export function usePaymentsPage() {
   const setHistoryPage = useCallback((nextPage: number) => {
     setValues({ page: String(nextPage) });
   }, [setValues]);
-
-  const openGenerateSalariesDialog = useCallback(() => {
-    setSalaryAccrualForm({
-      month: getPreviousPayrollMonth(),
-      scope: selectedEmployeeId ? "SELECTED" : "ALL",
-    });
-    setGenerateSalariesOpen(true);
-    setSalaryAccrualValidationError(null);
-  }, [selectedEmployeeId]);
-
-  const closeGenerateSalariesDialog = useCallback((open: boolean) => {
-    setGenerateSalariesOpen(open);
-    if (!open && !generatingSalaries) {
-      setSalaryAccrualForm({
-        month: getPreviousPayrollMonth(),
-        scope: selectedEmployeeId ? "SELECTED" : "ALL",
-      });
-      setSalaryAccrualValidationError(null);
-    }
-  }, [generatingSalaries, selectedEmployeeId]);
-
-  const setSalaryAccrualMonth = useCallback((value: string) => {
-    setSalaryAccrualForm((previous) => ({ ...previous, month: value }));
-    setSalaryAccrualValidationError(null);
-  }, []);
-
-  const setSalaryAccrualScope = useCallback((scope: SalaryAccrualForm["scope"]) => {
-    setSalaryAccrualForm((previous) => ({ ...previous, scope }));
-    setSalaryAccrualValidationError(null);
-  }, []);
-
-  const submitSalaryAccrualGeneration = useCallback(async () => {
-    const selectedScopeEmployeeId =
-      salaryAccrualForm.scope === "SELECTED" ? selectedEmployeeId || undefined : undefined;
-
-    const parsedResult = salaryAccrualGenerationFormSchema.safeParse({
-      month: salaryAccrualForm.month,
-      employeeId: selectedScopeEmployeeId,
-    });
-
-    if (!parsedResult.success) {
-      const firstIssue = parsedResult.error.issues[0]?.message;
-      setSalaryAccrualValidationError(
-        firstIssue ?? "Please provide a valid payroll month.",
-      );
-      return;
-    }
-    setSalaryAccrualValidationError(null);
-
-    setGeneratingSalaries(true);
-    try {
-      const response = await paymentsApi.generateSalaryAccruals({
-        month: parsedResult.data.month,
-        employeeId: parsedResult.data.employeeId || undefined,
-      });
-
-      if (response.success) {
-        const summary = response.data;
-        toast({
-          title: "Monthly salaries generated",
-          description: `Created ${summary.created}, existing ${summary.alreadyExists}, skipped ${summary.skipped} for ${summary.period}.`,
-        });
-        setGenerateSalariesOpen(false);
-        setSalaryAccrualForm({
-          month: getPreviousPayrollMonth(),
-          scope: selectedEmployeeId ? "SELECTED" : "ALL",
-        });
-        setSalaryAccrualValidationError(null);
-
-        if (selectedEmployeeId) {
-          await fetchSummary(selectedEmployeeId);
-          await fetchHistory(1);
-          if (historyPage !== 1) {
-            setValues({ page: "1" });
-          }
-        }
-      }
-    } catch (error: unknown) {
-      toast({
-        title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to generate monthly salaries"),
-        variant: "destructive",
-      });
-    } finally {
-      setGeneratingSalaries(false);
-    }
-  }, [
-    fetchHistory,
-    fetchSummary,
-    historyPage,
-    salaryAccrualForm.month,
-    salaryAccrualForm.scope,
-    selectedEmployeeId,
-    setValues,
-    toast,
-  ]);
 
   const reversePayment = useCallback(
     async (paymentId: string) => {

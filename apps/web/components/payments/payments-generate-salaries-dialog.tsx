@@ -25,7 +25,7 @@ import {
   salaryAccrualGenerationFormSchema,
   type SalaryAccrualGenerationFormInput,
 } from "@tbms/shared-types";
-import { type SalaryAccrualForm } from "@/hooks/use-payments-page";
+import { type SalaryAccrualForm } from "@/hooks/use-salary-accrual-manager";
 
 interface PaymentsGenerateSalariesDialogProps {
   open: boolean;
