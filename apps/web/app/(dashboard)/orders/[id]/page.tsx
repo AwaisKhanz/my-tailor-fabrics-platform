@@ -101,13 +101,13 @@ function OrderDetailPage() {
     );
   }
 
+  if (!statusConfig) {
+    throw new Error("Missing order status config for loaded order");
+  }
+
   const canCancel =
     order.status !== OrderStatus.CANCELLED &&
     order.status !== OrderStatus.COMPLETED;
-  const resolvedStatusConfig = statusConfig ?? {
-    label: order.status,
-    variant: "outline" as const,
-  };
   const canEditAction = canAll([PERMISSION["orders.update"]]);
   const canShareAction = canAll([PERMISSION["orders.share"]]);
   const canCancelAction = canAll([PERMISSION["orders.cancel"]]);
@@ -125,8 +125,8 @@ function OrderDetailPage() {
 
         <OrderDetailHeaderCard
           orderNumber={order.orderNumber}
-          statusLabel={resolvedStatusConfig.label}
-          statusVariant={resolvedStatusConfig.variant}
+          statusLabel={statusConfig.label}
+          statusVariant={statusConfig.variant}
           createdAtLabel={formatDate(order.createdAt)}
           dueDateLabel={formatDate(order.dueDate)}
           canCancel={canCancel}
