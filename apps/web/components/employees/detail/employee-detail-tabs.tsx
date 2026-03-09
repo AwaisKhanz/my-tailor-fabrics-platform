@@ -59,6 +59,7 @@ import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-pag
 import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
 import { EmployeeDocumentsSection } from "@/components/employees/detail/employee-documents-section";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
+import { EmployeeWorkHistorySection } from "@/components/employees/detail/employee-work-history-section";
 import { formatDate, formatDateTime, formatPKR } from "@/lib/utils";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
@@ -1140,29 +1141,15 @@ export function EmployeeDetailTabs({
         </EmployeeSection>
       ) : null}
 
-      <EmployeeSection
-        id="employee-history"
-        title="Work History"
-        description="Review completed and pending order items handled by this employee."
-        badge={
-          <Badge variant="default" size="xs" className="font-semibold">
-            {items.length} ITEMS
-          </Badge>
-        }
-        defaultOpen
-      >
-        <DataTable
-          columns={historyColumns}
-          data={pagedItems}
-          loading={loading}
-          emptyMessage="No work items found."
-          chrome="flat"
-          page={historyPage}
-          total={historyTotal}
-          limit={historyLimit}
-          onPageChange={setHistoryPage}
-        />
-      </EmployeeSection>
+      <EmployeeWorkHistorySection
+        items={pagedItems}
+        loading={loading}
+        page={historyPage}
+        total={historyTotal}
+        limit={historyLimit}
+        columns={historyColumns}
+        onPageChange={setHistoryPage}
+      />
 
       <EmployeeSection
         id="employee-ledger"
