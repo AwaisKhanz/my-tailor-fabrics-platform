@@ -42,7 +42,11 @@ import {
   normalizeMeasurementFieldLabel,
   resolveMeasurementFieldArchivePlan,
 } from './measurement-field-management';
-import { resolveMeasurementCategoryArchivePlan } from './measurement-category-management';
+import {
+  resolveMeasurementCategoryArchivePlan,
+  toMeasurementCategoryCreateInput,
+  toMeasurementCategoryUpdateInput,
+} from './measurement-category-management';
 import {
   GarmentTypeWithAnalytics,
   ItemStatus,
@@ -655,28 +659,9 @@ export class ConfigService {
   }
 
   async createMeasurementCategory(dto: CreateMeasurementCategoryDto) {
-    const { fields, ...data } = dto;
-
-    const createData: Prisma.MeasurementCategoryCreateInput = {
-      ...data,
-      name: data.name,
-      fields: fields
-        ? {
-            create: fields.map((f) => ({
-              label: f.label,
-              fieldType: f.fieldType,
-              unit: f.unit,
-              isRequired: f.isRequired,
-              sortOrder: f.sortOrder,
-              dropdownOptions: f.dropdownOptions,
-            })),
-          }
-        : undefined,
-    };
-
     const categoryId = await this.prisma.$transaction(async (tx) => {
       const category = await tx.measurementCategory.create({
-        data: createData,
+        data: toMeasurementCategoryCreateInput(dto),
       });
 
       const defaultSection = await ensureDefaultMeasurementSection(
@@ -707,7 +692,7 @@ export class ConfigService {
     // However, the user wants "Save Category" to work when fields are present.
     await this.prisma.measurementCategory.update({
       where: { id },
-      data: dto,
+      data: toMeasurementCategoryUpdateInput(dto),
     });
     return this.getMeasurementCategory(id);
   }

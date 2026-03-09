@@ -1,5 +1,56 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import {
+  CreateMeasurementCategoryDto,
+  UpdateMeasurementCategoryDto,
+} from './dto/measurement-category.dto';
+import { normalizeMeasurementFieldLabel } from './measurement-field-management';
 import { PrismaService } from '../prisma/prisma.service';
+
+export function normalizeMeasurementCategoryName(name: string): string {
+  const normalizedName = name.trim();
+
+  if (!normalizedName) {
+    throw new BadRequestException('Category name is required.');
+  }
+
+  return normalizedName;
+}
+
+export function toMeasurementCategoryCreateInput(
+  dto: CreateMeasurementCategoryDto,
+): Prisma.MeasurementCategoryCreateInput {
+  const { fields, ...data } = dto;
+
+  return {
+    ...data,
+    name: normalizeMeasurementCategoryName(data.name),
+    fields: fields?.length
+      ? {
+          create: fields.map((field) => ({
+            label: normalizeMeasurementFieldLabel(field.label),
+            fieldType: field.fieldType,
+            unit: field.unit,
+            isRequired: field.isRequired,
+            sortOrder: field.sortOrder,
+            dropdownOptions: field.dropdownOptions,
+          })),
+        }
+      : undefined,
+  };
+}
+
+export function toMeasurementCategoryUpdateInput(
+  dto: UpdateMeasurementCategoryDto,
+): Prisma.MeasurementCategoryUpdateInput {
+  return {
+    ...(dto.name !== undefined
+      ? { name: normalizeMeasurementCategoryName(dto.name) }
+      : {}),
+    ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+    ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+  };
+}
 
 export async function resolveMeasurementCategoryArchivePlan(
   prisma: PrismaService,
