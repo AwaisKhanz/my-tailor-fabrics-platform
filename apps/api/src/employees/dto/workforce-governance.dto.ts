@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsInt,
   IsDateString,
   IsEnum,
@@ -11,6 +12,10 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { PaymentType } from '@tbms/shared-types';
+import {
+  transformOptionalBoolean,
+  transformOptionalString,
+} from '../../common/dto/query-transformers';
 import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class EmployeeCapabilityWindowInputDto {
@@ -44,9 +49,11 @@ export class UpdateEmployeeCapabilitiesDto {
 
 export class EmployeeCapabilitiesQueryDto {
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(transformOptionalBoolean)
+  @IsBoolean()
   activeOnly?: boolean;
 
+  @Transform(transformOptionalString)
   @IsDateString()
   @IsOptional()
   asOf?: string;
@@ -72,15 +79,18 @@ export class CompensationChangeDto {
 }
 
 export class EligibleEmployeesQueryDto {
+  @Transform(transformOptionalString)
   @IsString()
   @IsNotEmpty()
   @IsCuidString()
   garmentTypeId!: string;
 
+  @Transform(transformOptionalString)
   @IsString()
   @IsOptional()
   stepKey?: string;
 
+  @Transform(transformOptionalString)
   @IsDateString()
   @IsOptional()
   asOf?: string;
