@@ -44,6 +44,7 @@ import { TaskStatus } from '@tbms/shared-types';
 import {
   toPrismaEmployeeStatus,
   toPrismaPaymentType,
+  toSharedEmployeeCapability,
   toSharedCompensationHistoryEntry,
   toSharedEmployeeStatus,
   toSharedPaymentType,
@@ -393,18 +394,7 @@ export class EmployeesService {
       orderBy: [{ effectiveFrom: 'desc' }, { createdAt: 'desc' }],
     });
 
-    return capabilities.map((capability) => ({
-      id: capability.id,
-      employeeId: capability.employeeId,
-      garmentTypeId: capability.garmentTypeId,
-      stepKey: capability.stepKey,
-      effectiveFrom: capability.effectiveFrom.toISOString(),
-      effectiveTo: capability.effectiveTo?.toISOString() ?? null,
-      note: capability.note,
-      createdById: capability.createdById,
-      createdAt: capability.createdAt.toISOString(),
-      deletedAt: capability.deletedAt?.toISOString() ?? null,
-    }));
+    return capabilities.map(toSharedEmployeeCapability);
   }
 
   async replaceCapabilitiesSnapshot(
@@ -499,18 +489,7 @@ export class EmployeesService {
           },
         });
 
-        createdCapabilities.push({
-          id: createdCapability.id,
-          employeeId: createdCapability.employeeId,
-          garmentTypeId: createdCapability.garmentTypeId,
-          stepKey: createdCapability.stepKey,
-          effectiveFrom: createdCapability.effectiveFrom.toISOString(),
-          effectiveTo: createdCapability.effectiveTo?.toISOString() ?? null,
-          note: createdCapability.note,
-          createdById: createdCapability.createdById,
-          createdAt: createdCapability.createdAt.toISOString(),
-          deletedAt: createdCapability.deletedAt?.toISOString() ?? null,
-        });
+        createdCapabilities.push(toSharedEmployeeCapability(createdCapability));
       }
 
       return createdCapabilities;

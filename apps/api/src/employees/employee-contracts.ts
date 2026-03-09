@@ -1,9 +1,13 @@
 import {
+  type EmployeeCapability as PrismaEmployeeCapability,
   EmployeeStatus,
   PaymentType,
   type EmployeeCompensationHistory,
 } from '@prisma/client';
-import type { EmployeeCompensationHistoryEntry } from '@tbms/shared-types';
+import type {
+  EmployeeCapability,
+  EmployeeCompensationHistoryEntry,
+} from '@tbms/shared-types';
 import {
   EmployeeStatus as SharedEmployeeStatus,
   PaymentType as SharedPaymentType,
@@ -62,5 +66,22 @@ export function toSharedCompensationHistoryEntry(
     note: entry.note,
     changedById: entry.changedById,
     createdAt: entry.createdAt.toISOString(),
+  };
+}
+
+export function toSharedEmployeeCapability(
+  capability: PrismaEmployeeCapability,
+): EmployeeCapability {
+  return {
+    id: capability.id,
+    employeeId: capability.employeeId,
+    garmentTypeId: capability.garmentTypeId,
+    stepKey: capability.stepKey,
+    effectiveFrom: capability.effectiveFrom.toISOString(),
+    effectiveTo: capability.effectiveTo?.toISOString() ?? null,
+    note: capability.note,
+    createdById: capability.createdById,
+    createdAt: capability.createdAt.toISOString(),
+    deletedAt: capability.deletedAt?.toISOString() ?? null,
   };
 }
