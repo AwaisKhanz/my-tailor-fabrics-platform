@@ -43,6 +43,7 @@ import type {
 import { TaskStatus } from '@tbms/shared-types';
 import {
   buildEmployeeCreateData,
+  buildEmployeeCompensationHistoryCreateData,
   buildEmployeeUpdateData,
   buildEmployeeUserAccountCreateData,
   buildRevokedEmployeeUserAccountData,
@@ -238,16 +239,13 @@ export class EmployeesService {
           });
 
           await tx.employeeCompensationHistory.create({
-            data: {
+            data: buildEmployeeCompensationHistoryCreateData({
               employeeId: createdEmployee.id,
               paymentType,
-              monthlySalary:
-                paymentType === PaymentType.MONTHLY_FIXED
-                  ? payrollFields.monthlySalary
-                  : null,
+              monthlySalary: payrollFields.monthlySalary,
               effectiveFrom: dateOfJoining,
               note: 'Initial compensation from employee profile',
-            },
+            }),
           });
 
           return createdEmployee;

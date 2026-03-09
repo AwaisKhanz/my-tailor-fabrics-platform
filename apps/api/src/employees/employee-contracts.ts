@@ -227,3 +227,26 @@ export function buildRevokedEmployeeUserAccountData(): Prisma.UserUpdateManyMuta
     previousRefreshTokenExpiresAt: null,
   };
 }
+
+export function buildEmployeeCompensationHistoryCreateData(params: {
+  employeeId: string;
+  paymentType: PaymentType;
+  monthlySalary: number | null;
+  effectiveFrom: Date;
+  effectiveTo?: Date | null;
+  note?: string | null;
+  changedById?: string | null;
+}): Prisma.EmployeeCompensationHistoryUncheckedCreateInput {
+  return {
+    employeeId: params.employeeId,
+    paymentType: params.paymentType,
+    monthlySalary:
+      params.paymentType === PaymentType.MONTHLY_FIXED
+        ? params.monthlySalary
+        : null,
+    effectiveFrom: params.effectiveFrom,
+    effectiveTo: params.effectiveTo ?? null,
+    note: params.note ?? null,
+    changedById: params.changedById ?? null,
+  };
+}

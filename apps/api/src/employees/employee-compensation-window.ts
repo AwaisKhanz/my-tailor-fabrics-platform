@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { PaymentType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { buildEmployeeCompensationHistoryCreateData } from './employee-contracts';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -114,7 +115,7 @@ export async function applyCompensationChange(
   });
 
   const created = await client.employeeCompensationHistory.create({
-    data: {
+    data: buildEmployeeCompensationHistoryCreateData({
       employeeId: params.employeeId,
       paymentType,
       monthlySalary,
@@ -124,7 +125,7 @@ export async function applyCompensationChange(
         : null,
       note: params.change.note?.trim() || null,
       changedById: params.changedById ?? null,
-    },
+    }),
     select: {
       id: true,
       paymentType: true,
