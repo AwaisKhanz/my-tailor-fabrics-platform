@@ -5,11 +5,9 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MobileSidebarSheet } from "@/components/layout/mobile-sidebar-sheet";
+import { SidebarNavList } from "@/components/layout/sidebar-nav";
 import { useAuthz } from "@/hooks/use-authz";
-import {
-  getVisibleNavSections,
-  SidebarNavList,
-} from "@/components/layout/sidebar-nav";
+import { getVisibleNavSections } from "@/lib/sidebar-navigation";
 
 export function Sidebar() {
   const pathname = usePathname();

@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import {
-  type NavSection,
-  SidebarNavList,
-} from "@/components/layout/sidebar-nav";
+import { SidebarNavList } from "@/components/layout/sidebar-nav";
 import { siteConfig } from "@/lib/config";
+import { type NavSection } from "@/lib/sidebar-navigation";
 
 interface MobileSidebarSheetProps {
   open: boolean;
