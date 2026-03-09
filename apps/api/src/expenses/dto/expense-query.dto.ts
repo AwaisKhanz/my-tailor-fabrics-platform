@@ -29,6 +29,7 @@ export class ListExpensesQueryDto extends PaginationQueryDto {
   sortBy?: (typeof EXPENSE_SORT_FIELDS)[number];
 
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc';
 }

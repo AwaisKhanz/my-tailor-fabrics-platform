@@ -14,6 +14,7 @@ export class CustomersListQueryDto extends PaginationQueryDto {
   isVip?: boolean;
 
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsEnum(CustomerStatus)
   status?: CustomerStatus;
 }
@@ -30,6 +31,7 @@ export class CustomersSummaryQueryDto {
   isVip?: boolean;
 
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsEnum(CustomerStatus)
   status?: CustomerStatus;
 }

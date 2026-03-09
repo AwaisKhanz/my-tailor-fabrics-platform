@@ -19,6 +19,7 @@ export class LedgerStatementQueryDto extends PaginationQueryDto {
   to?: string;
 
   @IsOptional()
+  @Transform(transformOptionalString)
   @IsEnum(LedgerEntryType)
   type?: LedgerEntryType;
 }
