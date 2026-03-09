@@ -66,6 +66,10 @@ import {
   getGarmentTypeDetailInclude,
   toGarmentTypeWithAnalytics,
 } from './garment-analytics';
+import {
+  buildGarmentTypeCreateData,
+  buildGarmentTypeUpdateData,
+} from './garment-type-write';
 
 const MAX_CONFIG_TRANSACTION_RETRIES = 3;
 
@@ -288,16 +292,8 @@ export class ConfigService {
   }
 
   async createGarmentType(dto: CreateGarmentTypeDto) {
-    const { measurementCategoryIds, ...data } = dto;
     return this.prisma.garmentType.create({
-      data: {
-        ...data,
-        measurementCategories: measurementCategoryIds
-          ? {
-              connect: measurementCategoryIds.map((id) => ({ id })),
-            }
-          : undefined,
-      },
+      data: buildGarmentTypeCreateData(dto),
     });
   }
 
@@ -314,20 +310,9 @@ export class ConfigService {
       if (!current) {
         throw new NotFoundException('Garment type not found.');
       }
-      const { measurementCategoryIds, ...data } = dto;
-
       const result = await tx.garmentType.update({
         where: { id },
-        data: {
-          ...data,
-          measurementCategories: measurementCategoryIds
-            ? {
-                set: measurementCategoryIds.map((categoryId) => ({
-                  id: categoryId,
-                })),
-              }
-            : undefined,
-        },
+        data: buildGarmentTypeUpdateData(dto),
       });
 
       if (
