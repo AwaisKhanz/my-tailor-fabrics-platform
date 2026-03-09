@@ -28,7 +28,7 @@ import {
 import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { type ColumnDef } from "@/components/ui/data-table";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
-import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-page";
+import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-ledger-manager";
 import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
 import { EmployeeAttendanceSection } from "@/components/employees/detail/employee-attendance-section";
 import { EmployeeCapabilitiesSection } from "@/components/employees/detail/employee-capabilities-section";
