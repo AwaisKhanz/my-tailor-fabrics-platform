@@ -1,5 +1,4 @@
 import { Filter, RotateCcw, Search } from "lucide-react";
-import { type ExpenseCategory } from "@/lib/api/expenses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +14,10 @@ import { type ExpensesFilters } from "@/hooks/use-expenses-page";
 
 interface ExpensesFiltersCardProps {
   total: number;
-  categories: ExpenseCategory[];
+  categoryFilterOptions: {
+    value: string;
+    label: string;
+  }[];
   categoriesLoading: boolean;
   filters: ExpensesFilters;
   activeFilterCount: number;
@@ -28,7 +30,7 @@ interface ExpensesFiltersCardProps {
 
 export function ExpensesFiltersCard({
   total,
-  categories,
+  categoryFilterOptions,
   categoriesLoading,
   filters,
   activeFilterCount,
@@ -77,10 +79,9 @@ export function ExpensesFiltersCard({
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
+                {categoryFilterOptions.map((category) => (
+                  <SelectItem key={category.value} value={category.value}>
+                    {category.label}
                   </SelectItem>
                 ))}
               </SelectContent>

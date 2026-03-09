@@ -27,6 +27,7 @@ function ExpensesPage() {
     page,
     pageSize,
     categories,
+    categoryFilterOptions,
     filters,
     activeFilterCount,
     listedAmount,
@@ -87,7 +88,7 @@ function ExpensesPage() {
         <TableSurface>
           <ExpensesFiltersCard
             total={total}
-            categories={categories}
+            categoryFilterOptions={categoryFilterOptions}
             categoriesLoading={categoriesLoading}
             filters={filters}
             activeFilterCount={activeFilterCount}

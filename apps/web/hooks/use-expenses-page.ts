@@ -11,6 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
+export const EXPENSES_ALL_CATEGORIES_FILTER = "all";
+
+type ExpenseFilterOption = {
+  value: string;
+  label: string;
+};
 
 interface ExpensesFilterParams {
   page: number;
@@ -56,7 +62,7 @@ export function useExpensesPage() {
       page: "1",
       limit: String(PAGE_SIZE),
       search: "",
-      categoryId: "all",
+      categoryId: EXPENSES_ALL_CATEGORIES_FILTER,
       from: "",
       to: "",
     },
@@ -81,7 +87,7 @@ export function useExpensesPage() {
   const filters = useMemo<ExpensesFilters>(
     () => ({
       search: values.search,
-      categoryId: values.categoryId || "all",
+      categoryId: values.categoryId || EXPENSES_ALL_CATEGORIES_FILTER,
       from: values.from,
       to: values.to,
     }),
@@ -118,7 +124,7 @@ export function useExpensesPage() {
         limit: pageSize,
       };
 
-      if (filters.categoryId !== "all") {
+      if (filters.categoryId !== EXPENSES_ALL_CATEGORIES_FILTER) {
         params.categoryId = filters.categoryId;
       }
       if (filters.search.trim()) {
@@ -328,12 +334,26 @@ export function useExpensesPage() {
     [expenses],
   );
 
+  const categoryFilterOptions = useMemo<ExpenseFilterOption[]>(
+    () => [
+      {
+        value: EXPENSES_ALL_CATEGORIES_FILTER,
+        label: "All Categories",
+      },
+      ...categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      })),
+    ],
+    [categories],
+  );
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.search.trim()) {
       count += 1;
     }
-    if (filters.categoryId !== "all") {
+    if (filters.categoryId !== EXPENSES_ALL_CATEGORIES_FILTER) {
       count += 1;
     }
     if (filters.from) {
@@ -353,6 +373,7 @@ export function useExpensesPage() {
     page,
     pageSize,
     categories,
+    categoryFilterOptions,
     filters,
     activeFilterCount,
     listedAmount,
