@@ -38,6 +38,11 @@ import {
   resolveMeasurementSectionArchivePlan,
 } from './measurement-section-management';
 import {
+  assertUniqueMeasurementFieldLabel,
+  normalizeMeasurementFieldLabel,
+  resolveMeasurementFieldArchivePlan,
+} from './measurement-field-management';
+import {
   GarmentTypeWithAnalytics,
   ItemStatus,
   SystemSettings,
@@ -889,25 +894,17 @@ export class ConfigService {
     categoryId: string,
     dto: CreateMeasurementFieldDto,
   ) {
-    const label = dto.label.trim();
-    if (!label) {
-      throw new BadRequestException('Field label is required.');
-    }
+    const label = normalizeMeasurementFieldLabel(dto.label);
 
     return this.prisma.$transaction(async (tx) => {
-      const category = await tx.measurementCategory.findFirstOrThrow({
+      await tx.measurementCategory.findFirstOrThrow({
         where: { id: categoryId, deletedAt: null },
-        include: { fields: { where: { deletedAt: null } } },
       });
 
-      const isDuplicate = category.fields.some(
-        (f) => f.label.toLowerCase() === label.toLowerCase(),
-      );
-      if (isDuplicate) {
-        throw new ConflictException(
-          `A field with label "${label}" already exists in this category.`,
-        );
-      }
+      await assertUniqueMeasurementFieldLabel(tx, {
+        categoryId,
+        label,
+      });
 
       const section = await resolveMeasurementSection(
         categoryId,
@@ -942,23 +939,12 @@ export class ConfigService {
       });
 
       if (dto.label) {
-        const label = dto.label.trim();
-        if (!label) {
-          throw new BadRequestException('Field label is required.');
-        }
-        const category = await tx.measurementCategory.findUniqueOrThrow({
-          where: { id: field.categoryId },
-          include: { fields: { where: { deletedAt: null, NOT: { id } } } },
+        const label = normalizeMeasurementFieldLabel(dto.label);
+        await assertUniqueMeasurementFieldLabel(tx, {
+          categoryId: field.categoryId,
+          label,
+          excludeFieldId: id,
         });
-
-        const isDuplicate = category.fields.some(
-          (f) => f.label.toLowerCase() === label.toLowerCase(),
-        );
-        if (isDuplicate) {
-          throw new ConflictException(
-            `A field with label "${label}" already exists in this category.`,
-          );
-        }
       }
 
       let resolvedSectionId: string | undefined;
@@ -992,15 +978,8 @@ export class ConfigService {
   }
 
   async deleteMeasurementField(id: string, preview = false) {
-    const field = await this.prisma.measurementField.findFirstOrThrow({
-      where: { id, deletedAt: null },
-      select: { id: true, categoryId: true },
-    });
-
-    const customerMeasurementCount =
-      await this.prisma.customerMeasurement.count({
-        where: { categoryId: field.categoryId },
-      });
+    const { field, customerMeasurementCount } =
+      await resolveMeasurementFieldArchivePlan(this.prisma, id);
 
     if (preview) {
       return {
