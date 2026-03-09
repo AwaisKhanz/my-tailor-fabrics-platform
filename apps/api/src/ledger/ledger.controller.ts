@@ -19,6 +19,7 @@ import {
   CreateLedgerEntryDto,
   ReverseLedgerEntryDto,
 } from './dto/create-ledger-entry.dto';
+import { resolveBranchScopeForMutation } from '../common/utils/branch-resolution.util';
 import { success } from '../common/utils/response.util';
 import {
   LedgerEarningsQueryDto,
@@ -41,7 +42,7 @@ export class LedgerController {
     @Body() dto: CreateLedgerEntryDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const branchId = req.branchId ?? dto.branchId;
+    const branchId = resolveBranchScopeForMutation(req, dto.branchId ?? null);
     if (!branchId) {
       throw new BadRequestException(
         'Branch scope is required to create a ledger entry',
