@@ -22,7 +22,7 @@ export function UsersTable() {
     pageSize,
     roleFilter,
     hasActiveFilters,
-    branches,
+    userBranchOptions,
     dialogOpen,
     editingUser,
     form,
@@ -79,7 +79,7 @@ export function UsersTable() {
         open={dialogOpen}
         editingUser={editingUser}
         form={form}
-        branches={branches}
+        branchOptions={userBranchOptions}
         saving={saving}
         formError={formError}
         fieldErrors={fieldErrors}

@@ -1,13 +1,11 @@
 import { isRole, ROLES } from "@tbms/shared-constants";
 import { type UserAccount } from "@tbms/shared-types";
-import { type Branch } from "@/lib/api/branches";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DialogActionRow, DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  USERS_ALL_BRANCHES_VALUE,
   type UpdateUserFormField,
   type UserFormState,
 } from "@/hooks/use-users-page";
@@ -16,7 +14,10 @@ interface UserAccountDialogProps {
   open: boolean;
   editingUser: UserAccount | null;
   form: UserFormState;
-  branches: Branch[];
+  branchOptions: {
+    value: string;
+    label: string;
+  }[];
   saving: boolean;
   formError: string;
   fieldErrors: Partial<Record<keyof UserFormState, string>>;
@@ -29,7 +30,7 @@ export function UserAccountDialog({
   open,
   editingUser,
   form,
-  branches,
+  branchOptions,
   saving,
   formError,
   fieldErrors,
@@ -143,14 +144,11 @@ export function UserAccountDialog({
                 <SelectValue placeholder="Select branch (leave blank for all)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={USERS_ALL_BRANCHES_VALUE}>All Branches</SelectItem>
-                {branches
-                  .filter((branch) => branch.id)
-                  .map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id}>
-                      {branch.name} ({branch.code})
-                    </SelectItem>
-                  ))}
+                {branchOptions.map((branch) => (
+                  <SelectItem key={branch.value} value={branch.value}>
+                    {branch.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {fieldErrors.branchId ? (

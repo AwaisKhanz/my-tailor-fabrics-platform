@@ -30,6 +30,10 @@ export const USER_ROLE_FILTER_OPTIONS = [
   },
   ...ROLES,
 ];
+const ALL_BRANCHES_OPTION = {
+  value: USERS_ALL_BRANCHES_VALUE,
+  label: "All Branches",
+} as const;
 
 export interface UserFormState {
   name: string;
@@ -150,6 +154,19 @@ export function useUsersPage() {
   const hasActiveFilters = useMemo(
     () => search.trim().length > 0 || roleFilter !== USERS_ALL_ROLES_FILTER_VALUE,
     [roleFilter, search],
+  );
+
+  const userBranchOptions = useMemo(
+    () => [
+      ALL_BRANCHES_OPTION,
+      ...branches
+        .filter((branch) => branch.id)
+        .map((branch) => ({
+          value: branch.id,
+          label: `${branch.name} (${branch.code})`,
+        })),
+    ],
+    [branches],
   );
 
   const openCreateDialog = useCallback(() => {
@@ -334,6 +351,7 @@ export function useUsersPage() {
     roleFilter,
     hasActiveFilters,
     branches,
+    userBranchOptions,
     dialogOpen,
     editingUser,
     form,
