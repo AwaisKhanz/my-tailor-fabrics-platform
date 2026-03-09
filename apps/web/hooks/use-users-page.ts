@@ -21,6 +21,7 @@ const PAGE_SIZE = 10;
 export const USERS_ALL_BRANCHES_VALUE = "ALL_BRANCHES";
 export const USERS_ALL_ROLES_FILTER_VALUE = "ALL_ROLES";
 export const USERS_ALL_BRANCHES_LABEL = "All Branches";
+export const USERS_ALL_ROLES_LABEL = "All Roles";
 export const USERS_MASTER_ACCESS_LABEL = "Master Access";
 
 export type UserRoleFilter = Role | typeof USERS_ALL_ROLES_FILTER_VALUE;
@@ -28,7 +29,7 @@ export type UserRoleFilter = Role | typeof USERS_ALL_ROLES_FILTER_VALUE;
 export const USER_ROLE_FILTER_OPTIONS = [
   {
     value: USERS_ALL_ROLES_FILTER_VALUE,
-    label: "All Roles",
+    label: USERS_ALL_ROLES_LABEL,
   },
   ...ROLES,
 ];

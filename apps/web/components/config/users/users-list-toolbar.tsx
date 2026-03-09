@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import {
   USER_ROLE_FILTER_OPTIONS,
+  USERS_ALL_ROLES_LABEL,
   USERS_ALL_ROLES_FILTER_VALUE,
   type UserRoleFilter,
 } from "@/hooks/use-users-page";
@@ -51,7 +52,7 @@ export function UsersListToolbar({
               <SelectTrigger className="w-full text-xs font-bold">
                 <div className="flex items-center gap-2">
                   <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                  <SelectValue placeholder="Filter by role" />
+                  <SelectValue placeholder={USERS_ALL_ROLES_LABEL} />
                 </div>
               </SelectTrigger>
               <SelectContent>
