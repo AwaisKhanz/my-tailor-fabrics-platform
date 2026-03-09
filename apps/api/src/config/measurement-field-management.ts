@@ -4,6 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import {
+  CreateMeasurementFieldDto,
+  UpdateMeasurementFieldDto,
+} from './dto/measurement-category.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 type MeasurementFieldDbClient = PrismaService | Prisma.TransactionClient;
@@ -15,6 +19,48 @@ export function normalizeMeasurementFieldLabel(label: string): string {
   }
 
   return normalizedLabel;
+}
+
+export function toMeasurementFieldCreateInput(params: {
+  dto: CreateMeasurementFieldDto;
+  categoryId: string;
+  sectionId: string;
+}): Prisma.MeasurementFieldUncheckedCreateInput {
+  const { dto, categoryId, sectionId } = params;
+
+  return {
+    label: normalizeMeasurementFieldLabel(dto.label),
+    ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
+    ...(dto.isRequired !== undefined ? { isRequired: dto.isRequired } : {}),
+    ...(dto.dropdownOptions !== undefined
+      ? { dropdownOptions: dto.dropdownOptions }
+      : {}),
+    ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
+    ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+    categoryId,
+    sectionId,
+  };
+}
+
+export function toMeasurementFieldUpdateInput(params: {
+  dto: UpdateMeasurementFieldDto;
+  sectionId?: string;
+}): Prisma.MeasurementFieldUncheckedUpdateInput {
+  const { dto, sectionId } = params;
+
+  return {
+    ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
+    ...(dto.isRequired !== undefined ? { isRequired: dto.isRequired } : {}),
+    ...(dto.dropdownOptions !== undefined
+      ? { dropdownOptions: dto.dropdownOptions }
+      : {}),
+    ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
+    ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+    ...(dto.label !== undefined
+      ? { label: normalizeMeasurementFieldLabel(dto.label) }
+      : {}),
+    ...(sectionId ? { sectionId } : {}),
+  };
 }
 
 export async function assertUniqueMeasurementFieldLabel(

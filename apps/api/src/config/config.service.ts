@@ -41,6 +41,8 @@ import {
   assertUniqueMeasurementFieldLabel,
   normalizeMeasurementFieldLabel,
   resolveMeasurementFieldArchivePlan,
+  toMeasurementFieldCreateInput,
+  toMeasurementFieldUpdateInput,
 } from './measurement-field-management';
 import {
   resolveMeasurementCategoryArchivePlan,
@@ -900,20 +902,11 @@ export class ConfigService {
       );
 
       return tx.measurementField.create({
-        data: {
-          label,
-          ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
-          ...(dto.isRequired !== undefined
-            ? { isRequired: dto.isRequired }
-            : {}),
-          ...(dto.dropdownOptions !== undefined
-            ? { dropdownOptions: dto.dropdownOptions }
-            : {}),
-          ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
-          ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+        data: toMeasurementFieldCreateInput({
+          dto: { ...dto, label },
           categoryId,
           sectionId: section.id,
-        },
+        }),
       });
     });
   }
@@ -946,19 +939,10 @@ export class ConfigService {
 
       return tx.measurementField.update({
         where: { id },
-        data: {
-          ...(dto.fieldType !== undefined ? { fieldType: dto.fieldType } : {}),
-          ...(dto.isRequired !== undefined
-            ? { isRequired: dto.isRequired }
-            : {}),
-          ...(dto.dropdownOptions !== undefined
-            ? { dropdownOptions: dto.dropdownOptions }
-            : {}),
-          ...(dto.unit !== undefined ? { unit: dto.unit } : {}),
-          ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
-          ...(dto.label !== undefined ? { label: dto.label.trim() } : {}),
-          ...(resolvedSectionId ? { sectionId: resolvedSectionId } : {}),
-        },
+        data: toMeasurementFieldUpdateInput({
+          dto,
+          sectionId: resolvedSectionId,
+        }),
       });
     });
   }
