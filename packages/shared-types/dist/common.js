@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AddonType = exports.LedgerEntryType = exports.FabricSource = exports.DiscountType = exports.TaskStatus = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
+exports.isTaskStatus = isTaskStatus;
 // --- Prisma Enums (Synced) ---
 var Role;
 (function (Role) {
@@ -57,6 +58,17 @@ var TaskStatus;
     TaskStatus["DONE"] = "DONE";
     TaskStatus["CANCELLED"] = "CANCELLED";
 })(TaskStatus || (exports.TaskStatus = TaskStatus = {}));
+function isTaskStatus(value) {
+    switch (value) {
+        case TaskStatus.PENDING:
+        case TaskStatus.IN_PROGRESS:
+        case TaskStatus.DONE:
+        case TaskStatus.CANCELLED:
+            return true;
+        default:
+            return false;
+    }
+}
 var DiscountType;
 (function (DiscountType) {
     DiscountType["FIXED"] = "FIXED";

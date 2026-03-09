@@ -60,6 +60,7 @@ export declare enum TaskStatus {
     DONE = "DONE",
     CANCELLED = "CANCELLED"
 }
+export declare function isTaskStatus(value: string): value is TaskStatus;
 export declare enum DiscountType {
     FIXED = "FIXED",
     PERCENTAGE = "PERCENTAGE"

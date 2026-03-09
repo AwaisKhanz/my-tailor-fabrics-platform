@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { Check, Edit2, X } from "lucide-react";
 import {
   type Employee,
+  isTaskStatus,
   type OrderItemTask,
   TaskStatus,
 } from "@tbms/shared-types";
@@ -45,18 +46,6 @@ interface TaskAssignmentTableProps {
 }
 
 const PAGE_SIZE = 10;
-
-function isTaskStatus(value: string): value is TaskStatus {
-  switch (value) {
-    case TaskStatus.PENDING:
-    case TaskStatus.IN_PROGRESS:
-    case TaskStatus.DONE:
-    case TaskStatus.CANCELLED:
-      return true;
-    default:
-      return false;
-  }
-}
 
 export function TaskAssignmentTable({
   tasks,

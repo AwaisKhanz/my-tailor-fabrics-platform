@@ -34,6 +34,7 @@ import type {
 import {
   employeeCapabilitySnapshotFormSchema,
   employeeCompensationChangeFormSchema,
+  isTaskStatus,
   PaymentType,
   TaskStatus,
 } from "@tbms/shared-types";
@@ -202,18 +203,6 @@ function EmployeeSection({
       ) : null}
     </Card>
   );
-}
-
-function isTaskStatus(value: string): value is TaskStatus {
-  switch (value) {
-    case TaskStatus.PENDING:
-    case TaskStatus.IN_PROGRESS:
-    case TaskStatus.DONE:
-    case TaskStatus.CANCELLED:
-      return true;
-    default:
-      return false;
-  }
 }
 
 function toDateInputValue(value?: string | null): string {

@@ -74,6 +74,18 @@ export enum TaskStatus {
   CANCELLED = 'CANCELLED'
 }
 
+export function isTaskStatus(value: string): value is TaskStatus {
+  switch (value) {
+    case TaskStatus.PENDING:
+    case TaskStatus.IN_PROGRESS:
+    case TaskStatus.DONE:
+    case TaskStatus.CANCELLED:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export enum DiscountType {
   FIXED = 'FIXED',
   PERCENTAGE = 'PERCENTAGE'
