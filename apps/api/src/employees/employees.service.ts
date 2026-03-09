@@ -44,6 +44,8 @@ import { TaskStatus } from '@tbms/shared-types';
 import {
   buildEmployeeCreateData,
   buildEmployeeUpdateData,
+  buildEmployeeUserAccountCreateData,
+  buildRevokedEmployeeUserAccountData,
   toPrismaEmployeeStatus,
   toPrismaPaymentType,
   toSharedEmployeeCapability,
@@ -817,12 +819,7 @@ export class EmployeesService {
       if (status !== EmployeeStatus.ACTIVE) {
         await tx.user.updateMany({
           where: { employeeId: id, deletedAt: null },
-          data: {
-            isActive: false,
-            refreshToken: null,
-            previousRefreshToken: null,
-            previousRefreshTokenExpiresAt: null,
-          },
+          data: buildRevokedEmployeeUserAccountData(),
         });
       }
 
@@ -859,12 +856,7 @@ export class EmployeesService {
 
       await tx.user.updateMany({
         where: { employeeId: id, deletedAt: null },
-        data: {
-          isActive: false,
-          refreshToken: null,
-          previousRefreshToken: null,
-          previousRefreshTokenExpiresAt: null,
-        },
+        data: buildRevokedEmployeeUserAccountData(),
       });
 
       return tx.employee.update({
@@ -912,14 +904,14 @@ export class EmployeesService {
       const passwordHash = await bcrypt.hash(rawPass, 12);
 
       const user = await tx.user.create({
-        data: {
+        data: buildEmployeeUserAccountCreateData({
           name: employee.fullName,
           email: normalizedEmail,
           passwordHash,
           role: Role.EMPLOYEE,
-          branchId: employee.branchId, // Use the employee's branch, not the requester's which could be null for Super Admin
+          branchId: employee.branchId,
           employeeId,
-        },
+        }),
       });
 
       return user;

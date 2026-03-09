@@ -2,6 +2,7 @@ import {
   type EmployeeCapability as PrismaEmployeeCapability,
   EmployeeStatus,
   PaymentType,
+  Role,
   type Prisma,
   type Employee as PrismaEmployee,
   type EmployeeCompensationHistory,
@@ -197,5 +198,32 @@ export function buildEmployeeUpdateData(params: {
     paymentType: params.paymentType,
     monthlySalary: params.monthlySalary,
     employmentEndDate: params.employmentEndDate,
+  };
+}
+
+export function buildEmployeeUserAccountCreateData(params: {
+  employeeId: string;
+  branchId: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: Role;
+}): Prisma.UserUncheckedCreateInput {
+  return {
+    name: params.name,
+    email: params.email,
+    passwordHash: params.passwordHash,
+    role: params.role,
+    branchId: params.branchId,
+    employeeId: params.employeeId,
+  };
+}
+
+export function buildRevokedEmployeeUserAccountData(): Prisma.UserUpdateManyMutationInput {
+  return {
+    isActive: false,
+    refreshToken: null,
+    previousRefreshToken: null,
+    previousRefreshTokenExpiresAt: null,
   };
 }
