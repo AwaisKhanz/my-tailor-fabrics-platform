@@ -161,3 +161,26 @@ export async function resolveMeasurementSectionArchivePlan(
     targetSection,
   };
 }
+
+export function buildMeasurementSectionArchiveResponse(params: {
+  blockedReasons: ArchiveBlockedReason[];
+  activeFieldCount: number;
+  deletedSectionId: string;
+  targetSectionId: string | null;
+}) {
+  const movedFieldCount =
+    params.blockedReasons.length > 0 ? 0 : params.activeFieldCount;
+
+  return {
+    action: 'ARCHIVE' as const,
+    blocked: params.blockedReasons.length > 0,
+    blockedReasons: params.blockedReasons,
+    affected: {
+      sections: 1,
+      movedFields: movedFieldCount,
+    },
+    deletedSectionId: params.deletedSectionId,
+    movedFieldCount,
+    targetSectionId: params.targetSectionId,
+  };
+}

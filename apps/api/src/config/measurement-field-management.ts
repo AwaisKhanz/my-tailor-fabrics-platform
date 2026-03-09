@@ -122,3 +122,19 @@ export async function resolveMeasurementFieldArchivePlan(
     customerMeasurementCount,
   };
 }
+
+export function buildMeasurementFieldArchiveResponse(params: {
+  archivedFieldId: string;
+  customerMeasurementCount: number;
+}) {
+  return {
+    action: 'ARCHIVE' as const,
+    blocked: false,
+    blockedReasons: [],
+    affected: {
+      fields: 1,
+      historicalCustomerMeasurements: params.customerMeasurementCount,
+    },
+    archivedFieldId: params.archivedFieldId,
+  };
+}

@@ -100,3 +100,27 @@ export async function resolveMeasurementCategoryArchivePlan(
     historicalMeasurementCount,
   };
 }
+
+export function buildMeasurementCategoryArchiveResponse(params: {
+  category: {
+    garmentTypes: Array<{ id: string }>;
+    fields: Array<{ id: string }>;
+    sections: Array<{ id: string }>;
+  };
+  historicalMeasurementCount: number;
+  archivedCategoryId: string;
+}) {
+  return {
+    action: 'ARCHIVE' as const,
+    blocked: false,
+    blockedReasons: [],
+    affected: {
+      categories: 1,
+      linkedGarments: params.category.garmentTypes.length,
+      activeSections: params.category.sections.length,
+      activeFields: params.category.fields.length,
+      historicalCustomerMeasurements: params.historicalMeasurementCount,
+    },
+    archivedCategoryId: params.archivedCategoryId,
+  };
+}

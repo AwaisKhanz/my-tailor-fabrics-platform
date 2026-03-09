@@ -35,6 +35,7 @@ import {
 } from './measurement-section-resolver';
 import {
   assertUniqueMeasurementSectionName,
+  buildMeasurementSectionArchiveResponse,
   normalizeMeasurementSectionName,
   resolveMeasurementSectionArchivePlan,
   toMeasurementSectionCreateInput,
@@ -42,12 +43,14 @@ import {
 } from './measurement-section-management';
 import {
   assertUniqueMeasurementFieldLabel,
+  buildMeasurementFieldArchiveResponse,
   normalizeMeasurementFieldLabel,
   resolveMeasurementFieldArchivePlan,
   toMeasurementFieldCreateInput,
   toMeasurementFieldUpdateInput,
 } from './measurement-field-management';
 import {
+  buildMeasurementCategoryArchiveResponse,
   resolveMeasurementCategoryArchivePlan,
   toMeasurementCategoryCreateInput,
   toMeasurementCategoryUpdateInput,
@@ -783,18 +786,12 @@ export class ConfigService {
       );
 
     if (preview) {
-      return {
-        action: 'ARCHIVE',
-        blocked: blockedReasons.length > 0,
+      return buildMeasurementSectionArchiveResponse({
         blockedReasons,
-        affected: {
-          sections: 1,
-          movedFields: blockedReasons.length > 0 ? 0 : activeFieldCount,
-        },
+        activeFieldCount,
         deletedSectionId: sectionId,
-        movedFieldCount: blockedReasons.length > 0 ? 0 : activeFieldCount,
         targetSectionId: targetSection?.id ?? null,
-      };
+      });
     }
 
     if (blockedReasons.length > 0) {
@@ -813,18 +810,12 @@ export class ConfigService {
         }),
       ]);
 
-      return {
-        action: 'ARCHIVE',
-        blocked: false,
+      return buildMeasurementSectionArchiveResponse({
         blockedReasons: [],
-        affected: {
-          sections: 1,
-          movedFields: activeFieldCount,
-        },
+        activeFieldCount,
         deletedSectionId: sectionId,
-        movedFieldCount: activeFieldCount,
         targetSectionId: targetSection.id,
-      };
+      });
     }
 
     await this.prisma.measurementSection.update({
@@ -832,18 +823,12 @@ export class ConfigService {
       data: { deletedAt: new Date() },
     });
 
-    return {
-      action: 'ARCHIVE',
-      blocked: false,
+    return buildMeasurementSectionArchiveResponse({
       blockedReasons: [],
-      affected: {
-        sections: 1,
-        movedFields: 0,
-      },
+      activeFieldCount: 0,
       deletedSectionId: sectionId,
-      movedFieldCount: 0,
       targetSectionId: null,
-    };
+    });
   }
 
   async addMeasurementField(
@@ -920,16 +905,10 @@ export class ConfigService {
       await resolveMeasurementFieldArchivePlan(this.prisma, id);
 
     if (preview) {
-      return {
-        action: 'ARCHIVE',
-        blocked: false,
-        blockedReasons: [],
-        affected: {
-          fields: 1,
-          historicalCustomerMeasurements: customerMeasurementCount,
-        },
+      return buildMeasurementFieldArchiveResponse({
         archivedFieldId: id,
-      };
+        customerMeasurementCount,
+      });
     }
 
     await this.prisma.measurementField.update({
@@ -937,16 +916,10 @@ export class ConfigService {
       data: { deletedAt: new Date() },
     });
 
-    return {
-      action: 'ARCHIVE',
-      blocked: false,
-      blockedReasons: [],
-      affected: {
-        fields: 1,
-        historicalCustomerMeasurements: customerMeasurementCount,
-      },
+    return buildMeasurementFieldArchiveResponse({
       archivedFieldId: id,
-    };
+      customerMeasurementCount,
+    });
   }
 
   async deleteMeasurementCategory(id: string, preview = false) {
@@ -954,19 +927,11 @@ export class ConfigService {
       await resolveMeasurementCategoryArchivePlan(this.prisma, id);
 
     if (preview) {
-      return {
-        action: 'ARCHIVE',
-        blocked: false,
-        blockedReasons: [],
-        affected: {
-          categories: 1,
-          linkedGarments: category.garmentTypes.length,
-          activeSections: category.sections.length,
-          activeFields: category.fields.length,
-          historicalCustomerMeasurements: historicalMeasurementCount,
-        },
+      return buildMeasurementCategoryArchiveResponse({
+        category,
+        historicalMeasurementCount,
         archivedCategoryId: id,
-      };
+      });
     }
 
     await this.prisma.measurementCategory.update({
@@ -974,19 +939,11 @@ export class ConfigService {
       data: { deletedAt: new Date(), isActive: false },
     });
 
-    return {
-      action: 'ARCHIVE',
-      blocked: false,
-      blockedReasons: [],
-      affected: {
-        categories: 1,
-        linkedGarments: category.garmentTypes.length,
-        activeSections: category.sections.length,
-        activeFields: category.fields.length,
-        historicalCustomerMeasurements: historicalMeasurementCount,
-      },
+    return buildMeasurementCategoryArchiveResponse({
+      category,
+      historicalMeasurementCount,
       archivedCategoryId: id,
-    };
+    });
   }
 
   async restoreMeasurementCategory(id: string) {
