@@ -40,7 +40,6 @@ import {
 import {
   LEDGER_ENTRY_TYPE_BADGE,
   LEDGER_ENTRY_TYPE_LABELS,
-  LEDGER_ENTRY_TYPE_OPTIONS,
   PAYMENT_TYPE_LABELS,
   TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
@@ -84,6 +83,10 @@ interface EmployeeDetailTabsProps {
   ledgerFrom: string;
   ledgerTo: string;
   ledgerType: string;
+  ledgerTypeFilterOptions: {
+    value: string;
+    label: string;
+  }[];
   ledgerPage: number;
   ledgerTotal: number;
   ledgerLimit: number;
@@ -239,6 +242,7 @@ export function EmployeeDetailTabs({
   ledgerFrom,
   ledgerTo,
   ledgerType,
+  ledgerTypeFilterOptions,
   ledgerPage,
   ledgerTotal,
   ledgerLimit,
@@ -1314,8 +1318,7 @@ export function EmployeeDetailTabs({
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {LEDGER_ENTRY_TYPE_OPTIONS.map((option) => (
+                {ledgerTypeFilterOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>

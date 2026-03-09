@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { employeesApi, type EmployeeWithRelations } from "@/lib/api/employees";
 import { attendanceApi } from "@/lib/api/attendance";
@@ -26,6 +26,7 @@ import {
   type SystemSettings,
   type TaskStatus,
 } from "@tbms/shared-types";
+import { LEDGER_ENTRY_TYPE_OPTIONS } from "@tbms/shared-constants";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface EmployeeStatsSnapshot {
@@ -37,6 +38,8 @@ interface EmployeeStatsSnapshot {
 interface UseEmployeeDetailPageParams {
   employeeId: string | null;
 }
+
+export const EMPLOYEE_LEDGER_ALL_TYPES_FILTER = "all";
 
 function parseLedgerEntryType(value: string): LedgerEntryType | undefined {
   switch (value) {
@@ -59,7 +62,7 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     defaults: {
       from: "",
       to: "",
-      type: "all",
+      type: EMPLOYEE_LEDGER_ALL_TYPES_FILTER,
       page: "1",
       limit: "20",
     },
@@ -86,10 +89,21 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   const [ledgerLoading, setLedgerLoading] = useState(false);
   const ledgerFrom = values.from;
   const ledgerTo = values.to;
-  const ledgerType = values.type || "all";
+  const ledgerType = values.type || EMPLOYEE_LEDGER_ALL_TYPES_FILTER;
   const ledgerPage = getPositiveInt("page", 1);
   const ledgerLimit = getPositiveInt("limit", 20);
   const [ledgerTotal, setLedgerTotal] = useState(0);
+
+  const ledgerTypeFilterOptions = useMemo(
+    () => [
+      {
+        value: EMPLOYEE_LEDGER_ALL_TYPES_FILTER,
+        label: "All Types",
+      },
+      ...LEDGER_ENTRY_TYPE_OPTIONS,
+    ],
+    [],
+  );
 
   const [accountDialogOpen, setAccountDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -526,6 +540,7 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     ledgerFrom,
     ledgerTo,
     ledgerType,
+    ledgerTypeFilterOptions,
     ledgerPage,
     ledgerTotal,
     ledgerLimit,

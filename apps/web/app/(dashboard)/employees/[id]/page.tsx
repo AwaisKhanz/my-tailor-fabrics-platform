@@ -50,6 +50,7 @@ function EmployeeDetailPage() {
     ledgerFrom,
     ledgerTo,
     ledgerType,
+    ledgerTypeFilterOptions,
     ledgerPage,
     ledgerTotal,
     ledgerLimit,
@@ -158,6 +159,7 @@ function EmployeeDetailPage() {
               ledgerFrom={ledgerFrom}
               ledgerTo={ledgerTo}
               ledgerType={ledgerType}
+              ledgerTypeFilterOptions={ledgerTypeFilterOptions}
               ledgerPage={ledgerPage}
               ledgerTotal={ledgerTotal}
               ledgerLimit={ledgerLimit}
