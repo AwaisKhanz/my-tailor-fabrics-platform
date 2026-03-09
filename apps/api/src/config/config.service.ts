@@ -33,6 +33,11 @@ import {
   resolveMeasurementSection,
 } from './measurement-section-resolver';
 import {
+  assertUniqueMeasurementSectionName,
+  normalizeMeasurementSectionName,
+  resolveMeasurementSectionArchivePlan,
+} from './measurement-section-management';
+import {
   GarmentTypeWithAnalytics,
   FieldType,
   ItemStatus,
@@ -791,10 +796,7 @@ export class ConfigService {
     categoryId: string,
     dto: CreateMeasurementSectionDto,
   ) {
-    const normalizedName = dto.name.trim();
-    if (!normalizedName) {
-      throw new BadRequestException('Section name is required.');
-    }
+    const normalizedName = normalizeMeasurementSectionName(dto.name);
 
     for (
       let attempt = 1;
@@ -812,19 +814,10 @@ export class ConfigService {
               throw new NotFoundException('Measurement category not found');
             }
 
-            const duplicate = await tx.measurementSection.findFirst({
-              where: {
-                categoryId,
-                deletedAt: null,
-                name: { equals: normalizedName, mode: 'insensitive' },
-              },
+            await assertUniqueMeasurementSectionName(tx, {
+              categoryId,
+              name: normalizedName,
             });
-
-            if (duplicate) {
-              throw new ConflictException(
-                `Section "${normalizedName}" already exists in this category.`,
-              );
-            }
 
             const nextSortOrder =
               dto.sortOrder ??
@@ -878,25 +871,12 @@ export class ConfigService {
     const data: Prisma.MeasurementSectionUpdateInput = {};
 
     if (dto.name !== undefined) {
-      const normalizedName = dto.name.trim();
-      if (!normalizedName) {
-        throw new BadRequestException('Section name is required.');
-      }
-
-      const duplicate = await this.prisma.measurementSection.findFirst({
-        where: {
-          categoryId: section.categoryId,
-          deletedAt: null,
-          id: { not: sectionId },
-          name: { equals: normalizedName, mode: 'insensitive' },
-        },
+      const normalizedName = normalizeMeasurementSectionName(dto.name);
+      await assertUniqueMeasurementSectionName(this.prisma, {
+        categoryId: section.categoryId,
+        name: normalizedName,
+        excludeSectionId: sectionId,
       });
-
-      if (duplicate) {
-        throw new ConflictException(
-          `Section "${normalizedName}" already exists in this category.`,
-        );
-      }
 
       data.name = normalizedName;
     }
@@ -920,66 +900,12 @@ export class ConfigService {
     dto: DeleteMeasurementSectionDto = {},
     preview = false,
   ) {
-    const section = await this.prisma.measurementSection.findUnique({
-      where: { id: sectionId },
-      include: {
-        category: {
-          select: {
-            id: true,
-            deletedAt: true,
-          },
-        },
-      },
-    });
-
-    if (!section || section.deletedAt || section.category.deletedAt) {
-      throw new NotFoundException('Measurement section not found.');
-    }
-
-    const activeFieldCount = await this.prisma.measurementField.count({
-      where: { sectionId, deletedAt: null },
-    });
-
-    const targetSectionId = dto.targetSectionId?.trim();
-    const blockedReasons: { code: string; message: string }[] = [];
-
-    let targetSection: {
-      id: string;
-      categoryId: string;
-    } | null = null;
-
-    if (activeFieldCount > 0) {
-      if (!targetSectionId) {
-        blockedReasons.push({
-          code: 'TARGET_SECTION_REQUIRED',
-          message:
-            'Target section is required to move fields before archiving this section.',
-        });
-      }
-
-      if (targetSectionId && targetSectionId === sectionId) {
-        blockedReasons.push({
-          code: 'TARGET_SECTION_INVALID',
-          message:
-            'Target section must be different from the section being archived.',
-        });
-      }
-
-      if (targetSectionId && targetSectionId !== sectionId) {
-        targetSection = await this.prisma.measurementSection.findFirst({
-          where: { id: targetSectionId, deletedAt: null },
-          select: { id: true, categoryId: true },
-        });
-
-        if (!targetSection || targetSection.categoryId !== section.categoryId) {
-          blockedReasons.push({
-            code: 'TARGET_SECTION_NOT_FOUND',
-            message:
-              'Target measurement section was not found in this category.',
-          });
-        }
-      }
-    }
+    const { section, activeFieldCount, blockedReasons, targetSection } =
+      await resolveMeasurementSectionArchivePlan(
+        this.prisma,
+        sectionId,
+        dto.targetSectionId,
+      );
 
     if (preview) {
       return {
