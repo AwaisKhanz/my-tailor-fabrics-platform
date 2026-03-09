@@ -15,6 +15,7 @@ import {
   AUDIT_ENTITIES,
   AUDIT_UNKNOWN_ENTITY,
 } from '@tbms/shared-constants';
+import { isRecord, toAuditJsonValue } from './audit-log-json';
 
 type MutationMethod = 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -45,19 +46,6 @@ type ResolvedAuditActor = {
   branchId: string | null;
   actorEmail: string | null;
 };
-
-const SENSITIVE_AUDIT_KEYS = [
-  'password',
-  'passwordhash',
-  'refreshtoken',
-  'accesstoken',
-  'token',
-  'secret',
-  'authorization',
-  'cookie',
-  'apikey',
-  'api_key',
-] as const;
 
 const AUDIT_ENTITY_VALUES = new Set<string>(AUDIT_ENTITIES);
 
@@ -307,7 +295,7 @@ export class AuditInterceptor implements NestInterceptor {
       }
     }
 
-    if (this.isRecord(request.body)) {
+    if (isRecord(request.body)) {
       const bodyId = request.body['id'];
       if (typeof bodyId === 'string' && bodyId.trim().length > 0) {
         return bodyId;
@@ -389,12 +377,12 @@ export class AuditInterceptor implements NestInterceptor {
   }
 
   private resolveResponseEntityId(response: unknown): string | null {
-    if (!this.isRecord(response)) {
+    if (!isRecord(response)) {
       return null;
     }
 
     const data = response['data'];
-    if (this.isRecord(data) && typeof data['id'] === 'string') {
+    if (isRecord(data) && typeof data['id'] === 'string') {
       return data['id'];
     }
 
@@ -409,17 +397,17 @@ export class AuditInterceptor implements NestInterceptor {
     userId: string;
     branchId: string | null;
   } | null {
-    if (!this.isRecord(response)) {
+    if (!isRecord(response)) {
       return null;
     }
 
     const data = response['data'];
-    if (!this.isRecord(data)) {
+    if (!isRecord(data)) {
       return null;
     }
 
     const user = data['user'];
-    if (!this.isRecord(user) || typeof user['id'] !== 'string') {
+    if (!isRecord(user) || typeof user['id'] !== 'string') {
       return null;
     }
 
@@ -435,7 +423,7 @@ export class AuditInterceptor implements NestInterceptor {
   }
 
   private resolveLoginEmail(body: unknown): string | null {
-    if (!this.isRecord(body)) {
+    if (!isRecord(body)) {
       return null;
     }
 
@@ -514,7 +502,7 @@ export class AuditInterceptor implements NestInterceptor {
       return { message: error.message };
     }
 
-    if (!this.isRecord(error)) {
+    if (!isRecord(error)) {
       return { message: 'Request failed' };
     }
 
@@ -574,13 +562,13 @@ export class AuditInterceptor implements NestInterceptor {
       method === 'DELETE' && !error
         ? Prisma.JsonNull
         : errorSummary
-          ? this.toAuditJsonValue({
+          ? toAuditJsonValue({
               failed: true,
               error: errorSummary.message,
               statusCode: errorSummary.statusCode,
               requestBody: body,
             })
-          : this.toAuditJsonValue(body);
+          : toAuditJsonValue(body);
 
     await this.prisma.auditLog
       .create({
@@ -591,7 +579,7 @@ export class AuditInterceptor implements NestInterceptor {
           entity,
           entityId,
           branchId: actor.branchId,
-          oldValue: this.toAuditJsonValue(oldValue),
+          oldValue: toAuditJsonValue(oldValue),
           newValue: newValuePayload,
           ipAddress: request.ip,
           userAgent,
@@ -607,115 +595,4 @@ export class AuditInterceptor implements NestInterceptor {
       });
   }
 
-  private toAuditJsonValue(
-    value: unknown,
-  ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
-    if (value === undefined || value === null) {
-      return Prisma.JsonNull;
-    }
-
-    const sanitized = this.redactSensitiveFields(value, new WeakSet());
-    if (sanitized === undefined || sanitized === null) {
-      return Prisma.JsonNull;
-    }
-
-    const converted = this.toPrismaJsonValue(sanitized, new WeakSet());
-    return converted ?? Prisma.JsonNull;
-  }
-
-  private toPrismaJsonValue(
-    value: unknown,
-    seen: WeakSet<object>,
-  ): Prisma.InputJsonValue | undefined {
-    if (value === null) {
-      return undefined;
-    }
-
-    if (typeof value === 'string' || typeof value === 'boolean') {
-      return value;
-    }
-
-    if (typeof value === 'number') {
-      return Number.isFinite(value) ? value : undefined;
-    }
-
-    if (typeof value === 'bigint') {
-      return value.toString();
-    }
-
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
-
-    if (Array.isArray(value)) {
-      return value.reduce<Prisma.InputJsonArray>((acc, item) => {
-        const convertedItem = this.toPrismaJsonValue(item, seen);
-        return [...acc, convertedItem ?? null];
-      }, []);
-    }
-
-    if (!this.isRecord(value)) {
-      return undefined;
-    }
-
-    if (seen.has(value)) {
-      return '[Circular]';
-    }
-
-    seen.add(value);
-    return Object.entries(value).reduce<Prisma.InputJsonObject>(
-      (acc, [key, nestedValue]) => {
-        const convertedValue = this.toPrismaJsonValue(nestedValue, seen);
-        return {
-          ...acc,
-          [key]: convertedValue ?? null,
-        };
-      },
-      {},
-    );
-  }
-
-  private redactSensitiveFields(
-    value: unknown,
-    seen: WeakSet<object>,
-  ): unknown {
-    if (value === null || value === undefined) {
-      return value;
-    }
-
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
-
-    if (Array.isArray(value)) {
-      return value.map((item) => this.redactSensitiveFields(item, seen));
-    }
-
-    if (!this.isRecord(value)) {
-      return value;
-    }
-
-    if (seen.has(value)) {
-      return '[Circular]';
-    }
-
-    seen.add(value);
-
-    const redacted: Record<string, unknown> = {};
-    for (const [key, nestedValue] of Object.entries(value)) {
-      const normalizedKey = key.toLowerCase();
-      const isSensitive = SENSITIVE_AUDIT_KEYS.some((token) =>
-        normalizedKey.includes(token),
-      );
-      redacted[key] = isSensitive
-        ? '[REDACTED]'
-        : this.redactSensitiveFields(nestedValue, seen);
-    }
-
-    return redacted;
-  }
-
-  private isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
-  }
 }
