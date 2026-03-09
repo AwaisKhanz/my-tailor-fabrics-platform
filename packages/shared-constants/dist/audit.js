@@ -26,6 +26,7 @@ exports.AUDIT_ENTITIES = [
     'GarmentType',
     'MeasurementCategory',
     'MeasurementField',
+    'MeasurementSection',
     'DesignType',
     'RateCard',
     exports.AUDIT_UNKNOWN_ENTITY,

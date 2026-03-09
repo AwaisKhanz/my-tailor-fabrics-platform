@@ -19,6 +19,7 @@ import {
 type MutationMethod = 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 type AuditAction = (typeof AUDIT_ACTIONS)[number];
 type AuditEntity = (typeof AUDIT_ENTITIES)[number];
+type KnownAuditEntity = Exclude<AuditEntity, typeof AUDIT_UNKNOWN_ENTITY>;
 
 type AuditRequest = Request & {
   user?: AuthenticatedRequest['user'];
@@ -60,6 +61,112 @@ const SENSITIVE_AUDIT_KEYS = [
 
 const AUDIT_ENTITY_VALUES = new Set<string>(AUDIT_ENTITIES);
 
+type AuditEntityRule = {
+  entity: KnownAuditEntity;
+  paramKeys: readonly string[];
+  matches: (routePath: string) => boolean;
+};
+
+const AUDIT_ENTITY_RULES: readonly AuditEntityRule[] = [
+  {
+    entity: 'User',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/auth/'),
+  },
+  {
+    entity: 'OrderItem',
+    paramKeys: ['itemId', 'id'],
+    matches: (routePath) =>
+      routePath.includes('/orders/') && routePath.includes('/items/'),
+  },
+  {
+    entity: 'Payment',
+    paramKeys: ['paymentId', 'id'],
+    matches: (routePath) =>
+      routePath.includes('/orders/') && routePath.includes('/payments'),
+  },
+  {
+    entity: 'ExpenseCategory',
+    paramKeys: ['categoryId', 'id'],
+    matches: (routePath) => routePath.includes('/expenses/categories'),
+  },
+  {
+    entity: 'MeasurementField',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/measurement-fields'),
+  },
+  {
+    entity: 'MeasurementSection',
+    paramKeys: ['sectionId', 'id'],
+    matches: (routePath) => routePath.includes('/measurement-sections'),
+  },
+  {
+    entity: 'MeasurementCategory',
+    paramKeys: ['categoryId', 'id'],
+    matches: (routePath) => routePath.includes('/measurement-categories'),
+  },
+  {
+    entity: 'Customer',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/customers'),
+  },
+  {
+    entity: 'Employee',
+    paramKeys: ['employeeId', 'id'],
+    matches: (routePath) => routePath.includes('/employees'),
+  },
+  {
+    entity: 'Task',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/tasks'),
+  },
+  {
+    entity: 'Payment',
+    paramKeys: ['paymentId', 'id'],
+    matches: (routePath) => routePath.includes('/payments'),
+  },
+  {
+    entity: 'Expense',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/expenses'),
+  },
+  {
+    entity: 'AttendanceRecord',
+    paramKeys: ['recordId', 'id', 'employeeId'],
+    matches: (routePath) => routePath.includes('/attendance'),
+  },
+  {
+    entity: 'Branch',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/branches'),
+  },
+  {
+    entity: 'User',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/users'),
+  },
+  {
+    entity: 'RateCard',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/rates'),
+  },
+  {
+    entity: 'DesignType',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/design-types'),
+  },
+  {
+    entity: 'GarmentType',
+    paramKeys: ['garmentTypeId', 'id'],
+    matches: (routePath) => routePath.includes('/garment-types'),
+  },
+  {
+    entity: 'Order',
+    paramKeys: ['id'],
+    matches: (routePath) => routePath.includes('/orders'),
+  },
+] as const;
+
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   private readonly logger = new Logger(AuditInterceptor.name);
@@ -86,8 +193,9 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const entity = this.resolveEntity(routePath);
-    const entityId = this.resolveEntityId(request, entity);
+    const entityRule = this.resolveEntityRule(routePath);
+    const entity = entityRule?.entity ?? AUDIT_UNKNOWN_ENTITY;
+    const entityId = this.resolveEntityId(request, entityRule);
     const oldValue = await this.loadOldValue(method, entity, entityId);
 
     return next.handle().pipe(
@@ -180,45 +288,22 @@ export class AuditInterceptor implements NestInterceptor {
     return action;
   }
 
-  private resolveEntity(routePath: string): AuditEntity {
-    if (routePath.includes('/auth/')) return 'User';
-    if (routePath.includes('/orders/') && routePath.includes('/items/')) {
-      return 'OrderItem';
-    }
-    if (routePath.includes('/customers')) return 'Customer';
-    if (routePath.includes('/employees')) return 'Employee';
-    if (routePath.includes('/orders')) return 'Order';
-    if (routePath.includes('/tasks')) return 'Task';
-    if (routePath.includes('/payments')) return 'Payment';
-    if (routePath.includes('/expenses/categories')) return 'ExpenseCategory';
-    if (routePath.includes('/expenses')) return 'Expense';
-    if (routePath.includes('/attendance')) return 'AttendanceRecord';
-    if (routePath.includes('/branches')) return 'Branch';
-    if (routePath.includes('/users')) return 'User';
-    if (routePath.includes('/rates')) return 'RateCard';
-    if (routePath.includes('/design-types')) return 'DesignType';
-    if (routePath.includes('/measurement-fields')) return 'MeasurementField';
-    if (routePath.includes('/measurement-categories'))
-      return 'MeasurementCategory';
-    if (routePath.includes('/garment-types')) return 'GarmentType';
-    return AUDIT_UNKNOWN_ENTITY;
+  private resolveEntityRule(routePath: string): AuditEntityRule | null {
+    return AUDIT_ENTITY_RULES.find((rule) => rule.matches(routePath)) ?? null;
   }
 
   private resolveEntityId(
     request: AuditRequest,
-    entity: string,
+    entityRule: AuditEntityRule | null,
   ): string | null {
     const params = request.params ?? {};
 
-    if (entity === 'OrderItem' && params.itemId) {
-      return params.itemId;
-    }
-
-    const paramKeys = ['id', 'recordId', 'employeeId', 'categoryId'];
-    for (const key of paramKeys) {
-      const value = params[key];
-      if (value) {
-        return value;
+    if (entityRule) {
+      for (const key of entityRule.paramKeys) {
+        const value = params[key];
+        if (value) {
+          return value;
+        }
       }
     }
 
@@ -284,6 +369,10 @@ export class AuditInterceptor implements NestInterceptor {
           });
         case 'MeasurementField':
           return this.prisma.measurementField.findFirst({
+            where: { id: entityId },
+          });
+        case 'MeasurementSection':
+          return this.prisma.measurementSection.findFirst({
             where: { id: entityId },
           });
         case 'DesignType':

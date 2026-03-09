@@ -25,6 +25,7 @@ export const AUDIT_ENTITIES = [
   'GarmentType',
   'MeasurementCategory',
   'MeasurementField',
+  'MeasurementSection',
   'DesignType',
   'RateCard',
   AUDIT_UNKNOWN_ENTITY,
