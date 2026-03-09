@@ -5,12 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  Prisma,
-  FabricSource as PrismaFabricSource,
-  AddonType as PrismaAddonType,
-  OrderStatus as PrismaOrderStatus,
-} from '@prisma/client';
+import { Prisma, OrderStatus as PrismaOrderStatus } from '@prisma/client';
 import {
   CreateOrderDto,
   OrderItemDto,
@@ -24,9 +19,7 @@ import {
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
-  AddonType,
   FabricSource as SharedFabricSource,
-  isOrderStatus,
   ItemStatus,
   LedgerEntryType,
   OrderStatus,
@@ -48,16 +41,14 @@ import {
   normalizePagination,
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
-
-type OrdersFindFilters = {
-  status?: string;
-  from?: string;
-  to?: string;
-  employeeId?: string;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-};
+import {
+  buildOrdersOrderBy,
+  buildOrdersWhereClause,
+  type OrdersFindFilters,
+  toPrismaAddonType,
+  toPrismaFabricSource,
+  toPrismaOrderStatus,
+} from './order-query-resolver';
 
 type ResolvedOrderItemDraft = {
   garmentTypeId: string;
@@ -73,28 +64,6 @@ type ResolvedOrderItemDraft = {
   designTypeId: string | null;
   addons: OrderItemAddonDto[];
 };
-
-const ORDER_STATUS_TO_PRISMA: Record<OrderStatus, PrismaOrderStatus> = {
-  [OrderStatus.NEW]: PrismaOrderStatus.NEW,
-  [OrderStatus.IN_PROGRESS]: PrismaOrderStatus.IN_PROGRESS,
-  [OrderStatus.READY]: PrismaOrderStatus.READY,
-  [OrderStatus.OVERDUE]: PrismaOrderStatus.OVERDUE,
-  [OrderStatus.DELIVERED]: PrismaOrderStatus.DELIVERED,
-  [OrderStatus.COMPLETED]: PrismaOrderStatus.COMPLETED,
-  [OrderStatus.CANCELLED]: PrismaOrderStatus.CANCELLED,
-};
-
-const ADDON_TYPE_TO_PRISMA: Record<AddonType, PrismaAddonType> = {
-  [AddonType.EXTRA]: PrismaAddonType.EXTRA,
-  [AddonType.ALTERATION]: PrismaAddonType.ALTERATION,
-  [AddonType.DESIGN_CHARGE]: PrismaAddonType.DESIGN_CHARGE,
-};
-
-const FABRIC_SOURCE_TO_PRISMA: Record<SharedFabricSource, PrismaFabricSource> =
-  {
-    [SharedFabricSource.SHOP]: PrismaFabricSource.SHOP,
-    [SharedFabricSource.CUSTOMER]: PrismaFabricSource.CUSTOMER,
-  };
 
 @Injectable()
 export class OrdersService {
@@ -116,26 +85,6 @@ export class OrdersService {
       return false;
     }
     return timingSafeEqual(leftBuffer, rightBuffer);
-  }
-
-  private parseOrderStatus(rawStatus?: string): OrderStatus | undefined {
-    if (!rawStatus) {
-      return undefined;
-    }
-
-    return isOrderStatus(rawStatus) ? rawStatus : undefined;
-  }
-
-  private toPrismaOrderStatus(status: OrderStatus): PrismaOrderStatus {
-    return ORDER_STATUS_TO_PRISMA[status];
-  }
-
-  private toPrismaAddonType(type: AddonType): PrismaAddonType {
-    return ADDON_TYPE_TO_PRISMA[type];
-  }
-
-  private toPrismaFabricSource(source: SharedFabricSource): PrismaFabricSource {
-    return FABRIC_SOURCE_TO_PRISMA[source];
   }
 
   private calculateDraftOrderSubtotal(
@@ -399,14 +348,14 @@ export class OrdersService {
               quantity: item.quantity,
               unitPrice: item.unitPrice,
               description: item.description,
-              fabricSource: this.toPrismaFabricSource(item.fabricSource),
+              fabricSource: toPrismaFabricSource(item.fabricSource),
               dueDate: item.dueDate,
               garmentTypeName: item.garmentTypeName,
               garmentType: { connect: { id: item.garmentTypeId } },
               designTypeId: item.designTypeId,
               addons: {
                 create: (item.addons || []).map((a: OrderItemAddonDto) => ({
-                  type: this.toPrismaAddonType(a.type),
+                  type: toPrismaAddonType(a.type),
                   name: a.name,
                   price: a.price,
                   cost: a.cost,
@@ -505,88 +454,6 @@ export class OrdersService {
     });
   }
 
-  private buildOrdersWhereClause(
-    branchId: string | null,
-    filters: OrdersFindFilters = {},
-  ): Prisma.OrderWhereInput {
-    const whereClause: Prisma.OrderWhereInput = { deletedAt: null };
-
-    if (branchId) {
-      whereClause.branchId = branchId;
-    }
-
-    const parsedStatus = this.parseOrderStatus(filters.status);
-    if (parsedStatus) {
-      whereClause.status = this.toPrismaOrderStatus(parsedStatus);
-    }
-
-    if (filters.from || filters.to) {
-      whereClause.orderDate = {};
-      if (filters.from) whereClause.orderDate.gte = new Date(filters.from);
-      if (filters.to) whereClause.orderDate.lte = new Date(filters.to);
-    }
-
-    if (filters.employeeId) {
-      whereClause.items = {
-        some: {
-          tasks: {
-            some: {
-              assignedEmployeeId: filters.employeeId,
-              deletedAt: null,
-            },
-          },
-        },
-      };
-    }
-
-    if (filters.search) {
-      const search = filters.search.trim();
-      whereClause.OR = [
-        { orderNumber: { contains: search, mode: 'insensitive' } },
-        { customer: { fullName: { contains: search, mode: 'insensitive' } } },
-        { customer: { phone: { contains: search, mode: 'insensitive' } } },
-      ];
-    }
-
-    return whereClause;
-  }
-
-  private buildOrdersOrderBy(
-    filters: OrdersFindFilters = {},
-  ): Prisma.OrderOrderByWithRelationInput {
-    const orderBy: Prisma.OrderOrderByWithRelationInput = {};
-    const sortOrder = filters.sortOrder || 'desc';
-
-    if (filters.sortBy) {
-      switch (filters.sortBy) {
-        case 'orderNumber':
-          orderBy.orderNumber = sortOrder;
-          break;
-        case 'orderDate':
-          orderBy.orderDate = sortOrder;
-          break;
-        case 'dueDate':
-          orderBy.dueDate = sortOrder;
-          break;
-        case 'totalAmount':
-          orderBy.totalAmount = sortOrder;
-          break;
-        case 'status':
-          orderBy.status = sortOrder;
-          break;
-        case 'customer':
-          orderBy.customer = { fullName: sortOrder };
-          break;
-        default:
-          orderBy.orderDate = 'desc';
-      }
-    } else {
-      orderBy.orderDate = 'desc';
-    }
-
-    return orderBy;
-  }
-
   async findAll(
     branchId: string | null,
     page = 1,
@@ -594,8 +461,8 @@ export class OrdersService {
     filters: OrdersFindFilters = {},
   ) {
     const pagination = normalizePagination({ page, limit, defaultLimit: 20 });
-    const whereClause = this.buildOrdersWhereClause(branchId, filters);
-    const orderBy = this.buildOrdersOrderBy(filters);
+    const whereClause = buildOrdersWhereClause(branchId, filters);
+    const orderBy = buildOrdersOrderBy(filters);
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
@@ -617,7 +484,7 @@ export class OrdersService {
     branchId: string | null,
     filters: OrdersFindFilters = {},
   ): Promise<OrdersListSummary> {
-    const whereClause = this.buildOrdersWhereClause(branchId, filters);
+    const whereClause = buildOrdersWhereClause(branchId, filters);
 
     const now = new Date();
     const weekAhead = new Date(now);
@@ -858,7 +725,7 @@ export class OrdersService {
         where: { id, deletedAt: null, ...(branchId ? { branchId } : {}) },
       });
       if (!order) throw new NotFoundException('Order not found');
-      const nextStatus = this.toPrismaOrderStatus(dto.status);
+      const nextStatus = toPrismaOrderStatus(dto.status);
 
       if (order.status === nextStatus) {
         return order; // no change
@@ -1098,7 +965,7 @@ export class OrdersService {
                       deleteMany: {},
                       create: itemDto.addons.map(
                         (a: UpdateOrderItemAddonDto) => ({
-                          type: this.toPrismaAddonType(a.type),
+                          type: toPrismaAddonType(a.type),
                           name: a.name,
                           price: a.price,
                           cost: a.cost,
@@ -1268,14 +1135,14 @@ export class OrdersService {
             quantity: 1, // ALWAYS 1
             unitPrice: customerPrice,
             description: itemDto.description,
-            fabricSource: this.toPrismaFabricSource(
+            fabricSource: toPrismaFabricSource(
               itemDto.fabricSource ?? SharedFabricSource.SHOP,
             ),
             dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null,
             designTypeId: itemDto.designTypeId || null,
             addons: {
               create: (itemDto.addons || []).map((a) => ({
-                type: this.toPrismaAddonType(a.type),
+                type: toPrismaAddonType(a.type),
                 name: a.name,
                 price: a.price,
                 cost: a.cost,
