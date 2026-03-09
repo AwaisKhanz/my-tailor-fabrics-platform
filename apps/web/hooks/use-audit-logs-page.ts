@@ -13,13 +13,15 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 20;
 export const ALL_FILTER = "all";
+export const AUDIT_ALL_ACTIONS_LABEL = "All Actions";
+export const AUDIT_ALL_ENTITIES_LABEL = "All Entities";
 const ALL_ACTIONS_FILTER_OPTION = {
   value: ALL_FILTER,
-  label: "All Actions",
+  label: AUDIT_ALL_ACTIONS_LABEL,
 } as const;
 const ALL_ENTITIES_FILTER_OPTION = {
   value: ALL_FILTER,
-  label: "All Entities",
+  label: AUDIT_ALL_ENTITIES_LABEL,
 } as const;
 
 type AuditFilterOption = {

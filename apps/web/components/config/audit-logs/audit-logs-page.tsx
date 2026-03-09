@@ -19,7 +19,11 @@ import {
 import { StatCard } from "@/components/ui/stat-card";
 import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { formatDateTime } from "@/lib/utils";
-import { useAuditLogsPage } from "@/hooks/use-audit-logs-page";
+import {
+  AUDIT_ALL_ACTIONS_LABEL,
+  AUDIT_ALL_ENTITIES_LABEL,
+  useAuditLogsPage,
+} from "@/hooks/use-audit-logs-page";
 
 const ACTION_SUMMARY_MAP: Record<string, string> = {
   LOGIN: "Session authentication event",
@@ -250,7 +254,7 @@ export function AuditLogsPage() {
                     onValueChange={(value) => setFilter("action", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Action" />
+                      <SelectValue placeholder={AUDIT_ALL_ACTIONS_LABEL} />
                     </SelectTrigger>
                     <SelectContent>
                       {actionFilterOptions.map((action) => (
@@ -267,7 +271,7 @@ export function AuditLogsPage() {
                     onValueChange={(value) => setFilter("entity", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Entity" />
+                      <SelectValue placeholder={AUDIT_ALL_ENTITIES_LABEL} />
                     </SelectTrigger>
                     <SelectContent>
                       {entityFilterOptions.map((entity) => (
