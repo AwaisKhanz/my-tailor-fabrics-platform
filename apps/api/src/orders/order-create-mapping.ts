@@ -1,6 +1,6 @@
 import { type GarmentType as PrismaGarmentType, type Prisma } from '@prisma/client';
 import { FabricSource as SharedFabricSource } from '@tbms/shared-types';
-import { type OrderItemDto } from './dto/create-order.dto';
+import { type CreateOrderDto, type OrderItemDto } from './dto/create-order.dto';
 import { type UpdateOrderItemDto } from './dto/update-order.dto';
 import { type ResolvedOrderItemDraft } from './order-item-draft-resolver';
 import { toPrismaAddonType, toPrismaFabricSource } from './order-query-resolver';
@@ -103,4 +103,35 @@ export function toOrderItemUpdateData(
   }
 
   return data;
+}
+
+export function buildOrderCreateData(params: {
+  orderNumber: string;
+  branchId: string;
+  customerId: string;
+  createdById: string;
+  input: Pick<
+    CreateOrderDto,
+    'dueDate' | 'discountType' | 'discountValue' | 'notes'
+  >;
+  items: readonly ResolvedOrderItemDraft[];
+}): Prisma.OrderCreateArgs['data'] {
+  return {
+    orderNumber: params.orderNumber,
+    branchId: params.branchId,
+    customerId: params.customerId,
+    dueDate: new Date(params.input.dueDate),
+    subtotal: 0,
+    discountType: params.input.discountType ?? null,
+    discountValue: params.input.discountValue ?? 0,
+    discountAmount: 0,
+    totalAmount: 0,
+    totalPaid: 0,
+    balanceDue: 0,
+    notes: params.input.notes,
+    createdById: params.createdById,
+    items: {
+      create: toOrderItemCreateData(params.items),
+    },
+  };
 }

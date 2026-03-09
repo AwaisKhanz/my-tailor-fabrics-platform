@@ -54,9 +54,9 @@ import {
   reverseRecordedOrderPayment,
 } from './order-payment-lifecycle';
 import {
+  buildOrderCreateData,
   toOrderItemUpdateData,
   toSingleOrderItemCreateData,
-  toOrderItemCreateData,
 } from './order-create-mapping';
 import { recordOrderStatusHistory } from './order-status-history';
 
@@ -241,24 +241,14 @@ export class OrdersService {
 
       // 5. Create Order
       const newOrder = await tx.order.create({
-        data: {
+        data: buildOrderCreateData({
           orderNumber,
           branchId: orderBranchId,
           customerId: customer.id,
-          dueDate: new Date(createOrderDto.dueDate),
-          subtotal: 0,
-          discountType: createOrderDto.discountType || null,
-          discountValue: createOrderDto.discountValue || 0,
-          discountAmount: 0,
-          totalAmount: 0,
-          totalPaid: 0,
-          balanceDue: 0,
-          notes: createOrderDto.notes,
           createdById,
-          items: {
-            create: toOrderItemCreateData(resolvedItems),
-          },
-        },
+          input: createOrderDto,
+          items: resolvedItems,
+        }),
         include: {
           items: true,
         },
