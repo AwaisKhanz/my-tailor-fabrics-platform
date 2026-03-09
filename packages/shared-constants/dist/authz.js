@@ -224,7 +224,7 @@ exports.ENTRY_OPERATOR_BLOCKED_PREFIXES = [
     '/settings/audit-logs',
 ];
 function isRole(value) {
-    return typeof value === 'string' && Object.values(shared_types_1.Role).includes(value);
+    return typeof value === 'string' && exports.ALL_ROLES.some((role) => role === value);
 }
 function getRolePermissions(role) {
     if (role === shared_types_1.Role.SUPER_ADMIN) {
