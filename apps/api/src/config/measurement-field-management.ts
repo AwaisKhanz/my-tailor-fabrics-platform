@@ -138,3 +138,9 @@ export function buildMeasurementFieldArchiveResponse(params: {
     archivedFieldId: params.archivedFieldId,
   };
 }
+
+export function buildMeasurementFieldRestoreData(): Prisma.MeasurementFieldUpdateInput {
+  return {
+    deletedAt: null,
+  };
+}

@@ -124,3 +124,10 @@ export function buildMeasurementCategoryArchiveResponse(params: {
     archivedCategoryId: params.archivedCategoryId,
   };
 }
+
+export function buildMeasurementCategoryRestoreData(): Prisma.MeasurementCategoryUpdateInput {
+  return {
+    deletedAt: null,
+    isActive: true,
+  };
+}

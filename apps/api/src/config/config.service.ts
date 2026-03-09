@@ -24,6 +24,7 @@ import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import {
   archiveRemovedWorkflowStepDependents,
   assertNoOpenTasksForRemovedWorkflowSteps,
+  buildWorkflowStepRestoreData,
   buildWorkflowStepTemplateUpsertArgs,
   getRemovedWorkflowStepKeys,
   normalizeWorkflowSteps,
@@ -36,6 +37,7 @@ import {
 import {
   assertUniqueMeasurementSectionName,
   buildMeasurementSectionArchiveResponse,
+  buildMeasurementSectionRestoreData,
   normalizeMeasurementSectionName,
   resolveMeasurementSectionArchivePlan,
   toMeasurementSectionCreateInput,
@@ -44,6 +46,7 @@ import {
 import {
   assertUniqueMeasurementFieldLabel,
   buildMeasurementFieldArchiveResponse,
+  buildMeasurementFieldRestoreData,
   normalizeMeasurementFieldLabel,
   resolveMeasurementFieldArchivePlan,
   toMeasurementFieldCreateInput,
@@ -51,6 +54,7 @@ import {
 } from './measurement-field-management';
 import {
   buildMeasurementCategoryArchiveResponse,
+  buildMeasurementCategoryRestoreData,
   resolveMeasurementCategoryArchivePlan,
   toMeasurementCategoryCreateInput,
   toMeasurementCategoryUpdateInput,
@@ -962,7 +966,7 @@ export class ConfigService {
 
     return this.prisma.measurementCategory.update({
       where: { id },
-      data: { deletedAt: null, isActive: true },
+      data: buildMeasurementCategoryRestoreData(),
     });
   }
 
@@ -982,7 +986,7 @@ export class ConfigService {
 
     return this.prisma.measurementField.update({
       where: { id },
-      data: { deletedAt: null },
+      data: buildMeasurementFieldRestoreData(),
     });
   }
 
@@ -1002,7 +1006,7 @@ export class ConfigService {
 
     return this.prisma.measurementSection.update({
       where: { id },
-      data: { deletedAt: null },
+      data: buildMeasurementSectionRestoreData(),
     });
   }
 
@@ -1030,10 +1034,7 @@ export class ConfigService {
           stepKey,
         },
       },
-      data: {
-        deletedAt: null,
-        isActive: true,
-      },
+      data: buildWorkflowStepRestoreData(),
     });
   }
 }

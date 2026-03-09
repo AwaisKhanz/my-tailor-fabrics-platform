@@ -184,3 +184,9 @@ export function buildMeasurementSectionArchiveResponse(params: {
     targetSectionId: params.targetSectionId,
   };
 }
+
+export function buildMeasurementSectionRestoreData(): Prisma.MeasurementSectionUpdateInput {
+  return {
+    deletedAt: null,
+  };
+}

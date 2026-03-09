@@ -88,6 +88,13 @@ export function buildWorkflowStepTemplateUpsertArgs(params: {
   };
 }
 
+export function buildWorkflowStepRestoreData(): Prisma.WorkflowStepTemplateUpdateInput {
+  return {
+    deletedAt: null,
+    isActive: true,
+  };
+}
+
 export async function assertNoOpenTasksForRemovedWorkflowSteps(
   prisma: PrismaService,
   garmentTypeId: string,
