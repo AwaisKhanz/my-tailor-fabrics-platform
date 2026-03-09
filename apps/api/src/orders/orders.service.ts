@@ -53,6 +53,10 @@ import {
   toPrismaOrderStatus,
 } from './order-query-resolver';
 import { resolveOrderItemDrafts, type ResolvedOrderItemDraft } from './order-item-draft-resolver';
+import {
+  recordOrderPayment,
+  reverseRecordedOrderPayment,
+} from './order-payment-lifecycle';
 
 @Injectable()
 export class OrdersService {
@@ -521,29 +525,12 @@ export class OrdersService {
       if (addPaymentDto.amount > order.balanceDue) {
         throw new BadRequestException('Payment amount exceeds balance due');
       }
-
-      const newTotalPaid = order.totalPaid + addPaymentDto.amount;
-
-      // 1. Log Payment
-      await tx.orderPayment.create({
-        data: {
-          orderId: id,
-          amount: addPaymentDto.amount,
-          receivedById,
-          note: addPaymentDto.note,
-        },
-      });
-
-      // 2. Update Order (balance recalced within recalcOrderTotals)
-      await tx.order.update({
-        where: { id },
-        data: { totalPaid: newTotalPaid },
-      });
-
-      // 3. Update Customer Lifetime Value
-      await tx.customer.update({
-        where: { id: order.customerId },
-        data: { lifetimeValue: { increment: addPaymentDto.amount } },
+      await recordOrderPayment(tx, {
+        orderId: id,
+        customerId: order.customerId,
+        amount: addPaymentDto.amount,
+        receivedById,
+        note: addPaymentDto.note,
       });
 
       return this.recalcOrderTotals(id, tx);
@@ -582,32 +569,14 @@ export class OrdersService {
       }
 
       const reversedAt = new Date();
-
-      await tx.orderPayment.update({
-        where: { id: payment.id },
-        data: {
-          reversedAt,
-          reversedById,
-          reversalNote: note ?? null,
-        },
-      });
-
-      await tx.order.update({
-        where: { id: order.id },
-        data: {
-          totalPaid: {
-            decrement: payment.amount,
-          },
-        },
-      });
-
-      await tx.customer.update({
-        where: { id: order.customerId },
-        data: {
-          lifetimeValue: {
-            decrement: payment.amount,
-          },
-        },
+      await reverseRecordedOrderPayment(tx, {
+        orderId: order.id,
+        customerId: order.customerId,
+        paymentId: payment.id,
+        amount: payment.amount,
+        reversedById,
+        note,
+        reversedAt,
       });
 
       await this.recalcOrderTotals(order.id, tx);
