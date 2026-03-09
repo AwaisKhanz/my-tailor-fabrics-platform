@@ -18,6 +18,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { MetaPill } from "@/components/ui/meta-pill";
+import { buildOrderDetailRoute } from "@/lib/order-routes";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatDate } from "@/lib/utils";
@@ -339,7 +340,7 @@ export function GlobalSearchCommand({
                           icon={ClipboardList}
                           title={order.orderNumber}
                           subtitle={`${order.customer?.fullName ?? "Unknown customer"} • Due ${formatDate(order.dueDate)}`}
-                          onClick={() => navigate(`/orders/${order.id}`)}
+                          onClick={() => navigate(buildOrderDetailRoute(order.id))}
                         />
                       ))}
                     </ResultGroup>

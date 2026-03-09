@@ -7,6 +7,7 @@ import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { Order, orderPaymentFormSchema, OrderStatus } from "@tbms/shared-types";
+import { ORDERS_ROUTE } from "@/lib/order-routes";
 
 export interface OrderEmployeeOption {
   id: string;
@@ -56,7 +57,7 @@ export function useOrderDetail(orderId: string | null) {
         description: "Order not found",
         variant: "destructive",
       });
-      router.push("/orders");
+      router.push(ORDERS_ROUTE);
     } finally {
       setLoading(false);
     }

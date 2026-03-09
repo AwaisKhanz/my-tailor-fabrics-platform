@@ -21,6 +21,7 @@ import { customerApi } from "@/lib/api/customers";
 import { designTypesApi } from "@/lib/api/design-types";
 import { ordersApi } from "@/lib/api/orders";
 import { useAuthz } from "@/hooks/use-authz";
+import { buildOrderDetailRoute } from "@/lib/order-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 interface OrderTotals {
@@ -312,7 +313,7 @@ export function useOrderFormPage() {
               title: "Order Updated",
               description: "The order has been modified successfully.",
             });
-            router.push(`/orders/${editOrderId}`);
+            router.push(buildOrderDetailRoute(editOrderId));
           }
           return;
         }
@@ -332,7 +333,7 @@ export function useOrderFormPage() {
             title: "Order Created",
             description: `Order #${response.data.orderNumber} successfully created.`,
           });
-          router.push(`/orders/${response.data.id}`);
+          router.push(buildOrderDetailRoute(response.data.id));
         }
       } catch {
         toast({

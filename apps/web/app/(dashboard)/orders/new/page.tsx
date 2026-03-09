@@ -16,6 +16,7 @@ import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-c
 import { OrderFormItemsCard } from "@/components/orders/order-form-items-card";
 import { OrderFormSummaryCard } from "@/components/orders/order-form-summary-card";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import { buildOrderDetailRoute, ORDERS_ROUTE } from "@/lib/order-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function NewOrderPage() {
@@ -44,7 +45,9 @@ function NewOrderPage() {
     submitForm,
   } = useOrderFormPage();
 
-  const cancelPath = editOrderId ? `/orders/${editOrderId}` : "/orders";
+  const cancelPath = editOrderId
+    ? buildOrderDetailRoute(editOrderId)
+    : ORDERS_ROUTE;
   const isInitialLoading =
     loading && garmentTypes.length === 0 && customers.length === 0;
 
@@ -68,7 +71,7 @@ function NewOrderPage() {
               <Button
                 variant="outline"
                 className="w-full sm:w-auto"
-                onClick={() => router.push("/orders")}
+                onClick={() => router.push(ORDERS_ROUTE)}
               >
                 All Orders
               </Button>

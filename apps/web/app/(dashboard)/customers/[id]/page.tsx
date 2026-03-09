@@ -17,6 +17,7 @@ import { formatPKR } from "@/lib/utils";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 import { useAuthz } from "@/hooks/use-authz";
 import { useRequiredRouteParam } from "@/hooks/use-route-param";
+import { buildOrderDetailRoute } from "@/lib/order-routes";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
 import { PERMISSION } from '@tbms/shared-constants';
 
@@ -129,7 +130,7 @@ function CustomerDetailPage() {
               notes={customer.notes}
               getMeasurementLabel={getMeasurementLabel}
               onUpdateMeasurements={openMeasurementDialog}
-              onOpenOrder={(orderId) => router.push(`/orders/${orderId}`)}
+              onOpenOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}
               canUpdateMeasurements={canManageMeasurements}
             />
           }

@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { OrderStatus, type Order } from "@tbms/shared-types";
+import type { Order } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,5 +71,3 @@ export function DashboardOverdueOrdersCard({
     </Card>
   );
 }
-
-export const OVERDUE_ORDERS_QUERY = `/orders?status=${OrderStatus.OVERDUE}`;

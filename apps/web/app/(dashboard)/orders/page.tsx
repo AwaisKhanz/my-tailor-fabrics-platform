@@ -21,6 +21,11 @@ import { OrdersListToolbar } from "@/components/orders/orders-list-toolbar";
 import { OrdersListTable } from "@/components/orders/orders-list-table";
 import { useAuthz } from "@/hooks/use-authz";
 import { withRoleGuard } from "@/components/auth/with-role-guard";
+import {
+  buildEditOrderRoute,
+  buildOrderDetailRoute,
+  NEW_ORDER_ROUTE,
+} from "@/lib/order-routes";
 import { PERMISSION } from '@tbms/shared-constants';
 
 function OrdersPage() {
@@ -60,7 +65,7 @@ function OrdersPage() {
                 variant="default"
                 size="lg"
                 className="w-full sm:w-auto"
-                onClick={() => router.push("/orders/new")}
+                onClick={() => router.push(NEW_ORDER_ROUTE)}
               >
                 <Plus className="h-4 w-4" />
                 New Order
@@ -127,10 +132,8 @@ function OrdersPage() {
             total={total}
             limit={pageSize}
             onPageChange={setPage}
-            onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
-            onEditOrder={(orderId) =>
-              router.push(`/orders/new?edit=${orderId}`)
-            }
+            onViewOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}
+            onEditOrder={(orderId) => router.push(buildEditOrderRoute(orderId))}
             canEditOrder={canEditOrder}
             canPrintReceipt={canPrintReceipt}
           />

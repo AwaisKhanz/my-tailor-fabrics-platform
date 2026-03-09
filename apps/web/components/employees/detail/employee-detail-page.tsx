@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
+import { buildOrderDetailRoute } from "@/lib/order-routes";
 import { PERMISSION } from "@tbms/shared-constants";
 
 type EmployeeDetailPageProps = {
@@ -170,7 +171,7 @@ export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
                 void handleTaskStatusChange(taskId, status);
               }}
               onReverseLedgerEntry={requestLedgerEntryReverse}
-              onViewOrder={(orderId) => router.push(`/orders/${orderId}`)}
+              onViewOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}
               onOpenDocumentDialog={() => setDocumentDialogOpen(true)}
               onOpenAccountDialog={() => setAccountDialogOpen(true)}
               onOpenLedgerDialog={() => setLedgerDialogOpen(true)}

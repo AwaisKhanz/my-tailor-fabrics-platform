@@ -21,6 +21,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { useAuthz } from "@/hooks/use-authz";
 import { useOrderDetailPage } from "@/hooks/use-order-detail-page";
+import { buildEditOrderRoute, ORDERS_ROUTE } from "@/lib/order-routes";
 import { formatDate, formatPKR } from "@/lib/utils";
 import { PERMISSION } from "@tbms/shared-constants";
 
@@ -95,7 +96,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
           description="The requested order is unavailable or may have been removed."
           action={{
             label: "Back to Orders",
-            onClick: () => router.push("/orders"),
+            onClick: () => router.push(ORDERS_ROUTE),
           }}
         />
       </PageShell>
@@ -121,7 +122,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       <PageSection spacing="compact">
         <OrderDetailBreadcrumb
           orderNumber={order.orderNumber}
-          onBack={() => router.push("/orders")}
+          onBack={() => router.push(ORDERS_ROUTE)}
         />
 
         <OrderDetailHeaderCard
@@ -144,7 +145,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
             void handleShareStatus();
           }}
           onCancelOrder={handleCancelOrder}
-          onEditOrder={() => router.push(`/orders/new?edit=${order.id}`)}
+          onEditOrder={() => router.push(buildEditOrderRoute(order.id))}
         />
       </PageSection>
 

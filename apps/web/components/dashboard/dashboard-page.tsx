@@ -6,14 +6,8 @@ import { Banknote, Plus, ReceiptText, ShoppingBag, Wallet } from "lucide-react";
 import { Can } from "@/components/auth/can";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DashboardOverdueBanner,
-  DASHBOARD_OVERDUE_ROUTE,
-} from "@/components/dashboard/dashboard-overdue-banner";
-import {
-  DashboardOverdueOrdersCard,
-  OVERDUE_ORDERS_QUERY,
-} from "@/components/dashboard/dashboard-overdue-orders-card";
+import { DashboardOverdueBanner } from "@/components/dashboard/dashboard-overdue-banner";
+import { DashboardOverdueOrdersCard } from "@/components/dashboard/dashboard-overdue-orders-card";
 import { DashboardDesignPopularityCard } from "@/components/dashboard/dashboard-design-popularity-card";
 import { DashboardGarmentBreakdownCard } from "@/components/dashboard/dashboard-garment-breakdown-card";
 import { DashboardKpiCard } from "@/components/dashboard/dashboard-kpi-card";
@@ -24,6 +18,11 @@ import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell"
 import { StatsGrid } from "@/components/ui/stats-grid";
 import { Heading, Text } from "@/components/ui/typography";
 import { useDashboardPage } from "@/hooks/use-dashboard-page";
+import {
+  buildOrderDetailRoute,
+  NEW_ORDER_ROUTE,
+  OVERDUE_ORDERS_ROUTE,
+} from "@/lib/order-routes";
 import { formatPKR } from "@/lib/utils";
 import { isRole, PERMISSION, ROLE_LABELS } from "@tbms/shared-constants";
 
@@ -71,7 +70,7 @@ export function DashboardPage() {
                   variant="default"
                   size="lg"
                   className="w-full sm:w-auto"
-                  onClick={() => router.push("/orders/new")}
+                  onClick={() => router.push(NEW_ORDER_ROUTE)}
                 >
                   <Plus className="h-4 w-4" />
                   New Order
@@ -150,7 +149,7 @@ export function DashboardPage() {
           loading={loading}
           error={error}
           stats={stats}
-          onViewOverdue={() => router.push(DASHBOARD_OVERDUE_ROUTE)}
+          onViewOverdue={() => router.push(OVERDUE_ORDERS_ROUTE)}
         />
       </PageSection>
 
@@ -205,8 +204,8 @@ export function DashboardPage() {
       <PageSection>
         <DashboardOverdueOrdersCard
           orders={stats?.recentOrders ?? []}
-          onViewOverdueOrders={() => router.push(OVERDUE_ORDERS_QUERY)}
-          onOpenOrder={(orderId) => router.push(`/orders/${orderId}`)}
+          onViewOverdueOrders={() => router.push(OVERDUE_ORDERS_ROUTE)}
+          onOpenOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}
         />
       </PageSection>
     </PageShell>

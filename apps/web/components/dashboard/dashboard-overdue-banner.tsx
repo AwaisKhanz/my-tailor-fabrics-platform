@@ -1,5 +1,5 @@
 import { AlertTriangle, ArrowRight } from "lucide-react";
-import { OrderStatus, type DashboardStats } from "@tbms/shared-types";
+import type { DashboardStats } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -63,5 +63,3 @@ export function DashboardOverdueBanner({
 
   return null;
 }
-
-export const DASHBOARD_OVERDUE_ROUTE = `/orders?status=${OrderStatus.OVERDUE}`;
