@@ -1,32 +1,13 @@
 import {
   DesignType,
-  FabricSource,
   GarmentType,
 } from "@tbms/shared-types";
 import { Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { InfoTile } from "@/components/ui/info-tile";
 import { OrderFormItemAddons } from "@/components/orders/order-form-item-addons";
-import {
-  ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME,
-} from "@/components/orders/order-form-item.constants";
-import { Textarea } from "@/components/ui/textarea";
+import { OrderFormItemDetails } from "@/components/orders/order-form-item-details";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -114,154 +95,13 @@ export function OrderFormItemCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-        <div className="md:col-span-6">
-          <FormField
-            control={form.control}
-            name={`items.${index}.garmentTypeId`}
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                  Garment Type
-                </FormLabel>
-                <Select
-                  onValueChange={(value) => onSelectGarmentType(index, value)}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select garment" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {garmentTypes.map((garment) => (
-                      <SelectItem key={garment.id} value={garment.id}>
-                        {garment.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <FormField
-            control={form.control}
-            name={`items.${index}.quantity`}
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                  Quantity
-                </FormLabel>
-                <FormControl>
-                  <Input type="number" min={1} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <FormField
-            control={form.control}
-            name={`items.${index}.unitPrice`}
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                  Unit Price (Rs)
-                </FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name={`items.${index}.designTypeId`}
-          render={({ field }) => (
-            <FormItem className="space-y-2 md:col-span-7">
-              <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                Design Type
-              </FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value === "NONE" ? undefined : value);
-                }}
-                value={field.value || "NONE"}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Standard/No design" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="NONE">Standard / No Design</SelectItem>
-                  {designTypeOptions.map((designType) => (
-                    <SelectItem key={designType.id} value={designType.id}>
-                      {designType.name} (+{formatPKR(designType.defaultPrice)})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name={`items.${index}.fabricSource`}
-          render={({ field }) => (
-            <FormItem className="space-y-2 md:col-span-5">
-              <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                Fabric Source
-              </FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value={FabricSource.SHOP}>Shop</SelectItem>
-                  <SelectItem value={FabricSource.CUSTOMER}>
-                    Customer
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name={`items.${index}.description`}
-          render={({ field }) => (
-            <FormItem className="space-y-2 md:col-span-12">
-              <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                Notes
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  className="min-h-[84px] resize-y"
-                  placeholder="Collar style, sleeve notes, etc."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      <OrderFormItemDetails
+        index={index}
+        form={form}
+        garmentTypes={garmentTypes}
+        designTypeOptions={designTypeOptions}
+        onSelectGarmentType={onSelectGarmentType}
+      />
 
       <OrderFormItemAddons
         index={index}
