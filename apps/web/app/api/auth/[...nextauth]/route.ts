@@ -10,10 +10,12 @@ import type {
   AuthRefreshResponseData,
 } from "@tbms/shared-types";
 import { getNextAuthSecret, getNextAuthUrl, getServerApiBaseUrl } from "@/lib/env";
-import { decodeJwtExpiryMs } from "@/lib/auth/jwt";
+import {
+  decodeJwtExpiryMs,
+  hasRefreshBufferRemaining,
+} from "@/lib/auth/jwt";
 
 const REFRESH_COOKIE_NAME = "Refresh-Token";
-const ACCESS_TOKEN_REFRESH_BUFFER_MS = 30_000;
 
 function extractCookieValue(
   setCookieHeader: string[] | string | undefined,
@@ -215,8 +217,7 @@ function createAuthHandler() {
         }
 
         if (
-          typeof tokenWithAuth.accessTokenExpires === "number" &&
-          Date.now() < tokenWithAuth.accessTokenExpires - ACCESS_TOKEN_REFRESH_BUFFER_MS
+          hasRefreshBufferRemaining(tokenWithAuth.accessTokenExpires)
         ) {
           return tokenWithAuth;
         }

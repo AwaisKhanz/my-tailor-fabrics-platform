@@ -1,4 +1,4 @@
-const ACCESS_TOKEN_REFRESH_BUFFER_MS = 30_000;
+export const ACCESS_TOKEN_REFRESH_BUFFER_MS = 30_000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object";
@@ -36,8 +36,15 @@ export function decodeJwtExpiryMs(jwtToken: string): number | null {
 
 export function isTokenExpiringSoon(jwtToken: string): boolean {
   const expiry = decodeJwtExpiryMs(jwtToken);
-  if (typeof expiry !== "number") {
-    return true;
+  return !hasRefreshBufferRemaining(expiry);
+}
+
+export function hasRefreshBufferRemaining(
+  expiryMs: number | null | undefined,
+): boolean {
+  if (typeof expiryMs !== "number") {
+    return false;
   }
-  return Date.now() >= expiry - ACCESS_TOKEN_REFRESH_BUFFER_MS;
+
+  return Date.now() < expiryMs - ACCESS_TOKEN_REFRESH_BUFFER_MS;
 }
