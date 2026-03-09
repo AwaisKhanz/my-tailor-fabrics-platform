@@ -15,7 +15,16 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 20;
 export const ALL_EMPLOYEES_FILTER = "all";
+const ALL_EMPLOYEES_FILTER_OPTION = {
+  value: ALL_EMPLOYEES_FILTER,
+  label: "All Employees",
+} as const;
+
 type ClockInFieldErrors = Partial<Record<"employeeId" | "note", string>>;
+type EmployeeOption = {
+  value: string;
+  label: string;
+};
 
 export function useAttendanceSettingsPage() {
   const { toast } = useToast();
@@ -101,6 +110,20 @@ export function useAttendanceSettingsPage() {
   const activeEmployees = useMemo(
     () => employees.filter((employee) => employee.status === EmployeeStatus.ACTIVE),
     [employees],
+  );
+
+  const activeEmployeeOptions = useMemo<EmployeeOption[]>(
+    () =>
+      activeEmployees.map((employee) => ({
+        value: employee.id,
+        label: `${employee.fullName} (${employee.employeeCode})`,
+      })),
+    [activeEmployees],
+  );
+
+  const employeeFilterOptions = useMemo<EmployeeOption[]>(
+    () => [ALL_EMPLOYEES_FILTER_OPTION, ...activeEmployeeOptions],
+    [activeEmployeeOptions],
   );
 
   const employeesById = useMemo(
@@ -213,6 +236,8 @@ export function useAttendanceSettingsPage() {
     pageSize,
     employees,
     activeEmployees,
+    activeEmployeeOptions,
+    employeeFilterOptions,
     employeesById,
     openShiftsOnPage,
     employeeFilter,

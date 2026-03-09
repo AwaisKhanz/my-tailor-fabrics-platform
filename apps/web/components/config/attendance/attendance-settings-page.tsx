@@ -34,7 +34,6 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
 import { PERMISSION } from '@tbms/shared-constants';
 import {
-  ALL_EMPLOYEES_FILTER,
   useAttendanceSettingsPage,
 } from "@/hooks/use-attendance-settings-page";
 
@@ -51,6 +50,8 @@ export function AttendanceSettingsPage() {
     page,
     pageSize,
     activeEmployees,
+    activeEmployeeOptions,
+    employeeFilterOptions,
     openShiftsOnPage,
     employeeFilter,
     hasActiveFilters,
@@ -69,15 +70,6 @@ export function AttendanceSettingsPage() {
     clockOut,
     refresh,
   } = useAttendanceSettingsPage();
-
-  const employeeOptions = useMemo(
-    () =>
-      activeEmployees.map((employee) => ({
-        id: employee.id,
-        label: `${employee.fullName} (${employee.employeeCode})`,
-      })),
-    [activeEmployees],
-  );
 
   const columns = useMemo<ColumnDef<AttendanceRecord>[]>(
     () => [
@@ -261,8 +253,8 @@ export function AttendanceSettingsPage() {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {employeeOptions.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
+                    {activeEmployeeOptions.map((employee) => (
+                      <SelectItem key={employee.value} value={employee.value}>
                         {employee.label}
                       </SelectItem>
                     ))}
@@ -331,11 +323,8 @@ export function AttendanceSettingsPage() {
                       <SelectValue placeholder="Filter by employee" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ALL_EMPLOYEES_FILTER}>
-                        All Employees
-                      </SelectItem>
-                      {employeeOptions.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
+                      {employeeFilterOptions.map((employee) => (
+                        <SelectItem key={employee.value} value={employee.value}>
                           {employee.label}
                         </SelectItem>
                       ))}
