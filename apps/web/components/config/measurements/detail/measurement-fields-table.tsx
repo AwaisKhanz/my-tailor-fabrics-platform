@@ -39,9 +39,10 @@ interface MeasurementFieldsTableProps {
 
 const PAGE_SIZE = 10;
 const ALL_SECTIONS_FILTER = "all";
+const ALL_SECTIONS_FILTER_LABEL = "All Sections";
 const ALL_SECTIONS_FILTER_OPTION = {
   value: ALL_SECTIONS_FILTER,
-  label: "All Sections",
+  label: ALL_SECTIONS_FILTER_LABEL,
 } as const;
 
 export function MeasurementFieldsTable({
@@ -382,7 +383,7 @@ export function MeasurementFieldsTable({
 
             <Select value={sectionFilter} onValueChange={updateSectionFilter}>
               <SelectTrigger className="md:w-[220px]">
-                <SelectValue placeholder="All Sections" />
+                <SelectValue placeholder={ALL_SECTIONS_FILTER_LABEL} />
               </SelectTrigger>
               <SelectContent>
                 {sectionFilterOptions.map((section) => (
