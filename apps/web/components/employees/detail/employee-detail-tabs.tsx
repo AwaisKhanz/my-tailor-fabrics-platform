@@ -35,7 +35,6 @@ import {
 import {
   LEDGER_ENTRY_TYPE_BADGE,
   LEDGER_ENTRY_TYPE_LABELS,
-  PAYMENT_TYPE_LABELS,
   TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
@@ -58,6 +57,7 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-page";
 import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
 import { EmployeeAttendanceSection } from "@/components/employees/detail/employee-attendance-section";
+import { EmployeeCompensationSection } from "@/components/employees/detail/employee-compensation-section";
 import { EmployeeDocumentsSection } from "@/components/employees/detail/employee-documents-section";
 import { EmployeeLedgerSection } from "@/components/employees/detail/employee-ledger-section";
 import { EmployeeProductionTasksSection } from "@/components/employees/detail/employee-production-tasks-section";
@@ -934,189 +934,28 @@ export function EmployeeDetailTabs({
         </div>
       </EmployeeSection>
 
-      <EmployeeSection
-        id="employee-compensation"
-        title="Compensation Timeline"
-        description="Track payment model and salary changes over time."
-        badge={
-          <Badge variant="default" size="xs" className="font-semibold">
-            {compensationHistory.length} CHANGES
-          </Badge>
+      <EmployeeCompensationSection
+        compensationHistory={compensationHistory}
+        canManageWorkforceGovernance={canManageWorkforceGovernance}
+        paymentType={compensationPaymentType}
+        monthlySalary={compensationMonthlySalary}
+        effectiveFrom={compensationEffectiveFrom}
+        note={compensationNote}
+        fieldErrors={compensationFieldErrors}
+        validationError={compensationValidationError}
+        setPaymentType={setCompensationPaymentType}
+        setMonthlySalary={setCompensationMonthlySalary}
+        setEffectiveFrom={setCompensationEffectiveFrom}
+        setNote={setCompensationNote}
+        clearFieldError={(field) =>
+          setCompensationFieldErrors((previous) => ({
+            ...previous,
+            [field]: undefined,
+          }))
         }
-        defaultOpen={false}
-      >
-        <div className="space-y-4 p-4 sm:p-5">
-          <DataTable<EmployeeCompensationHistoryEntry>
-            columns={[
-              {
-                header: "Model",
-                cell: (entry) => (
-                  <Badge variant="outline" size="xs">
-                    {PAYMENT_TYPE_LABELS[entry.paymentType]}
-                  </Badge>
-                ),
-              },
-              {
-                header: "Monthly Salary",
-                align: "right",
-                cell: (entry) => (
-                  <span className="font-medium">
-                    {entry.monthlySalary != null
-                      ? formatPKR(entry.monthlySalary)
-                      : "-"}
-                  </span>
-                ),
-              },
-              {
-                header: "Window",
-                cell: (entry) => (
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(entry.effectiveFrom)}
-                    {entry.effectiveTo
-                      ? ` → ${formatDate(entry.effectiveTo)}`
-                      : " onwards"}
-                  </span>
-                ),
-              },
-            ]}
-            data={compensationHistory}
-            loading={false}
-            chrome="flat"
-            emptyMessage="No compensation history available."
-          />
-
-          {canManageWorkforceGovernance ? (
-            <InfoTile tone="default" padding="contentLg" className="space-y-4">
-              {compensationValidationError ? (
-                <p className="text-sm text-destructive">
-                  {compensationValidationError}
-                </p>
-              ) : null}
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-                <div>
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Payment Model
-                  </Label>
-                  <Select
-                    value={compensationPaymentType}
-                    onValueChange={(value) => {
-                      if (
-                        value === PaymentType.PER_PIECE ||
-                        value === PaymentType.MONTHLY_FIXED
-                      ) {
-                        setCompensationFieldErrors((previous) => ({
-                          ...previous,
-                          paymentType: undefined,
-                        }));
-                        setCompensationValidationError("");
-                        setCompensationPaymentType(value);
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={PaymentType.PER_PIECE}>
-                        Per Piece
-                      </SelectItem>
-                      <SelectItem value={PaymentType.MONTHLY_FIXED}>
-                        Monthly Fixed
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {compensationFieldErrors.paymentType ? (
-                    <p className="mt-1 text-xs text-destructive">
-                      {compensationFieldErrors.paymentType}
-                    </p>
-                  ) : null}
-                </div>
-
-                {compensationPaymentType === PaymentType.MONTHLY_FIXED ? (
-                  <div>
-                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                      Monthly Salary (Rs)
-                    </Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={compensationMonthlySalary}
-                      onChange={(event) => {
-                        setCompensationFieldErrors((previous) => ({
-                          ...previous,
-                          monthlySalary: undefined,
-                        }));
-                        setCompensationValidationError("");
-                        setCompensationMonthlySalary(event.target.value);
-                      }}
-                    />
-                    {compensationFieldErrors.monthlySalary ? (
-                      <p className="mt-1 text-xs text-destructive">
-                        {compensationFieldErrors.monthlySalary}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                <div>
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Effective From
-                  </Label>
-                  <Input
-                    type="date"
-                    value={compensationEffectiveFrom}
-                    onChange={(event) => {
-                      setCompensationFieldErrors((previous) => ({
-                        ...previous,
-                        effectiveFrom: undefined,
-                      }));
-                      setCompensationValidationError("");
-                      setCompensationEffectiveFrom(event.target.value);
-                    }}
-                  />
-                  {compensationFieldErrors.effectiveFrom ? (
-                    <p className="mt-1 text-xs text-destructive">
-                      {compensationFieldErrors.effectiveFrom}
-                    </p>
-                  ) : null}
-                </div>
-                <div>
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Note
-                  </Label>
-                  <Input
-                    value={compensationNote}
-                    onChange={(event) => {
-                      setCompensationFieldErrors((previous) => ({
-                        ...previous,
-                        note: undefined,
-                      }));
-                      setCompensationValidationError("");
-                      setCompensationNote(event.target.value);
-                    }}
-                    placeholder="Optional"
-                  />
-                  {compensationFieldErrors.note ? (
-                    <p className="mt-1 text-xs text-destructive">
-                      {compensationFieldErrors.note}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={submitCompensationChange}
-                >
-                  Schedule Compensation Change
-                </Button>
-              </div>
-            </InfoTile>
-          ) : null}
-        </div>
-      </EmployeeSection>
+        clearValidationError={() => setCompensationValidationError("")}
+        onSubmit={submitCompensationChange}
+      />
 
       {systemSettings?.useTaskWorkflow ? (
         <EmployeeProductionTasksSection
