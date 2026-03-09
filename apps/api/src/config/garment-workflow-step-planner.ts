@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 
 type WorkflowStepInput = UpdateGarmentWorkflowStepsDto['steps'][number];
+type NormalizedWorkflowStep = ReturnType<typeof normalizeWorkflowSteps>[number];
 
 export function normalizeWorkflowSteps(steps: WorkflowStepInput[]) {
   const normalizedSteps = steps.map((step, index) => {
@@ -57,6 +58,34 @@ export function getRemovedWorkflowStepKeys(
   return existingSteps
     .map((step) => step.stepKey)
     .filter((stepKey) => !incomingStepKeys.has(stepKey));
+}
+
+export function buildWorkflowStepTemplateUpsertArgs(params: {
+  garmentTypeId: string;
+  step: NormalizedWorkflowStep;
+}): Prisma.WorkflowStepTemplateUpsertArgs {
+  const { garmentTypeId, step } = params;
+
+  return {
+    where: {
+      garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey },
+    },
+    update: {
+      stepName: step.stepName,
+      sortOrder: step.sortOrder,
+      isRequired: step.isRequired ?? true,
+      isActive: step.isActive ?? true,
+      deletedAt: null,
+    },
+    create: {
+      garmentTypeId,
+      stepKey: step.stepKey,
+      stepName: step.stepName,
+      sortOrder: step.sortOrder,
+      isRequired: step.isRequired ?? true,
+      isActive: step.isActive ?? true,
+    },
+  };
 }
 
 export async function assertNoOpenTasksForRemovedWorkflowSteps(

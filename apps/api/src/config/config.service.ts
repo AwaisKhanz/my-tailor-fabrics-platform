@@ -24,6 +24,7 @@ import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import {
   archiveRemovedWorkflowStepDependents,
   assertNoOpenTasksForRemovedWorkflowSteps,
+  buildWorkflowStepTemplateUpsertArgs,
   getRemovedWorkflowStepKeys,
   normalizeWorkflowSteps,
 } from './garment-workflow-step-planner';
@@ -450,26 +451,12 @@ export class ConfigService {
 
       // Insert or Update the incoming steps
       for (const step of normalizedSteps) {
-        await tx.workflowStepTemplate.upsert({
-          where: {
-            garmentTypeId_stepKey: { garmentTypeId, stepKey: step.stepKey },
-          },
-          update: {
-            stepName: step.stepName,
-            sortOrder: step.sortOrder,
-            isRequired: step.isRequired ?? true,
-            isActive: step.isActive ?? true,
-            deletedAt: null,
-          },
-          create: {
-            garmentTypeId: garmentTypeId,
-            stepKey: step.stepKey,
-            stepName: step.stepName,
-            sortOrder: step.sortOrder,
-            isRequired: step.isRequired ?? true,
-            isActive: step.isActive ?? true,
-          },
-        });
+        await tx.workflowStepTemplate.upsert(
+          buildWorkflowStepTemplateUpsertArgs({
+            garmentTypeId,
+            step,
+          }),
+        );
       }
 
       await archiveRemovedWorkflowStepDependents(
