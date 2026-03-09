@@ -35,12 +35,14 @@ import {
   discountExceedsSubtotal,
   paymentExceedsTotal,
 } from './money';
-import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'crypto';
-import { getStatusPinPepper } from '../common/env';
 import {
   normalizePagination,
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
+import {
+  createPublicShareCredentials,
+  verifyPublicStatusPin,
+} from './order-public-status';
 import {
   buildOrdersOrderBy,
   buildOrdersWhereClause,
@@ -71,21 +73,6 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly ratesService: RatesService,
   ) {}
-
-  private hashPublicStatusPin(token: string, pin: string): string {
-    return createHmac('sha256', getStatusPinPepper())
-      .update(`${token}:${pin}`)
-      .digest('hex');
-  }
-
-  private safeStringEqual(left: string, right: string): boolean {
-    const leftBuffer = Buffer.from(left);
-    const rightBuffer = Buffer.from(right);
-    if (leftBuffer.length !== rightBuffer.length) {
-      return false;
-    }
-    return timingSafeEqual(leftBuffer, rightBuffer);
-  }
 
   private calculateDraftOrderSubtotal(
     items: readonly ResolvedOrderItemDraft[],
@@ -762,9 +749,7 @@ export class OrdersService {
     if (!order) throw new NotFoundException('Order not found');
 
     // Crypto-secure token and pin for public tracking links
-    const token = randomBytes(16).toString('hex');
-    const pin = randomInt(0, 10000).toString().padStart(4, '0');
-    const pinHash = this.hashPublicStatusPin(token, pin);
+    const { token, pin, pinHash } = createPublicShareCredentials();
 
     const updated = await this.prisma.order.update({
       where: { id },
@@ -826,14 +811,13 @@ export class OrdersService {
       throw new NotFoundException('Invalid tracking link or PIN');
     }
 
-    const providedPinHash = this.hashPublicStatusPin(token, pin);
-    const matchesHashedPin = order.sharePinHash
-      ? this.safeStringEqual(order.sharePinHash, providedPinHash)
-      : false;
-    const matchesLegacyPin =
-      !matchesHashedPin &&
-      !!order.sharePin &&
-      this.safeStringEqual(order.sharePin, pin);
+    const { providedPinHash, matchesHashedPin, matchesLegacyPin } =
+      verifyPublicStatusPin({
+        token,
+        providedPin: pin,
+        sharePinHash: order.sharePinHash,
+        sharePin: order.sharePin,
+      });
 
     if (!matchesHashedPin && !matchesLegacyPin) {
       throw new NotFoundException('Invalid tracking link or PIN');
