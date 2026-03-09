@@ -7,6 +7,10 @@ import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  USERS_ALL_BRANCHES_LABEL,
+  USERS_MASTER_ACCESS_LABEL,
+} from "@/hooks/use-users-page";
 
 interface UsersAccessTableProps {
   users: UserAccount[];
@@ -74,10 +78,10 @@ export function UsersAccessTable({
         cell: (user) => (
           <div className="flex flex-col">
             <span className="text-sm font-bold text-foreground">
-              {user.branch ? user.branch.name : "All Branches"}
+              {user.branch ? user.branch.name : USERS_ALL_BRANCHES_LABEL}
             </span>
             <Label className="text-sm font-bold uppercase  text-muted-foreground">
-              {user.branch ? user.branch.code : "Master Access"}
+              {user.branch ? user.branch.code : USERS_MASTER_ACCESS_LABEL}
             </Label>
           </div>
         ),

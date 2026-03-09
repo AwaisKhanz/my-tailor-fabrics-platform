@@ -20,6 +20,8 @@ const PAGE_SIZE = 10;
 
 export const USERS_ALL_BRANCHES_VALUE = "ALL_BRANCHES";
 export const USERS_ALL_ROLES_FILTER_VALUE = "ALL_ROLES";
+export const USERS_ALL_BRANCHES_LABEL = "All Branches";
+export const USERS_MASTER_ACCESS_LABEL = "Master Access";
 
 export type UserRoleFilter = Role | typeof USERS_ALL_ROLES_FILTER_VALUE;
 
@@ -32,7 +34,7 @@ export const USER_ROLE_FILTER_OPTIONS = [
 ];
 const ALL_BRANCHES_OPTION = {
   value: USERS_ALL_BRANCHES_VALUE,
-  label: "All Branches",
+  label: USERS_ALL_BRANCHES_LABEL,
 } as const;
 
 export interface UserFormState {
