@@ -4,7 +4,7 @@ interface RecordOrderStatusHistoryParams {
   orderId: string;
   fromStatus: OrderStatus | null;
   toStatus: OrderStatus;
-  changedById: string;
+  changedById?: string | null;
   note?: string | null;
   actor?: 'USER' | 'SYSTEM';
 }

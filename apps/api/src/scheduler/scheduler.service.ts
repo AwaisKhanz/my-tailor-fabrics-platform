@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { OrderStatus } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
 import { SalaryAccrualService } from '../payments/salary-accrual.service';
+import { recordOrderStatusHistory } from '../orders/order-status-history';
 
 @Injectable()
 export class SchedulerService {
@@ -89,14 +90,12 @@ export class SchedulerService {
               return false;
             }
 
-            await tx.orderStatusHistory.create({
-              data: {
-                orderId: currentOrder.id,
-                fromStatus: currentOrder.status,
-                toStatus: OrderStatus.OVERDUE,
-                actor: 'SYSTEM',
-                note: 'Automated CRON task transitioned to OVERDUE.',
-              },
+            await recordOrderStatusHistory(tx, {
+              orderId: currentOrder.id,
+              fromStatus: currentOrder.status,
+              toStatus: OrderStatus.OVERDUE,
+              actor: 'SYSTEM',
+              note: 'Automated CRON task transitioned to OVERDUE.',
             });
 
             return true;
