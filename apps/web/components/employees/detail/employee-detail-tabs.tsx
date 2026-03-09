@@ -59,6 +59,7 @@ import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-pag
 import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
 import { EmployeeAttendanceSection } from "@/components/employees/detail/employee-attendance-section";
 import { EmployeeDocumentsSection } from "@/components/employees/detail/employee-documents-section";
+import { EmployeeProductionTasksSection } from "@/components/employees/detail/employee-production-tasks-section";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 import { EmployeeWorkHistorySection } from "@/components/employees/detail/employee-work-history-section";
 import { formatDate, formatDateTime, formatPKR } from "@/lib/utils";
@@ -1117,29 +1118,15 @@ export function EmployeeDetailTabs({
       </EmployeeSection>
 
       {systemSettings?.useTaskWorkflow ? (
-        <EmployeeSection
-          id="employee-production"
-          title="Production Tasks"
-          description="Update assigned task statuses for this employee."
-          badge={
-            <Badge variant="default" size="xs" className="font-semibold">
-              {tasks.length} TASKS
-            </Badge>
-          }
-          defaultOpen
-        >
-          <DataTable
-            columns={taskColumns}
-            data={pagedTasks}
-            loading={loading}
-            emptyMessage="No assigned tasks found."
-            chrome="flat"
-            page={taskPage}
-            total={taskTotal}
-            limit={taskLimit}
-            onPageChange={setTaskPage}
-          />
-        </EmployeeSection>
+        <EmployeeProductionTasksSection
+          tasks={pagedTasks}
+          loading={loading}
+          page={taskPage}
+          total={taskTotal}
+          limit={taskLimit}
+          columns={taskColumns}
+          onPageChange={setTaskPage}
+        />
       ) : null}
 
       <EmployeeWorkHistorySection
