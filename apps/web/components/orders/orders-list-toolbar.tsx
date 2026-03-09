@@ -12,6 +12,7 @@ import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import {
   isOrdersDateRange,
   ORDER_STATUS_FILTER_OPTIONS,
+  ORDER_DATE_RANGE_OPTIONS,
   isOrdersStatusFilter,
   type OrdersDateRange,
   type OrdersStatusFilter,
@@ -28,13 +29,6 @@ interface OrdersListToolbarProps {
   onDateRangeChange: (value: OrdersDateRange) => void;
   onReset: () => void;
 }
-
-const DATE_RANGE_OPTIONS: Array<{ value: OrdersDateRange; label: string }> = [
-  { value: "7", label: "Last 7 Days" },
-  { value: "30", label: "Last 30 Days" },
-  { value: "90", label: "Last 3 Months" },
-  { value: "all", label: "All Time" },
-];
 
 export function OrdersListToolbar({
   total,
@@ -103,7 +97,7 @@ export function OrdersListToolbar({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {DATE_RANGE_OPTIONS.map((option) => (
+                  {ORDER_DATE_RANGE_OPTIONS.map((option) => (
                     <SelectItem
                       key={option.value}
                       value={option.value}

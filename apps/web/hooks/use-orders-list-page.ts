@@ -26,12 +26,24 @@ export const ORDER_STATUS_FILTER_OPTIONS = ORDER_STATUS_FILTER_VALUES.filter(
   (status): status is OrderStatus => status !== "ALL",
 );
 
-const ORDER_DATE_RANGE_VALUES: readonly OrdersDateRange[] = [
+export const ORDER_DATE_RANGE_VALUES: readonly OrdersDateRange[] = [
   "7",
   "30",
   "90",
   "all",
 ];
+
+export const ORDER_DATE_RANGE_OPTIONS = ORDER_DATE_RANGE_VALUES.map((value) => ({
+  value,
+  label:
+    value === "7"
+      ? "Last 7 Days"
+      : value === "30"
+        ? "Last 30 Days"
+        : value === "90"
+          ? "Last 3 Months"
+          : "All Time",
+}));
 
 export function isOrdersStatusFilter(value: string): value is OrdersStatusFilter {
   return ORDER_STATUS_FILTER_VALUES.some((status) => status === value);
