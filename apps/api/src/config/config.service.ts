@@ -39,7 +39,6 @@ import {
 } from './measurement-section-management';
 import {
   GarmentTypeWithAnalytics,
-  FieldType,
   ItemStatus,
   SystemSettings,
   TaskStatus,
@@ -48,21 +47,13 @@ import {
   normalizePagination,
   toPaginatedResponse,
 } from '../common/utils/pagination.util';
+import {
+  buildTopTailors,
+  getGarmentTypeDetailInclude,
+  toGarmentTypeWithAnalytics,
+} from './garment-analytics';
 
 const MAX_CONFIG_TRANSACTION_RETRIES = 3;
-
-const toSharedFieldType = (fieldType: string): FieldType => {
-  switch (fieldType) {
-    case 'NUMBER':
-      return FieldType.NUMBER;
-    case 'TEXT':
-      return FieldType.TEXT;
-    case 'DROPDOWN':
-      return FieldType.DROPDOWN;
-    default:
-      return FieldType.NUMBER;
-  }
-};
 
 @Injectable()
 export class ConfigService {
@@ -204,39 +195,7 @@ export class ConfigService {
   async getGarmentType(id: string): Promise<GarmentTypeWithAnalytics> {
     const garment = await this.prisma.garmentType.findUniqueOrThrow({
       where: { id, deletedAt: null },
-      include: {
-        workflowSteps: {
-          where: { deletedAt: null },
-          orderBy: { sortOrder: 'asc' },
-        },
-        measurementCategories: {
-          where: { deletedAt: null },
-          include: {
-            sections: {
-              where: { deletedAt: null },
-              orderBy: { sortOrder: 'asc' },
-            },
-            fields: {
-              where: { deletedAt: null },
-              orderBy: { sortOrder: 'asc' },
-              include: {
-                section: true,
-              },
-            },
-          },
-        },
-        priceLogs: {
-          take: 10,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            changedBy: { select: { name: true } },
-          },
-        },
-        rateCards: {
-          where: { deletedAt: null, effectiveTo: null },
-          include: { branch: { select: { name: true, code: true } } },
-        },
-      },
+      include: getGarmentTypeDetailInclude(),
     });
 
     // Aggregate Order Data
@@ -302,61 +261,16 @@ export class ConfigService {
           select: { id: true, fullName: true },
         })
       : [];
-    const employeeNameMap = new Map(
-      employees.map((employee) => [employee.id, employee.fullName]),
-    );
-    const topTailors = topTailorsData.map((entry) => ({
-      name: employeeNameMap.get(entry.employeeId) ?? 'Removed Employee',
-      count: Number(entry.count),
-    }));
+    const topTailors = buildTopTailors(topTailorsData, employees);
 
-    const globalActiveRateTotal = (garment.rateCards || []).reduce(
-      (sum, rate) => sum + (rate.branchId ? 0 : rate.amount),
-      0,
-    );
-
-    const result: GarmentTypeWithAnalytics = {
-      ...garment,
-      marginAmount: garment.customerPrice - globalActiveRateTotal,
-      marginPercentage:
-        garment.customerPrice > 0
-          ? Math.round(
-              ((garment.customerPrice - globalActiveRateTotal) /
-                garment.customerPrice) *
-                100,
-            )
-          : 0,
-      priceLogs: (garment.priceLogs || []).map((log) => ({
-        ...log,
-        changedBy: { name: log.changedBy.name },
-      })),
-      measurementCategories: (garment.measurementCategories || []).map(
-        (cat) => ({
-          ...cat,
-          fields: (cat.fields || []).map((f) => ({
-            ...f,
-            fieldType: toSharedFieldType(f.fieldType),
-          })),
-          sections: cat.sections || [],
-        }),
-      ),
-      workflowSteps: garment.workflowSteps || [],
-      analytics: {
-        totalOrders: orderStats._count.id,
-        activeOrders: activeOrdersCount,
-        totalRevenue: orderStats._sum.unitPrice || 0,
-        totalPayout: totalPayoutFromTasks,
-        avgActualPrice:
-          orderStats._count.id > 0
-            ? Math.round(
-                (orderStats._sum.unitPrice || 0) / orderStats._count.id,
-              )
-            : garment.customerPrice,
-        topTailors,
-      },
-    };
-
-    return result;
+    return toGarmentTypeWithAnalytics({
+      garment,
+      orderCount: orderStats._count.id,
+      orderRevenue: orderStats._sum.unitPrice || 0,
+      activeOrdersCount,
+      totalPayoutFromTasks,
+      topTailors,
+    });
   }
 
   async createGarmentType(dto: CreateGarmentTypeDto) {
