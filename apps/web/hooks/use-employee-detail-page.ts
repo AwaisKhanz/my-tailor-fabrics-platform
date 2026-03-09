@@ -40,6 +40,7 @@ interface UseEmployeeDetailPageParams {
 }
 
 export const EMPLOYEE_LEDGER_ALL_TYPES_FILTER = "all";
+export const EMPLOYEE_LEDGER_ALL_TYPES_LABEL = "All Types";
 
 function parseLedgerEntryType(value: string): LedgerEntryType | undefined {
   switch (value) {
@@ -98,7 +99,7 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     () => [
       {
         value: EMPLOYEE_LEDGER_ALL_TYPES_FILTER,
-        label: "All Types",
+        label: EMPLOYEE_LEDGER_ALL_TYPES_LABEL,
       },
       ...LEDGER_ENTRY_TYPE_OPTIONS,
     ],

@@ -63,6 +63,7 @@ import {
 } from "@/components/ui/select";
 import { Heading, Text } from "@/components/ui/typography";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-detail-page";
 import { cn, formatDate, formatDateTime, formatPKR } from "@/lib/utils";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
@@ -1315,7 +1316,7 @@ export function EmployeeDetailTabs({
             />
             <Select value={ledgerType} onValueChange={setLedgerType}>
               <SelectTrigger className="h-8 w-full text-xs md:w-[140px]">
-                <SelectValue placeholder="All Types" />
+                <SelectValue placeholder={EMPLOYEE_LEDGER_ALL_TYPES_LABEL} />
               </SelectTrigger>
               <SelectContent>
                 {ledgerTypeFilterOptions.map((option) => (
