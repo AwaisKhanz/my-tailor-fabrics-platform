@@ -24,11 +24,19 @@ import {
   getEffectiveCompensationAt,
   shiftDateByDays,
 } from './employee-compensation-window';
+import {
+  buildCapabilityWhere,
+  capabilityIdentity,
+  getCapabilityMatchScore,
+  normalizeCapabilityInput,
+  normalizeStepKey,
+  pickBestCapabilityMatch,
+  validateCapabilityStepKeys,
+} from './employee-capability-matching';
 import type {
   CompensationChangeInput,
   EmployeeCapability,
   EmployeeCapabilitySnapshot,
-  EmployeeCapabilityWindowInput,
   EmployeeCompensationHistoryEntry,
   EligibleEmployeeResult,
 } from '@tbms/shared-types';
@@ -43,13 +51,6 @@ const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const MIN_SEARCH_QUERY_LENGTH = 2;
 const MAX_EMPLOYEE_CODE_GENERATION_ATTEMPTS = 5;
-const CAPABILITY_MATCH_SCORES = {
-  EXACT: 1,
-  GARMENT: 2,
-  STEP: 3,
-} as const;
-
-type CapabilityMatchType = EligibleEmployeeResult['matchType'];
 
 @Injectable()
 export class EmployeesService {
@@ -194,237 +195,6 @@ export class EmployeesService {
     }
 
     return EmployeeStatus.ACTIVE;
-  }
-
-  private normalizeStepKey(stepKey?: string | null): string | null {
-    if (!stepKey) {
-      return null;
-    }
-    const normalized = stepKey.trim().toUpperCase();
-    return normalized.length > 0 ? normalized : null;
-  }
-
-  private capabilityIdentity(capability: {
-    garmentTypeId?: string | null;
-    stepKey?: string | null;
-  }): string {
-    return `${capability.garmentTypeId ?? '*'}::${capability.stepKey ?? '*'}`;
-  }
-
-  private normalizeCapabilityInput(capability: EmployeeCapabilityWindowInput): {
-    garmentTypeId: string | null;
-    stepKey: string | null;
-    note?: string;
-  } {
-    const garmentTypeId = capability.garmentTypeId?.trim() || null;
-    const stepKey = this.normalizeStepKey(capability.stepKey);
-    const note = capability.note?.trim() || undefined;
-
-    if (!garmentTypeId && !stepKey) {
-      throw new BadRequestException(
-        'Each capability must define at least garmentTypeId or stepKey',
-      );
-    }
-
-    return {
-      garmentTypeId,
-      stepKey,
-      note,
-    };
-  }
-
-  private async validateCapabilityStepKeys(
-    capabilities: Array<{
-      garmentTypeId: string | null;
-      stepKey: string | null;
-    }>,
-  ): Promise<void> {
-    const scopedStepCapabilities = capabilities.filter(
-      (capability): capability is { garmentTypeId: string; stepKey: string } =>
-        Boolean(capability.garmentTypeId) && Boolean(capability.stepKey),
-    );
-
-    if (scopedStepCapabilities.length > 0) {
-      const uniqueScopedPairs = new Map<
-        string,
-        { garmentTypeId: string; stepKey: string }
-      >();
-      for (const capability of scopedStepCapabilities) {
-        uniqueScopedPairs.set(
-          `${capability.garmentTypeId}::${capability.stepKey}`,
-          capability,
-        );
-      }
-
-      const scopedPairs = Array.from(uniqueScopedPairs.values());
-      const matchedWorkflowSteps =
-        await this.prisma.workflowStepTemplate.findMany({
-          where: {
-            deletedAt: null,
-            OR: scopedPairs.map((pair) => ({
-              garmentTypeId: pair.garmentTypeId,
-              stepKey: pair.stepKey,
-            })),
-          },
-          select: {
-            garmentTypeId: true,
-            stepKey: true,
-          },
-        });
-
-      const matchedScopedSet = new Set(
-        matchedWorkflowSteps.map(
-          (workflowStep) =>
-            `${workflowStep.garmentTypeId}::${workflowStep.stepKey}`,
-        ),
-      );
-
-      for (const pair of scopedPairs) {
-        if (!matchedScopedSet.has(`${pair.garmentTypeId}::${pair.stepKey}`)) {
-          throw new BadRequestException(
-            `Invalid stepKey "${pair.stepKey}" for garmentTypeId "${pair.garmentTypeId}"`,
-          );
-        }
-      }
-    }
-
-    const stepOnlyKeys = Array.from(
-      new Set(
-        capabilities
-          .filter(
-            (
-              capability,
-            ): capability is { garmentTypeId: null; stepKey: string } =>
-              !capability.garmentTypeId && Boolean(capability.stepKey),
-          )
-          .map((capability) => capability.stepKey),
-      ),
-    );
-
-    if (stepOnlyKeys.length === 0) {
-      return;
-    }
-
-    const matchedStepOnlyKeys = await this.prisma.workflowStepTemplate.findMany(
-      {
-        where: {
-          deletedAt: null,
-          stepKey: { in: stepOnlyKeys },
-        },
-        select: { stepKey: true },
-        distinct: ['stepKey'],
-      },
-    );
-
-    const matchedStepOnlySet = new Set(
-      matchedStepOnlyKeys.map((workflowStep) => workflowStep.stepKey),
-    );
-
-    for (const stepKey of stepOnlyKeys) {
-      if (!matchedStepOnlySet.has(stepKey)) {
-        throw new BadRequestException(
-          `Invalid stepKey "${stepKey}". It does not exist in workflow templates.`,
-        );
-      }
-    }
-  }
-
-  private resolveCapabilityMatchType(
-    capability: { garmentTypeId: string | null; stepKey: string | null },
-    garmentTypeId: string,
-    stepKey: string | null,
-  ): CapabilityMatchType | null {
-    if (stepKey) {
-      if (
-        capability.garmentTypeId === garmentTypeId &&
-        capability.stepKey === stepKey
-      ) {
-        return 'EXACT';
-      }
-      if (
-        capability.garmentTypeId === garmentTypeId &&
-        capability.stepKey === null
-      ) {
-        return 'GARMENT';
-      }
-      if (capability.garmentTypeId === null && capability.stepKey === stepKey) {
-        return 'STEP';
-      }
-      return null;
-    }
-
-    if (capability.garmentTypeId === garmentTypeId) {
-      return 'GARMENT';
-    }
-
-    return null;
-  }
-
-  private pickBestCapabilityMatch(
-    capabilities: Array<{
-      garmentTypeId: string | null;
-      stepKey: string | null;
-    }>,
-    garmentTypeId: string,
-    stepKey: string | null,
-  ): CapabilityMatchType | null {
-    let bestMatch: CapabilityMatchType | null = null;
-    let bestScore = Number.POSITIVE_INFINITY;
-
-    for (const capability of capabilities) {
-      const matchType = this.resolveCapabilityMatchType(
-        capability,
-        garmentTypeId,
-        stepKey,
-      );
-      if (!matchType) {
-        continue;
-      }
-
-      const score = CAPABILITY_MATCH_SCORES[matchType];
-      if (score < bestScore) {
-        bestScore = score;
-        bestMatch = matchType;
-      }
-    }
-
-    return bestMatch;
-  }
-
-  private buildCapabilityWhere(
-    garmentTypeId: string,
-    stepKey: string | null,
-    asOf: Date,
-  ): Prisma.EmployeeCapabilityWhereInput {
-    const activeWindowWhere: Prisma.EmployeeCapabilityWhereInput = {
-      deletedAt: null,
-      effectiveFrom: { lte: asOf },
-      OR: [{ effectiveTo: null }, { effectiveTo: { gte: asOf } }],
-    };
-
-    if (stepKey) {
-      return {
-        deletedAt: null,
-        effectiveFrom: { lte: asOf },
-        AND: [
-          {
-            OR: [{ effectiveTo: null }, { effectiveTo: { gte: asOf } }],
-          },
-          {
-            OR: [
-              { garmentTypeId, stepKey },
-              { garmentTypeId, stepKey: null },
-              { garmentTypeId: null, stepKey },
-            ],
-          },
-        ],
-      };
-    }
-
-    return {
-      ...activeWindowWhere,
-      garmentTypeId,
-    };
   }
 
   private async generateEmployeeCode(branchId: string): Promise<string> {
@@ -683,7 +453,7 @@ export class EmployeesService {
       'effectiveFrom',
     );
     const normalizedCapabilities = snapshot.capabilities.map((capability) =>
-      this.normalizeCapabilityInput(capability),
+      normalizeCapabilityInput(capability),
     );
 
     const uniqueCapabilityMap = new Map<
@@ -695,7 +465,7 @@ export class EmployeesService {
       }
     >();
     for (const capability of normalizedCapabilities) {
-      uniqueCapabilityMap.set(this.capabilityIdentity(capability), capability);
+      uniqueCapabilityMap.set(capabilityIdentity(capability), capability);
     }
 
     const uniqueCapabilities = Array.from(uniqueCapabilityMap.values());
@@ -719,7 +489,7 @@ export class EmployeesService {
       }
     }
 
-    await this.validateCapabilityStepKeys(uniqueCapabilities);
+    await validateCapabilityStepKeys(this.prisma, uniqueCapabilities);
 
     return this.prisma.$transaction(async (tx) => {
       await tx.employeeCapability.updateMany({
@@ -794,8 +564,8 @@ export class EmployeesService {
     const asOf = params.asOf
       ? this.parseRequiredDate(params.asOf, 'asOf')
       : new Date();
-    const normalizedStepKey = this.normalizeStepKey(params.stepKey);
-    const capabilityWhere = this.buildCapabilityWhere(
+    const normalizedStepKey = normalizeStepKey(params.stepKey);
+    const capabilityWhere = buildCapabilityWhere(
       garmentTypeId,
       normalizedStepKey,
       asOf,
@@ -863,7 +633,7 @@ export class EmployeesService {
         continue;
       }
 
-      const bestMatchType = this.pickBestCapabilityMatch(
+      const bestMatchType = pickBestCapabilityMatch(
         employee.capabilities.map((capability) => ({
           garmentTypeId: capability.garmentTypeId,
           stepKey: capability.stepKey,
@@ -899,7 +669,7 @@ export class EmployeesService {
           updatedAt: employee.updatedAt.toISOString(),
         },
         matchType: bestMatchType,
-        score: CAPABILITY_MATCH_SCORES[bestMatchType],
+        score: getCapabilityMatchScore(bestMatchType),
       });
     }
 
