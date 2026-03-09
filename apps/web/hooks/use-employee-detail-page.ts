@@ -7,8 +7,8 @@ import { attendanceApi } from "@/lib/api/attendance";
 import { ordersApi } from "@/lib/api/orders";
 import { configApi } from "@/lib/api/config";
 import { ledgerApi } from "@/lib/api/ledger";
+import { useEmployeeDocumentManager } from "@/hooks/use-employee-document-manager";
 import {
-  employeeDocumentUploadFormSchema,
   employeeCapabilitySnapshotFormSchema,
   employeeCompensationChangeFormSchema,
   employeeLedgerEntryFormSchema,
@@ -101,15 +101,6 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
   const [ledgerDialogOpen, setLedgerDialogOpen] = useState(false);
-
-  const [docLabel, setDocLabel] = useState("");
-  const [docUrl, setDocUrl] = useState("");
-  const [documentFieldErrors, setDocumentFieldErrors] = useState<{
-    label?: string;
-    url?: string;
-  }>({});
-  const [documentValidationError, setDocumentValidationError] = useState("");
-  const [uploadingDocument, setUploadingDocument] = useState(false);
 
   const [newEntryType, setNewEntryType] = useState<LedgerEntryType>(
     LedgerEntryType.ADJUSTMENT,
@@ -256,6 +247,22 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     });
   }, [setValues]);
 
+  const {
+    docLabel,
+    setDocLabel,
+    docUrl,
+    setDocUrl,
+    documentFieldErrors,
+    documentValidationError,
+    uploadingDocument,
+    uploadDocument,
+    clearDocumentForm,
+  } = useEmployeeDocumentManager({
+    employeeId,
+    fetchEmployeeData,
+    toast,
+  });
+
   const handleTaskStatusChange = useCallback(
     async (taskId: string, status: TaskStatus) => {
       try {
@@ -375,52 +382,6 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     await reverseLedgerEntry(ledgerEntryToReverseId);
     setLedgerEntryToReverseId(null);
   }, [ledgerEntryToReverseId, reverseLedgerEntry]);
-
-  const uploadDocument = useCallback(async () => {
-    if (!employeeId) {
-      return;
-    }
-
-    const parsedResult = employeeDocumentUploadFormSchema.safeParse({
-      label: docLabel,
-      url: docUrl,
-    });
-    if (!parsedResult.success) {
-      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
-      setDocumentFieldErrors({
-        label: flattenedErrors.label?.[0],
-        url: flattenedErrors.url?.[0],
-      });
-      setDocumentValidationError(
-        flattenedErrors.label?.[0] ??
-          flattenedErrors.url?.[0] ??
-          "Fix the highlighted fields and try again.",
-      );
-      return;
-    }
-
-    setDocumentFieldErrors({});
-    setDocumentValidationError("");
-    setUploadingDocument(true);
-    try {
-      await employeesApi.uploadDocument(employeeId, {
-        label: parsedResult.data.label,
-        fileUrl: parsedResult.data.url,
-        fileType: parsedResult.data.url.toLowerCase().endsWith(".pdf")
-          ? "application/pdf"
-          : "image/jpeg",
-      });
-      toast({ title: "Document Uploaded" });
-      setDocumentDialogOpen(false);
-      setDocLabel("");
-      setDocUrl("");
-      await fetchEmployeeData();
-    } catch {
-      toast({ title: "Upload Failed", variant: "destructive" });
-    } finally {
-      setUploadingDocument(false);
-    }
-  }, [docLabel, docUrl, employeeId, fetchEmployeeData, toast]);
 
   const saveCapabilitiesSnapshot = useCallback(
     async (snapshot: EmployeeCapabilitySnapshot) => {
@@ -551,21 +512,19 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
     setLedgerDialogOpen,
 
     docLabel,
-    setDocLabel: (value: string) => {
-      setDocumentFieldErrors((previous) => ({ ...previous, label: undefined }));
-      setDocumentValidationError("");
-      setDocLabel(value);
-    },
+    setDocLabel,
     docUrl,
-    setDocUrl: (value: string) => {
-      setDocumentFieldErrors((previous) => ({ ...previous, url: undefined }));
-      setDocumentValidationError("");
-      setDocUrl(value);
-    },
+    setDocUrl,
     documentFieldErrors,
     documentValidationError,
     uploadingDocument,
-    uploadDocument,
+    uploadDocument: async () => {
+      const success = await uploadDocument();
+      if (success) {
+        setDocumentDialogOpen(false);
+        clearDocumentForm();
+      }
+    },
 
     newEntryType,
     setNewEntryType: (value: LedgerEntryType) => {
