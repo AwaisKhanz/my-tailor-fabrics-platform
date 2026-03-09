@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  expenseCategoryFormSchema,
-  type ExpenseCategoryFormValues,
   type ExpenseCategory,
   type ExpenseCategoryStatsSummary,
 } from "@tbms/shared-types";
@@ -11,19 +9,12 @@ import { expensesApi } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
-
-type CategoryFormState = ExpenseCategoryFormValues;
-type CategoryFieldErrors = Partial<Record<keyof CategoryFormState, string>>;
+import { useExpenseCategoryDialogManager } from "@/hooks/use-expense-category-dialog-manager";
 const PAGE_SIZE = 10;
 const EMPTY_STATS: ExpenseCategoryStatsSummary = {
   total: 0,
   active: 0,
   inactive: 0,
-};
-
-const DEFAULT_FORM_STATE: CategoryFormState = {
-  name: "",
-  isActive: true,
 };
 
 export function useExpenseCategoriesPage() {
@@ -37,7 +28,6 @@ export function useExpenseCategoriesPage() {
   });
 
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -46,12 +36,6 @@ export function useExpenseCategoriesPage() {
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null);
-  const [form, setForm] = useState<CategoryFormState>(DEFAULT_FORM_STATE);
-  const [formError, setFormError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<CategoryFieldErrors>({});
 
   const [deleteTarget, setDeleteTarget] = useState<ExpenseCategory | null>(null);
 
@@ -102,102 +86,22 @@ export function useExpenseCategoriesPage() {
   }, [fetchCategories, page]);
 
   const hasActiveFilters = Boolean(search.trim());
-
-  const openCreateDialog = useCallback(() => {
-    setEditingCategory(null);
-    setForm(DEFAULT_FORM_STATE);
-    setFieldErrors({});
-    setFormError("");
-    setDialogOpen(true);
-  }, []);
-
-  const openEditDialog = useCallback((category: ExpenseCategory) => {
-    setEditingCategory(category);
-    setForm({
-      name: category.name,
-      isActive: category.isActive,
-    });
-    setFieldErrors({});
-    setFormError("");
-    setDialogOpen(true);
-  }, []);
-
-  const closeDialog = useCallback(
-    (open: boolean) => {
-      if (saving) {
-        return;
-      }
-      setDialogOpen(open);
-      if (!open) {
-        setEditingCategory(null);
-        setForm(DEFAULT_FORM_STATE);
-        setFieldErrors({});
-        setFormError("");
-      }
-    },
-    [saving],
-  );
-
-  const updateFormField = useCallback(
-    <K extends keyof CategoryFormState>(field: K, value: CategoryFormState[K]) => {
-      setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
-      setFormError("");
-      setForm((previous) => ({ ...previous, [field]: value }));
-    },
-    [],
-  );
-
-  const saveCategory = useCallback(async () => {
-    const parsedResult = expenseCategoryFormSchema.safeParse(form);
-    if (!parsedResult.success) {
-      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
-      setFieldErrors({
-        name: flattenedErrors.name?.[0],
-      });
-      setFormError(flattenedErrors.name?.[0] ?? "Fix the highlighted field and try again.");
-      return;
-    }
-
-    const validated = parsedResult.data;
-    setFieldErrors({});
-    setFormError("");
-
-    setSaving(true);
-    try {
-      if (editingCategory) {
-        await expensesApi.updateCategory(editingCategory.id, {
-          name: validated.name,
-          isActive: validated.isActive,
-        });
-        toast({
-          title: "Updated",
-          description: "Expense category updated.",
-        });
-      } else {
-        await expensesApi.createCategory({
-          name: validated.name,
-          isActive: validated.isActive,
-        });
-        toast({
-          title: "Created",
-          description: "Expense category created.",
-        });
-      }
-
-      setDialogOpen(false);
-      setEditingCategory(null);
-      setForm(DEFAULT_FORM_STATE);
-      await fetchCategories(page);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to save expense category."),
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  }, [editingCategory, fetchCategories, form, page, toast]);
+  const {
+    dialogOpen,
+    editingCategory,
+    fieldErrors,
+    form,
+    formError,
+    saving,
+    openCreateDialog,
+    openEditDialog,
+    closeDialog,
+    updateFormField,
+    saveCategory,
+  } = useExpenseCategoryDialogManager({
+    page,
+    onSaved: fetchCategories,
+  });
 
   const toggleCategoryStatus = useCallback(
     async (category: ExpenseCategory) => {
