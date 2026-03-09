@@ -33,8 +33,6 @@ export const useBranchStore = create<BranchState>((set) => ({
 
   hydrate: () => {
     const savedBranchId = readActiveBranchCookie();
-    if (savedBranchId) {
-      set({ activeBranchId: savedBranchId });
-    }
+    set({ activeBranchId: savedBranchId ?? null });
   },
 }));

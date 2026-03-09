@@ -6,6 +6,7 @@ import { getWebApiBaseUrl } from './env';
 import { logDevError } from './logger';
 import { isTokenExpiringSoon } from './auth/jwt';
 import { readActiveBranchCookie } from './branch-context';
+import { useBranchStore } from '@/store/useBranchStore';
 
 export const API_BASE_URL = getWebApiBaseUrl();
 const AUTH_REDIRECT_DEBOUNCE_MS = 5000;
@@ -195,7 +196,8 @@ api.interceptors.request.use(
     
     // Auth role/branch info is now in session.
     // For cross-branch admin flows, prefer the branch explicitly selected in the UI.
-    const selectedBranchId = readActiveBranchCookie();
+    const selectedBranchId =
+      useBranchStore.getState().activeBranchId ?? readActiveBranchCookie();
     const activeBranchId = selectedBranchId || session?.user?.branchId;
     
     if (activeBranchId) {
