@@ -52,21 +52,7 @@ import {
   toPrismaFabricSource,
   toPrismaOrderStatus,
 } from './order-query-resolver';
-
-type ResolvedOrderItemDraft = {
-  garmentTypeId: string;
-  garmentTypeName: string;
-  pieceNo: number;
-  quantity: number;
-  unitPrice: number;
-  designPrice: number;
-  addonsTotal: number;
-  description: string | undefined;
-  fabricSource: SharedFabricSource;
-  dueDate: Date | null;
-  designTypeId: string | null;
-  addons: OrderItemAddonDto[];
-};
+import { resolveOrderItemDrafts, type ResolvedOrderItemDraft } from './order-item-draft-resolver';
 
 @Injectable()
 export class OrdersService {
@@ -227,60 +213,10 @@ export class OrdersService {
       }
 
       const orderBranchId = branchId || customer.branchId;
-      // 2. Resolve Prices and compute item subtotals
-      const resolvedItems: ResolvedOrderItemDraft[] = [];
-      const pieceMap: Record<string, number> = {};
-
-      for (const item of createOrderDto.items) {
-        const type = await tx.garmentType.findUnique({
-          where: { id: item.garmentTypeId },
-        });
-
-        if (!type || !type.isActive) {
-          throw new BadRequestException(
-            `Garment Type ${item.garmentTypeId} not found or inactive`,
-          );
-        }
-
-        const customerPrice =
-          item.unitPrice !== undefined && item.unitPrice !== 0
-            ? item.unitPrice
-            : type.customerPrice;
-
-        // Split quantity into individual pieces
-        for (let i = 0; i < item.quantity; i++) {
-          pieceMap[item.garmentTypeId] =
-            (pieceMap[item.garmentTypeId] || 0) + 1;
-          const currentPieceNo = pieceMap[item.garmentTypeId];
-
-          const designType = item.designTypeId
-            ? await tx.designType.findUnique({
-                where: { id: item.designTypeId },
-              })
-            : null;
-
-          const addonsPrice = (item.addons || []).reduce(
-            (sum, a) => sum + (a.price || 0),
-            0,
-          );
-          const designPrice = designType?.defaultPrice || 0;
-
-          resolvedItems.push({
-            garmentTypeId: type.id,
-            garmentTypeName: type.name,
-            pieceNo: currentPieceNo, // SEQUENTIAL per garment type
-            quantity: 1, // ALWAYS 1
-            unitPrice: customerPrice,
-            designPrice,
-            addonsTotal: addonsPrice,
-            description: item.description,
-            fabricSource: item.fabricSource ?? SharedFabricSource.SHOP,
-            dueDate: item.dueDate ? new Date(item.dueDate) : null,
-            designTypeId: item.designTypeId || null,
-            addons: item.addons || [],
-          });
-        }
-      }
+      const resolvedItems = await resolveOrderItemDrafts(
+        tx,
+        createOrderDto.items,
+      );
 
       const subtotal = this.calculateDraftOrderSubtotal(resolvedItems);
 
