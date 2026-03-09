@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LEDGER_ENTRY_TYPE_SIGN = exports.LEDGER_ENTRY_TYPE_BADGE = exports.LEDGER_ENTRY_TYPE_LABELS = void 0;
+exports.LEDGER_ENTRY_TYPE_SIGN = exports.LEDGER_ENTRY_TYPE_BADGE = exports.LEDGER_ENTRY_TYPE_OPTIONS = exports.LEDGER_ENTRY_TYPE_LABELS = void 0;
 const shared_types_1 = require("@tbms/shared-types");
 /** Human-readable labels for each ledger entry type. */
 exports.LEDGER_ENTRY_TYPE_LABELS = {
@@ -11,6 +11,10 @@ exports.LEDGER_ENTRY_TYPE_LABELS = {
     [shared_types_1.LedgerEntryType.ADJUSTMENT]: 'Adjustment',
     [shared_types_1.LedgerEntryType.SALARY]: 'Salary',
 };
+exports.LEDGER_ENTRY_TYPE_OPTIONS = Object.values(shared_types_1.LedgerEntryType).map((value) => ({
+    value,
+    label: exports.LEDGER_ENTRY_TYPE_LABELS[value],
+}));
 /** Badge variant for each entry type. */
 exports.LEDGER_ENTRY_TYPE_BADGE = {
     [shared_types_1.LedgerEntryType.EARNING]: 'success',

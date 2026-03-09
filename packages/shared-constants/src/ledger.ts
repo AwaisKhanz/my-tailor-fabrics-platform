@@ -10,6 +10,13 @@ export const LEDGER_ENTRY_TYPE_LABELS: Record<LedgerEntryType, string> = {
   [LedgerEntryType.SALARY]: 'Salary',
 };
 
+export const LEDGER_ENTRY_TYPE_OPTIONS = Object.values(LedgerEntryType).map(
+  (value) => ({
+    value,
+    label: LEDGER_ENTRY_TYPE_LABELS[value],
+  }),
+);
+
 /** Badge variant for each entry type. */
 export const LEDGER_ENTRY_TYPE_BADGE: Record<LedgerEntryType, BadgeVariant> = {
   [LedgerEntryType.EARNING]: 'success',

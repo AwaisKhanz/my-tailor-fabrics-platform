@@ -11,6 +11,10 @@ export declare const ITEM_STATUS_CONFIG: Record<ItemStatus, {
     variant: BadgeVariant;
 }>;
 export declare const TASK_STATUS_LABELS: Record<TaskStatus, string>;
+export declare const TASK_STATUS_OPTIONS: {
+    value: TaskStatus;
+    label: string;
+}[];
 export declare const TASK_STATUS_CONFIG: Record<TaskStatus, {
     label: string;
     variant: BadgeVariant;

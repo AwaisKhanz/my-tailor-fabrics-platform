@@ -7,7 +7,7 @@ import {
 } from "@tbms/shared-types";
 import {
   TASK_STATUS_CONFIG,
-  TASK_STATUS_LABELS,
+  TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
@@ -193,9 +193,9 @@ export function TaskAssignmentTable({
                 </Badge>
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(TASK_STATUS_LABELS).map(([status, label]) => (
-                  <SelectItem key={status} value={status}>
-                    {label}
+                {TASK_STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -85,6 +85,11 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TaskStatus.CANCELLED]: 'Cancelled',
 };
 
+export const TASK_STATUS_OPTIONS = Object.values(TaskStatus).map((status) => ({
+  value: status,
+  label: TASK_STATUS_LABELS[status],
+}));
+
 export const TASK_STATUS_CONFIG: Record<
   TaskStatus,
   { label: string; variant: BadgeVariant }

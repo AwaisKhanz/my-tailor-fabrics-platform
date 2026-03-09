@@ -40,8 +40,9 @@ import {
 import {
   LEDGER_ENTRY_TYPE_BADGE,
   LEDGER_ENTRY_TYPE_LABELS,
+  LEDGER_ENTRY_TYPE_OPTIONS,
   PAYMENT_TYPE_LABELS,
-  TASK_STATUS_LABELS,
+  TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
 import type { EmployeeWithRelations } from "@/lib/api/employees";
@@ -698,13 +699,13 @@ export function EmployeeDetailTabs({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(TASK_STATUS_LABELS).map(([key, label]) => (
+            {TASK_STATUS_OPTIONS.map((option) => (
               <SelectItem
-                key={key}
-                value={key}
+                key={option.value}
+                value={option.value}
                 className="text-xs font-bold uppercase"
               >
-                {label}
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1314,13 +1315,11 @@ export function EmployeeDetailTabs({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {Object.entries(LEDGER_ENTRY_TYPE_LABELS).map(
-                  ([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ),
-                )}
+                {LEDGER_ENTRY_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button
