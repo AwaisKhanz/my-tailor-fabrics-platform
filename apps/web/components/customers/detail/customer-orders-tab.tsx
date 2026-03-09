@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { Clock3, History } from "lucide-react";
-import { type Order, OrderStatus } from "@tbms/shared-types";
+import { type Order } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,21 +15,6 @@ const PAGE_SIZE = 10;
 interface CustomerOrdersTabProps {
   orders: Order[];
   onOpenOrder: (orderId: string) => void;
-}
-
-function parseOrderStatus(value: string): OrderStatus {
-  switch (value) {
-    case OrderStatus.NEW:
-    case OrderStatus.IN_PROGRESS:
-    case OrderStatus.READY:
-    case OrderStatus.OVERDUE:
-    case OrderStatus.DELIVERED:
-    case OrderStatus.COMPLETED:
-    case OrderStatus.CANCELLED:
-      return value;
-    default:
-      return OrderStatus.NEW;
-  }
 }
 
 export function CustomerOrdersTab({
@@ -99,7 +84,7 @@ export function CustomerOrdersTab({
         header: "Status",
         align: "right",
         cell: (order) => {
-          const statusConfig = ORDER_STATUS_CONFIG[parseOrderStatus(order.status)];
+          const statusConfig = ORDER_STATUS_CONFIG[order.status];
 
           return (
             <Badge
