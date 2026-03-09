@@ -251,7 +251,7 @@ export class OrdersService {
           discountValue: createOrderDto.discountValue || 0,
           discountAmount: 0,
           totalAmount: 0,
-          totalPaid: initialPayment,
+          totalPaid: 0,
           balanceDue: 0,
           notes: createOrderDto.notes,
           createdById,
@@ -280,25 +280,20 @@ export class OrdersService {
       }
 
       // 5.5 Recalculate Totals (sets subtotal, discountAmount, totalAmount, balanceDue correctly)
-      const updatedOrder = await this.recalcOrderTotals(newOrder.id, tx);
+      await this.recalcOrderTotals(newOrder.id, tx);
 
       // 6. Record Initial Payment (if any)
       if (initialPayment > 0) {
-        await tx.orderPayment.create({
-          data: {
-            orderId: updatedOrder.id,
-            amount: initialPayment,
-            receivedById: createdById,
-            note: 'Advance Payment at Order Creation',
-          },
-        });
-
-        // Update Customer Lifetime Value
-        await tx.customer.update({
-          where: { id: customer.id },
-          data: { lifetimeValue: { increment: initialPayment } },
+        await recordOrderPayment(tx, {
+          orderId: newOrder.id,
+          customerId: customer.id,
+          amount: initialPayment,
+          receivedById: createdById,
+          note: 'Advance Payment at Order Creation',
         });
       }
+
+      const updatedOrder = await this.recalcOrderTotals(newOrder.id, tx);
 
       // 7. Record History
       await recordOrderStatusHistory(tx, {
