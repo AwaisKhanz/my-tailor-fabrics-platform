@@ -36,6 +36,8 @@ import {
   assertUniqueMeasurementSectionName,
   normalizeMeasurementSectionName,
   resolveMeasurementSectionArchivePlan,
+  toMeasurementSectionCreateInput,
+  toMeasurementSectionUpdateInput,
 } from './measurement-section-management';
 import {
   assertUniqueMeasurementFieldLabel,
@@ -731,11 +733,11 @@ export class ConfigService {
               (await getNextSectionSortOrder(categoryId, tx));
 
             return tx.measurementSection.create({
-              data: {
+              data: toMeasurementSectionCreateInput({
                 categoryId,
                 name: normalizedName,
                 sortOrder: nextSortOrder,
-              },
+              }),
             });
           },
           { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -775,8 +777,6 @@ export class ConfigService {
       throw new NotFoundException('Measurement section not found.');
     }
 
-    const data: Prisma.MeasurementSectionUpdateInput = {};
-
     if (dto.name !== undefined) {
       const normalizedName = normalizeMeasurementSectionName(dto.name);
       await assertUniqueMeasurementSectionName(this.prisma, {
@@ -784,13 +784,9 @@ export class ConfigService {
         name: normalizedName,
         excludeSectionId: sectionId,
       });
-
-      data.name = normalizedName;
     }
 
-    if (dto.sortOrder !== undefined) {
-      data.sortOrder = dto.sortOrder;
-    }
+    const data = toMeasurementSectionUpdateInput(dto);
 
     if (Object.keys(data).length === 0) {
       return section;

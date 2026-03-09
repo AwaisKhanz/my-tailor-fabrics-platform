@@ -37,6 +37,32 @@ export function normalizeMeasurementSectionName(name: string): string {
   return normalizedName;
 }
 
+export function toMeasurementSectionCreateInput(params: {
+  categoryId: string;
+  name: string;
+  sortOrder: number;
+}): Prisma.MeasurementSectionUncheckedCreateInput {
+  return {
+    categoryId: params.categoryId,
+    name: normalizeMeasurementSectionName(params.name),
+    sortOrder: params.sortOrder,
+  };
+}
+
+export function toMeasurementSectionUpdateInput(
+  dto: {
+    name?: string;
+    sortOrder?: number;
+  },
+): Prisma.MeasurementSectionUpdateInput {
+  return {
+    ...(dto.name !== undefined
+      ? { name: normalizeMeasurementSectionName(dto.name) }
+      : {}),
+    ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+  };
+}
+
 export async function assertUniqueMeasurementSectionName(
   db: MeasurementSectionDbClient,
   params: {
