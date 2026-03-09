@@ -27,6 +27,7 @@ import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import {
   resolveBranchScopeForMutation,
   resolveBranchScopeForRead,
+  resolveBranchScopeForReadOrNull,
 } from '../common/utils/branch-resolution.util';
 import { success, successOnly } from '../common/utils/response.util';
 
@@ -78,9 +79,12 @@ export class DesignTypesController {
     @Param('id', ParseCuidPipe) id: string,
     @Req() req: AuthenticatedRequest,
   ) {
+    const scopedBranchId = resolveBranchScopeForReadOrNull(req, undefined, {
+      allowAllForSuperAdmin: true,
+    });
     const data = await this.designTypesService.findOne(
       id,
-      req.branchId ?? undefined,
+      scopedBranchId ?? undefined,
     );
     return success(data);
   }
@@ -93,10 +97,11 @@ export class DesignTypesController {
     @Body() updateDesignTypeDto: UpdateDesignTypeDto,
     @Req() req: AuthenticatedRequest,
   ) {
+    const scopedBranchId = resolveBranchScopeForMutation(req, undefined);
     const data = await this.designTypesService.update(
       id,
       updateDesignTypeDto,
-      req.branchId ?? undefined,
+      scopedBranchId,
     );
     return success(data);
   }
@@ -108,7 +113,10 @@ export class DesignTypesController {
     @Param('id', ParseCuidPipe) id: string,
     @Req() req: AuthenticatedRequest,
   ) {
-    await this.designTypesService.remove(id, req.branchId ?? undefined);
+    await this.designTypesService.remove(
+      id,
+      resolveBranchScopeForMutation(req, undefined),
+    );
     return successOnly();
   }
 }
