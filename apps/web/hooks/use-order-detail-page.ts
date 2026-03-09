@@ -156,10 +156,7 @@ export function useOrderDetailPage(orderId: string) {
   }, []);
 
   const statusConfig = orderDetail.order
-    ? ORDER_STATUS_CONFIG[orderDetail.order.status] ?? {
-        label: orderDetail.order.status,
-        variant: "outline" as const,
-      }
+    ? ORDER_STATUS_CONFIG[orderDetail.order.status]
     : null;
 
   const totalPieces =

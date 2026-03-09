@@ -157,9 +157,7 @@ export function OrdersListTable({
       {
         header: "Status",
         cell: (order) => {
-          const statusConfig =
-            ORDER_STATUS_CONFIG[order.status] ??
-            ORDER_STATUS_CONFIG[OrderStatus.NEW];
+          const statusConfig = ORDER_STATUS_CONFIG[order.status];
           return (
             <Badge variant={statusConfig.variant} size="xs" className="px-2">
               {statusConfig.label}
