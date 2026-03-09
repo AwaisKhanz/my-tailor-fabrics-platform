@@ -18,113 +18,20 @@ import {
 } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-
-interface ResolvedDateRange {
-  fromDate: Date;
-  toDate: Date;
-}
-
-type DateRangeColumn =
-  | 'orderCreatedAt'
-  | 'orderPaymentPaidAt'
-  | 'expenseDate'
-  | 'orderItemCompletedAt'
-  | 'taskCompletedAt';
+import {
+  formatTrendLabel,
+  getSqlDateCondition,
+  getTrendSql,
+  type ResolvedDateRange,
+  resolveDateRange,
+  resolveOptionalDateRange,
+  resolvePreviousRange,
+  toTrendGranularity,
+} from './reports-date-range';
 
 @Injectable()
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  private resolveOptionalDateRange(
-    from?: string,
-    to?: string,
-  ): ResolvedDateRange | null {
-    if (!from && !to) {
-      return null;
-    }
-
-    const now = new Date();
-
-    const fromDate = from ? new Date(from) : new Date(now);
-    const toDate = to ? new Date(to) : new Date(now);
-
-    if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
-      return null;
-    }
-
-    fromDate.setHours(0, 0, 0, 0);
-    toDate.setHours(23, 59, 59, 999);
-
-    if (fromDate.getTime() > toDate.getTime()) {
-      const normalizedFromDate = new Date(toDate);
-      normalizedFromDate.setHours(0, 0, 0, 0);
-
-      const normalizedToDate = new Date(fromDate);
-      normalizedToDate.setHours(23, 59, 59, 999);
-
-      return { fromDate: normalizedFromDate, toDate: normalizedToDate };
-    }
-
-    return { fromDate, toDate };
-  }
-
-  private resolveDateRange(
-    from?: string,
-    to?: string,
-    fallbackDays = 30,
-  ): ResolvedDateRange {
-    const explicitRange = this.resolveOptionalDateRange(from, to);
-    if (explicitRange) {
-      return explicitRange;
-    }
-
-    const toDate = new Date();
-    toDate.setHours(23, 59, 59, 999);
-
-    const fromDate = new Date(toDate);
-    fromDate.setDate(fromDate.getDate() - (fallbackDays - 1));
-    fromDate.setHours(0, 0, 0, 0);
-
-    return { fromDate, toDate };
-  }
-
-  private resolvePreviousRange(
-    currentRange: ResolvedDateRange,
-  ): ResolvedDateRange {
-    const spanMs =
-      currentRange.toDate.getTime() - currentRange.fromDate.getTime() + 1;
-    const previousToDate = new Date(currentRange.fromDate.getTime() - 1);
-    const previousFromDate = new Date(previousToDate.getTime() - spanMs + 1);
-
-    previousFromDate.setHours(0, 0, 0, 0);
-    previousToDate.setHours(23, 59, 59, 999);
-
-    return { fromDate: previousFromDate, toDate: previousToDate };
-  }
-
-  private getSqlDateCondition(
-    column: DateRangeColumn,
-    range: ResolvedDateRange | null,
-  ): Prisma.Sql {
-    if (!range) {
-      return Prisma.empty;
-    }
-
-    switch (column) {
-      case 'orderPaymentPaidAt':
-        return Prisma.sql`AND op."paidAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
-      case 'expenseDate':
-        return Prisma.sql`AND e."expenseDate" BETWEEN ${range.fromDate} AND ${range.toDate}`;
-      case 'orderCreatedAt':
-        return Prisma.sql`AND o."createdAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
-      case 'orderItemCompletedAt':
-        return Prisma.sql`AND oi."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
-      case 'taskCompletedAt':
-        return Prisma.sql`AND oit."completedAt" BETWEEN ${range.fromDate} AND ${range.toDate}`;
-      default:
-        return Prisma.empty;
-    }
-  }
 
   private toDistributionPoints(
     rows: Array<{ key: string; label: string; value: number }>,
@@ -137,55 +44,6 @@ export class ReportsService {
     }));
   }
 
-  private toTrendGranularity(value?: string): TrendGranularity {
-    if (value === 'day' || value === 'week' || value === 'month') {
-      return value;
-    }
-
-    return 'week';
-  }
-
-  private getTrendSql(granularity: TrendGranularity): {
-    truncateUnitSql: Prisma.Sql;
-    stepSql: Prisma.Sql;
-  } {
-    if (granularity === 'day') {
-      return {
-        truncateUnitSql: Prisma.sql`'day'`,
-        stepSql: Prisma.sql`INTERVAL '1 day'`,
-      };
-    }
-
-    if (granularity === 'month') {
-      return {
-        truncateUnitSql: Prisma.sql`'month'`,
-        stepSql: Prisma.sql`INTERVAL '1 month'`,
-      };
-    }
-
-    return {
-      truncateUnitSql: Prisma.sql`'week'`,
-      stepSql: Prisma.sql`INTERVAL '1 week'`,
-    };
-  }
-
-  private formatTrendLabel(date: Date, granularity: TrendGranularity): string {
-    if (granularity === 'day') {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
-    }
-
-    if (granularity === 'month') {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        year: '2-digit',
-      });
-    }
-
-    return `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-  }
 
   private async getFinancialTotals(
     branchId?: string,
@@ -239,7 +97,7 @@ export class ReportsService {
   }
 
   async getDashboardStats(branchId?: string, from?: string, to?: string) {
-    const range = this.resolveOptionalDateRange(from, to);
+    const range = resolveOptionalDateRange(from, to);
 
     const baseOrderWhere: Prisma.OrderWhereInput = {
       deletedAt: null,
@@ -410,9 +268,9 @@ export class ReportsService {
     to?: string,
     granularity?: string,
   ): Promise<FinancialTrend> {
-    const range = this.resolveDateRange(from, to, 30);
-    const resolvedGranularity = this.toTrendGranularity(granularity);
-    const { truncateUnitSql, stepSql } = this.getTrendSql(resolvedGranularity);
+    const range = resolveDateRange(from, to, 30);
+    const resolvedGranularity = toTrendGranularity(granularity);
+    const { truncateUnitSql, stepSql } = getTrendSql(resolvedGranularity);
 
     const branchConditionOrder = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
@@ -441,7 +299,7 @@ export class ReportsService {
           WHERE o."deletedAt" IS NULL
             AND op."deletedAt" IS NULL
             AND op."reversedAt" IS NULL
-            ${this.getSqlDateCondition('orderPaymentPaidAt', range)}
+            ${getSqlDateCondition('orderPaymentPaidAt', range)}
             ${branchConditionOrder}
           GROUP BY 1
         ),
@@ -451,7 +309,7 @@ export class ReportsService {
             COALESCE(SUM(e.amount), 0)::double precision AS expenses
           FROM "Expense" e
           WHERE e."deletedAt" IS NULL
-            ${this.getSqlDateCondition('expenseDate', range)}
+            ${getSqlDateCondition('expenseDate', range)}
             ${branchConditionExpense}
           GROUP BY 1
         )
@@ -469,7 +327,7 @@ export class ReportsService {
 
     const points = rows.map((row) => ({
       periodStart: row.periodStart.toISOString(),
-      label: this.formatTrendLabel(
+      label: formatTrendLabel(
         new Date(row.periodStart),
         resolvedGranularity,
       ),
@@ -502,7 +360,7 @@ export class ReportsService {
     const branchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
-    const range = this.resolveOptionalDateRange(from, to);
+    const range = resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<
       { label: string; value: bigint }[]
@@ -514,7 +372,7 @@ export class ReportsService {
         WHERE oi.status NOT IN (${ItemStatus.CANCELLED})
           AND o."deletedAt" IS NULL
           ${branchCondition}
-          ${this.getSqlDateCondition('orderCreatedAt', range)}
+          ${getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY oi."garmentTypeName"
         ORDER BY value DESC
       `,
@@ -528,7 +386,7 @@ export class ReportsService {
     from?: string,
     to?: string,
   ): Promise<ReportDistributions> {
-    const range = this.resolveDateRange(from, to, 30);
+    const range = resolveDateRange(from, to, 30);
     const branchCondition = branchId
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
@@ -547,7 +405,7 @@ export class ReportsService {
             AND oi.status NOT IN (${ItemStatus.CANCELLED})
             AND oi."designTypeId" IS NOT NULL
             ${branchCondition}
-            ${this.getSqlDateCondition('orderCreatedAt', range)}
+            ${getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY dt.id, dt.name
           ORDER BY value DESC
         `,
@@ -565,7 +423,7 @@ export class ReportsService {
             AND a."deletedAt" IS NULL
             AND oi.status NOT IN (${ItemStatus.CANCELLED})
             ${branchCondition}
-            ${this.getSqlDateCondition('orderCreatedAt', range)}
+            ${getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY a.type
           ORDER BY value DESC
         `,
@@ -581,7 +439,7 @@ export class ReportsService {
           WHERE o."deletedAt" IS NULL
             AND oi.status NOT IN (${ItemStatus.CANCELLED})
             ${branchCondition}
-            ${this.getSqlDateCondition('orderCreatedAt', range)}
+            ${getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY oi."garmentTypeName"
           ORDER BY value DESC
         `,
@@ -601,7 +459,7 @@ export class ReportsService {
     to?: string,
     limit?: number,
   ): Promise<ProductivityPoint[]> {
-    const range = this.resolveOptionalDateRange(from, to);
+    const range = resolveOptionalDateRange(from, to);
     const safeLimit =
       typeof limit === 'number' && Number.isFinite(limit) && limit > 0
         ? Math.min(limit, 50)
@@ -612,7 +470,7 @@ export class ReportsService {
       : Prisma.empty;
 
     const taskDateCondition = range
-      ? this.getSqlDateCondition('taskCompletedAt', range)
+      ? getSqlDateCondition('taskCompletedAt', range)
       : Prisma.empty;
 
     const result = await this.prisma.$queryRaw<
@@ -693,7 +551,7 @@ export class ReportsService {
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
 
-    const range = this.resolveOptionalDateRange(from, to);
+    const range = resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<
       { name: string; count: bigint; revenue: bigint; payout: bigint }[]
@@ -718,7 +576,7 @@ export class ReportsService {
         WHERE o."deletedAt" IS NULL
           AND oi.status NOT IN (${ItemStatus.CANCELLED})
           ${branchCondition}
-          ${this.getSqlDateCondition('orderCreatedAt', range)}
+          ${getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY dt.id, dt.name
         ORDER BY count DESC
       `,
@@ -741,7 +599,7 @@ export class ReportsService {
       ? Prisma.sql`AND o."branchId" = ${branchId}`
       : Prisma.empty;
 
-    const range = this.resolveOptionalDateRange(from, to);
+    const range = resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<
       { type: string; count: bigint; total: bigint }[]
@@ -758,7 +616,7 @@ export class ReportsService {
           AND a."deletedAt" IS NULL
           AND oi.status NOT IN (${ItemStatus.CANCELLED})
           ${branchCondition}
-          ${this.getSqlDateCondition('orderCreatedAt', range)}
+          ${getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY a.type
         ORDER BY total DESC
       `,
@@ -772,8 +630,8 @@ export class ReportsService {
   }
 
   async getSummary(branchId?: string, from?: string, to?: string) {
-    const currentRange = this.resolveDateRange(from, to, 30);
-    const previousRange = this.resolvePreviousRange(currentRange);
+    const currentRange = resolveDateRange(from, to, 30);
+    const previousRange = resolvePreviousRange(currentRange);
 
     const [designs, addons, dashboard, previousTotals] = await Promise.all([
       this.getDesignAnalytics(branchId, from, to),
