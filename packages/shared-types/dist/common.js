@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AddonType = exports.LedgerEntryType = exports.FabricSource = exports.DiscountType = exports.TaskStatus = exports.ItemStatus = exports.OrderStatus = exports.FieldType = exports.CustomerStatus = exports.PaymentType = exports.EmployeeStatus = exports.Role = void 0;
+exports.isOrderStatus = isOrderStatus;
 exports.isTaskStatus = isTaskStatus;
+exports.isLedgerEntryType = isLedgerEntryType;
+exports.isAddonType = isAddonType;
 // --- Prisma Enums (Synced) ---
 var Role;
 (function (Role) {
@@ -44,6 +47,20 @@ var OrderStatus;
     OrderStatus["COMPLETED"] = "COMPLETED";
     OrderStatus["CANCELLED"] = "CANCELLED";
 })(OrderStatus || (exports.OrderStatus = OrderStatus = {}));
+function isOrderStatus(value) {
+    switch (value) {
+        case OrderStatus.NEW:
+        case OrderStatus.IN_PROGRESS:
+        case OrderStatus.READY:
+        case OrderStatus.OVERDUE:
+        case OrderStatus.DELIVERED:
+        case OrderStatus.COMPLETED:
+        case OrderStatus.CANCELLED:
+            return true;
+        default:
+            return false;
+    }
+}
 var ItemStatus;
 (function (ItemStatus) {
     ItemStatus["PENDING"] = "PENDING";
@@ -88,9 +105,32 @@ var LedgerEntryType;
     LedgerEntryType["ADJUSTMENT"] = "ADJUSTMENT";
     LedgerEntryType["SALARY"] = "SALARY";
 })(LedgerEntryType || (exports.LedgerEntryType = LedgerEntryType = {}));
+function isLedgerEntryType(value) {
+    switch (value) {
+        case LedgerEntryType.EARNING:
+        case LedgerEntryType.PAYOUT:
+        case LedgerEntryType.ADVANCE:
+        case LedgerEntryType.DEDUCTION:
+        case LedgerEntryType.ADJUSTMENT:
+        case LedgerEntryType.SALARY:
+            return true;
+        default:
+            return false;
+    }
+}
 var AddonType;
 (function (AddonType) {
     AddonType["EXTRA"] = "EXTRA";
     AddonType["ALTERATION"] = "ALTERATION";
     AddonType["DESIGN_CHARGE"] = "DESIGN_CHARGE";
 })(AddonType || (exports.AddonType = AddonType = {}));
+function isAddonType(value) {
+    switch (value) {
+        case AddonType.EXTRA:
+        case AddonType.ALTERATION:
+        case AddonType.DESIGN_CHARGE:
+            return true;
+        default:
+            return false;
+    }
+}

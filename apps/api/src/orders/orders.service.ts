@@ -26,6 +26,7 @@ import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
   AddonType,
   FabricSource as SharedFabricSource,
+  isOrderStatus,
   ItemStatus,
   LedgerEntryType,
   OrderStatus,
@@ -94,12 +95,6 @@ const FABRIC_SOURCE_TO_PRISMA: Record<SharedFabricSource, PrismaFabricSource> =
     [SharedFabricSource.SHOP]: PrismaFabricSource.SHOP,
     [SharedFabricSource.CUSTOMER]: PrismaFabricSource.CUSTOMER,
   };
-
-const ORDER_STATUS_VALUES = new Set<string>(Object.values(OrderStatus));
-
-function isOrderStatus(value: string): value is OrderStatus {
-  return ORDER_STATUS_VALUES.has(value);
-}
 
 @Injectable()
 export class OrdersService {

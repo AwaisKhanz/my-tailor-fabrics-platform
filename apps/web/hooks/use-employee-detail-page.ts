@@ -18,6 +18,7 @@ import {
   type EmployeeCapabilitySnapshot,
   type CompensationChangeInput,
   type GarmentType,
+  isLedgerEntryType,
   PaymentType,
   LedgerEntryType,
   type EmployeeLedgerEntry,
@@ -43,17 +44,7 @@ export const EMPLOYEE_LEDGER_ALL_TYPES_FILTER = "all";
 export const EMPLOYEE_LEDGER_ALL_TYPES_LABEL = "All Types";
 
 function parseLedgerEntryType(value: string): LedgerEntryType | undefined {
-  switch (value) {
-    case LedgerEntryType.EARNING:
-    case LedgerEntryType.PAYOUT:
-    case LedgerEntryType.ADVANCE:
-    case LedgerEntryType.DEDUCTION:
-    case LedgerEntryType.ADJUSTMENT:
-    case LedgerEntryType.SALARY:
-      return value;
-    default:
-      return undefined;
-  }
+  return isLedgerEntryType(value) ? value : undefined;
 }
 
 export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParams) {

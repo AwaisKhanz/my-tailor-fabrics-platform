@@ -1,5 +1,5 @@
 import { Banknote } from "lucide-react";
-import { LedgerEntryType } from "@tbms/shared-types";
+import { isLedgerEntryType, LedgerEntryType } from "@tbms/shared-types";
 import {
   Dialog,
   DialogContent,
@@ -42,11 +42,6 @@ interface EmployeeLedgerEntryDialogProps {
   onAmountChange: (value: string) => void;
   onNoteChange: (value: string) => void;
   onSubmit: () => void;
-}
-
-function isLedgerEntryType(value: string): value is LedgerEntryType {
-  const types = Object.values(LedgerEntryType);
-  return types.some((type) => type === value);
 }
 
 export function EmployeeLedgerEntryDialog({

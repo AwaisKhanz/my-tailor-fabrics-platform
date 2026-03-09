@@ -60,6 +60,21 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED'
 }
 
+export function isOrderStatus(value: string): value is OrderStatus {
+  switch (value) {
+    case OrderStatus.NEW:
+    case OrderStatus.IN_PROGRESS:
+    case OrderStatus.READY:
+    case OrderStatus.OVERDUE:
+    case OrderStatus.DELIVERED:
+    case OrderStatus.COMPLETED:
+    case OrderStatus.CANCELLED:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export enum ItemStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -105,10 +120,35 @@ export enum LedgerEntryType {
   SALARY = 'SALARY'
 }
 
+export function isLedgerEntryType(value: string): value is LedgerEntryType {
+  switch (value) {
+    case LedgerEntryType.EARNING:
+    case LedgerEntryType.PAYOUT:
+    case LedgerEntryType.ADVANCE:
+    case LedgerEntryType.DEDUCTION:
+    case LedgerEntryType.ADJUSTMENT:
+    case LedgerEntryType.SALARY:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export enum AddonType {
   EXTRA = 'EXTRA',
   ALTERATION = 'ALTERATION',
   DESIGN_CHARGE = 'DESIGN_CHARGE'
+}
+
+export function isAddonType(value: string): value is AddonType {
+  switch (value) {
+    case AddonType.EXTRA:
+    case AddonType.ALTERATION:
+    case AddonType.DESIGN_CHARGE:
+      return true;
+    default:
+      return false;
+  }
 }
 
 // UI Type Definitions

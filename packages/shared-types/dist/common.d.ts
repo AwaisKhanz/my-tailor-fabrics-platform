@@ -48,6 +48,7 @@ export declare enum OrderStatus {
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED"
 }
+export declare function isOrderStatus(value: string): value is OrderStatus;
 export declare enum ItemStatus {
     PENDING = "PENDING",
     IN_PROGRESS = "IN_PROGRESS",
@@ -77,9 +78,11 @@ export declare enum LedgerEntryType {
     ADJUSTMENT = "ADJUSTMENT",
     SALARY = "SALARY"
 }
+export declare function isLedgerEntryType(value: string): value is LedgerEntryType;
 export declare enum AddonType {
     EXTRA = "EXTRA",
     ALTERATION = "ALTERATION",
     DESIGN_CHARGE = "DESIGN_CHARGE"
 }
+export declare function isAddonType(value: string): value is AddonType;
 export type BadgeVariant = 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'info' | 'destructive';

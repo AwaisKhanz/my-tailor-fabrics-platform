@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LedgerEntryType } from '@tbms/shared-types';
+import { isLedgerEntryType, LedgerEntryType } from '@tbms/shared-types';
 import type {
   CreateLedgerEntryInput,
   LedgerStatementParams,
@@ -31,14 +31,6 @@ const LEDGER_ENTRY_TYPE_TO_PRISMA: Record<
   [LedgerEntryType.ADJUSTMENT]: PrismaLedgerEntryType.ADJUSTMENT,
   [LedgerEntryType.SALARY]: PrismaLedgerEntryType.SALARY,
 };
-
-const LEDGER_ENTRY_TYPE_VALUES = new Set<string>(
-  Object.values(LedgerEntryType),
-);
-
-function isLedgerEntryType(value: string): value is LedgerEntryType {
-  return LEDGER_ENTRY_TYPE_VALUES.has(value);
-}
 
 @Injectable()
 export class LedgerService {
