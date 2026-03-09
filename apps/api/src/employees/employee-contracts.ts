@@ -250,3 +250,31 @@ export function buildEmployeeCompensationHistoryCreateData(params: {
     changedById: params.changedById ?? null,
   };
 }
+
+export function buildEmployeeCapabilityWindowCloseData(
+  effectiveTo: Date,
+): Prisma.EmployeeCapabilityUpdateManyMutationInput {
+  return {
+    effectiveTo,
+  };
+}
+
+export function buildEmployeeCapabilityCreateData(params: {
+  employeeId: string;
+  garmentTypeId: string | null;
+  stepKey: string | null;
+  effectiveFrom: Date;
+  effectiveTo?: Date | null;
+  note?: string | null;
+  createdById: string;
+}): Prisma.EmployeeCapabilityUncheckedCreateInput {
+  return {
+    employeeId: params.employeeId,
+    garmentTypeId: params.garmentTypeId,
+    stepKey: params.stepKey,
+    effectiveFrom: params.effectiveFrom,
+    effectiveTo: params.effectiveTo ?? null,
+    note: params.note ?? null,
+    createdById: params.createdById,
+  };
+}

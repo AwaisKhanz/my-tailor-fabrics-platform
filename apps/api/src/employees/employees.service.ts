@@ -42,6 +42,8 @@ import type {
 } from '@tbms/shared-types';
 import { TaskStatus } from '@tbms/shared-types';
 import {
+  buildEmployeeCapabilityCreateData,
+  buildEmployeeCapabilityWindowCloseData,
   buildEmployeeCreateData,
   buildEmployeeCompensationHistoryCreateData,
   buildEmployeeUpdateData,
@@ -445,9 +447,9 @@ export class EmployeesService {
           effectiveFrom: { lte: effectiveFrom },
           OR: [{ effectiveTo: null }, { effectiveTo: { gte: effectiveFrom } }],
         },
-        data: {
-          effectiveTo: shiftDateByDays(effectiveFrom, -1),
-        },
+        data: buildEmployeeCapabilityWindowCloseData(
+          shiftDateByDays(effectiveFrom, -1),
+        ),
       });
 
       const createdCapabilities: EmployeeCapability[] = [];
@@ -465,7 +467,7 @@ export class EmployeesService {
         });
 
         const createdCapability = await tx.employeeCapability.create({
-          data: {
+          data: buildEmployeeCapabilityCreateData({
             employeeId: id,
             garmentTypeId: capability.garmentTypeId,
             stepKey: capability.stepKey,
@@ -475,7 +477,7 @@ export class EmployeesService {
               : null,
             note: capability.note ?? snapshot.note?.trim() ?? null,
             createdById,
-          },
+          }),
         });
 
         createdCapabilities.push(toSharedEmployeeCapability(createdCapability));
