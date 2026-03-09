@@ -83,7 +83,7 @@ export function Topbar() {
                   <DropdownMenuItem asChild className="cursor-pointer py-2.5">
                     <Link href={USERS_SETTINGS_ROUTE}>
                       <User className="mr-2 h-4 w-4" />
-                      <span>Profile Settings</span>
+                      <span>Staff Accounts</span>
                     </Link>
                   </DropdownMenuItem>
                 )}
