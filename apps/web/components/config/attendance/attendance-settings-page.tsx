@@ -1,21 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity,
   Clock3,
-  LogOut,
   RefreshCcw,
   RotateCcw,
   UserCheck,
   Users,
 } from "lucide-react";
-import { type AttendanceRecord } from "@tbms/shared-types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSection, PageShell } from "@/components/ui/page-shell";
 import { StatCard } from "@/components/ui/stat-card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,18 +22,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/data-table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { buildEmployeeDetailRoute } from "@/lib/people-routes";
-import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
-import { PERMISSION } from '@tbms/shared-constants';
+import { useAttendanceRecordColumns } from "@/hooks/use-attendance-record-columns";
 import {
   ALL_EMPLOYEES_FILTER_LABEL,
   useAttendanceSettingsPage,
 } from "@/hooks/use-attendance-settings-page";
+import { PERMISSION } from "@tbms/shared-constants";
 
 export function AttendanceSettingsPage() {
   const router = useRouter();
@@ -73,101 +69,11 @@ export function AttendanceSettingsPage() {
     refresh,
   } = useAttendanceSettingsPage();
 
-  const columns = useMemo<ColumnDef<AttendanceRecord>[]>(
-    () => [
-      {
-        header: "Date",
-        cell: (record) => (
-          <span className="text-sm font-medium text-foreground">
-            {formatDate(record.date)}
-          </span>
-        ),
-      },
-      {
-        header: "Employee",
-        cell: (record) => (
-          <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-foreground">
-              {record.employee?.fullName ?? "Unknown employee"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {record.employee?.employeeCode ?? "No code"}
-              {record.employee?.designation
-                ? ` • ${record.employee.designation}`
-                : ""}
-            </p>
-          </div>
-        ),
-      },
-      {
-        header: "Clock In",
-        cell: (record) => (
-          <span className="text-sm text-foreground">
-            {formatDateTime(record.clockIn)}
-          </span>
-        ),
-      },
-      {
-        header: "Clock Out",
-        cell: (record) =>
-          record.clockOut ? (
-            <span className="text-sm text-foreground">
-              {formatDateTime(record.clockOut)}
-            </span>
-          ) : (
-            <Badge variant="warning" size="xs">
-              In Progress
-            </Badge>
-          ),
-      },
-      {
-        header: "Hours",
-        align: "right",
-        cell: (record) => (
-          <span className="font-semibold text-foreground">
-            {typeof record.hoursWorked === "number"
-              ? `${record.hoursWorked.toFixed(2)}h`
-              : "—"}
-          </span>
-        ),
-      },
-      {
-        header: "Note",
-        cell: (record) => (
-          <span className="line-clamp-2 text-sm text-muted-foreground">
-            {record.note || "—"}
-          </span>
-        ),
-      },
-      {
-        header: "Actions",
-        align: "right",
-        cell: (record) =>
-          record.clockOut ? (
-            <span className="text-xs text-muted-foreground">Closed</span>
-          ) : !canManageAttendanceEntries ? (
-            <Badge variant="outline" size="xs">
-              Open
-            </Badge>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={clockingOutId === record.id}
-              onClick={(event) => {
-                event.stopPropagation();
-                void clockOut(record.id);
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              Clock Out
-            </Button>
-          ),
-      },
-    ],
-    [canManageAttendanceEntries, clockOut, clockingOutId],
-  );
+  const columns = useAttendanceRecordColumns({
+    canManageAttendanceEntries,
+    clockingOutId,
+    clockOut,
+  });
 
   return (
     <PageShell>
