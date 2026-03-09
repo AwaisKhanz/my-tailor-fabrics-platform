@@ -11,7 +11,7 @@ const PAGE_SIZE = 10;
 export type OrdersStatusFilter = OrderStatus | "ALL";
 export type OrdersDateRange = "7" | "30" | "90" | "all";
 
-const ORDER_STATUS_FILTER_VALUES: readonly OrdersStatusFilter[] = [
+export const ORDER_STATUS_FILTER_VALUES: readonly OrdersStatusFilter[] = [
   "ALL",
   OrderStatus.NEW,
   OrderStatus.IN_PROGRESS,
@@ -21,6 +21,10 @@ const ORDER_STATUS_FILTER_VALUES: readonly OrdersStatusFilter[] = [
   OrderStatus.COMPLETED,
   OrderStatus.CANCELLED,
 ];
+
+export const ORDER_STATUS_FILTER_OPTIONS = ORDER_STATUS_FILTER_VALUES.filter(
+  (status): status is OrderStatus => status !== "ALL",
+);
 
 const ORDER_DATE_RANGE_VALUES: readonly OrdersDateRange[] = [
   "7",

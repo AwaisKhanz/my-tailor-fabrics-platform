@@ -1,4 +1,3 @@
-import { OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import {
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
 import {
   isOrdersDateRange,
+  ORDER_STATUS_FILTER_OPTIONS,
   isOrdersStatusFilter,
   type OrdersDateRange,
   type OrdersStatusFilter,
@@ -34,16 +34,6 @@ const DATE_RANGE_OPTIONS: Array<{ value: OrdersDateRange; label: string }> = [
   { value: "30", label: "Last 30 Days" },
   { value: "90", label: "Last 3 Months" },
   { value: "all", label: "All Time" },
-];
-
-const ORDER_STATUS_OPTIONS: OrderStatus[] = [
-  OrderStatus.NEW,
-  OrderStatus.IN_PROGRESS,
-  OrderStatus.READY,
-  OrderStatus.OVERDUE,
-  OrderStatus.DELIVERED,
-  OrderStatus.COMPLETED,
-  OrderStatus.CANCELLED,
 ];
 
 export function OrdersListToolbar({
@@ -91,7 +81,7 @@ export function OrdersListToolbar({
                   <SelectItem value="ALL" className="text-xs font-medium">
                     All Statuses
                   </SelectItem>
-                  {ORDER_STATUS_OPTIONS.map((status) => (
+                  {ORDER_STATUS_FILTER_OPTIONS.map((status) => (
                     <SelectItem key={status} value={status} className="text-xs font-medium">
                       {ORDER_STATUS_CONFIG[status].label}
                     </SelectItem>
