@@ -1,8 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { type MeasurementSection } from "@tbms/shared-types";
 import { MeasurementFieldDialog } from "@/components/config/MeasurementFieldDialog";
 import { MeasurementSectionDialog } from "@/components/config/MeasurementSectionDialog";
 import { MeasurementCategoryBreadcrumbs } from "@/components/config/measurements/detail/measurement-category-breadcrumbs";
@@ -25,8 +23,9 @@ import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { useAuthz } from "@/hooks/use-authz";
 import { Heading, Text } from "@/components/ui/typography";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
+import { useMeasurementSectionArchiveDialog } from "@/hooks/use-measurement-section-archive-dialog";
 import { MEASUREMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
-import { PERMISSION } from '@tbms/shared-constants';
+import { PERMISSION } from "@tbms/shared-constants";
 
 export function MeasurementCategoryDetail({ id }: { id: string }) {
   const router = useRouter();
@@ -61,92 +60,23 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
     restoreSection,
     fetchCategory,
   } = useMeasurementCategoryDetailPage(id);
-
-  const [isSectionDeleteOpen, setIsSectionDeleteOpen] = useState(false);
-  const [sectionToDelete, setSectionToDelete] =
-    useState<MeasurementSection | null>(null);
-  const [targetSectionId, setTargetSectionId] = useState("");
-  const [isDeletingSection, setIsDeletingSection] = useState(false);
-
-  const sectionFieldCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    (category?.fields ?? []).forEach((field) => {
-      if (!field.sectionId) {
-        return;
-      }
-      counts.set(field.sectionId, (counts.get(field.sectionId) ?? 0) + 1);
-    });
-    return counts;
-  }, [category?.fields]);
-
-  const deleteSectionTargetOptions = useMemo(
-    () =>
-      (category?.sections ?? [])
-        .filter((section) => section.id !== sectionToDelete?.id)
-        .sort((left, right) => {
-          if (left.sortOrder !== right.sortOrder) {
-            return left.sortOrder - right.sortOrder;
-          }
-          return left.name.localeCompare(right.name);
-        }),
-    [category?.sections, sectionToDelete?.id],
-  );
-
-  const fieldsInDeletingSection = sectionToDelete
-    ? (sectionFieldCounts.get(sectionToDelete.id) ?? 0)
-    : 0;
-  const requiresMoveTarget = fieldsInDeletingSection > 0;
-  const cannotDeleteSection =
-    requiresMoveTarget && deleteSectionTargetOptions.length === 0;
-
-  const openDeleteSectionDialog = useCallback(
-    (section: MeasurementSection) => {
-      setSectionToDelete(section);
-      const fallbackTargetId =
-        (category?.sections ?? []).find((item) => item.id !== section.id)?.id ??
-        "";
-      setTargetSectionId(fallbackTargetId);
-      setIsSectionDeleteOpen(true);
-    },
-    [category?.sections],
-  );
-
-  const closeDeleteSectionDialog = useCallback((open: boolean) => {
-    setIsSectionDeleteOpen(open);
-    if (!open) {
-      setSectionToDelete(null);
-      setTargetSectionId("");
-      setIsDeletingSection(false);
-    }
-  }, []);
-
-  const confirmDeleteSection = useCallback(async () => {
-    if (!sectionToDelete || cannotDeleteSection) {
-      return;
-    }
-
-    if (requiresMoveTarget && !targetSectionId) {
-      return;
-    }
-
-    setIsDeletingSection(true);
-    try {
-      await deleteSection(
-        sectionToDelete.id,
-        requiresMoveTarget ? targetSectionId : undefined,
-      );
-      closeDeleteSectionDialog(false);
-    } finally {
-      setIsDeletingSection(false);
-    }
-  }, [
-    cannotDeleteSection,
-    closeDeleteSectionDialog,
-    deleteSection,
-    requiresMoveTarget,
+  const {
+    isSectionDeleteOpen,
     sectionToDelete,
     targetSectionId,
-  ]);
+    isDeletingSection,
+    deleteSectionTargetOptions,
+    fieldsInDeletingSection,
+    requiresMoveTarget,
+    cannotDeleteSection,
+    setTargetSectionId,
+    openDeleteSectionDialog,
+    closeDeleteSectionDialog,
+    confirmDeleteSection,
+  } = useMeasurementSectionArchiveDialog({
+    category,
+    deleteSection,
+  });
 
   if (!loading && notFound) {
     return (
