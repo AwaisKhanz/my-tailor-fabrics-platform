@@ -10,6 +10,7 @@ import type {
   AuthRefreshResponseData,
 } from "@tbms/shared-types";
 import { getNextAuthSecret, getNextAuthUrl, getServerApiBaseUrl } from "@/lib/env";
+import { LOGIN_ROUTE } from "@/lib/auth-routes";
 import {
   decodeJwtExpiryMs,
   hasRefreshBufferRemaining,
@@ -255,7 +256,7 @@ function createAuthHandler() {
       }
     },
     pages: {
-      signIn: "/login",
+      signIn: LOGIN_ROUTE,
     },
     session: {
       strategy: "jwt",

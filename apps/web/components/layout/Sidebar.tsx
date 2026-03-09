@@ -237,7 +237,7 @@ function NavList({
   const NavItemContent = ({ item }: { item: NavItem }) => {
     const isActive =
       pathname === item.href ||
-      (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+      (item.href !== HOME_ROUTE && pathname.startsWith(`${item.href}/`));
     const ItemIcon = item.icon;
 
     const baseClasses =

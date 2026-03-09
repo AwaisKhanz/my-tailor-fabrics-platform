@@ -1,5 +1,6 @@
 import { ShieldAlert } from "lucide-react";
 import { AuthStateCard } from "@/components/auth/auth-state-card";
+import { HOME_ROUTE, LOGIN_ROUTE } from "@/lib/auth-routes";
 
 export default function UnauthorizedPage() {
   return (
@@ -8,8 +9,8 @@ export default function UnauthorizedPage() {
       title="Access Denied"
       description="You do not have the required permissions to access this page. Please contact your administrator if you believe this is an error."
       actions={[
-        { label: "Switch Account", href: "/login", variant: "outline" },
-        { label: "Back to Dashboard", href: "/" },
+        { label: "Switch Account", href: LOGIN_ROUTE, variant: "outline" },
+        { label: "Back to Dashboard", href: HOME_ROUTE },
       ]}
     />
   );

@@ -8,6 +8,12 @@ import {
   resolveRoutePermissionPolicy,
 } from '@tbms/shared-constants';
 import { getNextAuthSecret } from '@/lib/env';
+import {
+  buildExpiredLoginRoute,
+  HOME_ROUTE,
+  LOGIN_ROUTE,
+  UNAUTHORIZED_ROUTE,
+} from '@/lib/auth-routes';
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: getNextAuthSecret() });
@@ -24,28 +30,28 @@ export async function middleware(request: NextRequest) {
     token.accessToken.length > 0;
 
   if (routePolicy && !token) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL(LOGIN_ROUTE, request.url));
   }
 
   if (routePolicy && token && (authError || !hasAccessToken)) {
-    return NextResponse.redirect(new URL('/login?expired=1', request.url));
+    return NextResponse.redirect(new URL(buildExpiredLoginRoute(), request.url));
   }
 
   if (token && userRole) {
-    if (pathname === '/') {
+    if (pathname === HOME_ROUTE) {
       const homePath = DEFAULT_HOME_BY_ROLE[userRole];
-      if (homePath && homePath !== '/') {
+      if (homePath && homePath !== HOME_ROUTE) {
         return NextResponse.redirect(new URL(homePath, request.url));
       }
     }
 
     if (routePolicy && !canRoleAccessPathname(userRole, pathname)) {
-      return NextResponse.redirect(new URL('/unauthorized', request.url));
+      return NextResponse.redirect(new URL(UNAUTHORIZED_ROUTE, request.url));
     }
   }
 
   if (token && !userRole && routePolicy) {
-    return NextResponse.redirect(new URL('/unauthorized', request.url));
+    return NextResponse.redirect(new URL(UNAUTHORIZED_ROUTE, request.url));
   }
 
   return NextResponse.next();

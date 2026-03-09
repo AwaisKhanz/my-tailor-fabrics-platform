@@ -10,6 +10,7 @@ import {
   sessionHasAllPermissions,
   sessionHasAnyPermission,
 } from "@/lib/authz";
+import { UNAUTHORIZED_ROUTE } from "@/lib/auth-routes";
 
 type GuardOptions = {
   redirectTo?: string;
@@ -25,7 +26,7 @@ export function withRoleGuard<P extends object>(
   options: GuardOptions,
 ) {
   const {
-    redirectTo = "/unauthorized",
+    redirectTo = UNAUTHORIZED_ROUTE,
     roles,
     all,
     any,
