@@ -12,7 +12,6 @@ import {
 } from './dto/create-order.dto';
 import {
   UpdateOrderDto,
-  UpdateOrderItemAddonDto,
   UpdateOrderItemAssignmentDto,
 } from './dto/update-order.dto';
 import { AddPaymentDto } from './dto/add-payment.dto';
@@ -47,7 +46,6 @@ import {
   buildOrdersOrderBy,
   buildOrdersWhereClause,
   type OrdersFindFilters,
-  toPrismaAddonType,
   toPrismaFabricSource,
   toPrismaOrderStatus,
 } from './order-query-resolver';
@@ -56,7 +54,10 @@ import {
   recordOrderPayment,
   reverseRecordedOrderPayment,
 } from './order-payment-lifecycle';
-import { toOrderItemCreateData } from './order-create-mapping';
+import {
+  toOrderItemAddonCreateData,
+  toOrderItemCreateData,
+} from './order-create-mapping';
 import { recordOrderStatusHistory } from './order-status-history';
 
 @Injectable()
@@ -794,14 +795,7 @@ export class OrdersService {
                 addons: itemDto.addons
                   ? {
                       deleteMany: {},
-                      create: itemDto.addons.map(
-                        (a: UpdateOrderItemAddonDto) => ({
-                          type: toPrismaAddonType(a.type),
-                          name: a.name,
-                          price: a.price,
-                          cost: a.cost,
-                        }),
-                      ),
+                      create: toOrderItemAddonCreateData(itemDto.addons),
                     }
                   : undefined,
               },
@@ -969,12 +963,7 @@ export class OrdersService {
             dueDate: itemDto.dueDate ? new Date(itemDto.dueDate) : null,
             designTypeId: itemDto.designTypeId || null,
             addons: {
-              create: (itemDto.addons || []).map((a) => ({
-                type: toPrismaAddonType(a.type),
-                name: a.name,
-                price: a.price,
-                cost: a.cost,
-              })),
+              create: toOrderItemAddonCreateData(itemDto.addons || []),
             },
           },
         });

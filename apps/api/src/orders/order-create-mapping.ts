@@ -2,6 +2,24 @@ import { type Prisma } from '@prisma/client';
 import { type ResolvedOrderItemDraft } from './order-item-draft-resolver';
 import { toPrismaAddonType, toPrismaFabricSource } from './order-query-resolver';
 
+type OrderItemAddonCreateDraft = {
+  type: Parameters<typeof toPrismaAddonType>[0];
+  name: string;
+  price: number;
+  cost?: number;
+};
+
+export function toOrderItemAddonCreateData(
+  addons: readonly OrderItemAddonCreateDraft[],
+): Prisma.OrderItemAddonCreateWithoutOrderItemInput[] {
+  return addons.map((addon) => ({
+    type: toPrismaAddonType(addon.type),
+    name: addon.name,
+    price: addon.price,
+    cost: addon.cost,
+  }));
+}
+
 export function toOrderItemCreateData(
   items: readonly ResolvedOrderItemDraft[],
 ): Prisma.OrderItemCreateWithoutOrderInput[] {
@@ -18,12 +36,7 @@ export function toOrderItemCreateData(
       ? { connect: { id: item.designTypeId } }
       : undefined,
     addons: {
-      create: item.addons.map((addon) => ({
-        type: toPrismaAddonType(addon.type),
-        name: addon.name,
-        price: addon.price,
-        cost: addon.cost,
-      })),
+      create: toOrderItemAddonCreateData(item.addons),
     },
   }));
 }
