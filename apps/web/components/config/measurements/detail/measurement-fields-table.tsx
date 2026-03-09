@@ -39,6 +39,10 @@ interface MeasurementFieldsTableProps {
 
 const PAGE_SIZE = 10;
 const ALL_SECTIONS_FILTER = "all";
+const ALL_SECTIONS_FILTER_OPTION = {
+  value: ALL_SECTIONS_FILTER,
+  label: "All Sections",
+} as const;
 
 export function MeasurementFieldsTable({
   fields,
@@ -78,6 +82,16 @@ export function MeasurementFieldsTable({
   );
   const moveSectionOptions = useMemo(
     () => sectionOptions.filter((section) => !section.deletedAt),
+    [sectionOptions],
+  );
+  const sectionFilterOptions = useMemo(
+    () => [
+      ALL_SECTIONS_FILTER_OPTION,
+      ...sectionOptions.map((section) => ({
+        value: section.id,
+        label: section.name,
+      })),
+    ],
     [sectionOptions],
   );
 
@@ -371,12 +385,9 @@ export function MeasurementFieldsTable({
                 <SelectValue placeholder="All Sections" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SECTIONS_FILTER}>
-                  All Sections
-                </SelectItem>
-                {sectionOptions.map((section) => (
-                  <SelectItem key={section.id} value={section.id}>
-                    {section.name}
+                {sectionFilterOptions.map((section) => (
+                  <SelectItem key={section.value} value={section.value}>
+                    {section.label}
                   </SelectItem>
                 ))}
               </SelectContent>
