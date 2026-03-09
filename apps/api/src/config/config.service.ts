@@ -22,6 +22,11 @@ import {
 import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
 import { UpdateGarmentWorkflowStepsDto } from './dto/workflow-step.dto';
 import {
+  ensureDefaultMeasurementSection,
+  getNextSectionSortOrder,
+  resolveMeasurementSection,
+} from './measurement-section-resolver';
+import {
   GarmentTypeWithAnalytics,
   FieldType,
   ItemStatus,
@@ -47,8 +52,6 @@ const toSharedFieldType = (fieldType: string): FieldType => {
       return FieldType.NUMBER;
   }
 };
-
-type ConfigPrismaClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class ConfigService {
@@ -672,95 +675,6 @@ export class ConfigService {
   }
 
   // --- Measurement Categories & Fields ---
-  private async getNextSectionSortOrder(
-    categoryId: string,
-    client: ConfigPrismaClient = this.prisma,
-  ) {
-    const aggregate = await client.measurementSection.aggregate({
-      where: { categoryId, deletedAt: null },
-      _max: { sortOrder: true },
-    });
-    return (aggregate._max.sortOrder ?? -1) + 1;
-  }
-
-  private async ensureDefaultMeasurementSection(
-    categoryId: string,
-    client: ConfigPrismaClient = this.prisma,
-  ) {
-    const existingDefault = await client.measurementSection.findFirst({
-      where: {
-        categoryId,
-        deletedAt: null,
-        name: { equals: 'General', mode: 'insensitive' },
-      },
-    });
-
-    if (existingDefault) {
-      return existingDefault;
-    }
-
-    const nextSortOrder = await this.getNextSectionSortOrder(
-      categoryId,
-      client,
-    );
-    return client.measurementSection.create({
-      data: {
-        categoryId,
-        name: 'General',
-        sortOrder: nextSortOrder,
-      },
-    });
-  }
-
-  private async resolveMeasurementSection(
-    categoryId: string,
-    sectionId?: string,
-    sectionName?: string,
-    client: ConfigPrismaClient = this.prisma,
-  ) {
-    const normalizedSectionId = sectionId?.trim();
-    if (normalizedSectionId) {
-      const section = await client.measurementSection.findFirst({
-        where: { id: normalizedSectionId, deletedAt: null },
-      });
-
-      if (!section || section.categoryId !== categoryId) {
-        throw new NotFoundException('Measurement section not found.');
-      }
-
-      return section;
-    }
-
-    const normalizedSectionName = sectionName?.trim();
-    if (normalizedSectionName) {
-      const existing = await client.measurementSection.findFirst({
-        where: {
-          categoryId,
-          deletedAt: null,
-          name: { equals: normalizedSectionName, mode: 'insensitive' },
-        },
-      });
-
-      if (existing) {
-        return existing;
-      }
-
-      const nextSortOrder = await this.getNextSectionSortOrder(
-        categoryId,
-        client,
-      );
-      return client.measurementSection.create({
-        data: {
-          categoryId,
-          name: normalizedSectionName,
-          sortOrder: nextSortOrder,
-        },
-      });
-    }
-
-    return this.ensureDefaultMeasurementSection(categoryId, client);
-  }
-
   async getMeasurementCategories(
     options: {
       search?: string;
@@ -911,7 +825,7 @@ export class ConfigService {
         data: createData,
       });
 
-      const defaultSection = await this.ensureDefaultMeasurementSection(
+      const defaultSection = await ensureDefaultMeasurementSection(
         category.id,
         tx,
       );
@@ -985,7 +899,7 @@ export class ConfigService {
 
             const nextSortOrder =
               dto.sortOrder ??
-              (await this.getNextSectionSortOrder(categoryId, tx));
+              (await getNextSectionSortOrder(categoryId, tx));
 
             return tx.measurementSection.create({
               data: {
@@ -1226,11 +1140,11 @@ export class ConfigService {
         );
       }
 
-      const section = await this.resolveMeasurementSection(
+      const section = await resolveMeasurementSection(
         categoryId,
+        tx,
         dto.sectionId,
         dto.sectionName,
-        tx,
       );
 
       return tx.measurementField.create({
@@ -1280,11 +1194,11 @@ export class ConfigService {
 
       let resolvedSectionId: string | undefined;
       if (dto.sectionId !== undefined || dto.sectionName !== undefined) {
-        const section = await this.resolveMeasurementSection(
+        const section = await resolveMeasurementSection(
           field.categoryId,
+          tx,
           dto.sectionId,
           dto.sectionName,
-          tx,
         );
         resolvedSectionId = section.id;
       }
