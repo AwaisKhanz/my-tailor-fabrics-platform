@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { Text } from "@/components/ui/typography";
-import { type BranchFormState } from "@/hooks/use-branches-page";
+import { type BranchFormState } from "@/hooks/use-branch-dialog-manager";
 
 interface BranchFormDialogProps {
   open: boolean;
