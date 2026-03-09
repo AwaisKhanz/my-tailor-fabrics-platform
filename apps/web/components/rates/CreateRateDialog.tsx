@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   DialogFormActions,
   DialogSection,
@@ -17,16 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Banknote, Calendar } from "lucide-react";
+import { type CreateRateCardInput } from "@tbms/shared-types";
 import {
-  rateCardCreateFormSchema,
-  type CreateRateCardInput,
-} from "@tbms/shared-types";
-import {
-  buildRateBranchScopeOptions,
-  RATE_CARD_GLOBAL_BRANCH_VALUE,
-} from "@/lib/rates";
-import { logDevError } from "@/lib/logger";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
+  type RateCardDialogInitialRate,
+  useRateCardForm,
+} from "@/hooks/use-rate-card-form";
 
 interface CreateRateDialogProps {
   open: boolean;
@@ -37,65 +31,7 @@ interface CreateRateDialogProps {
   steps?: string[];
   stepsByGarmentTypeId?: Record<string, string[]>;
   mode?: "create" | "adjust";
-  initialRate?: {
-    garmentTypeId: string;
-    branchId?: string | null;
-    stepKey: string;
-    amount: number;
-    effectiveFrom: Date | string;
-  } | null;
-}
-
-interface RateFormState {
-  garmentTypeId: string;
-  branchId: string;
-  stepKey: string;
-  amount: string;
-  effectiveFrom: string;
-}
-
-type RateFieldErrors = Partial<Record<keyof RateFormState, string>>;
-
-const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
-function toLocalDateString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function toDateInputValue(value: Date | string): string {
-  const parsed = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return toLocalDateString(new Date());
-  }
-
-  return toLocalDateString(parsed);
-}
-
-function getDefaultFormData(): RateFormState {
-  return {
-    garmentTypeId: "",
-    branchId: RATE_CARD_GLOBAL_BRANCH_VALUE,
-    stepKey: "",
-    amount: "",
-    effectiveFrom: toLocalDateString(new Date()),
-  };
-}
-
-function getAdjustFormData(
-  initialRate: NonNullable<CreateRateDialogProps["initialRate"]>,
-): RateFormState {
-  const amountInRupees = initialRate.amount / 100;
-
-  return {
-    garmentTypeId: initialRate.garmentTypeId,
-    branchId: initialRate.branchId ?? RATE_CARD_GLOBAL_BRANCH_VALUE,
-    stepKey: initialRate.stepKey,
-    amount: Number.isFinite(amountInRupees) ? String(amountInRupees) : "",
-    effectiveFrom: toDateInputValue(initialRate.effectiveFrom),
-  };
+  initialRate?: RateCardDialogInitialRate | null;
 }
 
 export function CreateRateDialog({
@@ -109,124 +45,33 @@ export function CreateRateDialog({
   mode = "create",
   initialRate = null,
 }: CreateRateDialogProps) {
-  const [loading, setLoading] = React.useState(false);
-  const [formData, setFormData] = React.useState<RateFormState>(getDefaultFormData);
-  const [fieldErrors, setFieldErrors] = React.useState<RateFieldErrors>({});
-  const [formError, setFormError] = React.useState<string | null>(null);
-  const isAdjustMode = mode === "adjust" && Boolean(initialRate);
-
-  React.useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    if (isAdjustMode && initialRate) {
-      setFormData(getAdjustFormData(initialRate));
-      setFieldErrors({});
-      setFormError(null);
-      return;
-    }
-
-    setFormData(getDefaultFormData());
-    setFieldErrors({});
-    setFormError(null);
-  }, [open, isAdjustMode, initialRate]);
-
-  const availableSteps = React.useMemo(() => {
-    let resolvedSteps: string[] = [];
-
-    if (stepsByGarmentTypeId) {
-      if (!formData.garmentTypeId) {
-        return [];
-      }
-
-      resolvedSteps = stepsByGarmentTypeId[formData.garmentTypeId] ?? [];
-    } else {
-      resolvedSteps = steps;
-    }
-
-    if (
-      isAdjustMode &&
-      formData.stepKey &&
-      !resolvedSteps.includes(formData.stepKey)
-    ) {
-      return [formData.stepKey, ...resolvedSteps];
-    }
-
-    return resolvedSteps;
-  }, [
-    formData.garmentTypeId,
-    formData.stepKey,
+  const {
+    loading,
+    formData,
+    fieldErrors,
+    formError,
     isAdjustMode,
+    availableSteps,
+    hasGarmentSelected,
+    hasAvailableSteps,
+    noStepsConfigured,
+    branchScopeOptions,
+    setBranchId,
+    setGarmentTypeId,
+    setStepKey,
+    setAmount,
+    setEffectiveFrom,
+    submitForm,
+  } = useRateCardForm({
+    open,
+    onOpenChange,
+    onSubmit,
+    branches,
     steps,
     stepsByGarmentTypeId,
-  ]);
-
-  const hasGarmentSelected = Boolean(formData.garmentTypeId);
-  const hasAvailableSteps = availableSteps.length > 0;
-  const noStepsConfigured =
-    !isAdjustMode && hasGarmentSelected && !hasAvailableSteps;
-  const branchScopeOptions = React.useMemo(
-    () => buildRateBranchScopeOptions(branches),
-    [branches],
-  );
-
-  React.useEffect(() => {
-    if (isAdjustMode || !formData.stepKey) {
-      return;
-    }
-
-    if (!availableSteps.includes(formData.stepKey)) {
-      setFormData((current) => ({
-        ...current,
-        stepKey: "",
-      }));
-    }
-  }, [availableSteps, formData.stepKey, isAdjustMode]);
-
-  const handleSubmit = async () => {
-    const parsedResult = rateCardCreateFormSchema.safeParse(formData);
-    if (!parsedResult.success) {
-      const zodFieldErrors = parsedResult.error.flatten().fieldErrors;
-      setFieldErrors({
-        garmentTypeId: zodFieldErrors.garmentTypeId?.[0],
-        branchId: zodFieldErrors.branchId?.[0],
-        stepKey: zodFieldErrors.stepKey?.[0],
-        amount: zodFieldErrors.amount?.[0],
-        effectiveFrom: zodFieldErrors.effectiveFrom?.[0],
-      });
-      setFormError(getFirstZodErrorMessage(parsedResult.error));
-      return;
-    }
-    setFieldErrors({});
-    setFormError(null);
-
-    const validated = parsedResult.data;
-    const effectiveFrom =
-      DATE_ONLY_PATTERN.test(validated.effectiveFrom) &&
-      validated.effectiveFrom === toLocalDateString(new Date())
-        ? new Date().toISOString()
-        : validated.effectiveFrom;
-
-    setLoading(true);
-    try {
-      await onSubmit({
-        garmentTypeId: validated.garmentTypeId,
-        stepKey: validated.stepKey,
-        effectiveFrom,
-        branchId:
-          validated.branchId === RATE_CARD_GLOBAL_BRANCH_VALUE
-            ? null
-            : validated.branchId,
-        amount: validated.amount,
-      });
-      onOpenChange(false);
-    } catch (err) {
-      logDevError("Failed to save rate card:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    mode,
+    initialRate,
+  });
 
   const dialogTitle = isAdjustMode ? "Adjust Rate Card" : "New Rate Card";
   const dialogDescription = isAdjustMode
@@ -260,18 +105,14 @@ export function CreateRateDialog({
           id="rate-card-form"
           onSubmit={(event) => {
             event.preventDefault();
-            void handleSubmit();
+            void submitForm();
           }}
         >
           <div className="space-y-2">
             <Label htmlFor="branch">Branch Scope</Label>
             <Select
               value={formData.branchId}
-              onValueChange={(value) => {
-                setFormData((current) => ({ ...current, branchId: value }));
-                setFieldErrors((current) => ({ ...current, branchId: undefined }));
-                setFormError(null);
-              }}
+              onValueChange={setBranchId}
               disabled={isAdjustMode}
             >
               <SelectTrigger id="branch">
@@ -294,27 +135,7 @@ export function CreateRateDialog({
             <Label htmlFor="garmentType">Garment Type</Label>
             <Select
               value={formData.garmentTypeId}
-              onValueChange={(value) => {
-                setFormData((current) => {
-                  const nextSteps = stepsByGarmentTypeId
-                    ? (stepsByGarmentTypeId[value] ?? [])
-                    : steps;
-
-                  return {
-                    ...current,
-                    garmentTypeId: value,
-                    stepKey: nextSteps.includes(current.stepKey)
-                      ? current.stepKey
-                      : "",
-                  };
-                });
-                setFieldErrors((current) => ({
-                  ...current,
-                  garmentTypeId: undefined,
-                  stepKey: undefined,
-                }));
-                setFormError(null);
-              }}
+              onValueChange={setGarmentTypeId}
               disabled={isAdjustMode}
             >
               <SelectTrigger id="garmentType">
@@ -337,11 +158,7 @@ export function CreateRateDialog({
             <Label htmlFor="stepKey">Production Step</Label>
             <Select
               value={formData.stepKey}
-              onValueChange={(value) => {
-                setFormData((current) => ({ ...current, stepKey: value }));
-                setFieldErrors((current) => ({ ...current, stepKey: undefined }));
-                setFormError(null);
-              }}
+              onValueChange={setStepKey}
               disabled={isAdjustMode || !hasGarmentSelected || !hasAvailableSteps}
             >
               <SelectTrigger id="stepKey">
@@ -388,14 +205,7 @@ export function CreateRateDialog({
                   step="0.01"
                   className="pl-9"
                   value={formData.amount}
-                  onChange={(event) => {
-                    setFormData((current) => ({
-                      ...current,
-                      amount: event.target.value,
-                    }));
-                    setFieldErrors((current) => ({ ...current, amount: undefined }));
-                    setFormError(null);
-                  }}
+                  onChange={(event) => setAmount(event.target.value)}
                   required
                 />
               </div>
@@ -412,17 +222,7 @@ export function CreateRateDialog({
                   type="date"
                   className="pl-9"
                   value={formData.effectiveFrom}
-                  onChange={(event) => {
-                    setFormData((current) => ({
-                      ...current,
-                      effectiveFrom: event.target.value,
-                    }));
-                    setFieldErrors((current) => ({
-                      ...current,
-                      effectiveFrom: undefined,
-                    }));
-                    setFormError(null);
-                  }}
+                  onChange={(event) => setEffectiveFrom(event.target.value)}
                   required
                 />
               </div>
