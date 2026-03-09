@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,19 @@ interface OrderDetailHeaderCardProps {
   onEditOrder: () => void;
 }
 
+interface OrderDetailAction {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  variant: ButtonProps["variant"];
+  onClick: () => void;
+  disabled: boolean;
+}
+
+function defineOrderDetailAction(action: OrderDetailAction) {
+  return action;
+}
+
 export function OrderDetailHeaderCard({
   orderNumber,
   statusLabel,
@@ -53,46 +66,46 @@ export function OrderDetailHeaderCard({
 }: OrderDetailHeaderCardProps) {
   const actionButtons = [
     canEditAction
-      ? {
+      ? defineOrderDetailAction({
           key: "edit",
           label: "Edit Order",
           icon: Pencil,
-          variant: "default" as const,
+          variant: "default",
           onClick: onEditOrder,
           disabled: false,
-        }
+        })
       : null,
     canPrintReceipt
-      ? {
+      ? defineOrderDetailAction({
           key: "receipt",
           label: "Print Receipt",
           icon: Printer,
-          variant: "outline" as const,
+          variant: "outline",
           onClick: onPrintReceipt,
           disabled: false,
-        }
+        })
       : null,
     canShareAction
-      ? {
+      ? defineOrderDetailAction({
           key: "share",
           label: "Share Status",
           icon: Share2,
-          variant: "outline" as const,
+          variant: "outline",
           onClick: onShareStatus,
           disabled: sharing,
-        }
+        })
       : null,
     canCancel && canCancelAction
-      ? {
+      ? defineOrderDetailAction({
           key: "cancel",
           label: "Cancel Order",
           icon: XCircle,
-          variant: "destructive" as const,
+          variant: "destructive",
           onClick: onCancelOrder,
           disabled: statusLoading,
-        }
+        })
       : null,
-  ].filter((action): action is NonNullable<typeof action> => action !== null);
+  ].filter((action): action is OrderDetailAction => action !== null);
 
   return (
     <Card>

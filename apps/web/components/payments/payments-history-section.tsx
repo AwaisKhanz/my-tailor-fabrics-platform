@@ -43,41 +43,13 @@ export function PaymentsHistorySection({
   onReversePayment,
 }: PaymentsHistorySectionProps) {
   const columns = useMemo<ColumnDef<Payment>[]>(
-    () => [
-      {
-        header: "Paid Date",
-        cell: (payment) => (
-          <div className="flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium">
-              {formatDate(payment.paidAt)}
-            </span>
-          </div>
-        ),
-      },
-      {
-        header: "Note",
-        cell: (payment) => (
-          <span className="text-xs text-muted-foreground">
-            {payment.note || "—"}
-          </span>
-        ),
-      },
-      {
-        header: "Amount",
-        align: "right",
-        cell: (payment) => (
-          <span className="font-bold text-primary">
-            {formatPKR(payment.amount)}
-          </span>
-        ),
-      },
-      ...(canManagePayments && onReversePayment
-        ? [
-            {
+    () => {
+      const actionColumn: ColumnDef<Payment> | null =
+        canManagePayments && onReversePayment
+          ? {
               header: "Actions",
-              align: "right" as const,
-              cell: (payment: Payment) => (
+              align: "right",
+              cell: (payment) => (
                 <Button
                   type="button"
                   variant="outline"
@@ -90,10 +62,41 @@ export function PaymentsHistorySection({
                     : "Reverse"}
                 </Button>
               ),
-            },
-          ]
-        : []),
-    ],
+            }
+          : null;
+
+      return [
+        {
+          header: "Paid Date",
+          cell: (payment) => (
+            <div className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">
+                {formatDate(payment.paidAt)}
+              </span>
+            </div>
+          ),
+        },
+        {
+          header: "Note",
+          cell: (payment) => (
+            <span className="text-xs text-muted-foreground">
+              {payment.note || "—"}
+            </span>
+          ),
+        },
+        {
+          header: "Amount",
+          align: "right",
+          cell: (payment) => (
+            <span className="font-bold text-primary">
+              {formatPKR(payment.amount)}
+            </span>
+          ),
+        },
+        ...(actionColumn ? [actionColumn] : []),
+      ];
+    },
     [canManagePayments, onReversePayment, reversingPaymentId],
   );
 
