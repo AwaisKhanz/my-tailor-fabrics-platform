@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ADDON_TYPE_LABELS = exports.TASK_STATUS_CONFIG = exports.TASK_STATUS_LABELS = exports.ITEM_STATUS_CONFIG = exports.ITEM_STATUS_LABELS = exports.OPEN_ORDER_STATUSES = exports.ORDER_STATUS_CONFIG = void 0;
+exports.ADDON_TYPE_OPTIONS = exports.ADDON_TYPE_LABELS = exports.TASK_STATUS_CONFIG = exports.TASK_STATUS_LABELS = exports.ITEM_STATUS_CONFIG = exports.ITEM_STATUS_LABELS = exports.OPEN_ORDER_STATUSES = exports.ORDER_STATUS_CONFIG = void 0;
 const shared_types_1 = require("@tbms/shared-types");
 exports.ORDER_STATUS_CONFIG = {
     [shared_types_1.OrderStatus.NEW]: {
@@ -99,4 +99,8 @@ exports.ADDON_TYPE_LABELS = {
     [shared_types_1.AddonType.ALTERATION]: 'Alteration',
     [shared_types_1.AddonType.DESIGN_CHARGE]: 'Design Charge',
 };
+exports.ADDON_TYPE_OPTIONS = Object.values(shared_types_1.AddonType).map((type) => ({
+    type,
+    label: exports.ADDON_TYPE_LABELS[type],
+}));
 //# sourceMappingURL=orders.js.map

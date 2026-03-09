@@ -112,3 +112,8 @@ export const ADDON_TYPE_LABELS: Record<AddonType, string> = {
   [AddonType.ALTERATION]: 'Alteration',
   [AddonType.DESIGN_CHARGE]: 'Design Charge',
 };
+
+export const ADDON_TYPE_OPTIONS = Object.values(AddonType).map((type) => ({
+  type,
+  label: ADDON_TYPE_LABELS[type],
+}));

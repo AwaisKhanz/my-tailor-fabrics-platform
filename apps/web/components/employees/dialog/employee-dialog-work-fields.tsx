@@ -1,7 +1,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import {
-  EMPLOYEE_STATUS_LABELS,
-  PAYMENT_TYPE_LABELS,
+  EMPLOYEE_STATUS_OPTIONS,
+  PAYMENT_TYPE_OPTIONS,
 } from "@tbms/shared-constants";
 import { EmployeeStatus, PaymentType } from "@tbms/shared-types";
 import {
@@ -64,13 +64,11 @@ export function EmployeeDialogWorkFields({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {Object.entries(EMPLOYEE_STATUS_LABELS).map(
-                    ([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ),
-                  )}
+                  {EMPLOYEE_STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -95,9 +93,9 @@ export function EmployeeDialogWorkFields({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {Object.entries(PAYMENT_TYPE_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
+                  {PAYMENT_TYPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

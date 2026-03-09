@@ -4,7 +4,7 @@ import {
   FabricSource,
   GarmentType,
 } from "@tbms/shared-types";
-import { ADDON_TYPE_LABELS } from "@tbms/shared-constants";
+import { ADDON_TYPE_OPTIONS } from "@tbms/shared-constants";
 import { PlusCircle, Trash2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,18 +42,6 @@ interface OrderFormItemCardProps {
   onAddAddon: (itemIndex: number) => void;
   onRemoveAddon: (itemIndex: number, addonIndex: number) => void;
 }
-
-const ADDON_TYPE_OPTIONS: Array<{ type: AddonType; label: string }> = [
-  { type: AddonType.EXTRA, label: ADDON_TYPE_LABELS[AddonType.EXTRA] },
-  {
-    type: AddonType.ALTERATION,
-    label: ADDON_TYPE_LABELS[AddonType.ALTERATION],
-  },
-  {
-    type: AddonType.DESIGN_CHARGE,
-    label: ADDON_TYPE_LABELS[AddonType.DESIGN_CHARGE],
-  },
-];
 
 function isAddonType(value: string): value is AddonType {
   return ADDON_TYPE_OPTIONS.some((option) => option.type === value);

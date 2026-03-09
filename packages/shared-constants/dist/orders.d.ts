@@ -16,3 +16,7 @@ export declare const TASK_STATUS_CONFIG: Record<TaskStatus, {
     variant: BadgeVariant;
 }>;
 export declare const ADDON_TYPE_LABELS: Record<AddonType, string>;
+export declare const ADDON_TYPE_OPTIONS: {
+    type: AddonType;
+    label: string;
+}[];
