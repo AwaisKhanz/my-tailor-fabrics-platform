@@ -12,6 +12,9 @@ import {
 import { branchesApi } from "@/lib/api/branches";
 import { configApi } from "@/lib/api/config";
 import { ratesApi } from "@/lib/api/rates";
+import {
+  RATE_CARD_GLOBAL_BRANCH_VALUE,
+} from "@/lib/rates";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
@@ -171,7 +174,7 @@ export function useRatesPage() {
     async (data: CreateRateCardInput) => {
       const normalizedEffectiveFrom = normalizeEffectiveFromForSubmit(data.effectiveFrom);
       const parsedResult = rateCardCreateFormSchema.safeParse({
-        branchId: data.branchId ?? "GLOBAL",
+        branchId: data.branchId ?? RATE_CARD_GLOBAL_BRANCH_VALUE,
         garmentTypeId: data.garmentTypeId,
         stepKey: data.stepKey,
         amount: data.amount,

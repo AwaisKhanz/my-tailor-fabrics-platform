@@ -21,6 +21,10 @@ import {
   rateCardCreateFormSchema,
   type CreateRateCardInput,
 } from "@tbms/shared-types";
+import {
+  buildRateBranchScopeOptions,
+  RATE_CARD_GLOBAL_BRANCH_VALUE,
+} from "@/lib/rates";
 import { logDevError } from "@/lib/logger";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
@@ -73,7 +77,7 @@ function toDateInputValue(value: Date | string): string {
 function getDefaultFormData(): RateFormState {
   return {
     garmentTypeId: "",
-    branchId: "GLOBAL",
+    branchId: RATE_CARD_GLOBAL_BRANCH_VALUE,
     stepKey: "",
     amount: "",
     effectiveFrom: toLocalDateString(new Date()),
@@ -87,7 +91,7 @@ function getAdjustFormData(
 
   return {
     garmentTypeId: initialRate.garmentTypeId,
-    branchId: initialRate.branchId ?? "GLOBAL",
+    branchId: initialRate.branchId ?? RATE_CARD_GLOBAL_BRANCH_VALUE,
     stepKey: initialRate.stepKey,
     amount: Number.isFinite(amountInRupees) ? String(amountInRupees) : "",
     effectiveFrom: toDateInputValue(initialRate.effectiveFrom),
@@ -162,6 +166,10 @@ export function CreateRateDialog({
   const hasAvailableSteps = availableSteps.length > 0;
   const noStepsConfigured =
     !isAdjustMode && hasGarmentSelected && !hasAvailableSteps;
+  const branchScopeOptions = React.useMemo(
+    () => buildRateBranchScopeOptions(branches),
+    [branches],
+  );
 
   React.useEffect(() => {
     if (isAdjustMode || !formData.stepKey) {
@@ -206,7 +214,10 @@ export function CreateRateDialog({
         garmentTypeId: validated.garmentTypeId,
         stepKey: validated.stepKey,
         effectiveFrom,
-        branchId: validated.branchId === "GLOBAL" ? null : validated.branchId,
+        branchId:
+          validated.branchId === RATE_CARD_GLOBAL_BRANCH_VALUE
+            ? null
+            : validated.branchId,
         amount: validated.amount,
       });
       onOpenChange(false);
@@ -267,10 +278,9 @@ export function CreateRateDialog({
                 <SelectValue placeholder="Select Branch" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="GLOBAL">Global (All Branches)</SelectItem>
-                {branches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name} ({branch.code})
+                {branchScopeOptions.map((branch) => (
+                  <SelectItem key={branch.value} value={branch.value}>
+                    {branch.label}
                   </SelectItem>
                 ))}
               </SelectContent>
