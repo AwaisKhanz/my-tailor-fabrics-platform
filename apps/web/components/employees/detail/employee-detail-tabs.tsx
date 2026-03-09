@@ -4,7 +4,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useState,
 } from "react";
 import type {
   AttendanceRecord,
@@ -18,14 +17,11 @@ import type {
   OrderItemTask,
   SystemSettings,
 } from "@tbms/shared-types";
-import {
-  employeeCompensationChangeFormSchema,
-  PaymentType,
-  TaskStatus,
-} from "@tbms/shared-types";
+import { TaskStatus } from "@tbms/shared-types";
 import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { type ColumnDef } from "@/components/ui/data-table";
 import { useEmployeeCapabilitiesManager } from "@/hooks/use-employee-capabilities-manager";
+import { useEmployeeCompensationManager } from "@/hooks/use-employee-compensation-manager";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-ledger-manager";
 import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
@@ -42,7 +38,6 @@ import { EmployeeDocumentsSection } from "@/components/employees/detail/employee
 import { EmployeeLedgerSection } from "@/components/employees/detail/employee-ledger-section";
 import { EmployeeProductionTasksSection } from "@/components/employees/detail/employee-production-tasks-section";
 import { EmployeeWorkHistorySection } from "@/components/employees/detail/employee-work-history-section";
-import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 const DEFAULT_TABLE_PAGE_SIZE = 10;
 
@@ -89,18 +84,6 @@ interface EmployeeDetailTabsProps {
   canManageDocuments?: boolean;
   canManageAccount?: boolean;
   canManageWorkforceGovernance?: boolean;
-}
-
-function toDateInputValue(value?: string | null): string {
-  if (!value) {
-    return "";
-  }
-
-  try {
-    return new Date(value).toISOString().split("T")[0];
-  } catch {
-    return "";
-  }
 }
 
 export function EmployeeDetailTabs({
@@ -256,74 +239,24 @@ export function EmployeeDetailTabs({
     garmentTypes,
     onSaveCapabilitiesSnapshot,
   });
-
-  const [compensationPaymentType, setCompensationPaymentType] =
-    useState<PaymentType>(employee.paymentType);
-  const [compensationMonthlySalary, setCompensationMonthlySalary] =
-    useState<string>(
-      employee.monthlySalary != null
-        ? String(employee.monthlySalary / 100)
-        : "",
-    );
-  const [compensationEffectiveFrom, setCompensationEffectiveFrom] =
-    useState<string>(toDateInputValue(new Date().toISOString()));
-  const [compensationNote, setCompensationNote] = useState<string>("");
-  const [compensationFieldErrors, setCompensationFieldErrors] = useState<{
-    paymentType?: string;
-    monthlySalary?: string;
-    effectiveFrom?: string;
-    note?: string;
-  }>({});
-  const [compensationValidationError, setCompensationValidationError] =
-    useState<string>("");
-
-  useEffect(() => {
-    setCompensationPaymentType(employee.paymentType);
-    setCompensationMonthlySalary(
-      employee.monthlySalary != null
-        ? String(employee.monthlySalary / 100)
-        : "",
-    );
-  }, [employee.monthlySalary, employee.paymentType]);
-
-  const submitCompensationChange = useCallback(() => {
-    const payload: CompensationChangeInput = {
-      paymentType: compensationPaymentType,
-      monthlySalary:
-        compensationPaymentType === PaymentType.MONTHLY_FIXED &&
-        compensationMonthlySalary.length > 0
-          ? Number(compensationMonthlySalary)
-          : undefined,
-      effectiveFrom: compensationEffectiveFrom,
-      note: compensationNote || undefined,
-    };
-
-    const parsedResult =
-      employeeCompensationChangeFormSchema.safeParse(payload);
-    if (!parsedResult.success) {
-      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
-      setCompensationFieldErrors({
-        paymentType: flattenedErrors.paymentType?.[0],
-        monthlySalary: flattenedErrors.monthlySalary?.[0],
-        effectiveFrom: flattenedErrors.effectiveFrom?.[0],
-        note: flattenedErrors.note?.[0],
-      });
-      setCompensationValidationError(
-        getFirstZodErrorMessage(parsedResult.error),
-      );
-      return;
-    }
-
-    setCompensationFieldErrors({});
-    setCompensationValidationError("");
-    void onScheduleCompensationChange(parsedResult.data);
-  }, [
-    compensationEffectiveFrom,
-    compensationMonthlySalary,
-    compensationNote,
-    compensationPaymentType,
+  const {
+    paymentType: compensationPaymentType,
+    monthlySalary: compensationMonthlySalary,
+    effectiveFrom: compensationEffectiveFrom,
+    note: compensationNote,
+    fieldErrors: compensationFieldErrors,
+    validationError: compensationValidationError,
+    setPaymentType: setCompensationPaymentType,
+    setMonthlySalary: setCompensationMonthlySalary,
+    setEffectiveFrom: setCompensationEffectiveFrom,
+    setNote: setCompensationNote,
+    clearFieldError: clearCompensationFieldError,
+    clearValidationError: clearCompensationValidationError,
+    submitCompensationChange,
+  } = useEmployeeCompensationManager({
+    employee,
     onScheduleCompensationChange,
-  ]);
+  });
 
   const historyColumns: ColumnDef<OrderItem>[] = useMemo(
     () => createEmployeeHistoryColumns(onViewOrder),
@@ -386,13 +319,8 @@ export function EmployeeDetailTabs({
         setMonthlySalary={setCompensationMonthlySalary}
         setEffectiveFrom={setCompensationEffectiveFrom}
         setNote={setCompensationNote}
-        clearFieldError={(field) =>
-          setCompensationFieldErrors((previous) => ({
-            ...previous,
-            [field]: undefined,
-          }))
-        }
-        clearValidationError={() => setCompensationValidationError("")}
+        clearFieldError={clearCompensationFieldError}
+        clearValidationError={clearCompensationValidationError}
         onSubmit={submitCompensationChange}
       />
 
