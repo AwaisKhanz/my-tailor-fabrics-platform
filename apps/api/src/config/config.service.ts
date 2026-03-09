@@ -42,6 +42,7 @@ import {
   normalizeMeasurementFieldLabel,
   resolveMeasurementFieldArchivePlan,
 } from './measurement-field-management';
+import { resolveMeasurementCategoryArchivePlan } from './measurement-category-management';
 import {
   GarmentTypeWithAnalytics,
   ItemStatus,
@@ -1012,28 +1013,8 @@ export class ConfigService {
   }
 
   async deleteMeasurementCategory(id: string, preview = false) {
-    const category = await this.prisma.measurementCategory.findFirstOrThrow({
-      where: { id, deletedAt: null },
-      include: {
-        garmentTypes: {
-          where: { deletedAt: null },
-          select: { id: true },
-        },
-        fields: {
-          where: { deletedAt: null },
-          select: { id: true },
-        },
-        sections: {
-          where: { deletedAt: null },
-          select: { id: true },
-        },
-      },
-    });
-
-    const historicalMeasurementCount =
-      await this.prisma.customerMeasurement.count({
-        where: { categoryId: id },
-      });
+    const { category, historicalMeasurementCount } =
+      await resolveMeasurementCategoryArchivePlan(this.prisma, id);
 
     if (preview) {
       return {
