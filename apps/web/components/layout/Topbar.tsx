@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { useAuthz } from "@/hooks/use-authz";
 import { siteConfig } from "@/lib/config";
+import { HOME_ROUTE } from "@/lib/auth-routes";
 import { USERS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { isRole, PERMISSION, ROLE_LABELS } from '@tbms/shared-constants';
 
@@ -87,7 +88,7 @@ export function Topbar() {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem asChild className="cursor-pointer py-2.5">
-                  <Link href="/">
+                  <Link href={HOME_ROUTE}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Personal Dashboard</span>
                   </Link>

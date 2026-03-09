@@ -1,6 +1,7 @@
 import { OrderStatus } from "@tbms/shared-types";
 
 export const ORDERS_ROUTE = "/orders";
+export const MY_ORDERS_ROUTE = "/my-orders";
 export const NEW_ORDER_ROUTE = "/orders/new";
 
 export function buildOrderDetailRoute(orderId: string) {

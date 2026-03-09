@@ -14,7 +14,9 @@ import {
   PAYMENTS_ROUTE,
   REPORTS_ROUTE,
 } from "@/lib/finance-routes";
+import { HOME_ROUTE } from "@/lib/auth-routes";
 import { CUSTOMERS_ROUTE, EMPLOYEES_ROUTE } from "@/lib/people-routes";
+import { MY_ORDERS_ROUTE, ORDERS_ROUTE } from "@/lib/order-routes";
 import {
   ATTENDANCE_SETTINGS_ROUTE,
   AUDIT_LOGS_SETTINGS_ROUTE,
@@ -78,21 +80,21 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         title: "Dashboard",
-        href: "/",
+        href: HOME_ROUTE,
         icon: PieChart,
-        roles: FRONTEND_ROUTE_ROLES["/"],
+        roles: FRONTEND_ROUTE_ROLES[HOME_ROUTE],
       },
       {
         title: "My Orders",
-        href: "/my-orders",
+        href: MY_ORDERS_ROUTE,
         icon: LayoutDashboard,
-        roles: FRONTEND_ROUTE_ROLES["/my-orders"],
+        roles: FRONTEND_ROUTE_ROLES[MY_ORDERS_ROUTE],
       },
       {
         title: "Orders",
-        href: "/orders",
+        href: ORDERS_ROUTE,
         icon: ShoppingBag,
-        roles: FRONTEND_ROUTE_ROLES["/orders"],
+        roles: FRONTEND_ROUTE_ROLES[ORDERS_ROUTE],
       },
       {
         title: "Customers",
