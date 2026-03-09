@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { expenseCreateFormSchema } from "@tbms/shared-types";
 import {
   expensesApi,
   type Expense,
   type ExpenseCategory,
 } from "@/lib/api/expenses";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateExpenseManager } from "@/hooks/use-create-expense-manager";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
@@ -35,27 +35,6 @@ export interface ExpensesFilters {
   to: string;
 }
 
-export interface ExpenseFormState {
-  categoryId: string;
-  amount: string;
-  expenseDate: string;
-  description: string;
-}
-type ExpenseFieldErrors = Partial<Record<keyof ExpenseFormState, string>>;
-
-function getTodayDate() {
-  return new Date().toISOString().split("T")[0] ?? "";
-}
-
-function getDefaultFormState(): ExpenseFormState {
-  return {
-    categoryId: "",
-    amount: "",
-    expenseDate: getTodayDate(),
-    description: "",
-  };
-}
-
 export function useExpensesPage() {
   const { toast } = useToast();
   const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
@@ -74,12 +53,6 @@ export function useExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
-
-  const [addOpen, setAddOpen] = useState(false);
-  const [form, setForm] = useState<ExpenseFormState>(getDefaultFormState);
-  const [formError, setFormError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
-  const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -194,97 +167,22 @@ export function useExpensesPage() {
     resetValues();
   }, [resetValues]);
 
-  const updateFormField = useCallback(
-    <K extends keyof ExpenseFormState>(field: K, value: ExpenseFormState[K]) => {
-      setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
-      setFormError("");
-      setForm((previous) => ({ ...previous, [field]: value }));
-    },
-    [],
-  );
-
-  const openAddDialog = useCallback(() => {
-    setFieldErrors({});
-    setFormError("");
-    setAddOpen(true);
-  }, []);
-
-  const closeAddDialog = useCallback(() => {
-    if (saving) {
-      return;
-    }
-    setFieldErrors({});
-    setFormError("");
-    setAddOpen(false);
-  }, [saving]);
-
-  const handleAddDialogChange = useCallback((open: boolean) => {
-    if (open) {
-      openAddDialog();
-      return;
-    }
-
-    closeAddDialog();
-  }, [closeAddDialog, openAddDialog]);
-
-  const resetCreateForm = useCallback(() => {
-    setForm(getDefaultFormState());
-  }, []);
-
-  const submitCreateExpense = useCallback(async () => {
-    const parsedResult = expenseCreateFormSchema.safeParse(form);
-    if (!parsedResult.success) {
-      const flattenedErrors = parsedResult.error.flatten().fieldErrors;
-      setFieldErrors({
-        categoryId: flattenedErrors.categoryId?.[0],
-        amount: flattenedErrors.amount?.[0],
-        expenseDate: flattenedErrors.expenseDate?.[0],
-        description: flattenedErrors.description?.[0],
-      });
-      setFormError(
-        flattenedErrors.categoryId?.[0] ??
-          flattenedErrors.amount?.[0] ??
-          flattenedErrors.expenseDate?.[0] ??
-          flattenedErrors.description?.[0] ??
-          "Fix the highlighted fields and try again.",
-      );
-      return;
-    }
-
-    const data = parsedResult.data;
-    setFieldErrors({});
-    setFormError("");
-
-    setSaving(true);
-    try {
-      const payload: Parameters<typeof expensesApi.createExpense>[0] = {
-        categoryId: data.categoryId,
-        amount: data.amount,
-        description: data.description || undefined,
-        expenseDate: new Date(data.expenseDate).toISOString(),
-      };
-
-      await expensesApi.createExpense(payload);
-      toast({ title: "Expense added successfully" });
-
-      setAddOpen(false);
-      resetCreateForm();
-
-      if (page !== 1) {
-        setPage(1);
-      } else {
-        await fetchExpenses();
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to add expense",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  }, [fetchExpenses, form, page, resetCreateForm, setPage, toast]);
+  const {
+    addOpen,
+    form,
+    formError,
+    fieldErrors,
+    saving,
+    updateFormField,
+    openAddDialog,
+    handleAddDialogChange,
+    closeAddDialog,
+    submitCreateExpense,
+  } = useCreateExpenseManager({
+    page,
+    setPage,
+    refreshExpenses: fetchExpenses,
+  });
 
   const requestDeleteExpense = useCallback((expense: Expense) => {
     setDeleteTarget(expense);

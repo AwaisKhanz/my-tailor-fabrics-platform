@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type ExpenseFormState } from "@/hooks/use-expenses-page";
+import { type ExpenseFormState } from "@/hooks/use-create-expense-manager";
 
 interface ExpenseCreateDialogProps {
   open: boolean;
