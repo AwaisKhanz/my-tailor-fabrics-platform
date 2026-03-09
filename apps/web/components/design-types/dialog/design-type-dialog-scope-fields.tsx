@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  DESIGN_TYPE_ALL_GARMENTS_LABEL,
   DESIGN_TYPE_ALL_SCOPE,
+  DESIGN_TYPE_GLOBAL_BRANCH_SCOPE_LABEL,
   type DesignTypeFormValues,
 } from "@/hooks/use-design-type-dialog";
 
@@ -49,7 +51,7 @@ export function DesignTypeDialogScopeFields({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Garments" />
+                  <SelectValue placeholder={DESIGN_TYPE_ALL_GARMENTS_LABEL} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -78,7 +80,7 @@ export function DesignTypeDialogScopeFields({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Global (All Branches)" />
+                  <SelectValue placeholder={DESIGN_TYPE_GLOBAL_BRANCH_SCOPE_LABEL} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>

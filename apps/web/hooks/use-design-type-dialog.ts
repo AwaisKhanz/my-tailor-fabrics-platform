@@ -12,6 +12,8 @@ import {
 import { typedZodResolver } from "@/lib/utils/form";
 
 export const DESIGN_TYPE_ALL_SCOPE = "ALL";
+export const DESIGN_TYPE_ALL_GARMENTS_LABEL = "All Garments";
+export const DESIGN_TYPE_GLOBAL_BRANCH_SCOPE_LABEL = "Global (All Branches)";
 
 export type { DesignTypeFormValues };
 
@@ -112,7 +114,7 @@ export function useDesignTypeDialog({
     () => [
       {
         value: DESIGN_TYPE_ALL_SCOPE,
-        label: "All Garments",
+        label: DESIGN_TYPE_ALL_GARMENTS_LABEL,
       },
       ...garmentTypes.map((garmentType) => ({
         value: garmentType.id,
@@ -126,7 +128,7 @@ export function useDesignTypeDialog({
     () => [
       {
         value: DESIGN_TYPE_ALL_SCOPE,
-        label: "Global (All Branches)",
+        label: DESIGN_TYPE_GLOBAL_BRANCH_SCOPE_LABEL,
       },
       ...branches.map((branch) => ({
         value: branch.id,
