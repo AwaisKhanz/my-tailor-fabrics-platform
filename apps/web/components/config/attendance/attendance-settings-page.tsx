@@ -34,6 +34,7 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 import { useAuthz } from "@/hooks/use-authz";
 import { PERMISSION } from '@tbms/shared-constants';
 import {
+  ALL_EMPLOYEES_FILTER_LABEL,
   useAttendanceSettingsPage,
 } from "@/hooks/use-attendance-settings-page";
 
@@ -320,7 +321,7 @@ export function AttendanceSettingsPage() {
                     disabled={employeesLoading}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Filter by employee" />
+                      <SelectValue placeholder={ALL_EMPLOYEES_FILTER_LABEL} />
                     </SelectTrigger>
                     <SelectContent>
                       {employeeFilterOptions.map((employee) => (

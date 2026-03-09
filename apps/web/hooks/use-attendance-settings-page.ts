@@ -15,9 +15,10 @@ import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 20;
 export const ALL_EMPLOYEES_FILTER = "all";
+export const ALL_EMPLOYEES_FILTER_LABEL = "All Employees";
 const ALL_EMPLOYEES_FILTER_OPTION = {
   value: ALL_EMPLOYEES_FILTER,
-  label: "All Employees",
+  label: ALL_EMPLOYEES_FILTER_LABEL,
 } as const;
 
 type ClockInFieldErrors = Partial<Record<"employeeId" | "note", string>>;
