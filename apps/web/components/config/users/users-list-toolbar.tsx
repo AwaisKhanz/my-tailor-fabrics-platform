@@ -1,9 +1,12 @@
 import { Filter, RotateCcw, Search } from "lucide-react";
-import { ROLES } from "@tbms/shared-constants";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
-import { USERS_ALL_ROLES_FILTER_VALUE, type UserRoleFilter } from "@/hooks/use-users-page";
+import {
+  USER_ROLE_FILTER_OPTIONS,
+  USERS_ALL_ROLES_FILTER_VALUE,
+  type UserRoleFilter,
+} from "@/hooks/use-users-page";
 
 interface UsersListToolbarProps {
   search: string;
@@ -52,10 +55,9 @@ export function UsersListToolbar({
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={USERS_ALL_ROLES_FILTER_VALUE}>All Roles</SelectItem>
-                {ROLES.map((role) => (
-                  <SelectItem key={role.value} value={role.value}>
-                    {role.label}
+                {USER_ROLE_FILTER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -23,6 +23,14 @@ export const USERS_ALL_ROLES_FILTER_VALUE = "ALL_ROLES";
 
 export type UserRoleFilter = Role | typeof USERS_ALL_ROLES_FILTER_VALUE;
 
+export const USER_ROLE_FILTER_OPTIONS = [
+  {
+    value: USERS_ALL_ROLES_FILTER_VALUE,
+    label: "All Roles",
+  },
+  ...ROLES,
+];
+
 export interface UserFormState {
   name: string;
   email: string;
