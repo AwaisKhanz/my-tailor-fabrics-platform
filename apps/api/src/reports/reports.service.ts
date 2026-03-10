@@ -14,7 +14,6 @@ import {
   ReportDistributions,
   RevenueVsExpenses,
   TaskStatus,
-  TrendGranularity,
 } from '@tbms/shared-types';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -43,7 +42,6 @@ export class ReportsService {
       share: total > 0 ? Number(((row.value / total) * 100).toFixed(2)) : 0,
     }));
   }
-
 
   private async getFinancialTotals(
     branchId?: string,
@@ -327,10 +325,7 @@ export class ReportsService {
 
     const points = rows.map((row) => ({
       periodStart: row.periodStart.toISOString(),
-      label: formatTrendLabel(
-        new Date(row.periodStart),
-        resolvedGranularity,
-      ),
+      label: formatTrendLabel(new Date(row.periodStart), resolvedGranularity),
       revenue: Number(row.revenue ?? 0),
       expenses: Number(row.expenses ?? 0),
       net: Number(row.net ?? 0),

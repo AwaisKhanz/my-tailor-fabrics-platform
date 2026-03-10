@@ -708,8 +708,7 @@ export class ConfigService {
             });
 
             const nextSortOrder =
-              dto.sortOrder ??
-              (await getNextSectionSortOrder(categoryId, tx));
+              dto.sortOrder ?? (await getNextSectionSortOrder(categoryId, tx));
 
             return tx.measurementSection.create({
               data: toMeasurementSectionCreateInput({
@@ -782,7 +781,7 @@ export class ConfigService {
     dto: DeleteMeasurementSectionDto = {},
     preview = false,
   ) {
-    const { section, activeFieldCount, blockedReasons, targetSection } =
+    const { activeFieldCount, blockedReasons, targetSection } =
       await resolveMeasurementSectionArchivePlan(
         this.prisma,
         sectionId,
@@ -905,7 +904,7 @@ export class ConfigService {
   }
 
   async deleteMeasurementField(id: string, preview = false) {
-    const { field, customerMeasurementCount } =
+    const { customerMeasurementCount } =
       await resolveMeasurementFieldArchivePlan(this.prisma, id);
 
     if (preview) {

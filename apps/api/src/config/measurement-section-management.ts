@@ -49,12 +49,10 @@ export function toMeasurementSectionCreateInput(params: {
   };
 }
 
-export function toMeasurementSectionUpdateInput(
-  dto: {
-    name?: string;
-    sortOrder?: number;
-  },
-): Prisma.MeasurementSectionUpdateInput {
+export function toMeasurementSectionUpdateInput(dto: {
+  name?: string;
+  sortOrder?: number;
+}): Prisma.MeasurementSectionUpdateInput {
   return {
     ...(dto.name !== undefined
       ? { name: normalizeMeasurementSectionName(dto.name) }
@@ -144,8 +142,7 @@ export async function resolveMeasurementSectionArchivePlan(
       if (!targetSection || targetSection.categoryId !== section.categoryId) {
         blockedReasons.push({
           code: 'TARGET_SECTION_NOT_FOUND',
-          message:
-            'Target measurement section was not found in this category.',
+          message: 'Target measurement section was not found in this category.',
         });
       }
     }

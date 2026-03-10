@@ -2,14 +2,10 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, OrderStatus as PrismaOrderStatus } from '@prisma/client';
-import {
-  CreateOrderDto,
-  OrderItemDto,
-} from './dto/create-order.dto';
+import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
 import {
   UpdateOrderDto,
   UpdateOrderItemAssignmentDto,
@@ -20,16 +16,12 @@ import {
   FabricSource as SharedFabricSource,
   ItemStatus,
   LedgerEntryType,
-  OrderStatus,
   OrdersListSummary,
   Role,
   TaskStatus,
 } from '@tbms/shared-types';
 import { RatesService } from '../rates/rates.service';
-import {
-  calculateOrderTotals,
-  calculateOrderSubtotal,
-} from './money';
+import { calculateOrderTotals, calculateOrderSubtotal } from './money';
 import {
   normalizePagination,
   toPaginatedResponse,
@@ -52,7 +44,10 @@ import {
   type OrdersFindFilters,
   toPrismaOrderStatus,
 } from './order-query-resolver';
-import { resolveOrderItemDrafts, type ResolvedOrderItemDraft } from './order-item-draft-resolver';
+import {
+  resolveOrderItemDrafts,
+  type ResolvedOrderItemDraft,
+} from './order-item-draft-resolver';
 import {
   recordOrderPayment,
   reverseRecordedOrderPayment,
@@ -233,7 +228,7 @@ export class OrdersService {
 
       // 3. Compute Discount and Total
       const initialPayment = createOrderDto.advancePayment || 0;
-      const { totalAmount } = resolveValidatedOrderTotals({
+      resolveValidatedOrderTotals({
         subtotal,
         totalPaid: initialPayment,
         discountType: createOrderDto.discountType,
@@ -691,14 +686,14 @@ export class OrdersService {
             ? dto.discountValue
             : order.discountValue;
 
-        const { totalAmount } = resolveValidatedOrderTotals({
+        resolveValidatedOrderTotals({
           subtotal,
           totalPaid: order.totalPaid,
           discountType: nextDiscountType,
           discountValue: nextDiscountValue,
-          paymentErrorMessage: 'Existing payments exceed the updated order total',
+          paymentErrorMessage:
+            'Existing payments exceed the updated order total',
         });
-
       }
 
       await tx.order.update({

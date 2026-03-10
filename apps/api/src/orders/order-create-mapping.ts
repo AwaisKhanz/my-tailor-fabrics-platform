@@ -1,9 +1,18 @@
-import { type GarmentType as PrismaGarmentType, type Prisma } from '@prisma/client';
+import {
+  type GarmentType as PrismaGarmentType,
+  type Prisma,
+} from '@prisma/client';
 import { FabricSource as SharedFabricSource } from '@tbms/shared-types';
 import { type CreateOrderDto, type OrderItemDto } from './dto/create-order.dto';
-import { type UpdateOrderDto, type UpdateOrderItemDto } from './dto/update-order.dto';
+import {
+  type UpdateOrderDto,
+  type UpdateOrderItemDto,
+} from './dto/update-order.dto';
 import { type ResolvedOrderItemDraft } from './order-item-draft-resolver';
-import { toPrismaAddonType, toPrismaFabricSource } from './order-query-resolver';
+import {
+  toPrismaAddonType,
+  toPrismaFabricSource,
+} from './order-query-resolver';
 
 type OrderItemAddonCreateDraft = {
   type: Parameters<typeof toPrismaAddonType>[0];
@@ -137,7 +146,10 @@ export function buildOrderCreateData(params: {
 }
 
 export function buildOrderUpdateData(
-  dto: Pick<UpdateOrderDto, 'dueDate' | 'notes' | 'discountType' | 'discountValue'>,
+  dto: Pick<
+    UpdateOrderDto,
+    'dueDate' | 'notes' | 'discountType' | 'discountValue'
+  >,
 ): Prisma.OrderUpdateInput {
   const data: Prisma.OrderUpdateInput = {};
 

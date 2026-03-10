@@ -1,7 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import { type Prisma } from '@prisma/client';
 import { FabricSource as SharedFabricSource } from '@tbms/shared-types';
-import { type OrderItemAddonDto, type OrderItemDto } from './dto/create-order.dto';
+import {
+  type OrderItemAddonDto,
+  type OrderItemDto,
+} from './dto/create-order.dto';
 
 export type ResolvedOrderItemDraft = {
   garmentTypeId: string;

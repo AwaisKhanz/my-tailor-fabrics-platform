@@ -232,7 +232,9 @@ export class EmployeesService {
               branchId,
               employeeCode,
               input: createEmployeeDto,
-              dateOfBirth: this.parseOptionalDate(createEmployeeDto.dateOfBirth),
+              dateOfBirth: this.parseOptionalDate(
+                createEmployeeDto.dateOfBirth,
+              ),
               dateOfJoining,
               paymentType,
               monthlySalary: payrollFields.monthlySalary,
@@ -666,8 +668,8 @@ export class EmployeesService {
   async createCompensationChange(
     id: string,
     branchId: string,
-      change: CompensationChangeInput,
-      changedById: string,
+    change: CompensationChangeInput,
+    changedById: string,
   ): Promise<EmployeeCompensationHistoryEntry> {
     const employee = await this.findOne(id, branchId);
     const effectiveFrom = this.parseRequiredDate(

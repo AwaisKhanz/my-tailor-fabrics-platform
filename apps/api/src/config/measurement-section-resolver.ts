@@ -2,9 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
-export type MeasurementSectionClient =
-  | PrismaService
-  | Prisma.TransactionClient;
+export type MeasurementSectionClient = PrismaService | Prisma.TransactionClient;
 
 export async function getNextSectionSortOrder(
   categoryId: string,

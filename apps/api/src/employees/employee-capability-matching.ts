@@ -96,7 +96,8 @@ export async function validateCapabilityStepKeys(
 
     const matchedScopedSet = new Set(
       matchedWorkflowSteps.map(
-        (workflowStep) => `${workflowStep.garmentTypeId}::${workflowStep.stepKey}`,
+        (workflowStep) =>
+          `${workflowStep.garmentTypeId}::${workflowStep.stepKey}`,
       ),
     );
 
@@ -113,7 +114,9 @@ export async function validateCapabilityStepKeys(
     new Set(
       capabilities
         .filter(
-          (capability): capability is { garmentTypeId: null; stepKey: string } =>
+          (
+            capability,
+          ): capability is { garmentTypeId: null; stepKey: string } =>
             !capability.garmentTypeId && Boolean(capability.stepKey),
         )
         .map((capability) => capability.stepKey),

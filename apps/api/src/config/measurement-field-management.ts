@@ -77,7 +77,9 @@ export async function assertUniqueMeasurementFieldLabel(
       fields: {
         where: {
           deletedAt: null,
-          ...(params.excludeFieldId ? { NOT: { id: params.excludeFieldId } } : {}),
+          ...(params.excludeFieldId
+            ? { NOT: { id: params.excludeFieldId } }
+            : {}),
         },
       },
     },
