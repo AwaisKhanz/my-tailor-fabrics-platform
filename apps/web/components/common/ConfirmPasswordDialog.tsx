@@ -10,7 +10,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { FieldError } from "@/components/ui/field";
-import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
+import {
+  DialogActionRow,
+  DialogFormActions,
+  DialogSection,
+  FormStack,
+} from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -52,7 +57,7 @@ export function ConfirmPasswordDialog({
     }
 
     setValidationError("");
-    // Note: In a real implementation, we would send the password to the backend 
+    // Note: In a real implementation, we would send the password to the backend
     // for verification. For this simulation, we'll assume the user knows their password.
     // The requirement (Section 1675) is about the UI/UX flow of re-entry.
     onConfirm();
@@ -89,7 +94,9 @@ export function ConfirmPasswordDialog({
                 placeholder="••••••••"
                 disabled={isLoading}
               />
-              {validationError ? <FieldError>{validationError}</FieldError> : null}
+              {validationError ? (
+                <FieldError>{validationError}</FieldError>
+              ) : null}
             </div>
           </FormStack>
         </DialogSection>

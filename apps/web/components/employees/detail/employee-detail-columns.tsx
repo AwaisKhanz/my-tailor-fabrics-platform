@@ -148,7 +148,9 @@ export function createEmployeeTaskColumns({
       header: "Item/Step",
       cell: (task) => (
         <div className="flex flex-col">
-          <span className="font-medium">{task.item?.garmentTypeName || "-"}</span>
+          <span className="font-medium">
+            {task.item?.garmentTypeName || "-"}
+          </span>
           <FieldLabel className="font-mono">{task.stepName}</FieldLabel>
         </div>
       ),

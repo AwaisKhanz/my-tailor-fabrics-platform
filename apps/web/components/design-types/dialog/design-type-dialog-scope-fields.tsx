@@ -76,7 +76,9 @@ export function DesignTypeDialogScopeFields({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={DESIGN_TYPE_GLOBAL_BRANCH_SCOPE_LABEL} />
+                  <SelectValue
+                    placeholder={DESIGN_TYPE_GLOBAL_BRANCH_SCOPE_LABEL}
+                  />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>

@@ -84,22 +84,23 @@ export function ReportsProductivityChart({
               total > 0
                 ? Math.min(
                     totalSegments,
-                    Math.round(
-                      (point.completedItems / total) * totalSegments,
-                    ),
+                    Math.round((point.completedItems / total) * totalSegments),
                   )
                 : 0;
             const taskSegments = Math.max(0, totalSegments - itemSegments);
             const isActive = point.employeeId === activePoint?.employeeId;
-            const bars = Array.from({ length: PRODUCTIVITY_SEGMENTS }, (_, index) => {
-              if (index < itemSegments) {
-                return "bg-chart-1";
-              }
-              if (index < itemSegments + taskSegments) {
-                return "bg-chart-2";
-              }
-              return "bg-muted/40";
-            });
+            const bars = Array.from(
+              { length: PRODUCTIVITY_SEGMENTS },
+              (_, index) => {
+                if (index < itemSegments) {
+                  return "bg-chart-1";
+                }
+                if (index < itemSegments + taskSegments) {
+                  return "bg-chart-2";
+                }
+                return "bg-muted/40";
+              },
+            );
 
             return (
               <InteractiveTile

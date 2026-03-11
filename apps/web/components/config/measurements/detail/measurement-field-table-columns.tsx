@@ -54,7 +54,8 @@ export function useMeasurementFieldTableColumns({
       {
         header: "Section",
         cell: (field) => {
-          const currentSectionId = field.sectionId ?? moveSectionOptions[0]?.id ?? "";
+          const currentSectionId =
+            field.sectionId ?? moveSectionOptions[0]?.id ?? "";
           const showSectionMoveSelect =
             canManageFields &&
             Boolean(onMoveFieldSection) &&

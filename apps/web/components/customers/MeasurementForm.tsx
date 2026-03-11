@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  type MeasurementValues,
-  FieldType,
-} from "@tbms/shared-types";
+import { type MeasurementValues, FieldType } from "@tbms/shared-types";
 import {
   Form,
   FormControl,

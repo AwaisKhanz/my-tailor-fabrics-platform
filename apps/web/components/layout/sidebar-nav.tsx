@@ -4,10 +4,7 @@ import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { HOME_ROUTE } from "@/lib/auth-routes";
-import {
-  type NavItem,
-  type NavSection,
-} from "@/lib/sidebar-navigation";
+import { type NavItem, type NavSection } from "@/lib/sidebar-navigation";
 
 function SidebarNavItem({
   item,
@@ -25,7 +22,7 @@ function SidebarNavItem({
     "group flex w-full cursor-pointer items-center gap-3 rounded-snow-20 border border-transparent bg-transparent px-4 py-3.5 text-[0.875rem] font-medium transition-all duration-200 ease-out";
 
   const activeClasses =
-    "border-secondary bg-secondary text-primary font-semibold";
+    "border-secondary bg-secondary dark:bg-primary text-primary dark:text-secondary font-semibold";
 
   const inactiveClasses =
     "text-sidebar-foreground hover:-translate-y-px hover:border-secondary hover:bg-background hover:text-primary";
@@ -39,8 +36,8 @@ function SidebarNavItem({
         className={cn(
           "h-5 w-5 shrink-0 transition-colors",
           isActive
-            ? "!text-primary"
-            : "text-sidebar-foreground group-hover:text-primary",
+            ? "!text-primary dark:!text-secondary"
+            : "text-secondary dark:text-primary group-hover:text-primary",
         )}
       />
       <span className="flex-1 truncate transition-colors">{item.title}</span>

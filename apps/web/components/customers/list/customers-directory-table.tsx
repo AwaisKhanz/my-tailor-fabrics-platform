@@ -114,9 +114,7 @@ export function CustomersDirectoryTable({
             {customer.whatsapp ? (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-primary/50" />
-                <FieldLabel tone="primary">
-                  WhatsApp Connected
-                </FieldLabel>
+                <FieldLabel tone="primary">WhatsApp Connected</FieldLabel>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
@@ -129,9 +127,7 @@ export function CustomersDirectoryTable({
       },
       {
         header: "City",
-        cell: (customer) => (
-          <FieldLabel>{customer.city || "—"}</FieldLabel>
-        ),
+        cell: (customer) => <FieldLabel>{customer.city || "—"}</FieldLabel>,
       },
       {
         header: "Lifetime Value",

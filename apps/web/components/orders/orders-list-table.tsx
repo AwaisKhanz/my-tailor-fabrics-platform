@@ -106,9 +106,7 @@ export function OrdersListTable({
               <span className="truncate text-sm font-semibold leading-tight text-foreground">
                 {order.customer.fullName}
               </span>
-              <FieldLabel className="mt-0.5">
-                {order.customer.phone}
-              </FieldLabel>
+              <FieldLabel className="mt-0.5">{order.customer.phone}</FieldLabel>
             </div>
           </div>
         ),
@@ -136,7 +134,13 @@ export function OrdersListTable({
                 {formatShortDate(order.dueDate)}
               </span>
               <FieldLabel
-                tone={isOverdue ? "destructive" : isCompleted ? "primary" : "default"}
+                tone={
+                  isOverdue
+                    ? "destructive"
+                    : isCompleted
+                      ? "primary"
+                      : "default"
+                }
               >
                 {isOverdue ? "Overdue" : isCompleted ? "Closed" : "Scheduled"}
               </FieldLabel>

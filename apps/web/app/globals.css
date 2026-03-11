@@ -4,179 +4,194 @@
 
 @layer base {
   :root {
-    /* Let the browser render built-in controls appropriately */
-    color-scheme: light;
+    /* Light Mode — Energy dashboard */
 
-    /* Core surfaces + text */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 110 8% 94%;
+    --foreground: 150 10% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 150 10% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 150 10% 12%;
 
-    /* Brand / primary action (Sapphire) */
-    --primary: 221 83% 53%;
+    /* Eco green accent */
+    --primary: 150 25% 48%;
     --primary-foreground: 0 0% 100%;
 
-    /* Neutral surfaces used for sections, table headers, subtle fills */
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 120 10% 88%;
+    --secondary-foreground: 150 10% 12%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 19% 35%;
+    --muted: 120 8% 85%;
+    --muted-foreground: 150 6% 40%;
 
-    /* Hover/select surface (neutral highlight — NOT brand) */
-    --accent: 214 32% 91%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 120 15% 92%;
+    --accent-foreground: 150 25% 40%;
 
-    /* Semantic/status */
-    --destructive: 0 72% 51%;
+    --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --info: 201 96% 32%;
+    --info: 200 90% 50%;
     --info-foreground: 0 0% 100%;
 
-    --success: 142 72% 29%;
+    --success: 150 40% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
+    --warning: 45 100% 55%;
+    --warning-foreground: 30 10% 12%;
 
-    /* Borders & focus */
-    --border: 214 32% 91%;
-    /* Slightly stronger than --border for form controls */
-    --input: 213 27% 84%;
-    --ring: 221 83% 53%;
+    --border: 120 8% 80%;
+    --input: 120 8% 80%;
+    --ring: 150 25% 48%;
 
-    /* Sidebar: high-contrast, “pro” navigation */
-    --sidebar: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 215 25% 27%;
+    /* Sidebar */
+    --sidebar: 120 8% 92%;
+    --sidebar-foreground: 150 10% 12%;
+    --sidebar-border: 120 8% 82%;
 
-    /* Charts (Okabe–Ito inspired) */
-    --chart-1: 202 100% 35%;
-    --chart-2: 41 100% 45%;
-    --chart-3: 164 100% 31%;
-    --chart-4: 26 100% 42%;
-    --chart-5: 327 45% 64%;
+    /* Chart palette */
+    --chart-1: 150 30% 45%;
+    --chart-2: 180 25% 45%;
+    --chart-3: 210 25% 45%;
+    --chart-4: 120 20% 40%;
+    --chart-5: 90 20% 40%;
 
-    /* Snow surfaces (mapped to the new neutrals) */
-    --snow-bg-1: 210 40% 98%;
-    --snow-bg-2: 0 0% 100%;
-    --snow-bg-3: 210 40% 96%;
-    --snow-bg-4: 214 32% 91%;
-    --snow-bg-5: 213 27% 84%;
-    --snow-bg-6: 215 20% 65%;
+    --radius: 8px;
 
-    /* Optional: modern dashboard elevation */
-    --shadow:
-      0 1px 2px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.08);
-    --shadow-sm:
-      0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.06);
-
-    /* Optional: slightly more modern rounding than 8px */
-    --radius: 12px;
     --snow-radius-unit: calc(var(--radius) / 4);
+    --snow-radius-0: 0px;
+    --snow-radius-4: calc(var(--snow-radius-unit) * 1);
+    --snow-radius-8: calc(var(--snow-radius-unit) * 2);
+    --snow-radius-12: calc(var(--snow-radius-unit) * 3);
+    --snow-radius-16: calc(var(--snow-radius-unit) * 4);
+    --snow-radius-20: calc(var(--snow-radius-unit) * 5);
+    --snow-radius-24: calc(var(--snow-radius-unit) * 6);
+    --snow-radius-28: calc(var(--snow-radius-unit) * 7);
+    --snow-radius-32: calc(var(--snow-radius-unit) * 8);
+    --snow-radius-40: calc(var(--snow-radius-unit) * 10);
+    --snow-radius-48: calc(var(--snow-radius-unit) * 12);
+    --snow-radius-80: calc(var(--snow-radius-unit) * 20);
 
-    /* Optional: keep your Snow typography aligned with Tailwind fonts */
-    --snow-font-family: var(--font-inter), system-ui, sans-serif;
-    --snow-weight-regular: 400;
-    --snow-weight-semibold: 600;
+    --snow-font-family: "Geist Variable", Geist, sans-serif;
+
+    --shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 10px 20px rgba(0, 0, 0, 0.05);
+
+    --shadow-sm: var(--shadow);
   }
 
   .dark {
-    color-scheme: dark;
+    /* Dark Mode — Exact match to screenshot */
 
-    /* Deep slate dark theme */
-    --background: 229 84% 5%;
-    --foreground: 210 40% 98%;
+    --background: 140 8% 7%;
+    --foreground: 0 0% 92%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 140 8% 9%;
+    --card-foreground: 0 0% 92%;
 
-    --popover: 220 49% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 140 8% 9%;
+    --popover-foreground: 0 0% 92%;
 
-    /* Primary becomes brighter in dark mode; text flips to dark */
-    --primary: 213 94% 68%;
-    --primary-foreground: 229 84% 5%;
+    /* Eco green accent */
+    --primary: 145 22% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 221 39% 11%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 140 6% 14%;
+    --secondary-foreground: 0 0% 92%;
 
-    --muted: 222 47% 11%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 140 6% 14%;
+    --muted-foreground: 140 5% 60%;
 
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 140 10% 18%;
+    --accent-foreground: 145 22% 58%;
 
-    /* Semantic/status: brighter fills with dark text for readability */
-    --destructive: 0 91% 71%;
-    --destructive-foreground: 229 84% 5%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --info: 199 92% 60%;
-    --info-foreground: 229 84% 5%;
+    --info: 200 80% 55%;
+    --info-foreground: 0 0% 100%;
 
-    --success: 142 69% 58%;
-    --success-foreground: 229 84% 5%;
+    --success: 145 35% 55%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 45 96% 56%;
-    --warning-foreground: 229 84% 5%;
+    --warning: 45 95% 55%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 213 94% 68%;
+    --border: 140 6% 18%;
+    --input: 140 6% 18%;
+    --ring: 145 22% 58%;
 
-    --sidebar: 220 49% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
+    /* Sidebar */
+    --sidebar: 140 8% 6%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-border: 140 6% 18%;
 
-    /* Charts (same hues work well on deep slate) */
-    --chart-1: 202 100% 35%;
-    --chart-2: 41 100% 45%;
-    --chart-3: 164 100% 31%;
-    --chart-4: 26 100% 42%;
-    --chart-5: 327 45% 64%;
+    /* Chart palette */
+    --chart-1: 145 22% 58%;
+    --chart-2: 160 20% 55%;
+    --chart-3: 180 20% 55%;
+    --chart-4: 120 18% 50%;
+    --chart-5: 90 18% 50%;
 
-    --snow-bg-1: 229 84% 5%;
-    --snow-bg-2: 222 47% 11%;
-    --snow-bg-3: 217 33% 17%;
-    --snow-bg-4: 217 33% 17%;
-    --snow-bg-5: 215 25% 27%;
-    --snow-bg-6: 215 19% 35%;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 12px 30px rgba(0, 0, 0, 0.5);
 
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-    --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.45);
+    --shadow-sm: var(--shadow);
+  }
+
+  *,
+  *::before,
+  *::after {
+    @apply border-border;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html {
+    min-height: 100%;
+    background: hsl(var(--background));
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  ::selection {
+    @apply bg-primary/25 text-foreground;
   }
 }
 
 @layer components {
-  /* Component Logic (Intact) */
   .container {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
+
   .card {
     @apply rounded-snow-16 border bg-card text-card-foreground shadow-sm;
   }
+
   .glass {
     border: 1px solid hsl(var(--border));
     background: hsl(var(--card));
     box-shadow: var(--shadow-sm);
   }
+
   .meta {
     @apply text-[10px] tracking-widest font-bold uppercase text-muted-foreground;
   }
+
   .error {
     @apply text-sm font-medium text-destructive;
   }
+
   .dashboard-shell {
     @apply relative isolate min-h-screen;
   }
 
-  /* Responsive Logic (Intact) */
   .dashboard-shell-scroll {
     position: relative;
     z-index: 0;
@@ -187,6 +202,7 @@
     padding-bottom: 1rem;
     scroll-padding-top: 7rem;
   }
+
   .dashboard-shell-workspace {
     width: 100%;
     max-width: 1680px;

@@ -52,7 +52,9 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                   <Text as="p" variant="body" className="font-bold">
                     Price Updated
                   </Text>
-                  <FieldLabel>{new Date(log.createdAt).toLocaleString()}</FieldLabel>
+                  <FieldLabel>
+                    {new Date(log.createdAt).toLocaleString()}
+                  </FieldLabel>
                 </div>
 
                 <InfoTile padding="content" className="space-y-2">

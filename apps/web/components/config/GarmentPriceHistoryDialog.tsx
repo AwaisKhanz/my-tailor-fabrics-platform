@@ -93,7 +93,9 @@ export function GarmentPriceHistoryDialog({
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <FieldLabel className="animate-pulse">Loading timeline...</FieldLabel>
+              <FieldLabel className="animate-pulse">
+                Loading timeline...
+              </FieldLabel>
             </div>
           ) : logs.length === 0 ? (
             <InfoTile
