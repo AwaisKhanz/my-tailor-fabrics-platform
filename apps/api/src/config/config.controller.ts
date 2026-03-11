@@ -34,6 +34,7 @@ import {
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
+import { ParseStepKeyPipe } from '../common/pipes/parse-step-key.pipe';
 import {
   ADMIN_ROLES,
   OPERATOR_ROLES,
@@ -177,7 +178,7 @@ export class ConfigController {
   @Put('garment-types/:id/steps/:stepKey/restore')
   async restoreGarmentWorkflowStep(
     @Param('id', ParseCuidPipe) garmentTypeId: string,
-    @Param('stepKey') stepKey: string,
+    @Param('stepKey', ParseStepKeyPipe) stepKey: string,
   ) {
     const data = await this.configService.restoreGarmentWorkflowStep(
       garmentTypeId,

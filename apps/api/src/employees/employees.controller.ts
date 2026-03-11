@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -24,10 +25,7 @@ import {
   UpdateEmployeeCapabilitiesDto,
 } from './dto/workforce-governance.dto';
 import { Roles } from '../common/decorators/auth.decorators';
-import {
-  RequireAnyPermissions,
-  RequirePermissions,
-} from '../common/decorators/permissions.decorator';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { requireBranchScope } from '../common/utils/branch-scope.util';
@@ -42,6 +40,14 @@ import {
 @Controller('employees')
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
+
+  private getAuthenticatedEmployeeId(req: AuthenticatedRequest): string {
+    const employeeId = req.user.employeeId;
+    if (!employeeId) {
+      throw new ForbiddenException('Employee identity is missing');
+    }
+    return employeeId;
+  }
 
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['employees.manage'])
@@ -218,36 +224,36 @@ export class EmployeesController {
 
   // Employee Portal Endpoints
   @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
+  @RequirePermissions(PERMISSION['employees.self.read'])
   @Get('my/profile')
   async getMyProfile(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyProfile(
-      req.user.employeeId!,
+      this.getAuthenticatedEmployeeId(req),
       req.branchId,
     );
     return success(data);
   }
 
   @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
+  @RequirePermissions(PERMISSION['employees.self.read'])
   @Get('my/stats')
   async getMyStats(@Req() req: AuthenticatedRequest) {
     const data = await this.employeesService.getMyStats(
-      req.user.employeeId!,
+      this.getAuthenticatedEmployeeId(req),
       req.branchId,
     );
     return success(data);
   }
 
   @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
+  @RequirePermissions(PERMISSION['employees.self.read'])
   @Get('my/items')
   async getMyItems(
     @Query() pagination: PaginationQueryDto,
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.employeesService.getMyItems(
-      req.user.employeeId!,
+      this.getAuthenticatedEmployeeId(req),
       req.branchId,
       pagination.page ?? 1,
       pagination.limit ?? 20,

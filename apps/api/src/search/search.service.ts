@@ -2,13 +2,32 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
-import { Customer, Employee, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { EmployeeStatus } from '@tbms/shared-types';
 
 const MIN_QUERY_LENGTH = 2;
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 const CACHE_TTL_MS = 30_000;
+
+export interface SearchCustomerRow {
+  id: string;
+  branchId: string;
+  sizeNumber: string;
+  fullName: string;
+  phone: string;
+  city: string | null;
+  status: string;
+}
+
+export interface SearchEmployeeRow {
+  id: string;
+  branchId: string;
+  employeeCode: string;
+  fullName: string;
+  designation: string;
+  status: string;
+}
 
 @Injectable()
 export class SearchService {
@@ -54,7 +73,7 @@ export class SearchService {
     query: string,
     branchId: string | null,
     limit = 10,
-  ): Promise<Customer[]> {
+  ): Promise<SearchCustomerRow[]> {
     const q = this.normalizeQuery(query);
     if (!q || q.length < MIN_QUERY_LENGTH) return [];
     const safeLimit = this.normalizeLimit(limit);
@@ -65,14 +84,14 @@ export class SearchService {
       : Prisma.empty;
 
     // Attempt cache hit
-    const hit = await this.cache.get<Customer[]>(cacheKey);
+    const hit = await this.cache.get<SearchCustomerRow[]>(cacheKey);
     if (hit) return hit;
 
-    let result: Customer[] = [];
+    let result: SearchCustomerRow[] = [];
 
     // Fast path: Exact or Prefix lookup for Size Number
     if (/^c-/i.test(q)) {
-      result = await this.prisma.$queryRaw<Customer[]>`
+      result = await this.prisma.$queryRaw<SearchCustomerRow[]>`
         SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status
         FROM "Customer"
         WHERE "deletedAt" IS NULL
@@ -86,7 +105,7 @@ export class SearchService {
       const tsQuery = this.buildTsQuery(q);
 
       if (tsQuery) {
-        result = await this.prisma.$queryRaw<Customer[]>`
+        result = await this.prisma.$queryRaw<SearchCustomerRow[]>`
           SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status,
                  ts_rank("searchVector", to_tsquery('simple', ${tsQuery})) AS rank
           FROM "Customer"
@@ -101,7 +120,7 @@ export class SearchService {
       // Fallback to ILIKE-based search for terms that do not yield usable tsquery matches.
       if (result.length === 0) {
         const likeQuery = `%${q}%`;
-        result = await this.prisma.$queryRaw<Customer[]>`
+        result = await this.prisma.$queryRaw<SearchCustomerRow[]>`
           SELECT id, "branchId", "sizeNumber", "fullName", phone, city, status
           FROM "Customer"
           WHERE "deletedAt" IS NULL
@@ -126,7 +145,7 @@ export class SearchService {
     query: string,
     branchId: string | null,
     limit = 10,
-  ): Promise<Employee[]> {
+  ): Promise<SearchEmployeeRow[]> {
     const q = this.normalizeQuery(query);
     if (!q || q.length < MIN_QUERY_LENGTH) return [];
     const safeLimit = this.normalizeLimit(limit);
@@ -136,14 +155,14 @@ export class SearchService {
       ? Prisma.sql`AND "branchId" = ${branchId}`
       : Prisma.empty;
 
-    const hit = await this.cache.get<Employee[]>(cacheKey);
+    const hit = await this.cache.get<SearchEmployeeRow[]>(cacheKey);
     if (hit) return hit;
 
     const tsQuery = this.buildTsQuery(q);
-    let result: Employee[] = [];
+    let result: SearchEmployeeRow[] = [];
 
     if (tsQuery) {
-      result = await this.prisma.$queryRaw<Employee[]>`
+      result = await this.prisma.$queryRaw<SearchEmployeeRow[]>`
         SELECT id, "branchId", "employeeCode", "fullName", designation, status
         FROM "Employee"
         WHERE "deletedAt" IS NULL
@@ -157,7 +176,7 @@ export class SearchService {
 
     if (result.length === 0) {
       const likeQuery = `%${q}%`;
-      result = await this.prisma.$queryRaw<Employee[]>`
+      result = await this.prisma.$queryRaw<SearchEmployeeRow[]>`
         SELECT id, "branchId", "employeeCode", "fullName", designation, status
         FROM "Employee"
         WHERE "deletedAt" IS NULL

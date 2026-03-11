@@ -9,9 +9,11 @@ export async function getPublicOrderStatus(
   payload: ApiResponse<PublicOrderStatusResult | null> | null;
 }> {
   const response = await fetch(
-    `/api/status/${encodeURIComponent(token)}?pin=${encodeURIComponent(pin)}`,
+    `/api/status/${encodeURIComponent(token)}`,
     {
-      method: "GET",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin }),
       cache: "no-store",
     },
   );

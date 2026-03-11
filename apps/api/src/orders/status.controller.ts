@@ -1,7 +1,7 @@
 import {
   BadRequestException,
+  Body,
   Controller,
-  Get,
   HttpException,
   HttpStatus,
   Inject,
@@ -23,7 +23,7 @@ import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { emitSecurityEvent } from '../common/utils/security-event.util';
 import { success } from '../common/utils/response.util';
 import { OrdersService } from './orders.service';
-import { PublicStatusQueryDto } from './dto/status-query.dto';
+import { PublicStatusBodyDto } from './dto/status-body.dto';
 import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -100,13 +100,13 @@ export class StatusController {
       blockDuration: 180_000,
     },
   })
-  @Get(':token')
+  @Post(':token')
   async getStatus(
     @Param('token') token: string,
     @Req() req: Request,
-    @Query() query: PublicStatusQueryDto,
+    @Body() body: PublicStatusBodyDto,
   ) {
-    const { pin } = query;
+    const { pin } = body;
 
     if (!pin || !/^\d{4}$/.test(pin)) {
       throw new BadRequestException('A valid 4-digit pin is required');

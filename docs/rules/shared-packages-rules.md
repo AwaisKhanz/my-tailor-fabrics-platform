@@ -19,6 +19,7 @@ These rules apply to `packages/shared-types` and `packages/shared-constants`.
 3. If a change is not truly cross-app, keep it in the owning app instead of forcing it into shared packages.
 4. Permission references used by app code should come from the exported `PERMISSION` map in `@tbms/shared-constants`, not from repeated raw string literals.
 5. Label and enum display in app code should use shared exported maps and enums instead of hand-built string formatting.
+6. Keep self-scope permissions explicit (for example `employees.self.read`) instead of overloading broader staff permissions.
 
 ## 3. File Structure Rules
 

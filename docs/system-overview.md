@@ -44,6 +44,9 @@ Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabric
 4. `/api/status/*`
    Handled by the Next.js public order-status proxy route.
 
+Public status PIN submission is body-based:
+`POST /api/status/:token` with `{ "pin": "1234" }`.
+
 This split is intentional. The API is exposed on `/backend`, not `/api`, so that NextAuth and the public status flow remain owned by the web app.
 
 ## Build and Runtime Entry Points

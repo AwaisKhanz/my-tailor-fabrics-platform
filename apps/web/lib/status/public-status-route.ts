@@ -18,7 +18,17 @@ export async function handlePublicStatusRequest(
   { params }: { params: { token: string } },
 ) {
   const { token } = params;
-  const pin = request.nextUrl.searchParams.get("pin");
+  let payloadRaw: unknown;
+  try {
+    payloadRaw = await request.json();
+  } catch {
+    return createErrorResponse("A 4-digit PIN is required.", 400);
+  }
+  const pinCandidate =
+    typeof payloadRaw === "object" && payloadRaw !== null
+      ? (payloadRaw as { pin?: unknown }).pin
+      : undefined;
+  const pin = typeof pinCandidate === "string" ? pinCandidate : null;
 
   if (!pin || !/^\d{4}$/.test(pin)) {
     return createErrorResponse("A 4-digit PIN is required.", 400);
@@ -35,9 +45,10 @@ export async function handlePublicStatusRequest(
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/status/${token}?pin=${pin}`, {
-      method: "GET",
+    const response = await fetch(`${apiBaseUrl}/status/${token}`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin }),
       cache: "no-store",
     });
 

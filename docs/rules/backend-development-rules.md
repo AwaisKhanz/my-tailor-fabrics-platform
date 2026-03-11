@@ -62,6 +62,7 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
    - shared permission contracts
    - shared role/permission matrix
    - frontend access logic if the route is user-facing
+7. Employee self-profile endpoints must use the dedicated `employees.self.read` permission instead of reusing broader task or staff employee permissions.
 
 ## 6. Environment and Runtime Rules
 

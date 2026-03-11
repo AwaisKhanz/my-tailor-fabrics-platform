@@ -42,7 +42,7 @@ My Tailor & Fabrics is deployed as one App Platform app with separate service co
    - web owns `/`
    - API owns `/backend`
    - NextAuth remains on `/api/auth/*`
-   - public order status remains on `/api/status/*`
+   - public order status remains on `/api/status/*` and uses `POST /api/status/:token` with JSON body `{ "pin": "1234" }`
 
 ## Files That Define Production
 
@@ -251,8 +251,9 @@ After every production deployment:
 5. `/api/auth/*` still works
 6. authenticated browser traffic goes to `/backend/*`
 7. `/api/status/*` still works
-8. API starts with PostgreSQL and Valkey connected
-9. both App Platform components become `HEALTHY`
+8. public status PIN is submitted in request body (not URL query string)
+9. API starts with PostgreSQL and Valkey connected
+10. both App Platform components become `HEALTHY`
 
 ## Operational Rules
 

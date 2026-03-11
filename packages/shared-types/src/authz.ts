@@ -16,6 +16,7 @@ export const PERMISSIONS = [
   'customers.delete',
   'customers.measurements.manage',
   'employees.read',
+  'employees.self.read',
   'employees.manage',
   'payments.read',
   'payments.manage',

@@ -15,6 +15,7 @@ export declare const PERMISSION: {
     readonly 'customers.delete': "customers.delete";
     readonly 'customers.measurements.manage': "customers.measurements.manage";
     readonly 'employees.read': "employees.read";
+    readonly 'employees.self.read': "employees.self.read";
     readonly 'employees.manage': "employees.manage";
     readonly 'payments.read': "payments.read";
     readonly 'payments.manage': "payments.manage";
