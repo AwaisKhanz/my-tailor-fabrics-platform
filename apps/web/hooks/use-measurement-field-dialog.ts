@@ -11,7 +11,10 @@ import {
   type CreateMeasurementFieldInput,
   type UpdateMeasurementFieldInput,
 } from "@tbms/shared-types";
-import { configApi } from "@/lib/api/config";
+import {
+  useAddMeasurementField,
+  useUpdateMeasurementField,
+} from "@/hooks/queries/config-queries";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -50,7 +53,11 @@ export function useMeasurementFieldDialog({
   onSuccess,
 }: UseMeasurementFieldDialogParams) {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const addMeasurementFieldMutation = useAddMeasurementField();
+  const updateMeasurementFieldMutation = useUpdateMeasurementField();
+  const loading =
+    addMeasurementFieldMutation.isPending ||
+    updateMeasurementFieldMutation.isPending;
   const [newOption, setNewOption] = useState("");
 
   const form = useForm<FieldFormValues>({
@@ -141,7 +148,6 @@ export function useMeasurementFieldDialog({
         return;
       }
 
-      setLoading(true);
       try {
         const basePayload = {
           ...values,
@@ -155,11 +161,18 @@ export function useMeasurementFieldDialog({
 
         if (initialData?.id) {
           const payload: UpdateMeasurementFieldInput = basePayload;
-          await configApi.updateMeasurementField(initialData.id, payload);
+          await updateMeasurementFieldMutation.mutateAsync({
+            fieldId: initialData.id,
+            categoryId,
+            data: payload,
+          });
           toast({ title: "Field updated successfully" });
         } else {
           const payload: CreateMeasurementFieldInput = basePayload;
-          await configApi.addMeasurementField(categoryId, payload);
+          await addMeasurementFieldMutation.mutateAsync({
+            categoryId,
+            data: payload,
+          });
           toast({ title: "Field added successfully" });
         }
 
@@ -174,11 +187,10 @@ export function useMeasurementFieldDialog({
           ),
           variant: "destructive",
         });
-      } finally {
-        setLoading(false);
       }
     },
     [
+      addMeasurementFieldMutation,
       categoryId,
       existingFields,
       form,
@@ -186,6 +198,7 @@ export function useMeasurementFieldDialog({
       onOpenChange,
       onSuccess,
       toast,
+      updateMeasurementFieldMutation,
     ],
   );
 

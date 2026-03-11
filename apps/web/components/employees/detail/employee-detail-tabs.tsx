@@ -8,13 +8,13 @@ import type {
   EmployeeCapabilitySnapshot,
   EmployeeCompensationHistoryEntry,
   EmployeeLedgerEntry,
+  EmployeeWithRelations,
   GarmentType,
   OrderItem,
   OrderItemTask,
   SystemSettings,
 } from "@tbms/shared-types";
 import { TaskStatus } from "@tbms/shared-types";
-import type { EmployeeWithRelations } from "@/lib/api/employees";
 import { type ColumnDef } from "@/components/ui/data-table";
 import { useEmployeeCapabilitiesManager } from "@/hooks/use-employee-capabilities-manager";
 import { useEmployeeCompensationManager } from "@/hooks/use-employee-compensation-manager";

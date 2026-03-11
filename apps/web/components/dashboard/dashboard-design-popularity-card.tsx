@@ -5,7 +5,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-track";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { DesignAnalytics } from "@/lib/api/reports";
+import type { DesignAnalytics } from "@tbms/shared-types";
 
 interface DashboardDesignPopularityCardProps {
   loading: boolean;

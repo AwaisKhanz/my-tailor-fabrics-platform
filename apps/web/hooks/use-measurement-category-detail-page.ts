@@ -6,67 +6,79 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
-import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 import {
   getApiErrorMessageOrFallback,
   getApiErrorStatus,
 } from "@/lib/utils/error";
+import {
+  useDeleteMeasurementField,
+  useDeleteMeasurementSection,
+  useMeasurementCategory,
+  useRestoreMeasurementField,
+  useRestoreMeasurementSection,
+  useUpdateMeasurementField,
+} from "@/hooks/queries/config-queries";
 
 export function useMeasurementCategoryDetailPage(id: string) {
   const { toast } = useToast();
 
-  const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState<MeasurementCategory | null>(null);
-  const [notFound, setNotFound] = useState(false);
   const [includeArchived, setIncludeArchived] = useState(false);
+  const categoryQuery = useMeasurementCategory(id, { includeArchived });
+  const updateFieldMutation = useUpdateMeasurementField();
+  const deleteFieldMutation = useDeleteMeasurementField();
+  const deleteSectionMutation = useDeleteMeasurementSection();
+  const restoreFieldMutation = useRestoreMeasurementField();
+  const restoreSectionMutation = useRestoreMeasurementSection();
+
+  const loading = categoryQuery.isLoading;
+  const category: MeasurementCategory | null = categoryQuery.data?.success
+    ? categoryQuery.data.data
+    : null;
+  const queryStatusCode = getApiErrorStatus(categoryQuery.error) ?? 0;
+  const notFound = categoryQuery.isError && queryStatusCode === 404;
 
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
-  const [selectedField, setSelectedField] = useState<MeasurementField | null>(null);
+  const [selectedField, setSelectedField] = useState<MeasurementField | null>(
+    null,
+  );
   const [preferredSectionId, setPreferredSectionId] = useState<string | null>(
     null,
   );
   const [isSectionDialogOpen, setIsSectionDialogOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState<MeasurementSection | null>(
+  const [selectedSection, setSelectedSection] =
+    useState<MeasurementSection | null>(null);
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [fieldToDelete, setFieldToDelete] = useState<MeasurementField | null>(
     null,
   );
 
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [fieldToDelete, setFieldToDelete] = useState<MeasurementField | null>(null);
-
   const fetchCategory = useCallback(async () => {
-    setLoading(true);
     try {
-      const response = await configApi.getMeasurementCategory(id, {
-        includeArchived,
-      });
-      if (response.success) {
-        setCategory(response.data);
-        setNotFound(false);
-      }
+      await categoryQuery.refetch();
     } catch (error) {
       logDevError("Failed to fetch category details:", error);
-      const statusCode = getApiErrorStatus(error) ?? 0;
-      if (statusCode === 404) {
-        setCategory(null);
-        setNotFound(true);
-      } else {
-        setNotFound(false);
-        toast({
-          title: "Error",
-          description: "Failed to load category details",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setLoading(false);
+      toast({
+        title: "Error",
+        description: "Failed to load category details",
+        variant: "destructive",
+      });
     }
-  }, [id, includeArchived, toast]);
+  }, [categoryQuery, toast]);
 
   useEffect(() => {
-    void fetchCategory();
-  }, [fetchCategory]);
+    if (!categoryQuery.isError || notFound) {
+      return;
+    }
+    logDevError("Failed to fetch category details:", categoryQuery.error);
+    toast({
+      title: "Error",
+      description: "Failed to load category details",
+      variant: "destructive",
+    });
+  }, [categoryQuery.error, categoryQuery.isError, notFound, toast]);
 
   const openAddFieldDialog = useCallback((sectionId?: string) => {
     setSelectedField(null);
@@ -121,13 +133,18 @@ export function useMeasurementCategoryDetailPage(id: string) {
     if (!fieldToDelete) {
       return;
     }
+    if (!category) {
+      return;
+    }
 
     try {
-      await configApi.deleteMeasurementField(fieldToDelete.id);
+      await deleteFieldMutation.mutateAsync({
+        fieldId: fieldToDelete.id,
+        categoryId: category.id,
+      });
       toast({ title: "Field archived" });
       setFieldToDelete(null);
       setIsConfirmOpen(false);
-      await fetchCategory();
     } catch {
       toast({
         title: "Error",
@@ -135,19 +152,25 @@ export function useMeasurementCategoryDetailPage(id: string) {
         variant: "destructive",
       });
     }
-  }, [fetchCategory, fieldToDelete, toast]);
+  }, [category, deleteFieldMutation, fieldToDelete, toast]);
 
   const moveFieldToSection = useCallback(
     async (field: MeasurementField, targetSectionId: string) => {
+      if (!category) {
+        return;
+      }
       try {
-        await configApi.updateMeasurementField(field.id, {
-          sectionId: targetSectionId,
+        await updateFieldMutation.mutateAsync({
+          fieldId: field.id,
+          data: {
+            sectionId: targetSectionId,
+          },
+          categoryId: category.id,
         });
         toast({
           title: "Field moved",
           description: `"${field.label}" moved to the selected section.`,
         });
-        await fetchCategory();
       } catch (error) {
         toast({
           title: "Error",
@@ -160,14 +183,21 @@ export function useMeasurementCategoryDetailPage(id: string) {
         throw error;
       }
     },
-    [fetchCategory, toast],
+    [category, toast, updateFieldMutation],
   );
 
   const deleteSection = useCallback(
     async (sectionId: string, targetSectionId?: string) => {
+      if (!category) {
+        return;
+      }
       try {
-        const response = await configApi.deleteMeasurementSection(sectionId, {
-          targetSectionId,
+        const response = await deleteSectionMutation.mutateAsync({
+          sectionId,
+          data: {
+            targetSectionId,
+          },
+          categoryId: category.id,
         });
 
         const movedCount = response.data.movedFieldCount;
@@ -178,8 +208,6 @@ export function useMeasurementCategoryDetailPage(id: string) {
               ? `${movedCount} field${movedCount === 1 ? "" : "s"} moved successfully.`
               : "Section archived successfully.",
         });
-
-        await fetchCategory();
       } catch (error) {
         toast({
           title: "Error",
@@ -192,15 +220,20 @@ export function useMeasurementCategoryDetailPage(id: string) {
         throw error;
       }
     },
-    [fetchCategory, toast],
+    [category, deleteSectionMutation, toast],
   );
 
   const restoreField = useCallback(
     async (fieldId: string) => {
+      if (!category) {
+        return;
+      }
       try {
-        await configApi.restoreMeasurementField(fieldId);
+        await restoreFieldMutation.mutateAsync({
+          fieldId,
+          categoryId: category.id,
+        });
         toast({ title: "Field restored" });
-        await fetchCategory();
       } catch (error) {
         toast({
           title: "Error",
@@ -212,15 +245,20 @@ export function useMeasurementCategoryDetailPage(id: string) {
         });
       }
     },
-    [fetchCategory, toast],
+    [category, restoreFieldMutation, toast],
   );
 
   const restoreSection = useCallback(
     async (sectionId: string) => {
+      if (!category) {
+        return;
+      }
       try {
-        await configApi.restoreMeasurementSection(sectionId);
+        await restoreSectionMutation.mutateAsync({
+          sectionId,
+          categoryId: category.id,
+        });
         toast({ title: "Section restored" });
-        await fetchCategory();
       } catch (error) {
         toast({
           title: "Error",
@@ -232,7 +270,7 @@ export function useMeasurementCategoryDetailPage(id: string) {
         });
       }
     },
-    [fetchCategory, toast],
+    [category, restoreSectionMutation, toast],
   );
 
   return {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { expensesApi, type Expense } from "@/lib/api/expenses";
+import type { Expense } from "@tbms/shared-types";
+import { useDeleteExpense } from "@/hooks/queries/expense-queries";
 import { useToast } from "@/hooks/use-toast";
 
 interface UseDeleteExpenseManagerParams {
@@ -18,6 +19,7 @@ export function useDeleteExpenseManager({
   refreshExpenses,
 }: UseDeleteExpenseManagerParams) {
   const { toast } = useToast();
+  const deleteExpenseMutation = useDeleteExpense();
   const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -48,7 +50,7 @@ export function useDeleteExpenseManager({
 
     setDeletingId(deleteTarget.id);
     try {
-      await expensesApi.deleteExpense(deleteTarget.id);
+      await deleteExpenseMutation.mutateAsync(deleteTarget.id);
       toast({ title: "Expense deleted" });
       setDeleteTarget(null);
 
@@ -66,7 +68,15 @@ export function useDeleteExpenseManager({
     } finally {
       setDeletingId(null);
     }
-  }, [deleteTarget, expensesCount, page, refreshExpenses, setPage, toast]);
+  }, [
+    deleteExpenseMutation,
+    deleteTarget,
+    expensesCount,
+    page,
+    refreshExpenses,
+    setPage,
+    toast,
+  ]);
 
   return {
     deleteTarget,

@@ -6,7 +6,10 @@ import {
   type ExpenseCategoryFormValues,
   type ExpenseCategory,
 } from "@tbms/shared-types";
-import { expensesApi } from "@/lib/api/expenses";
+import {
+  useCreateExpenseCategory,
+  useUpdateExpenseCategory,
+} from "@/hooks/queries/expense-queries";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
@@ -23,14 +26,17 @@ export function useExpenseCategoryDialogManager(params: {
   onSaved: (page: number) => Promise<void>;
 }) {
   const { toast } = useToast();
+  const createExpenseCategoryMutation = useCreateExpenseCategory();
+  const updateExpenseCategoryMutation = useUpdateExpenseCategory();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(
-    null,
-  );
+  const [editingCategory, setEditingCategory] =
+    useState<ExpenseCategory | null>(null);
   const [form, setForm] = useState<CategoryFormState>(DEFAULT_FORM_STATE);
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<CategoryFieldErrors>({});
-  const [saving, setSaving] = useState(false);
+  const saving =
+    createExpenseCategoryMutation.isPending ||
+    updateExpenseCategoryMutation.isPending;
 
   const openCreateDialog = useCallback(() => {
     setEditingCategory(null);
@@ -68,7 +74,10 @@ export function useExpenseCategoryDialogManager(params: {
   );
 
   const updateFormField = useCallback(
-    <K extends keyof CategoryFormState>(field: K, value: CategoryFormState[K]) => {
+    <K extends keyof CategoryFormState>(
+      field: K,
+      value: CategoryFormState[K],
+    ) => {
       setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
       setFormError("");
       setForm((previous) => ({ ...previous, [field]: value }));
@@ -93,19 +102,21 @@ export function useExpenseCategoryDialogManager(params: {
     setFieldErrors({});
     setFormError("");
 
-    setSaving(true);
     try {
       if (editingCategory) {
-        await expensesApi.updateCategory(editingCategory.id, {
-          name: validated.name,
-          isActive: validated.isActive,
+        await updateExpenseCategoryMutation.mutateAsync({
+          id: editingCategory.id,
+          data: {
+            name: validated.name,
+            isActive: validated.isActive,
+          },
         });
         toast({
           title: "Updated",
           description: "Expense category updated.",
         });
       } else {
-        await expensesApi.createCategory({
+        await createExpenseCategoryMutation.mutateAsync({
           name: validated.name,
           isActive: validated.isActive,
         });
@@ -128,10 +139,15 @@ export function useExpenseCategoryDialogManager(params: {
         ),
         variant: "destructive",
       });
-    } finally {
-      setSaving(false);
     }
-  }, [editingCategory, form, params, toast]);
+  }, [
+    createExpenseCategoryMutation,
+    editingCategory,
+    form,
+    params,
+    toast,
+    updateExpenseCategoryMutation,
+  ]);
 
   return {
     dialogOpen,

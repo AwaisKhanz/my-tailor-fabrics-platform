@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogSection } from "@/components/ui/form-layout";
-import { configApi } from "@/lib/api/config";
+import { useGarmentPriceHistory } from "@/hooks/queries/config-queries";
 import { GarmentPriceLog } from "@tbms/shared-types";
 import { format } from "date-fns";
 import {
@@ -40,22 +40,19 @@ export function GarmentPriceHistoryDialog({
   garmentId,
   garmentName,
 }: GarmentPriceHistoryDialogProps) {
-  const [logs, setLogs] = useState<GarmentPriceLog[]>([]);
-  const [loading, setLoading] = useState(true);
+  const garmentPriceHistoryQuery = useGarmentPriceHistory(garmentId || null);
+  const logs: GarmentPriceLog[] = garmentPriceHistoryQuery.data?.success
+    ? garmentPriceHistoryQuery.data.data
+    : [];
+  const loading = garmentPriceHistoryQuery.isLoading;
 
   const fetchHistory = React.useCallback(async () => {
-    setLoading(true);
     try {
-      const res = await configApi.getGarmentPriceHistory(garmentId);
-      if (res.success) {
-        setLogs(res.data);
-      }
+      await garmentPriceHistoryQuery.refetch();
     } catch (error) {
       logDevError("Failed to fetch history:", error);
-    } finally {
-      setLoading(false);
     }
-  }, [garmentId]);
+  }, [garmentPriceHistoryQuery]);
 
   useEffect(() => {
     if (open && garmentId) {

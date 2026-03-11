@@ -27,12 +27,9 @@ export function usePaymentsPage() {
     resetHistoryFilters,
     selectedEmployee,
     selectedEmployeeId,
-    setHistory,
     setHistoryFrom,
     setHistoryPage,
     setHistoryTo,
-    setHistoryTotal,
-    setSummary,
     summary,
     summaryLoading,
     setValues,
@@ -93,20 +90,10 @@ export function usePaymentsPage() {
         from: DEFAULT_PAYMENT_HISTORY_FILTERS.from,
         to: DEFAULT_PAYMENT_HISTORY_FILTERS.to,
       });
-      setSummary(null);
-      setHistory([]);
-      setHistoryTotal(0);
       resetDisbursement();
       resetSalaryAccrualForm(employeeId);
     },
-    [
-      resetDisbursement,
-      resetSalaryAccrualForm,
-      setHistory,
-      setHistoryTotal,
-      setSummary,
-      setValues,
-    ],
+    [resetDisbursement, resetSalaryAccrualForm, setValues],
   );
 
   return {

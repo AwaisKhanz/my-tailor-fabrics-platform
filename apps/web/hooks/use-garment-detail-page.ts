@@ -1,56 +1,61 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type Branch, type CreateRateCardInput, type GarmentTypeWithAnalytics } from "@tbms/shared-types";
-import { branchesApi } from "@/lib/api/branches";
-import { configApi } from "@/lib/api/config";
-import { ratesApi } from "@/lib/api/rates";
+import {
+  type Branch,
+  type CreateRateCardInput,
+  type GarmentTypeWithAnalytics,
+} from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
+import { useBranchesList } from "@/hooks/queries/branch-queries";
+import { useGarmentType } from "@/hooks/queries/config-queries";
+import { useCreateRate } from "@/hooks/queries/rate-queries";
 
 interface UseGarmentDetailPageParams {
   garmentId: string | null;
 }
 
-export function useGarmentDetailPage({ garmentId }: UseGarmentDetailPageParams) {
+export function useGarmentDetailPage({
+  garmentId,
+}: UseGarmentDetailPageParams) {
   const { toast } = useToast();
+  const garmentQuery = useGarmentType(garmentId);
+  const branchesQuery = useBranchesList({ page: 1, limit: 100 });
+  const createRateMutation = useCreateRate();
 
-  const [loading, setLoading] = useState(true);
-  const [garment, setGarment] = useState<GarmentTypeWithAnalytics | null>(null);
-  const [branches, setBranches] = useState<Branch[]>([]);
+  const loading = garmentQuery.isLoading || branchesQuery.isLoading;
+  const garment: GarmentTypeWithAnalytics | null = garmentQuery.data?.success
+    ? garmentQuery.data.data
+    : null;
+  const branches: Branch[] = branchesQuery.data?.success
+    ? branchesQuery.data.data.data
+    : [];
+
   const [createRateDialogOpen, setCreateRateDialogOpen] = useState(false);
 
   const fetchGarment = useCallback(async () => {
     if (!garmentId) {
-      setGarment(null);
       return;
     }
 
-    const response = await configApi.getGarmentType(garmentId);
-    if (response.success) {
-      setGarment(response.data);
+    const response = await garmentQuery.refetch();
+    if (response.data?.success) {
       return;
     }
 
-    setGarment(null);
     throw new Error("Failed to load garment details");
-  }, [garmentId]);
+  }, [garmentId, garmentQuery]);
 
   const fetchBranches = useCallback(async () => {
-    const response = await branchesApi.getBranches({ page: 1, limit: 100 });
-    if (response.success && response.data) {
-      setBranches(response.data.data);
-    }
-  }, []);
+    await branchesQuery.refetch();
+  }, [branchesQuery]);
 
   const fetchGarmentDetailPageData = useCallback(async () => {
     if (!garmentId) {
-      setLoading(false);
-      setGarment(null);
       return;
     }
 
-    setLoading(true);
     try {
       await Promise.all([fetchGarment(), fetchBranches()]);
     } catch (error) {
@@ -60,18 +65,23 @@ export function useGarmentDetailPage({ garmentId }: UseGarmentDetailPageParams) 
         description: "Unable to load garment details right now",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   }, [fetchBranches, fetchGarment, garmentId, toast]);
 
   useEffect(() => {
-    void fetchGarmentDetailPageData();
-  }, [fetchGarmentDetailPageData]);
+    if (!garmentId || !garmentQuery.isError) {
+      return;
+    }
+    toast({
+      title: "Error",
+      description: "Unable to load garment details right now",
+      variant: "destructive",
+    });
+  }, [garmentId, garmentQuery.isError, toast]);
 
   const handleCreateRate = useCallback(
     async (data: CreateRateCardInput) => {
-      const response = await ratesApi.create(data);
+      const response = await createRateMutation.mutateAsync(data);
 
       if (!response.success) {
         throw new Error("Failed to create rate");
@@ -80,7 +90,7 @@ export function useGarmentDetailPage({ garmentId }: UseGarmentDetailPageParams) 
       toast({ title: "Rate updated successfully" });
       await fetchGarment();
     },
-    [fetchGarment, toast],
+    [createRateMutation, fetchGarment, toast],
   );
 
   return {

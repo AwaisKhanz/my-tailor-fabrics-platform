@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
+import { QueryProvider } from "@/components/QueryProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -69,10 +70,12 @@ export default async function RootLayout({
         className={`${inter.variable} ${inter.className} min-h-screen bg-background text-foreground antialiased`}
       >
         <AuthProvider>
-          <ThemeProvider initialTheme={serverTheme ?? undefined}>
-            {children}
-            <Toaster />
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider initialTheme={serverTheme ?? undefined}>
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>

@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Payment, type PaymentSummary } from "@tbms/shared-types";
-import { employeesApi } from "@/lib/api/employees";
-import { paymentsApi } from "@/lib/api/payments";
+import { useCallback, useMemo } from "react";
 import { type Employee } from "@/types/employees";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import type { useToast } from "@/hooks/use-toast";
+import { useEmployeesDropdown } from "@/hooks/queries/employee-queries";
+import {
+  useEmployeePaymentSummary,
+  usePaymentHistory,
+} from "@/hooks/queries/payment-queries";
 
 const PAGE_SIZE = 10;
 
@@ -33,18 +35,10 @@ export function usePaymentsData(toast: ToastFn) {
     },
   });
 
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeesLoading, setEmployeesLoading] = useState(true);
   const selectedEmployeeId = values.employeeId;
 
-  const [summary, setSummary] = useState<PaymentSummary | null>(null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
-
-  const [history, setHistory] = useState<Payment[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
   const historyPage = getPositiveInt("page", 1);
   const historyPageSize = getPositiveInt("limit", PAGE_SIZE);
-  const [historyTotal, setHistoryTotal] = useState(0);
   const historyFilters = useMemo<PaymentHistoryFilters>(
     () => ({
       from: values.from,
@@ -52,160 +46,56 @@ export function usePaymentsData(toast: ToastFn) {
     }),
     [values.from, values.to],
   );
-  const latestSelectedEmployeeIdRef = useRef(selectedEmployeeId);
-  const summaryRequestVersionRef = useRef(0);
-  const historyRequestVersionRef = useRef(0);
+  const employeesQuery = useEmployeesDropdown();
+  const summaryQuery = useEmployeePaymentSummary(selectedEmployeeId || null);
+  const historyQuery = usePaymentHistory(selectedEmployeeId || null, {
+    page: historyPage,
+    limit: historyPageSize,
+    from: historyFilters.from || undefined,
+    to: historyFilters.to || undefined,
+  });
 
-  useEffect(() => {
-    latestSelectedEmployeeIdRef.current = selectedEmployeeId;
-  }, [selectedEmployeeId]);
+  const employees: Employee[] = employeesQuery.data?.success
+    ? employeesQuery.data.data.data
+    : [];
+  const employeesLoading = employeesQuery.isLoading;
 
-  const fetchEmployees = useCallback(async () => {
-    setEmployeesLoading(true);
-    try {
-      const response = await employeesApi.getEmployees({ page: 1, limit: 100 });
-      if (response.success) {
-        setEmployees(response.data.data);
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Could not load employees",
-        variant: "destructive",
-      });
-    } finally {
-      setEmployeesLoading(false);
-    }
-  }, [toast]);
+  const summary = summaryQuery.data?.success ? summaryQuery.data.data : null;
+  const summaryLoading = summaryQuery.isLoading;
+
+  const history = historyQuery.data?.success ? historyQuery.data.data.data : [];
+  const historyLoading = historyQuery.isLoading;
+  const historyTotal = historyQuery.data?.success
+    ? historyQuery.data.data.total
+    : 0;
 
   const fetchSummary = useCallback(
     async (employeeId: string) => {
-      if (!employeeId) {
+      if (!employeeId || employeeId !== selectedEmployeeId) {
         return;
       }
-
-      const requestVersion = summaryRequestVersionRef.current + 1;
-      summaryRequestVersionRef.current = requestVersion;
-      setSummaryLoading(true);
-      try {
-        const response = await paymentsApi.getEmployeeSummary(employeeId);
-        if (
-          summaryRequestVersionRef.current !== requestVersion ||
-          latestSelectedEmployeeIdRef.current !== employeeId
-        ) {
-          return;
-        }
-        setSummary(response.data);
-      } catch {
-        if (
-          summaryRequestVersionRef.current !== requestVersion ||
-          latestSelectedEmployeeIdRef.current !== employeeId
-        ) {
-          return;
-        }
-        toast({
-          title: "Error",
-          description: "Could not load payment summary",
-          variant: "destructive",
-        });
-      } finally {
-        if (
-          summaryRequestVersionRef.current === requestVersion &&
-          latestSelectedEmployeeIdRef.current === employeeId
-        ) {
-          setSummaryLoading(false);
-        }
-      }
+      await summaryQuery.refetch();
     },
-    [toast],
+    [selectedEmployeeId, summaryQuery],
   );
 
-  const fetchHistory = useCallback(
-    async (targetPage = historyPage) => {
-      if (!selectedEmployeeId) {
-        return;
-      }
-
-      const requestVersion = historyRequestVersionRef.current + 1;
-      historyRequestVersionRef.current = requestVersion;
-      const requestEmployeeId = selectedEmployeeId;
-      setHistoryLoading(true);
-      try {
-        const response = await paymentsApi.getPaymentHistory(requestEmployeeId, {
-          page: targetPage,
-          limit: historyPageSize,
-          from: historyFilters.from || undefined,
-          to: historyFilters.to || undefined,
-        });
-
-        if (
-          historyRequestVersionRef.current !== requestVersion ||
-          latestSelectedEmployeeIdRef.current !== requestEmployeeId
-        ) {
-          return;
-        }
-
-        if (response.success) {
-          setHistory(response.data.data);
-          setHistoryTotal(response.data.total);
-        }
-      } catch {
-        if (
-          historyRequestVersionRef.current !== requestVersion ||
-          latestSelectedEmployeeIdRef.current !== requestEmployeeId
-        ) {
-          return;
-        }
-        toast({
-          title: "Error",
-          description: "Could not load payment history",
-          variant: "destructive",
-        });
-      } finally {
-        if (
-          historyRequestVersionRef.current === requestVersion &&
-          latestSelectedEmployeeIdRef.current === requestEmployeeId
-        ) {
-          setHistoryLoading(false);
-        }
-      }
-    },
-    [historyFilters.from, historyFilters.to, historyPage, historyPageSize, selectedEmployeeId, toast],
-  );
-
-  useEffect(() => {
-    void fetchEmployees();
-  }, [fetchEmployees]);
-
-  useEffect(() => {
-    if (!selectedEmployeeId) {
-      return;
-    }
-
-    void fetchSummary(selectedEmployeeId);
-  }, [fetchSummary, selectedEmployeeId]);
-
-  useEffect(() => {
-    if (!selectedEmployeeId) {
-      return;
-    }
-
-    void fetchHistory();
-  }, [fetchHistory, selectedEmployeeId]);
+  const fetchHistory = useCallback(async () => {
+    await historyQuery.refetch();
+  }, [historyQuery]);
 
   const refreshPayments = useCallback(async () => {
     if (!selectedEmployeeId) {
       return;
     }
 
-    await fetchSummary(selectedEmployeeId);
+    await summaryQuery.refetch();
     if (historyPage !== 1) {
       setValues({ page: "1" });
       return;
     }
 
-    await fetchHistory(1);
-  }, [fetchHistory, fetchSummary, historyPage, selectedEmployeeId, setValues]);
+    await historyQuery.refetch();
+  }, [historyPage, historyQuery, selectedEmployeeId, setValues, summaryQuery]);
 
   const setHistoryFrom = useCallback(
     (value: string) => {
@@ -243,7 +133,8 @@ export function usePaymentsData(toast: ToastFn) {
   );
 
   const selectedEmployee = useMemo(
-    () => employees.find((employee) => employee.id === selectedEmployeeId) ?? null,
+    () =>
+      employees.find((employee) => employee.id === selectedEmployeeId) ?? null,
     [employees, selectedEmployeeId],
   );
 
@@ -280,9 +171,6 @@ export function usePaymentsData(toast: ToastFn) {
     setHistoryFrom,
     setHistoryPage,
     setHistoryTo,
-    setHistoryTotal,
-    setHistory,
-    setSummary,
     summary,
     summaryLoading,
     setValues,

@@ -1,4 +1,4 @@
-import { type ExpenseCategory } from "@/lib/api/expenses";
+import { type ExpenseCategory } from "@tbms/shared-types";
 import { ReceiptText } from "lucide-react";
 import {
   Dialog,

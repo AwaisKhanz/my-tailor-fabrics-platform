@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Calendar, Tag, Trash2 } from "lucide-react";
-import { type Expense } from "@/lib/api/expenses";
+import { type Expense } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
@@ -36,7 +36,9 @@ export function ExpensesTable({
         cell: (expense) => (
           <div className="flex items-center gap-2">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-sm font-medium">{formatDate(expense.expenseDate)}</span>
+            <span className="text-sm font-medium">
+              {formatDate(expense.expenseDate)}
+            </span>
           </div>
         ),
       },
@@ -63,13 +65,15 @@ export function ExpensesTable({
         header: "Amount",
         align: "right",
         cell: (expense) => (
-          <span className="font-bold text-destructive">{formatPKR(expense.amount)}</span>
+          <span className="font-bold text-destructive">
+            {formatPKR(expense.amount)}
+          </span>
         ),
       },
       {
         header: "Actions",
         align: "right",
-        cell: (expense) => (
+        cell: (expense) =>
           canManageExpenses ? (
             <Button
               variant="outline"
@@ -79,8 +83,7 @@ export function ExpensesTable({
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-          ) : null
-        ),
+          ) : null,
       },
     ],
     [canManageExpenses, deletingId, onDeleteExpense],

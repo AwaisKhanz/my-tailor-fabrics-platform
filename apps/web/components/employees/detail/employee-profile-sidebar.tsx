@@ -1,5 +1,5 @@
 import { BriefcaseBusiness, MapPin, Phone, UserSquare2 } from "lucide-react";
-import type { EmployeeWithRelations } from "@/lib/api/employees";
+import type { EmployeeWithRelations } from "@tbms/shared-types";
 import {
   EMPLOYEE_STATUS_BADGE,
   EMPLOYEE_STATUS_LABELS,

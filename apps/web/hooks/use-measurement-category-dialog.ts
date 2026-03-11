@@ -8,9 +8,15 @@ import {
   type UpdateMeasurementCategoryInput,
 } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
-import { configApi } from "@/lib/api/config";
+import {
+  useCreateMeasurementCategory,
+  useUpdateMeasurementCategory,
+} from "@/hooks/queries/config-queries";
 import { typedZodResolver } from "@/lib/utils/form";
-import { measurementCategorySchema, type MeasurementCategoryFormValues } from "@/types/config";
+import {
+  measurementCategorySchema,
+  type MeasurementCategoryFormValues,
+} from "@/types/config";
 
 const EMPTY_VALUES: MeasurementCategoryFormValues = {
   name: "",
@@ -33,7 +39,11 @@ export function useMeasurementCategoryDialog({
   onSuccess,
 }: UseMeasurementCategoryDialogParams) {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const createMeasurementCategoryMutation = useCreateMeasurementCategory();
+  const updateMeasurementCategoryMutation = useUpdateMeasurementCategory();
+  const loading =
+    createMeasurementCategoryMutation.isPending ||
+    updateMeasurementCategoryMutation.isPending;
 
   const form = useForm<MeasurementCategoryFormValues>({
     resolver: typedZodResolver(measurementCategorySchema),
@@ -59,7 +69,6 @@ export function useMeasurementCategoryDialog({
 
   const submitCategory = useCallback(
     async (values: MeasurementCategoryFormValues) => {
-      setLoading(true);
       try {
         if (initialData) {
           const payload: UpdateMeasurementCategoryInput = {
@@ -67,14 +76,17 @@ export function useMeasurementCategoryDialog({
             isActive: values.isActive,
             sortOrder: values.sortOrder,
           };
-          await configApi.updateMeasurementCategory(initialData.id, payload);
+          await updateMeasurementCategoryMutation.mutateAsync({
+            id: initialData.id,
+            data: payload,
+          });
         } else {
           const payload: CreateMeasurementCategoryInput = {
             name: values.name,
             isActive: values.isActive,
             sortOrder: values.sortOrder,
           };
-          await configApi.createMeasurementCategory(payload);
+          await createMeasurementCategoryMutation.mutateAsync(payload);
         }
 
         toast({ title: "Category saved successfully" });
@@ -86,11 +98,16 @@ export function useMeasurementCategoryDialog({
           description: "Failed to save category. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setLoading(false);
       }
     },
-    [initialData, onOpenChange, onSuccess, toast],
+    [
+      createMeasurementCategoryMutation,
+      initialData,
+      onOpenChange,
+      onSuccess,
+      toast,
+      updateMeasurementCategoryMutation,
+    ],
   );
 
   return {

@@ -2,7 +2,11 @@
 
 import { useCallback, useMemo, useState } from "react";
 import type { useToast } from "@/hooks/use-toast";
-import { ledgerApi } from "@/lib/api/ledger";
+import {
+  useCreateLedgerEntry,
+  useLedgerStatement,
+  useReverseLedgerEntry,
+} from "@/hooks/queries/ledger-queries";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import {
   employeeLedgerEntryFormSchema,
@@ -42,15 +46,27 @@ export function useEmployeeLedgerManager({
       limit: "20",
     },
   });
-
-  const [ledgerEntries, setLedgerEntries] = useState<EmployeeLedgerEntry[]>([]);
-  const [ledgerLoading, setLedgerLoading] = useState(false);
+  const createLedgerEntryMutation = useCreateLedgerEntry();
+  const reverseLedgerEntryMutation = useReverseLedgerEntry();
   const ledgerFrom = values.from;
   const ledgerTo = values.to;
   const ledgerType = values.type || EMPLOYEE_LEDGER_ALL_TYPES_FILTER;
   const ledgerPage = getPositiveInt("page", 1);
   const ledgerLimit = getPositiveInt("limit", 20);
-  const [ledgerTotal, setLedgerTotal] = useState(0);
+  const ledgerQuery = useLedgerStatement(employeeId, {
+    from: ledgerFrom || undefined,
+    to: ledgerTo || undefined,
+    type: parseLedgerEntryType(ledgerType),
+    page: ledgerPage,
+    limit: ledgerLimit,
+  });
+  const ledgerEntries: EmployeeLedgerEntry[] = ledgerQuery.data?.success
+    ? ledgerQuery.data.data.entries
+    : [];
+  const ledgerLoading = ledgerQuery.isLoading || ledgerQuery.isFetching;
+  const ledgerTotal = ledgerQuery.data?.success
+    ? ledgerQuery.data.data.meta.total
+    : 0;
 
   const ledgerTypeFilterOptions = useMemo(
     () => [
@@ -74,11 +90,12 @@ export function useEmployeeLedgerManager({
     amount?: string;
     note?: string;
   }>({});
-  const [ledgerEntryValidationError, setLedgerEntryValidationError] = useState("");
-  const [submittingLedgerEntry, setSubmittingLedgerEntry] = useState(false);
-  const [ledgerEntryToReverseId, setLedgerEntryToReverseId] = useState<string | null>(
-    null,
-  );
+  const [ledgerEntryValidationError, setLedgerEntryValidationError] =
+    useState("");
+  const submittingLedgerEntry = createLedgerEntryMutation.isPending;
+  const [ledgerEntryToReverseId, setLedgerEntryToReverseId] = useState<
+    string | null
+  >(null);
 
   const fetchLedger = useCallback(
     async (page = ledgerPage) => {
@@ -86,43 +103,22 @@ export function useEmployeeLedgerManager({
         return;
       }
 
-      setLedgerLoading(true);
       try {
-        const response = await ledgerApi.getStatement(employeeId, {
-          from: ledgerFrom || undefined,
-          to: ledgerTo || undefined,
-          type: parseLedgerEntryType(ledgerType),
-          page,
-          limit: ledgerLimit,
-        });
-
-        if (response.success) {
-          setLedgerEntries(response.data.entries);
-          setLedgerTotal(response.data.meta.total);
-          if (page !== ledgerPage) {
-            setValues({ page: String(page) });
-          }
+        if (page !== ledgerPage) {
+          setValues({ page: String(page) });
+          return;
         }
+
+        await ledgerQuery.refetch();
       } catch {
         toast({
           title: "Error",
           description: "Failed to load ledger",
           variant: "destructive",
         });
-      } finally {
-        setLedgerLoading(false);
       }
     },
-    [
-      employeeId,
-      ledgerFrom,
-      ledgerLimit,
-      ledgerPage,
-      ledgerTo,
-      ledgerType,
-      setValues,
-      toast,
-    ],
+    [employeeId, ledgerQuery, ledgerPage, setValues, toast],
   );
 
   const setLedgerFrom = useCallback(
@@ -184,7 +180,6 @@ export function useEmployeeLedgerManager({
 
     setLedgerEntryFieldErrors({});
     setLedgerEntryValidationError("");
-    setSubmittingLedgerEntry(true);
 
     try {
       const isNegativeType = [
@@ -197,7 +192,7 @@ export function useEmployeeLedgerManager({
         ? -Math.abs(parsedResult.data.amount)
         : Math.abs(parsedResult.data.amount);
 
-      const response = await ledgerApi.createEntry({
+      const response = await createLedgerEntryMutation.mutateAsync({
         employeeId,
         type: newEntryType,
         amount: finalAmount,
@@ -220,10 +215,9 @@ export function useEmployeeLedgerManager({
         description: "Failed to create ledger entry",
         variant: "destructive",
       });
-    } finally {
-      setSubmittingLedgerEntry(false);
     }
   }, [
+    createLedgerEntryMutation,
     employeeId,
     fetchEmployeeData,
     fetchLedger,
@@ -235,8 +229,15 @@ export function useEmployeeLedgerManager({
 
   const reverseLedgerEntry = useCallback(
     async (entryId: string) => {
+      if (!employeeId) {
+        return;
+      }
+
       try {
-        const response = await ledgerApi.reverseEntry(entryId);
+        const response = await reverseLedgerEntryMutation.mutateAsync({
+          id: entryId,
+          employeeId,
+        });
         if (response.success) {
           toast({ title: "Entry Reversed" });
           await Promise.all([fetchLedger(ledgerPage), fetchEmployeeData()]);
@@ -249,7 +250,14 @@ export function useEmployeeLedgerManager({
         });
       }
     },
-    [fetchEmployeeData, fetchLedger, ledgerPage, toast],
+    [
+      employeeId,
+      fetchEmployeeData,
+      fetchLedger,
+      ledgerPage,
+      reverseLedgerEntryMutation,
+      toast,
+    ],
   );
 
   const requestLedgerEntryReverse = useCallback((entryId: string) => {
@@ -289,19 +297,28 @@ export function useEmployeeLedgerManager({
     setLedgerDialogOpen,
     newEntryType,
     setNewEntryType: (value: LedgerEntryType) => {
-      setLedgerEntryFieldErrors((previous) => ({ ...previous, type: undefined }));
+      setLedgerEntryFieldErrors((previous) => ({
+        ...previous,
+        type: undefined,
+      }));
       setLedgerEntryValidationError("");
       setNewEntryTypeState(value);
     },
     newEntryAmount,
     setNewEntryAmount: (value: string) => {
-      setLedgerEntryFieldErrors((previous) => ({ ...previous, amount: undefined }));
+      setLedgerEntryFieldErrors((previous) => ({
+        ...previous,
+        amount: undefined,
+      }));
       setLedgerEntryValidationError("");
       setNewEntryAmountState(value);
     },
     newEntryNote,
     setNewEntryNote: (value: string) => {
-      setLedgerEntryFieldErrors((previous) => ({ ...previous, note: undefined }));
+      setLedgerEntryFieldErrors((previous) => ({
+        ...previous,
+        note: undefined,
+      }));
       setLedgerEntryValidationError("");
       setNewEntryNoteState(value);
     },

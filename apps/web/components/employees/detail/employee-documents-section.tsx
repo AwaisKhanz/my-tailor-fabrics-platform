@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, FileText, Plus } from "lucide-react";
-import type { EmployeeWithRelations } from "@/lib/api/employees";
+import type { EmployeeWithRelations } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InfoTile } from "@/components/ui/info-tile";
@@ -81,7 +81,9 @@ export function EmployeeDocumentsSection({
             className="col-span-1 flex flex-col items-center justify-center py-14 text-muted-foreground sm:col-span-2"
           >
             <FileText className="mb-3 h-12 w-12 opacity-20" />
-            <p className="text-sm font-medium">No documentation uploaded yet.</p>
+            <p className="text-sm font-medium">
+              No documentation uploaded yet.
+            </p>
           </InfoTile>
         ) : null}
       </div>

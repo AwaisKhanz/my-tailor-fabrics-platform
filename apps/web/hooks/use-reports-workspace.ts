@@ -1,15 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type {
-  FinancialTrend,
-  ProductivityPoint,
-  ReportDistributions,
-  ReportSummary,
-  TrendGranularity,
-} from "@tbms/shared-types";
-import { reportsApi } from "@/lib/api/reports";
-import { paymentsApi } from "@/lib/api/payments";
+import { useCallback, useMemo, useState } from "react";
+import type { TrendGranularity } from "@tbms/shared-types";
 import {
   type DateRangeValue,
   getDefaultReportRange,
@@ -20,11 +12,23 @@ import {
   sanitizeRange,
 } from "@/lib/reports-date";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useExportReport,
+  useFinancialTrend,
+  useReportsDistributions,
+  useReportsProductivityRange,
+  useReportsSummary,
+} from "@/hooks/queries/report-queries";
+import { useWeeklyReportPdf } from "@/hooks/queries/payment-queries";
 
 type ReportFormat = "pdf" | "excel";
 
 export type ReportExportType = "orders" | "payments" | "expenses";
-export type ReportsWorkspaceTab = "overview" | "financial" | "operations" | "exports";
+export type ReportsWorkspaceTab =
+  | "overview"
+  | "financial"
+  | "operations"
+  | "exports";
 
 function triggerDownload(blob: Blob, fileName: string) {
   const url = window.URL.createObjectURL(blob);
@@ -39,6 +43,8 @@ function triggerDownload(blob: Blob, fileName: string) {
 
 export function useReportsWorkspace() {
   const { toast } = useToast();
+  const exportReportMutation = useExportReport();
+  const weeklyReportPdfMutation = useWeeklyReportPdf();
 
   const defaultRange = useMemo(() => getDefaultReportRange(), []);
   const [activeTab, setActiveTab] = useState<ReportsWorkspaceTab>("overview");
@@ -49,56 +55,56 @@ export function useReportsWorkspace() {
     resolveGranularityByRange(defaultRange),
   );
 
-  const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<ReportSummary | null>(null);
-  const [financialTrend, setFinancialTrend] = useState<FinancialTrend | null>(null);
-  const [distributions, setDistributions] = useState<ReportDistributions | null>(null);
-  const [productivity, setProductivity] = useState<ProductivityPoint[]>([]);
+  const summaryQuery = useReportsSummary(dateRange.from, dateRange.to);
+  const trendQuery = useFinancialTrend(
+    dateRange.from,
+    dateRange.to,
+    granularity,
+  );
+  const distributionsQuery = useReportsDistributions(
+    dateRange.from,
+    dateRange.to,
+  );
+  const productivityQuery = useReportsProductivityRange(
+    dateRange.from,
+    dateRange.to,
+    10,
+  );
+
+  const loading =
+    summaryQuery.isLoading ||
+    trendQuery.isLoading ||
+    distributionsQuery.isLoading ||
+    productivityQuery.isLoading;
+
+  const summary = summaryQuery.data?.success ? summaryQuery.data.data : null;
+  const financialTrend = trendQuery.data?.success ? trendQuery.data.data : null;
+  const distributions = distributionsQuery.data?.success
+    ? distributionsQuery.data.data
+    : null;
+  const productivity = productivityQuery.data?.success
+    ? productivityQuery.data.data
+    : [];
 
   const [exportingKey, setExportingKey] = useState<string | null>(null);
-  const [printingWeekly, setPrintingWeekly] = useState(false);
+  const printingWeekly = weeklyReportPdfMutation.isPending;
 
   const refreshAnalytics = useCallback(async () => {
-    setLoading(true);
-
     try {
-      const [summaryResponse, trendResponse, distributionsResponse, productivityResponse] =
-        await Promise.all([
-          reportsApi.getSummary(dateRange.from, dateRange.to),
-          reportsApi.getFinancialTrend(dateRange.from, dateRange.to, granularity),
-          reportsApi.getDistributions(dateRange.from, dateRange.to),
-          reportsApi.getProductivityRange(dateRange.from, dateRange.to, 10),
-        ]);
-
-      if (summaryResponse.success) {
-        setSummary(summaryResponse.data);
-      }
-
-      if (trendResponse.success) {
-        setFinancialTrend(trendResponse.data);
-      }
-
-      if (distributionsResponse.success) {
-        setDistributions(distributionsResponse.data);
-      }
-
-      if (productivityResponse.success) {
-        setProductivity(productivityResponse.data);
-      }
+      await Promise.all([
+        summaryQuery.refetch(),
+        trendQuery.refetch(),
+        distributionsQuery.refetch(),
+        productivityQuery.refetch(),
+      ]);
     } catch {
       toast({
         title: "Error",
         description: "Failed to load report analytics",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [dateRange.from, dateRange.to, granularity, toast]);
-
-  useEffect(() => {
-    void refreshAnalytics();
-  }, [refreshAnalytics]);
+  }, [distributionsQuery, productivityQuery, summaryQuery, toast, trendQuery]);
 
   const applyPreset = useCallback((nextPreset: ReportDatePreset) => {
     setPreset(nextPreset);
@@ -135,12 +141,12 @@ export function useReportsWorkspace() {
       try {
         toast({ title: `Generating ${type} ${format.toUpperCase()}...` });
 
-        const blob = await reportsApi.exportReport(
+        const blob = await exportReportMutation.mutateAsync({
           type,
           format,
-          dateRange.from,
-          dateRange.to,
-        );
+          from: dateRange.from,
+          to: dateRange.to,
+        });
 
         triggerDownload(
           blob,
@@ -156,15 +162,13 @@ export function useReportsWorkspace() {
         setExportingKey(null);
       }
     },
-    [dateRange.from, dateRange.to, toast],
+    [dateRange.from, dateRange.to, exportReportMutation, toast],
   );
 
   const printWeeklySummary = useCallback(async () => {
-    setPrintingWeekly(true);
-
     try {
       toast({ title: "Generating Print View..." });
-      const blob = await paymentsApi.getWeeklyReportPdf();
+      const blob = await weeklyReportPdfMutation.mutateAsync();
       triggerDownload(blob, "weekly_production_summary.pdf");
     } catch {
       toast({
@@ -172,10 +176,8 @@ export function useReportsWorkspace() {
         description: "Failed to generate the print view.",
         variant: "destructive",
       });
-    } finally {
-      setPrintingWeekly(false);
     }
-  }, [toast]);
+  }, [toast, weeklyReportPdfMutation]);
 
   return {
     activeTab,

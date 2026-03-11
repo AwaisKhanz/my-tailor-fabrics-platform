@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { Eye, History, Pencil, Printer } from "lucide-react";
 import { Order, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
-import { ordersApi } from "@/lib/api/orders";
+import { useOrderReceiptPdf } from "@/hooks/queries/order-queries";
 import { formatPKR } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -55,22 +55,26 @@ export function OrdersListTable({
   canEditOrder = true,
   canPrintReceipt = true,
 }: OrdersListTableProps) {
-  const handlePrintReceipt = useCallback(async (orderId: string) => {
-    try {
-      const receiptBlob = await ordersApi.getReceiptPdf(orderId);
-      const receiptUrl = window.URL.createObjectURL(receiptBlob);
-      window.open(receiptUrl, "_blank", "noopener,noreferrer");
-      window.setTimeout(() => {
-        window.URL.revokeObjectURL(receiptUrl);
-      }, 60_000);
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to generate receipt",
-        variant: "destructive",
-      });
-    }
-  }, []);
+  const orderReceiptPdfMutation = useOrderReceiptPdf();
+  const handlePrintReceipt = useCallback(
+    async (orderId: string) => {
+      try {
+        const receiptBlob = await orderReceiptPdfMutation.mutateAsync(orderId);
+        const receiptUrl = window.URL.createObjectURL(receiptBlob);
+        window.open(receiptUrl, "_blank", "noopener,noreferrer");
+        window.setTimeout(() => {
+          window.URL.revokeObjectURL(receiptUrl);
+        }, 60_000);
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to generate receipt",
+          variant: "destructive",
+        });
+      }
+    },
+    [orderReceiptPdfMutation],
+  );
 
   const columns = useMemo<ColumnDef<Order>[]>(
     () => [

@@ -1,21 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { isRole, ROLES } from "@tbms/shared-constants";
-import {
-  Role,
-  type UserAccount,
-  type UserStatsSummary,
-} from "@tbms/shared-types";
-import { type Branch, branchesApi } from "@/lib/api/branches";
-import { usersApi } from "@/lib/api/users";
+import { Role, type UserAccount } from "@tbms/shared-types";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
-import {
-  USERS_MASTER_ACCESS_LABEL,
-  useUserAccountManager,
-} from "@/hooks/use-user-account-manager";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useUserAccountManager } from "@/hooks/use-user-account-manager";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import { useBranchesList } from "@/hooks/queries/branch-queries";
+import {
+  useRemoveUser,
+  useSetUserActive,
+  useUsersList,
+  useUsersStats,
+} from "@/hooks/queries/user-queries";
 
 const PAGE_SIZE = 10;
 
@@ -53,17 +52,8 @@ export function useUsersPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<UserAccount[]>([]);
-  const [total, setTotal] = useState(0);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [stats, setStats] = useState<UserStatsSummary>({
-    total: 0,
-    active: 0,
-    privileged: 0,
-  });
-
   const search = values.search;
+  const debouncedSearch = useDebounce(search, 300);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const roleFilter = parseUserRoleFilter(values.role);
@@ -71,34 +61,41 @@ export function useUsersPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserAccount | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const usersQuery = {
-        page,
-        limit: pageSize,
-        search: search.trim() || undefined,
-        role: roleFilter === USERS_ALL_ROLES_FILTER_VALUE ? undefined : roleFilter,
+  const usersQuery = useUsersList({
+    page,
+    limit: pageSize,
+    search: debouncedSearch.trim() || undefined,
+    role: roleFilter === USERS_ALL_ROLES_FILTER_VALUE ? undefined : roleFilter,
+  });
+  const branchesQuery = useBranchesList({ page: 1, limit: 100 });
+  const statsQuery = useUsersStats();
+  const removeUserMutation = useRemoveUser();
+  const setUserActiveMutation = useSetUserActive();
+
+  const loading =
+    usersQuery.isLoading || branchesQuery.isLoading || statsQuery.isLoading;
+  const users: UserAccount[] = usersQuery.data?.success
+    ? usersQuery.data.data.data
+    : [];
+  const total = usersQuery.data?.success ? usersQuery.data.data.total : 0;
+  const branches = branchesQuery.data?.success
+    ? branchesQuery.data.data.data
+    : [];
+  const stats = statsQuery.data?.success
+    ? statsQuery.data.data
+    : {
+        total: 0,
+        active: 0,
+        privileged: 0,
       };
 
-      const [usersResponse, branchesResponse, statsResponse] = await Promise.all([
-        usersApi.getUsers(usersQuery),
-        branchesApi.getBranches(),
-        usersApi.getStats(),
+  const fetchData = useCallback(async () => {
+    try {
+      await Promise.all([
+        usersQuery.refetch(),
+        branchesQuery.refetch(),
+        statsQuery.refetch(),
       ]);
-
-      if (usersResponse.success) {
-        setUsers(usersResponse.data.data);
-        setTotal(usersResponse.data.total);
-      }
-
-      if (branchesResponse.success) {
-        setBranches(branchesResponse.data.data);
-      }
-
-      if (statsResponse.success) {
-        setStats(statsResponse.data);
-      }
     } catch (error) {
       logDevError("Failed to load user management data:", error);
       toast({
@@ -106,45 +103,46 @@ export function useUsersPage() {
         description: "Failed to load users",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [page, pageSize, roleFilter, search, toast]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void fetchData();
-    }, 300);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [fetchData]);
+  }, [branchesQuery, statsQuery, toast, usersQuery]);
 
   const hasActiveFilters = useMemo(
-    () => search.trim().length > 0 || roleFilter !== USERS_ALL_ROLES_FILTER_VALUE,
+    () =>
+      search.trim().length > 0 || roleFilter !== USERS_ALL_ROLES_FILTER_VALUE,
     [roleFilter, search],
   );
 
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
-
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
-
-  const setRoleFilterValue = useCallback((value: string) => {
-    if (value === USERS_ALL_ROLES_FILTER_VALUE || ROLES.some((role) => role.value === value)) {
+  const setSearchFilter = useCallback(
+    (value: string) => {
       setValues({
-        role: value,
+        search: value,
         page: "1",
       });
-    }
-  }, [setValues]);
+    },
+    [setValues],
+  );
+
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
+
+  const setRoleFilterValue = useCallback(
+    (value: string) => {
+      if (
+        value === USERS_ALL_ROLES_FILTER_VALUE ||
+        ROLES.some((role) => role.value === value)
+      ) {
+        setValues({
+          role: value,
+          page: "1",
+        });
+      }
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();
@@ -179,14 +177,13 @@ export function useUsersPage() {
     }
 
     try {
-      await usersApi.removeUser(userToDelete.id);
+      await removeUserMutation.mutateAsync(userToDelete.id);
       toast({
         title: "Success",
         description: "User account deleted",
       });
       setUserToDelete(null);
       setIsConfirmOpen(false);
-      await fetchData();
     } catch {
       toast({
         title: "Error",
@@ -194,13 +191,12 @@ export function useUsersPage() {
         variant: "destructive",
       });
     }
-  }, [fetchData, toast, userToDelete]);
+  }, [removeUserMutation, toast, userToDelete]);
 
   const toggleUserActive = useCallback(
     async (user: UserAccount, isActive: boolean) => {
       try {
-        await usersApi.setActive(user.id, isActive);
-        await fetchData();
+        await setUserActiveMutation.mutateAsync({ id: user.id, isActive });
       } catch {
         toast({
           title: "Error",
@@ -209,7 +205,7 @@ export function useUsersPage() {
         });
       }
     },
-    [fetchData, toast],
+    [setUserActiveMutation, toast],
   );
 
   return {

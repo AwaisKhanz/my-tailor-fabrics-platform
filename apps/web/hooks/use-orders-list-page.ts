@@ -1,11 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
-import { ordersApi } from "@/lib/api/orders";
-import { useToast } from "@/hooks/use-toast";
-import { Order, OrdersListSummary, OrderStatus } from "@tbms/shared-types";
+import { OrderStatus } from "@tbms/shared-types";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import { useOrdersList, useOrdersSummary } from "@/hooks/queries/order-queries";
 
 const PAGE_SIZE = 10;
 
@@ -42,19 +41,23 @@ export const ORDER_DATE_RANGE_VALUES: readonly OrdersDateRange[] = [
   "all",
 ];
 
-export const ORDER_DATE_RANGE_OPTIONS = ORDER_DATE_RANGE_VALUES.map((value) => ({
-  value,
-  label:
-    value === "7"
-      ? "Last 7 Days"
-      : value === "30"
-        ? "Last 30 Days"
-        : value === "90"
-          ? "Last 3 Months"
-          : "All Time",
-}));
+export const ORDER_DATE_RANGE_OPTIONS = ORDER_DATE_RANGE_VALUES.map(
+  (value) => ({
+    value,
+    label:
+      value === "7"
+        ? "Last 7 Days"
+        : value === "30"
+          ? "Last 30 Days"
+          : value === "90"
+            ? "Last 3 Months"
+            : "All Time",
+  }),
+);
 
-export function isOrdersStatusFilter(value: string): value is OrdersStatusFilter {
+export function isOrdersStatusFilter(
+  value: string,
+): value is OrdersStatusFilter {
   return ORDER_STATUS_FILTER_VALUES.some((status) => status === value);
 }
 
@@ -87,7 +90,6 @@ function getFromIsoByRange(range: OrdersDateRange): string | undefined {
 }
 
 export function useOrdersListPage() {
-  const { toast } = useToast();
   const { values, setValues, resetValues, getPositiveInt } = useUrlTableState({
     defaults: {
       page: "1",
@@ -98,93 +100,81 @@ export function useOrdersListPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [total, setTotal] = useState(0);
-  const [summary, setSummary] = useState<OrdersListSummary>({
-    totalValue: 0,
-    dueSoonCount: 0,
-    overdueCount: 0,
-    completedCount: 0,
-  });
-
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
   const statusFilter = parseOrdersStatusFilter(values.status);
   const dateRange = parseOrdersDateRange(values.range);
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    try {
-      const baseFilters = {
-        status: statusFilter === "ALL" ? undefined : statusFilter,
-        search: search.trim() || undefined,
-        from: getFromIsoByRange(dateRange),
+  const baseFilters = useMemo(
+    () => ({
+      status: statusFilter === "ALL" ? undefined : statusFilter,
+      search: search.trim() || undefined,
+      from: getFromIsoByRange(dateRange),
+    }),
+    [dateRange, search, statusFilter],
+  );
+
+  const ordersQuery = useOrdersList({
+    ...baseFilters,
+    page,
+    limit: pageSize,
+  });
+
+  const summaryQuery = useOrdersSummary(baseFilters);
+
+  const loading = ordersQuery.isLoading || summaryQuery.isLoading;
+  const orders = ordersQuery.data?.success ? ordersQuery.data.data.data : [];
+  const total = ordersQuery.data?.success ? ordersQuery.data.data.total : 0;
+  const summary = summaryQuery.data?.success
+    ? summaryQuery.data.data
+    : {
+        totalValue: 0,
+        dueSoonCount: 0,
+        overdueCount: 0,
+        completedCount: 0,
       };
 
-      const [listResponse, summaryResponse] = await Promise.all([
-        ordersApi.getOrders({
-          ...baseFilters,
-          page,
-          limit: pageSize,
-        }),
-        ordersApi.getOrdersSummary(baseFilters),
-      ]);
-
-      if (listResponse.success) {
-        setOrders(listResponse.data.data);
-        setTotal(listResponse.data.total);
-      }
-      if (summaryResponse.success) {
-        setSummary(summaryResponse.data);
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to fetch orders",
-        variant: "destructive",
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
       });
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange, page, pageSize, search, statusFilter, toast]);
+    },
+    [setValues],
+  );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void fetchOrders();
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [fetchOrders]);
+  const setStatus = useCallback(
+    (value: OrdersStatusFilter) => {
+      setValues({
+        status: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
-
-  const setStatus = useCallback((value: OrdersStatusFilter) => {
-    setValues({
-      status: value,
-      page: "1",
-    });
-  }, [setValues]);
-
-  const setDate = useCallback((value: OrdersDateRange) => {
-    setValues({
-      range: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setDate = useCallback(
+    (value: OrdersDateRange) => {
+      setValues({
+        range: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();
   }, [resetValues]);
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const activeFilterCount = useMemo(() => {
     let count = 0;

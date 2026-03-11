@@ -8,7 +8,7 @@ import {
   type WorkflowStepTemplateInput,
 } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
-import { configApi } from "@/lib/api/config";
+import { useUpdateGarmentWorkflowSteps } from "@/hooks/queries/config-queries";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 
 export interface WorkflowStepDraft extends WorkflowStepTemplateInput {
@@ -48,11 +48,12 @@ export function useGarmentWorkflowStepEditor({
   onOpenChange,
   onSuccess,
 }: UseGarmentWorkflowStepEditorParams) {
+  const updateGarmentWorkflowStepsMutation = useUpdateGarmentWorkflowSteps();
   const [steps, setSteps] = useState<WorkflowStepDraft[]>([]);
   const [draggingStepId, setDraggingStepId] = useState<string | null>(null);
   const [dragOverStepId, setDragOverStepId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const loading = updateGarmentWorkflowStepsMutation.isPending;
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,8 +87,12 @@ export function useGarmentWorkflowStepEditor({
     }
 
     setSteps((current) => {
-      const sourceIndex = current.findIndex((step) => step.clientId === sourceId);
-      const targetIndex = current.findIndex((step) => step.clientId === targetId);
+      const sourceIndex = current.findIndex(
+        (step) => step.clientId === sourceId,
+      );
+      const targetIndex = current.findIndex(
+        (step) => step.clientId === targetId,
+      );
 
       if (sourceIndex < 0 || targetIndex < 0) {
         return current;
@@ -101,20 +106,23 @@ export function useGarmentWorkflowStepEditor({
     });
   }, []);
 
-  const moveStepByIndex = useCallback((index: number, direction: "up" | "down") => {
-    setSteps((current) => {
-      const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= current.length) {
-        return current;
-      }
+  const moveStepByIndex = useCallback(
+    (index: number, direction: "up" | "down") => {
+      setSteps((current) => {
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= current.length) {
+          return current;
+        }
 
-      const reordered = [...current];
-      const [movedStep] = reordered.splice(index, 1);
-      reordered.splice(targetIndex, 0, movedStep);
+        const reordered = [...current];
+        const [movedStep] = reordered.splice(index, 1);
+        reordered.splice(targetIndex, 0, movedStep);
 
-      return normalizeStepOrder(reordered);
-    });
-  }, []);
+        return normalizeStepOrder(reordered);
+      });
+    },
+    [],
+  );
 
   const handleAddStep = useCallback(() => {
     setValidationError(null);
@@ -136,7 +144,9 @@ export function useGarmentWorkflowStepEditor({
   const handleRemoveStep = useCallback((index: number) => {
     setValidationError(null);
     setSteps((current) =>
-      normalizeStepOrder(current.filter((_, currentIndex) => currentIndex !== index)),
+      normalizeStepOrder(
+        current.filter((_, currentIndex) => currentIndex !== index),
+      ),
     );
   }, []);
 
@@ -199,7 +209,8 @@ export function useGarmentWorkflowStepEditor({
     (event: DragEvent<HTMLDivElement>, targetId: string) => {
       event.preventDefault();
 
-      const sourceId = event.dataTransfer.getData("text/plain") || draggingStepId;
+      const sourceId =
+        event.dataTransfer.getData("text/plain") || draggingStepId;
       if (!sourceId) {
         setDraggingStepId(null);
         setDragOverStepId(null);
@@ -238,8 +249,10 @@ export function useGarmentWorkflowStepEditor({
     setValidationError(null);
 
     try {
-      setLoading(true);
-      await configApi.updateGarmentWorkflowSteps(garmentId, parsedResult.data.steps);
+      await updateGarmentWorkflowStepsMutation.mutateAsync({
+        id: garmentId,
+        steps: parsedResult.data.steps,
+      });
 
       toast({
         title: "Success",
@@ -253,10 +266,15 @@ export function useGarmentWorkflowStepEditor({
         description: "Failed to update workflow steps.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [garmentId, onOpenChange, onSuccess, steps, toast]);
+  }, [
+    garmentId,
+    onOpenChange,
+    onSuccess,
+    steps,
+    toast,
+    updateGarmentWorkflowStepsMutation,
+  ]);
 
   return {
     steps,

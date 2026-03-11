@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SystemSettings } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
-import { configApi } from "@/lib/api/config";
+import {
+  useSystemSettings,
+  useUpdateSystemSettings,
+} from "@/hooks/queries/config-queries";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
 function formatTimestamp(value?: string | Date): string {
@@ -21,34 +24,41 @@ function formatTimestamp(value?: string | Date): string {
 
 export function useSystemSettingsPage() {
   const { toast } = useToast();
+  const systemSettingsQuery = useSystemSettings();
+  const updateSystemSettingsMutation = useUpdateSystemSettings();
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [useTaskWorkflow, setUseTaskWorkflow] = useState(false);
+  const loading = systemSettingsQuery.isLoading;
+  const saving = updateSystemSettingsMutation.isPending;
 
   const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await configApi.getSystemSettings();
-      if (response.success && response.data) {
-        setSettings(response.data);
-        setUseTaskWorkflow(response.data.useTaskWorkflow);
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to load system settings."),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+    await systemSettingsQuery.refetch();
+  }, [systemSettingsQuery]);
 
   useEffect(() => {
-    void loadSettings();
-  }, [loadSettings]);
+    if (!systemSettingsQuery.data?.success || !systemSettingsQuery.data.data) {
+      return;
+    }
+
+    setSettings(systemSettingsQuery.data.data);
+    setUseTaskWorkflow(systemSettingsQuery.data.data.useTaskWorkflow);
+  }, [systemSettingsQuery.data]);
+
+  useEffect(() => {
+    if (!systemSettingsQuery.isError) {
+      return;
+    }
+
+    toast({
+      title: "Error",
+      description: getApiErrorMessageOrFallback(
+        systemSettingsQuery.error,
+        "Failed to load system settings.",
+      ),
+      variant: "destructive",
+    });
+  }, [systemSettingsQuery.error, systemSettingsQuery.isError, toast]);
 
   const isDirty = useMemo(() => {
     if (!settings) {
@@ -69,9 +79,8 @@ export function useSystemSettingsPage() {
       return;
     }
 
-    setSaving(true);
     try {
-      const response = await configApi.updateSystemSettings({
+      const response = await updateSystemSettingsMutation.mutateAsync({
         useTaskWorkflow,
       });
 
@@ -97,13 +106,14 @@ export function useSystemSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to save system settings."),
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to save system settings.",
+        ),
         variant: "destructive",
       });
-    } finally {
-      setSaving(false);
     }
-  }, [isDirty, toast, useTaskWorkflow]);
+  }, [isDirty, toast, updateSystemSettingsMutation, useTaskWorkflow]);
 
   return {
     loading,

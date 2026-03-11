@@ -4,7 +4,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-track";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { EmployeeProductivity } from "@/lib/api/reports";
+import type { EmployeeProductivity } from "@tbms/shared-types";
 
 interface DashboardProductivityCardProps {
   loading: boolean;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { EmployeeWithRelations } from "@/lib/api/employees";
 import {
+  type EmployeeWithRelations,
   employeeCompensationChangeFormSchema,
   PaymentType,
   type CompensationChangeInput,
@@ -55,7 +55,9 @@ export function useEmployeeCompensationManager({
   useEffect(() => {
     setPaymentType(employee.paymentType);
     setMonthlySalary(
-      employee.monthlySalary != null ? String(employee.monthlySalary / 100) : "",
+      employee.monthlySalary != null
+        ? String(employee.monthlySalary / 100)
+        : "",
     );
   }, [employee.monthlySalary, employee.paymentType]);
 

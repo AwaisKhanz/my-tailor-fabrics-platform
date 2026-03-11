@@ -8,7 +8,10 @@ import {
   UpdateCustomerInput,
   type Customer,
 } from "@tbms/shared-types";
-import { customerApi } from "@/lib/api/customers";
+import {
+  useCreateCustomer,
+  useUpdateCustomer,
+} from "@/hooks/queries/customer-queries";
 import { useToast } from "@/hooks/use-toast";
 import { typedZodResolver } from "@/lib/utils/form";
 import { customerSchema, type CustomerFormValues } from "@/types/customers";
@@ -24,7 +27,9 @@ const DEFAULT_VALUES: CustomerFormValues = {
   notes: "",
 };
 
-function toCreateCustomerInput(values: CustomerFormValues): CreateCustomerInput {
+function toCreateCustomerInput(
+  values: CustomerFormValues,
+): CreateCustomerInput {
   return {
     fullName: values.fullName,
     phone: values.phone,
@@ -50,7 +55,10 @@ export function useCustomerDialog({
   onSuccess,
 }: UseCustomerDialogParams) {
   const { toast } = useToast();
-  const [submitting, setSubmitting] = useState(false);
+  const createCustomerMutation = useCreateCustomer();
+  const updateCustomerMutation = useUpdateCustomer();
+  const submitting =
+    createCustomerMutation.isPending || updateCustomerMutation.isPending;
 
   const form = useForm<CustomerFormValues>({
     resolver: typedZodResolver(customerSchema),
@@ -80,15 +88,17 @@ export function useCustomerDialog({
 
   const submitCustomer = useCallback(
     async (values: CustomerFormValues) => {
-      setSubmitting(true);
       try {
         if (customer) {
           const payload: UpdateCustomerInput = values;
-          await customerApi.updateCustomer(customer.id, payload);
+          await updateCustomerMutation.mutateAsync({
+            id: customer.id,
+            data: payload,
+          });
           toast({ title: "Customer updated successfully" });
         } else {
           const payload = toCreateCustomerInput(values);
-          await customerApi.createCustomer(payload);
+          await createCustomerMutation.mutateAsync(payload);
           toast({ title: "Customer created successfully" });
         }
 
@@ -100,11 +110,16 @@ export function useCustomerDialog({
           description: "Failed to save customer. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setSubmitting(false);
       }
     },
-    [customer, onOpenChange, onSuccess, toast],
+    [
+      createCustomerMutation,
+      customer,
+      onOpenChange,
+      onSuccess,
+      toast,
+      updateCustomerMutation,
+    ],
   );
 
   return {

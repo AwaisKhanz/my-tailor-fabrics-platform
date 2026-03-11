@@ -19,7 +19,11 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { configApi } from "@/lib/api/config";
+import {
+  useCreateGarmentType,
+  useMeasurementCategories,
+  useUpdateGarmentType,
+} from "@/hooks/queries/config-queries";
 import { typedZodResolver } from "@/lib/utils/form";
 import {
   garmentTypeSchema,
@@ -47,22 +51,30 @@ export function GarmentTypeDialog({
   onSuccess,
 }: GarmentTypeDialogProps) {
   const { toast } = useToast();
-  const [loading, setLoading] = React.useState(false);
-  const [categories, setCategories] = React.useState<MeasurementCategory[]>([]);
+  const createGarmentTypeMutation = useCreateGarmentType();
+  const updateGarmentTypeMutation = useUpdateGarmentType();
+  const measurementCategoriesQuery = useMeasurementCategories({ limit: 100 });
+  const loading =
+    createGarmentTypeMutation.isPending || updateGarmentTypeMutation.isPending;
+  const categories: MeasurementCategory[] = measurementCategoriesQuery.data
+    ?.success
+    ? measurementCategoriesQuery.data.data.data
+    : [];
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const resp = await configApi.getMeasurementCategories({ limit: 100 });
-        if (resp?.data) {
-          setCategories(resp.data.data);
-        }
-      } catch (err) {
-        logDevError("Failed to fetch categories:", err);
-      }
-    };
-    if (open) fetchCategories();
-  }, [open]);
+    if (!open || !measurementCategoriesQuery.isError) {
+      return;
+    }
+
+    logDevError(
+      "Failed to fetch categories:",
+      measurementCategoriesQuery.error,
+    );
+  }, [
+    measurementCategoriesQuery.error,
+    measurementCategoriesQuery.isError,
+    open,
+  ]);
 
   const form = useForm<GarmentTypeFormValues>({
     resolver: typedZodResolver(garmentTypeSchema),
@@ -100,16 +112,18 @@ export function GarmentTypeDialog({
   }, [initialData, form, open]);
 
   async function onSubmit(data: GarmentTypeFormValues) {
-    setLoading(true);
     try {
       const normalizedPayload = { ...data };
 
       if (initialData) {
         const payload: UpdateGarmentTypeInput = normalizedPayload;
-        await configApi.updateGarmentType(initialData.id, payload);
+        await updateGarmentTypeMutation.mutateAsync({
+          id: initialData.id,
+          data: payload,
+        });
       } else {
         const payload: CreateGarmentTypeInput = normalizedPayload;
-        await configApi.createGarmentType(payload);
+        await createGarmentTypeMutation.mutateAsync(payload);
       }
 
       toast({
@@ -125,8 +139,6 @@ export function GarmentTypeDialog({
         description: "Failed to save garment type",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   }
 

@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { employeesApi } from "@/lib/api/employees";
-import { ordersApi } from "@/lib/api/orders";
 import { useEmployeeDetailData } from "@/hooks/use-employee-detail-data";
 import { useEmployeeDocumentManager } from "@/hooks/use-employee-document-manager";
 import { useEmployeeLedgerManager } from "@/hooks/use-employee-ledger-manager";
+import {
+  useCreateCompensationChange,
+  useReplaceEmployeeCapabilities,
+} from "@/hooks/queries/employee-queries";
+import { useUpdateOrderTaskStatus } from "@/hooks/queries/order-queries";
 import {
   employeeCapabilitySnapshotFormSchema,
   employeeCompensationChangeFormSchema,
@@ -20,8 +23,13 @@ interface UseEmployeeDetailPageParams {
   employeeId: string | null;
 }
 
-export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParams) {
+export function useEmployeeDetailPage({
+  employeeId,
+}: UseEmployeeDetailPageParams) {
   const { toast } = useToast();
+  const replaceEmployeeCapabilitiesMutation = useReplaceEmployeeCapabilities();
+  const createCompensationChangeMutation = useCreateCompensationChange();
+  const updateOrderTaskStatusMutation = useUpdateOrderTaskStatus();
 
   const {
     loading,
@@ -98,15 +106,22 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
 
   const handleTaskStatusChange = useCallback(
     async (taskId: string, status: TaskStatus) => {
+      if (!employeeId) {
+        return;
+      }
+
       try {
-        await ordersApi.updateTaskStatus(taskId, status);
+        await updateOrderTaskStatusMutation.mutateAsync({
+          taskId,
+          status,
+        });
         toast({ title: "Status Updated" });
         await fetchEmployeeData();
       } catch {
         toast({ title: "Update Failed", variant: "destructive" });
       }
     },
-    [fetchEmployeeData, toast],
+    [employeeId, fetchEmployeeData, toast, updateOrderTaskStatusMutation],
   );
 
   const saveCapabilitiesSnapshot = useCallback(
@@ -115,16 +130,17 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
         return false;
       }
 
-      const parsedResult = employeeCapabilitySnapshotFormSchema.safeParse(snapshot);
+      const parsedResult =
+        employeeCapabilitySnapshotFormSchema.safeParse(snapshot);
       if (!parsedResult.success) {
         return false;
       }
 
       try {
-        const response = await employeesApi.replaceCapabilities(
-          employeeId,
-          parsedResult.data,
-        );
+        const response = await replaceEmployeeCapabilitiesMutation.mutateAsync({
+          id: employeeId,
+          data: parsedResult.data,
+        });
 
         if (response.success) {
           setCapabilities(response.data);
@@ -142,7 +158,13 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
 
       return false;
     },
-    [employeeId, fetchEmployeeData, setCapabilities, toast],
+    [
+      employeeId,
+      fetchEmployeeData,
+      replaceEmployeeCapabilitiesMutation,
+      setCapabilities,
+      toast,
+    ],
   );
 
   const scheduleCompensationChange = useCallback(
@@ -151,7 +173,8 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
         return false;
       }
 
-      const parsedResult = employeeCompensationChangeFormSchema.safeParse(change);
+      const parsedResult =
+        employeeCompensationChangeFormSchema.safeParse(change);
       if (!parsedResult.success) {
         return false;
       }
@@ -168,10 +191,10 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
           note: parsedResult.data.note ?? undefined,
         };
 
-        const response = await employeesApi.createCompensationChange(
-          employeeId,
-          payload,
-        );
+        const response = await createCompensationChangeMutation.mutateAsync({
+          id: employeeId,
+          data: payload,
+        });
 
         if (response.success) {
           toast({ title: "Compensation change scheduled" });
@@ -188,15 +211,8 @@ export function useEmployeeDetailPage({ employeeId }: UseEmployeeDetailPageParam
 
       return false;
     },
-    [employeeId, fetchEmployeeData, toast],
+    [createCompensationChangeMutation, employeeId, fetchEmployeeData, toast],
   );
-
-  useEffect(() => {
-    if (!employeeId) {
-      return;
-    }
-    void fetchEmployeeData();
-  }, [employeeId, fetchEmployeeData]);
 
   return {
     loading,

@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuditLogEntry, AuditLogsStats } from "@tbms/shared-types";
-import {
-  AUDIT_ACTIONS,
-  AUDIT_FILTER_ENTITIES,
-} from "@tbms/shared-constants";
-import { auditLogsApi } from "@/lib/api/audit-logs";
+import { AUDIT_ACTIONS, AUDIT_FILTER_ENTITIES } from "@tbms/shared-constants";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import {
+  useAuditLogs,
+  useAuditLogsStats,
+} from "@/hooks/queries/audit-log-queries";
 
 const PAGE_SIZE = 20;
 export const ALL_FILTER = "all";
@@ -68,10 +68,6 @@ export function useAuditLogsPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [records, setRecords] = useState<AuditLogEntry[]>([]);
-  const [total, setTotal] = useState(0);
-  const [stats, setStats] = useState<AuditLogsStats>(DEFAULT_STATS);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const filters = useMemo<FiltersState>(
@@ -85,46 +81,59 @@ export function useAuditLogsPage() {
     [values.action, values.entity, values.from, values.search, values.to],
   );
 
+  const queryParams = useMemo(
+    () => ({
+      page,
+      limit: pageSize,
+      search: filters.search.trim() || undefined,
+      action: filters.action !== ALL_FILTER ? filters.action : undefined,
+      entity: filters.entity !== ALL_FILTER ? filters.entity : undefined,
+      from: filters.from || undefined,
+      to: filters.to || undefined,
+    }),
+    [
+      filters.action,
+      filters.entity,
+      filters.from,
+      filters.search,
+      filters.to,
+      page,
+      pageSize,
+    ],
+  );
+
+  const logsQuery = useAuditLogs(queryParams);
+  const statsQuery = useAuditLogsStats({
+    search: queryParams.search,
+    action: queryParams.action,
+    entity: queryParams.entity,
+    from: queryParams.from,
+    to: queryParams.to,
+  });
+
+  const loading = logsQuery.isLoading || statsQuery.isLoading;
+  const records: AuditLogEntry[] = logsQuery.data?.success
+    ? (logsQuery.data.data.data ?? [])
+    : [];
+  const total = logsQuery.data?.success ? (logsQuery.data.data.total ?? 0) : 0;
+  const stats: AuditLogsStats = statsQuery.data?.success
+    ? statsQuery.data.data
+    : DEFAULT_STATS;
+
   const fetchData = useCallback(async () => {
-    setLoading(true);
     try {
-      const params = {
-        page,
-        limit: pageSize,
-        search: filters.search.trim() || undefined,
-        action: filters.action !== ALL_FILTER ? filters.action : undefined,
-        entity: filters.entity !== ALL_FILTER ? filters.entity : undefined,
-        from: filters.from || undefined,
-        to: filters.to || undefined,
-      };
-
-      const [logsResponse, statsResponse] = await Promise.all([
-        auditLogsApi.getLogs(params),
-        auditLogsApi.getStats(params),
-      ]);
-
-      if (logsResponse.success) {
-        setRecords(logsResponse.data.data ?? []);
-        setTotal(logsResponse.data.total ?? 0);
-      }
-
-      if (statsResponse.success && statsResponse.data) {
-        setStats(statsResponse.data);
-      }
+      await Promise.all([logsQuery.refetch(), statsQuery.refetch()]);
     } catch (error) {
       toast({
         title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to load audit logs."),
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to load audit logs.",
+        ),
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [filters.action, filters.entity, filters.from, filters.search, filters.to, page, pageSize, toast]);
-
-  useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+  }, [logsQuery, statsQuery, toast]);
 
   const setFilter = useCallback(
     <K extends keyof FiltersState>(key: K, value: FiltersState[K]) => {
@@ -136,9 +145,12 @@ export function useAuditLogsPage() {
     [setValues],
   );
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();
@@ -180,7 +192,13 @@ export function useAuditLogsPage() {
     if (filters.from) count += 1;
     if (filters.to) count += 1;
     return count;
-  }, [filters.action, filters.entity, filters.from, filters.search, filters.to]);
+  }, [
+    filters.action,
+    filters.entity,
+    filters.from,
+    filters.search,
+    filters.to,
+  ]);
 
   return {
     loading,

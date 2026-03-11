@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import {
@@ -17,12 +17,16 @@ import { typedZodResolver } from "@/lib/utils/form";
 import { useOrderFormItems } from "@/hooks/use-order-form-items";
 import { useToast } from "@/hooks/use-toast";
 import { orderSchema, type OrderFormValues } from "@/types/orders/schemas";
-import { configApi } from "@/lib/api/config";
-import { customerApi } from "@/lib/api/customers";
-import { designTypesApi } from "@/lib/api/design-types";
-import { ordersApi } from "@/lib/api/orders";
 import { useAuthz } from "@/hooks/use-authz";
 import { buildOrderDetailRoute } from "@/lib/order-routes";
+import { useGarmentTypesList } from "@/hooks/queries/config-queries";
+import { useCustomersList } from "@/hooks/queries/customer-queries";
+import { useDesignTypesList } from "@/hooks/queries/design-type-queries";
+import {
+  useCreateOrder,
+  useOrder,
+  useUpdateOrder,
+} from "@/hooks/queries/order-queries";
 
 const toDateInputValue = (value: Date | string) =>
   new Date(value).toISOString().split("T")[0];
@@ -37,11 +41,29 @@ export function useOrderFormPage() {
   const isEditMode = Boolean(editOrderId);
   const canManageDiscounts = canAll([PERMISSION["orders.financial.manage"]]);
 
-  const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [designTypes, setDesignTypes] = useState<DesignType[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const garmentTypesQuery = useGarmentTypesList();
+  const customersQuery = useCustomersList({ page: 1, limit: 100 });
+  const designTypesQuery = useDesignTypesList();
+  const editOrderQuery = useOrder(editOrderId);
+  const createOrderMutation = useCreateOrder();
+  const updateOrderMutation = useUpdateOrder();
+
+  const garmentTypes: GarmentType[] = garmentTypesQuery.data?.success
+    ? garmentTypesQuery.data.data.data
+    : [];
+  const customers: Customer[] = customersQuery.data?.success
+    ? customersQuery.data.data.data || []
+    : [];
+  const designTypes: DesignType[] = designTypesQuery.data?.success
+    ? designTypesQuery.data.data
+    : [];
+  const loading =
+    garmentTypesQuery.isLoading ||
+    customersQuery.isLoading ||
+    designTypesQuery.isLoading ||
+    (isEditMode && editOrderQuery.isLoading);
+  const submitting =
+    createOrderMutation.isPending || updateOrderMutation.isPending;
 
   const form = useForm<OrderFormValues, unknown, OrderFormValues>({
     resolver: typedZodResolver(orderSchema),
@@ -76,90 +98,59 @@ export function useOrderFormPage() {
   const normalizedCustomerId = watchedCustomerId ?? "";
 
   useEffect(() => {
-    let isCancelled = false;
-
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [garmentsResponse, customersResponse, designTypesResponse] =
-          await Promise.all([
-            configApi.getGarmentTypes(),
-            customerApi.getCustomers({ page: 1, limit: 100 }),
-            designTypesApi.findAll(),
-          ]);
-
-        if (isCancelled) {
-          return;
-        }
-
-        if (garmentsResponse.success) {
-          setGarmentTypes(garmentsResponse.data.data);
-        }
-
-        if (customersResponse.success) {
-          setCustomers(customersResponse.data.data || []);
-        }
-
-        if (designTypesResponse.success) {
-          setDesignTypes(designTypesResponse.data);
-        }
-
-        if (!editOrderId) {
-          return;
-        }
-
-        const orderResponse = await ordersApi.getOrder(editOrderId);
-        if (!orderResponse.success || isCancelled) {
-          return;
-        }
-
-        const order = orderResponse.data;
-        const mappedItems: OrderFormValues["items"] = order.items.map((item) => ({
-          id: item.id,
-          garmentTypeId: item.garmentTypeId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice / 100,
-          description: item.description || "",
-          fabricSource: item.fabricSource || FabricSource.SHOP,
-          designTypeId: item.designTypeId || undefined,
-          addons:
-            item.addons?.map((addon) => ({
-              type: addon.type,
-              name: addon.name,
-              price: addon.price / 100,
-            })) || [],
-        }));
-
-        form.reset({
-          customerId: order.customerId,
-          dueDate: toDateInputValue(order.dueDate),
-          items: mappedItems,
-          discountType: order.discountType || DiscountType.FIXED,
-          discountValue: order.discountValue / 100,
-          advancePayment: order.totalPaid / 100,
-          notes: order.notes || "",
-        });
-      } catch {
-        if (!isCancelled) {
-          toast({
-            title: "Error",
-            description: "Failed to load order data",
-            variant: "destructive",
-          });
-        }
-      } finally {
-        if (!isCancelled) {
-          setLoading(false);
-        }
-      }
+    if (!isEditMode || !editOrderQuery.data?.success) {
+      return;
     }
 
-    void loadData();
+    const order = editOrderQuery.data.data;
+    const mappedItems: OrderFormValues["items"] = order.items.map((item) => ({
+      id: item.id,
+      garmentTypeId: item.garmentTypeId,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice / 100,
+      description: item.description || "",
+      fabricSource: item.fabricSource || FabricSource.SHOP,
+      designTypeId: item.designTypeId || undefined,
+      addons:
+        item.addons?.map((addon) => ({
+          type: addon.type,
+          name: addon.name,
+          price: addon.price / 100,
+        })) || [],
+    }));
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [editOrderId, form, toast]);
+    form.reset({
+      customerId: order.customerId,
+      dueDate: toDateInputValue(order.dueDate),
+      items: mappedItems,
+      discountType: order.discountType || DiscountType.FIXED,
+      discountValue: order.discountValue / 100,
+      advancePayment: order.totalPaid / 100,
+      notes: order.notes || "",
+    });
+  }, [editOrderQuery.data, form, isEditMode]);
+
+  useEffect(() => {
+    if (
+      garmentTypesQuery.isError ||
+      customersQuery.isError ||
+      designTypesQuery.isError ||
+      (isEditMode && editOrderQuery.isError)
+    ) {
+      toast({
+        title: "Error",
+        description: "Failed to load order data",
+        variant: "destructive",
+      });
+    }
+  }, [
+    customersQuery.isError,
+    designTypesQuery.isError,
+    editOrderQuery.isError,
+    garmentTypesQuery.isError,
+    isEditMode,
+    toast,
+  ]);
 
   const {
     fields,
@@ -186,8 +177,6 @@ export function useOrderFormPage() {
 
   const onSubmit = useCallback(
     async (values: OrderFormValues) => {
-      setSubmitting(true);
-
       try {
         const mappedItems = values.items.map((item) => ({
           ...item,
@@ -212,7 +201,10 @@ export function useOrderFormPage() {
             items: mappedItems,
             ...discountPayload,
           };
-          const response = await ordersApi.updateOrder(editOrderId, payload);
+          const response = await updateOrderMutation.mutateAsync({
+            id: editOrderId,
+            data: payload,
+          });
           if (response.success) {
             toast({
               title: "Order Updated",
@@ -232,7 +224,7 @@ export function useOrderFormPage() {
           ...discountPayload,
         };
 
-        const response = await ordersApi.createOrder(payload);
+        const response = await createOrderMutation.mutateAsync(payload);
         if (response.success) {
           toast({
             title: "Order Created",
@@ -246,11 +238,16 @@ export function useOrderFormPage() {
           description: `Failed to ${editOrderId ? "update" : "create"} order`,
           variant: "destructive",
         });
-      } finally {
-        setSubmitting(false);
       }
     },
-    [canManageDiscounts, editOrderId, router, toast],
+    [
+      canManageDiscounts,
+      createOrderMutation,
+      editOrderId,
+      router,
+      toast,
+      updateOrderMutation,
+    ],
   );
 
   return {

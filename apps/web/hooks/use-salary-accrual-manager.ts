@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { useToast } from "@/hooks/use-toast";
-import { paymentsApi } from "@/lib/api/payments";
+import { useGenerateSalaryAccruals } from "@/hooks/queries/payment-queries";
 import { salaryAccrualGenerationFormSchema } from "@tbms/shared-types";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
@@ -54,13 +54,14 @@ export function useSalaryAccrualManager({
   refreshPayments,
   toast,
 }: UseSalaryAccrualManagerParams) {
+  const generateSalaryAccrualsMutation = useGenerateSalaryAccruals();
   const [generateSalariesOpen, setGenerateSalariesOpen] = useState(false);
   const [salaryAccrualForm, setSalaryAccrualForm] = useState<SalaryAccrualForm>(
     createDefaultSalaryAccrualForm(),
   );
   const [salaryAccrualValidationError, setSalaryAccrualValidationError] =
     useState<string | null>(null);
-  const [generatingSalaries, setGeneratingSalaries] = useState(false);
+  const generatingSalaries = generateSalaryAccrualsMutation.isPending;
 
   const resetSalaryAccrualForm = useCallback((employeeId?: string) => {
     setGenerateSalariesOpen(false);
@@ -78,7 +79,9 @@ export function useSalaryAccrualManager({
     (open: boolean) => {
       setGenerateSalariesOpen(open);
       if (!open && !generatingSalaries) {
-        setSalaryAccrualForm(createDefaultSalaryAccrualForm(selectedEmployeeId));
+        setSalaryAccrualForm(
+          createDefaultSalaryAccrualForm(selectedEmployeeId),
+        );
         setSalaryAccrualValidationError(null);
       }
     },
@@ -90,14 +93,19 @@ export function useSalaryAccrualManager({
     setSalaryAccrualValidationError(null);
   }, []);
 
-  const setSalaryAccrualScope = useCallback((scope: SalaryAccrualForm["scope"]) => {
-    setSalaryAccrualForm((previous) => ({ ...previous, scope }));
-    setSalaryAccrualValidationError(null);
-  }, []);
+  const setSalaryAccrualScope = useCallback(
+    (scope: SalaryAccrualForm["scope"]) => {
+      setSalaryAccrualForm((previous) => ({ ...previous, scope }));
+      setSalaryAccrualValidationError(null);
+    },
+    [],
+  );
 
   const submitSalaryAccrualGeneration = useCallback(async () => {
     const selectedScopeEmployeeId =
-      salaryAccrualForm.scope === "SELECTED" ? selectedEmployeeId || undefined : undefined;
+      salaryAccrualForm.scope === "SELECTED"
+        ? selectedEmployeeId || undefined
+        : undefined;
 
     const parsedResult = salaryAccrualGenerationFormSchema.safeParse({
       month: salaryAccrualForm.month,
@@ -113,10 +121,8 @@ export function useSalaryAccrualManager({
     }
 
     setSalaryAccrualValidationError(null);
-    setGeneratingSalaries(true);
-
     try {
-      const response = await paymentsApi.generateSalaryAccruals({
+      const response = await generateSalaryAccrualsMutation.mutateAsync({
         month: parsedResult.data.month,
         employeeId: parsedResult.data.employeeId || undefined,
       });
@@ -136,13 +142,15 @@ export function useSalaryAccrualManager({
     } catch (error: unknown) {
       toast({
         title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to generate monthly salaries"),
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to generate monthly salaries",
+        ),
         variant: "destructive",
       });
-    } finally {
-      setGeneratingSalaries(false);
     }
   }, [
+    generateSalaryAccrualsMutation,
     refreshPayments,
     resetSalaryAccrualForm,
     salaryAccrualForm.month,

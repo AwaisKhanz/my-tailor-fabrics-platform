@@ -9,7 +9,10 @@ import {
   UpdateEmployeeInput,
   type Employee,
 } from "@tbms/shared-types";
-import { employeesApi } from "@/lib/api/employees";
+import {
+  useCreateEmployee,
+  useUpdateEmployee,
+} from "@/hooks/queries/employee-queries";
 import { useToast } from "@/hooks/use-toast";
 import { typedZodResolver } from "@/lib/utils/form";
 import { employeeSchema, type EmployeeFormValues } from "@/types/employees";
@@ -80,6 +83,8 @@ export function useEmployeeDialog({
   onSuccess,
 }: UseEmployeeDialogParams) {
   const { toast } = useToast();
+  const createEmployeeMutation = useCreateEmployee();
+  const updateEmployeeMutation = useUpdateEmployee();
 
   const form = useForm<EmployeeFormValues>({
     resolver: typedZodResolver(employeeSchema),
@@ -124,11 +129,14 @@ export function useEmployeeDialog({
             ...toEmployeeInput(values),
             status: values.status,
           };
-          await employeesApi.updateEmployee(initialData.id, updatePayload);
+          await updateEmployeeMutation.mutateAsync({
+            id: initialData.id,
+            data: updatePayload,
+          });
           toast({ title: "Employee updated successfully" });
         } else {
           const createPayload: CreateEmployeeInput = toEmployeeInput(values);
-          await employeesApi.createEmployee(createPayload);
+          await createEmployeeMutation.mutateAsync(createPayload);
           toast({ title: "Employee created successfully" });
         }
 
@@ -142,7 +150,14 @@ export function useEmployeeDialog({
         });
       }
     },
-    [initialData, onOpenChange, onSuccess, toast],
+    [
+      createEmployeeMutation,
+      initialData,
+      onOpenChange,
+      onSuccess,
+      toast,
+      updateEmployeeMutation,
+    ],
   );
 
   return {

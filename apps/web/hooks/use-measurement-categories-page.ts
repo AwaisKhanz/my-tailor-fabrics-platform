@@ -1,12 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type MeasurementCategory, type MeasurementStats } from "@tbms/shared-types";
-import { configApi } from "@/lib/api/config";
+import {
+  type MeasurementCategory,
+  type MeasurementStats,
+} from "@tbms/shared-types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import {
+  useDeleteMeasurementCategory,
+  useMeasurementCategories,
+  useMeasurementStats,
+  useRestoreMeasurementCategory,
+} from "@/hooks/queries/config-queries";
 
 const PAGE_SIZE = 10;
 const EMPTY_MEASUREMENT_STATS: MeasurementStats = {
@@ -27,11 +35,6 @@ export function useMeasurementCategoriesPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<MeasurementCategory[]>([]);
-  const [total, setTotal] = useState(0);
-  const [stats, setStats] = useState<MeasurementStats>(EMPTY_MEASUREMENT_STATS);
-
   const search = values.search;
   const includeArchived = values.includeArchived === "true";
   const debouncedSearch = useDebounce(search, 500);
@@ -41,42 +44,41 @@ export function useMeasurementCategoriesPage() {
   const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<MeasurementCategory | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<MeasurementCategory | null>(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<MeasurementCategory | null>(null);
+  const [categoryToDelete, setCategoryToDelete] =
+    useState<MeasurementCategory | null>(null);
+
+  const categoriesQuery = useMeasurementCategories({
+    search: debouncedSearch.trim() || undefined,
+    page,
+    limit: pageSize,
+    includeArchived,
+  });
+  const statsQuery = useMeasurementStats();
+  const deleteCategoryMutation = useDeleteMeasurementCategory();
+  const restoreCategoryMutation = useRestoreMeasurementCategory();
+
+  const loading = categoriesQuery.isLoading || statsQuery.isLoading;
+  const categories: MeasurementCategory[] = categoriesQuery.data?.success
+    ? categoriesQuery.data.data.data
+    : [];
+  const total = categoriesQuery.data?.success
+    ? categoriesQuery.data.data.total
+    : 0;
+  const stats: MeasurementStats = statsQuery.data?.success
+    ? statsQuery.data.data
+    : EMPTY_MEASUREMENT_STATS;
 
   const fetchCategories = useCallback(async () => {
-    setLoading(true);
     try {
-      const [listResponse, statsResponse] = await Promise.all([
-        configApi.getMeasurementCategories({
-          search: debouncedSearch.trim() || undefined,
-          page,
-          limit: pageSize,
-          includeArchived,
-        }),
-        configApi.getMeasurementStats(),
-      ]);
-
-      if (listResponse.success) {
-        setCategories(listResponse.data.data);
-        setTotal(listResponse.data.total);
-      }
-
-      if (statsResponse.success) {
-        setStats(statsResponse.data);
-      }
+      await Promise.all([categoriesQuery.refetch(), statsQuery.refetch()]);
     } catch (error) {
       logDevError("Failed to fetch measurement categories:", error);
-    } finally {
-      setLoading(false);
     }
-  }, [debouncedSearch, includeArchived, page, pageSize]);
-
-  useEffect(() => {
-    void fetchCategories();
-  }, [fetchCategories]);
+  }, [categoriesQuery, statsQuery]);
 
   const hasActiveFilters = useMemo(
     () => search.trim().length > 0 || includeArchived,
@@ -87,12 +89,15 @@ export function useMeasurementCategoriesPage() {
     [includeArchived, search],
   );
 
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();
@@ -108,9 +113,12 @@ export function useMeasurementCategoriesPage() {
     [setValues],
   );
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const openCreateDialog = useCallback(() => {
     setSelectedCategory(null);
@@ -147,11 +155,10 @@ export function useMeasurementCategoriesPage() {
     }
 
     try {
-      await configApi.deleteMeasurementCategory(categoryToDelete.id);
+      await deleteCategoryMutation.mutateAsync({ id: categoryToDelete.id });
       toast({ title: "Category archived" });
       setCategoryToDelete(null);
       setIsConfirmOpen(false);
-      await fetchCategories();
     } catch {
       toast({
         title: "Error",
@@ -159,7 +166,7 @@ export function useMeasurementCategoriesPage() {
         variant: "destructive",
       });
     }
-  }, [categoryToDelete, fetchCategories, toast]);
+  }, [categoryToDelete, deleteCategoryMutation, toast]);
 
   const restoreCategory = useCallback(
     async (category: MeasurementCategory) => {
@@ -169,9 +176,8 @@ export function useMeasurementCategoriesPage() {
 
       setRestoringId(category.id);
       try {
-        await configApi.restoreMeasurementCategory(category.id);
+        await restoreCategoryMutation.mutateAsync(category.id);
         toast({ title: "Category restored" });
-        await fetchCategories();
       } catch {
         toast({
           title: "Error",
@@ -182,7 +188,7 @@ export function useMeasurementCategoriesPage() {
         setRestoringId(null);
       }
     },
-    [fetchCategories, toast],
+    [restoreCategoryMutation, toast],
   );
 
   return {

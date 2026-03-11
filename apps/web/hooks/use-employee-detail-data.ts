@@ -1,15 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { attendanceApi } from "@/lib/api/attendance";
-import { configApi } from "@/lib/api/config";
-import { employeesApi, type EmployeeWithRelations } from "@/lib/api/employees";
-import { ordersApi } from "@/lib/api/orders";
+import {
+  useEmployee,
+  useEmployeeCompensationHistory,
+  useEmployeeItems,
+  useEmployeeStats,
+  useEmployeeCapabilities,
+} from "@/hooks/queries/employee-queries";
+import { useAttendanceList } from "@/hooks/queries/attendance-queries";
+import {
+  useGarmentTypesList,
+  useSystemSettings,
+} from "@/hooks/queries/config-queries";
+import { useTasksByEmployee } from "@/hooks/queries/order-queries";
 import type {
   AttendanceRecord,
   EmployeeCapability,
   EmployeeCompensationHistoryEntry,
+  EmployeeWithRelations,
   GarmentType,
   OrderItem,
   OrderItemTask,
@@ -30,123 +40,109 @@ export function useEmployeeDetailData({
   employeeId,
 }: UseEmployeeDetailDataParams) {
   const { toast } = useToast();
-  const latestEmployeeIdRef = useRef(employeeId);
-  const requestVersionRef = useRef(0);
+  const employeeQuery = useEmployee(employeeId);
+  const statsQuery = useEmployeeStats(employeeId);
+  const itemsQuery = useEmployeeItems(employeeId);
+  const attendanceQuery = useAttendanceList(
+    employeeId ? { employeeId, limit: 10 } : { limit: 10 },
+  );
+  const tasksQuery = useTasksByEmployee(employeeId);
+  const systemSettingsQuery = useSystemSettings();
+  const garmentTypesQuery = useGarmentTypesList();
+  const capabilitiesQuery = useEmployeeCapabilities(employeeId);
+  const compensationQuery = useEmployeeCompensationHistory(employeeId);
 
-  const [loading, setLoading] = useState(true);
-  const [employee, setEmployee] = useState<EmployeeWithRelations | null>(null);
-  const [stats, setStats] = useState<EmployeeStatsSnapshot>({
-    totalEarned: 0,
-    totalPaid: 0,
-    currentBalance: 0,
-  });
-  const [items, setItems] = useState<OrderItem[]>([]);
-  const [tasks, setTasks] = useState<OrderItemTask[]>([]);
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
-  const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
   const [capabilities, setCapabilities] = useState<EmployeeCapability[]>([]);
-  const [compensationHistory, setCompensationHistory] = useState<
-    EmployeeCompensationHistoryEntry[]
-  >([]);
 
   useEffect(() => {
-    latestEmployeeIdRef.current = employeeId;
-  }, [employeeId]);
+    if (capabilitiesQuery.data?.success) {
+      setCapabilities(capabilitiesQuery.data.data);
+    }
+  }, [capabilitiesQuery.data]);
+
+  const loading =
+    employeeQuery.isLoading ||
+    statsQuery.isLoading ||
+    itemsQuery.isLoading ||
+    attendanceQuery.isLoading ||
+    tasksQuery.isLoading ||
+    systemSettingsQuery.isLoading ||
+    garmentTypesQuery.isLoading ||
+    capabilitiesQuery.isLoading ||
+    compensationQuery.isLoading;
+
+  const employee: EmployeeWithRelations | null = employeeQuery.data?.success
+    ? employeeQuery.data.data
+    : null;
+  const stats: EmployeeStatsSnapshot = statsQuery.data?.success
+    ? {
+        totalEarned: statsQuery.data.data.totalEarned ?? 0,
+        totalPaid: statsQuery.data.data.totalPaid ?? 0,
+        currentBalance:
+          statsQuery.data.data.currentBalance ??
+          statsQuery.data.data.balance ??
+          0,
+      }
+    : {
+        totalEarned: 0,
+        totalPaid: 0,
+        currentBalance: 0,
+      };
+  const items: OrderItem[] = itemsQuery.data?.success
+    ? itemsQuery.data.data.data
+    : [];
+  const tasks: OrderItemTask[] = tasksQuery.data?.success
+    ? tasksQuery.data.data
+    : [];
+  const attendance: AttendanceRecord[] = attendanceQuery.data?.success
+    ? attendanceQuery.data.data.data
+    : [];
+  const systemSettings: SystemSettings | null = systemSettingsQuery.data
+    ?.success
+    ? systemSettingsQuery.data.data
+    : null;
+  const garmentTypes: GarmentType[] = garmentTypesQuery.data?.success
+    ? garmentTypesQuery.data.data.data
+    : [];
+  const compensationHistory: EmployeeCompensationHistoryEntry[] =
+    compensationQuery.data?.success ? compensationQuery.data.data : [];
 
   const fetchEmployeeData = useCallback(async () => {
     if (!employeeId) {
       return;
     }
-
-    const requestVersion = requestVersionRef.current + 1;
-    requestVersionRef.current = requestVersion;
-    const requestedEmployeeId = employeeId;
-    setLoading(true);
     try {
-      const [
-        employeeResponse,
-        statsResponse,
-        itemsResponse,
-        attendanceResponse,
-        tasksResponse,
-        settingsResponse,
-        garmentTypesResponse,
-        capabilitiesResponse,
-        compensationResponse,
-      ] = await Promise.all([
-        employeesApi.getEmployee(employeeId),
-        employeesApi.getStats(employeeId),
-        employeesApi.getItems(employeeId),
-        attendanceApi.getAttendance({ employeeId, limit: 10 }),
-        ordersApi.getTasksByEmployee(employeeId),
-        configApi.getSystemSettings(),
-        configApi.getGarmentTypes(),
-        employeesApi.getCapabilities(employeeId),
-        employeesApi.getCompensationHistory(employeeId),
+      await Promise.all([
+        employeeQuery.refetch(),
+        statsQuery.refetch(),
+        itemsQuery.refetch(),
+        attendanceQuery.refetch(),
+        tasksQuery.refetch(),
+        systemSettingsQuery.refetch(),
+        garmentTypesQuery.refetch(),
+        capabilitiesQuery.refetch(),
+        compensationQuery.refetch(),
       ]);
-
-      if (
-        requestVersionRef.current !== requestVersion ||
-        latestEmployeeIdRef.current !== requestedEmployeeId
-      ) {
-        return;
-      }
-
-      if (employeeResponse.success) {
-        setEmployee(employeeResponse.data);
-      }
-      if (statsResponse.success) {
-        setStats({
-          totalEarned: statsResponse.data.totalEarned ?? 0,
-          totalPaid: statsResponse.data.totalPaid ?? 0,
-          currentBalance:
-            statsResponse.data.currentBalance ?? statsResponse.data.balance ?? 0,
-        });
-      }
-      if (itemsResponse.success) {
-        setItems(itemsResponse.data.data);
-      }
-      if (attendanceResponse.success) {
-        setAttendance(attendanceResponse.data.data);
-      }
-      if (tasksResponse.success) {
-        setTasks(tasksResponse.data);
-      }
-      if (settingsResponse.success) {
-        setSystemSettings(settingsResponse.data);
-      }
-      if (garmentTypesResponse.success) {
-        setGarmentTypes(garmentTypesResponse.data.data);
-      }
-      if (capabilitiesResponse.success) {
-        setCapabilities(capabilitiesResponse.data);
-      }
-      if (compensationResponse.success) {
-        setCompensationHistory(compensationResponse.data);
-      }
     } catch {
-      if (
-        requestVersionRef.current !== requestVersion ||
-        latestEmployeeIdRef.current !== requestedEmployeeId
-      ) {
-        return;
-      }
-
       toast({
         title: "Error",
         description: "Employee data could not be loaded",
         variant: "destructive",
       });
-    } finally {
-      if (
-        requestVersionRef.current === requestVersion &&
-        latestEmployeeIdRef.current === requestedEmployeeId
-      ) {
-        setLoading(false);
-      }
     }
-  }, [employeeId, toast]);
+  }, [
+    attendanceQuery,
+    capabilitiesQuery,
+    compensationQuery,
+    employeeId,
+    employeeQuery,
+    garmentTypesQuery,
+    itemsQuery,
+    statsQuery,
+    systemSettingsQuery,
+    tasksQuery,
+    toast,
+  ]);
 
   return {
     loading,

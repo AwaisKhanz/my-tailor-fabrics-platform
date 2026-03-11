@@ -1,24 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { type BranchDetail } from "@tbms/shared-types";
-import { branchesApi } from "@/lib/api/branches";
+import { useCallback, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
+import { useBranch } from "@/hooks/queries/branch-queries";
 
 export function useBranchHubConfigPage(branchId: string) {
   const { toast } = useToast();
+  const branchQuery = useBranch(branchId);
 
-  const [loading, setLoading] = useState(true);
-  const [branch, setBranch] = useState<BranchDetail | null>(null);
+  const loading = branchQuery.isLoading;
+  const branch = branchQuery.data?.success ? branchQuery.data.data : null;
 
   const fetchBranch = useCallback(async () => {
-    setLoading(true);
     try {
-      const response = await branchesApi.getBranch(branchId);
-      if (response.success) {
-        setBranch(response.data);
-      }
+      await branchQuery.refetch();
     } catch (error) {
       logDevError("Failed to fetch branch hub config:", error);
       toast({
@@ -26,14 +22,20 @@ export function useBranchHubConfigPage(branchId: string) {
         description: "Failed to load branch data",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [branchId, toast]);
+  }, [branchQuery, toast]);
 
   useEffect(() => {
-    void fetchBranch();
-  }, [fetchBranch]);
+    if (!branchQuery.isError) {
+      return;
+    }
+    logDevError("Failed to fetch branch hub config");
+    toast({
+      title: "Error",
+      description: "Failed to load branch data",
+      variant: "destructive",
+    });
+  }, [branchQuery.isError, toast]);
 
   return {
     loading,

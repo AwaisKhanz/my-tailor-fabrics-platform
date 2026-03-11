@@ -3,13 +3,14 @@
 import { useCallback, useState } from "react";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { type OrderItem, OrderStatus } from "@tbms/shared-types";
-import { ordersApi } from "@/lib/api/orders";
 import { useOrderDetail } from "@/hooks/use-order-detail";
+import { useOrderReceiptPdf } from "@/hooks/queries/order-queries";
 import { useToast } from "@/hooks/use-toast";
 
 export function useOrderDetailPage(orderId: string) {
   const { toast } = useToast();
   const orderDetail = useOrderDetail(orderId);
+  const orderReceiptPdfMutation = useOrderReceiptPdf();
 
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -105,7 +106,9 @@ export function useOrderDetailPage(orderId: string) {
     }
 
     try {
-      const receiptBlob = await ordersApi.getReceiptPdf(orderDetail.order.id);
+      const receiptBlob = await orderReceiptPdfMutation.mutateAsync(
+        orderDetail.order.id,
+      );
       const receiptUrl = window.URL.createObjectURL(receiptBlob);
       window.open(receiptUrl, "_blank", "noopener,noreferrer");
       window.setTimeout(() => {
@@ -118,7 +121,7 @@ export function useOrderDetailPage(orderId: string) {
         variant: "destructive",
       });
     }
-  }, [orderDetail.order, toast]);
+  }, [orderDetail.order, orderReceiptPdfMutation, toast]);
 
   const requestPaymentReversal = useCallback((paymentId: string) => {
     setPaymentToReverseId(paymentId);
@@ -164,16 +167,15 @@ export function useOrderDetailPage(orderId: string) {
       (sum, item) => sum + Math.max(item.quantity ?? 1, 1),
       0,
     ) ?? 0;
-  const assignedTailorsCount =
-    orderDetail.order
-      ? new Set(
-          orderDetail.order.items.flatMap((item) =>
-            (item.tasks ?? [])
-              .map((task) => task.assignedEmployeeId)
-              .filter((value): value is string => Boolean(value)),
-          ),
-        ).size
-      : 0;
+  const assignedTailorsCount = orderDetail.order
+    ? new Set(
+        orderDetail.order.items.flatMap((item) =>
+          (item.tasks ?? [])
+            .map((task) => task.assignedEmployeeId)
+            .filter((value): value is string => Boolean(value)),
+        ),
+      ).size
+    : 0;
   const totalTaskCount =
     orderDetail.order?.items.reduce(
       (sum, item) => sum + (item.tasks?.length ?? 0),

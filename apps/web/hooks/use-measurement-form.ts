@@ -8,8 +8,8 @@ import {
   type MeasurementValues,
   FieldType,
 } from "@tbms/shared-types";
-import { customerApi } from "@/lib/api/customers";
-import { configApi } from "@/lib/api/config";
+import { useMeasurementCategories } from "@/hooks/queries/config-queries";
+import { useUpsertCustomerMeasurements } from "@/hooks/queries/customer-queries";
 import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,11 +36,16 @@ export function useMeasurementForm({
   initialValues,
 }: UseMeasurementFormParams) {
   const { toast } = useToast();
-  const [categories, setCategories] = useState<MeasurementCategory[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<MeasurementCategory | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const categoriesQuery = useMeasurementCategories();
+  const upsertMeasurementsMutation = useUpsertCustomerMeasurements();
+
+  const categories: MeasurementCategory[] = categoriesQuery.data?.success
+    ? categoriesQuery.data.data.data
+    : [];
+  const loading = categoriesQuery.isLoading;
+  const submitting = upsertMeasurementsMutation.isPending;
 
   const form = useForm<MeasurementValues>({
     defaultValues: initialValues ?? {},
@@ -104,30 +109,34 @@ export function useMeasurementForm({
   }, [selectedCategory]);
 
   useEffect(() => {
-    async function loadCategories() {
-      try {
-        const response = await configApi.getMeasurementCategories();
-        if (response.success && response.data?.data) {
-          const categoriesData = response.data.data;
-          setCategories(categoriesData);
-          if (initialCategoryId) {
-            const category = categoriesData.find(
-              (item) => item.id === initialCategoryId,
-            );
-            if (category) {
-              setSelectedCategory(category);
-            }
-          }
-        }
-      } catch (error) {
-        logDevError("Failed to load measurement categories:", error);
-      } finally {
-        setLoading(false);
+    if (!categories.length) {
+      setSelectedCategory(null);
+      return;
+    }
+
+    if (initialCategoryId) {
+      const initialCategory = categories.find(
+        (item) => item.id === initialCategoryId,
+      );
+      if (initialCategory) {
+        setSelectedCategory(initialCategory);
+        return;
       }
     }
 
-    void loadCategories();
-  }, [initialCategoryId]);
+    setSelectedCategory(categories[0] || null);
+  }, [categories, initialCategoryId]);
+
+  useEffect(() => {
+    if (!categoriesQuery.isError) {
+      return;
+    }
+
+    logDevError(
+      "Failed to load measurement categories:",
+      categoriesQuery.error,
+    );
+  }, [categoriesQuery.error, categoriesQuery.isError]);
 
   const handleCategoryChange = (categoryId: string) => {
     const category = categories.find((item) => item.id === categoryId);
@@ -167,7 +176,6 @@ export function useMeasurementForm({
       return;
     }
 
-    setSubmitting(true);
     try {
       const fieldById = new Map(
         selectedCategory.fields.map((field) => [field.id, field]),
@@ -201,11 +209,11 @@ export function useMeasurementForm({
         sanitizedValues[key] = value;
       });
 
-      await customerApi.upsertMeasurements(
+      await upsertMeasurementsMutation.mutateAsync({
         customerId,
-        selectedCategory.id,
-        sanitizedValues,
-      );
+        categoryId: selectedCategory.id,
+        values: sanitizedValues,
+      });
       toast({ title: "Measurements saved successfully" });
       onSuccess();
     } catch (error) {
@@ -215,8 +223,6 @@ export function useMeasurementForm({
         description: "Failed to save measurements.",
         variant: "destructive",
       });
-    } finally {
-      setSubmitting(false);
     }
   }
 

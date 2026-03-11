@@ -2,11 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { type GarmentType } from "@tbms/shared-types";
-import { configApi } from "@/lib/api/config";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import {
+  useDeleteGarmentType,
+  useGarmentStats,
+  useGarmentTypesList,
+  useRestoreGarmentType,
+} from "@/hooks/queries/config-queries";
 
 const PAGE_SIZE = 10;
 
@@ -33,16 +38,36 @@ export function useGarmentTypesPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [stats, setStats] = useState<GarmentTypesStats>(EMPTY_GARMENT_STATS);
-
   const search = values.search;
   const includeArchived = values.includeArchived === "true";
   const debouncedSearch = useDebounce(search, 500);
   const currentPage = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
+
+  const garmentTypesQuery = useGarmentTypesList({
+    search: debouncedSearch.trim() || undefined,
+    page: currentPage,
+    limit: pageSize,
+    includeArchived,
+  });
+  const garmentStatsQuery = useGarmentStats();
+  const deleteGarmentTypeMutation = useDeleteGarmentType();
+  const restoreGarmentTypeMutation = useRestoreGarmentType();
+
+  const loading = garmentTypesQuery.isLoading || garmentStatsQuery.isLoading;
+  const garmentTypes: GarmentType[] = garmentTypesQuery.data?.success
+    ? garmentTypesQuery.data.data.data
+    : [];
+  const totalCount = garmentTypesQuery.data?.success
+    ? garmentTypesQuery.data.data.total
+    : 0;
+  const stats: GarmentTypesStats = garmentStatsQuery.data?.success
+    ? {
+        totalCount: garmentStatsQuery.data.data.totalCount,
+        avgRetailPrice: garmentStatsQuery.data.data.avgRetailPrice,
+        activeProduction: garmentStatsQuery.data.data.activeProduction,
+      }
+    : EMPTY_GARMENT_STATS;
 
   const [restoringId, setRestoringId] = useState<string | null>(null);
 
@@ -55,36 +80,15 @@ export function useGarmentTypesPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const fetchGarmentTypes = useCallback(async () => {
-    setLoading(true);
     try {
-      const [listResponse, statsResponse] = await Promise.all([
-        configApi.getGarmentTypes({
-          search: debouncedSearch.trim() || undefined,
-          page: currentPage,
-          limit: pageSize,
-          includeArchived,
-        }),
-        configApi.getGarmentStats(),
+      await Promise.all([
+        garmentTypesQuery.refetch(),
+        garmentStatsQuery.refetch(),
       ]);
-
-      if (listResponse.success) {
-        setGarmentTypes(listResponse.data.data);
-        setTotalCount(listResponse.data.total);
-      }
-
-      if (statsResponse.success) {
-        setStats(statsResponse.data);
-      }
     } catch (error) {
       logDevError("Failed to fetch garment types:", error);
-    } finally {
-      setLoading(false);
     }
-  }, [currentPage, debouncedSearch, includeArchived, pageSize]);
-
-  useEffect(() => {
-    void fetchGarmentTypes();
-  }, [fetchGarmentTypes]);
+  }, [garmentStatsQuery, garmentTypesQuery]);
 
   const hasActiveFilters = useMemo(
     () => search.trim().length > 0 || includeArchived,
@@ -95,12 +99,15 @@ export function useGarmentTypesPage() {
     [includeArchived, search],
   );
 
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();
@@ -116,9 +123,12 @@ export function useGarmentTypesPage() {
     [setValues],
   );
 
-  const setCurrentPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setCurrentPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const openCreateDialog = useCallback(() => {
     setSelectedType(null);
@@ -151,14 +161,13 @@ export function useGarmentTypesPage() {
     }
 
     try {
-      await configApi.deleteGarmentType(typeToDelete.id);
+      await deleteGarmentTypeMutation.mutateAsync({ id: typeToDelete.id });
       toast({
         title: "Success",
         description: "Garment type archived",
       });
       setTypeToDelete(null);
       setIsConfirmOpen(false);
-      await fetchGarmentTypes();
     } catch {
       toast({
         title: "Error",
@@ -166,7 +175,7 @@ export function useGarmentTypesPage() {
         variant: "destructive",
       });
     }
-  }, [fetchGarmentTypes, toast, typeToDelete]);
+  }, [deleteGarmentTypeMutation, toast, typeToDelete]);
 
   const restoreType = useCallback(
     async (garmentType: GarmentType) => {
@@ -176,12 +185,11 @@ export function useGarmentTypesPage() {
 
       setRestoringId(garmentType.id);
       try {
-        await configApi.restoreGarmentType(garmentType.id);
+        await restoreGarmentTypeMutation.mutateAsync(garmentType.id);
         toast({
           title: "Success",
           description: "Garment type restored",
         });
-        await fetchGarmentTypes();
       } catch {
         toast({
           title: "Error",
@@ -192,7 +200,7 @@ export function useGarmentTypesPage() {
         setRestoringId(null);
       }
     },
-    [fetchGarmentTypes, toast],
+    [restoreGarmentTypeMutation, toast],
   );
 
   const closeGarmentDialog = useCallback((open: boolean) => {
@@ -202,19 +210,25 @@ export function useGarmentTypesPage() {
     }
   }, []);
 
-  const closeHistoryDialog = useCallback((open: boolean) => {
-    setIsHistoryOpen(open);
-    if (!open) {
-      setSelectedType((previous) => (isWorkflowOpen ? previous : null));
-    }
-  }, [isWorkflowOpen]);
+  const closeHistoryDialog = useCallback(
+    (open: boolean) => {
+      setIsHistoryOpen(open);
+      if (!open) {
+        setSelectedType((previous) => (isWorkflowOpen ? previous : null));
+      }
+    },
+    [isWorkflowOpen],
+  );
 
-  const closeWorkflowDialog = useCallback((open: boolean) => {
-    setIsWorkflowOpen(open);
-    if (!open) {
-      setSelectedType((previous) => (isHistoryOpen ? previous : null));
-    }
-  }, [isHistoryOpen]);
+  const closeWorkflowDialog = useCallback(
+    (open: boolean) => {
+      setIsWorkflowOpen(open);
+      if (!open) {
+        setSelectedType((previous) => (isHistoryOpen ? previous : null));
+      }
+    },
+    [isHistoryOpen],
+  );
 
   const closeConfirmDialog = useCallback((open: boolean) => {
     setIsConfirmOpen(open);

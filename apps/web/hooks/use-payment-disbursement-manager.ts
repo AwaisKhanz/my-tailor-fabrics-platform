@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { useToast } from "@/hooks/use-toast";
-import { paymentsApi } from "@/lib/api/payments";
+import { useDisbursePayment } from "@/hooks/queries/payment-queries";
 import { paymentDisbursementFormSchema } from "@tbms/shared-types";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { toPaisaFromRupees } from "@/lib/utils/money";
@@ -32,13 +32,15 @@ export function usePaymentDisbursementManager({
   refreshPayments,
   toast,
 }: UsePaymentDisbursementManagerParams) {
+  const disbursePaymentMutation = useDisbursePayment();
   const [disburseOpen, setDisburseOpen] = useState(false);
-  const [disburseForm, setDisburseForm] =
-    useState<PaymentDisbursementForm>(DEFAULT_DISBURSEMENT_FORM);
-  const [disburseValidationError, setDisburseValidationError] = useState<string | null>(
-    null,
+  const [disburseForm, setDisburseForm] = useState<PaymentDisbursementForm>(
+    DEFAULT_DISBURSEMENT_FORM,
   );
-  const [disbursing, setDisbursing] = useState(false);
+  const [disburseValidationError, setDisburseValidationError] = useState<
+    string | null
+  >(null);
+  const disbursing = disbursePaymentMutation.isPending;
 
   const openDisburseDialog = useCallback(() => {
     setDisburseValidationError(null);
@@ -73,7 +75,9 @@ export function usePaymentDisbursementManager({
     });
     if (!parsedResult.success) {
       const firstIssue = parsedResult.error.issues[0]?.message;
-      setDisburseValidationError(firstIssue ?? "Please complete required fields.");
+      setDisburseValidationError(
+        firstIssue ?? "Please complete required fields.",
+      );
       return;
     }
 
@@ -88,9 +92,8 @@ export function usePaymentDisbursementManager({
       return;
     }
 
-    setDisbursing(true);
     try {
-      await paymentsApi.disburse({
+      await disbursePaymentMutation.mutateAsync({
         employeeId: selectedEmployeeId,
         amount: parsedResult.data.amount,
         note: parsedResult.data.note || undefined,
@@ -104,14 +107,16 @@ export function usePaymentDisbursementManager({
     } catch (error: unknown) {
       toast({
         title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to disburse payment"),
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to disburse payment",
+        ),
         variant: "destructive",
       });
-    } finally {
-      setDisbursing(false);
     }
   }, [
     currentBalance,
+    disbursePaymentMutation,
     disburseForm.amount,
     disburseForm.note,
     refreshPayments,

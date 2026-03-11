@@ -1,15 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  expensesApi,
-  type Expense,
-  type ExpenseCategory,
-} from "@/lib/api/expenses";
+import { type Expense } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateExpenseManager } from "@/hooks/use-create-expense-manager";
 import { useDeleteExpenseManager } from "@/hooks/use-delete-expense-manager";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import {
+  useExpenseCategories,
+  useExpensesList,
+} from "@/hooks/queries/expense-queries";
 
 const PAGE_SIZE = 10;
 export const EXPENSES_ALL_CATEGORIES_FILTER = "all";
@@ -49,11 +49,6 @@ export function useExpensesPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [total, setTotal] = useState(0);
-  const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const filters = useMemo<ExpensesFilters>(
@@ -66,100 +61,109 @@ export function useExpensesPage() {
     [values.categoryId, values.from, values.search, values.to],
   );
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
-  const fetchCategories = useCallback(async () => {
-    setCategoriesLoading(true);
-    try {
-      const response = await expensesApi.getCategories();
-      if (response.success) {
-        setCategories(response.data);
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to load expense categories",
-        variant: "destructive",
-      });
-    } finally {
-      setCategoriesLoading(false);
+  const expenseParams = useMemo<ExpensesFilterParams>(() => {
+    const params: ExpensesFilterParams = {
+      page,
+      limit: pageSize,
+    };
+
+    if (filters.categoryId !== EXPENSES_ALL_CATEGORIES_FILTER) {
+      params.categoryId = filters.categoryId;
     }
-  }, [toast]);
+    if (filters.search.trim()) {
+      params.search = filters.search.trim();
+    }
+    if (filters.from) {
+      params.from = filters.from;
+    }
+    if (filters.to) {
+      params.to = filters.to;
+    }
+
+    return params;
+  }, [filters, page, pageSize]);
+
+  const categoriesQuery = useExpenseCategories();
+  const expensesQuery = useExpensesList(expenseParams);
+
+  const loading = expensesQuery.isLoading;
+  const categoriesLoading = categoriesQuery.isLoading;
+  const expenses: Expense[] = expensesQuery.data?.success
+    ? expensesQuery.data.data.data || []
+    : [];
+  const total = expensesQuery.data?.success ? expensesQuery.data.data.total : 0;
+  const categories = categoriesQuery.data?.success
+    ? categoriesQuery.data.data
+    : [];
 
   const fetchExpenses = useCallback(async () => {
-    setLoading(true);
     try {
-      const params: ExpensesFilterParams = {
-        page,
-        limit: pageSize,
-      };
-
-      if (filters.categoryId !== EXPENSES_ALL_CATEGORIES_FILTER) {
-        params.categoryId = filters.categoryId;
-      }
-      if (filters.search.trim()) {
-        params.search = filters.search.trim();
-      }
-      if (filters.from) {
-        params.from = filters.from;
-      }
-      if (filters.to) {
-        params.to = filters.to;
-      }
-
-      const response = await expensesApi.getExpenses(params);
-      if (response.success) {
-        setExpenses(response.data.data || []);
-        setTotal(response.data.total);
-      }
+      await expensesQuery.refetch();
     } catch {
       toast({
         title: "Error",
         description: "Failed to load expenses",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [filters, page, pageSize, toast]);
+  }, [expensesQuery, toast]);
 
   useEffect(() => {
-    void fetchCategories();
-  }, [fetchCategories]);
+    if (categoriesQuery.isError) {
+      toast({
+        title: "Error",
+        description: "Failed to load expense categories",
+        variant: "destructive",
+      });
+    }
+  }, [categoriesQuery.isError, toast]);
 
-  useEffect(() => {
-    void fetchExpenses();
-  }, [fetchExpenses]);
+  const setCategoryFilter = useCallback(
+    (value: string) => {
+      setValues({
+        categoryId: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
-  const setCategoryFilter = useCallback((value: string) => {
-    setValues({
-      categoryId: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setFromFilter = useCallback(
+    (value: string) => {
+      setValues({
+        from: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
-  const setFromFilter = useCallback((value: string) => {
-    setValues({
-      from: value,
-      page: "1",
-    });
-  }, [setValues]);
-
-  const setToFilter = useCallback((value: string) => {
-    setValues({
-      to: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setToFilter = useCallback(
+    (value: string) => {
+      setValues({
+        to: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();

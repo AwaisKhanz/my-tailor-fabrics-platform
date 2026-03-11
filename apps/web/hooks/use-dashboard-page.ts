@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
-  reportsApi,
-  type DesignAnalytics,
-  type EmployeeProductivity,
-  type GarmentRevenue,
-  type RevenueVsExpenses,
-} from "@/lib/api/reports";
-import { type DashboardStats } from "@tbms/shared-types";
+  useDashboardDesigns,
+  useDashboardGarments,
+  useDashboardProductivity,
+  useDashboardRevenueExpenses,
+  useDashboardStats,
+} from "@/hooks/queries/report-queries";
 
 interface RevenueExpensesRow {
   month: string;
@@ -17,66 +16,36 @@ interface RevenueExpensesRow {
 }
 
 export function useDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [designs, setDesigns] = useState<DesignAnalytics[]>([]);
-  const [productivity, setProductivity] = useState<EmployeeProductivity[]>([]);
-  const [garments, setGarments] = useState<GarmentRevenue[]>([]);
-  const [revenueExpenses, setRevenueExpenses] = useState<RevenueVsExpenses | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const statsQuery = useDashboardStats();
+  const designsQuery = useDashboardDesigns();
+  const productivityQuery = useDashboardProductivity();
+  const garmentsQuery = useDashboardGarments();
+  const revenueExpensesQuery = useDashboardRevenueExpenses(6);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loading =
+    statsQuery.isLoading ||
+    designsQuery.isLoading ||
+    productivityQuery.isLoading ||
+    garmentsQuery.isLoading ||
+    revenueExpensesQuery.isLoading;
+  const error =
+    statsQuery.isError ||
+    designsQuery.isError ||
+    productivityQuery.isError ||
+    garmentsQuery.isError ||
+    revenueExpensesQuery.isError;
 
-    async function fetchData() {
-      setLoading(true);
-      setError(false);
-      try {
-        const [statsData, designsData, productivityData, garmentsData, revenueExpensesData] =
-          await Promise.all([
-            reportsApi.getDashboardStats(),
-            reportsApi.getDesigns(),
-            reportsApi.getProductivity(),
-            reportsApi.getGarments(),
-            reportsApi.getRevenueVsExpenses(6),
-          ]);
-
-        if (cancelled) {
-          return;
-        }
-
-        if (statsData.success) {
-          setStats(statsData.data);
-        }
-        if (designsData.success) {
-          setDesigns(designsData.data.slice(0, 5));
-        }
-        if (productivityData.success) {
-          setProductivity(productivityData.data);
-        }
-        if (garmentsData.success) {
-          setGarments(garmentsData.data);
-        }
-        if (revenueExpensesData.success) {
-          setRevenueExpenses(revenueExpensesData.data);
-        }
-      } catch {
-        if (!cancelled) {
-          setError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void fetchData();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const stats = statsQuery.data?.success ? statsQuery.data.data : null;
+  const designs = designsQuery.data?.success
+    ? designsQuery.data.data.slice(0, 5)
+    : [];
+  const productivity = productivityQuery.data?.success
+    ? productivityQuery.data.data
+    : [];
+  const garments = garmentsQuery.data?.success ? garmentsQuery.data.data : [];
+  const revenueExpenses = revenueExpensesQuery.data?.success
+    ? revenueExpensesQuery.data.data
+    : null;
 
   const revenueExpenseRows = useMemo<RevenueExpensesRow[]>(() => {
     if (!revenueExpenses) {
@@ -98,7 +67,9 @@ export function useDashboardPage() {
 
     const months = Array.from(
       new Set(
-        Array.from(revenueByMonth.keys()).concat(Array.from(expensesByMonth.keys())),
+        Array.from(revenueByMonth.keys()).concat(
+          Array.from(expensesByMonth.keys()),
+        ),
       ),
     ).sort();
 

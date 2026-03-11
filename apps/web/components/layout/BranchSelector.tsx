@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useBranchStore } from "@/store/useBranchStore";
-import { branchesApi } from "@/lib/api/branches";
 import { logDevError } from "@/lib/logger";
 import {
   Select,
@@ -13,9 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuthz } from "@/hooks/use-authz";
+import { useBranchesSwitcher } from "@/hooks/queries/branch-queries";
 import { readActiveBranchCookie } from "@/lib/branch-context";
 import { cn } from "@/lib/utils";
-import { PERMISSION } from '@tbms/shared-constants';
+import { PERMISSION } from "@tbms/shared-constants";
 
 interface BranchSelectorProps {
   className?: string;
@@ -25,6 +25,7 @@ export function BranchSelector({ className }: BranchSelectorProps) {
   const router = useRouter();
   const { canAll } = useAuthz();
   const canSwitchBranch = canAll([PERMISSION["branch.switch"]]);
+  const branchesSwitcherQuery = useBranchesSwitcher();
   const {
     activeBranchId,
     availableBranches,
@@ -38,31 +39,34 @@ export function BranchSelector({ className }: BranchSelectorProps) {
   }, [hydrate]);
 
   useEffect(() => {
-    if (canSwitchBranch && availableBranches.length === 0) {
-      const fetchBranches = async () => {
-        try {
-          const response = await branchesApi.getActiveBranchesForSwitcher();
-          if (response.success) {
-            setAvailableBranches(response.data);
+    if (
+      canSwitchBranch &&
+      availableBranches.length === 0 &&
+      branchesSwitcherQuery.data?.success
+    ) {
+      setAvailableBranches(branchesSwitcherQuery.data.data);
 
-            // Auto-select first branch if none selected
-            const savedBranchId = readActiveBranchCookie();
-            if (!savedBranchId && response.data.length > 0) {
-              setActiveBranch(response.data[0].id);
-            }
-          }
-        } catch (error) {
-          logDevError("Failed to fetch branches:", error);
-        }
-      };
-      fetchBranches();
+      // Auto-select first branch if none selected
+      const savedBranchId = readActiveBranchCookie();
+      if (!savedBranchId && branchesSwitcherQuery.data.data.length > 0) {
+        setActiveBranch(branchesSwitcherQuery.data.data[0].id);
+      }
     }
   }, [
     availableBranches.length,
+    branchesSwitcherQuery.data,
     canSwitchBranch,
     setAvailableBranches,
     setActiveBranch,
   ]);
+
+  useEffect(() => {
+    if (!branchesSwitcherQuery.isError) {
+      return;
+    }
+
+    logDevError("Failed to fetch branches:", branchesSwitcherQuery.error);
+  }, [branchesSwitcherQuery.error, branchesSwitcherQuery.isError]);
 
   if (!canSwitchBranch) return null;
 
@@ -75,10 +79,7 @@ export function BranchSelector({ className }: BranchSelectorProps) {
       }}
     >
       <SelectTrigger
-        className={cn(
-          "h-10 w-full text-snow-14 font-semibold",
-          className,
-        )}
+        className={cn("h-10 w-full text-snow-14 font-semibold", className)}
       >
         <SelectValue placeholder="Select Branch" />
       </SelectTrigger>

@@ -1,29 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Customer, Employee, Order } from "@tbms/shared-types";
-import { customerApi } from "@/lib/api/customers";
-import { employeesApi } from "@/lib/api/employees";
-import { ordersApi } from "@/lib/api/orders";
+import { useDebounce } from "@/hooks/use-debounce";
+import {
+  type GlobalSearchResults,
+  useGlobalSearchResults,
+} from "@/hooks/queries/search-queries";
 import { buildOrderDetailRoute } from "@/lib/order-routes";
 import {
   buildCustomerDetailRoute,
   buildEmployeeDetailRoute,
 } from "@/lib/people-routes";
 
-export interface GlobalSearchResults {
-  orders: Order[];
-  customers: Customer[];
-  employees: Employee[];
-}
+export type { GlobalSearchResults } from "@/hooks/queries/search-queries";
 
 const EMPTY_RESULTS: GlobalSearchResults = {
   orders: [],
   customers: [],
   employees: [],
 };
-
-const SEARCH_LIMIT = 6;
 
 interface UseGlobalSearchCommandParams {
   enableHotkeys: boolean;
@@ -37,12 +32,21 @@ export function useGlobalSearchCommand({
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<GlobalSearchResults>(EMPTY_RESULTS);
 
   const term = query.trim();
+  const debouncedTerm = useDebounce(term, 260);
   const hasMinimumQuery = term.length >= 2;
+  const searchQuery = useGlobalSearchResults(
+    debouncedTerm,
+    open && debouncedTerm.length >= 2,
+  );
+  const loading = searchQuery.isLoading || searchQuery.isFetching;
+  const error = searchQuery.isError
+    ? "Search service is temporarily unavailable."
+    : null;
+  const results: GlobalSearchResults = hasMinimumQuery
+    ? searchQuery.data || EMPTY_RESULTS
+    : EMPTY_RESULTS;
   const resultCount =
     results.orders.length + results.customers.length + results.employees.length;
 
@@ -116,79 +120,18 @@ export function useGlobalSearchCommand({
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    if (!hasMinimumQuery) {
-      setLoading(false);
-      setError(null);
-      setResults(EMPTY_RESULTS);
-      return;
-    }
-
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    const timer = window.setTimeout(async () => {
-      try {
-        const [ordersResponse, customersResponse, employeesResponse] =
-          await Promise.all([
-            ordersApi.getOrders({ page: 1, limit: SEARCH_LIMIT, search: term }),
-            customerApi.getCustomers({
-              page: 1,
-              limit: SEARCH_LIMIT,
-              search: term,
-            }),
-            employeesApi.getEmployees({
-              page: 1,
-              limit: SEARCH_LIMIT,
-              search: term,
-            }),
-          ]);
-
-        if (cancelled) {
-          return;
-        }
-
-        setResults({
-          orders: ordersResponse.success ? ordersResponse.data.data : [],
-          customers: customersResponse.success ? customersResponse.data.data : [],
-          employees: employeesResponse.success ? employeesResponse.data.data : [],
-        });
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setResults(EMPTY_RESULTS);
-        setError("Search service is temporarily unavailable.");
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+  const updateQuery = useCallback(
+    (value: string) => {
+      setQuery(value);
+      if (!open) {
+        setOpen(true);
       }
-    }, 260);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [open, hasMinimumQuery, term]);
-
-  const updateQuery = useCallback((value: string) => {
-    setQuery(value);
-    if (!open) {
-      setOpen(true);
-    }
-  }, [open]);
+    },
+    [open],
+  );
 
   const clearQuery = useCallback(() => {
     setQuery("");
-    setResults(EMPTY_RESULTS);
-    setError(null);
     inputRef.current?.focus();
   }, []);
 

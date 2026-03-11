@@ -16,7 +16,7 @@ type GuardOptions = {
   redirectTo?: string;
   roles?: readonly Role[];
   all?: readonly Permission[];
-  any?: readonly Permission[];
+  anyOf?: readonly Permission[];
 };
 
 type RouteGuardOptions = Pick<GuardOptions, "redirectTo" | "roles">;
@@ -25,12 +25,7 @@ export function withRoleGuard<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   options: GuardOptions,
 ) {
-  const {
-    redirectTo = UNAUTHORIZED_ROUTE,
-    roles,
-    all,
-    any,
-  } = options;
+  const { redirectTo = UNAUTHORIZED_ROUTE, roles, all, anyOf } = options;
 
   return function RoleGuardedComponent(props: P) {
     const router = useRouter();
@@ -41,7 +36,7 @@ export function withRoleGuard<P extends object>(
       !!role &&
       (!roles || roles.length === 0 || roles.includes(role)) &&
       (!all || all.length === 0 || sessionHasAllPermissions(session, all)) &&
-      (!any || any.length === 0 || sessionHasAnyPermission(session, any));
+      (!anyOf || anyOf.length === 0 || sessionHasAnyPermission(session, anyOf));
 
     useEffect(() => {
       if (status !== "loading" && !isAllowed) {
@@ -71,6 +66,6 @@ export function withRouteGuard<P extends object>(
   return withRoleGuard(WrappedComponent, {
     ...options,
     all: routePolicy.requireAll,
-    any: routePolicy.requireAny,
+    anyOf: routePolicy.requireAny,
   });
 }

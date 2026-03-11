@@ -5,7 +5,7 @@ import { InfoTile } from "@/components/ui/info-tile";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
-import type { GarmentRevenue } from "@/lib/api/reports";
+import type { GarmentRevenue } from "@tbms/shared-types";
 import {
   getChartBgClass,
   getChartStrokeClass,

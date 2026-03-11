@@ -2,12 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ordersApi } from "@/lib/api/orders";
-import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { Order, orderPaymentFormSchema, OrderStatus } from "@tbms/shared-types";
 import { ORDERS_ROUTE } from "@/lib/order-routes";
+import {
+  useAddOrderPayment,
+  useOrder,
+  useReverseOrderPayment,
+  useShareOrder,
+  useUpdateOrderStatus,
+} from "@/hooks/queries/order-queries";
+import { useEmployeesDropdown } from "@/hooks/queries/employee-queries";
 
 export interface OrderEmployeeOption {
   id: string;
@@ -23,11 +29,13 @@ export function useOrderDetail(orderId: string | null) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [loading, setLoading] = useState(true);
-  const [order, setOrder] = useState<Order | null>(null);
-  const [employees, setEmployees] = useState<OrderEmployeeOption[]>([]);
-  const [statusLoading, setStatusLoading] = useState(false);
-  const [processingPayment, setProcessingPayment] = useState(false);
+  const orderQuery = useOrder(orderId);
+  const employeesQuery = useEmployeesDropdown();
+  const updateStatusMutation = useUpdateOrderStatus();
+  const addPaymentMutation = useAddOrderPayment();
+  const reversePaymentMutation = useReverseOrderPayment();
+  const shareOrderMutation = useShareOrder();
+
   const [paymentFieldErrors, setPaymentFieldErrors] = useState<{
     amount?: string;
     note?: string;
@@ -36,21 +44,26 @@ export function useOrderDetail(orderId: string | null) {
   const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
     null,
   );
-  const [sharing, setSharing] = useState(false);
   const [shareData, setShareData] = useState<OrderShareData | null>(null);
+
+  const loading = orderQuery.isLoading;
+  const order: Order | null = orderQuery.data?.success
+    ? orderQuery.data.data
+    : null;
+  const employees: OrderEmployeeOption[] = employeesQuery.data?.success
+    ? employeesQuery.data.data.data
+    : [];
+  const statusLoading = updateStatusMutation.isPending;
+  const processingPayment = addPaymentMutation.isPending;
+  const sharing = shareOrderMutation.isPending;
 
   const fetchOrder = useCallback(async () => {
     if (!orderId) {
-      setLoading(false);
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await ordersApi.getOrder(orderId);
-      if (response.success) {
-        setOrder(response.data);
-      }
+      await orderQuery.refetch();
     } catch {
       toast({
         title: "Error",
@@ -58,30 +71,21 @@ export function useOrderDetail(orderId: string | null) {
         variant: "destructive",
       });
       router.push(ORDERS_ROUTE);
-    } finally {
-      setLoading(false);
     }
-  }, [orderId, router, toast]);
-
-  const fetchEmployees = useCallback(async () => {
-    try {
-      const response = await employeesApi.getEmployees({ limit: 100 });
-      if (response.success) {
-        setEmployees(response.data.data);
-      }
-    } catch {
-      // Non-critical for page rendering.
-    }
-  }, []);
+  }, [orderId, orderQuery, router, toast]);
 
   useEffect(() => {
-    if (!orderId) {
+    if (!orderId || !orderQuery.isError) {
       return;
     }
 
-    void fetchOrder();
-    void fetchEmployees();
-  }, [orderId, fetchOrder, fetchEmployees]);
+    toast({
+      title: "Error",
+      description: "Order not found",
+      variant: "destructive",
+    });
+    router.push(ORDERS_ROUTE);
+  }, [orderId, orderQuery.isError, router, toast]);
 
   const updateStatus = useCallback(
     async (status: OrderStatus) => {
@@ -89,28 +93,27 @@ export function useOrderDetail(orderId: string | null) {
         return;
       }
 
-      setStatusLoading(true);
       try {
-        await ordersApi.updateStatus(order.id, {
-          status,
-          note: `Moved to ${status}`,
+        await updateStatusMutation.mutateAsync({
+          id: order.id,
+          data: {
+            status,
+            note: `Moved to ${status}`,
+          },
         });
         toast({
           title: "Status Updated",
           description: `Order is now ${status}`,
         });
-        await fetchOrder();
       } catch {
         toast({
           title: "Error",
           description: "Failed to update status",
           variant: "destructive",
         });
-      } finally {
-        setStatusLoading(false);
       }
     },
-    [fetchOrder, order, toast],
+    [order, toast, updateStatusMutation],
   );
 
   const addPayment = useCallback(
@@ -140,27 +143,29 @@ export function useOrderDetail(orderId: string | null) {
 
       setPaymentFieldErrors({});
       setPaymentValidationError("");
-      setProcessingPayment(true);
       try {
-        await ordersApi.addPayment(order.id, {
-          amount: parsedResult.data.amount,
-          note: parsedResult.data.note || "",
+        await addPaymentMutation.mutateAsync({
+          orderId: order.id,
+          data: {
+            amount: parsedResult.data.amount,
+            note: parsedResult.data.note || "",
+          },
         });
         toast({ title: "Payment Added" });
-        await fetchOrder();
         return true;
       } catch (err: unknown) {
         toast({
           title: "Error",
-          description: getApiErrorMessageOrFallback(err, "Failed to add payment"),
+          description: getApiErrorMessageOrFallback(
+            err,
+            "Failed to add payment",
+          ),
           variant: "destructive",
         });
         return false;
-      } finally {
-        setProcessingPayment(false);
       }
     },
-    [fetchOrder, order, toast],
+    [addPaymentMutation, order, toast],
   );
 
   const reversePayment = useCallback(
@@ -171,11 +176,14 @@ export function useOrderDetail(orderId: string | null) {
 
       setReversingPaymentId(paymentId);
       try {
-        await ordersApi.reversePayment(order.id, paymentId, {
-          note: note?.trim() || undefined,
+        await reversePaymentMutation.mutateAsync({
+          orderId: order.id,
+          paymentId,
+          data: {
+            note: note?.trim() || undefined,
+          },
         });
         toast({ title: "Payment Reversed" });
-        await fetchOrder();
         return true;
       } catch (err: unknown) {
         toast({
@@ -191,7 +199,7 @@ export function useOrderDetail(orderId: string | null) {
         setReversingPaymentId(null);
       }
     },
-    [fetchOrder, order, toast],
+    [order, reversePaymentMutation, toast],
   );
 
   const generateShareLink = useCallback(async () => {
@@ -199,9 +207,8 @@ export function useOrderDetail(orderId: string | null) {
       return null;
     }
 
-    setSharing(true);
     try {
-      const response = await ordersApi.shareOrder(order.id);
+      const response = await shareOrderMutation.mutateAsync(order.id);
       if (!response.success) {
         return null;
       }
@@ -216,10 +223,8 @@ export function useOrderDetail(orderId: string | null) {
         variant: "destructive",
       });
       return null;
-    } finally {
-      setSharing(false);
     }
-  }, [order, toast]);
+  }, [order, shareOrderMutation, toast]);
 
   const clearShareData = useCallback(() => {
     setShareData(null);

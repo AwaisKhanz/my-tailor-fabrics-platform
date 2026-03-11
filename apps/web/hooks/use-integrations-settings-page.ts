@@ -5,9 +5,16 @@ import {
   integrationTestEmailFormSchema,
   type MailIntegrationStatus,
 } from "@tbms/shared-types";
-import { mailApi } from "@/lib/api/mail";
 import { useToast } from "@/hooks/use-toast";
-import { getApiErrorMessageOrFallback, getApiErrorStatus } from "@/lib/utils/error";
+import {
+  useMailAuthUrl,
+  useMailIntegrationStatus,
+  useSendTestMail,
+} from "@/hooks/queries/mail-queries";
+import {
+  getApiErrorMessageOrFallback,
+  getApiErrorStatus,
+} from "@/lib/utils/error";
 
 const DEFAULT_STATUS: MailIntegrationStatus = {
   publicEndpointsEnabled: false,
@@ -29,66 +36,55 @@ function isForbidden(error: unknown): boolean {
 export function useIntegrationsSettingsPage() {
   const { toast } = useToast();
 
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [forbidden, setForbidden] = useState(false);
-  const [status, setStatus] = useState<MailIntegrationStatus>(DEFAULT_STATUS);
 
   const [authUrl, setAuthUrl] = useState("");
   const [authMessage, setAuthMessage] = useState("");
-  const [requestingAuthUrl, setRequestingAuthUrl] = useState(false);
 
   const [testEmail, setTestEmail] = useState("");
   const [testEmailValidationError, setTestEmailValidationError] = useState("");
-  const [sendingTest, setSendingTest] = useState(false);
+  const statusQuery = useMailIntegrationStatus();
+  const authUrlMutation = useMailAuthUrl();
+  const sendTestMailMutation = useSendTestMail();
 
-  const loadStatus = useCallback(
-    async (showRefreshState: boolean) => {
-      if (showRefreshState) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      try {
-        const response = await mailApi.getStatus();
-        if (response.success && response.data) {
-          setStatus(response.data);
-          setForbidden(false);
-        }
-      } catch (error) {
-        if (isForbidden(error)) {
-          setForbidden(true);
-          return;
-        }
-        toast({
-          title: "Error",
-          description: getApiErrorMessageOrFallback(error, "Failed to load integration status."),
-          variant: "destructive",
-        });
-      } finally {
-        if (showRefreshState) {
-          setRefreshing(false);
-        } else {
-          setLoading(false);
-        }
-      }
-    },
-    [toast],
-  );
+  const loading = statusQuery.isLoading;
+  const forbidden = statusQuery.isError
+    ? isForbidden(statusQuery.error)
+    : false;
+  const status: MailIntegrationStatus =
+    statusQuery.data?.success && statusQuery.data.data
+      ? statusQuery.data.data
+      : DEFAULT_STATUS;
+  const requestingAuthUrl = authUrlMutation.isPending;
+  const sendingTest = sendTestMailMutation.isPending;
 
   useEffect(() => {
-    void loadStatus(false);
-  }, [loadStatus]);
+    if (!statusQuery.isError || forbidden) {
+      return;
+    }
+
+    toast({
+      title: "Error",
+      description: getApiErrorMessageOrFallback(
+        statusQuery.error,
+        "Failed to load integration status.",
+      ),
+      variant: "destructive",
+    });
+  }, [forbidden, statusQuery.error, statusQuery.isError, toast]);
 
   const refresh = useCallback(async () => {
-    await loadStatus(true);
-  }, [loadStatus]);
+    setRefreshing(true);
+    try {
+      await statusQuery.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [statusQuery]);
 
   const requestAuthUrl = useCallback(async () => {
-    setRequestingAuthUrl(true);
     try {
-      const response = await mailApi.getAuthUrl();
+      const response = await authUrlMutation.mutateAsync();
       if (response.success && response.data.url) {
         setAuthUrl(response.data.url);
         setAuthMessage(response.data.message ?? "Authorization URL generated.");
@@ -100,16 +96,19 @@ export function useIntegrationsSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to generate authorization URL."),
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to generate authorization URL.",
+        ),
         variant: "destructive",
       });
-    } finally {
-      setRequestingAuthUrl(false);
     }
-  }, [toast]);
+  }, [authUrlMutation, toast]);
 
   const sendTestMail = useCallback(async () => {
-    const parsedResult = integrationTestEmailFormSchema.safeParse({ to: testEmail });
+    const parsedResult = integrationTestEmailFormSchema.safeParse({
+      to: testEmail,
+    });
     if (!parsedResult.success) {
       setTestEmailValidationError(
         parsedResult.error.flatten().fieldErrors.to?.[0] ??
@@ -119,9 +118,10 @@ export function useIntegrationsSettingsPage() {
     }
 
     setTestEmailValidationError("");
-    setSendingTest(true);
     try {
-      const response = await mailApi.sendTestMail({ to: parsedResult.data.to });
+      const response = await sendTestMailMutation.mutateAsync(
+        parsedResult.data.to,
+      );
       if (response.success) {
         toast({
           title: "Sent",
@@ -131,13 +131,14 @@ export function useIntegrationsSettingsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: getApiErrorMessageOrFallback(error, "Failed to send test email."),
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to send test email.",
+        ),
         variant: "destructive",
       });
-    } finally {
-      setSendingTest(false);
     }
-  }, [testEmail, toast]);
+  }, [sendTestMailMutation, testEmail, toast]);
 
   const configuredCount = useMemo(() => {
     return Object.values(status.configured).filter(Boolean).length;

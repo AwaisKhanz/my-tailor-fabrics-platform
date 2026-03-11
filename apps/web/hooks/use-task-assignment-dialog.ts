@@ -1,14 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   type Employee,
   taskRateOverrideFormSchema,
   type OrderItem,
   type TaskStatus,
 } from "@tbms/shared-types";
-import { ordersApi } from "@/lib/api/orders";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useAssignOrderItemTask,
+  useOrderTaskEligibleMap,
+  useUpdateOrderTaskRate,
+  useUpdateOrderTaskStatus,
+} from "@/hooks/queries/order-queries";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
 export function useTaskAssignmentDialog(
@@ -21,58 +26,47 @@ export function useTaskAssignmentDialog(
   const [editingRateId, setEditingRateId] = useState<string | null>(null);
   const [tempRate, setTempRate] = useState("");
   const [rateValidationError, setRateValidationError] = useState("");
-  const [eligibleEmployeesByTask, setEligibleEmployeesByTask] = useState<
-    Record<string, Array<Pick<Employee, "id" | "fullName">>>
-  >({});
+  const assignOrderItemTaskMutation = useAssignOrderItemTask();
+  const updateOrderTaskStatusMutation = useUpdateOrderTaskStatus();
+  const updateOrderTaskRateMutation = useUpdateOrderTaskRate();
 
   const tasks = useMemo(
-    () => [...(orderItem?.tasks || [])].sort((a, b) => a.sortOrder - b.sortOrder),
+    () =>
+      [...(orderItem?.tasks || [])].sort((a, b) => a.sortOrder - b.sortOrder),
     [orderItem?.tasks],
   );
-
-  useEffect(() => {
-    let ignore = false;
-
-    async function loadEligibleEmployees() {
-      if (tasks.length === 0) {
-        setEligibleEmployeesByTask({});
-        return;
+  const taskEligibleQueries = useOrderTaskEligibleMap(
+    tasks.map((task) => task.id),
+  );
+  const eligibleEmployeesByTask = useMemo<
+    Record<string, Array<Pick<Employee, "id" | "fullName">>>
+  >(() => {
+    return tasks.reduce<
+      Record<string, Array<Pick<Employee, "id" | "fullName">>>
+    >((acc, task, index) => {
+      const result = taskEligibleQueries[index]?.data;
+      if (!result?.success) {
+        acc[task.id] = [];
+        return acc;
       }
 
-      const nextMap: Record<string, Array<Pick<Employee, "id" | "fullName">>> = {};
-      await Promise.all(
-        tasks.map(async (task) => {
-          try {
-            const response = await ordersApi.getEligibleEmployeesForTask(task.id);
-            if (!response.success) {
-              return;
-            }
-            nextMap[task.id] = response.data.map((entry) => ({
-              id: entry.employee.id,
-              fullName: entry.employee.fullName,
-            }));
-          } catch {
-            nextMap[task.id] = [];
-          }
-        }),
-      );
-
-      if (!ignore) {
-        setEligibleEmployeesByTask(nextMap);
-      }
-    }
-
-    void loadEligibleEmployees();
-    return () => {
-      ignore = true;
-    };
-  }, [employees, tasks]);
+      acc[task.id] = result.data.map((entry) => ({
+        id: entry.employee.id,
+        fullName: entry.employee.fullName,
+      }));
+      return acc;
+    }, {});
+  }, [taskEligibleQueries, tasks]);
 
   const handleAssign = useCallback(
     async (taskId: string, employeeId: string | null) => {
       setLoadingId(taskId);
       try {
-        await ordersApi.assignTask(taskId, employeeId);
+        await assignOrderItemTaskMutation.mutateAsync({
+          orderId: orderItem?.orderId || "",
+          taskId,
+          employeeId,
+        });
         toast({
           title: employeeId ? "Task Assigned" : "Task Unassigned",
           description: employeeId
@@ -93,14 +87,18 @@ export function useTaskAssignmentDialog(
         setLoadingId(null);
       }
     },
-    [onSuccess, toast],
+    [assignOrderItemTaskMutation, onSuccess, orderItem?.orderId, toast],
   );
 
   const handleStatusChange = useCallback(
     async (taskId: string, status: TaskStatus) => {
       setLoadingId(taskId);
       try {
-        await ordersApi.updateTaskStatus(taskId, status);
+        await updateOrderTaskStatusMutation.mutateAsync({
+          orderId: orderItem?.orderId || "",
+          taskId,
+          status,
+        });
         toast({
           title: "Status Updated",
           description: "The task status was successfully changed.",
@@ -119,14 +117,17 @@ export function useTaskAssignmentDialog(
         setLoadingId(null);
       }
     },
-    [onSuccess, toast],
+    [onSuccess, orderItem?.orderId, toast, updateOrderTaskStatusMutation],
   );
 
-  const startRateEdit = useCallback((taskId: string, currentRateInRupees: number) => {
-    setRateValidationError("");
-    setEditingRateId(taskId);
-    setTempRate(currentRateInRupees.toString());
-  }, []);
+  const startRateEdit = useCallback(
+    (taskId: string, currentRateInRupees: number) => {
+      setRateValidationError("");
+      setEditingRateId(taskId);
+      setTempRate(currentRateInRupees.toString());
+    },
+    [],
+  );
 
   const cancelRateEdit = useCallback(() => {
     setRateValidationError("");
@@ -148,7 +149,11 @@ export function useTaskAssignmentDialog(
       setRateValidationError("");
       setLoadingId(taskId);
       try {
-        await ordersApi.updateTaskRate(taskId, parsedResult.data.amount);
+        await updateOrderTaskRateMutation.mutateAsync({
+          orderId: orderItem?.orderId || "",
+          taskId,
+          rate: parsedResult.data.amount,
+        });
         toast({
           title: "Rate Updated",
           description: "The task rate has been overridden.",
@@ -168,7 +173,13 @@ export function useTaskAssignmentDialog(
         setLoadingId(null);
       }
     },
-    [onSuccess, tempRate, toast],
+    [
+      onSuccess,
+      orderItem?.orderId,
+      tempRate,
+      toast,
+      updateOrderTaskRateMutation,
+    ],
   );
 
   return {

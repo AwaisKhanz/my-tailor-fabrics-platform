@@ -15,12 +15,14 @@ import { Input } from "@/components/ui/input";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { useToast } from "@/hooks/use-toast";
-import { employeesApi } from "@/lib/api/employees";
+import { useCreateEmployeeUserAccount } from "@/hooks/queries/employee-queries";
 import { typedZodResolver } from "@/lib/utils/form";
-import { accountCreationSchema, AccountCreationFormValues } from "@/types/employees";
+import {
+  accountCreationSchema,
+  AccountCreationFormValues,
+} from "@/types/employees";
 import type { Employee } from "@/types/employees";
 import { Key } from "lucide-react";
-
 
 interface AccountCreationDialogProps {
   open: boolean;
@@ -36,6 +38,7 @@ export function AccountCreationDialog({
   onSuccess,
 }: AccountCreationDialogProps) {
   const { toast } = useToast();
+  const createEmployeeUserAccountMutation = useCreateEmployeeUserAccount();
   const form = useForm<AccountCreationFormValues>({
     resolver: typedZodResolver(accountCreationSchema),
     defaultValues: {
@@ -58,11 +61,17 @@ export function AccountCreationDialog({
   async function onSubmit(data: AccountCreationFormValues) {
     if (!employee) return;
     try {
-      await employeesApi.createUserAccount(employee.id, {
-        email: data.email,
-        password: data.password,
+      await createEmployeeUserAccountMutation.mutateAsync({
+        id: employee.id,
+        data: {
+          email: data.email,
+          password: data.password,
+        },
       });
-      toast({ title: "Account Created", description: "Login credentials successfully provisioned." });
+      toast({
+        title: "Account Created",
+        description: "Login credentials successfully provisioned.",
+      });
       onSuccess();
       onOpenChange(false);
     } catch {
@@ -79,7 +88,9 @@ export function AccountCreationDialog({
       onCancel={() => onOpenChange(false)}
       submitFormId="account-creation-form"
       submitText="Create Account"
+      submitting={createEmployeeUserAccountMutation.isPending}
       cancelVariant="outline"
+      submittingText="Creating Account..."
     />
   );
 
@@ -93,10 +104,7 @@ export function AccountCreationDialog({
       maxWidthClass="sm:max-w-[400px]"
     >
       <div className="flex flex-col items-center justify-center mb-6 mt-2">
-        <SectionIcon
-          framed={false}
-          className="h-12 w-12 rounded-full"
-        >
+        <SectionIcon framed={false} className="h-12 w-12 rounded-full">
           <Key className="h-6 w-6 text-primary" />
         </SectionIcon>
       </div>
@@ -107,45 +115,45 @@ export function AccountCreationDialog({
           onSubmit={form.handleSubmit(onSubmit)}
           className="px-1 pb-2"
         >
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="staff@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="staff@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </FormStack>
       </Form>
     </ScrollableDialog>

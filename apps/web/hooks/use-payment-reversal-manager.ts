@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { useToast } from "@/hooks/use-toast";
-import { paymentsApi } from "@/lib/api/payments";
+import { useReversePayment } from "@/hooks/queries/payment-queries";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
 type ToastFn = ReturnType<typeof useToast>["toast"];
@@ -18,6 +18,7 @@ export function usePaymentReversalManager({
   refreshPayments,
   toast,
 }: UsePaymentReversalManagerParams) {
+  const reversePaymentMutation = useReversePayment();
   const [reversingPaymentId, setReversingPaymentId] = useState<string | null>(
     null,
   );
@@ -33,7 +34,10 @@ export function usePaymentReversalManager({
 
       setReversingPaymentId(paymentId);
       try {
-        await paymentsApi.reverse(paymentId);
+        await reversePaymentMutation.mutateAsync({
+          id: paymentId,
+          employeeId: selectedEmployeeId,
+        });
         toast({ title: "Payment reversed successfully" });
         await refreshPayments();
         return true;
@@ -51,7 +55,7 @@ export function usePaymentReversalManager({
         setReversingPaymentId(null);
       }
     },
-    [refreshPayments, selectedEmployeeId, toast],
+    [refreshPayments, reversePaymentMutation, selectedEmployeeId, toast],
   );
 
   const requestReversePayment = useCallback((paymentId: string) => {

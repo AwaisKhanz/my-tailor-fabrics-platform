@@ -8,7 +8,7 @@ import {
   userAccountUpdateFormSchema,
   type UserAccount,
 } from "@tbms/shared-types";
-import { usersApi } from "@/lib/api/users";
+import { useCreateUser, useUpdateUser } from "@/hooks/queries/user-queries";
 import { getApiErrorMessage } from "@/lib/utils/error";
 import { useToast } from "@/hooks/use-toast";
 
@@ -54,7 +54,9 @@ export function useUserAccountManager({
   refreshUsers,
 }: UseUserAccountManagerParams) {
   const { toast } = useToast();
-  const [saving, setSaving] = useState(false);
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
+  const saving = createUserMutation.isPending || updateUserMutation.isPending;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserAccount | null>(null);
   const [form, setForm] = useState<UserFormState>(EMPTY_USER_FORM);
@@ -141,7 +143,6 @@ export function useUserAccountManager({
     setFieldErrors({});
     setFormError("");
 
-    setSaving(true);
     try {
       const payload = {
         name: validated.name,
@@ -155,10 +156,13 @@ export function useUserAccountManager({
       };
 
       if (editingUser) {
-        await usersApi.updateUser(editingUser.id, payload);
+        await updateUserMutation.mutateAsync({
+          id: editingUser.id,
+          data: payload,
+        });
         toast({ title: "User updated successfully" });
       } else {
-        await usersApi.createUser(payload);
+        await createUserMutation.mutateAsync(payload);
         toast({ title: "User created successfully" });
       }
 
@@ -173,10 +177,16 @@ export function useUserAccountManager({
         description: getApiErrorMessage(error) ?? fallback,
         variant: "destructive",
       });
-    } finally {
-      setSaving(false);
     }
-  }, [editingUser, form, handleDialogOpenChange, refreshUsers, toast]);
+  }, [
+    createUserMutation,
+    editingUser,
+    form,
+    handleDialogOpenChange,
+    refreshUsers,
+    toast,
+    updateUserMutation,
+  ]);
 
   return {
     saving,

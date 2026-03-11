@@ -7,7 +7,10 @@ import {
   type Branch,
 } from "@tbms/shared-types";
 import type { useToast } from "@/hooks/use-toast";
-import { branchesApi } from "@/lib/api/branches";
+import {
+  useCreateBranch,
+  useUpdateBranch,
+} from "@/hooks/queries/branch-queries";
 import { getApiErrorMessage } from "@/lib/utils/error";
 
 export interface BranchFormState {
@@ -36,12 +39,15 @@ export function useBranchDialogManager({
   fetchBranches,
   toast,
 }: UseBranchDialogManagerParams) {
+  const createBranchMutation = useCreateBranch();
+  const updateBranchMutation = useUpdateBranch();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
   const [form, setForm] = useState<BranchFormState>(EMPTY_BRANCH_FORM);
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<BranchFieldErrors>({});
-  const [saving, setSaving] = useState(false);
+  const saving =
+    createBranchMutation.isPending || updateBranchMutation.isPending;
 
   const openCreateDialog = useCallback(() => {
     setEditingBranch(null);
@@ -136,17 +142,19 @@ export function useBranchDialogManager({
 
     setFieldErrors({});
     setFormError("");
-    setSaving(true);
     try {
       if (editingBranch && updateData) {
-        await branchesApi.updateBranch(editingBranch.id, {
-          name: updateData.name,
-          address: updateData.address || undefined,
-          phone: updateData.phone || undefined,
+        await updateBranchMutation.mutateAsync({
+          id: editingBranch.id,
+          data: {
+            name: updateData.name,
+            address: updateData.address || undefined,
+            phone: updateData.phone || undefined,
+          },
         });
         toast({ title: "Branch updated" });
       } else if (createData) {
-        await branchesApi.createBranch({
+        await createBranchMutation.mutateAsync({
           code: createData.code.toUpperCase(),
           name: createData.name,
           address: createData.address || undefined,
@@ -163,10 +171,16 @@ export function useBranchDialogManager({
         description: getApiErrorMessage(error) ?? "Failed to save",
         variant: "destructive",
       });
-    } finally {
-      setSaving(false);
     }
-  }, [editingBranch, fetchBranches, form, handleDialogOpenChange, toast]);
+  }, [
+    createBranchMutation,
+    editingBranch,
+    fetchBranches,
+    form,
+    handleDialogOpenChange,
+    toast,
+    updateBranchMutation,
+  ]);
 
   return {
     dialogOpen,

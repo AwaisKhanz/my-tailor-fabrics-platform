@@ -10,6 +10,7 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 4. Styling: Tailwind CSS with semantic tokens and global theme variables
 5. Shared contracts: `@tbms/shared-types`, `@tbms/shared-constants`
 6. HTTP client: centralized axios client in `apps/web/lib/api.ts`
+7. Data cache/query layer: TanStack Query with centralized query keys in `apps/web/lib/query-keys.ts`
 
 ## 2. Route and File Structure Rules
 
@@ -41,9 +42,12 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 
 1. Frontend code should use the centralized API client in `apps/web/lib/api.ts`.
 2. Domain-specific request helpers belong in `apps/web/lib/api/<domain>.ts`.
-3. Components should not create their own axios instances.
-4. Do not bypass the centralized auth refresh, branch header, and 401 recovery flow.
-5. If a new backend endpoint is added for frontend use, add or update the corresponding typed client helper.
+3. Server-state fetching/caching must use TanStack Query hooks (queries + mutations) instead of ad hoc `useEffect` fetch orchestration for page data.
+4. Query keys must be defined through `apps/web/lib/query-keys.ts` (or local key-factory constants when a domain is intentionally private to one hook).
+5. Mutation side effects must invalidate affected query keys explicitly.
+6. Components should not create their own axios instances.
+7. Do not bypass the centralized auth refresh, branch header, and 401 recovery flow.
+8. If a new backend endpoint is added for frontend use, add or update the corresponding typed client helper.
 
 ## 5. Auth and Authorization Rules
 

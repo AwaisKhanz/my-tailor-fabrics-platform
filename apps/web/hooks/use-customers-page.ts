@@ -1,11 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Customer, CustomersListSummary, CustomerStatus } from "@tbms/shared-types";
+import { useCallback, useMemo, useState } from "react";
+import { Customer, CustomerStatus } from "@tbms/shared-types";
 import { CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
-import { customerApi } from "@/lib/api/customers";
 import { logDevError } from "@/lib/logger";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import {
+  useCustomersList,
+  useCustomersSummary,
+} from "@/hooks/queries/customer-queries";
 
 const PAGE_SIZE = 10;
 export const DEFAULT_CUSTOMER_STATUS_TAB: CustomerStatusTab =
@@ -54,86 +57,86 @@ export function useCustomersPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [total, setTotal] = useState(0);
-  const [summary, setSummary] = useState<CustomersListSummary>({
-    totalCustomers: 0,
-    whatsappConnectedCount: 0,
-    vipCustomersCount: 0,
-  });
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
   const statusTab = parseCustomerStatusTab(values.status);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
 
-  const fetchCustomers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const filters = {
-        search: search.trim() || undefined,
-        status: statusTab === "ALL" ? undefined : statusTab,
+  const filters = useMemo(
+    () => ({
+      search: search.trim() || undefined,
+      status: statusTab === "ALL" ? undefined : statusTab,
+    }),
+    [search, statusTab],
+  );
+
+  const customersQuery = useCustomersList({
+    page,
+    limit: pageSize,
+    search: filters.search,
+    status: filters.status,
+  });
+
+  const summaryQuery = useCustomersSummary(filters);
+
+  const loading = customersQuery.isLoading || summaryQuery.isLoading;
+  const customers = customersQuery.data?.success
+    ? customersQuery.data.data.data
+    : [];
+  const total = customersQuery.data?.success
+    ? customersQuery.data.data.total
+    : 0;
+  const summary = summaryQuery.data?.success
+    ? summaryQuery.data.data
+    : {
+        totalCustomers: 0,
+        whatsappConnectedCount: 0,
+        vipCustomersCount: 0,
       };
 
-      const [listResponse, summaryResponse] = await Promise.all([
-        customerApi.getCustomers({
-          page,
-          limit: pageSize,
-          search: filters.search,
-          status: filters.status,
-        }),
-        customerApi.getCustomersSummary(filters),
-      ]);
-
-      if (listResponse.success) {
-        setCustomers(listResponse.data.data);
-        setTotal(listResponse.data.total);
-      }
-
-      if (summaryResponse.success) {
-        setSummary(summaryResponse.data);
-      }
+  const fetchCustomers = useCallback(async () => {
+    try {
+      await Promise.all([customersQuery.refetch(), summaryQuery.refetch()]);
     } catch (error) {
-      logDevError("Failed to fetch customers:", error);
-    } finally {
-      setLoading(false);
+      logDevError("Failed to refetch customers:", error);
     }
-  }, [page, pageSize, search, statusTab]);
+  }, [customersQuery, summaryQuery]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void fetchCustomers();
-    }, 300);
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [fetchCustomers]);
-
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
-
-  const setStatusFilter = useCallback((value: CustomerStatusTab) => {
-    setValues({
-      status: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setStatusFilter = useCallback(
+    (value: CustomerStatusTab) => {
+      setValues({
+        status: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const resetFilters = useCallback(() => {
     resetValues();
   }, [resetValues]);
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const openCreateDialog = useCallback(() => {
     setSelectedCustomer(null);

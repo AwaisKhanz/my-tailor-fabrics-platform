@@ -1,11 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { type MeasurementSection } from "@tbms/shared-types";
-import { configApi } from "@/lib/api/config";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useAddMeasurementSection,
+  useUpdateMeasurementSection,
+} from "@/hooks/queries/config-queries";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { typedZodResolver } from "@/lib/utils/form";
 import {
@@ -44,7 +47,11 @@ export function MeasurementSectionDialog({
   onSuccess,
 }: MeasurementSectionDialogProps) {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const addMeasurementSectionMutation = useAddMeasurementSection();
+  const updateMeasurementSectionMutation = useUpdateMeasurementSection();
+  const loading =
+    addMeasurementSectionMutation.isPending ||
+    updateMeasurementSectionMutation.isPending;
 
   const form = useForm<MeasurementSectionDialogFormValues>({
     resolver: typedZodResolver(measurementSectionDialogFormSchema),
@@ -63,16 +70,18 @@ export function MeasurementSectionDialog({
 
   const submitSection = useCallback(
     async (values: MeasurementSectionDialogFormValues) => {
-      setLoading(true);
       try {
         if (initialSection?.id) {
-          await configApi.updateMeasurementSection(initialSection.id, {
-            name: values.name,
+          await updateMeasurementSectionMutation.mutateAsync({
+            sectionId: initialSection.id,
+            categoryId,
+            data: { name: values.name },
           });
           toast({ title: "Section updated successfully" });
         } else {
-          await configApi.addMeasurementSection(categoryId, {
-            name: values.name,
+          await addMeasurementSectionMutation.mutateAsync({
+            categoryId,
+            data: { name: values.name },
           });
           toast({ title: "Section added successfully" });
         }
@@ -89,11 +98,17 @@ export function MeasurementSectionDialog({
           ),
           variant: "destructive",
         });
-      } finally {
-        setLoading(false);
       }
     },
-    [categoryId, initialSection?.id, onOpenChange, onSuccess, toast],
+    [
+      addMeasurementSectionMutation,
+      categoryId,
+      initialSection?.id,
+      onOpenChange,
+      onSuccess,
+      toast,
+      updateMeasurementSectionMutation,
+    ],
   );
 
   const submitForm = form.handleSubmit(submitSection);

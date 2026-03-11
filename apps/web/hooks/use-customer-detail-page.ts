@@ -8,53 +8,56 @@ import {
   type MeasurementCategory,
   type Order,
 } from "@tbms/shared-types";
-import { configApi } from "@/lib/api/config";
-import { customerApi } from "@/lib/api/customers";
 import { CUSTOMERS_ROUTE } from "@/lib/people-routes";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useCustomer,
+  useCustomerOrders,
+} from "@/hooks/queries/customer-queries";
+import { useMeasurementCategories } from "@/hooks/queries/config-queries";
 
 interface UseCustomerDetailPageParams {
   customerId: string | null;
 }
 
-export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParams) {
+export function useCustomerDetailPage({
+  customerId,
+}: UseCustomerDetailPageParams) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [loading, setLoading] = useState(true);
-  const [customer, setCustomer] = useState<CustomerDetail | null>(null);
-  const [categories, setCategories] = useState<MeasurementCategory[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const customerQuery = useCustomer(customerId);
+  const categoriesQuery = useMeasurementCategories({ limit: 100 });
+  const ordersQuery = useCustomerOrders(customerId, { limit: 50 });
+
+  const loading =
+    customerQuery.isLoading ||
+    categoriesQuery.isLoading ||
+    ordersQuery.isLoading;
+  const customer: CustomerDetail | null = customerQuery.data?.success
+    ? customerQuery.data.data
+    : null;
+  const categories: MeasurementCategory[] = categoriesQuery.data?.success
+    ? (categoriesQuery.data.data.data ?? [])
+    : [];
+  const orders: Order[] = ordersQuery.data?.success
+    ? (ordersQuery.data.data.data ?? [])
+    : [];
+
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [measurementDialogOpen, setMeasurementDialogOpen] = useState(false);
 
   const fetchCustomerData = useCallback(async () => {
     if (!customerId) {
-      setLoading(false);
       return;
     }
 
-    setLoading(true);
     try {
-      const [customerResponse, categoriesResponse, ordersResponse] = await Promise.all([
-        customerApi.getCustomer(customerId),
-        configApi.getMeasurementCategories({ limit: 100 }),
-        customerApi.getOrders(customerId, { limit: 50 }),
+      await Promise.all([
+        customerQuery.refetch(),
+        categoriesQuery.refetch(),
+        ordersQuery.refetch(),
       ]);
-
-      if (customerResponse.success) {
-        setCustomer(customerResponse.data);
-      } else {
-        setCustomer(null);
-      }
-
-      if (categoriesResponse.success) {
-        setCategories(categoriesResponse.data?.data ?? []);
-      }
-
-      if (ordersResponse.success) {
-        setOrders(ordersResponse.data?.data ?? []);
-      }
     } catch {
       toast({
         title: "Error",
@@ -62,14 +65,20 @@ export function useCustomerDetailPage({ customerId }: UseCustomerDetailPageParam
         variant: "destructive",
       });
       router.push(CUSTOMERS_ROUTE);
-    } finally {
-      setLoading(false);
     }
-  }, [customerId, router, toast]);
+  }, [categoriesQuery, customerId, customerQuery, ordersQuery, router, toast]);
 
   useEffect(() => {
-    void fetchCustomerData();
-  }, [fetchCustomerData]);
+    if (!customerId || !customerQuery.isError) {
+      return;
+    }
+    toast({
+      title: "Error",
+      description: "Failed to load customer data",
+      variant: "destructive",
+    });
+    router.push(CUSTOMERS_ROUTE);
+  }, [customerId, customerQuery.isError, router, toast]);
 
   const fieldLabelMap = useMemo(() => {
     const categoryMap = new Map<string, Map<string, string>>();

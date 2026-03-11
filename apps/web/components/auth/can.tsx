@@ -14,7 +14,7 @@ type CanProps = {
   fallback?: ReactNode;
   roles?: readonly Role[];
   all?: readonly Permission[];
-  any?: readonly Permission[];
+  anyOf?: readonly Permission[];
 };
 
 export function Can({
@@ -22,7 +22,7 @@ export function Can({
   fallback = null,
   roles,
   all,
-  any,
+  anyOf,
 }: CanProps) {
   const { data: session } = useSession();
   const role = resolveSessionRole(session);
@@ -39,7 +39,7 @@ export function Can({
     return <>{fallback}</>;
   }
 
-  if (any && any.length > 0 && !sessionHasAnyPermission(session, any)) {
+  if (anyOf && anyOf.length > 0 && !sessionHasAnyPermission(session, anyOf)) {
     return <>{fallback}</>;
   }
 

@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { EmployeeAssignedItemsResult } from "@tbms/shared-types";
-import { employeesApi } from "@/lib/api/employees";
 import { useToast } from "@/hooks/use-toast";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import { useMyItems } from "@/hooks/queries/employee-queries";
 
 export type MyAssignedWorkItem = EmployeeAssignedItemsResult["data"][number];
 
@@ -20,33 +20,27 @@ export function useMyOrdersPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState<MyAssignedWorkItem[]>([]);
   const search = values.search;
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const myItemsQuery = useMyItems();
+
+  const loading = myItemsQuery.isLoading;
+  const items: MyAssignedWorkItem[] = myItemsQuery.data?.success
+    ? (myItemsQuery.data.data.data ?? [])
+    : [];
 
   const fetchMyOrders = useCallback(async () => {
-    setLoading(true);
     try {
-      const response = await employeesApi.getAssignedItems();
-      if (response.success) {
-        setItems(response.data.data ?? []);
-      }
+      await myItemsQuery.refetch();
     } catch {
       toast({
         title: "Error",
         description: "Failed to load your assigned orders",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [toast]);
-
-  useEffect(() => {
-    void fetchMyOrders();
-  }, [fetchMyOrders]);
+  }, [myItemsQuery, toast]);
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -75,12 +69,15 @@ export function useMyOrdersPage() {
     return filteredItems.slice(start, start + pageSize);
   }, [filteredItems, page, pageSize]);
 
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const clearSearch = useCallback(() => {
     setValues({
@@ -89,9 +86,12 @@ export function useMyOrdersPage() {
     });
   }, [setValues]);
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   return {
     loading,

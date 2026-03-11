@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   rateCardCreateFormSchema,
   type Branch,
@@ -9,16 +9,19 @@ import {
   type RateCardListItem,
   type RateStatsSummary,
 } from "@tbms/shared-types";
-import { branchesApi } from "@/lib/api/branches";
-import { configApi } from "@/lib/api/config";
-import { ratesApi } from "@/lib/api/rates";
-import {
-  RATE_CARD_GLOBAL_BRANCH_VALUE,
-} from "@/lib/rates";
+import { RATE_CARD_GLOBAL_BRANCH_VALUE } from "@/lib/rates";
 import { useToast } from "@/hooks/use-toast";
 import { logDevError } from "@/lib/logger";
 import { getFirstZodErrorMessage } from "@/lib/utils/zod";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useBranchesList } from "@/hooks/queries/branch-queries";
+import { useGarmentTypesList } from "@/hooks/queries/config-queries";
+import {
+  useCreateRate,
+  useRatesList,
+  useRateStats,
+} from "@/hooks/queries/rate-queries";
 
 const PAGE_SIZE = 10;
 const EMPTY_RATE_STATS: RateStatsSummary = {
@@ -76,20 +79,45 @@ export function useRatesPage() {
     },
   });
 
-  const [loading, setLoading] = useState(true);
-  const [rates, setRates] = useState<RateCardListItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [stats, setStats] = useState<RateStatsSummary>(EMPTY_RATE_STATS);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
+  const debouncedSearch = useDebounce(search, 300);
 
-  const [garmentTypes, setGarmentTypes] = useState<GarmentType[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedRateForAdjust, setSelectedRateForAdjust] = useState<RateCardListItem | null>(
-    null,
-  );
+  const [selectedRateForAdjust, setSelectedRateForAdjust] =
+    useState<RateCardListItem | null>(null);
+
+  const ratesQuery = useRatesList({
+    search: debouncedSearch.trim() || undefined,
+    page,
+    limit: pageSize,
+  });
+  const statsQuery = useRateStats({
+    search: debouncedSearch.trim() || undefined,
+  });
+  const garmentTypesQuery = useGarmentTypesList({ limit: 100 });
+  const branchesQuery = useBranchesList({ page: 1, limit: 100 });
+  const createRateMutation = useCreateRate();
+
+  const loading =
+    ratesQuery.isLoading ||
+    garmentTypesQuery.isLoading ||
+    branchesQuery.isLoading ||
+    statsQuery.isLoading;
+  const rates: RateCardListItem[] = ratesQuery.data?.success
+    ? ratesQuery.data.data.data
+    : [];
+  const total = ratesQuery.data?.success ? ratesQuery.data.data.total : 0;
+  const stats: RateStatsSummary = statsQuery.data?.success
+    ? statsQuery.data.data
+    : EMPTY_RATE_STATS;
+  const garmentTypes: GarmentType[] = garmentTypesQuery.data?.success
+    ? garmentTypesQuery.data.data.data
+    : [];
+  const branches: Branch[] = branchesQuery.data?.success
+    ? branchesQuery.data.data.data
+    : [];
 
   const stepKeysByGarmentId = useMemo(() => {
     const map: Record<string, string[]> = {};
@@ -105,31 +133,13 @@ export function useRatesPage() {
   }, [garmentTypes]);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
     try {
-      const [ratesResponse, garmentsResponse, branchesResponse, statsResponse] = await Promise.all([
-        ratesApi.findAll({ search: search.trim() || undefined, page, limit: pageSize }),
-        configApi.getGarmentTypes({ limit: 100 }),
-        branchesApi.getBranches({ page: 1, limit: 100 }),
-        ratesApi.getStats({ search: search.trim() || undefined }),
+      await Promise.all([
+        ratesQuery.refetch(),
+        garmentTypesQuery.refetch(),
+        branchesQuery.refetch(),
+        statsQuery.refetch(),
       ]);
-
-      if (ratesResponse.success) {
-        setRates(ratesResponse.data.data);
-        setTotal(ratesResponse.data.total);
-      }
-
-      if (garmentsResponse.success && garmentsResponse.data) {
-        setGarmentTypes(garmentsResponse.data.data);
-      }
-
-      if (branchesResponse.success && branchesResponse.data) {
-        setBranches(branchesResponse.data.data);
-      }
-
-      if (statsResponse.success) {
-        setStats(statsResponse.data);
-      }
     } catch (error) {
       logDevError("Failed to fetch rates data:", error);
       toast({
@@ -137,27 +147,18 @@ export function useRatesPage() {
         description: "Failed to load rates",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  }, [page, pageSize, search, toast]);
+  }, [branchesQuery, garmentTypesQuery, ratesQuery, statsQuery, toast]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void fetchData();
-    }, 300);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [fetchData]);
-
-  const setSearchFilter = useCallback((value: string) => {
-    setValues({
-      search: value,
-      page: "1",
-    });
-  }, [setValues]);
+  const setSearchFilter = useCallback(
+    (value: string) => {
+      setValues({
+        search: value,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
 
   const clearSearch = useCallback(() => {
     setValues({
@@ -166,13 +167,18 @@ export function useRatesPage() {
     });
   }, [setValues]);
 
-  const setPage = useCallback((nextPage: number) => {
-    setValues({ page: String(nextPage) });
-  }, [setValues]);
+  const setPage = useCallback(
+    (nextPage: number) => {
+      setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
 
   const createRate = useCallback(
     async (data: CreateRateCardInput) => {
-      const normalizedEffectiveFrom = normalizeEffectiveFromForSubmit(data.effectiveFrom);
+      const normalizedEffectiveFrom = normalizeEffectiveFromForSubmit(
+        data.effectiveFrom,
+      );
       const parsedResult = rateCardCreateFormSchema.safeParse({
         branchId: data.branchId ?? RATE_CARD_GLOBAL_BRANCH_VALUE,
         garmentTypeId: data.garmentTypeId,
@@ -184,7 +190,7 @@ export function useRatesPage() {
         throw new Error(getFirstZodErrorMessage(parsedResult.error));
       }
 
-      const response = await ratesApi.create({
+      const response = await createRateMutation.mutateAsync({
         ...data,
         effectiveFrom: normalizedEffectiveFrom,
       });
@@ -195,7 +201,7 @@ export function useRatesPage() {
       toast({ title: "Rate card saved successfully" });
       await fetchData();
     },
-    [fetchData, toast],
+    [createRateMutation, fetchData, toast],
   );
 
   const openCreateRateDialog = useCallback(() => {

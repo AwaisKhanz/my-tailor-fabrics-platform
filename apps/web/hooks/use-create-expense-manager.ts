@@ -1,8 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { expenseCreateFormSchema } from "@tbms/shared-types";
-import { expensesApi } from "@/lib/api/expenses";
+import {
+  expenseCreateFormSchema,
+  type CreateExpenseInput,
+} from "@tbms/shared-types";
+import { useCreateExpense } from "@/hooks/queries/expense-queries";
 import { useToast } from "@/hooks/use-toast";
 
 export interface ExpenseFormState {
@@ -39,14 +42,18 @@ export function useCreateExpenseManager({
   refreshExpenses,
 }: UseCreateExpenseManagerParams) {
   const { toast } = useToast();
+  const createExpenseMutation = useCreateExpense();
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState<ExpenseFormState>(getDefaultFormState);
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
-  const [saving, setSaving] = useState(false);
+  const saving = createExpenseMutation.isPending;
 
   const updateFormField = useCallback(
-    <K extends keyof ExpenseFormState>(field: K, value: ExpenseFormState[K]) => {
+    <K extends keyof ExpenseFormState>(
+      field: K,
+      value: ExpenseFormState[K],
+    ) => {
       setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
       setFormError("");
       setForm((previous) => ({ ...previous, [field]: value }));
@@ -109,16 +116,15 @@ export function useCreateExpenseManager({
     setFieldErrors({});
     setFormError("");
 
-    setSaving(true);
     try {
-      const payload: Parameters<typeof expensesApi.createExpense>[0] = {
+      const payload: CreateExpenseInput = {
         categoryId: data.categoryId,
         amount: data.amount,
         description: data.description || undefined,
         expenseDate: new Date(data.expenseDate).toISOString(),
       };
 
-      await expensesApi.createExpense(payload);
+      await createExpenseMutation.mutateAsync(payload);
       toast({ title: "Expense added successfully" });
 
       setAddOpen(false);
@@ -135,10 +141,16 @@ export function useCreateExpenseManager({
         description: "Failed to add expense",
         variant: "destructive",
       });
-    } finally {
-      setSaving(false);
     }
-  }, [form, page, refreshExpenses, resetCreateForm, setPage, toast]);
+  }, [
+    createExpenseMutation,
+    form,
+    page,
+    refreshExpenses,
+    resetCreateForm,
+    setPage,
+    toast,
+  ]);
 
   return {
     addOpen,

@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { OrderStatus, type PublicOrderStatusResult, publicStatusPinSchema } from "@tbms/shared-types";
+import {
+  OrderStatus,
+  type PublicOrderStatusResult,
+  publicStatusPinSchema,
+} from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import {
   AlertCircle,
@@ -11,7 +15,7 @@ import {
   AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
-import { getPublicOrderStatus } from "@/lib/api/public-status";
+import { usePublicOrderStatusLookup } from "@/hooks/queries/public-status-queries";
 
 const PUBLIC_STATUS_ICONS: Record<OrderStatus, LucideIcon> = {
   [OrderStatus.NEW]: AlertCircle,
@@ -27,10 +31,13 @@ interface UsePublicOrderStatusPageParams {
   token: string;
 }
 
-export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPageParams) {
+export function usePublicOrderStatusPage({
+  token,
+}: UsePublicOrderStatusPageParams) {
+  const publicOrderStatusLookupMutation = usePublicOrderStatusLookup();
   const [pin, setPin] = useState("");
   const [order, setOrder] = useState<PublicOrderStatusResult | null>(null);
-  const [loading, setLoading] = useState(false);
+  const loading = publicOrderStatusLookupMutation.isPending;
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,21 +51,24 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
         return;
       }
 
-      setLoading(true);
       setError("");
 
       try {
-        const { ok, payload } = await getPublicOrderStatus(
-          token,
-          parsedResult.data.pin,
-        );
+        const { ok, payload } =
+          await publicOrderStatusLookupMutation.mutateAsync({
+            token,
+            pin: parsedResult.data.pin,
+          });
         if (!payload) {
           setError("Unexpected response received. Please try again.");
           return;
         }
 
         if (!ok || !payload.success) {
-          setError(payload.message ?? "Invalid PIN or link. Please check and try again.");
+          setError(
+            payload.message ??
+              "Invalid PIN or link. Please check and try again.",
+          );
           return;
         }
 
@@ -66,11 +76,9 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
         setSubmitted(true);
       } catch {
         setError("Something went wrong. Please try again.");
-      } finally {
-        setLoading(false);
       }
     },
-    [pin, token],
+    [pin, publicOrderStatusLookupMutation, token],
   );
 
   const statusConfig = useMemo(() => {
@@ -80,7 +88,9 @@ export function usePublicOrderStatusPage({ token }: UsePublicOrderStatusPagePara
 
     const status = order.status;
     const fallbackStatus = OrderStatus.NEW;
-    const resolvedStatus = ORDER_STATUS_CONFIG[status] ? status : fallbackStatus;
+    const resolvedStatus = ORDER_STATUS_CONFIG[status]
+      ? status
+      : fallbackStatus;
     const statusConfig = ORDER_STATUS_CONFIG[resolvedStatus];
 
     return {
