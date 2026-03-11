@@ -2,7 +2,7 @@ import { AlertTriangle, ArrowRight } from "lucide-react";
 import type { DashboardStats } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardOverdueBannerProps {
@@ -36,9 +36,9 @@ export function DashboardOverdueBanner({
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <Label className="text-sm font-bold uppercase  text-muted-foreground block text-destructive">
+              <FieldLabel tone="destructive" block>
                 {overdueCount} Overdue {overdueCount === 1 ? "Order" : "Orders"}
-              </Label>
+              </FieldLabel>
               <p className="text-sm text-destructive/80">
                 These orders have passed their due date and require immediate
                 attention.

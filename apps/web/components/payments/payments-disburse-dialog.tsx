@@ -11,9 +11,9 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Heading, Text } from "@/components/ui/typography";
 import { type PaymentDisbursementForm } from "@/hooks/use-payment-disbursement-manager";
 import { formatPKR } from "@/lib/utils";
@@ -70,9 +70,9 @@ export function PaymentsDisburseDialog({
             }}
           >
             <InfoTile tone="secondary" padding="contentLg" radius="xl">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1 block">
+              <FieldLabel block className="mb-1">
                 Available to pay
-              </Label>
+              </FieldLabel>
               <Heading
                 as="div"
                 variant="stat"
@@ -82,10 +82,10 @@ export function PaymentsDisburseDialog({
               </Heading>
             </InfoTile>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            <FieldStack>
+              <FieldLabel>
                 Amount (Rs.) <span className="text-destructive">*</span>
-              </Label>
+              </FieldLabel>
               <Input
                 type="number"
                 placeholder="e.g. 5000"
@@ -95,27 +95,23 @@ export function PaymentsDisburseDialog({
                 min="1"
               />
               {validationError ? (
-                <Text as="p" variant="muted" className="text-destructive">
-                  {validationError}
-                </Text>
+                <FieldError size="sm">{validationError}</FieldError>
               ) : exceedsBalance ? (
-                <Text as="p" variant="muted" className="text-destructive">
+                <FieldError size="sm">
                   Amount cannot be greater than outstanding balance.
-                </Text>
+                </FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                Note / Remarks
-              </Label>
+            <FieldStack>
+              <FieldLabel>Note / Remarks</FieldLabel>
               <Input
                 className="h-11"
                 placeholder="e.g. Weekly settlement, advance payment..."
                 value={form.note}
                 onChange={(event) => onNoteChange(event.target.value)}
               />
-            </div>
+            </FieldStack>
           </FormStack>
         </DialogSection>
 

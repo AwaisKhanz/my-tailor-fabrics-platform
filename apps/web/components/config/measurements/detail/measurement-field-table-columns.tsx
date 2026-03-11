@@ -7,7 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -124,16 +124,12 @@ export function useMeasurementFieldTableColumns({
             ) : field.isRequired ? (
               <div className="flex items-center gap-1.5 text-primary">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <Label className="text-sm font-bold uppercase  text-muted-foreground text-primary">
-                  Required
-                </Label>
+                <FieldLabel tone="primary">Required</FieldLabel>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <div className="h-3.5 w-3.5 rounded-full border-2 border-muted" />
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Optional
-                </Label>
+                <FieldLabel>Optional</FieldLabel>
               </div>
             )}
           </div>

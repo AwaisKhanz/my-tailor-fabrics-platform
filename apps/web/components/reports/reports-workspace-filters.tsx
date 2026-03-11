@@ -1,9 +1,9 @@
 import type { TrendGranularity } from "@tbms/shared-types";
 import { CalendarRange } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -56,9 +56,7 @@ export function ReportsWorkspaceFilters({
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                Date Range
-              </Label>
+              <FieldLabel>Date Range</FieldLabel>
               <Select
                 value={preset}
                 onValueChange={(value) => {
@@ -82,9 +80,7 @@ export function ReportsWorkspaceFilters({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                Granularity
-              </Label>
+              <FieldLabel>Granularity</FieldLabel>
               <Select
                 value={granularity}
                 onValueChange={(value) => {
@@ -124,9 +120,7 @@ export function ReportsWorkspaceFilters({
         {preset === "custom" ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:ml-auto lg:max-w-[440px]">
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground sr-only">
-                Start Date
-              </Label>
+              <FieldLabel className="sr-only">Start Date</FieldLabel>
               <Input
                 type="date"
                 value={dateRange.from}
@@ -136,9 +130,7 @@ export function ReportsWorkspaceFilters({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground sr-only">
-                End Date
-              </Label>
+              <FieldLabel className="sr-only">End Date</FieldLabel>
               <Input
                 type="date"
                 value={dateRange.to}

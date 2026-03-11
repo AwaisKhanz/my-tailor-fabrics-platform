@@ -9,9 +9,10 @@ import { PAYMENT_TYPE_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { FieldError, FieldLabel } from "@/components/ui/field";
+import { FormGrid } from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -119,13 +120,11 @@ export function EmployeeCompensationSection({
         {canManageWorkforceGovernance ? (
           <InfoTile tone="default" padding="contentLg" className="space-y-4">
             {validationError ? (
-              <p className="text-sm text-destructive">{validationError}</p>
+              <FieldError size="sm">{validationError}</FieldError>
             ) : null}
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+            <FormGrid>
               <div>
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Payment Model
-                </Label>
+                <FieldLabel>Payment Model</FieldLabel>
                 <Select
                   value={paymentType}
                   onValueChange={(value) => {
@@ -152,17 +151,13 @@ export function EmployeeCompensationSection({
                   </SelectContent>
                 </Select>
                 {fieldErrors.paymentType ? (
-                  <p className="mt-1 text-xs text-destructive">
-                    {fieldErrors.paymentType}
-                  </p>
+                  <FieldError inset>{fieldErrors.paymentType}</FieldError>
                 ) : null}
               </div>
 
               {paymentType === PaymentTypeValue.MONTHLY_FIXED ? (
                 <div>
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Monthly Salary (Rs)
-                  </Label>
+                  <FieldLabel>Monthly Salary (Rs)</FieldLabel>
                   <Input
                     type="number"
                     min={0}
@@ -174,17 +169,13 @@ export function EmployeeCompensationSection({
                     }}
                   />
                   {fieldErrors.monthlySalary ? (
-                    <p className="mt-1 text-xs text-destructive">
-                      {fieldErrors.monthlySalary}
-                    </p>
+                    <FieldError inset>{fieldErrors.monthlySalary}</FieldError>
                   ) : null}
                 </div>
               ) : null}
 
               <div>
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Effective From
-                </Label>
+                <FieldLabel>Effective From</FieldLabel>
                 <Input
                   type="date"
                   value={effectiveFrom}
@@ -195,15 +186,11 @@ export function EmployeeCompensationSection({
                   }}
                 />
                 {fieldErrors.effectiveFrom ? (
-                  <p className="mt-1 text-xs text-destructive">
-                    {fieldErrors.effectiveFrom}
-                  </p>
+                  <FieldError inset>{fieldErrors.effectiveFrom}</FieldError>
                 ) : null}
               </div>
               <div>
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Note
-                </Label>
+                <FieldLabel>Note</FieldLabel>
                 <Input
                   value={note}
                   onChange={(event) => {
@@ -214,12 +201,10 @@ export function EmployeeCompensationSection({
                   placeholder="Optional"
                 />
                 {fieldErrors.note ? (
-                  <p className="mt-1 text-xs text-destructive">
-                    {fieldErrors.note}
-                  </p>
+                  <FieldError inset>{fieldErrors.note}</FieldError>
                 ) : null}
               </div>
-            </div>
+            </FormGrid>
 
             <div className="flex justify-end">
               <Button type="button" size="sm" onClick={onSubmit}>

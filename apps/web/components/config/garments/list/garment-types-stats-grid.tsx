@@ -1,6 +1,7 @@
 import { CheckCircle2, Filter, Package, Wallet } from "lucide-react";
 import type { GarmentTypesStats } from "@/hooks/use-garment-types-page";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface GarmentTypesStatsGridProps {
@@ -17,7 +18,7 @@ export function GarmentTypesStatsGrid({
   const inactiveCount = Math.max(stats.totalCount - stats.activeProduction, 0);
 
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <StatsGrid columns="four">
       <StatCard
         title="Garment Types"
         subtitle="Global catalog"
@@ -49,6 +50,6 @@ export function GarmentTypesStatsGrid({
         tone="info"
         icon={<Filter className="h-4 w-4" />}
       />
-    </div>
+    </StatsGrid>
   );
 }

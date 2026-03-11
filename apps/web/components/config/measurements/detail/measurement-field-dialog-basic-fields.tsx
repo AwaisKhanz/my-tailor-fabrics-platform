@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormGrid } from "@/components/ui/form-layout";
 import {
   Select,
   SelectContent,
@@ -48,9 +49,7 @@ export function MeasurementFieldDialogBasicFields({
         name="label"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Label
-            </FormLabel>
+            <FormLabel>Label</FormLabel>
             <FormControl>
               <Input placeholder="e.g., Shoulder, Chest, Collar" {...field} />
             </FormControl>
@@ -75,9 +74,7 @@ export function MeasurementFieldDialogBasicFields({
 
           return (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Section
-              </FormLabel>
+              <FormLabel>Section</FormLabel>
               <div className="space-y-3">
                 <Select
                   value={matchingSection?.id ?? NEW_SECTION_VALUE}
@@ -128,15 +125,13 @@ export function MeasurementFieldDialogBasicFields({
           );
         }}
       />
-
+        <FormGrid columns="two" className="gap-4">
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="fieldType"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Field Type
+                <FormLabel>Field Type</FormLabel>
               </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -159,16 +154,14 @@ export function MeasurementFieldDialogBasicFields({
           name="unit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Unit
-              </FormLabel>
+              <FormLabel>Unit</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., inches, cm" {...field} />
               </FormControl>
             </FormItem>
           )}
         />
-      </div>
+      </FormGrid>
     </>
   );
 }

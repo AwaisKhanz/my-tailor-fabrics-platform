@@ -66,7 +66,13 @@ export function EmployeeDocumentsSection({
               </div>
             </div>
             <Button variant="ghost" size="icon" asChild>
-              <a href={document.fileUrl} target="_blank" rel="noreferrer">
+              <a
+                href={document.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                title={`Open ${document.label}`}
+                aria-label={`Open ${document.label}`}
+              >
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>

@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FieldError } from "@/components/ui/field";
 import { FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,7 +78,7 @@ export function LoginFormPanel({
                 />
               </div>
               {fieldErrors.email ? (
-                <p className="text-xs text-destructive">{fieldErrors.email}</p>
+                <FieldError>{fieldErrors.email}</FieldError>
               ) : null}
             </div>
 
@@ -109,16 +110,12 @@ export function LoginFormPanel({
                 </button>
               </div>
               {fieldErrors.password ? (
-                <p className="text-xs text-destructive">
-                  {fieldErrors.password}
-                </p>
+                <FieldError>{fieldErrors.password}</FieldError>
               ) : null}
             </div>
           </div>
 
-          {formError ? (
-            <p className="text-sm text-destructive">{formError}</p>
-          ) : null}
+          {formError ? <FieldError size="sm">{formError}</FieldError> : null}
 
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center space-x-2">

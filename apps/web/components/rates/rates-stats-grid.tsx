@@ -1,6 +1,7 @@
 import { Filter, GitBranch, Globe2, Layers3 } from "lucide-react";
 import { type RateStatsSummary } from "@tbms/shared-types";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 
 interface RatesStatsGridProps {
   stats: RateStatsSummary;
@@ -14,7 +15,7 @@ export function RatesStatsGrid({
   hasActiveFilters,
 }: RatesStatsGridProps) {
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <StatsGrid columns="four">
       <StatCard
         title="Rate Cards"
         subtitle="Matching current query"
@@ -46,6 +47,6 @@ export function RatesStatsGrid({
         tone="warning"
         icon={<Filter className="h-4 w-4" />}
       />
-    </div>
+    </StatsGrid>
   );
 }

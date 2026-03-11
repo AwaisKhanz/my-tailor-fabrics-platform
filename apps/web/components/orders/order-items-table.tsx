@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { formatPKR } from "@/lib/utils";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -98,9 +98,9 @@ export function OrderItemsTable({
               {item.garmentTypeName}
             </p>
             {item.designType ? (
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5 text-primary">
+              <FieldLabel className="mt-0.5" tone="primary">
                 {item.designType.name}
-              </Label>
+              </FieldLabel>
             ) : null}
           </div>
         </div>
@@ -193,7 +193,7 @@ export function OrderItemsTable({
         trimBottom
       >
         <div>
-          <CardTitle className="text-sm font-bold uppercase  text-muted-foreground">
+          <CardTitle className="text-sm text-muted-foreground">
             Order Items
           </CardTitle>
           <CardDescription className="mt-1 text-xs">

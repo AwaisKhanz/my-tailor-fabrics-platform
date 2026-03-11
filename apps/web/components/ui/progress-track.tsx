@@ -23,17 +23,27 @@ export function ProgressTrack({ className, size, ...props }: ProgressTrackProps)
   return <div className={cn(progressTrackVariants({ size, className }))} {...props} />;
 }
 
-const progressFillVariants = cva("h-full rounded-full transition-[width] duration-300 ease-out", {
+const progressFillVariants = cva(
+  "w-full overflow-hidden rounded-full appearance-none [&::-moz-progress-bar]:rounded-full [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-value]:rounded-full",
+  {
   variants: {
     tone: {
-      primary: "bg-primary",
-      info: "bg-primary",
-      warning: "bg-secondary",
-      success: "bg-primary",
-      destructive: "bg-destructive",
-      chart1: "bg-primary",
-      chart2: "bg-secondary",
-      chart3: "bg-foreground",
+      primary:
+        "[&::-moz-progress-bar]:bg-primary [&::-webkit-progress-value]:bg-primary",
+      info:
+        "[&::-moz-progress-bar]:bg-primary [&::-webkit-progress-value]:bg-primary",
+      warning:
+        "[&::-moz-progress-bar]:bg-secondary [&::-webkit-progress-value]:bg-secondary",
+      success:
+        "[&::-moz-progress-bar]:bg-primary [&::-webkit-progress-value]:bg-primary",
+      destructive:
+        "[&::-moz-progress-bar]:bg-destructive [&::-webkit-progress-value]:bg-destructive",
+      chart1:
+        "[&::-moz-progress-bar]:bg-primary [&::-webkit-progress-value]:bg-primary",
+      chart2:
+        "[&::-moz-progress-bar]:bg-secondary [&::-webkit-progress-value]:bg-secondary",
+      chart3:
+        "[&::-moz-progress-bar]:bg-foreground [&::-webkit-progress-value]:bg-foreground",
     },
   },
   defaultVariants: {
@@ -62,8 +72,17 @@ export function ProgressBar({
   const percentage = max <= 0 ? 0 : Math.max(0, Math.min(100, (value / max) * 100));
 
   return (
-    <ProgressTrack className={className} size={size} {...props}>
-      <div className={cn(progressFillVariants({ tone }), fillClassName)} style={{ width: `${percentage}%` }} />
-    </ProgressTrack>
+    <progress
+      className={cn(
+        progressTrackVariants({ size }),
+        "bg-muted [&::-webkit-progress-bar]:bg-muted",
+        progressFillVariants({ tone }),
+        className,
+        fillClassName,
+      )}
+      value={percentage}
+      max={100}
+      {...props}
+    />
   );
 }

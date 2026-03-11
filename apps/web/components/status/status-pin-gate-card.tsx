@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FieldError } from "@/components/ui/field";
 import { FormStack } from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
@@ -65,15 +66,7 @@ export function StatusPinGateCard({
               className="h-14 text-center text-2xl font-bold "
               autoFocus
             />
-            {error ? (
-              <Text
-                as="p"
-                variant="muted"
-                className="mt-1.5 text-xs text-destructive"
-              >
-                {error}
-              </Text>
-            ) : null}
+            {error ? <FieldError inset>{error}</FieldError> : null}
           </div>
 
           <Button

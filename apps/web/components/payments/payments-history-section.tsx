@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { Calendar, RotateCcw } from "lucide-react";
 import { type Payment } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
 import { formatDate, formatPKR } from "@/lib/utils";
@@ -42,63 +42,58 @@ export function PaymentsHistorySection({
   onResetFilters,
   onReversePayment,
 }: PaymentsHistorySectionProps) {
-  const columns = useMemo<ColumnDef<Payment>[]>(
-    () => {
-      const actionColumn: ColumnDef<Payment> | null =
-        canManagePayments && onReversePayment
-          ? {
-              header: "Actions",
-              align: "right",
-              cell: (payment) => (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={reversingPaymentId === payment.id}
-                  onClick={() => onReversePayment(payment.id)}
-                >
-                  {reversingPaymentId === payment.id
-                    ? "Reversing..."
-                    : "Reverse"}
-                </Button>
-              ),
-            }
-          : null;
+  const columns = useMemo<ColumnDef<Payment>[]>(() => {
+    const actionColumn: ColumnDef<Payment> | null =
+      canManagePayments && onReversePayment
+        ? {
+            header: "Actions",
+            align: "right",
+            cell: (payment) => (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={reversingPaymentId === payment.id}
+                onClick={() => onReversePayment(payment.id)}
+              >
+                {reversingPaymentId === payment.id ? "Reversing..." : "Reverse"}
+              </Button>
+            ),
+          }
+        : null;
 
-      return [
-        {
-          header: "Paid Date",
-          cell: (payment) => (
-            <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium">
-                {formatDate(payment.paidAt)}
-              </span>
-            </div>
-          ),
-        },
-        {
-          header: "Note",
-          cell: (payment) => (
-            <span className="text-xs text-muted-foreground">
-              {payment.note || "—"}
+    return [
+      {
+        header: "Paid Date",
+        cell: (payment) => (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium">
+              {formatDate(payment.paidAt)}
             </span>
-          ),
-        },
-        {
-          header: "Amount",
-          align: "right",
-          cell: (payment) => (
-            <span className="font-bold text-primary">
-              {formatPKR(payment.amount)}
-            </span>
-          ),
-        },
-        ...(actionColumn ? [actionColumn] : []),
-      ];
-    },
-    [canManagePayments, onReversePayment, reversingPaymentId],
-  );
+          </div>
+        ),
+      },
+      {
+        header: "Note",
+        cell: (payment) => (
+          <span className="text-xs text-muted-foreground">
+            {payment.note || "—"}
+          </span>
+        ),
+      },
+      {
+        header: "Amount",
+        align: "right",
+        cell: (payment) => (
+          <span className="font-bold text-primary">
+            {formatPKR(payment.amount)}
+          </span>
+        ),
+      },
+      ...(actionColumn ? [actionColumn] : []),
+    ];
+  }, [canManagePayments, onReversePayment, reversingPaymentId]);
 
   const hasActiveFilters = activeFilterCount > 0;
 
@@ -112,9 +107,9 @@ export function PaymentsHistorySection({
         controls={
           <>
             <div className="w-full sm:w-[180px]">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
+              <FieldLabel block className="mb-2">
                 Paid From
-              </Label>
+              </FieldLabel>
               <Input
                 type="date"
                 value={filters.from}
@@ -123,9 +118,9 @@ export function PaymentsHistorySection({
             </div>
 
             <div className="w-full sm:w-[180px]">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
+              <FieldLabel block className="mb-2">
                 Paid To
-              </Label>
+              </FieldLabel>
               <Input
                 type="date"
                 value={filters.to}

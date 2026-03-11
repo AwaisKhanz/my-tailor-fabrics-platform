@@ -31,6 +31,9 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `PageShell`
    - `PageSection`
    - `PageHeader`
+   - `FieldLabel`, `FieldError`, `FieldHint`, `FieldStack`
+   - `FormGrid`, `FormStack`, `DialogFormActions`
+   - `StatsGrid`, `StatCard`, `InteractiveTile`, `InfoTile`
    - shared buttons, cards, dialogs, tables, and form primitives
 4. Theme behavior must go through the centralized theme flow:
    - `apps/web/app/layout.tsx`
@@ -86,11 +89,13 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 
 1. Prefer reusable UI primitives before creating new bespoke markup.
 2. If the same UI pattern appears more than once, extract it.
-3. Keep large pages split into:
+3. Form labels, field-level validation text, inline metric tiles, and stats grids must be composed from `apps/web/components/ui` primitives rather than repeated Tailwind class strings inside domain components.
+4. Domain components may pass layout-only `className` overrides, but visual treatment should be controlled by primitive variants first.
+5. Keep large pages split into:
    - page shell and route
    - page hook
    - focused presentational components
-4. Keep client boundaries as small as practical.
+6. Keep client boundaries as small as practical.
    Do not mark broad trees `use client` when only a smaller interactive unit needs it.
 
 ## 10. Performance and Quality Rules

@@ -4,7 +4,7 @@ import { type RateCardListItem } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { formatPKR } from "@/lib/utils";
 
 interface RatesTableProps {
@@ -69,14 +69,14 @@ export function RatesTable({
         align: "right",
         cell: (rate) => (
           <div className="flex flex-col items-end whitespace-nowrap">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground flex items-center gap-1">
+            <FieldLabel className="flex items-center gap-1">
               <Clock className="h-2.5 w-2.5" />
               {new Date(rate.effectiveFrom).toLocaleDateString()}
-            </Label>
+            </FieldLabel>
             {rate.effectiveTo ? (
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+              <FieldLabel>
                 until {new Date(rate.effectiveTo).toLocaleDateString()}
-              </Label>
+              </FieldLabel>
             ) : null}
           </div>
         ),

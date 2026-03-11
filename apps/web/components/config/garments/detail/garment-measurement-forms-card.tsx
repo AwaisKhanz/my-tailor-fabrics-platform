@@ -3,8 +3,8 @@ import { ChevronRight, ClipboardList, Scale, Settings } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Text } from "@/components/ui/typography";
@@ -81,9 +81,9 @@ export function GarmentMeasurementFormsCard({
                     >
                       {category.name}
                     </Text>
-                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
+                    <FieldLabel>
                       {category.fields?.length ?? 0} measurement fields
-                    </Label>
+                    </FieldLabel>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -100,9 +100,9 @@ export function GarmentMeasurementFormsCard({
             <Text as="p" variant="lead">
               No measurement forms attached.
             </Text>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-1 block">
+            <FieldLabel block className="mt-1">
               Attach forms from garment management settings.
-            </Label>
+            </FieldLabel>
           </InfoTile>
         )}
       </CardContent>

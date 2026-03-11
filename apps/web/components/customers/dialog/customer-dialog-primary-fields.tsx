@@ -6,6 +6,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormGrid } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type CustomerFormValues } from "@/types/customers";
@@ -18,15 +19,13 @@ export function CustomerDialogPrimaryFields({
   form,
 }: CustomerDialogPrimaryFieldsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <FormGrid columns="two" className="gap-4">
       <FormField
         control={form.control}
         name="fullName"
         render={({ field }) => (
           <FormItem className="col-span-2">
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Full Name
-            </FormLabel>
+            <FormLabel>Full Name</FormLabel>
             <FormControl>
               <Input placeholder="John Doe" {...field} />
             </FormControl>
@@ -40,9 +39,7 @@ export function CustomerDialogPrimaryFields({
         name="phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Phone
-            </FormLabel>
+            <FormLabel>Phone</FormLabel>
             <FormControl>
               <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
             </FormControl>
@@ -56,9 +53,7 @@ export function CustomerDialogPrimaryFields({
         name="whatsapp"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              WhatsApp (opt.)
-            </FormLabel>
+            <FormLabel>WhatsApp (opt.)</FormLabel>
             <FormControl>
               <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
             </FormControl>
@@ -66,6 +61,6 @@ export function CustomerDialogPrimaryFields({
           </FormItem>
         )}
       />
-    </div>
+    </FormGrid>
   );
 }

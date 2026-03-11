@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FormStack } from "@/components/ui/form-layout";
+import { FormGrid, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Heading } from "@/components/ui/typography";
 import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
@@ -34,9 +34,7 @@ export function EmployeeDialogContactFields({
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Residential Address
-            </FormLabel>
+            <FormLabel>Residential Address</FormLabel>
             <FormControl>
               <Input placeholder="Street, Area..." {...field} />
             </FormControl>
@@ -45,15 +43,13 @@ export function EmployeeDialogContactFields({
         )}
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <FormGrid columns="two" className="gap-4">
         <FormField
           control={form.control}
           name="emergencyName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Emergency Contact
-              </FormLabel>
+              <FormLabel>Emergency Contact</FormLabel>
               <FormControl>
                 <Input placeholder="Contact name" {...field} />
               </FormControl>
@@ -66,9 +62,7 @@ export function EmployeeDialogContactFields({
           name="emergencyPhone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Emergency Phone
-              </FormLabel>
+              <FormLabel>Emergency Phone</FormLabel>
               <FormControl>
                 <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
               </FormControl>
@@ -76,7 +70,7 @@ export function EmployeeDialogContactFields({
             </FormItem>
           )}
         />
-      </div>
+      </FormGrid>
     </FormStack>
   );
 }

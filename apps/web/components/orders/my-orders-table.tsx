@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { formatDate, formatPKR } from "@/lib/utils";
 import { type MyAssignedWorkItem } from "@/hooks/use-my-orders-page";
 
@@ -40,9 +40,9 @@ export function MyOrdersTable({
             <span className="text-sm font-semibold leading-tight text-foreground">
               {item.garmentTypeName}
             </span>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
+            <FieldLabel className="mt-0.5">
               {item.description || "—"}
-            </Label>
+            </FieldLabel>
           </div>
         ),
       },
@@ -50,11 +50,7 @@ export function MyOrdersTable({
         header: "Due Date",
         cell: (item) => {
           const dueDate = item.dueDate ?? item.order.dueDate ?? "";
-          return (
-            <Label className="text-sm font-bold uppercase  text-muted-foreground">
-              {formatDate(dueDate)}
-            </Label>
-          );
+          return <FieldLabel>{formatDate(dueDate)}</FieldLabel>;
         },
       },
       {

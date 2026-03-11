@@ -11,8 +11,8 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 interface EmployeeDocumentUploadDialogProps {
   open: boolean;
@@ -62,30 +62,30 @@ export function EmployeeDocumentUploadDialog({
             }}
           >
             {validationError ? (
-              <p className="text-sm text-destructive">{validationError}</p>
+              <FieldError size="sm">{validationError}</FieldError>
             ) : null}
-            <div className="space-y-1.5">
-              <Label>Document Label</Label>
+            <FieldStack className="space-y-1.5">
+              <FieldLabel>Document Label</FieldLabel>
               <Input
                 placeholder="e.g. CNIC Front"
                 value={label}
                 onChange={(event) => onLabelChange(event.target.value)}
               />
               {fieldErrors.label ? (
-                <p className="text-xs text-destructive">{fieldErrors.label}</p>
+                <FieldError>{fieldErrors.label}</FieldError>
               ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label>File URL</Label>
+            </FieldStack>
+            <FieldStack className="space-y-1.5">
+              <FieldLabel>File URL</FieldLabel>
               <Input
                 placeholder="https://..."
                 value={url}
                 onChange={(event) => onUrlChange(event.target.value)}
               />
               {fieldErrors.url ? (
-                <p className="text-xs text-destructive">{fieldErrors.url}</p>
+                <FieldError>{fieldErrors.url}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
           </FormStack>
         </DialogSection>
 

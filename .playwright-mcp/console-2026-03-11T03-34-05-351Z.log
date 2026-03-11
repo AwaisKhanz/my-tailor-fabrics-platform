@@ -1,0 +1,92 @@
+[ 4255742ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/designs:0
+[ 4255743ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/productivity?limit=10:0
+[ 4255746ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/garments:0
+[ 4255747ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/dashboard:0
+[ 4256799ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/designs:0
+[ 4256802ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/productivity?limit=10:0
+[ 4256803ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/garments:0
+[ 4256805ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/dashboard:0
+[ 4275113ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/employees/cmm8cj8580009ww9fg24o93a9/capabilities:0
+[ 4275123ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/employees/cmm8cj8580009ww9fg24o93a9/compensation:0
+[ 4276152ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/employees/cmm8cj8580009ww9fg24o93a9/capabilities:0
+[ 4276154ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/employees/cmm8cj8580009ww9fg24o93a9/compensation:0
+[ 5292326ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/settings/garments:0
+[ 5292777ms] Error: Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present.
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */
+
+    at getCssError (file:///Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseCss.js:24:16)
+    at getModuleBuildError (file:///Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:116:43)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async (file:///Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[ 5293002ms] [ERROR] ./app/globals.css:1:1
+Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present.
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */ @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[ 5293002ms] [ERROR] ./app/globals.css
+Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present. (1:1)
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */
+-- inner error --
+Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present. (1:1)
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */
+Generated code for /Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!/Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[ 5302674ms] [ERROR] ./app/globals.css:1:1
+Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present.
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */ @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[ 5302674ms] [ERROR] ./app/globals.css
+Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present. (1:1)
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */
+-- inner error --
+Syntax error: /Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css `@layer base` is used but no matching `@tailwind base` directive is present. (1:1)
+
+> 1 | @layer base {
+    | ^
+  2 |   :root {
+  3 |     /* Let the browser render built-in controls appropriately */
+Generated code for /Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!/Users/muhammadawais/Documents/My Tailors/tbms/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!/Users/muhammadawais/Documents/My Tailors/tbms/apps/web/app/globals.css
+
+Import trace for requested module:
+./app/globals.css @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/internal/helpers/hydration-error-info.js:62
+[ 5312591ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/static/webpack/8d4c3eed7a073475.webpack.hot-update.json:0
+[ 5312592ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///../../node_modules/next/dist/client/components/react-dev-overlay/pages/hot-reloader-client.js:349
+[ 5330481ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/config/garment-types/gt_coat:0
+[ 5331513ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/config/garment-types/gt_coat:0
+[ 5344698ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/garments:0
+[ 5344700ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/dashboard:0
+[ 5344700ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/designs:0
+[ 5344701ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/productivity?limit=10:0
+[ 5345733ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/garments:0
+[ 5345738ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/designs:0
+[ 5345739ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/productivity?limit=10:0
+[ 5345743ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/dashboard:0
+[ 5434576ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/designs:0
+[ 5434577ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/productivity?limit=10:0
+[ 5434579ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/dashboard:0
+[ 5434580ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/garments:0
+[ 5435604ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/designs:0
+[ 5435608ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/productivity?limit=10:0
+[ 5435612ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/garments:0
+[ 5435615ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/reports/dashboard:0

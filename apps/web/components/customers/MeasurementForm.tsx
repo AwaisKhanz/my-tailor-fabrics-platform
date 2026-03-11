@@ -12,6 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormActionRow, FormStack } from "@/components/ui/form-layout";
@@ -22,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { Card } from "../ui/card";
 import { useMeasurementForm } from "@/hooks/use-measurement-form";
@@ -66,9 +66,7 @@ export function MeasurementForm({
   return (
     <FormStack density="relaxed">
       <div className="space-y-2">
-        <Label className="text-sm font-bold uppercase  text-muted-foreground">
-          Measurement Category
-        </Label>
+        <FieldLabel>Measurement Category</FieldLabel>
         <Select
           onValueChange={handleCategoryChange}
           defaultValue={initialCategoryId}
@@ -111,7 +109,7 @@ export function MeasurementForm({
                           name={field.id}
                           render={({ field: formField }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
+                              <FormLabel>
                                 {field.label}{" "}
                                 {field.unit && (
                                   <span className="text-xs text-muted-foreground">

@@ -3,10 +3,16 @@
 import {
   DialogFormActions,
   DialogSection,
+  FormGrid,
   FormStack,
 } from "@/components/ui/form-layout";
+import {
+  FieldError,
+  FieldHint,
+  FieldLabel,
+  FieldStack,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import {
   Select,
@@ -108,8 +114,8 @@ export function CreateRateDialog({
             void submitForm();
           }}
         >
-          <div className="space-y-2">
-            <Label htmlFor="branch">Branch Scope</Label>
+          <FieldStack>
+            <FieldLabel htmlFor="branch">Branch Scope</FieldLabel>
             <Select
               value={formData.branchId}
               onValueChange={setBranchId}
@@ -127,12 +133,12 @@ export function CreateRateDialog({
               </SelectContent>
             </Select>
             {fieldErrors.branchId ? (
-              <p className="text-xs text-destructive">{fieldErrors.branchId}</p>
+              <FieldError>{fieldErrors.branchId}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="space-y-2">
-            <Label htmlFor="garmentType">Garment Type</Label>
+          <FieldStack>
+            <FieldLabel htmlFor="garmentType">Garment Type</FieldLabel>
             <Select
               value={formData.garmentTypeId}
               onValueChange={setGarmentTypeId}
@@ -150,16 +156,18 @@ export function CreateRateDialog({
               </SelectContent>
             </Select>
             {fieldErrors.garmentTypeId ? (
-              <p className="text-xs text-destructive">{fieldErrors.garmentTypeId}</p>
+              <FieldError>{fieldErrors.garmentTypeId}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="space-y-2">
-            <Label htmlFor="stepKey">Production Step</Label>
+          <FieldStack>
+            <FieldLabel htmlFor="stepKey">Production Step</FieldLabel>
             <Select
               value={formData.stepKey}
               onValueChange={setStepKey}
-              disabled={isAdjustMode || !hasGarmentSelected || !hasAvailableSteps}
+              disabled={
+                isAdjustMode || !hasGarmentSelected || !hasAvailableSteps
+              }
             >
               <SelectTrigger id="stepKey">
                 <SelectValue placeholder="Select Step" />
@@ -173,30 +181,30 @@ export function CreateRateDialog({
               </SelectContent>
             </Select>
             {fieldErrors.stepKey ? (
-              <p className="text-xs text-destructive">{fieldErrors.stepKey}</p>
+              <FieldError>{fieldErrors.stepKey}</FieldError>
             ) : null}
             {!hasGarmentSelected ? (
-              <p className="text-xs text-muted-foreground">
+              <FieldHint>
                 Select a garment type first to load workflow steps.
-              </p>
+              </FieldHint>
             ) : null}
             {noStepsConfigured ? (
-              <p className="text-xs text-secondary-foreground">
+              <FieldHint className="text-secondary-foreground">
                 No active workflow steps are configured for this garment. Add
                 and save workflow steps first.
-              </p>
+              </FieldHint>
             ) : null}
             {isAdjustMode ? (
-              <p className="text-xs text-muted-foreground">
+              <FieldHint>
                 Scope and step are locked. Saving creates a new version of this
                 rate card.
-              </p>
+              </FieldHint>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="rate">Rate (Rs.)</Label>
+          <FormGrid columns="two" className="gap-4">
+            <FieldStack>
+              <FieldLabel htmlFor="rate">Rate (Rs.)</FieldLabel>
               <div className="relative">
                 <Banknote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -210,11 +218,11 @@ export function CreateRateDialog({
                 />
               </div>
               {fieldErrors.amount ? (
-                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+                <FieldError>{fieldErrors.amount}</FieldError>
               ) : null}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="effectiveFrom">Effective From</Label>
+            </FieldStack>
+            <FieldStack>
+              <FieldLabel htmlFor="effectiveFrom">Effective From</FieldLabel>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -227,13 +235,11 @@ export function CreateRateDialog({
                 />
               </div>
               {fieldErrors.effectiveFrom ? (
-                <p className="text-xs text-destructive">{fieldErrors.effectiveFrom}</p>
+                <FieldError>{fieldErrors.effectiveFrom}</FieldError>
               ) : null}
-            </div>
-          </div>
-          {formError ? (
-            <p className="text-xs text-destructive">{formError}</p>
-          ) : null}
+            </FieldStack>
+          </FormGrid>
+          {formError ? <FieldError>{formError}</FieldError> : null}
         </FormStack>
       </DialogSection>
     </ScrollableDialog>

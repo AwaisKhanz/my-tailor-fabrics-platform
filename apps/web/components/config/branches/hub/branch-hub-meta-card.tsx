@@ -2,8 +2,8 @@ import { Building2, CalendarDays, MapPin, Phone } from "lucide-react";
 import { type BranchDetail } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Text } from "@/components/ui/typography";
@@ -36,9 +36,7 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary">
-          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-            Branch ID
-          </Label>
+          <FieldLabel size="compact">Branch ID</FieldLabel>
           <Text
             as="p"
             variant="body"
@@ -49,9 +47,7 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
         </InfoTile>
 
         <InfoTile tone="secondary">
-          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-            Branch Code
-          </Label>
+          <FieldLabel size="compact">Branch Code</FieldLabel>
           <Text
             as="p"
             variant="body"
@@ -75,9 +71,7 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
 
         <div className="grid grid-cols-1 gap-3 border-t border-border  sm:grid-cols-2">
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground">
-              Created
-            </Label>
+            <FieldLabel>Created</FieldLabel>
             <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
               <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
               <span>
@@ -86,9 +80,7 @@ export function BranchHubMetaCard({ branch }: BranchHubMetaCardProps) {
             </div>
           </InfoTile>
           <InfoTile padding="md" tone="secondary">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground">
-              Last Updated
-            </Label>
+            <FieldLabel>Last Updated</FieldLabel>
             <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
               <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
               <span>

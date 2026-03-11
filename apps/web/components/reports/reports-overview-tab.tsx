@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTile } from "@/components/ui/info-tile";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface ReportsOverviewTabProps {
@@ -58,7 +59,7 @@ export function ReportsOverviewTab({
 
   return (
     <div className="space-y-4">
-      <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <StatsGrid columns="four">
         <StatCard
           title="Revenue"
           subtitle="Selected period"
@@ -104,7 +105,7 @@ export function ReportsOverviewTab({
           tone="warning"
           icon={<AlertTriangle className="h-4 w-4" />}
         />
-      </div>
+      </StatsGrid>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
         <ReportsFinancialTrendChart

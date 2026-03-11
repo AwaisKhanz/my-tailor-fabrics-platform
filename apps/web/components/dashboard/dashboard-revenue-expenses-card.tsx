@@ -1,7 +1,7 @@
 import { BarChart, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 import {
   type RevenueExpensesRow,
@@ -58,9 +58,7 @@ export function DashboardRevenueExpensesCard({
           padding="xs"
           className="rounded-md gap-1"
         >
-          <Label className="text-sm font-bold uppercase  text-muted-foreground">
-            Last 6 Months
-          </Label>
+          <FieldLabel>Last 6 Months</FieldLabel>
           <Clock className="ml-1 h-3 w-3" />
         </InfoTile>
       </CardHeader>
@@ -69,9 +67,9 @@ export function DashboardRevenueExpensesCard({
           <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-1" />
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              <FieldLabel className="text-xs font-semibold uppercase  text-muted-foreground">
                 Revenue
-              </Label>
+              </FieldLabel>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-1">
               {formatPKR(totalRevenue)}
@@ -80,9 +78,9 @@ export function DashboardRevenueExpensesCard({
           <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-2" />
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              <FieldLabel className="text-xs font-semibold uppercase  text-muted-foreground">
                 Expenses
-              </Label>
+              </FieldLabel>
             </div>
             <p className="mt-1 text-lg font-bold text-chart-2">
               {formatPKR(totalExpenses)}
@@ -91,9 +89,9 @@ export function DashboardRevenueExpensesCard({
           <InfoTile tone="secondary" padding="md">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-chart-3" />
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              <FieldLabel className="text-xs font-semibold uppercase  text-muted-foreground">
                 Net
-              </Label>
+              </FieldLabel>
             </div>
             <p
               className={`mt-1 text-lg font-bold ${net < 0 ? "text-destructive" : "text-chart-3"}`}

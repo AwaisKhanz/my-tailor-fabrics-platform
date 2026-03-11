@@ -1,6 +1,7 @@
 import { Brush, Filter, GitBranch, Shirt } from "lucide-react";
 import { type DesignType } from "@tbms/shared-types";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 
 interface DesignTypesStatsGridProps {
   designTypes: DesignType[];
@@ -11,12 +12,16 @@ export function DesignTypesStatsGrid({
   designTypes,
   hasActiveFilters,
 }: DesignTypesStatsGridProps) {
-  const globalTypes = designTypes.filter((designType) => !designType.branchId).length;
+  const globalTypes = designTypes.filter(
+    (designType) => !designType.branchId,
+  ).length;
   const branchScoped = designTypes.length - globalTypes;
-  const activeTypes = designTypes.filter((designType) => designType.isActive).length;
+  const activeTypes = designTypes.filter(
+    (designType) => designType.isActive,
+  ).length;
 
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <StatsGrid columns="four">
       <StatCard
         title="Design Types"
         subtitle="Catalog entries"
@@ -48,6 +53,6 @@ export function DesignTypesStatsGrid({
         tone="warning"
         icon={<Filter className="h-4 w-4" />}
       />
-    </div>
+    </StatsGrid>
   );
 }

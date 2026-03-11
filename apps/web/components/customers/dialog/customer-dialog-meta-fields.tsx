@@ -8,6 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormGrid } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -32,9 +33,7 @@ export function CustomerDialogMetaFields({
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Email (opt.)
-            </FormLabel>
+            <FormLabel>Email (opt.)</FormLabel>
             <FormControl>
               <Input placeholder="john@example.com" {...field} />
             </FormControl>
@@ -43,15 +42,13 @@ export function CustomerDialogMetaFields({
         )}
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <FormGrid columns="two" className="gap-4">
         <FormField
           control={form.control}
           name="city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                City
-              </FormLabel>
+              <FormLabel>City</FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Lahore" {...field} />
               </FormControl>
@@ -65,9 +62,7 @@ export function CustomerDialogMetaFields({
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Status
-              </FormLabel>
+              <FormLabel>Status</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -86,7 +81,7 @@ export function CustomerDialogMetaFields({
             </FormItem>
           )}
         />
-      </div>
+      </FormGrid>
     </>
   );
 }

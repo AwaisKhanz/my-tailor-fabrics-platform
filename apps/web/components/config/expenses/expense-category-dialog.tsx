@@ -1,10 +1,13 @@
 "use client";
 
-import type { ExpenseCategory, ExpenseCategoryFormValues } from "@tbms/shared-types";
+import type {
+  ExpenseCategory,
+  ExpenseCategoryFormValues,
+} from "@tbms/shared-types";
+import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { Switch } from "@/components/ui/switch";
 
@@ -60,15 +63,10 @@ export function ExpenseCategoryDialog({
         }}
       >
         <div className="space-y-4">
-          {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
+          {formError ? <FieldError size="sm">{formError}</FieldError> : null}
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="expense-category-name"
-              className="text-sm font-bold uppercase text-muted-foreground"
-            >
-              Name
-            </Label>
+          <FieldStack>
+            <FieldLabel htmlFor="expense-category-name">Name</FieldLabel>
             <Input
               id="expense-category-name"
               value={form.name}
@@ -77,9 +75,9 @@ export function ExpenseCategoryDialog({
               disabled={saving}
             />
             {fieldErrors.name ? (
-              <p className="text-xs text-destructive">{fieldErrors.name}</p>
+              <FieldError>{fieldErrors.name}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
           <InfoTile layout="betweenGap" className="rounded-md">
             <div>

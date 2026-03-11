@@ -1,16 +1,19 @@
 import { Activity, Briefcase, Building2, Users } from "lucide-react";
 import { type BranchDetail } from "@tbms/shared-types";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 
 interface BranchHubRelationsGridProps {
   branch: BranchDetail | null;
 }
 
-export function BranchHubRelationsGrid({ branch }: BranchHubRelationsGridProps) {
+export function BranchHubRelationsGrid({
+  branch,
+}: BranchHubRelationsGridProps) {
   const isActive = Boolean(branch?.isActive);
 
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <StatsGrid columns="four">
       <StatCard
         title="Employees"
         subtitle={`Active / ${(branch?._count?.employees || 0).toLocaleString()} total`}
@@ -40,8 +43,14 @@ export function BranchHubRelationsGrid({ branch }: BranchHubRelationsGridProps) 
         subtitle={`Code: ${(branch?.code || "N/A").toUpperCase()}`}
         value={(branch?.stats?.totalGarments || 0).toLocaleString()}
         tone={isActive ? "success" : "destructive"}
-        icon={isActive ? <Activity className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
+        icon={
+          isActive ? (
+            <Activity className="h-4 w-4" />
+          ) : (
+            <Building2 className="h-4 w-4" />
+          )
+        }
       />
-    </div>
+    </StatsGrid>
   );
 }

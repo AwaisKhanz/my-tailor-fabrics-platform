@@ -6,7 +6,7 @@ import { GARMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { buildGarmentSettingsDetailRoute } from "@/lib/settings-routes";
 import { formatPKR } from "@/lib/utils";
 
@@ -61,9 +61,9 @@ export function GarmentTypesInventoryTable({
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover/link:text-primary">
                 {item.name}
               </span>
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
+              <FieldLabel className="mt-0.5">
                 ID: GT-{item.id.slice(-4).toUpperCase()}
-              </Label>
+              </FieldLabel>
             </Link>
           </div>
         ),

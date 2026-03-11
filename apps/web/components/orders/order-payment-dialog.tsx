@@ -11,9 +11,9 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { formatPKR } from "@/lib/utils";
 
 interface OrderPaymentDialogProps {
@@ -69,7 +69,7 @@ export function OrderPaymentDialog({
             }}
           >
             {validationError ? (
-              <p className="text-sm text-destructive">{validationError}</p>
+              <FieldError size="sm">{validationError}</FieldError>
             ) : null}
             <InfoTile
               tone="secondary"
@@ -78,18 +78,16 @@ export function OrderPaymentDialog({
               padding="none"
               className="px-5 py-4"
             >
-              <span className="text-xs font-bold uppercase  text-muted-foreground">
-                Pending amount
-              </span>
+              <FieldLabel size="compact">Pending amount</FieldLabel>
               <span className="text-xl font-bold tabular-nums text-foreground">
                 {formatPKR(balanceDue)}
               </span>
             </InfoTile>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase  text-muted-foreground text-foreground">
+            <FieldStack>
+              <FieldLabel size="compact" tone="foreground">
                 Deposit Amount (Rs.) <span className="text-destructive">*</span>
-              </Label>
+              </FieldLabel>
               <Input
                 type="number"
                 className="h-12 text-lg font-bold"
@@ -99,14 +97,14 @@ export function OrderPaymentDialog({
                 max={balanceDue / 100}
               />
               {fieldErrors.amount ? (
-                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+                <FieldError>{fieldErrors.amount}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase  text-muted-foreground text-foreground">
+            <FieldStack>
+              <FieldLabel size="compact" tone="foreground">
                 Transaction Note
-              </Label>
+              </FieldLabel>
               <Input
                 className="h-12"
                 placeholder="e.g. Received via Cash / Bank Transfer"
@@ -114,9 +112,9 @@ export function OrderPaymentDialog({
                 onChange={(event) => onNoteChange(event.target.value)}
               />
               {fieldErrors.note ? (
-                <p className="text-xs text-destructive">{fieldErrors.note}</p>
+                <FieldError>{fieldErrors.note}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
           </FormStack>
         </DialogSection>
 

@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FieldError } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,9 +139,7 @@ export function IntegrationActionsCard({
               onChange={(event) => onTestEmailChange(event.target.value)}
             />
             {testEmailValidationError ? (
-              <p className="text-xs text-destructive">
-                {testEmailValidationError}
-              </p>
+              <FieldError>{testEmailValidationError}</FieldError>
             ) : null}
           </div>
           <Button

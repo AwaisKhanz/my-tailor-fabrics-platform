@@ -11,6 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormGrid } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -33,15 +34,13 @@ export function EmployeeDialogWorkFields({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <FormGrid columns="two" className="gap-4">
         <FormField
           control={form.control}
           name="designation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Designation
-              </FormLabel>
+              <FormLabel>Designation</FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Master Tailor" {...field} />
               </FormControl>
@@ -54,9 +53,7 @@ export function EmployeeDialogWorkFields({
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Status
-              </FormLabel>
+              <FormLabel>Status</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -75,17 +72,15 @@ export function EmployeeDialogWorkFields({
             </FormItem>
           )}
         />
-      </div>
+      </FormGrid>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <FormGrid columns="two" className="gap-4">
         <FormField
           control={form.control}
           name="paymentType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Payment Model
-              </FormLabel>
+              <FormLabel>Payment Model</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -109,9 +104,7 @@ export function EmployeeDialogWorkFields({
           name="dateOfJoining"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Date of Joining
-              </FormLabel>
+              <FormLabel>Date of Joining</FormLabel>
               <FormControl>
                 <Input type="date" {...field} value={field.value ?? ""} />
               </FormControl>
@@ -119,7 +112,7 @@ export function EmployeeDialogWorkFields({
             </FormItem>
           )}
         />
-      </div>
+      </FormGrid>
 
       {selectedPaymentType === PaymentType.MONTHLY_FIXED ? (
         <FormField
@@ -127,9 +120,7 @@ export function EmployeeDialogWorkFields({
           name="monthlySalary"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Monthly Salary (Rs.)
-              </FormLabel>
+              <FormLabel>Monthly Salary (Rs.)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -152,9 +143,7 @@ export function EmployeeDialogWorkFields({
           name="employmentEndDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Employment End Date
-              </FormLabel>
+              <FormLabel>Employment End Date</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>

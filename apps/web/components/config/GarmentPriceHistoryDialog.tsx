@@ -20,8 +20,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { formatPKR } from "@/lib/utils";
@@ -82,9 +82,9 @@ export function GarmentPriceHistoryDialog({
               <DialogTitle className="text-2xl font-extrabold ">
                 Price History
               </DialogTitle>
-              <Label className=" font-bold uppercase  text-muted-foreground opacity-100 text-foreground text-xs">
+              <FieldLabel size="compact" tone="foreground">
                 {garmentName} • Global Pricing
-              </Label>
+              </FieldLabel>
             </div>
           </div>
         </DialogHeader>
@@ -93,9 +93,7 @@ export function GarmentPriceHistoryDialog({
           {loading ? (
             <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <Label className="text-sm font-bold uppercase  text-muted-foreground animate-pulse">
-                Loading timeline...
-              </Label>
+              <FieldLabel className="animate-pulse">Loading timeline...</FieldLabel>
             </div>
           ) : logs.length === 0 ? (
             <InfoTile
@@ -140,12 +138,12 @@ export function GarmentPriceHistoryDialog({
                           <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
                             Price Updated
                           </p>
-                          <Label className="text-sm font-bold uppercase  text-muted-foreground opacity-100 text-xs mt-0.5">
+                          <FieldLabel size="compact" className="mt-0.5">
                             {format(
                               new Date(log.createdAt),
                               "MMM d, yyyy • h:mm a",
                             )}
-                          </Label>
+                          </FieldLabel>
                         </div>
                         <Badge
                           variant="secondary"
@@ -163,9 +161,7 @@ export function GarmentPriceHistoryDialog({
                         className="grid grid-cols-1 gap-4 hover:border-primary/35 hover:bg-primary/5"
                       >
                         <div className="space-y-2">
-                          <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                            Retail Price
-                          </Label>
+                          <FieldLabel>Retail Price</FieldLabel>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
                               {formatPrice(log.oldCustomerPrice)}

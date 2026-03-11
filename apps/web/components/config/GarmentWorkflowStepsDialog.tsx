@@ -4,14 +4,15 @@ import React from "react";
 import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2 } from "lucide-react";
 import { type WorkflowStepTemplate } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
+import { FieldError, FieldLabel } from "@/components/ui/field";
 import {
   DialogFormActions,
   DialogSection,
+  FormGrid,
   FormStack,
 } from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { Switch } from "@/components/ui/switch";
 import { useGarmentWorkflowStepEditor } from "@/hooks/use-garment-workflow-step-editor";
@@ -85,9 +86,7 @@ export function GarmentWorkflowStepsDialog({
             void submitSteps();
           }}
         >
-          {validationError ? (
-            <p className="text-xs text-destructive">{validationError}</p>
-          ) : null}
+          {validationError ? <FieldError>{validationError}</FieldError> : null}
           {steps.map((step, index) => (
             <InfoTile
               tone="info"
@@ -114,11 +113,9 @@ export function GarmentWorkflowStepsDialog({
                 <span className="text-xs font-bold">{index + 1}</span>
               </div>
 
-              <div className="grid flex-1 grid-cols-2 gap-3">
+              <FormGrid columns={2} className="flex-1">
                 <div className="space-y-1">
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Step Name
-                  </Label>
+                  <FieldLabel>Step Name</FieldLabel>
                   <Input
                     placeholder="e.g. Cutting"
                     value={step.stepName || ""}
@@ -129,9 +126,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Unique Key
-                  </Label>
+                  <FieldLabel>Unique Key</FieldLabel>
                   <Input
                     placeholder="e.g. CUTTING"
                     value={step.stepKey || ""}
@@ -145,13 +140,11 @@ export function GarmentWorkflowStepsDialog({
                     className="h-8 font-mono text-xs uppercase"
                   />
                 </div>
-              </div>
+              </FormGrid>
 
               <div className="flex items-center gap-4 border-l border-r px-2">
                 <div className="flex flex-col items-center gap-1">
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Required
-                  </Label>
+                  <FieldLabel>Required</FieldLabel>
                   <Switch
                     checked={step.isRequired}
                     onCheckedChange={(value) =>
@@ -160,9 +153,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    Active
-                  </Label>
+                  <FieldLabel>Active</FieldLabel>
                   <Switch
                     checked={step.isActive}
                     onCheckedChange={(value) =>

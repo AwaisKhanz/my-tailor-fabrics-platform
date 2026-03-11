@@ -5,6 +5,7 @@ import { ChartEmptyState } from "@/components/ui/chart-empty-state";
 import { ChartLoadingState } from "@/components/ui/chart-loading-state";
 import { ChartShell } from "@/components/ui/chart-shell";
 import { InfoTile } from "@/components/ui/info-tile";
+import { InteractiveTile } from "@/components/ui/interactive-tile";
 import { ProgressTrack } from "@/components/ui/progress-track";
 import { ReportsChartLegend } from "@/components/reports/reports-chart-legend";
 import { formatPKR } from "@/lib/utils";
@@ -13,6 +14,8 @@ interface ReportsProductivityChartProps {
   loading: boolean;
   points: ProductivityPoint[];
 }
+
+const PRODUCTIVITY_SEGMENTS = 20;
 
 export function ReportsProductivityChart({
   loading,
@@ -73,25 +76,36 @@ export function ReportsProductivityChart({
 
           {topPoints.map((point) => {
             const total = point.totalCompleted;
-            const totalWidth = Math.max(
-              2,
-              Math.round((total / maxTotal) * 100),
+            const totalSegments = Math.max(
+              1,
+              Math.round((total / maxTotal) * PRODUCTIVITY_SEGMENTS),
             );
-            const itemsWidth =
+            const itemSegments =
               total > 0
-                ? Math.round((point.completedItems / total) * totalWidth)
+                ? Math.min(
+                    totalSegments,
+                    Math.round(
+                      (point.completedItems / total) * totalSegments,
+                    ),
+                  )
                 : 0;
-            const tasksWidth = Math.max(0, totalWidth - itemsWidth);
+            const taskSegments = Math.max(0, totalSegments - itemSegments);
             const isActive = point.employeeId === activePoint?.employeeId;
+            const bars = Array.from({ length: PRODUCTIVITY_SEGMENTS }, (_, index) => {
+              if (index < itemSegments) {
+                return "bg-chart-1";
+              }
+              if (index < itemSegments + taskSegments) {
+                return "bg-chart-2";
+              }
+              return "bg-muted/40";
+            });
 
             return (
-              <div
+              <InteractiveTile
                 key={point.employeeId}
-                className={`space-y-1.5 rounded-lg border px-3 py-2.5 transition-colors ${
-                  isActive
-                    ? "border-primary/40 bg-accent"
-                    : "border-border bg-card hover:border-border"
-                }`}
+                active={isActive}
+                className="space-y-1.5 px-3 py-2.5"
                 onMouseEnter={() => setHoveredEmployeeId(point.employeeId)}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -108,22 +122,23 @@ export function ReportsProductivityChart({
                   </div>
                 </div>
 
-                <ProgressTrack size="md" className="flex">
-                  <div
-                    className="bg-chart-1"
-                    style={{ width: `${itemsWidth}%` }}
-                  />
-                  <div
-                    className="bg-chart-2"
-                    style={{ width: `${tasksWidth}%` }}
-                  />
+                <ProgressTrack
+                  size="md"
+                  className="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-px bg-transparent"
+                >
+                  {bars.map((barClassName, index) => (
+                    <span
+                      key={`${point.employeeId}-${index}`}
+                      className={barClassName}
+                    />
+                  ))}
                 </ProgressTrack>
 
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Items: {point.completedItems}</span>
                   <span>Tasks: {point.completedTasks}</span>
                 </div>
-              </div>
+              </InteractiveTile>
             );
           })}
         </div>

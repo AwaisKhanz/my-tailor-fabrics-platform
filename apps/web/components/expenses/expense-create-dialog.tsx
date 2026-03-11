@@ -13,9 +13,9 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Text } from "@/components/ui/typography";
 import {
@@ -76,9 +76,9 @@ export function ExpenseCreateDialog({
             }}
           >
             <InfoTile padding="contentLg" radius="xl">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1 block">
+              <FieldLabel block className="mb-1">
                 Entry Scope
-              </Label>
+              </FieldLabel>
               <Text
                 as="p"
                 variant="body"
@@ -89,14 +89,12 @@ export function ExpenseCreateDialog({
               </Text>
             </InfoTile>
 
-            {formError ? (
-              <p className="text-sm text-destructive">{formError}</p>
-            ) : null}
+            {formError ? <FieldError size="sm">{formError}</FieldError> : null}
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            <FieldStack>
+              <FieldLabel>
                 Category <span className="text-destructive">*</span>
-              </Label>
+              </FieldLabel>
               <Select
                 value={form.categoryId}
                 onValueChange={(value) => onFormChange("categoryId", value)}
@@ -120,16 +118,14 @@ export function ExpenseCreateDialog({
                 </SelectContent>
               </Select>
               {fieldErrors.categoryId ? (
-                <p className="text-xs text-destructive">
-                  {fieldErrors.categoryId}
-                </p>
+                <FieldError>{fieldErrors.categoryId}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            <FieldStack>
+              <FieldLabel>
                 Amount (Rs.) <span className="text-destructive">*</span>
-              </Label>
+              </FieldLabel>
               <Input
                 type="number"
                 placeholder="e.g. 500"
@@ -139,14 +135,14 @@ export function ExpenseCreateDialog({
                 min="1"
               />
               {fieldErrors.amount ? (
-                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+                <FieldError>{fieldErrors.amount}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            <FieldStack>
+              <FieldLabel>
                 Expense Date <span className="text-destructive">*</span>
-              </Label>
+              </FieldLabel>
               <Input
                 type="date"
                 className="h-11"
@@ -156,16 +152,12 @@ export function ExpenseCreateDialog({
                 }
               />
               {fieldErrors.expenseDate ? (
-                <p className="text-xs text-destructive">
-                  {fieldErrors.expenseDate}
-                </p>
+                <FieldError>{fieldErrors.expenseDate}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                Description
-              </Label>
+            <FieldStack>
+              <FieldLabel>Description</FieldLabel>
               <Textarea
                 placeholder="What was this for?"
                 className="min-h-[96px] resize-y"
@@ -175,11 +167,9 @@ export function ExpenseCreateDialog({
                 }
               />
               {fieldErrors.description ? (
-                <p className="text-xs text-destructive">
-                  {fieldErrors.description}
-                </p>
+                <FieldError>{fieldErrors.description}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
           </FormStack>
         </DialogSection>
 

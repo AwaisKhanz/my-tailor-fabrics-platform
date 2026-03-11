@@ -7,7 +7,7 @@ import {
 } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Separator } from "@/components/ui/separator";
@@ -57,9 +57,7 @@ export function EmployeeProfileSidebar({
           </div>
           <Separator />
           <div className="space-y-3">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground">
-              Emergency Contact
-            </Label>
+            <FieldLabel>Emergency Contact</FieldLabel>
             <div>
               <p className="text-sm font-bold">
                 {employee.emergencyName || "Not set"}

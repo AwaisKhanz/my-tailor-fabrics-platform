@@ -11,8 +11,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import {
+  DialogFormActions,
+  FormGrid,
+  FormStack,
+} from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Switch } from "@/components/ui/switch";
 import { MultiSelect } from "@/components/ui/multi-select";
@@ -168,15 +173,13 @@ export function GarmentTypeDialog({
           density="compact"
           className="px-0.5 pb-2"
         >
-          <div className="grid grid-cols-1 gap-3.5">
+          <FormGrid>
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                    Garment Name
-                  </FormLabel>
+                  <FormLabel>Garment Name</FormLabel>
                   <FormControl>
                     <Input
                       className="h-9 text-sm"
@@ -193,9 +196,7 @@ export function GarmentTypeDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                    Description (Optional)
-                  </FormLabel>
+                  <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
                       className="min-h-[92px] text-sm"
@@ -207,17 +208,15 @@ export function GarmentTypeDialog({
                 </FormItem>
               )}
             />
-          </div>
+          </FormGrid>
 
-          <div className="grid grid-cols-1 gap-3">
+          <FormGrid>
             <FormField
               control={form.control}
               name="customerPrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                    Price (Rs)
-                  </FormLabel>
+                  <FormLabel>Price (Rs)</FormLabel>
                   <FormControl>
                     <Input className="h-9" type="number" {...field} />
                   </FormControl>
@@ -225,14 +224,12 @@ export function GarmentTypeDialog({
                 </FormItem>
               )}
             />
-          </div>
+          </FormGrid>
 
           <div className="space-y-3 pt-3">
             <div className="flex items-center gap-2">
               <Filter className="h-3 w-3 text-muted-foreground" />
-              <span className="text-xs font-bold text-muted-foreground uppercase ">
-                Measurement Categories
-              </span>
+              <FieldLabel as="span">Measurement Categories</FieldLabel>
             </div>
             <FormField
               control={form.control}
@@ -268,9 +265,7 @@ export function GarmentTypeDialog({
                     padding="none"
                     className="h-[38px] px-2.5 py-0"
                   >
-                    <FormLabel className="text-sm font-bold uppercase  text-muted-foreground cursor-pointer">
-                      Active
-                    </FormLabel>
+                    <FormLabel className="cursor-pointer">Active</FormLabel>
                     <FormControl>
                       <Switch
                         checked={field.value}

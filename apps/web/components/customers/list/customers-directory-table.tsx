@@ -8,7 +8,7 @@ import { type Customer } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { formatPKR } from "@/lib/utils";
 
 const AVATAR_COLORS = [
@@ -114,16 +114,14 @@ export function CustomersDirectoryTable({
             {customer.whatsapp ? (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-primary/50" />
-                <Label className="text-sm font-bold uppercase  text-muted-foreground text-primary opacity-100">
+                <FieldLabel tone="primary">
                   WhatsApp Connected
-                </Label>
+                </FieldLabel>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  No WhatsApp
-                </Label>
+                <FieldLabel>No WhatsApp</FieldLabel>
               </div>
             )}
           </div>
@@ -132,9 +130,7 @@ export function CustomersDirectoryTable({
       {
         header: "City",
         cell: (customer) => (
-          <Label className="text-sm font-bold uppercase  text-muted-foreground">
-            {customer.city || "—"}
-          </Label>
+          <FieldLabel>{customer.city || "—"}</FieldLabel>
         ),
       },
       {

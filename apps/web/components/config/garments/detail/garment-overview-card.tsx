@@ -8,8 +8,8 @@ import {
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { MetaPill } from "@/components/ui/meta-pill";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -47,17 +47,13 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
       <CardContent spacing="section" padding="inset" className="space-y-5">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <InfoTile>
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Sort Order
-            </Label>
+            <FieldLabel size="compact">Sort Order</FieldLabel>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {garment.sortOrder}
             </p>
           </InfoTile>
           <InfoTile>
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Linked Forms / Steps
-            </Label>
+            <FieldLabel size="compact">Linked Forms / Steps</FieldLabel>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {measurementFormsCount} form
               {measurementFormsCount === 1 ? "" : "s"} / {workflowStepsCount}{" "}
@@ -70,9 +66,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <InfoTile padding="contentLg" radius="xl" className="space-y-4">
             <div>
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-                Description
-              </Label>
+              <FieldLabel size="compact">Description</FieldLabel>
               <Text as="p" variant="body" className="mt-1 leading-relaxed">
                 {garment.description ||
                   "No description provided for this garment type."}
@@ -98,17 +92,15 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
             className="space-y-4"
           >
             <div className="mb-1 flex items-center justify-between">
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground text-primary/90">
+              <FieldLabel size="compact" className="text-primary/90">
                 Margin Snapshot
-              </Label>
+              </FieldLabel>
               <BadgePercent className="h-4 w-4 text-primary" />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Owner Margin
-                </Label>
+                <FieldLabel>Owner Margin</FieldLabel>
                 <Heading
                   as="div"
                   variant="section"
@@ -119,9 +111,7 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
               </div>
 
               <div className="space-y-1">
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Margin Rate
-                </Label>
+                <FieldLabel>Margin Rate</FieldLabel>
                 <div className="flex items-center gap-1.5">
                   <Heading
                     as="div"

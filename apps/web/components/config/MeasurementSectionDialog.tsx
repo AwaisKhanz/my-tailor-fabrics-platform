@@ -20,7 +20,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import {
+  DialogFormActions,
+  FormGrid,
+  FormStack,
+} from "@/components/ui/form-layout";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 
 const measurementSectionDialogFormSchema = z.object({
@@ -146,24 +150,24 @@ export function MeasurementSectionDialog({
           onSubmit={submitForm}
           density="relaxed"
         >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                  Section Name
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., Upper Body, Lower Body, Extras"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <FormGrid>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Section Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Upper Body, Lower Body, Extras"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FormGrid>
         </FormStack>
       </Form>
     </ScrollableDialog>

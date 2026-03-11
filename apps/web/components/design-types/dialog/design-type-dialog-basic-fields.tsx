@@ -23,9 +23,7 @@ export function DesignTypeDialogBasicFields({
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Design Name
-            </FormLabel>
+            <FormLabel>Design Name</FormLabel>
             <FormControl>
               <Input placeholder="e.g. Simple, Heavy, Embroidery" {...field} />
             </FormControl>
@@ -40,9 +38,7 @@ export function DesignTypeDialogBasicFields({
           name="defaultPrice"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Customer Price (Rs)
-              </FormLabel>
+              <FormLabel>Customer Price (Rs)</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
@@ -55,9 +51,7 @@ export function DesignTypeDialogBasicFields({
           name="defaultRate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-                Employee Rate (Rs)
-              </FormLabel>
+              <FormLabel>Employee Rate (Rs)</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>

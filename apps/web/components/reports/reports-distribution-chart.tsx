@@ -5,6 +5,7 @@ import { ChartEmptyState } from "@/components/ui/chart-empty-state";
 import { ChartLoadingState } from "@/components/ui/chart-loading-state";
 import { ChartShell } from "@/components/ui/chart-shell";
 import { InfoTile } from "@/components/ui/info-tile";
+import { InteractiveTile } from "@/components/ui/interactive-tile";
 import { ProgressBar } from "@/components/ui/progress-track";
 import {
   getChartBgClass,
@@ -95,13 +96,10 @@ function DistributionBars({
         const isActive = activePoint?.key === point.key;
 
         return (
-          <div
+          <InteractiveTile
             key={point.key}
-            className={`space-y-1.5 rounded-lg border p-3 transition-colors ${
-              isActive
-                ? "border-primary/40 bg-accent"
-                : "border-border bg-card hover:border-border"
-            }`}
+            active={isActive}
+            className="space-y-1.5 p-3"
             onMouseEnter={() => setHoveredKey(point.key)}
           >
             <div className="flex items-center justify-between gap-3">
@@ -122,7 +120,7 @@ function DistributionBars({
             <p className="text-xs text-muted-foreground">
               {valueFormatter(point.value)}
             </p>
-          </div>
+          </InteractiveTile>
         );
       })}
     </div>

@@ -2,6 +2,8 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { OrderStatus } from "@tbms/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
+import { InfoTile } from "@/components/ui/info-tile";
 
 interface OrderLifecycleCardProps {
   status: OrderStatus;
@@ -63,8 +65,8 @@ export function OrderLifecycleCard({
   return (
     <Card>
       <CardHeader density="comfortable" surface="mutedSection" trimBottom>
-        <CardTitle className="text-sm font-bold uppercase  text-muted-foreground">
-          Lifecycle Action
+        <CardTitle>
+          <FieldLabel as="span">Lifecycle Action</FieldLabel>
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           Advance this order to the next stage.
@@ -72,9 +74,9 @@ export function OrderLifecycleCard({
       </CardHeader>
 
       <CardContent spacing="section" padding="inset" className="space-y-3">
-        <p className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+        <InfoTile padding="md" className="text-xs text-muted-foreground">
           {nextConfig.helper}
-        </p>
+        </InfoTile>
 
         <Button
           variant={nextConfig.variant}

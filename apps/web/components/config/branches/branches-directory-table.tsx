@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { Text } from "@/components/ui/typography";
 import { buildBranchHubRoute } from "@/lib/settings-routes";
 
@@ -61,9 +61,9 @@ export function BranchesDirectoryTable({
             <span className="truncate text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
               {branch.name}
             </span>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
+            <FieldLabel className="mt-0.5">
               {branch.code.toUpperCase()}
-            </Label>
+            </FieldLabel>
           </Link>
         ),
       },
@@ -74,9 +74,7 @@ export function BranchesDirectoryTable({
             <span className="text-sm font-semibold text-foreground">
               {branch.phone || "No phone provided"}
             </span>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
-              Branch Hotline
-            </Label>
+            <FieldLabel className="mt-0.5">Branch Hotline</FieldLabel>
           </div>
         ),
       },

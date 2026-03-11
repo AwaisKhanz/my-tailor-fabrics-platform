@@ -4,8 +4,8 @@ import { type UserAccount } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   USERS_ALL_BRANCHES_LABEL,
@@ -50,9 +50,9 @@ export function UsersAccessTable({
               <span className="text-sm font-bold leading-tight text-foreground">
                 {user.name}
               </span>
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
+              <FieldLabel className="mt-0.5">
                 ID: STAFF-{user.id ? user.id.slice(0, 3).toUpperCase() : "001"}
-              </Label>
+              </FieldLabel>
             </div>
           </div>
         ),
@@ -80,9 +80,9 @@ export function UsersAccessTable({
             <span className="text-sm font-bold text-foreground">
               {user.branch ? user.branch.name : USERS_ALL_BRANCHES_LABEL}
             </span>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground">
+            <FieldLabel>
               {user.branch ? user.branch.code : USERS_MASTER_ACCESS_LABEL}
-            </Label>
+            </FieldLabel>
           </div>
         ),
       },
@@ -95,9 +95,7 @@ export function UsersAccessTable({
                 ? new Date(user.lastLoginAt).toLocaleDateString("en-PK")
                 : "Never"}
             </span>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground">
-              System Log
-            </Label>
+            <FieldLabel>System Log</FieldLabel>
           </div>
         ),
       },

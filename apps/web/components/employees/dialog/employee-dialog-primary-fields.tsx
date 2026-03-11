@@ -6,6 +6,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormGrid } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type EmployeeFormValues } from "@/types/employees";
@@ -18,15 +19,13 @@ export function EmployeeDialogPrimaryFields({
   form,
 }: EmployeeDialogPrimaryFieldsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <FormGrid columns="two" className="gap-4">
       <FormField
         control={form.control}
         name="fullName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Full Name
-            </FormLabel>
+            <FormLabel>Full Name</FormLabel>
             <FormControl>
               <Input placeholder="John Doe" {...field} />
             </FormControl>
@@ -39,9 +38,7 @@ export function EmployeeDialogPrimaryFields({
         name="phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-              Primary Phone
-            </FormLabel>
+            <FormLabel>Primary Phone</FormLabel>
             <FormControl>
               <Input placeholder={PRIMARY_PHONE_PLACEHOLDER} {...field} />
             </FormControl>
@@ -49,6 +46,6 @@ export function EmployeeDialogPrimaryFields({
           </FormItem>
         )}
       />
-    </div>
+    </FormGrid>
   );
 }

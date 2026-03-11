@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { FieldError } from "@/components/ui/field";
 import { DialogActionRow, DialogFormActions, DialogSection, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,9 +89,7 @@ export function ConfirmPasswordDialog({
                 placeholder="••••••••"
                 disabled={isLoading}
               />
-              {validationError ? (
-                <p className="text-xs text-destructive">{validationError}</p>
-              ) : null}
+              {validationError ? <FieldError>{validationError}</FieldError> : null}
             </div>
           </FormStack>
         </DialogSection>

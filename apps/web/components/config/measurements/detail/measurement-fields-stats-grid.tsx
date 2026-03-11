@@ -1,18 +1,28 @@
-import { CheckCircle2, ListChecks, SlidersHorizontal, Type } from "lucide-react";
+import {
+  CheckCircle2,
+  ListChecks,
+  SlidersHorizontal,
+  Type,
+} from "lucide-react";
 import { type MeasurementField } from "@tbms/shared-types";
 import { StatCard } from "@/components/ui/stat-card";
+import { StatsGrid } from "@/components/ui/stats-grid";
 
 interface MeasurementFieldsStatsGridProps {
   fields: MeasurementField[];
 }
 
-export function MeasurementFieldsStatsGrid({ fields }: MeasurementFieldsStatsGridProps) {
+export function MeasurementFieldsStatsGrid({
+  fields,
+}: MeasurementFieldsStatsGridProps) {
   const required = fields.filter((field) => field.isRequired).length;
   const optional = Math.max(fields.length - required, 0);
-  const dropdownFields = fields.filter((field) => field.fieldType === "DROPDOWN").length;
+  const dropdownFields = fields.filter(
+    (field) => field.fieldType === "DROPDOWN",
+  ).length;
 
   return (
-    <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <StatsGrid columns="four">
       <StatCard
         title="Fields"
         subtitle="Category definitions"
@@ -44,6 +54,6 @@ export function MeasurementFieldsStatsGrid({ fields }: MeasurementFieldsStatsGri
         tone="info"
         icon={<SlidersHorizontal className="h-4 w-4" />}
       />
-    </div>
+    </StatsGrid>
   );
 }

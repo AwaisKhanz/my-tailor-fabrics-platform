@@ -9,9 +9,10 @@ import type {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { FieldError, FieldHint, FieldLabel } from "@/components/ui/field";
+import { FormGrid } from "@/components/ui/form-layout";
 import { InfoTile } from "@/components/ui/info-tile";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -115,11 +116,9 @@ export function EmployeeCapabilitiesSection({
 
         {canManageWorkforceGovernance ? (
           <InfoTile tone="default" padding="contentLg" className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <FormGrid columns="two">
               <div>
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Effective From
-                </Label>
+                <FieldLabel>Effective From</FieldLabel>
                 <Input
                   type="date"
                   value={capabilityEffectiveFrom}
@@ -129,16 +128,14 @@ export function EmployeeCapabilitiesSection({
                 />
               </div>
               <div>
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Snapshot Note
-                </Label>
+                <FieldLabel>Snapshot Note</FieldLabel>
                 <Input
                   value={capabilityNote}
                   onChange={(event) => setCapabilityNote(event.target.value)}
                   placeholder="Optional context for this update"
                 />
               </div>
-            </div>
+            </FormGrid>
 
             <div className="space-y-2">
               {capabilityRows.map((row, index) => {
@@ -156,9 +153,7 @@ export function EmployeeCapabilitiesSection({
                     className="grid grid-cols-1 gap-2 rounded-xl border border-border p-3 md:grid-cols-12"
                   >
                     <div className="md:col-span-4">
-                      <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                        Garment Type
-                      </Label>
+                      <FieldLabel>Garment Type</FieldLabel>
                       <Select
                         value={row.garmentTypeId || "ANY"}
                         onValueChange={(value) => {
@@ -193,9 +188,7 @@ export function EmployeeCapabilitiesSection({
                       </Select>
                     </div>
                     <div className="md:col-span-4">
-                      <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                        Step Key
-                      </Label>
+                      <FieldLabel>Step Key</FieldLabel>
                       <Select
                         value={row.stepKey || "ANY_STEP"}
                         onValueChange={(value) =>
@@ -217,19 +210,13 @@ export function EmployeeCapabilitiesSection({
                         </SelectContent>
                       </Select>
                       {row.garmentTypeId && stepOptions.length === 0 ? (
-                        <Text
-                          as="p"
-                          variant="muted"
-                          className="mt-1 text-xs text-secondary-foreground"
-                        >
+                        <FieldHint className="mt-1 text-secondary-foreground">
                           No workflow steps configured for this garment.
-                        </Text>
+                        </FieldHint>
                       ) : null}
                     </div>
                     <div className="md:col-span-3">
-                      <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                        Note
-                      </Label>
+                      <FieldLabel>Note</FieldLabel>
                       <Input
                         value={row.note ?? ""}
                         onChange={(event) =>
@@ -268,9 +255,7 @@ export function EmployeeCapabilitiesSection({
               </Button>
               <div className="flex flex-col items-end gap-2">
                 {capabilityValidationError ? (
-                  <p className="text-sm text-destructive">
-                    {capabilityValidationError}
-                  </p>
+                  <FieldError size="sm">{capabilityValidationError}</FieldError>
                 ) : null}
                 <Button type="button" size="sm" onClick={onSubmit}>
                   Save Capability Snapshot

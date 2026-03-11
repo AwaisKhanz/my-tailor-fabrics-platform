@@ -2,8 +2,8 @@ import { ArrowUpRight, History, Users } from "lucide-react";
 import { type GarmentPriceLog } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Text } from "@/components/ui/typography";
@@ -52,24 +52,20 @@ export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
                   <Text as="p" variant="body" className="font-bold">
                     Price Updated
                   </Text>
-                  <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                    {new Date(log.createdAt).toLocaleString()}
-                  </Label>
+                  <FieldLabel>{new Date(log.createdAt).toLocaleString()}</FieldLabel>
                 </div>
 
                 <InfoTile padding="content" className="space-y-2">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <Label className="text-sm font-bold uppercase  text-muted-foreground flex shrink-0 items-center gap-1.5">
+                    <FieldLabel className="flex shrink-0 items-center gap-1.5">
                       <Users className="h-3 w-3" />
                       {log.changedBy.name}
-                    </Label>
+                    </FieldLabel>
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 pt-1">
                     <div>
-                      <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                        Customer Price
-                      </Label>
+                      <FieldLabel>Customer Price</FieldLabel>
                       <div className="flex items-center gap-2">
                         <Text
                           as="span"

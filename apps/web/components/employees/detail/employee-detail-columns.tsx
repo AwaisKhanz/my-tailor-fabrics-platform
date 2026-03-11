@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -149,9 +149,7 @@ export function createEmployeeTaskColumns({
       cell: (task) => (
         <div className="flex flex-col">
           <span className="font-medium">{task.item?.garmentTypeName || "-"}</span>
-          <Label className="text-sm font-bold uppercase  text-muted-foreground font-mono">
-            {task.stepName}
-          </Label>
+          <FieldLabel className="font-mono">{task.stepName}</FieldLabel>
         </div>
       ),
     },

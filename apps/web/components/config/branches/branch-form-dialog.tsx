@@ -1,7 +1,12 @@
 import { type Branch } from "@tbms/shared-types";
+import {
+  FieldError,
+  FieldHint,
+  FieldLabel,
+  FieldStack,
+} from "@/components/ui/field";
 import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
 import { Text } from "@/components/ui/typography";
 import { type BranchFormState } from "@/hooks/use-branch-dialog-manager";
@@ -14,7 +19,10 @@ interface BranchFormDialogProps {
   formError: string;
   fieldErrors: Partial<Record<keyof BranchFormState, string>>;
   onOpenChange: (open: boolean) => void;
-  onFieldChange: <K extends keyof BranchFormState>(field: K, value: BranchFormState[K]) => void;
+  onFieldChange: <K extends keyof BranchFormState>(
+    field: K,
+    value: BranchFormState[K],
+  ) => void;
   onSubmit: () => void;
 }
 
@@ -55,70 +63,67 @@ export function BranchFormDialog({
           onSubmit();
         }}
       >
-        {formError ? (
-          <p className="text-sm text-destructive">{formError}</p>
-        ) : null}
+        {formError ? <FieldError size="sm">{formError}</FieldError> : null}
         {!editingBranch ? (
-          <div className="space-y-1.5">
-            <Label>
+          <FieldStack className="space-y-1.5">
+            <FieldLabel>
               Branch Code <span className="text-destructive">*</span>
-            </Label>
+            </FieldLabel>
             <Input
-             
               placeholder="e.g. LHR, KHI"
               value={form.code}
               maxLength={6}
-              onChange={(event) => onFieldChange("code", event.target.value.toUpperCase())}
+              onChange={(event) =>
+                onFieldChange("code", event.target.value.toUpperCase())
+              }
             />
             {fieldErrors.code ? (
-              <p className="text-xs text-destructive">{fieldErrors.code}</p>
+              <FieldError>{fieldErrors.code}</FieldError>
             ) : null}
-            <Text as="p"  variant="muted">
-              Short unique code used in order and customer numbers. Cannot be changed later.
-            </Text>
-          </div>
+            <FieldHint>
+              Short unique code used in order and customer numbers. Cannot be
+              changed later.
+            </FieldHint>
+          </FieldStack>
         ) : null}
 
-        <div className="space-y-1.5">
-          <Label>
+        <FieldStack className="space-y-1.5">
+          <FieldLabel>
             Branch Name <span className="text-destructive">*</span>
-          </Label>
+          </FieldLabel>
           <Input
-           
             placeholder="e.g. Lahore Main Branch"
             value={form.name}
             onChange={(event) => onFieldChange("name", event.target.value)}
           />
           {fieldErrors.name ? (
-            <p className="text-xs text-destructive">{fieldErrors.name}</p>
+            <FieldError>{fieldErrors.name}</FieldError>
           ) : null}
-        </div>
+        </FieldStack>
 
-        <div className="space-y-1.5">
-          <Label>Phone</Label>
+        <FieldStack className="space-y-1.5">
+          <FieldLabel>Phone</FieldLabel>
           <Input
-           
             placeholder="Contact number"
             value={form.phone}
             onChange={(event) => onFieldChange("phone", event.target.value)}
           />
           {fieldErrors.phone ? (
-            <p className="text-xs text-destructive">{fieldErrors.phone}</p>
+            <FieldError>{fieldErrors.phone}</FieldError>
           ) : null}
-        </div>
+        </FieldStack>
 
-        <div className="space-y-1.5">
-          <Label>Address</Label>
+        <FieldStack className="space-y-1.5">
+          <FieldLabel>Address</FieldLabel>
           <Input
-           
             placeholder="Street address"
             value={form.address}
             onChange={(event) => onFieldChange("address", event.target.value)}
           />
           {fieldErrors.address ? (
-            <p className="text-xs text-destructive">{fieldErrors.address}</p>
+            <FieldError>{fieldErrors.address}</FieldError>
           ) : null}
-        </div>
+        </FieldStack>
       </FormStack>
     </ScrollableDialog>
   );

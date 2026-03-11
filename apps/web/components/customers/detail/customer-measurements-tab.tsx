@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { Text } from "@/components/ui/typography";
 
 interface CustomerMeasurementsTabProps {
@@ -62,10 +62,10 @@ export function CustomerMeasurementsTab({
                 <CardHeader density="compact" surface="cardSection" trimBottom>
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
-                    <Label className="text-sm font-bold uppercase  text-muted-foreground font-normal opacity-60">
+                    <FieldLabel className="font-normal opacity-60">
                       Updated:{" "}
                       {new Date(measurement.updatedAt).toLocaleDateString()}
-                    </Label>
+                    </FieldLabel>
                   </CardTitle>
                 </CardHeader>
 
@@ -73,9 +73,9 @@ export function CustomerMeasurementsTab({
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Object.entries(measurement.values).map(([key, value]) => (
                       <div key={key}>
-                        <Label className="text-sm font-bold uppercase  text-muted-foreground mb-0.5 block">
+                        <FieldLabel block className="mb-0.5">
                           {getMeasurementLabel(measurement, key)}
-                        </Label>
+                        </FieldLabel>
                         <Text as="p" variant="body" className="font-semibold">
                           {String(value)}
                         </Text>

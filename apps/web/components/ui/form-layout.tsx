@@ -17,8 +17,22 @@ const formStackVariants = cva("", {
   },
 });
 
+const formGridVariants = cva("grid grid-cols-1 gap-3", {
+  variants: {
+    columns: {
+      two: "md:grid-cols-2",
+      three: "md:grid-cols-3",
+      four: "md:grid-cols-4",
+    },
+  },
+  defaultVariants: {
+    columns: "four",
+  },
+});
+
 interface FormStackProps
-  extends React.HTMLAttributes<HTMLElement>,
+  extends
+    React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof formStackVariants> {
   as?: React.ElementType;
 }
@@ -29,7 +43,23 @@ export function FormStack({
   density,
   ...props
 }: FormStackProps) {
-  return <Component className={cn(formStackVariants({ density, className }))} {...props} />;
+  return (
+    <Component
+      className={cn(formStackVariants({ density, className }))}
+      {...props}
+    />
+  );
+}
+
+interface FormGridProps
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof formGridVariants> {}
+
+export function FormGrid({ className, columns, ...props }: FormGridProps) {
+  return (
+    <div className={cn(formGridVariants({ columns, className }))} {...props} />
+  );
 }
 
 const dialogSectionVariants = cva("", {
@@ -46,11 +76,21 @@ const dialogSectionVariants = cva("", {
 });
 
 interface DialogSectionProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof dialogSectionVariants> {}
 
-export function DialogSection({ className, density, ...props }: DialogSectionProps) {
-  return <div className={cn(dialogSectionVariants({ density, className }))} {...props} />;
+export function DialogSection({
+  className,
+  density,
+  ...props
+}: DialogSectionProps) {
+  return (
+    <div
+      className={cn(dialogSectionVariants({ density, className }))}
+      {...props}
+    />
+  );
 }
 
 const dialogActionRowVariants = cva("", {
@@ -72,7 +112,8 @@ const dialogActionRowVariants = cva("", {
 });
 
 interface DialogActionRowProps
-  extends React.ComponentPropsWithoutRef<typeof DialogFooter>,
+  extends
+    React.ComponentPropsWithoutRef<typeof DialogFooter>,
     VariantProps<typeof dialogActionRowVariants> {}
 
 export function DialogActionRow({
@@ -109,11 +150,22 @@ const formActionRowVariants = cva("flex items-center gap-2 pt-4", {
 });
 
 interface FormActionRowProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof formActionRowVariants> {}
 
-export function FormActionRow({ className, align, wrap, ...props }: FormActionRowProps) {
-  return <div className={cn(formActionRowVariants({ align, wrap, className }))} {...props} />;
+export function FormActionRow({
+  className,
+  align,
+  wrap,
+  ...props
+}: FormActionRowProps) {
+  return (
+    <div
+      className={cn(formActionRowVariants({ align, wrap, className }))}
+      {...props}
+    />
+  );
 }
 
 interface DialogFormActionsProps {
@@ -149,7 +201,12 @@ export function DialogFormActions({
 }: DialogFormActionsProps) {
   return (
     <div className={cn("flex w-full justify-end gap-2", className)}>
-      <Button type="button" variant={cancelVariant} size={cancelSize} onClick={onCancel}>
+      <Button
+        type="button"
+        variant={cancelVariant}
+        size={cancelSize}
+        onClick={onCancel}
+      >
         {cancelText}
       </Button>
       <Button

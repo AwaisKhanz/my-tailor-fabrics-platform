@@ -12,8 +12,8 @@ import {
 } from "@tbms/shared-constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import { Heading } from "@/components/ui/typography";
@@ -53,9 +53,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
       <CardContent spacing="section" padding="inset" className="space-y-4">
         <InfoTile tone="secondary">
-          <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-            Size Number
-          </Label>
+          <FieldLabel size="compact">Size Number</FieldLabel>
           <p className="mt-1 text-sm font-semibold text-foreground">
             {customer.sizeNumber}
           </p>
@@ -80,9 +78,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
         <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
           <div>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1">
-              Total Orders
-            </Label>
+            <FieldLabel className="mb-1">Total Orders</FieldLabel>
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4 text-primary" />
               <Heading as="div" variant="section" className="text-base">
@@ -92,9 +88,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
           </div>
 
           <div>
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1">
-              Total Spent
-            </Label>
+            <FieldLabel className="mb-1">Total Spent</FieldLabel>
             <div className="flex items-center gap-2">
               <Banknote className="h-4 w-4 text-primary" />
               <Heading as="div" variant="section" className="text-base">
@@ -105,9 +99,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
         </div>
 
         <div className="border-t flex justify-between items-center border-border pt-4">
-          <Label className="text-sm font-bold uppercase  text-muted-foreground mb-1">
-            Account Type
-          </Label>
+          <FieldLabel className="mb-1">Account Type</FieldLabel>
           <Badge variant={customer.isVip ? "warning" : "secondary"} size="xs">
             {customer.isVip ? "VIP" : "Standard"}
           </Badge>

@@ -1,10 +1,25 @@
 import { isRole, ROLES } from "@tbms/shared-constants";
 import { type UserAccount } from "@tbms/shared-types";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DialogActionRow, DialogFormActions, FormStack } from "@/components/ui/form-layout";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
+import {
+  DialogActionRow,
+  DialogFormActions,
+  FormStack,
+} from "@/components/ui/form-layout";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   type UpdateUserFormField,
   type UserFormState,
@@ -42,7 +57,9 @@ export function UserAccountDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="md">
         <DialogHeader>
-          <DialogTitle>{editingUser ? "Edit User Account" : "Create User Account"}</DialogTitle>
+          <DialogTitle>
+            {editingUser ? "Edit User Account" : "Create User Account"}
+          </DialogTitle>
         </DialogHeader>
 
         <FormStack
@@ -54,65 +71,68 @@ export function UserAccountDialog({
             onSave();
           }}
         >
-          {formError ? (
-            <p className="text-sm text-destructive">{formError}</p>
-          ) : null}
-          <div className="space-y-1.5">
-            <Label>
+          {formError ? <FieldError size="sm">{formError}</FieldError> : null}
+          <FieldStack className="space-y-1.5">
+            <FieldLabel>
               Full Name <span className="text-destructive">*</span>
-            </Label>
+            </FieldLabel>
             <Input
-             
               placeholder="Staff member name"
               value={form.name}
-              onChange={(event) => onFormFieldChange("name", event.target.value)}
+              onChange={(event) =>
+                onFormFieldChange("name", event.target.value)
+              }
             />
             {fieldErrors.name ? (
-              <p className="text-xs text-destructive">{fieldErrors.name}</p>
+              <FieldError>{fieldErrors.name}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="space-y-1.5">
-            <Label>
+          <FieldStack className="space-y-1.5">
+            <FieldLabel>
               Email <span className="text-destructive">*</span>
-            </Label>
+            </FieldLabel>
             <Input
-             
               type="email"
               placeholder="user@example.com"
               value={form.email}
-              onChange={(event) => onFormFieldChange("email", event.target.value)}
+              onChange={(event) =>
+                onFormFieldChange("email", event.target.value)
+              }
             />
             {fieldErrors.email ? (
-              <p className="text-xs text-destructive">{fieldErrors.email}</p>
+              <FieldError>{fieldErrors.email}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="space-y-1.5">
-            <Label>
+          <FieldStack className="space-y-1.5">
+            <FieldLabel>
               Password{" "}
               {editingUser ? (
                 "(leave blank to keep current)"
               ) : (
                 <span className="text-destructive">*</span>
               )}
-            </Label>
+            </FieldLabel>
             <Input
-             
               type="password"
-              placeholder={editingUser ? "Enter new password" : "Minimum 8 characters"}
+              placeholder={
+                editingUser ? "Enter new password" : "Minimum 8 characters"
+              }
               value={form.password}
-              onChange={(event) => onFormFieldChange("password", event.target.value)}
+              onChange={(event) =>
+                onFormFieldChange("password", event.target.value)
+              }
             />
             {fieldErrors.password ? (
-              <p className="text-xs text-destructive">{fieldErrors.password}</p>
+              <FieldError>{fieldErrors.password}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="space-y-1.5">
-            <Label>
+          <FieldStack className="space-y-1.5">
+            <FieldLabel>
               Role <span className="text-destructive">*</span>
-            </Label>
+            </FieldLabel>
             <Select
               value={form.role}
               onValueChange={(value) => {
@@ -133,13 +153,16 @@ export function UserAccountDialog({
               </SelectContent>
             </Select>
             {fieldErrors.role ? (
-              <p className="text-xs text-destructive">{fieldErrors.role}</p>
+              <FieldError>{fieldErrors.role}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
 
-          <div className="space-y-1.5">
-            <Label>Branch</Label>
-            <Select value={form.branchId} onValueChange={(value) => onFormFieldChange("branchId", value)}>
+          <FieldStack className="space-y-1.5">
+            <FieldLabel>Branch</FieldLabel>
+            <Select
+              value={form.branchId}
+              onValueChange={(value) => onFormFieldChange("branchId", value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select branch (leave blank for all)" />
               </SelectTrigger>
@@ -152,9 +175,9 @@ export function UserAccountDialog({
               </SelectContent>
             </Select>
             {fieldErrors.branchId ? (
-              <p className="text-xs text-destructive">{fieldErrors.branchId}</p>
+              <FieldError>{fieldErrors.branchId}</FieldError>
             ) : null}
-          </div>
+          </FieldStack>
         </FormStack>
 
         <DialogActionRow>

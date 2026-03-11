@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 
 interface EmployeesListTableProps {
   employees: Employee[];
@@ -45,9 +45,9 @@ export function EmployeesListTable({
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
                 {employee.fullName}
               </span>
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
+              <FieldLabel className="mt-0.5">
                 {employee.employeeCode}
-              </Label>
+              </FieldLabel>
             </div>
           </div>
         ),

@@ -1,7 +1,7 @@
 import { AlertTriangle } from "lucide-react";
 import { type Branch } from "@tbms/shared-types";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/typography";
 
 interface BranchDeleteSummaryProps {
@@ -12,9 +12,7 @@ function ImpactMetric({ label, value }: { label: string; value: number }) {
   return (
     <InfoTile tone="secondary" padding="xs" className="flex-col rounded-md">
       <span className="text-xs font-bold text-foreground">{value}</span>
-      <Label className="text-sm font-bold uppercase  text-muted-foreground text-xs">
-        {label}
-      </Label>
+      <FieldLabel size="compact">{label}</FieldLabel>
     </InfoTile>
   );
 }
@@ -38,9 +36,7 @@ export function BranchDeleteSummary({ branch }: BranchDeleteSummaryProps) {
       </Text>
 
       <InfoTile padding="content" className="space-y-2">
-        <Label className="text-sm font-bold uppercase  text-muted-foreground">
-          Linked Records Impact
-        </Label>
+        <FieldLabel>Linked Records Impact</FieldLabel>
         <div className="grid grid-cols-3 gap-2">
           <ImpactMetric label="Staff" value={employeesCount} />
           <ImpactMetric label="Clients" value={customersCount} />

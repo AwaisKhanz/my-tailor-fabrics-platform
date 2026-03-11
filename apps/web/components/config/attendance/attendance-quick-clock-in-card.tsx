@@ -3,6 +3,7 @@
 import { Clock3, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -61,9 +62,7 @@ export function AttendanceQuickClockInCard({
         className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end"
       >
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase  text-muted-foreground">
-            Employee
-          </p>
+          <FieldLabel size="compact">Employee</FieldLabel>
           <Select
             value={clockInEmployeeId}
             onValueChange={setClockInEmployeeId}
@@ -85,16 +84,12 @@ export function AttendanceQuickClockInCard({
             </SelectContent>
           </Select>
           {clockInFieldErrors.employeeId ? (
-            <p className="text-xs text-destructive">
-              {clockInFieldErrors.employeeId}
-            </p>
+            <FieldError>{clockInFieldErrors.employeeId}</FieldError>
           ) : null}
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase  text-muted-foreground">
-            Note (Optional)
-          </p>
+          <FieldLabel size="compact">Note (Optional)</FieldLabel>
           <Input
             placeholder="Shift note or context..."
             value={clockInNote}
@@ -102,7 +97,7 @@ export function AttendanceQuickClockInCard({
             disabled={clockingIn}
           />
           {clockInFieldErrors.note ? (
-            <p className="text-xs text-destructive">{clockInFieldErrors.note}</p>
+            <FieldError>{clockInFieldErrors.note}</FieldError>
           ) : null}
         </div>
 
@@ -117,9 +112,9 @@ export function AttendanceQuickClockInCard({
           {clockingIn ? "Clocking In..." : "Clock In"}
         </Button>
         {clockInValidationError ? (
-          <p className="md:col-span-3 text-sm text-destructive">
+          <FieldError size="sm" className="md:col-span-3">
             {clockInValidationError}
-          </p>
+          </FieldError>
         ) : null}
       </CardContent>
     </Card>

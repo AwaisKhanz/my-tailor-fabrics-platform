@@ -1,8 +1,8 @@
 import { UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
 import {
@@ -53,9 +53,7 @@ export function PaymentsEmployeeSelectorCard({
 
       <CardContent spacing="section" className="space-y-4">
         <div className="max-w-xl space-y-2">
-          <Label className="text-sm font-bold uppercase  text-muted-foreground">
-            Select Tailor / Staff
-          </Label>
+          <FieldLabel>Select Tailor / Staff</FieldLabel>
           <Select
             value={selectedEmployeeId}
             onValueChange={onEmployeeChange}
@@ -84,25 +82,19 @@ export function PaymentsEmployeeSelectorCard({
         {selectedEmployee ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <InfoTile>
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-                Employee
-              </Label>
+              <FieldLabel size="compact">Employee</FieldLabel>
               <Text as="p" variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.fullName}
               </Text>
             </InfoTile>
             <InfoTile>
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-                Code
-              </Label>
+              <FieldLabel size="compact">Code</FieldLabel>
               <Text as="p" variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.employeeCode}
               </Text>
             </InfoTile>
             <InfoTile>
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-                Role
-              </Label>
+              <FieldLabel size="compact">Role</FieldLabel>
               <Text as="p" variant="body" className="mt-1 font-semibold">
                 {selectedEmployee.designation || "Staff"}
               </Text>

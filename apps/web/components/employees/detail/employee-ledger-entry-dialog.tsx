@@ -13,8 +13,13 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import {
+  FieldError,
+  FieldHint,
+  FieldLabel,
+  FieldStack,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -87,10 +92,10 @@ export function EmployeeLedgerEntryDialog({
             }}
           >
             {validationError ? (
-              <p className="text-sm text-destructive">{validationError}</p>
+              <FieldError size="sm">{validationError}</FieldError>
             ) : null}
-            <div className="space-y-2">
-              <Label>Entry Type</Label>
+            <FieldStack>
+              <FieldLabel>Entry Type</FieldLabel>
               <Select
                 value={entryType}
                 onValueChange={(value) => {
@@ -115,17 +120,17 @@ export function EmployeeLedgerEntryDialog({
                 </SelectContent>
               </Select>
               {fieldErrors.type ? (
-                <p className="text-xs text-destructive">{fieldErrors.type}</p>
+                <FieldError>{fieldErrors.type}</FieldError>
               ) : null}
-              <p className="text-xs font-bold uppercase  text-muted-foreground">
+              <FieldHint className="font-bold uppercase">
                 {reducesBalance
                   ? "This entry will decrease employee balance"
                   : "This entry will increase employee balance"}
-              </p>
-            </div>
+              </FieldHint>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label>Amount (PKR)</Label>
+            <FieldStack>
+              <FieldLabel>Amount (PKR)</FieldLabel>
               <Input
                 type="number"
                 placeholder="e.g. 5000"
@@ -133,12 +138,12 @@ export function EmployeeLedgerEntryDialog({
                 onChange={(event) => onAmountChange(event.target.value)}
               />
               {fieldErrors.amount ? (
-                <p className="text-xs text-destructive">{fieldErrors.amount}</p>
+                <FieldError>{fieldErrors.amount}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label>Note / Description</Label>
+            <FieldStack>
+              <FieldLabel>Note / Description</FieldLabel>
               <Textarea
                 className="min-h-[90px] resize-y"
                 placeholder="e.g. Advance for medical bill"
@@ -146,9 +151,9 @@ export function EmployeeLedgerEntryDialog({
                 onChange={(event) => onNoteChange(event.target.value)}
               />
               {fieldErrors.note ? (
-                <p className="text-xs text-destructive">{fieldErrors.note}</p>
+                <FieldError>{fieldErrors.note}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
           </FormStack>
         </DialogSection>
 

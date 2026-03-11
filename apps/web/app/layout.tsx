@@ -45,8 +45,13 @@ export default async function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={serverTheme === "dark" ? "dark" : undefined}
-      style={serverTheme ? { colorScheme: serverTheme } : undefined}
+      className={
+        serverTheme === "dark"
+          ? "dark theme-dark"
+          : serverTheme === "light"
+            ? "theme-light"
+            : undefined
+      }
     >
       <head>
         <script
@@ -58,7 +63,8 @@ export default async function RootLayout({
                   ? stored
                   : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
                 document.documentElement.classList.toggle("dark", resolved === "dark");
-                document.documentElement.style.colorScheme = resolved;
+                document.documentElement.classList.toggle("theme-dark", resolved === "dark");
+                document.documentElement.classList.toggle("theme-light", resolved === "light");
                 document.cookie = "${THEME_COOKIE_KEY}=" + resolved + "; path=/; max-age=31536000; samesite=lax";
               } catch {}
             })();`,

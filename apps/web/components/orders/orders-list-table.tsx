@@ -8,7 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface OrdersListTableProps {
@@ -106,9 +106,9 @@ export function OrdersListTable({
               <span className="truncate text-sm font-semibold leading-tight text-foreground">
                 {order.customer.fullName}
               </span>
-              <Label className="text-sm font-bold uppercase  text-muted-foreground mt-0.5">
+              <FieldLabel className="mt-0.5">
                 {order.customer.phone}
-              </Label>
+              </FieldLabel>
             </div>
           </div>
         ),
@@ -135,17 +135,11 @@ export function OrdersListTable({
               >
                 {formatShortDate(order.dueDate)}
               </span>
-              <Label
-                className={
-                  isOverdue
-                    ? "text-sm font-bold uppercase  text-destructive"
-                    : isCompleted
-                      ? "text-sm font-bold uppercase  text-primary"
-                      : "text-sm font-bold uppercase  text-muted-foreground"
-                }
+              <FieldLabel
+                tone={isOverdue ? "destructive" : isCompleted ? "primary" : "default"}
               >
                 {isOverdue ? "Overdue" : isCompleted ? "Closed" : "Scheduled"}
-              </Label>
+              </FieldLabel>
             </div>
           );
         },

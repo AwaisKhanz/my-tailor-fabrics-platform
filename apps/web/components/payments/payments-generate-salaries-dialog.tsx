@@ -11,8 +11,13 @@ import {
   DialogSection,
   FormStack,
 } from "@/components/ui/form-layout";
+import {
+  FieldError,
+  FieldHint,
+  FieldLabel,
+  FieldStack,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -85,26 +90,20 @@ export function PaymentsGenerateSalariesDialog({
               onSubmit();
             }}
           >
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                Payroll Month
-              </Label>
+            <FieldStack>
+              <FieldLabel>Payroll Month</FieldLabel>
               <Input
                 type="month"
                 value={form.month}
                 onChange={(event) => onMonthChange(event.target.value)}
               />
               {validationError ? (
-                <Text as="p" variant="muted" className="text-destructive">
-                  {validationError}
-                </Text>
+                <FieldError size="sm">{validationError}</FieldError>
               ) : null}
-            </div>
+            </FieldStack>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                Scope
-              </Label>
+            <FieldStack>
+              <FieldLabel>Scope</FieldLabel>
               <Select
                 value={form.scope}
                 onValueChange={(value) => {
@@ -129,11 +128,11 @@ export function PaymentsGenerateSalariesDialog({
                   ) : null}
                 </SelectContent>
               </Select>
-              <Text as="p" variant="muted" className="text-xs">
+              <FieldHint>
                 System is idempotent and skips already generated employee-month
                 accruals.
-              </Text>
-            </div>
+              </FieldHint>
+            </FieldStack>
           </FormStack>
         </DialogSection>
 

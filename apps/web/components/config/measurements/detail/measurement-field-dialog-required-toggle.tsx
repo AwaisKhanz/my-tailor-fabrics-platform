@@ -23,9 +23,7 @@ export function MeasurementFieldDialogRequiredToggle({
       render={({ field }) => (
         <FormItem className="flex items-center justify-between rounded-md border p-4">
           <div className="space-y-0.5">
-            <FormLabel className="text-sm font-bold uppercase  text-muted-foreground cursor-pointer">
-              Required Field
-            </FormLabel>
+            <FormLabel className="cursor-pointer">Required Field</FormLabel>
             <Text as="p" variant="muted">
               Make this field mandatory for orders
             </Text>

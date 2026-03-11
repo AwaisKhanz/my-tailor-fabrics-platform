@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
+import { InteractiveTile } from "@/components/ui/interactive-tile";
 import { ProgressBar } from "@/components/ui/progress-track";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DesignAnalytics } from "@tbms/shared-types";
@@ -69,19 +70,14 @@ export function DashboardDesignPopularityCard({
               ) : null}
 
               {designs.map((design) => (
-                <div
+                <InteractiveTile
                   key={design.name}
-                  className={`space-y-1.5 rounded-lg border px-2.5 py-2 transition-colors ${
-                    activeDesign?.name === design.name
-                      ? "border-primary/35 bg-accent"
-                      : "border-border bg-card hover:border-border"
-                  }`}
+                  active={activeDesign?.name === design.name}
+                  className="space-y-1.5 px-2.5 py-2"
                   onMouseEnter={() => setHoveredDesignName(design.name)}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                      {design.name}
-                    </Label>
+                    <FieldLabel>{design.name}</FieldLabel>
                     <span className="font-medium text-muted-foreground">
                       {design.count}
                     </span>
@@ -92,7 +88,7 @@ export function DashboardDesignPopularityCard({
                     tone="primary"
                     size="xs"
                   />
-                </div>
+                </InteractiveTile>
               ))}
             </>
           )}

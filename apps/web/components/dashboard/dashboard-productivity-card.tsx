@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
+import { InteractiveTile } from "@/components/ui/interactive-tile";
 import { ProgressBar } from "@/components/ui/progress-track";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EmployeeProductivity } from "@tbms/shared-types";
@@ -41,9 +42,7 @@ export function DashboardProductivityCard({
           ) : (
             <span className="text-xl font-bold text-primary">{average}</span>
           )}
-          <Label className="text-sm font-bold uppercase  text-muted-foreground">
-            Avg Items / Tailor
-          </Label>
+          <FieldLabel>Avg Items / Tailor</FieldLabel>
         </div>
       </CardHeader>
       <CardContent spacing="section" className="flex flex-1 flex-col gap-6">
@@ -85,22 +84,17 @@ export function DashboardProductivityCard({
                     : "bg-secondary";
 
               return (
-                <div
+                <InteractiveTile
                   key={employee.label}
-                  className={`flex flex-col gap-2 rounded-lg border px-2.5 py-2 transition-colors ${
-                    activeEmployee?.label === employee.label
-                      ? "border-primary/35 bg-accent"
-                      : "border-border bg-card hover:border-border"
-                  }`}
+                  active={activeEmployee?.label === employee.label}
+                  className="flex flex-col gap-2 px-2.5 py-2"
                   onMouseEnter={() => setHoveredEmployee(employee.label)}
                 >
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-bold text-foreground">
                       {employee.label}
                     </span>
-                    <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                      {employee.value} Items
-                    </Label>
+                    <FieldLabel>{employee.value} Items</FieldLabel>
                   </div>
                   <ProgressBar
                     value={percentage}
@@ -109,7 +103,7 @@ export function DashboardProductivityCard({
                     fillClassName={barClass}
                     size="sm"
                   />
-                </div>
+                </InteractiveTile>
               );
             })}
           </>

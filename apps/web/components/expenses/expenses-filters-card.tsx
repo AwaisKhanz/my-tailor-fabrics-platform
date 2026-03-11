@@ -1,7 +1,7 @@
 import { Filter, RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -61,12 +61,12 @@ export function ExpensesFiltersCard({
           />
 
           <div className="w-full sm:w-[220px]">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
+            <FieldLabel block className="mb-2">
               <span className="inline-flex items-center gap-1.5">
                 <Filter className="h-3.5 w-3.5" />
                 Category
               </span>
-            </Label>
+            </FieldLabel>
             <Select
               value={filters.categoryId}
               onValueChange={onCategoryChange}
@@ -92,9 +92,9 @@ export function ExpensesFiltersCard({
           </div>
 
           <div className="w-full sm:w-[180px]">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
+            <FieldLabel block className="mb-2">
               Date From
-            </Label>
+            </FieldLabel>
             <Input
               type="date"
               value={filters.from}
@@ -103,9 +103,9 @@ export function ExpensesFiltersCard({
           </div>
 
           <div className="w-full sm:w-[180px]">
-            <Label className="text-sm font-bold uppercase  text-muted-foreground mb-2 block">
+            <FieldLabel block className="mb-2">
               Date To
-            </Label>
+            </FieldLabel>
             <Input
               type="date"
               value={filters.to}

@@ -2,8 +2,8 @@ import { Banknote } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
 import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-track";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionIcon } from "@/components/ui/section-icon";
@@ -67,9 +67,7 @@ export function GarmentPricingSidebar({ garment }: GarmentPricingSidebarProps) {
 
             <div className="pt-2">
               <div className="mb-2 flex items-center justify-between">
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Revenue Share
-                </Label>
+                <FieldLabel>Revenue Share</FieldLabel>
                 <Text
                   as="span"
                   variant="muted"

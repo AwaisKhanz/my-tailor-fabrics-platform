@@ -3,7 +3,7 @@ import type { Order } from "@tbms/shared-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
 
 interface DashboardOverdueOrdersCardProps {
   orders: Order[];
@@ -46,17 +46,15 @@ export function DashboardOverdueOrdersCard({
                 </button>
               </div>
               <div className="flex min-w-0 justify-start">
-                <Label className="text-sm font-bold uppercase  text-muted-foreground truncate opacity-100">
+                <FieldLabel className="truncate">
                   {order.customer.fullName}
-                </Label>
+                </FieldLabel>
               </div>
               <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-6">
                 <Badge variant="destructive" size="xs">
                   <Clock className="mr-1 h-3 w-3" /> Overdue
                 </Badge>
-                <Label className="text-sm font-bold uppercase  text-muted-foreground">
-                  Needs attention
-                </Label>
+                <FieldLabel>Needs attention</FieldLabel>
               </div>
             </div>
           ))}

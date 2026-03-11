@@ -22,9 +22,7 @@ export function CustomerDialogAddressField({
       name="address"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-sm font-bold uppercase  text-muted-foreground">
-            Address
-          </FormLabel>
+          <FormLabel>Address</FormLabel>
           <FormControl>
             <Input placeholder="Street, Area..." {...field} />
           </FormControl>
