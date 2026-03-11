@@ -8,6 +8,7 @@ import {
   Logger,
   NotFoundException,
   Param,
+  Post,
   Query,
   Req,
 } from '@nestjs/common';
@@ -17,10 +18,13 @@ import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { createHash } from 'crypto';
 import { Public } from '../common/decorators/auth.decorators';
+import { Roles } from '../common/decorators/auth.decorators';
+import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import { emitSecurityEvent } from '../common/utils/security-event.util';
 import { success } from '../common/utils/response.util';
 import { OrdersService } from './orders.service';
 import { PublicStatusQueryDto } from './dto/status-query.dto';
+import { ADMIN_ROLES, PERMISSION } from '@tbms/shared-constants';
 
 const MAX_FAILED_ATTEMPTS = 5;
 const ATTEMPT_WINDOW_MS = 15 * 60_000;
@@ -57,6 +61,35 @@ export class StatusController {
 
   private getTokenBlockKey(token: string): string {
     return `public-status:block:${this.getTokenScope(token)}:token`;
+  }
+
+  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(PERMISSION['orders.share'])
+  @Post(':token/unlock')
+  async unlockToken(
+    @Param('token') token: string,
+    @Query('ip') ip?: string,
+  ) {
+    const tokenFingerprint = this.fingerprintToken(token);
+    const keys = [this.getTokenAttemptKey(token), this.getTokenBlockKey(token)];
+
+    if (ip) {
+      keys.push(this.getAttemptKey(token, ip), this.getBlockKey(token, ip));
+    }
+
+    await Promise.all(keys.map((key) => this.cache.del(key)));
+
+    emitSecurityEvent(this.logger, 'public_status_unlock', {
+      tokenFingerprint,
+      ip: ip ?? null,
+      clearedKeys: keys.length,
+    });
+
+    return success({
+      unlocked: true,
+      tokenFingerprint,
+      scope: ip ? 'token-and-ip' : 'token',
+    });
   }
 
   @Public()
