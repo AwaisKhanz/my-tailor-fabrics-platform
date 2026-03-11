@@ -19,12 +19,12 @@ export const LEDGER_ENTRY_TYPE_OPTIONS = Object.values(LedgerEntryType).map(
 
 /** Badge variant for each entry type. */
 export const LEDGER_ENTRY_TYPE_BADGE: Record<LedgerEntryType, BadgeVariant> = {
-  [LedgerEntryType.EARNING]: 'success',
-  [LedgerEntryType.PAYOUT]: 'info',
-  [LedgerEntryType.ADVANCE]: 'warning',
+  [LedgerEntryType.EARNING]: 'default',
+  [LedgerEntryType.PAYOUT]: 'secondary',
+  [LedgerEntryType.ADVANCE]: 'secondary',
   [LedgerEntryType.DEDUCTION]: 'destructive',
   [LedgerEntryType.ADJUSTMENT]: 'secondary',
-  [LedgerEntryType.SALARY]: 'success',
+  [LedgerEntryType.SALARY]: 'default',
 };
 
 /** 

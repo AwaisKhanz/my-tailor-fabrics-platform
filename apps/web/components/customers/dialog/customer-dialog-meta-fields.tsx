@@ -7,16 +7,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FormGrid } from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { type CustomerFormValues } from "@/types/customers";
 
 interface CustomerDialogMetaFieldsProps {
@@ -31,7 +31,7 @@ export function CustomerDialogMetaFields({
       <FormField
         control={form.control}
         name="email"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>Email (opt.)</FormLabel>
             <FormControl>
@@ -46,7 +46,7 @@ export function CustomerDialogMetaFields({
         <FormField
           control={form.control}
           name="city"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>City</FormLabel>
               <FormControl>
@@ -60,7 +60,7 @@ export function CustomerDialogMetaFields({
         <FormField
           control={form.control}
           name="status"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Status</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>

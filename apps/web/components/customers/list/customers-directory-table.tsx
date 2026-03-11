@@ -5,10 +5,10 @@ import {
   CUSTOMER_STATUS_LABELS,
 } from "@tbms/shared-constants";
 import { type Customer } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 import { formatPKR } from "@/lib/utils";
 
 const AVATAR_COLORS = [
@@ -95,7 +95,7 @@ export function CustomersDirectoryTable({
                   {customer.fullName}
                 </span>
                 {customer.isVip ? (
-                  <Badge variant="warning" size="xs">
+                  <Badge variant="secondary">
                     VIP Customer
                   </Badge>
                 ) : null}
@@ -142,7 +142,7 @@ export function CustomersDirectoryTable({
         cell: (customer) => (
           <Badge
             variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
-            size="xs"
+
           >
             {CUSTOMER_STATUS_LABELS[customer.status] || customer.status}
           </Badge>

@@ -6,26 +6,24 @@ import {
   ShieldCheck,
   Zap,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { StatCard } from "@/components/ui/stat-card";
+} from "@tbms/ui/components/card";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { IntegrationActionsCard } from "@/components/config/integrations/integration-actions-card";
 import { useIntegrationsSettingsPage } from "@/hooks/use-integrations-settings-page";
 
-function statusVariant(enabled: boolean): "success" | "destructive" {
-  return enabled ? "success" : "destructive";
+function statusVariant(enabled: boolean): "default" | "destructive" {
+  return enabled ? "default" : "destructive";
 }
 
 export function IntegrationsSettingsPage() {
@@ -73,15 +71,12 @@ export function IntegrationsSettingsPage() {
         <PageHeader
           title="Integrations"
           description="Connect and verify external service integrations used by operational workflows."
-          density="compact"
           actions={
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => void refresh()}
               disabled={loading || refreshing}
-              className="w-full sm:w-auto"
             >
               <RefreshCcw className="h-4 w-4" />
               Refresh
@@ -92,47 +87,49 @@ export function IntegrationsSettingsPage() {
 
       {forbidden ? (
         <PageSection spacing="compact">
-          <Card className="bg-muted shadow-sm">
-            <CardHeader surface="mutedSection" trimBottom>
-              <SectionHeader
-                title="Access Restricted"
-                description="Integration controls are available to super admins only."
-                icon={
-                  <SectionIcon tone="warning" size="sm">
-                    <ShieldCheck className="h-4 w-4" />
-                  </SectionIcon>
-                }
-              />
+          <Card>
+            <CardHeader>
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                <div className="space-y-1">
+                  <CardTitle className="text-base">Access Restricted</CardTitle>
+                  <CardDescription>
+                    Integration controls are available to super admins only.
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
           </Card>
         </PageSection>
       ) : null}
 
-      <PageSection
-        spacing="compact"
-        className="grid space-y-0 gap-4 md:grid-cols-3"
-      >
-        <StatCard
-          title="Public Endpoints"
-          subtitle="mail endpoint policy"
-          value={status.publicEndpointsEnabled ? "Enabled" : "Disabled"}
-          tone={status.publicEndpointsEnabled ? "success" : "warning"}
-          icon={<ShieldCheck className="h-4 w-4" />}
-        />
-        <StatCard
-          title="Mail Readiness"
-          subtitle="provider status"
-          value={status.ready ? "Ready" : "Not Ready"}
-          tone={status.ready ? "success" : "destructive"}
-          icon={<Mail className="h-4 w-4" />}
-        />
-        <StatCard
-          title="Credentials"
-          subtitle="required values present"
-          value={`${configuredCount}/4`}
-          tone="info"
-          icon={<Zap className="h-4 w-4" />}
-        />
+      <PageSection spacing="compact">
+        <StatsGrid columns="threeMd">
+          <StatCard
+            title="Public Endpoints"
+            subtitle="Mail endpoint policy"
+            value={status.publicEndpointsEnabled ? "Enabled" : "Disabled"}
+            helperText="Backend-public mail route availability"
+            icon={<ShieldCheck className="h-4 w-4" />}
+            tone={status.publicEndpointsEnabled ? "success" : "destructive"}
+          />
+          <StatCard
+            title="Mail Readiness"
+            subtitle="Provider status"
+            value={status.ready ? "Ready" : "Not Ready"}
+            helperText="Provider connectivity and auth health"
+            icon={<Mail className="h-4 w-4" />}
+            tone={status.ready ? "success" : "warning"}
+          />
+          <StatCard
+            title="Credentials"
+            subtitle="Required values"
+            value={`${configuredCount}/4`}
+            helperText="Configured OAuth and sender fields"
+            icon={<Zap className="h-4 w-4" />}
+            tone="info"
+          />
+        </StatsGrid>
       </PageSection>
 
       <PageSection
@@ -140,47 +137,46 @@ export function IntegrationsSettingsPage() {
         className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
       >
         <Card>
-          <CardHeader surface="mutedSection" trimBottom className="space-y-1">
+          <CardHeader className="space-y-1">
             <CardTitle>Gmail Integration Status</CardTitle>
             <CardDescription>
               Verify required OAuth credentials and sender metadata.
             </CardDescription>
           </CardHeader>
-          <CardContent spacing="section" className="space-y-3 p-5">
+          <CardContent className="space-y-3 p-5">
             <div className="grid gap-2 sm:grid-cols-2">
               {credentialStatusItems.map((item) => (
-                <InfoTile
+                <div
                   key={item.label}
-                  layout="betweenGap"
-                  className="rounded-md"
+                  className="flex items-center justify-between rounded-md bg-muted/40 px-3 py-2"
                 >
                   <span className="text-sm text-muted-foreground">
                     {item.label}
                   </span>
-                  <Badge variant={statusVariant(item.configured)} size="xs">
+                  <Badge variant={statusVariant(item.configured)}>
                     {item.configured ? "Configured" : "Missing"}
                   </Badge>
-                </InfoTile>
+                </div>
               ))}
             </div>
 
-            <InfoTile padding="content" className="rounded-md">
-              <p className="text-xs font-semibold uppercase  text-muted-foreground">
+            <div className="rounded-md bg-muted/40 px-3 py-3">
+              <p className="text-xs font-semibold uppercase text-muted-foreground">
                 Sender
               </p>
               <p className="mt-1 text-sm font-medium text-foreground">
                 {status.senderEmail || "Not configured"}
               </p>
-            </InfoTile>
+            </div>
 
-            <InfoTile padding="content" className="rounded-md">
-              <p className="text-xs font-semibold uppercase  text-muted-foreground">
+            <div className="rounded-md bg-muted/40 px-3 py-3">
+              <p className="text-xs font-semibold uppercase text-muted-foreground">
                 Redirect URI
               </p>
               <p className="mt-1 break-all text-sm text-foreground">
                 {status.redirectUri || "Not configured"}
               </p>
-            </InfoTile>
+            </div>
           </CardContent>
         </Card>
 

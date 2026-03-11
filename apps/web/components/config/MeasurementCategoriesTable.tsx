@@ -6,9 +6,9 @@ import { MeasurementCategoriesInventoryTable } from "@/components/config/measure
 import { MeasurementCategoriesListToolbar } from "@/components/config/measurements/list/measurement-categories-list-toolbar";
 import { MeasurementCategoriesPageHeader } from "@/components/config/measurements/list/measurement-categories-page-header";
 import { MeasurementCategoriesStatsGrid } from "@/components/config/measurements/list/measurement-categories-stats-grid";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { TableSurface } from "@/components/ui/table-layout";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useMeasurementCategoriesPage } from "@/hooks/use-measurement-categories-page";
 import { buildMeasurementCategoryRoute } from "@/lib/settings-routes";
@@ -52,7 +52,10 @@ export function MeasurementCategoriesTable() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <MeasurementCategoriesPageHeader onAdd={openCreateDialog} canCreate={canManageMeasurements} />
+        <MeasurementCategoriesPageHeader
+          onAdd={openCreateDialog}
+          canCreate={canManageMeasurements}
+        />
       </PageSection>
 
       <PageSection spacing="compact">

@@ -8,9 +8,9 @@ import { GarmentTypesInventoryTable } from "@/components/config/garments/list/ga
 import { GarmentTypesListToolbar } from "@/components/config/garments/list/garment-types-list-toolbar";
 import { GarmentTypesPageHeader } from "@/components/config/garments/list/garment-types-page-header";
 import { GarmentTypesStatsGrid } from "@/components/config/garments/list/garment-types-stats-grid";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { TableSurface } from "@/components/ui/table-layout";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentTypesPage } from "@/hooks/use-garment-types-page";
 import { buildGarmentSettingsDetailRoute } from "@/lib/settings-routes";
@@ -60,7 +60,10 @@ export function GarmentTypesTable() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <GarmentTypesPageHeader onAdd={openCreateDialog} canCreate={canManageGarments} />
+        <GarmentTypesPageHeader
+          onAdd={openCreateDialog}
+          canCreate={canManageGarments}
+        />
       </PageSection>
 
       <PageSection spacing="compact">

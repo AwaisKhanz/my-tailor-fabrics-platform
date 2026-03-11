@@ -1,6 +1,6 @@
 import { Banknote, CheckCircle2 } from "lucide-react";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface EmployeeFinancialCardsProps {

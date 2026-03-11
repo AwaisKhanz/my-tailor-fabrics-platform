@@ -5,11 +5,11 @@ import {
   EMPLOYEE_STATUS_BADGE,
   EMPLOYEE_STATUS_LABELS,
 } from "@tbms/shared-constants";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Avatar, AvatarFallback } from "@tbms/ui/components/avatar";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 
 interface EmployeesListTableProps {
   employees: Employee[];
@@ -36,7 +36,7 @@ export function EmployeesListTable({
         header: "Employee",
         cell: (employee) => (
           <div className="group flex items-center gap-3">
-            <Avatar size="md" tone="framed">
+            <Avatar size="default" className="size-9">
               <AvatarFallback className="bg-primary/10 font-bold text-primary">
                 {employee.fullName.charAt(0)}
               </AvatarFallback>
@@ -55,7 +55,7 @@ export function EmployeesListTable({
       {
         header: "Designation",
         cell: (employee) => (
-          <Badge variant="info" size="xs" className="font-semibold">
+          <Badge variant="secondary" className="font-semibold">
             {employee.designation || "Staff"}
           </Badge>
         ),
@@ -74,7 +74,7 @@ export function EmployeesListTable({
         cell: (employee) => (
           <Badge
             variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"}
-            size="xs"
+
             className="font-semibold"
           >
             {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}

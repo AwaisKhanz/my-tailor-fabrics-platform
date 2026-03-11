@@ -7,17 +7,18 @@ Next.js 14 frontend for My Tailor & Fabrics.
 From the repo root:
 
 ```bash
-npm run env:setup
-npm run env:verify
-npm run build -w web
-npm run dev -w web
+pnpm run env:setup
+pnpm run env:verify
+pnpm --filter web build
+pnpm --filter web dev
 ```
 
 Optional frontend audits:
 
 ```bash
-npm run theme:audit -w web
-npm run snowui:audit -w web
+pnpm --filter web theme:audit
+pnpm --filter web snowui:audit
+pnpm --filter web shadcn:audit
 ```
 
 ## Key Paths
@@ -25,11 +26,17 @@ npm run snowui:audit -w web
 1. App Router pages:
    `apps/web/app`
 
-2. Shared UI primitives:
-   `apps/web/components/ui`
+2. Canonical shadcn primitives:
+   `packages/ui/src/components`
 
-3. Typed env helper:
+3. Canonical token stylesheet imported by the app layout:
+   `packages/ui/src/styles/globals.css`
+
+4. Shared UI composites (page shells, form/table layouts, etc.):
+   `packages/ui/src/components`
+
+5. Typed env helper:
    `apps/web/lib/env.ts`
 
-4. Main deployment doc:
+6. Main deployment doc:
    [Deployment Guide](/Users/muhammadawais/Documents/My%20Tailors/tbms/docs/deployment-guide.md)

@@ -1,9 +1,9 @@
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { OrderStatus } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { InlineLoader } from "@tbms/ui/components/inline-loader";
 
 interface OrderLifecycleCardProps {
   status: OrderStatus;
@@ -64,7 +64,7 @@ export function OrderLifecycleCard({
 
   return (
     <Card>
-      <CardHeader density="comfortable" surface="mutedSection" trimBottom>
+      <CardHeader>
         <CardTitle>
           <FieldLabel as="span">Lifecycle Action</FieldLabel>
         </CardTitle>
@@ -73,10 +73,10 @@ export function OrderLifecycleCard({
         </p>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-3">
-        <InfoTile padding="md" className="text-xs text-muted-foreground">
+      <CardContent className="space-y-3">
+        <div className="rounded-md border p-3 text-xs text-muted-foreground">
           {nextConfig.helper}
-        </InfoTile>
+        </div>
 
         <Button
           variant={nextConfig.variant}
@@ -85,7 +85,7 @@ export function OrderLifecycleCard({
           disabled={statusLoading}
         >
           {statusLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <InlineLoader label="Updating order status" />
           ) : (
             <ArrowRight className="h-4 w-4" />
           )}

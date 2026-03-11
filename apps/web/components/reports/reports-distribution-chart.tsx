@@ -1,12 +1,11 @@
 import { useState } from "react";
 import type { DistributionPoint } from "@tbms/shared-types";
 import { PieChart } from "lucide-react";
-import { ChartEmptyState } from "@/components/ui/chart-empty-state";
-import { ChartLoadingState } from "@/components/ui/chart-loading-state";
-import { ChartShell } from "@/components/ui/chart-shell";
-import { InfoTile } from "@/components/ui/info-tile";
-import { InteractiveTile } from "@/components/ui/interactive-tile";
-import { ProgressBar } from "@/components/ui/progress-track";
+import { ChartEmptyState } from "@tbms/ui/components/chart-empty-state";
+import { ChartLoadingState } from "@tbms/ui/components/chart-loading-state";
+import { ChartShell } from "@tbms/ui/components/chart-shell";
+import { InteractiveTile } from "@tbms/ui/components/interactive-tile";
+import { ProgressBar } from "@tbms/ui/components/progress-track";
 import {
   getChartBgClass,
   getChartStrokeClass,
@@ -77,7 +76,7 @@ function DistributionBars({
   return (
     <div className="space-y-3">
       {activePoint ? (
-        <InfoTile tone="secondary" padding="md">
+        <div className="rounded-md bg-muted/50 px-3 py-2">
           <p className="text-xs font-semibold text-foreground">
             {activePoint.label}
           </p>
@@ -85,7 +84,7 @@ function DistributionBars({
             {activePoint.share.toFixed(1)}% •{" "}
             {valueFormatter(activePoint.value)}
           </p>
-        </InfoTile>
+        </div>
       ) : null}
 
       {topPoints.map((point, index) => {

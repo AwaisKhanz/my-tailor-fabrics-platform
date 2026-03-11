@@ -2,10 +2,11 @@ import {
   DesignType,
   GarmentType,
 } from "@tbms/shared-types";
-import { Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { InfoTile } from "@/components/ui/info-tile";
+import { GripVertical, Trash2 } from "lucide-react";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { SortableItemHandle } from "@tbms/ui/components/reui/sortable";
 import { OrderFormItemAddons } from "@/components/orders/order-form-item-addons";
 import { OrderFormItemDetails } from "@/components/orders/order-form-item-details";
 import { formatPKR } from "@/lib/utils";
@@ -19,6 +20,7 @@ interface OrderFormItemCardProps {
   designTypeOptions: DesignType[];
   lineTotal: number;
   canRemove: boolean;
+  canReorder: boolean;
   onSelectGarmentType: (itemIndex: number, garmentTypeId: string) => void;
   onRemoveItem: (itemIndex: number) => void;
   onAddAddon: (itemIndex: number) => void;
@@ -32,6 +34,7 @@ export function OrderFormItemCard({
   designTypeOptions,
   lineTotal,
   canRemove,
+  canReorder,
   onSelectGarmentType,
   onRemoveItem,
   onAddAddon,
@@ -61,7 +64,7 @@ export function OrderFormItemCard({
               PIECE {index + 1}
             </InfoTile>
             {selectedGarment ? (
-              <Badge variant="info" size="xs" className="font-bold">
+              <Badge variant="secondary" className="font-bold">
                 {selectedGarment.name}
               </Badge>
             ) : null}
@@ -72,6 +75,21 @@ export function OrderFormItemCard({
         </div>
 
         <div className="flex items-center gap-2">
+          {canReorder ? (
+            <SortableItemHandle
+              render={(
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={`Reorder piece ${index + 1}`}
+                  title="Drag to reorder"
+                />
+              )}
+            >
+              <GripVertical className="h-4 w-4" />
+            </SortableItemHandle>
+          ) : null}
           <InfoTile
             tone="default"
             padding="none"

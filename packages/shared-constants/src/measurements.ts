@@ -4,6 +4,6 @@ export const MEASUREMENT_STATUS_LABELS = {
 };
 
 export const MEASUREMENT_STATUS_BADGE = {
-  ACTIVE: 'success',
+  ACTIVE: 'default',
   HIDDEN: 'outline',
 } as const;

@@ -1,4 +1,4 @@
-import { EntityBreadcrumb } from "@/components/ui/entity-breadcrumb";
+import { EntityBreadcrumb } from "@tbms/ui/components/entity-breadcrumb";
 
 interface GarmentDetailBreadcrumbProps {
   garmentName: string;
@@ -13,7 +13,8 @@ export function GarmentDetailBreadcrumb({
     <EntityBreadcrumb
       sectionLabel="Garments"
       currentLabel={garmentName}
-      currentClassName="truncate"
+      separatorClassName="text-muted-foreground"
+      currentClassName="max-w-[260px] truncate"
       onBack={onBack}
     />
   );

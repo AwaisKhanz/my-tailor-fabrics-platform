@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
 
 interface GarmentTypesPageHeaderProps {
   onAdd: () => void;
@@ -15,12 +15,14 @@ export function GarmentTypesPageHeader({
     <PageHeader
       title="Garment Management"
       description="Configure garment types, inventory pricing models, and production rates."
-      actions={canCreate ? (
-        <Button variant="default" size="lg" onClick={onAdd} className="w-full sm:w-auto">
-          <Plus className="mr-2 h-5 w-5" />
-          Add New Garment Type
-        </Button>
-      ) : null}
+      actions={
+        canCreate ? (
+          <Button variant="default" onClick={onAdd}>
+            <Plus className="h-4 w-4" />
+            Add New Garment Type
+          </Button>
+        ) : null
+      }
     />
   );
 }

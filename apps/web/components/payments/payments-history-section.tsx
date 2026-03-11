@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import { Calendar, RotateCcw } from "lucide-react";
 import { type Payment } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { TableSurface, TableToolbar } from "@/components/ui/table-layout";
+import { Button } from "@tbms/ui/components/button";
+import { Input } from "@tbms/ui/components/input";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { TableSurface, TableToolbar } from "@tbms/ui/components/table-layout";
 import { formatDate, formatPKR } from "@/lib/utils";
 import { type PaymentHistoryFilters } from "@/hooks/use-payments-data";
 
@@ -104,42 +103,32 @@ export function PaymentsHistorySection({
         total={total}
         totalLabel="payments"
         activeFilterCount={activeFilterCount}
-        controls={
-          <>
-            <div className="w-full sm:w-[180px]">
-              <FieldLabel block className="mb-2">
-                Paid From
-              </FieldLabel>
-              <Input
-                type="date"
-                value={filters.from}
-                onChange={(event) => onFromChange(event.target.value)}
-              />
-            </div>
-
-            <div className="w-full sm:w-[180px]">
-              <FieldLabel block className="mb-2">
-                Paid To
-              </FieldLabel>
-              <Input
-                type="date"
-                value={filters.to}
-                onChange={(event) => onToChange(event.target.value)}
-              />
-            </div>
-
+        controls={(
+          <div className="flex w-full flex-wrap items-end gap-3">
+            <Input
+              type="date"
+              className="w-full md:w-48"
+              value={filters.from}
+              onChange={(event) => onFromChange(event.target.value)}
+            />
+            <Input
+              type="date"
+              className="w-full md:w-48"
+              value={filters.to}
+              onChange={(event) => onToChange(event.target.value)}
+            />
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-center sm:ml-auto sm:w-auto sm:self-end"
               onClick={onResetFilters}
               disabled={!hasActiveFilters}
+              className="md:ml-auto"
             >
-              <RotateCcw className="mr-2 h-3.5 w-3.5" />
+              <RotateCcw className="mr-2 h-4 w-4" />
               Reset Filters
             </Button>
-          </>
-        }
+          </div>
+        )}
       />
 
       <DataTable

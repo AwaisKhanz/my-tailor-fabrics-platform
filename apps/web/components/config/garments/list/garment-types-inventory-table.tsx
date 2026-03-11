@@ -3,10 +3,9 @@ import Link from "next/link";
 import { Clock, Edit2, RotateCcw, Shirt, Trash2 } from "lucide-react";
 import { type GarmentType } from "@tbms/shared-types";
 import { GARMENT_STATUS_LABELS } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import { buildGarmentSettingsDetailRoute } from "@/lib/settings-routes";
 import { formatPKR } from "@/lib/utils";
 
@@ -61,9 +60,9 @@ export function GarmentTypesInventoryTable({
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover/link:text-primary">
                 {item.name}
               </span>
-              <FieldLabel className="mt-0.5">
+              <span className="mt-0.5 text-xs text-muted-foreground">
                 ID: GT-{item.id.slice(-4).toUpperCase()}
-              </FieldLabel>
+              </span>
             </Link>
           </div>
         ),
@@ -81,9 +80,9 @@ export function GarmentTypesInventoryTable({
         cell: (item) => (
           <Badge
             variant={
-              item.deletedAt ? "outline" : item.isActive ? "success" : "outline"
+              item.deletedAt ? "outline" : item.isActive ? "default" : "outline"
             }
-            size="xs"
+
           >
             {item.deletedAt
               ? "Archived"

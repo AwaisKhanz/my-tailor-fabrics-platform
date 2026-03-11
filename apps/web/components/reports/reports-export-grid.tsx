@@ -5,8 +5,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from "@tbms/ui/components/card";
+import { Button } from "@tbms/ui/components/button";
 import { type ReportExportType } from "@/hooks/use-reports-workspace";
 
 interface ExportCardConfig {
@@ -52,7 +52,7 @@ export function ReportsExportGrid({
 
         return (
           <Card key={card.type}>
-            <CardHeader density="compact" layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+            <CardHeader>
               <div>
                 <CardTitle>{card.title}</CardTitle>
                 <CardDescription className="mt-1 text-xs leading-relaxed">
@@ -62,7 +62,6 @@ export function ReportsExportGrid({
             </CardHeader>
 
             <CardContent
-              spacing="section"
               className="flex flex-col gap-2 sm:flex-row"
             >
               <Button

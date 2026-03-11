@@ -4,14 +4,14 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
+} from "@tbms/ui/components/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import {
   DESIGN_TYPE_ALL_GARMENTS_LABEL,
   DESIGN_TYPE_ALL_SCOPE,
@@ -40,7 +40,7 @@ export function DesignTypeDialogScopeFields({
       <FormField
         control={form.control}
         name="garmentTypeId"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>Applicable Garment</FormLabel>
             <Select
@@ -67,7 +67,7 @@ export function DesignTypeDialogScopeFields({
       <FormField
         control={form.control}
         name="branchId"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>Branch Scoping</FormLabel>
             <Select

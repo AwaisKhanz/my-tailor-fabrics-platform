@@ -2,10 +2,10 @@
 
 import { ExternalLink, FileText, Plus } from "lucide-react";
 import type { EmployeeWithRelations } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { InfoTile } from "@/components/ui/info-tile";
-import { SectionIcon } from "@/components/ui/section-icon";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 
 interface EmployeeDocumentsSectionProps {
@@ -25,7 +25,7 @@ export function EmployeeDocumentsSection({
       title="Documents"
       description="Manage verification and identity documents for this employee."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {documents?.length ?? 0} FILES
         </Badge>
       }
@@ -65,16 +65,20 @@ export function EmployeeDocumentsSection({
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" asChild>
-              <a
-                href={document.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                title={`Open ${document.label}`}
-                aria-label={`Open ${document.label}`}
-              >
-                <ExternalLink className="h-4 w-4" />
-              </a>
+            <Button
+              variant="ghost"
+              size="icon"
+              render={
+                <a
+                  href={document.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={`Open ${document.label}`}
+                  aria-label={`Open ${document.label}`}
+                />
+              }
+            >
+              <ExternalLink className="h-4 w-4" />
             </Button>
           </InfoTile>
         ))}

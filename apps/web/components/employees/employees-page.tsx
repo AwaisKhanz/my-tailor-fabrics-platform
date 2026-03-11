@@ -5,12 +5,12 @@ import { Filter, Plus, Users2, UserSquare2 } from "lucide-react";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
 import { EmployeesListTable } from "@/components/employees/list/employees-list-table";
 import { EmployeesListToolbar } from "@/components/employees/list/employees-list-toolbar";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
-import { TableSurface } from "@/components/ui/table-layout";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useEmployeesPage } from "@/hooks/use-employees-page";
 import { buildEmployeeDetailRoute } from "@/lib/people-routes";
@@ -44,50 +44,44 @@ export function EmployeesPage() {
         <PageHeader
           title="Employees"
           description="Manage team records, assignments, and staff visibility from one directory."
-          density="compact"
           actions={
             canManageEmployees ? (
-              <Button
-                variant="default"
-                size="lg"
-                className="w-full sm:w-auto"
-                onClick={openAddDialog}
-              >
+              <Button variant="default" onClick={openAddDialog}>
                 <Plus className="h-4 w-4" />
                 New Employee
               </Button>
             ) : null
           }
+          surface="card"
+          density="compact"
         />
       </PageSection>
 
       <PageSection spacing="compact">
-        <StatsGrid columns="three" flushSectionSpacing>
+        <StatsGrid columns="three">
           <StatCard
             title="Total Employees"
-            subtitle="Across current branch"
-            value={total}
-            tone="primary"
+            subtitle="Organization-wide roster"
+            value={total.toLocaleString()}
+            badgeText="Team"
+            tone="info"
             icon={<Users2 className="h-4 w-4" />}
           />
-
           <StatCard
             title="Showing"
-            subtitle={`Rows on page ${page}`}
-            value={employees.length}
-            tone="info"
+            subtitle="Current paginated set"
+            value={employees.length.toLocaleString()}
+            badgeText={`Page ${page}`}
+            tone="primary"
             icon={<UserSquare2 className="h-4 w-4" />}
           />
-
           <StatCard
             title="Filters"
-            subtitle={
-              hasActiveFilters ? "Search applied" : "No filters applied"
-            }
+            subtitle="Current list query"
             value={hasActiveFilters ? "Active" : "Default"}
-            tone="warning"
+            badgeText={hasActiveFilters ? "Search applied" : "No filters"}
+            tone={hasActiveFilters ? "warning" : "default"}
             icon={<Filter className="h-4 w-4" />}
-            className="sm:col-span-2 xl:col-span-1"
           />
         </StatsGrid>
       </PageSection>

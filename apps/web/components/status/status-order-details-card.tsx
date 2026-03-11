@@ -1,6 +1,13 @@
 import { type Order } from "@tbms/shared-types";
-import { Card } from "@/components/ui/card";
-import { Heading, Text } from "@/components/ui/typography";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Text } from "@tbms/ui/components/typography";
 import { formatPKR } from "@/lib/utils";
 
 interface StatusOrderDetailsCardProps {
@@ -8,53 +15,44 @@ interface StatusOrderDetailsCardProps {
 }
 
 export function StatusOrderDetailsCard({ order }: StatusOrderDetailsCardProps) {
+  const detailTiles = [
+    {
+      label: "Customer",
+      value: order.customer?.fullName ?? "--",
+      tone: "secondary" as const,
+    },
+    {
+      label: "Due Date",
+      value: new Date(order.dueDate).toLocaleDateString("en-PK"),
+      tone: "secondary" as const,
+    },
+    {
+      label: "Total",
+      value: formatPKR(order.totalAmount),
+      tone: "secondary" as const,
+    },
+    {
+      label: "Balance Due",
+      value: formatPKR(order.balanceDue),
+      tone: order.balanceDue > 0 ? ("destructive" as const) : ("success" as const),
+    },
+  ];
+
   return (
-    <Card className="space-y-3 p-6">
-      <Heading
-        as="h2"
-        variant="section"
-        className="text-sm font-semibold uppercase  text-muted-foreground"
-      >
-        Details
-      </Heading>
-
-      <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-        <div>
-          <Text as="p" variant="muted" className="text-xs">
-            Customer
-          </Text>
-          <Text as="p" variant="body" className="font-medium">
-            {order.customer?.fullName}
-          </Text>
-        </div>
-
-        <div>
-          <Text as="p" variant="muted" className="text-xs">
-            Due Date
-          </Text>
-          <Text as="p" variant="body" className="font-medium">
-            {new Date(order.dueDate).toLocaleDateString("en-PK")}
-          </Text>
-        </div>
-
-        <div>
-          <Text as="p" variant="muted" className="text-xs">
-            Total
-          </Text>
-          <Text as="p" variant="body" className="font-medium">
-            {formatPKR(order.totalAmount)}
-          </Text>
-        </div>
-
-        <div>
-          <Text as="p" variant="muted" className="text-xs">
-            Balance Due
-          </Text>
-          <Text as="p" variant="body" className="font-medium text-destructive">
-            {formatPKR(order.balanceDue)}
-          </Text>
-        </div>
-      </div>
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle>Order Details</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+        {detailTiles.map((tile) => (
+          <InfoTile key={tile.label} tone={tile.tone} padding="content">
+            <FieldLabel as="span" size="compact" block>
+              {tile.label}
+            </FieldLabel>
+            <Text className="font-medium">{tile.value}</Text>
+          </InfoTile>
+        ))}
+      </CardContent>
     </Card>
   );
 }

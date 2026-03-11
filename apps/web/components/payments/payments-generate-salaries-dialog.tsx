@@ -1,31 +1,22 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DialogActionRow,
   DialogFormActions,
-  DialogSection,
   FormStack,
-} from "@/components/ui/form-layout";
+} from "@tbms/ui/components/form-layout";
 import {
   FieldError,
   FieldHint,
   FieldLabel,
   FieldStack,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/field";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Text } from "@/components/ui/typography";
+} from "@tbms/ui/components/select";
 import {
   salaryAccrualGenerationFormSchema,
   type SalaryAccrualGenerationFormInput,
@@ -72,82 +63,74 @@ export function PaymentsGenerateSalariesDialog({
   const isValid = parsedResult.success;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md">
-        <DialogHeader>
-          <DialogTitle>Generate Monthly Salaries</DialogTitle>
-          <DialogDescription>
-            Create ledger salary accrual entries for a payroll month.
-          </DialogDescription>
-        </DialogHeader>
-
-        <DialogSection>
-          <FormStack
-            as="form"
-            id="payments-generate-salaries-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              onSubmit();
-            }}
-          >
-            <FieldStack>
-              <FieldLabel>Payroll Month</FieldLabel>
-              <Input
-                type="month"
-                value={form.month}
-                onChange={(event) => onMonthChange(event.target.value)}
-              />
-              {validationError ? (
-                <FieldError size="sm">{validationError}</FieldError>
-              ) : null}
-            </FieldStack>
-
-            <FieldStack>
-              <FieldLabel>Scope</FieldLabel>
-              <Select
-                value={form.scope}
-                onValueChange={(value) => {
-                  if (isSalaryAccrualScope(value)) {
-                    onScopeChange(value);
-                  }
-                }}
-                disabled={!hasSelectedEmployee}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">
-                    All monthly employees in branch
-                  </SelectItem>
-                  {hasSelectedEmployee ? (
-                    <SelectItem value="SELECTED">
-                      Only selected employee
-                      {selectedEmployeeName ? ` (${selectedEmployeeName})` : ""}
-                    </SelectItem>
-                  ) : null}
-                </SelectContent>
-              </Select>
-              <FieldHint>
-                System is idempotent and skips already generated employee-month
-                accruals.
-              </FieldHint>
-            </FieldStack>
-          </FormStack>
-        </DialogSection>
-
-        <DialogActionRow>
-          <DialogFormActions
-            onCancel={() => onOpenChange(false)}
-            submitText="Generate"
-            submittingText="Generating..."
-            submitting={loading}
-            submitDisabled={!isValid}
-            submitFormId="payments-generate-salaries-form"
-            submitSize="lg"
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Generate Monthly Salaries"
+      description="Create ledger salary accrual entries for a payroll month."
+      footerActions={
+        <DialogFormActions
+          onCancel={() => onOpenChange(false)}
+          submitText="Generate"
+          submittingText="Generating..."
+          submitting={loading}
+          submitDisabled={!isValid}
+          submitFormId="payments-generate-salaries-form"
+          submitSize="lg"
+        />
+      }
+    >
+      <FormStack
+        as="form"
+        id="payments-generate-salaries-form"
+        density="relaxed"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        <FieldStack>
+          <FieldLabel>Payroll Month</FieldLabel>
+          <Input
+            type="month"
+            value={form.month}
+            onChange={(event) => onMonthChange(event.target.value)}
           />
-        </DialogActionRow>
-      </DialogContent>
-    </Dialog>
+          {validationError ? (
+            <FieldError size="sm">{validationError}</FieldError>
+          ) : null}
+        </FieldStack>
+
+        <FieldStack>
+          <FieldLabel>Scope</FieldLabel>
+          <Select
+            value={form.scope}
+            onValueChange={(value) => {
+              if (value && isSalaryAccrualScope(value)) {
+                onScopeChange(value);
+              }
+            }}
+            disabled={!hasSelectedEmployee}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All monthly employees in branch</SelectItem>
+              {hasSelectedEmployee ? (
+                <SelectItem value="SELECTED">
+                  Only selected employee
+                  {selectedEmployeeName ? ` (${selectedEmployeeName})` : ""}
+                </SelectItem>
+              ) : null}
+            </SelectContent>
+          </Select>
+          <FieldHint>
+            System is idempotent and skips already generated employee-month
+            accruals.
+          </FieldHint>
+        </FieldStack>
+      </FormStack>
+    </ScrollableDialog>
   );
 }

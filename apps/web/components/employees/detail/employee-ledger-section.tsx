@@ -2,17 +2,17 @@
 
 import { Plus } from "lucide-react";
 import type { EmployeeLedgerEntry } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 
 interface EmployeeLedgerSectionProps {
@@ -63,7 +63,7 @@ export function EmployeeLedgerSection({
       title="Ledger"
       description="Track payouts, deductions, and adjustments with filterable history."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {ledgerTotal} ENTRIES
         </Badge>
       }
@@ -101,7 +101,10 @@ export function EmployeeLedgerSection({
             value={ledgerTo}
             onChange={(event) => setLedgerTo(event.target.value)}
           />
-          <Select value={ledgerType} onValueChange={setLedgerType}>
+          <Select
+            value={ledgerType}
+            onValueChange={(value) => setLedgerType(value ?? "all")}
+          >
             <SelectTrigger className="h-8 w-full text-xs md:w-[140px]">
               <SelectValue placeholder={allTypesLabel} />
             </SelectTrigger>

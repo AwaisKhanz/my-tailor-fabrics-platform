@@ -1,9 +1,9 @@
 "use client";
 
 import { RefreshCcw } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { useSystemSettingsPage } from "@/hooks/use-system-settings-page";
 import { SystemSettingsStatsGrid } from "@/components/config/system/system-settings-stats-grid";
 import { SystemSettingsWorkflowCard } from "@/components/config/system/system-settings-workflow-card";
@@ -28,15 +28,12 @@ export function SystemSettingsPage() {
         <PageHeader
           title="System Controls"
           description="Manage global operational behavior for all branches."
-          density="compact"
           actions={
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => void loadSettings()}
               disabled={loading || saving}
-              className="w-full sm:w-auto"
             >
               <RefreshCcw className="h-4 w-4" />
               Refresh
@@ -46,10 +43,16 @@ export function SystemSettingsPage() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <SystemSettingsStatsGrid workflowEnabled={useTaskWorkflow} dirty={isDirty} />
+        <SystemSettingsStatsGrid
+          workflowEnabled={useTaskWorkflow}
+          dirty={isDirty}
+        />
       </PageSection>
 
-      <PageSection spacing="compact" className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <PageSection
+        spacing="compact"
+        className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
+      >
         <SystemSettingsWorkflowCard
           loading={loading}
           saving={saving}

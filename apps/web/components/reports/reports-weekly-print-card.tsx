@@ -1,12 +1,12 @@
 import { FileText, Printer } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tbms/ui/components/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
-} from "@/components/ui/card";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+  CardTitle,
+} from "@tbms/ui/components/card";
 
 interface ReportsWeeklyPrintCardProps {
   printing: boolean;
@@ -21,19 +21,17 @@ export function ReportsWeeklyPrintCard({
 }: ReportsWeeklyPrintCardProps) {
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
-        <SectionHeader
-          title="Production Work-Order Summary"
-          description="Optimized for physical printing and shift-based task management."
-          icon={
-            <SectionIcon size="lg">
-              <Printer className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Printer className="h-4 w-4" />
+          Production Work-Order Summary
+        </CardTitle>
+        <CardDescription>
+          Optimized for physical printing and shift-based task management.
+        </CardDescription>
       </CardHeader>
 
-      <CardContent spacing="section">
+      <CardContent>
         <Button
           variant="default"
           className="w-full"

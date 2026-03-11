@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
 import {
   Form,
   FormControl,
@@ -10,18 +10,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  DialogFormActions,
-  FormGrid,
-  FormStack,
-} from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Switch } from "@/components/ui/switch";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
+import { Switch } from "@tbms/ui/components/switch";
+import { MultiSelect } from "@tbms/ui/components/multi-select";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
+import { Textarea } from "@tbms/ui/components/textarea";
 import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -147,37 +141,36 @@ export function GarmentTypeDialog({
     }
   }
 
-  const footerActions = (
-    <DialogFormActions
-      onCancel={() => onOpenChange(false)}
-      submitFormId="garment-type-form"
-      submitText={initialData ? "Save Changes" : "Create Garment Type"}
-      submitting={loading}
-      cancelVariant="outline"
-      submittingText="Saving Garment..."
-    />
-  );
-
   return (
     <ScrollableDialog
       open={open}
       onOpenChange={onOpenChange}
       title={initialData ? "Edit Garment Type" : "Add Garment Type"}
-      footerActions={footerActions}
+      description="Configure garment pricing and linked measurement forms."
+      contentSize="2xl"
+      maxWidthClass=""
+      footerActions={
+        <DialogFormActions
+          onCancel={() => onOpenChange(false)}
+          submitText={initialData ? "Save Changes" : "Create Garment Type"}
+          submittingText="Saving Garment..."
+          submitting={loading}
+          submitFormId="garment-type-form"
+        />
+      }
     >
       <Form {...form}>
         <FormStack
           as="form"
           id="garment-type-form"
           onSubmit={form.handleSubmit(onSubmit)}
-          density="compact"
-          className="px-0.5 pb-2"
+          density="default"
         >
-          <FormGrid>
+          <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem>
                   <FormLabel>Garment Name</FormLabel>
                   <FormControl>
@@ -194,7 +187,7 @@ export function GarmentTypeDialog({
             <FormField
               control={form.control}
               name="description"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem>
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
@@ -208,13 +201,13 @@ export function GarmentTypeDialog({
                 </FormItem>
               )}
             />
-          </FormGrid>
+          </div>
 
-          <FormGrid>
+          <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="customerPrice"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem>
                   <FormLabel>Price (Rs)</FormLabel>
                   <FormControl>
@@ -224,17 +217,19 @@ export function GarmentTypeDialog({
                 </FormItem>
               )}
             />
-          </FormGrid>
+          </div>
 
           <div className="space-y-3 pt-3">
             <div className="flex items-center gap-2">
               <Filter className="h-3 w-3 text-muted-foreground" />
-              <FieldLabel as="span">Measurement Categories</FieldLabel>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">
+                Measurement Categories
+              </p>
             </div>
             <FormField
               control={form.control}
               name="measurementCategoryIds"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem>
                   <FormControl>
                     <MultiSelect
@@ -258,21 +253,17 @@ export function GarmentTypeDialog({
             <FormField
               control={form.control}
               name="isActive"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem>
-                  <InfoTile
-                    layout="between"
-                    padding="none"
-                    className="h-[38px] px-2.5 py-0"
-                  >
-                    <FormLabel className="cursor-pointer">Active</FormLabel>
+                  <div className="flex h-[38px] items-center justify-between rounded-md bg-muted/40 px-2.5">
+                    <FormLabel className="cursor-pointer m-0">Active</FormLabel>
                     <FormControl>
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                  </InfoTile>
+                  </div>
                 </FormItem>
               )}
             />

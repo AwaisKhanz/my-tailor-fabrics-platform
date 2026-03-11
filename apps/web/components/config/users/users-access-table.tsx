@@ -1,12 +1,10 @@
 import { Pencil, Trash2, Users } from "lucide-react";
 import { ROLE_BADGE, ROLE_LABELS } from "@tbms/shared-constants";
 import { type UserAccount } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { Switch } from "@tbms/ui/components/switch";
 import {
   USERS_ALL_BRANCHES_LABEL,
   USERS_MASTER_ACCESS_LABEL,
@@ -40,19 +38,16 @@ export function UsersAccessTable({
       header: "Staff Member",
       cell: (user) => (
         <div className="flex items-center gap-4">
-          <InfoTile
-            padding="none"
-            className="h-10 w-10 shrink-0 items-center justify-center"
-          >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
             <Users className="h-5 w-5 text-muted-foreground" />
-          </InfoTile>
+          </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold leading-tight text-foreground">
               {user.name}
             </span>
-            <FieldLabel className="mt-0.5">
+            <span className="mt-0.5 text-xs text-muted-foreground">
               ID: STAFF-{user.id ? user.id.slice(0, 3).toUpperCase() : "001"}
-            </FieldLabel>
+            </span>
           </div>
         </div>
       ),
@@ -68,7 +63,7 @@ export function UsersAccessTable({
     {
       header: "Role",
       cell: (user) => (
-        <Badge variant={ROLE_BADGE[user.role] ?? "outline"} size="xs">
+        <Badge variant={ROLE_BADGE[user.role] ?? "outline"}>
           {ROLE_LABELS[user.role]}
         </Badge>
       ),
@@ -80,9 +75,9 @@ export function UsersAccessTable({
           <span className="text-sm font-bold text-foreground">
             {user.branch ? user.branch.name : USERS_ALL_BRANCHES_LABEL}
           </span>
-          <FieldLabel>
+          <span className="text-xs text-muted-foreground">
             {user.branch ? user.branch.code : USERS_MASTER_ACCESS_LABEL}
-          </FieldLabel>
+          </span>
         </div>
       ),
     },
@@ -95,7 +90,7 @@ export function UsersAccessTable({
               ? new Date(user.lastLoginAt).toLocaleDateString("en-PK")
               : "Never"}
           </span>
-          <FieldLabel>System Log</FieldLabel>
+          <span className="text-xs text-muted-foreground">System Log</span>
         </div>
       ),
     },

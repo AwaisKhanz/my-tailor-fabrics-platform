@@ -11,10 +11,10 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type ColumnDef } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { type ColumnDef } from "@tbms/ui/components/data-table";
+import { Label } from "@tbms/ui/components/label";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface UseMeasurementSectionsManagerParams {
@@ -158,7 +158,7 @@ export function useMeasurementSectionsManager({
         header: "Section",
         cell: (row) => (
           <div className="flex items-center gap-2">
-            <Badge variant="outline" size="xs">
+            <Badge variant="outline">
               #{row.section.sortOrder + 1}
             </Badge>
             <span className="font-semibold text-foreground">
@@ -170,7 +170,7 @@ export function useMeasurementSectionsManager({
       {
         header: "Fields",
         cell: (row) => (
-          <Badge variant="default" size="xs">
+          <Badge variant="default">
             {row.fieldCount} field{row.fieldCount === 1 ? "" : "s"}
           </Badge>
         ),
@@ -178,7 +178,7 @@ export function useMeasurementSectionsManager({
       {
         header: "Required",
         cell: (row) => (
-          <Badge variant="success" size="xs">
+          <Badge variant="default">
             {row.requiredCount} required
           </Badge>
         ),

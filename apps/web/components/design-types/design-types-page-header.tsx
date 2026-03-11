@@ -1,6 +1,6 @@
 import { Layout, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
 
 interface DesignTypesPageHeaderProps {
   onCreate: () => void;

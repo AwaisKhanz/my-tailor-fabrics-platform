@@ -27,22 +27,22 @@ API:
 Initialize missing env files:
 
 ```bash
-npm run env:setup
+pnpm run env:setup
 ```
 
 Verify the repo contract:
 
 ```bash
-npm run env:verify
+pnpm run env:verify
 ```
 
 ## Runtime Loading Rules
 
 API:
 
-1. `npm run start -w api` loads `apps/api/.env`
-2. `npm run start:dev -w api` loads `apps/api/.env` and `apps/api/.env.local`
-3. `npm run start:debug -w api` loads `apps/api/.env` and `apps/api/.env.local`
+1. `pnpm --filter api start` loads `apps/api/.env`
+2. `pnpm --filter api start:dev` loads `apps/api/.env` and `apps/api/.env.local`
+3. `pnpm --filter api start:debug` loads `apps/api/.env` and `apps/api/.env.local`
 
 Web:
 
@@ -51,7 +51,7 @@ Web:
 
 ## Guardrails
 
-`npm run env:verify` checks:
+`pnpm run env:verify` checks:
 
 1. required templates exist
 2. runtime env files exist as regular files, not symlinks

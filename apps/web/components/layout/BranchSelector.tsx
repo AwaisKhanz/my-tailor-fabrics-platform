@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { useAuthz } from "@/hooks/use-authz";
 import { useBranchesSwitcher } from "@/hooks/queries/branch-queries";
 import { readActiveBranchCookie } from "@/lib/branch-context";
@@ -74,12 +74,15 @@ export function BranchSelector({ className }: BranchSelectorProps) {
     <Select
       value={activeBranchId || undefined}
       onValueChange={(val) => {
+        if (!val) {
+          return;
+        }
         setActiveBranch(val);
         router.refresh();
       }}
     >
       <SelectTrigger
-        className={cn("h-10 w-full text-snow-14 font-semibold", className)}
+        className={cn("h-10 w-full text-sm font-semibold", className)}
       >
         <SelectValue placeholder="Select Branch" />
       </SelectTrigger>

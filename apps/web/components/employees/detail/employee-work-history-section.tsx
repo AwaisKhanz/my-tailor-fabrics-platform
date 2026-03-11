@@ -1,8 +1,8 @@
 "use client";
 
 import type { OrderItem } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 
 interface EmployeeWorkHistorySectionProps {
@@ -30,7 +30,7 @@ export function EmployeeWorkHistorySection({
       title="Work History"
       description="Review completed and pending order items handled by this employee."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {items.length} ITEMS
         </Badge>
       }

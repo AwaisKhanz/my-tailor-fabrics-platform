@@ -6,20 +6,20 @@ import type {
 } from "@tbms/shared-types";
 import { PaymentType as PaymentTypeValue } from "@tbms/shared-types";
 import { PAYMENT_TYPE_LABELS } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
-import { FieldError, FieldLabel } from "@/components/ui/field";
-import { FormGrid } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable } from "@tbms/ui/components/data-table";
+import { FieldError, FieldLabel } from "@tbms/ui/components/field";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 import { formatDate, formatPKR } from "@/lib/utils";
 
@@ -71,7 +71,7 @@ export function EmployeeCompensationSection({
       title="Compensation Timeline"
       description="Track payment model and salary changes over time."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {compensationHistory.length} CHANGES
         </Badge>
       }
@@ -83,7 +83,7 @@ export function EmployeeCompensationSection({
             {
               header: "Model",
               cell: (entry) => (
-                <Badge variant="outline" size="xs">
+                <Badge variant="outline">
                   {PAYMENT_TYPE_LABELS[entry.paymentType]}
                 </Badge>
               ),

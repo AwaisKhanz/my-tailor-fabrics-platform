@@ -1,7 +1,7 @@
 import { Calculator, CheckCircle2, Filter, Ruler } from "lucide-react";
 import { type MeasurementStats } from "@tbms/shared-types";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 
 interface MeasurementCategoriesStatsGridProps {
   stats: MeasurementStats;
@@ -20,7 +20,7 @@ export function MeasurementCategoriesStatsGrid({
         title="Categories"
         subtitle="Measurement catalog"
         value={stats.totalCategories.toLocaleString()}
-        tone="primary"
+        helperText="Configured category definitions"
         icon={<Ruler className="h-4 w-4" />}
       />
 
@@ -28,24 +28,27 @@ export function MeasurementCategoriesStatsGrid({
         title="Active Categories"
         subtitle="Visible in order forms"
         value={stats.activeCategories.toLocaleString()}
-        tone="success"
+        helperText="Available in active workflows"
         icon={<CheckCircle2 className="h-4 w-4" />}
+        tone="success"
       />
 
       <StatCard
         title="Total Fields"
         subtitle={`${stats.requiredFields.toLocaleString()} required`}
         value={stats.totalFields.toLocaleString()}
-        tone="info"
+        helperText="Category-level field definitions"
         icon={<Calculator className="h-4 w-4" />}
+        tone="info"
       />
 
       <StatCard
         title="Visible Rows"
         subtitle={hasActiveFilters ? "Filtered listing" : "Default listing"}
         value={visibleOnPage.toLocaleString()}
-        tone="warning"
+        helperText={hasActiveFilters ? "Filters applied" : "Unfiltered listing"}
         icon={<Filter className="h-4 w-4" />}
+        tone={hasActiveFilters ? "warning" : "default"}
       />
     </StatsGrid>
   );

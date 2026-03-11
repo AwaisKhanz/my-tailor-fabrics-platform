@@ -1,60 +1,16 @@
-import { Check, Clock3, Dot } from "lucide-react";
-import { type ReactNode } from "react";
+import { Clock3 } from "lucide-react";
 import { OrderStatus, OrderStatusHistory } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-
-interface TimelineStep {
-  key: string;
-  status?: OrderStatus;
-  done: boolean;
-  active: boolean;
-}
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
+import { Label } from "@tbms/ui/components/label";
+import { ProgressSteps } from "@tbms/ui/components/progress-steps";
+import { SectionHeader } from "@tbms/ui/components/section-header";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
+import { buildOrderProgressSteps } from "@/lib/order-progress-steps";
 
 interface OrderTimelineCardProps {
   status: OrderStatus;
   history: OrderStatusHistory[];
-}
-
-function buildTimeline(status: OrderStatus): TimelineStep[] {
-  const inProgressDoneStatuses = [
-    OrderStatus.IN_PROGRESS,
-    OrderStatus.READY,
-    OrderStatus.DELIVERED,
-    OrderStatus.COMPLETED,
-  ];
-  const readyDoneStatuses = [
-    OrderStatus.READY,
-    OrderStatus.DELIVERED,
-    OrderStatus.COMPLETED,
-  ];
-
-  return [
-    { key: "Order Created", done: true, active: false },
-    { key: "Measurements Taken", done: true, active: false },
-    {
-      key: "In Progress",
-      status: OrderStatus.IN_PROGRESS,
-      done: inProgressDoneStatuses.includes(status),
-      active: status === OrderStatus.IN_PROGRESS,
-    },
-    {
-      key: "Ready for Trial",
-      status: OrderStatus.READY,
-      done: readyDoneStatuses.includes(status),
-      active: status === OrderStatus.READY,
-    },
-    {
-      key: "Delivered",
-      status: OrderStatus.DELIVERED,
-      done: status === OrderStatus.COMPLETED,
-      active: status === OrderStatus.DELIVERED,
-    },
-  ];
 }
 
 function formatHistoryTime(value: string) {
@@ -67,15 +23,11 @@ function formatHistoryTime(value: string) {
 }
 
 export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
-  const timelineSteps = buildTimeline(status);
+  const progressSteps = buildOrderProgressSteps(status);
 
   return (
     <Card>
       <CardHeader
-        density="comfortable"
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <SectionHeader
           title="Order Timeline"
@@ -89,64 +41,18 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
         />
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-5">
-        <div className="space-y-3">
-          {timelineSteps.map((step, index) => {
-            const isLast = index === timelineSteps.length - 1;
-            let markerClass = "border-border bg-muted text-muted-foreground";
-            let markerIcon: ReactNode = <Dot className="h-4 w-4" />;
+      <CardContent className="space-y-5">
+        <ProgressSteps data={{ steps: progressSteps }} />
 
-            if (step.done) {
-              markerClass =
-                "border-primary/20 bg-primary text-primary-foreground";
-              markerIcon = <Check className="h-3.5 w-3.5" />;
-            } else if (step.active) {
-              markerClass = "border-primary bg-primary text-primary-foreground";
-              markerIcon = <Dot className="h-4 w-4 animate-pulse" />;
-            }
-
-            return (
-              <div key={step.key} className="relative flex gap-3">
-                {!isLast ? (
-                  <span
-                    className={`absolute left-[11px] top-6 h-6 w-px ${step.done ? "bg-primary/50" : "bg-border"}`}
-                  />
-                ) : null}
-
-                <div
-                  className={`z-10 flex h-6 w-6 items-center justify-center rounded-full border ${markerClass}`}
-                >
-                  {markerIcon}
-                </div>
-
-                <div className="pt-0.5">
-                  <p
-                    className={`text-xs font-semibold ${step.active ? "text-primary" : "text-foreground"}`}
-                  >
-                    {step.key}
-                  </p>
-                  {step.active ? (
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Current stage
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <InfoTile tone="secondary" padding="content">
+        <div className="rounded-md border p-3">
           <Label className="text-xs font-semibold uppercase  text-muted-foreground">
             Recent Events
           </Label>
           <div className="mt-2 space-y-2">
             {history.slice(0, 4).map((entry) => (
-              <InfoTile
+              <div
                 key={entry.id}
-                tone="default"
-                padding="sm"
-                className="rounded-md"
+                className="rounded-md border p-2"
               >
                 <p className="text-xs font-semibold text-foreground">
                   {ORDER_STATUS_CONFIG[entry.toStatus].label}
@@ -154,7 +60,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
                 <p className="text-xs text-muted-foreground">
                   {formatHistoryTime(entry.createdAt)}
                 </p>
-              </InfoTile>
+              </div>
             ))}
 
             {history.length === 0 ? (
@@ -163,7 +69,7 @@ export function OrderTimelineCard({ status, history }: OrderTimelineCardProps) {
               </p>
             ) : null}
           </div>
-        </InfoTile>
+        </div>
       </CardContent>
     </Card>
   );

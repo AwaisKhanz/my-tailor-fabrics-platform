@@ -1,5 +1,6 @@
 import { Layers3, Save, Workflow } from "lucide-react";
-import { StatCard } from "@/components/ui/stat-card";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 
 interface SystemSettingsStatsGridProps {
   workflowEnabled: boolean;
@@ -11,28 +12,31 @@ export function SystemSettingsStatsGrid({
   dirty,
 }: SystemSettingsStatsGridProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <StatsGrid columns="threeMd">
       <StatCard
         title="Workflow State"
-        subtitle="task engine"
+        subtitle="Task engine"
         value={workflowEnabled ? "Active" : "Inactive"}
-        tone={workflowEnabled ? "success" : "warning"}
+        helperText="Global order task pipeline"
         icon={<Workflow className="h-4 w-4" />}
+        tone={workflowEnabled ? "success" : "warning"}
       />
       <StatCard
         title="Change State"
-        subtitle="draft status"
+        subtitle="Draft status"
         value={dirty ? "Pending" : "Synced"}
-        tone={dirty ? "warning" : "info"}
+        helperText="Unsaved settings snapshot"
         icon={<Save className="h-4 w-4" />}
+        tone={dirty ? "warning" : "success"}
       />
       <StatCard
         title="Managed Controls"
-        subtitle="global scope"
+        subtitle="Global scope"
         value="1"
-        tone="primary"
+        helperText="Primary operational toggle"
         icon={<Layers3 className="h-4 w-4" />}
+        tone="info"
       />
-    </div>
+    </StatsGrid>
   );
 }

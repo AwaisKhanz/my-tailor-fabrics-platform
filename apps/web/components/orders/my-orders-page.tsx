@@ -1,10 +1,10 @@
 "use client";
 
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { TableSurface } from "@/components/ui/table-layout";
 import { MyOrdersTable } from "@/components/orders/my-orders-table";
 import { MyOrdersToolbar } from "@/components/orders/my-orders-toolbar";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useMyOrdersPage } from "@/hooks/use-my-orders-page";
 
 export function MyOrdersPage() {
@@ -27,6 +27,7 @@ export function MyOrdersPage() {
         <PageHeader
           title="My Work Orders"
           description="Review and manage your assigned tailoring tasks."
+          surface="card"
           density="compact"
         />
       </PageSection>

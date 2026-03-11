@@ -4,10 +4,14 @@ import {
   type CreateRateCardInput,
   type GarmentTypeWithAnalytics,
 } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+import { Button } from "@tbms/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import { CreateRateDialog } from "@/components/rates/CreateRateDialog";
 import { RatesList } from "@/components/rates/RatesList";
 
@@ -31,22 +35,18 @@ export function GarmentRatesSection({
   return (
     <>
       <Card>
-        <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
-          <SectionHeader
-            title="Production Rates (Step-based)"
-            description="Define how much tailors are paid for each step of this garment."
-            descriptionVariant="compact"
-            icon={
-              <SectionIcon tone="default">
-                <Banknote className="h-4 w-4" />
-              </SectionIcon>
-            }
-          />
+        <CardHeader className="pb-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Banknote className="h-4 w-4 text-muted-foreground" />
+            <div className="space-y-1">
+              <CardTitle className="text-base">Production Rates (Step-based)</CardTitle>
+              <CardDescription>
+                Define how much tailors are paid for each step of this garment.
+              </CardDescription>
+            </div>
+          </div>
 
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
-            {/* <Badge variant="default" size="xs">
-              {activeRatesCount} active rate{activeRatesCount === 1 ? "" : "s"}
-            </Badge> */}
             {canManageRates ? (
               <Button
                 variant="outline"
@@ -61,7 +61,7 @@ export function GarmentRatesSection({
           </div>
         </CardHeader>
 
-        <CardContent spacing="section" padding="inset">
+        <CardContent>
           <RatesList rates={garment.rateCards || []} />
         </CardContent>
       </Card>

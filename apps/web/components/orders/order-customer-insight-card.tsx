@@ -1,10 +1,18 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { UserRound } from "lucide-react";
+import { Badge } from "@tbms/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { Label } from "@tbms/ui/components/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@tbms/ui/components/table";
 import { Order, type MeasurementValues } from "@tbms/shared-types";
 
 interface MeasurementDisplayItem {
@@ -45,87 +53,72 @@ export function OrderCustomerInsightCard({
 
   return (
     <Card>
-      <CardHeader
-        density="comfortable"
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <SectionHeader
-          title="Customer Profile"
-          titleVariant="dashboard"
-          description="Contact details and saved measurements."
-          icon={
-            <SectionIcon tone="info" size="lg">
-              <UserRound className="h-4 w-4 text-primary" />
-            </SectionIcon>
-          }
-        />
-        <Badge variant="outline" size="xs" className="font-bold uppercase ">
-          {customer.sizeNumber}
-        </Badge>
+      <CardHeader className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle>Customer Profile</CardTitle>
+            <CardDescription className="mt-1">
+              Contact details and saved measurements.
+            </CardDescription>
+          </div>
+          <Badge variant="outline">{customer.sizeNumber}</Badge>
+        </div>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-5">
+      <CardContent className="space-y-6">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoTile tone="default">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Full Name
-            </Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">
+          <div className="rounded-md border p-3">
+            <Label className="text-xs text-muted-foreground">Full Name</Label>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {customer.fullName}
             </p>
-          </InfoTile>
-          <InfoTile tone="default">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Phone
-            </Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">
+          </div>
+          <div className="rounded-md border p-3">
+            <Label className="text-xs text-muted-foreground">Phone</Label>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {customer.phone || "-"}
             </p>
-          </InfoTile>
-          <InfoTile tone="default">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              City
-            </Label>
-            <p className="mt-1 text-sm font-semibold text-foreground">
+          </div>
+          <div className="rounded-md border p-3">
+            <Label className="text-xs text-muted-foreground">City</Label>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {customer.city || "-"}
             </p>
-          </InfoTile>
+          </div>
         </div>
 
-        <InfoTile tone="default" padding="contentLg">
-          <div className="mb-3 flex items-center justify-between">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Measurement Snapshot
-            </Label>
-            <Badge variant="info" size="xs" className="font-bold uppercase ">
-              Synced
-            </Badge>
+        <div className="rounded-md border">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div>
+              <h4 className="text-sm font-medium">Measurement Snapshot</h4>
+              <p className="text-xs text-muted-foreground">
+                Latest captured values for this customer.
+              </p>
+            </div>
+            <Badge variant="secondary">Synced</Badge>
           </div>
 
           {measurementPreview.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">
+            <p className="px-4 py-6 text-center text-sm text-muted-foreground">
               No measurements available for this customer.
             </p>
           ) : (
-            <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-              {measurementPreview.map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <span className="truncate text-xs text-muted-foreground">
-                    {item.label}
-                  </span>
-                  <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableBody>
+                {measurementPreview.map((item) => (
+                  <TableRow key={item.label}>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {item.label}
+                    </TableCell>
+                    <TableCell className="text-right text-sm font-medium">
+                      {item.value}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
-        </InfoTile>
+        </div>
       </CardContent>
     </Card>
   );

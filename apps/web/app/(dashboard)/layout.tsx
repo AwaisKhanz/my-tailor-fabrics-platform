@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { Topbar } from "@/components/layout/Topbar";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 import { buildExpiredLoginRoute, LOGIN_ROUTE } from "@/lib/auth-routes";
+import { SidebarInset, SidebarProvider } from "@tbms/ui/components/sidebar";
+import { LoadingState } from "@tbms/ui/components/loading-state";
 
 export default function DashboardLayout({
   children,
@@ -40,22 +42,14 @@ export default function DashboardLayout({
     }
   }, [router, session?.accessToken, session?.error, status]);
 
-  useEffect(() => {
-    document.body.classList.add("dashboard-shell");
-    return () => {
-      document.body.classList.remove("dashboard-shell");
-    };
-  }, []);
-
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="flex min-w-[280px] flex-col items-center rounded-snow-28 border border-border bg-card px-8 py-10 shadow">
-          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-primary/25 border-t-primary" />
-          <p className="mt-4 text-[0.875rem] font-medium text-muted-foreground">
-            Loading application...
-          </p>
-        </div>
+        <LoadingState
+          text="Loading application..."
+          caption="Preparing workspace and permissions."
+          className="min-w-[280px] rounded-3xl bg-card px-8 py-10 shadow"
+        />
       </div>
     );
   }
@@ -65,12 +59,22 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="dashboard-shell">
-      <Topbar />
-      <Sidebar />
-      <main className="dashboard-shell-scroll !mt-14 sm:!mt-[4px]">
-        <div className="dashboard-shell-workspace">{children}</div>
-      </main>
-    </div>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "18rem",
+          "--header-height": "3.5rem",
+        } as CSSProperties
+      }
+    >
+      <AppSidebar />
+      <SidebarInset className="min-w-0">
+        <div className="flex flex-1 flex-col overflow-x-hidden">
+          <div className="@container/main flex flex-1 flex-col">
+            <div className="flex flex-1 flex-col p-6">{children}</div>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

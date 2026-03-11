@@ -1,20 +1,21 @@
 "use client";
 
 import { useMemo } from "react";
-import { Edit2, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
+import { Edit2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { type ExpenseCategory } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import {
   TableSearch,
   TableSurface,
   TableToolbar,
-} from "@/components/ui/table-layout";
+} from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useExpenseCategoriesPage } from "@/hooks/use-expense-categories-page";
 import { PERMISSION } from "@tbms/shared-constants";
@@ -66,7 +67,7 @@ export function ExpenseCategoriesPage() {
       {
         header: "Status",
         cell: (category) => (
-          <Badge variant={category.isActive ? "success" : "outline"} size="xs">
+          <Badge variant={category.isActive ? "default" : "outline"}>
             {category.isActive ? "Active" : "Inactive"}
           </Badge>
         ),
@@ -137,16 +138,9 @@ export function ExpenseCategoriesPage() {
         <PageHeader
           title="Expense Categories"
           description="Manage reusable spending categories for branch expense logging."
-          density="compact"
           actions={
             canManageExpenseCategories ? (
-              <Button
-                type="button"
-                variant="default"
-                size="lg"
-                onClick={openCreateDialog}
-                className="w-full sm:w-auto"
-              >
+              <Button type="button" variant="default" onClick={openCreateDialog}>
                 <Plus className="h-4 w-4" />
                 Add Category
               </Button>
@@ -155,28 +149,29 @@ export function ExpenseCategoriesPage() {
         />
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid space-y-0 gap-4 md:grid-cols-3"
-      >
-        <StatCard
-          title="Total Categories"
-          subtitle="configured"
-          value={stats.total.toLocaleString()}
-          tone="primary"
-        />
-        <StatCard
-          title="Active"
-          subtitle="usable in expenses"
-          value={stats.active.toLocaleString()}
-          tone="success"
-        />
-        <StatCard
-          title="Inactive"
-          subtitle="disabled for new records"
-          value={stats.inactive.toLocaleString()}
-          tone="warning"
-        />
+      <PageSection spacing="compact">
+        <StatsGrid columns="threeMd">
+          <StatCard
+            title="Total Categories"
+            subtitle="Directory size"
+            value={stats.total.toLocaleString()}
+            helperText="Configured expense groups"
+          />
+          <StatCard
+            title="Active"
+            subtitle="Ready to use"
+            value={stats.active.toLocaleString()}
+            helperText="Available in expense entries"
+            tone="success"
+          />
+          <StatCard
+            title="Inactive"
+            subtitle="Disabled entries"
+            value={stats.inactive.toLocaleString()}
+            helperText="Hidden from new expense records"
+            tone="warning"
+          />
+        </StatsGrid>
       </PageSection>
 
       <PageSection spacing="compact">
@@ -189,20 +184,17 @@ export function ExpenseCategoriesPage() {
             controls={
               <>
                 <TableSearch
-                  icon={<Search className="h-4 w-4" />}
                   placeholder="Search category..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                 />
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="md:ml-auto"
+                  variant="outline"
                   onClick={resetFilters}
                   disabled={!hasActiveFilters}
                 >
-                  <RotateCcw className="mr-2 h-3.5 w-3.5" />
+                  <RotateCcw className="h-4 w-4" />
                   Reset
                 </Button>
               </>

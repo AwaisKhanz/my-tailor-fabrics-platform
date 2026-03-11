@@ -6,12 +6,9 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { MetaPill } from "@/components/ui/meta-pill";
-import { Heading } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
 import { GARMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { formatDate } from "@/lib/utils";
 
@@ -31,81 +28,47 @@ export function GarmentDetailHeader({
   const workflowStepsCount = garment.workflowSteps?.length ?? 0;
 
   return (
-    <Card>
-      <CardContent spacing="section" padding="inset" className="space-y-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-3 lg:max-w-[70%]">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Garment Command
-            </Label>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Heading
-                as="h1"
-                variant="page"
-                className="font-semibold sm:text-4xl"
-              >
-                {garment.name}
-              </Heading>
-              <Badge
-                variant={garment.isActive ? "success" : "outline"}
-                size="xs"
-              >
-                {garment.isActive ? "Active" : "Inactive"}
-              </Badge>
-              <Badge variant="outline" size="xs" className="font-semibold">
-                {garmentCode}
-              </Badge>
-            </div>
-
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-              <MetaPill>
-                <ClipboardList className="h-3.5 w-3.5" />
-                <span>
-                  {measurementFormsCount} measurement form
-                  {measurementFormsCount === 1 ? "" : "s"}
-                </span>
-              </MetaPill>
-              <MetaPill>
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                <span>
-                  {workflowStepsCount} workflow step
-                  {workflowStepsCount === 1 ? "" : "s"}
-                </span>
-              </MetaPill>
-              <MetaPill>
-                <CalendarDays className="h-3.5 w-3.5" />
-                <span>Updated {formatDate(garment.updatedAt)}</span>
-              </MetaPill>
-            </div>
-          </div>
-
-          <div className="flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end lg:max-w-[520px]">
+    <div className="space-y-3">
+      <PageHeader
+        title={garment.name}
+        description="Garment command center for profile, measurement forms, workflow rates, and pricing logs."
+        actions={
+          <>
             {canManageRates ? (
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full justify-center sm:w-auto sm:min-w-[180px]"
-                onClick={onOpenRates}
-              >
+              <Button variant="outline" onClick={onOpenRates}>
                 <SlidersHorizontal className="h-4 w-4" />
                 Update Rates
               </Button>
             ) : null}
             <Button
-              asChild
               variant="default"
-              size="lg"
-              className="w-full justify-center sm:w-auto sm:min-w-[180px]"
+              render={<Link href={GARMENTS_SETTINGS_ROUTE} />}
             >
-              <Link href={GARMENTS_SETTINGS_ROUTE}>
-                <Settings className="h-4 w-4" />
-                Manage Garments
-              </Link>
+              <Settings className="h-4 w-4" />
+              Manage Garments
             </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+          </>
+        }
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={garment.isActive ? "default" : "outline"}>
+          {garment.isActive ? "Active" : "Inactive"}
+        </Badge>
+        <Badge variant="outline">{garmentCode}</Badge>
+        <Badge variant="outline" className="gap-1">
+          <ClipboardList className="h-3.5 w-3.5" />
+          {measurementFormsCount} measurement form
+          {measurementFormsCount === 1 ? "" : "s"}
+        </Badge>
+        <Badge variant="outline" className="gap-1">
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          {workflowStepsCount} workflow step{workflowStepsCount === 1 ? "" : "s"}
+        </Badge>
+        <Badge variant="outline" className="gap-1">
+          <CalendarDays className="h-3.5 w-3.5" />
+          Updated {formatDate(garment.updatedAt)}
+        </Badge>
+      </div>
+    </div>
   );
 }

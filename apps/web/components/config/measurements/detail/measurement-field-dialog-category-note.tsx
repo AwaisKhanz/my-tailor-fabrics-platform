@@ -1,5 +1,3 @@
-import { Text } from "@/components/ui/typography";
-
 interface MeasurementFieldDialogCategoryNoteProps {
   categoryName?: string;
 }
@@ -12,9 +10,9 @@ export function MeasurementFieldDialogCategoryNote({
   }
 
   return (
-    <Text as="p"  variant="lead" className="-mt-2 mb-4">
+    <p className="-mt-2 mb-4 text-sm text-muted-foreground">
       Define a new measurement unit for{" "}
       <span className="font-semibold text-primary">{categoryName}</span>
-    </Text>
+    </p>
   );
 }

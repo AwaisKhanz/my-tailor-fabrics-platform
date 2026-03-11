@@ -1,16 +1,17 @@
 import { Filter, RotateCcw, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { ActionStrip } from "@tbms/ui/components/action-strip";
+import { Button } from "@tbms/ui/components/button";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
+} from "@tbms/ui/components/select";
+import { TableSearch, TableToolbar } from "@tbms/ui/components/table-layout";
 import {
+  EXPENSES_ALL_CATEGORIES_FILTER,
   EXPENSES_ALL_CATEGORIES_LABEL,
   type ExpensesFilters,
 } from "@/hooks/use-expenses-page";
@@ -51,8 +52,8 @@ export function ExpensesFiltersCard({
       total={total}
       totalLabel="expenses"
       activeFilterCount={activeFilterCount}
-      controls={
-        <>
+      controls={(
+        <ActionStrip width="full" align="start" className="gap-3">
           <TableSearch
             icon={<Search className="h-4 w-4" />}
             placeholder="Search by category or description..."
@@ -60,71 +61,59 @@ export function ExpensesFiltersCard({
             onChange={(event) => onSearchChange(event.target.value)}
           />
 
-          <div className="w-full sm:w-[220px]">
-            <FieldLabel block className="mb-2">
-              <span className="inline-flex items-center gap-1.5">
-                <Filter className="h-3.5 w-3.5" />
-                Category
-              </span>
-            </FieldLabel>
-            <Select
-              value={filters.categoryId}
-              onValueChange={onCategoryChange}
-              disabled={categoriesLoading}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={
-                    categoriesLoading
-                      ? "Loading categories..."
-                      : EXPENSES_ALL_CATEGORIES_LABEL
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryFilterOptions.map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
+          <Select
+            value={filters.categoryId}
+            onValueChange={(value) =>
+              onCategoryChange(value ?? EXPENSES_ALL_CATEGORIES_FILTER)
+            }
+            disabled={categoriesLoading}
+          >
+            <SelectTrigger className="w-full md:w-56">
+              <SelectValue
+                placeholder={
+                  categoriesLoading
+                    ? "Loading categories..."
+                    : EXPENSES_ALL_CATEGORIES_LABEL
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryFilterOptions.map((category) => (
+                <SelectItem key={category.value} value={category.value}>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Filter className="h-3.5 w-3.5" />
                     {category.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <div className="w-full sm:w-[180px]">
-            <FieldLabel block className="mb-2">
-              Date From
-            </FieldLabel>
-            <Input
-              type="date"
-              value={filters.from}
-              onChange={(event) => onFromChange(event.target.value)}
-            />
-          </div>
-
-          <div className="w-full sm:w-[180px]">
-            <FieldLabel block className="mb-2">
-              Date To
-            </FieldLabel>
-            <Input
-              type="date"
-              value={filters.to}
-              onChange={(event) => onToChange(event.target.value)}
-            />
-          </div>
+          <Input
+            type="date"
+            className="w-full md:w-48"
+            value={filters.from}
+            onChange={(event) => onFromChange(event.target.value)}
+          />
+          <Input
+            type="date"
+            className="w-full md:w-48"
+            value={filters.to}
+            onChange={(event) => onToChange(event.target.value)}
+          />
 
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-center sm:ml-auto sm:w-auto sm:self-end"
             onClick={onReset}
             disabled={!hasFilters}
+            className="md:ml-auto"
           >
             <RotateCcw className="mr-2 h-3.5 w-3.5" />
             Reset Filters
           </Button>
-        </>
-      }
+        </ActionStrip>
+      )}
     />
   );
 }

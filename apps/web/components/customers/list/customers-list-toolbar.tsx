@@ -1,13 +1,14 @@
-import { RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { RotateCcw, Search } from "lucide-react";
+import { ActionStrip } from "@tbms/ui/components/action-strip";
+import { Button } from "@tbms/ui/components/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
+} from "@tbms/ui/components/select";
+import { TableSearch, TableToolbar } from "@tbms/ui/components/table-layout";
 import {
   CUSTOMER_ALL_STATUSES_LABEL,
   DEFAULT_CUSTOMER_STATUS_TAB,
@@ -46,46 +47,45 @@ export function CustomersListToolbar({
       totalLabel="customers"
       activeFilterCount={activeFilterCount}
       controls={
-        <>
+        <ActionStrip width="full" align="start" className="gap-3">
           <TableSearch
+            icon={<Search className="h-4 w-4" />}
             placeholder="Name, phone, size..."
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
 
-          <div className="w-full md:w-52">
-            <Select
-              value={statusTab}
-              onValueChange={(value) => {
-                if (isCustomerStatusTab(value)) {
-                  onStatusChange(value);
-                }
-              }}
-            >
-              <SelectTrigger className="text-sm font-semibold">
-                <SelectValue placeholder={CUSTOMER_ALL_STATUSES_LABEL} />
-              </SelectTrigger>
-              <SelectContent>
-                {CUSTOMER_STATUS_TAB_OPTIONS.map((tab) => (
-                  <SelectItem key={tab.key} value={tab.key} className="text-sm font-medium">
-                    {tab.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={String(statusTab)}
+            onValueChange={(value) => {
+              if (value && isCustomerStatusTab(value)) {
+                onStatusChange(value);
+              }
+            }}
+          >
+            <SelectTrigger className="w-full md:w-52">
+              <SelectValue placeholder={CUSTOMER_ALL_STATUSES_LABEL} />
+            </SelectTrigger>
+            <SelectContent>
+              {CUSTOMER_STATUS_TAB_OPTIONS.map((tab) => (
+                <SelectItem key={tab.key} value={tab.key}>
+                  {tab.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-center md:ml-auto md:w-auto md:justify-start"
             onClick={onReset}
             disabled={!hasActiveFilters}
+            className="md:ml-auto"
           >
-            <RotateCcw className="mr-2 h-3.5 w-3.5" />
+            <RotateCcw className="mr-2 h-4 w-4" />
             Reset
           </Button>
-        </>
+        </ActionStrip>
       }
     />
   );

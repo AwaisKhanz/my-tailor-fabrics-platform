@@ -3,8 +3,8 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { MetaPill } from "@/components/ui/meta-pill";
+import { Badge } from "@tbms/ui/components/badge";
+import { Input } from "@tbms/ui/components/input";
 import { useGlobalSearchCommand } from "@/hooks/use-global-search-command";
 import { cn } from "@/lib/utils";
 import { GlobalSearchResultsPanel } from "@/components/layout/global-search-results-panel";
@@ -49,10 +49,7 @@ export function GlobalSearchCommand({
   );
 
   return (
-    <div
-      ref={containerRef}
-      className={cn("dashboard-shell-search relative w-full", className)}
-    >
+    <div ref={containerRef} className={cn("relative w-full", className)}>
       <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         ref={inputRef}
@@ -76,7 +73,7 @@ export function GlobalSearchCommand({
             : "Search orders, customers, and staff..."
         }
         className={cn(
-          "w-full rounded-snow-20 pl-10",
+          "w-full rounded-xl pl-10",
           query ? "pr-9" : !compact ? "pr-24" : undefined,
         )}
       />
@@ -91,9 +88,12 @@ export function GlobalSearchCommand({
           <X className="h-3.5 w-3.5" />
         </button>
       ) : !compact ? (
-        <MetaPill className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 gap-1 px-1.5 py-0.5 text-xs font-medium xl:inline-flex">
+        <Badge
+          variant="outline"
+          className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide xl:inline-flex"
+        >
           Ctrl/Cmd K
-        </MetaPill>
+        </Badge>
       ) : null}
 
       <GlobalSearchResultsPanel

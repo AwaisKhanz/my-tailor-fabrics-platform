@@ -11,12 +11,12 @@ exports.ORDER_STATUS_CONFIG = {
     [shared_types_1.OrderStatus.IN_PROGRESS]: {
         label: "IN PROGRESS",
         publicLabel: "In Progress",
-        variant: "warning",
+        variant: "secondary",
     },
     [shared_types_1.OrderStatus.READY]: {
         label: "READY",
         publicLabel: "Ready for Pickup",
-        variant: "success",
+        variant: "default",
     },
     [shared_types_1.OrderStatus.OVERDUE]: {
         label: "OVERDUE",
@@ -26,12 +26,12 @@ exports.ORDER_STATUS_CONFIG = {
     [shared_types_1.OrderStatus.DELIVERED]: {
         label: "DELIVERED",
         publicLabel: "Delivered",
-        variant: "info",
+        variant: "secondary",
     },
     [shared_types_1.OrderStatus.COMPLETED]: {
         label: "COMPLETED",
         publicLabel: "Completed",
-        variant: "success",
+        variant: "default",
     },
     [shared_types_1.OrderStatus.CANCELLED]: {
         label: "CANCELLED",
@@ -59,11 +59,11 @@ exports.ITEM_STATUS_CONFIG = {
     },
     [shared_types_1.ItemStatus.IN_PROGRESS]: {
         label: exports.ITEM_STATUS_LABELS[shared_types_1.ItemStatus.IN_PROGRESS],
-        variant: 'info',
+        variant: 'secondary',
     },
     [shared_types_1.ItemStatus.COMPLETED]: {
         label: exports.ITEM_STATUS_LABELS[shared_types_1.ItemStatus.COMPLETED],
-        variant: 'success',
+        variant: 'default',
     },
     [shared_types_1.ItemStatus.CANCELLED]: {
         label: exports.ITEM_STATUS_LABELS[shared_types_1.ItemStatus.CANCELLED],
@@ -91,7 +91,7 @@ exports.TASK_STATUS_CONFIG = {
     },
     [shared_types_1.TaskStatus.DONE]: {
         label: exports.TASK_STATUS_LABELS[shared_types_1.TaskStatus.DONE],
-        variant: 'success',
+        variant: 'default',
     },
     [shared_types_1.TaskStatus.CANCELLED]: {
         label: exports.TASK_STATUS_LABELS[shared_types_1.TaskStatus.CANCELLED],

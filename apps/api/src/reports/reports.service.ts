@@ -124,7 +124,7 @@ export class ReportsService {
       Prisma.sql`
         SELECT COALESCE(SUM(le.amount), 0) AS total
         FROM "EmployeeLedgerEntry" le
-        WHERE le.type = ${LedgerEntryType.EARNING}
+        WHERE le.type = CAST(${LedgerEntryType.EARNING} AS "LedgerEntryType")
           AND le."deletedAt" IS NULL
           ${earnedBranchCondition}
       `,
@@ -364,7 +364,7 @@ export class ReportsService {
         SELECT oi."garmentTypeName" as label, SUM(oi."unitPrice" * oi.quantity) as value
         FROM "OrderItem" oi
         JOIN "Order" o ON o.id = oi."orderId"
-        WHERE oi.status NOT IN (${ItemStatus.CANCELLED})
+        WHERE oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
           AND o."deletedAt" IS NULL
           ${branchCondition}
           ${getSqlDateCondition('orderCreatedAt', range)}
@@ -397,7 +397,7 @@ export class ReportsService {
           JOIN "Order" o ON o.id = oi."orderId"
           LEFT JOIN "DesignType" dt ON dt.id = oi."designTypeId"
           WHERE o."deletedAt" IS NULL
-            AND oi.status NOT IN (${ItemStatus.CANCELLED})
+            AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
             AND oi."designTypeId" IS NOT NULL
             ${branchCondition}
             ${getSqlDateCondition('orderCreatedAt', range)}
@@ -416,7 +416,7 @@ export class ReportsService {
           JOIN "Order" o ON o.id = oi."orderId"
           WHERE o."deletedAt" IS NULL
             AND a."deletedAt" IS NULL
-            AND oi.status NOT IN (${ItemStatus.CANCELLED})
+            AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
             ${branchCondition}
             ${getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY a.type
@@ -432,7 +432,7 @@ export class ReportsService {
           FROM "OrderItem" oi
           JOIN "Order" o ON o.id = oi."orderId"
           WHERE o."deletedAt" IS NULL
-            AND oi.status NOT IN (${ItemStatus.CANCELLED})
+            AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
             ${branchCondition}
             ${getSqlDateCondition('orderCreatedAt', range)}
           GROUP BY oi."garmentTypeName"
@@ -489,7 +489,7 @@ export class ReportsService {
           JOIN "OrderItem" oi ON oi.id = oit."orderItemId"
           JOIN "Order" o ON o.id = oi."orderId"
           JOIN "Employee" emp ON emp.id = oit."assignedEmployeeId"
-          WHERE oit.status = ${TaskStatus.DONE}
+          WHERE oit.status = CAST(${TaskStatus.DONE} AS "TaskStatus")
             AND o."deletedAt" IS NULL
             AND emp."deletedAt" IS NULL
             ${branchCondition}
@@ -569,7 +569,7 @@ export class ReportsService {
             AND oit."designTypeId" = oi."designTypeId"
         ) AS task_payout ON TRUE
         WHERE o."deletedAt" IS NULL
-          AND oi.status NOT IN (${ItemStatus.CANCELLED})
+          AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
           ${branchCondition}
           ${getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY dt.id, dt.name
@@ -609,7 +609,7 @@ export class ReportsService {
         JOIN "Order" o ON o.id = oi."orderId"
         WHERE o."deletedAt" IS NULL
           AND a."deletedAt" IS NULL
-          AND oi.status NOT IN (${ItemStatus.CANCELLED})
+          AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
           ${branchCondition}
           ${getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY a.type

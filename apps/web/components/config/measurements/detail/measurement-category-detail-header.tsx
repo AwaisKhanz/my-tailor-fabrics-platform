@@ -6,12 +6,9 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { type MeasurementCategory } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { MetaPill } from "@/components/ui/meta-pill";
-import { Heading } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
 import { formatDate } from "@/lib/utils";
 
 interface MeasurementCategoryDetailHeaderProps {
@@ -36,87 +33,58 @@ export function MeasurementCategoryDetailHeader({
   const requiredFields =
     category?.fields?.filter((field) => field.isRequired).length ?? 0;
   const optionalFields = Math.max(totalFields - requiredFields, 0);
+  const updatedLabel = category?.updatedAt
+    ? formatDate(category.updatedAt)
+    : null;
 
   return (
-    <Card>
-      <CardContent spacing="section" padding="inset" className="space-y-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-3 lg:max-w-[70%]">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Measurement Command
-            </Label>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Heading
-                as="h1"
-                variant="page"
-                className="font-semibold sm:text-4xl"
-              >
-                {category?.name || "Category"}
-              </Heading>
-              <Badge
-                variant={category?.isActive ? "success" : "outline"}
-                size="xs"
-              >
-                {category?.isActive ? "Active" : "Hidden"}
-              </Badge>
-            </div>
-
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-              <MetaPill>
-                <Ruler className="h-3.5 w-3.5" />
-                <span>{totalFields} total fields</span>
-              </MetaPill>
-              <MetaPill>
-                <span>{totalSections} sections</span>
-              </MetaPill>
-              <MetaPill>
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                <span>
-                  {requiredFields} required / {optionalFields} optional
-                </span>
-              </MetaPill>
-              {category?.updatedAt ? (
-                <MetaPill>
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  <span>Updated {formatDate(category.updatedAt)}</span>
-                </MetaPill>
-              ) : null}
-            </div>
-          </div>
-
-          {canManageMeasurements ? (
-            <div className="flex w-full flex-col justify-start gap-2 sm:flex-row lg:w-auto lg:justify-end">
+    <div className="space-y-3">
+      <PageHeader
+        title={category?.name || "Category"}
+        description="Manage sections, fields, required rules, and archival visibility for this measurement category."
+        actions={
+          canManageMeasurements ? (
+            <>
               <Button
                 variant={includeArchived ? "default" : "outline"}
-                size="lg"
-                className="w-full sm:w-auto"
                 onClick={() => onIncludeArchivedChange(!includeArchived)}
               >
                 {includeArchived ? "Showing Archived" : "Show Archived"}
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full sm:w-auto"
-                onClick={onAddSection}
-              >
-                <FolderPlus className="mr-2 h-5 w-5" />
+              <Button variant="outline" onClick={onAddSection}>
+                <FolderPlus className="h-4 w-4" />
                 Add Section
               </Button>
-              <Button
-                variant="default"
-                size="lg"
-                className="w-full sm:w-auto"
-                onClick={onAddField}
-              >
-                <Plus className="mr-2 h-5 w-5" />
+              <Button variant="default" onClick={onAddField}>
+                <Plus className="h-4 w-4" />
                 Add New Field
               </Button>
-            </div>
-          ) : null}
-        </div>
-      </CardContent>
-    </Card>
+            </>
+          ) : null
+        }
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={category?.isActive ? "default" : "outline"}>
+          {category?.isActive ? "Active" : "Hidden"}
+        </Badge>
+        <Badge variant="outline" className="gap-1">
+          <Ruler className="h-3.5 w-3.5" />
+          {totalFields} fields
+        </Badge>
+        <Badge variant="outline" className="gap-1">
+          {totalSections} sections
+        </Badge>
+        <Badge variant="outline" className="gap-1">
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          {requiredFields} required / {optionalFields} optional
+        </Badge>
+        {updatedLabel ? (
+          <Badge variant="outline" className="gap-1">
+            <CalendarDays className="h-3.5 w-3.5" />
+            Updated {updatedLabel}
+          </Badge>
+        ) : null}
+      </div>
+    </div>
   );
 }

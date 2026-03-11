@@ -1,18 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-  Activity,
-  Clock3,
-  RefreshCcw,
-  Users,
-} from "lucide-react";
 import { AttendanceLedgerSection } from "@/components/config/attendance/attendance-ledger-section";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
-import { Button } from "@/components/ui/button";
 import { AttendanceQuickClockInCard } from "@/components/config/attendance/attendance-quick-clock-in-card";
+import { AttendanceSettingsPageHeader } from "@/components/config/attendance/attendance-settings-page-header";
+import { AttendanceStatsGrid } from "@/components/config/attendance/attendance-stats-grid";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { buildEmployeeDetailRoute } from "@/lib/people-routes";
 import { useAuthz } from "@/hooks/use-authz";
 import { useAttendanceRecordColumns } from "@/hooks/use-attendance-record-columns";
@@ -62,49 +55,14 @@ export function AttendanceSettingsPage() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <PageHeader
-          title="Attendance Control"
-          description="Monitor shifts, clock employees in, and resolve active attendance sessions."
-          density="compact"
-          actions={
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => void refresh()}
-              className="w-full sm:w-auto"
-            >
-              <RefreshCcw className="h-4 w-4" />
-              Refresh
-            </Button>
-          }
-        />
+        <AttendanceSettingsPageHeader onRefresh={() => void refresh()} />
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid space-y-0 gap-4 md:grid-cols-3"
-      >
-        <StatCard
-          title="Attendance Records"
-          subtitle="total matching"
-          value={total.toLocaleString()}
-          tone="primary"
-          icon={<Activity className="h-4 w-4" />}
-        />
-        <StatCard
-          title="Open Shifts"
-          subtitle="current page"
-          value={openShiftsOnPage.toLocaleString()}
-          tone="warning"
-          icon={<Clock3 className="h-4 w-4" />}
-        />
-        <StatCard
-          title="Active Employees"
-          subtitle="available for clock-in"
-          value={activeEmployees.length.toLocaleString()}
-          tone="success"
-          icon={<Users className="h-4 w-4" />}
+      <PageSection spacing="compact">
+        <AttendanceStatsGrid
+          total={total}
+          openShiftsOnPage={openShiftsOnPage}
+          activeEmployees={activeEmployees.length}
         />
       </PageSection>
 

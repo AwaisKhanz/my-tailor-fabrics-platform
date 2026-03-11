@@ -5,22 +5,25 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json ./
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 COPY packages/shared-constants/package.json packages/shared-constants/package.json
+COPY packages/ui/package.json packages/ui/package.json
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
 WORKDIR /app
 COPY . .
-RUN npm run build:do:api
+RUN pnpm run build:do:api
 
 FROM builder AS prod-deps
 WORKDIR /app
-RUN npm prune --omit=dev
+RUN pnpm prune --prod --no-optional
 
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
@@ -45,4 +48,4 @@ COPY --from=builder /app/packages/shared-constants ./packages/shared-constants
 
 EXPOSE 8080
 
-CMD ["npm", "run", "start:do:api"]
+CMD ["node", "apps/api/dist/main.js"]

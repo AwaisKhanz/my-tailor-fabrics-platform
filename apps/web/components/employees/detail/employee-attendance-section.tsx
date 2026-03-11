@@ -1,8 +1,8 @@
 "use client";
 
 import type { AttendanceRecord } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 
 interface EmployeeAttendanceSectionProps {
@@ -30,7 +30,7 @@ export function EmployeeAttendanceSection({
       title="Attendance"
       description="Review attendance logs and worked hours for this employee."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {attendance.length} RECORDS
         </Badge>
       }

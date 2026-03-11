@@ -4,12 +4,13 @@ import type {
   ExpenseCategory,
   ExpenseCategoryFormValues,
 } from "@tbms/shared-types";
-import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { Switch } from "@/components/ui/switch";
+import { FieldError, FieldLabel, FieldStack } from "@tbms/ui/components/field";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
+import { Switch } from "@tbms/ui/components/switch";
+import { Text } from "@tbms/ui/components/typography";
 
 interface ExpenseCategoryDialogProps {
   open: boolean;
@@ -41,58 +42,56 @@ export function ExpenseCategoryDialog({
     <ScrollableDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={
-        editingCategory ? "Edit Expense Category" : "Create Expense Category"
-      }
+      title={editingCategory ? "Edit Expense Category" : "Create Expense Category"}
+      description="Configure reusable categories for branch expense logging."
       footerActions={
         <DialogFormActions
           onCancel={() => onOpenChange(false)}
-          submitFormId="expense-category-form"
-          submitting={saving}
           submitText={editingCategory ? "Save Changes" : "Create Category"}
-          submitVariant="default"
+          submittingText="Saving..."
+          submitting={saving}
+          submitFormId="expense-category-form"
         />
       }
     >
       <FormStack
         as="form"
-        id="expense-category-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void onSubmit();
-        }}
-      >
-        <div className="space-y-4">
-          {formError ? <FieldError size="sm">{formError}</FieldError> : null}
+          id="expense-category-form"
+          density="default"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onSubmit();
+          }}
+        >
+        {formError ? <FieldError size="sm">{formError}</FieldError> : null}
 
-          <FieldStack>
-            <FieldLabel htmlFor="expense-category-name">Name</FieldLabel>
-            <Input
-              id="expense-category-name"
-              value={form.name}
-              onChange={(event) => onUpdateField("name", event.target.value)}
-              placeholder="e.g. Utilities"
-              disabled={saving}
-            />
-            {fieldErrors.name ? (
-              <FieldError>{fieldErrors.name}</FieldError>
-            ) : null}
-          </FieldStack>
+        <FieldStack>
+          <FieldLabel htmlFor="expense-category-name">Name</FieldLabel>
+          <Input
+            id="expense-category-name"
+            value={form.name}
+            onChange={(event) => onUpdateField("name", event.target.value)}
+            placeholder="e.g. Utilities"
+            disabled={saving}
+          />
+          {fieldErrors.name ? <FieldError>{fieldErrors.name}</FieldError> : null}
+        </FieldStack>
 
-          <InfoTile layout="betweenGap" className="rounded-md">
-            <div>
-              <p className="text-sm font-medium text-foreground">Active</p>
-              <p className="text-xs text-muted-foreground">
-                Active categories are available in expense entry forms.
-              </p>
-            </div>
-            <Switch
-              checked={form.isActive}
-              onCheckedChange={(checked) => onUpdateField("isActive", checked)}
-              disabled={saving}
-            />
-          </InfoTile>
-        </div>
+        <InfoTile tone="secondary" layout="betweenGap" padding="contentLg" radius="xl">
+          <div>
+            <Text as="p" variant="body" className="font-medium">
+              Active
+            </Text>
+            <Text as="p" variant="muted" className="text-xs">
+              Active categories are available in expense entry forms.
+            </Text>
+          </div>
+          <Switch
+            checked={form.isActive}
+            onCheckedChange={(checked) => onUpdateField("isActive", checked)}
+            disabled={saving}
+          />
+        </InfoTile>
       </FormStack>
     </ScrollableDialog>
   );

@@ -1,7 +1,7 @@
 import { Filter, RotateCcw, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
+import { Button } from "@tbms/ui/components/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tbms/ui/components/select";
+import { TableSearch, TableToolbar } from "@tbms/ui/components/table-layout";
 import {
   USER_ROLE_FILTER_OPTIONS,
   USERS_ALL_ROLES_LABEL,
@@ -41,15 +41,20 @@ export function UsersListToolbar({
       controls={
         <>
           <TableSearch
-            icon={<Search className="h-4 w-4" />}
             value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search by name, email, branch..."
+            icon={<Search className="h-4 w-4" />}
+            onChange={(event) => onSearchChange(event.target.value)}
           />
 
           <div className="w-full md:w-56">
-            <Select value={roleFilter} onValueChange={onRoleFilterChange}>
-              <SelectTrigger className="w-full text-xs font-bold">
+            <Select
+              value={String(roleFilter)}
+              onValueChange={(value) =>
+                onRoleFilterChange(value ?? USERS_ALL_ROLES_FILTER_VALUE)
+              }
+            >
+              <SelectTrigger className="w-full">
                 <div className="flex items-center gap-2">
                   <Filter className="h-3.5 w-3.5 text-muted-foreground" />
                   <SelectValue placeholder={USERS_ALL_ROLES_LABEL} />
@@ -66,13 +71,11 @@ export function UsersListToolbar({
           </div>
 
           <Button
-            variant="ghost"
-            size="sm"
-            className="md:ml-auto"
+            variant="outline"
             onClick={onResetFilters}
             disabled={!hasActiveFilters}
           >
-            <RotateCcw className="mr-2 h-3.5 w-3.5" />
+            <RotateCcw className="h-4 w-4" />
             Reset
           </Button>
         </>

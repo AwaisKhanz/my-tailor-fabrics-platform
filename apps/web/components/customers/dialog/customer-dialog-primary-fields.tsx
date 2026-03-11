@@ -5,9 +5,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FormGrid } from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
 import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type CustomerFormValues } from "@/types/customers";
 
@@ -23,7 +23,7 @@ export function CustomerDialogPrimaryFields({
       <FormField
         control={form.control}
         name="fullName"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem className="col-span-2">
             <FormLabel>Full Name</FormLabel>
             <FormControl>
@@ -37,7 +37,7 @@ export function CustomerDialogPrimaryFields({
       <FormField
         control={form.control}
         name="phone"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>Phone</FormLabel>
             <FormControl>
@@ -51,7 +51,7 @@ export function CustomerDialogPrimaryFields({
       <FormField
         control={form.control}
         name="whatsapp"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>WhatsApp (opt.)</FormLabel>
             <FormControl>

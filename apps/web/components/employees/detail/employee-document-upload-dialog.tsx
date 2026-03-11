@@ -1,18 +1,10 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DialogActionRow,
   DialogFormActions,
-  DialogSection,
   FormStack,
-} from "@/components/ui/form-layout";
-import { FieldError, FieldLabel, FieldStack } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form-layout";
+import { FieldError, FieldLabel, FieldStack } from "@tbms/ui/components/field";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 
 interface EmployeeDocumentUploadDialogProps {
   open: boolean;
@@ -43,62 +35,50 @@ export function EmployeeDocumentUploadDialog({
   onSubmit,
 }: EmployeeDocumentUploadDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm">
-        <DialogHeader>
-          <DialogTitle>Add Document</DialogTitle>
-          <DialogDescription>
-            Attach a file URL for this employee&apos;s records.
-          </DialogDescription>
-        </DialogHeader>
-
-        <DialogSection density="compact">
-          <FormStack
-            as="form"
-            id="employee-document-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              onSubmit();
-            }}
-          >
-            {validationError ? (
-              <FieldError size="sm">{validationError}</FieldError>
-            ) : null}
-            <FieldStack className="space-y-1.5">
-              <FieldLabel>Document Label</FieldLabel>
-              <Input
-                placeholder="e.g. CNIC Front"
-                value={label}
-                onChange={(event) => onLabelChange(event.target.value)}
-              />
-              {fieldErrors.label ? (
-                <FieldError>{fieldErrors.label}</FieldError>
-              ) : null}
-            </FieldStack>
-            <FieldStack className="space-y-1.5">
-              <FieldLabel>File URL</FieldLabel>
-              <Input
-                placeholder="https://..."
-                value={url}
-                onChange={(event) => onUrlChange(event.target.value)}
-              />
-              {fieldErrors.url ? (
-                <FieldError>{fieldErrors.url}</FieldError>
-              ) : null}
-            </FieldStack>
-          </FormStack>
-        </DialogSection>
-
-        <DialogActionRow bordered={false}>
-          <DialogFormActions
-            onCancel={() => onOpenChange(false)}
-            submitText="Add Document"
-            submittingText="Saving..."
-            submitting={uploading}
-            submitFormId="employee-document-form"
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Add Document"
+      description="Attach a file URL for this employee's records."
+      footerActions={
+        <DialogFormActions
+          onCancel={() => onOpenChange(false)}
+          submitText="Add Document"
+          submittingText="Saving..."
+          submitting={uploading}
+          submitFormId="employee-document-form"
+        />
+      }
+    >
+      <FormStack
+        as="form"
+        id="employee-document-form"
+        density="default"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        {validationError ? <FieldError size="sm">{validationError}</FieldError> : null}
+        <FieldStack>
+          <FieldLabel>Document Label</FieldLabel>
+          <Input
+            placeholder="e.g. CNIC Front"
+            value={label}
+            onChange={(event) => onLabelChange(event.target.value)}
           />
-        </DialogActionRow>
-      </DialogContent>
-    </Dialog>
+          {fieldErrors.label ? <FieldError>{fieldErrors.label}</FieldError> : null}
+        </FieldStack>
+        <FieldStack>
+          <FieldLabel>File URL</FieldLabel>
+          <Input
+            placeholder="https://..."
+            value={url}
+            onChange={(event) => onUrlChange(event.target.value)}
+          />
+          {fieldErrors.url ? <FieldError>{fieldErrors.url}</FieldError> : null}
+        </FieldStack>
+      </FormStack>
+    </ScrollableDialog>
   );
 }

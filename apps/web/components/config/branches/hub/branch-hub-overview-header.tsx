@@ -1,10 +1,7 @@
 import { CalendarDays, MapPin, Phone as PhoneIcon } from "lucide-react";
 import { type BranchDetail } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { MetaPill } from "@/components/ui/meta-pill";
-import { Heading } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { PageHeader } from "@tbms/ui/components/page-header";
 import { formatDate } from "@/lib/utils";
 
 interface BranchHubOverviewHeaderProps {
@@ -19,64 +16,35 @@ export function BranchHubOverviewHeader({
     : undefined;
 
   return (
-    <Card>
-      <CardContent spacing="section" padding="inset" className="space-y-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-3">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Branch Command
-            </Label>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Heading
-                as="h1"
-                variant="page"
-                className="font-semibold sm:text-4xl"
-              >
-                {branch?.name || "Branch Overview"}
-              </Heading>
-              <Badge
-                variant={branch?.isActive ? "success" : "outline"}
-                className="px-2.5 py-1 text-xs font-bold uppercase "
-              >
-                {branch?.isActive ? "Active" : "Inactive"}
-              </Badge>
-              {branch?.code ? (
-                <Badge
-                  variant="outline"
-                  size="xs"
-                  className="font-semibold uppercase"
-                >
-                  {branch.code}
-                </Badge>
-              ) : null}
-            </div>
-
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-              {branch?.address ? (
-                <MetaPill>
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span>{branch.address}</span>
-                </MetaPill>
-              ) : null}
-
-              {branch?.phone ? (
-                <MetaPill>
-                  <PhoneIcon className="h-3.5 w-3.5" />
-                  <span>{branch.phone}</span>
-                </MetaPill>
-              ) : null}
-
-              {createdAtLabel ? (
-                <MetaPill>
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  <span>Created {createdAtLabel}</span>
-                </MetaPill>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-3">
+      <PageHeader
+        title={branch?.name || "Branch Overview"}
+        description="Branch command center for profile data, relations, and pricing coverage."
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={branch?.isActive ? "default" : "outline"}>
+          {branch?.isActive ? "Active" : "Inactive"}
+        </Badge>
+        {branch?.code ? <Badge variant="outline">{branch.code}</Badge> : null}
+        {branch?.address ? (
+          <Badge variant="outline" className="gap-1">
+            <MapPin className="h-3.5 w-3.5" />
+            {branch.address}
+          </Badge>
+        ) : null}
+        {branch?.phone ? (
+          <Badge variant="outline" className="gap-1">
+            <PhoneIcon className="h-3.5 w-3.5" />
+            {branch.phone}
+          </Badge>
+        ) : null}
+        {createdAtLabel ? (
+          <Badge variant="outline" className="gap-1">
+            <CalendarDays className="h-3.5 w-3.5" />
+            Created {createdAtLabel}
+          </Badge>
+        ) : null}
+      </div>
+    </div>
   );
 }

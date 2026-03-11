@@ -1,33 +1,33 @@
 import { DiscountType } from "@tbms/shared-types";
 import { Calculator, CalendarDays, UserRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tbms/ui/components/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/ui/card";
+} from "@tbms/ui/components/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Label } from "@tbms/ui/components/label";
+import { SectionHeader } from "@tbms/ui/components/section-header";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+} from "@tbms/ui/components/select";
+import { Separator } from "@tbms/ui/components/separator";
+import { Badge } from "@tbms/ui/components/badge";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -64,9 +64,6 @@ export function OrderFormSummaryCard({
   return (
     <Card>
       <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <SectionHeader
           title="Order Summary"
@@ -77,12 +74,12 @@ export function OrderFormSummaryCard({
             </SectionIcon>
           }
         />
-        <Badge variant="outline" size="xs">
+        <Badge variant="outline">
           {itemCount} PIECES
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-5">
+      <CardContent className="space-y-5">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <InfoTile tone="secondary" className="min-h-[84px] space-y-1.5">
             <span
@@ -123,7 +120,7 @@ export function OrderFormSummaryCard({
             <FormField
               control={form.control}
               name="discountType"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem className="space-y-2">
                   <FormLabel className={fieldLabelClassName}>
                     Discount Type
@@ -151,7 +148,7 @@ export function OrderFormSummaryCard({
             <FormField
               control={form.control}
               name="discountValue"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem className="space-y-2">
                   <FormLabel className={fieldLabelClassName}>
                     Discount Value
@@ -186,7 +183,7 @@ export function OrderFormSummaryCard({
           <FormField
             control={form.control}
             name="advancePayment"
-            render={({ field }) => (
+            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
               <FormItem className="space-y-2">
                 <FormLabel className={fieldLabelClassName}>
                   Advance Payment
@@ -212,7 +209,7 @@ export function OrderFormSummaryCard({
         <FormField
           control={form.control}
           name="notes"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem className="space-y-2">
               <FormLabel className={fieldLabelClassName}>
                 Internal Notes
@@ -229,7 +226,7 @@ export function OrderFormSummaryCard({
         />
       </CardContent>
 
-      <CardFooter spacing="compact" tone="mutedSection" className="p-4">
+      <CardFooter className="p-4">
         <Button
           variant="default"
           size="lg"

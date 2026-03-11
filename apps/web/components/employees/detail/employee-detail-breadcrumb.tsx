@@ -1,4 +1,4 @@
-import { EntityBreadcrumb } from "@/components/ui/entity-breadcrumb";
+import { EntityBreadcrumb } from "@tbms/ui/components/entity-breadcrumb";
 
 interface EmployeeDetailBreadcrumbProps {
   employeeCode: string;

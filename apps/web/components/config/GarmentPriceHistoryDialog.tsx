@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { DialogSection } from "@/components/ui/form-layout";
+import { Button } from "@tbms/ui/components/button";
 import { useGarmentPriceHistory } from "@/hooks/queries/config-queries";
 import { GarmentPriceLog } from "@tbms/shared-types";
 import { format } from "date-fns";
@@ -17,13 +11,11 @@ import {
   ArrowRight,
   RotateCcw,
   Edit3,
-  Loader2,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { SectionIcon } from "@/components/ui/section-icon";
+import { Badge } from "@tbms/ui/components/badge";
+import { ScrollArea } from "@tbms/ui/components/scroll-area";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
+import { LoadingState } from "@tbms/ui/components/loading-state";
 import { formatPKR } from "@/lib/utils";
 import { logDevError } from "@/lib/logger";
 
@@ -66,54 +58,39 @@ export function GarmentPriceHistoryDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="2xl" className="gap-0 overflow-hidden p-0">
-        <DialogHeader surface="mutedSection" padding="md" trimBottom>
-          <div className="flex items-center gap-3 mb-2">
-            <SectionIcon
-              tone="default"
-              size="lg"
-              framed={false}
-              className="h-10 w-10"
-            >
-              <History className="h-5 w-5 text-primary" />
-            </SectionIcon>
-            <div className="flex flex-col">
-              <DialogTitle className="text-2xl font-extrabold ">
-                Price History
-              </DialogTitle>
-              <FieldLabel size="compact" tone="foreground">
-                {garmentName} • Global Pricing
-              </FieldLabel>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <DialogSection className="px-6 pb-6 pt-4">
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Price History"
+      description={`${garmentName} • Global Pricing`}
+      contentSize="2xl"
+      maxWidthClass=""
+      footerActions={
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          Close
+        </Button>
+      }
+    >
           {loading ? (
-            <div className="h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <FieldLabel className="animate-pulse">
-                Loading timeline...
-              </FieldLabel>
+            <div className="flex h-64 items-center justify-center">
+              <LoadingState
+                text="Loading timeline..."
+                caption="Collecting garment price changes."
+                className="w-full border-0 bg-transparent"
+              />
             </div>
           ) : logs.length === 0 ? (
-            <InfoTile
-              borderStyle="dashedStrong"
-              padding="none"
-              radius="xl"
-              className="h-64 flex flex-col items-center justify-center gap-4 p-8 text-center"
-            >
-              <SectionIcon framed={false} className="h-12 w-12 rounded-full">
+            <div className="h-64 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-8 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/60">
                 <History className="h-6 w-6 text-muted-foreground" />
-              </SectionIcon>
+              </div>
               <div className="space-y-1">
                 <p className="font-bold text-foreground">No History Found</p>
                 <p className="text-xs text-muted-foreground max-w-[240px]">
                   This garment hasn&apos;t had any price updates yet.
                 </p>
               </div>
-            </InfoTile>
+            </div>
           ) : (
             <ScrollArea className="h-[400px] pr-4">
               <div className="relative space-y-8 before:absolute before:inset-0 before:left-[19px] before:w-0.5 before:bg-gradient-to-b before:from-primary/20 before:via-border/50 before:to-transparent">
@@ -140,12 +117,12 @@ export function GarmentPriceHistoryDialog({
                           <p className="text-sm font-extrabold text-foreground flex items-center gap-2">
                             Price Updated
                           </p>
-                          <FieldLabel size="compact" className="mt-0.5">
+                          <p className="mt-0.5 text-xs text-muted-foreground">
                             {format(
                               new Date(log.createdAt),
                               "MMM d, yyyy • h:mm a",
                             )}
-                          </FieldLabel>
+                          </p>
                         </div>
                         <Badge
                           variant="secondary"
@@ -155,15 +132,9 @@ export function GarmentPriceHistoryDialog({
                         </Badge>
                       </div>
 
-                      <InfoTile
-                        tone="default"
-                        padding="contentLg"
-                        radius="xl"
-                        interaction="interactive"
-                        className="grid grid-cols-1 gap-4 hover:border-primary/35 hover:bg-primary/5"
-                      >
+                      <div className="grid grid-cols-1 gap-4 rounded-xl bg-muted/40 p-4">
                         <div className="space-y-2">
-                          <FieldLabel>Retail Price</FieldLabel>
+                          <p className="text-xs text-muted-foreground">Retail Price</p>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-muted-foreground line-through opacity-50">
                               {formatPrice(log.oldCustomerPrice)}
@@ -176,15 +147,12 @@ export function GarmentPriceHistoryDialog({
                             </span>
                           </div>
                         </div>
-                      </InfoTile>
+                      </div>
 
                       <div className="flex items-center gap-2 pl-1">
-                        <SectionIcon
-                          framed={false}
-                          className="h-5 w-5 rounded-full"
-                        >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
                           <User className="h-3 w-3 text-muted-foreground" />
-                        </SectionIcon>
+                        </div>
                         <p className="text-xs font-bold text-muted-foreground">
                           Changed by{" "}
                           <span className="text-foreground">
@@ -198,8 +166,6 @@ export function GarmentPriceHistoryDialog({
               </div>
             </ScrollArea>
           )}
-        </DialogSection>
-      </DialogContent>
-    </Dialog>
+    </ScrollableDialog>
   );
 }

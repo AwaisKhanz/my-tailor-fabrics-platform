@@ -1,9 +1,14 @@
-import { Button, type ButtonProps } from "@/components/ui/button";
-import { Badge, type BadgeProps } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { MetaPill } from "@/components/ui/meta-pill";
-import { Heading } from "@/components/ui/typography";
+import { Button } from "@tbms/ui/components/button";
+import { Badge } from "@tbms/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { MetaPill } from "@tbms/ui/components/meta-pill";
+import { ProgressSteps } from "@tbms/ui/components/progress-steps";
 import {
   CalendarDays,
   Clock3,
@@ -12,12 +17,15 @@ import {
   Share2,
   XCircle,
 } from "lucide-react";
+import { OrderStatus } from "@tbms/shared-types";
+import { buildOrderProgressSteps } from "@/lib/order-progress-steps";
 import { cn } from "@/lib/utils";
 
 interface OrderDetailHeaderCardProps {
+  status: OrderStatus;
   orderNumber: string;
   statusLabel: string;
-  statusVariant: BadgeProps["variant"];
+  statusVariant: React.ComponentProps<typeof Badge>["variant"];
   createdAtLabel: string;
   dueDateLabel: string;
   canCancel: boolean;
@@ -37,7 +45,7 @@ interface OrderDetailAction {
   key: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  variant: ButtonProps["variant"];
+  variant: React.ComponentProps<typeof Button>["variant"];
   onClick: () => void;
   disabled: boolean;
 }
@@ -47,6 +55,7 @@ function defineOrderDetailAction(action: OrderDetailAction) {
 }
 
 export function OrderDetailHeaderCard({
+  status,
   orderNumber,
   statusLabel,
   statusVariant,
@@ -64,6 +73,7 @@ export function OrderDetailHeaderCard({
   onCancelOrder,
   onEditOrder,
 }: OrderDetailHeaderCardProps) {
+  const progressSteps = buildOrderProgressSteps(status);
   const actionButtons = [
     canEditAction
       ? defineOrderDetailAction({
@@ -109,29 +119,19 @@ export function OrderDetailHeaderCard({
 
   return (
     <Card>
-      <CardContent spacing="section" padding="inset" className="space-y-6">
+      <CardHeader className="space-y-3">
+        <CardDescription>Order Details</CardDescription>
+        <div className="flex flex-wrap items-center gap-3">
+          <CardTitle className="text-3xl font-semibold sm:text-4xl">
+            {orderNumber}
+          </CardTitle>
+          <Badge variant={statusVariant}>{statusLabel}</Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Order Command
-            </Label>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Heading
-                as="h1"
-                variant="page"
-                className="font-semibold sm:text-4xl"
-              >
-                {orderNumber}
-              </Heading>
-              <Badge
-                variant={statusVariant}
-                className="px-2.5 py-1 text-xs font-bold uppercase "
-              >
-                {statusLabel}
-              </Badge>
-            </div>
-
             <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
               <MetaPill>
                 <CalendarDays className="h-3.5 w-3.5" />
@@ -142,6 +142,7 @@ export function OrderDetailHeaderCard({
                 <span>Due {dueDateLabel}</span>
               </MetaPill>
             </div>
+            <ProgressSteps data={{ steps: progressSteps }} />
           </div>
 
           <div

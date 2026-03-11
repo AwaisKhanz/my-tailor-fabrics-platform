@@ -17,12 +17,12 @@ exports.LEDGER_ENTRY_TYPE_OPTIONS = Object.values(shared_types_1.LedgerEntryType
 }));
 /** Badge variant for each entry type. */
 exports.LEDGER_ENTRY_TYPE_BADGE = {
-    [shared_types_1.LedgerEntryType.EARNING]: 'success',
-    [shared_types_1.LedgerEntryType.PAYOUT]: 'info',
-    [shared_types_1.LedgerEntryType.ADVANCE]: 'warning',
+    [shared_types_1.LedgerEntryType.EARNING]: 'default',
+    [shared_types_1.LedgerEntryType.PAYOUT]: 'secondary',
+    [shared_types_1.LedgerEntryType.ADVANCE]: 'secondary',
     [shared_types_1.LedgerEntryType.DEDUCTION]: 'destructive',
     [shared_types_1.LedgerEntryType.ADJUSTMENT]: 'secondary',
-    [shared_types_1.LedgerEntryType.SALARY]: 'success',
+    [shared_types_1.LedgerEntryType.SALARY]: 'default',
 };
 /**
  * Sign of each entry type (positive = money in, negative = money out).

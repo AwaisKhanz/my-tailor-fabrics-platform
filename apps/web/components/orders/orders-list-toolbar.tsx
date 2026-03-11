@@ -1,13 +1,14 @@
-import { RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { RotateCcw, Search } from "lucide-react";
+import { ActionStrip } from "@tbms/ui/components/action-strip";
+import { Button } from "@tbms/ui/components/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
+} from "@tbms/ui/components/select";
+import { TableSearch, TableToolbar } from "@tbms/ui/components/table-layout";
 import {
   isOrdersDateRange,
   ORDERS_ALL_STATUSES_LABEL,
@@ -50,80 +51,65 @@ export function OrdersListToolbar({
       totalLabel="orders"
       activeFilterCount={activeFilterCount}
       controls={
-        <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
+        <ActionStrip width="full" align="start" className="gap-3">
           <TableSearch
+            icon={<Search className="h-4 w-4" />}
             placeholder="Search order # or customer..."
             value={search}
-            className="lg:max-w-2xl"
             onChange={(event) => onSearchChange(event.target.value)}
           />
 
-          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
-            <div className="w-full sm:w-44">
-              <Select
-                value={statusFilter}
-                onValueChange={(value) => {
-                  if (isOrdersStatusFilter(value)) {
-                    onStatusChange(value);
-                  }
-                }}
-              >
-                <SelectTrigger className="text-xs font-bold">
-                  <SelectValue placeholder={ORDERS_ALL_STATUSES_LABEL} />
-                </SelectTrigger>
-                <SelectContent>
-                  {ORDER_STATUS_FILTER_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                      className="text-xs font-medium"
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <Select
+            value={String(statusFilter)}
+            onValueChange={(value) => {
+              if (value && isOrdersStatusFilter(value)) {
+                onStatusChange(value);
+              }
+            }}
+          >
+            <SelectTrigger className="w-full md:w-44">
+              <SelectValue placeholder={ORDERS_ALL_STATUSES_LABEL} />
+            </SelectTrigger>
+            <SelectContent>
+              {ORDER_STATUS_FILTER_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <div className="w-full sm:w-44">
-              <Select
-                value={dateRange}
-                onValueChange={(value) => {
-                  if (isOrdersDateRange(value)) {
-                    onDateRangeChange(value);
-                  }
-                }}
-              >
-                <SelectTrigger className="text-xs font-bold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ORDER_DATE_RANGE_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                      className="text-xs font-medium"
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <Select
+            value={String(dateRange)}
+            onValueChange={(value) => {
+              if (value && isOrdersDateRange(value)) {
+                onDateRangeChange(value);
+              }
+            }}
+          >
+            <SelectTrigger className="w-full md:w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ORDER_DATE_RANGE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <div className="flex w-full justify-end lg:ml-auto lg:w-auto">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onReset}
-              disabled={!hasActiveFilters}
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reset
-            </Button>
-          </div>
-        </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            disabled={!hasActiveFilters}
+            className="md:ml-auto"
+          >
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Reset
+          </Button>
+        </ActionStrip>
       }
     />
   );

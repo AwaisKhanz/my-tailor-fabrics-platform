@@ -7,19 +7,19 @@ NestJS API for My Tailor & Fabrics.
 From the repo root:
 
 ```bash
-npm run env:setup
-npm run env:verify
-npm run prisma:generate
-npm run build -w api
-npm run start:dev -w api
+pnpm run env:setup
+pnpm run env:verify
+pnpm run prisma:generate
+pnpm --filter api build
+pnpm --filter api start:dev
 ```
 
 Production-oriented commands:
 
 ```bash
-npm run prisma:migrate:deploy
-npm run prisma:seed
-npm run prisma:seed:list
+pnpm run prisma:migrate:deploy
+pnpm run prisma:seed
+pnpm run prisma:seed:list
 ```
 
 ## Key Paths

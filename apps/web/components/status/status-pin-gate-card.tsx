@@ -1,11 +1,14 @@
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { FieldError } from "@/components/ui/field";
-import { FormStack } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { Heading, Text } from "@/components/ui/typography";
+import { Button } from "@tbms/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { FieldError, FieldLabel } from "@tbms/ui/components/field";
+import { Input } from "@tbms/ui/components/input";
 import { siteConfig } from "@/lib/config";
 
 interface StatusPinGateCardProps {
@@ -24,15 +27,10 @@ export function StatusPinGateCard({
   onSubmit,
 }: StatusPinGateCardProps) {
   return (
-    <Card className="w-full max-w-md rounded-snow-32">
-      <CardContent spacing="section" className="space-y-6 p-6 sm:p-8">
-        <div className="text-center">
-          <InfoTile
-            tone="default"
-            padding="none"
-            radius="xl"
-            className="mx-auto mb-5 h-16 w-16 overflow-hidden"
-          >
+    <Card className="w-full max-w-md rounded-3xl">
+      <CardHeader className="text-center">
+        <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border bg-muted/40">
+          <div className="relative h-16 w-16">
             <Image
               src={siteConfig.branding.logo}
               alt={siteConfig.name}
@@ -40,19 +38,21 @@ export function StatusPinGateCard({
               height={64}
               className="object-contain p-3"
             />
-          </InfoTile>
-
-          <Heading as="h1" variant="section" className="text-2xl">
-            Track Your Order
-          </Heading>
-          <Text as="p" variant="lead" className="mt-1 text-sm">
-            Enter the 4-digit PIN from {siteConfig.shortName} to view your order
-            status.
-          </Text>
+          </div>
         </div>
+        <CardTitle className="text-2xl">Track Your Order</CardTitle>
+        <CardDescription className="text-sm">
+          Enter the 4-digit PIN from {siteConfig.shortName} to view your order
+          status.
+        </CardDescription>
+      </CardHeader>
 
-        <FormStack as="form" onSubmit={onSubmit}>
-          <div>
+      <CardContent className="space-y-6 p-6 sm:p-8">
+        <form className="space-y-4" onSubmit={onSubmit}>
+          <div className="space-y-2">
+            <FieldLabel as="span" size="compact" block className="sr-only">
+              Enter 4-digit PIN
+            </FieldLabel>
             <Input
               type="text"
               inputMode="numeric"
@@ -66,7 +66,9 @@ export function StatusPinGateCard({
               className="h-14 text-center text-2xl font-bold "
               autoFocus
             />
-            {error ? <FieldError inset>{error}</FieldError> : null}
+            {error ? (
+              <FieldError className="text-center font-medium">{error}</FieldError>
+            ) : null}
           </div>
 
           <Button
@@ -77,12 +79,12 @@ export function StatusPinGateCard({
           >
             {loading ? "Verifying..." : "View Order Status"}
           </Button>
-        </FormStack>
+        </form>
 
-        <Text as="p" variant="muted" className="text-center text-xs">
+        <p className="text-center text-xs text-muted-foreground">
           This link was shared by the tailor shop. It expires when the order is
           completed.
-        </Text>
+        </p>
       </CardContent>
     </Card>
   );

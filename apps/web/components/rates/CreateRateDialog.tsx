@@ -5,22 +5,22 @@ import {
   DialogSection,
   FormGrid,
   FormStack,
-} from "@/components/ui/form-layout";
+} from "@tbms/ui/components/form-layout";
 import {
   FieldError,
   FieldHint,
   FieldLabel,
   FieldStack,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+} from "@tbms/ui/components/field";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { Banknote, Calendar } from "lucide-react";
 import { type CreateRateCardInput } from "@tbms/shared-types";
 import {
@@ -118,7 +118,7 @@ export function CreateRateDialog({
             <FieldLabel htmlFor="branch">Branch Scope</FieldLabel>
             <Select
               value={formData.branchId}
-              onValueChange={setBranchId}
+              onValueChange={(value) => setBranchId(value ?? "all")}
               disabled={isAdjustMode}
             >
               <SelectTrigger id="branch">
@@ -141,7 +141,7 @@ export function CreateRateDialog({
             <FieldLabel htmlFor="garmentType">Garment Type</FieldLabel>
             <Select
               value={formData.garmentTypeId}
-              onValueChange={setGarmentTypeId}
+              onValueChange={(value) => setGarmentTypeId(value ?? "")}
               disabled={isAdjustMode}
             >
               <SelectTrigger id="garmentType">
@@ -164,7 +164,7 @@ export function CreateRateDialog({
             <FieldLabel htmlFor="stepKey">Production Step</FieldLabel>
             <Select
               value={formData.stepKey}
-              onValueChange={setStepKey}
+              onValueChange={(value) => setStepKey(value ?? "")}
               disabled={
                 isAdjustMode || !hasGarmentSelected || !hasAvailableSteps
               }

@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Text } from "@/components/ui/typography";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { Text } from "@tbms/ui/components/typography";
 import { cn } from "@/lib/utils";
 
 export interface EmployeeSectionProps {
@@ -53,9 +53,6 @@ export function EmployeeSection({
   return (
     <Card id={id}>
       <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -89,7 +86,7 @@ export function EmployeeSection({
       </CardHeader>
 
       {isOpen ? (
-        <CardContent id={`${id}-content`} spacing="section" className="p-0">
+        <CardContent id={`${id}-content`} className="p-0">
           {children}
         </CardContent>
       ) : null}

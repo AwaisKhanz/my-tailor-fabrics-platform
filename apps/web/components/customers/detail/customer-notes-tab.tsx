@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/typography";
+import { Card, CardContent } from "@tbms/ui/components/card";
+import { Label } from "@tbms/ui/components/label";
+import { Text } from "@tbms/ui/components/typography";
 
 interface CustomerNotesTabProps {
   notes?: string | null;
@@ -9,7 +9,7 @@ interface CustomerNotesTabProps {
 export function CustomerNotesTab({ notes }: CustomerNotesTabProps) {
   return (
     <Card>
-      <CardContent spacing="section" padding="inset" className="space-y-2">
+      <CardContent className="space-y-2">
         <Label className="text-xs uppercase  text-muted-foreground">
           Preferences & Internal Notes
         </Label>

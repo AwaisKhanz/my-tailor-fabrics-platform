@@ -5,8 +5,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
 import { type CustomerFormValues } from "@/types/customers";
 
 interface CustomerDialogAddressFieldProps {
@@ -20,7 +20,7 @@ export function CustomerDialogAddressField({
     <FormField
       control={form.control}
       name="address"
-      render={({ field }) => (
+      render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
         <FormItem>
           <FormLabel>Address</FormLabel>
           <FormControl>

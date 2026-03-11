@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { Text } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { Input } from "@tbms/ui/components/input";
 
 interface MeasurementFieldDialogDropdownOptionsProps {
   fieldType: string;
@@ -29,24 +28,16 @@ export function MeasurementFieldDialogDropdownOptions({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Text as="p" variant="body" className="font-medium leading-none">
-          Dropdown Options
-        </Text>
+        <p className="font-medium leading-none">Dropdown Options</p>
         <span className="text-xs font-bold uppercase  text-muted-foreground">
           Manage Options
         </span>
       </div>
 
-      <InfoTile padding="content" className="min-h-[80px] rounded-md">
+      <div className="min-h-[80px] rounded-md bg-muted/40 p-3">
         <div className="flex flex-wrap gap-2">
           {options.map((option) => (
-            <InfoTile
-              key={option}
-              tone="default"
-              padding="sm"
-              layout="row"
-              className="inline-flex text-sm font-medium text-foreground"
-            >
+            <Badge key={option} variant="secondary" className="gap-1">
               {option}
               <button
                 type="button"
@@ -55,7 +46,7 @@ export function MeasurementFieldDialogDropdownOptions({
               >
                 <X className="h-3 w-3" />
               </button>
-            </InfoTile>
+            </Badge>
           ))}
 
           <AddOptionInline
@@ -64,7 +55,7 @@ export function MeasurementFieldDialogDropdownOptions({
             onAdd={onAddOption}
           />
         </div>
-      </InfoTile>
+      </div>
     </div>
   );
 }

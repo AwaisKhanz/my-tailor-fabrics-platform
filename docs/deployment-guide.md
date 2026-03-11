@@ -71,11 +71,11 @@ These are the exact commands that define the current deployment workflow.
 Repo-root verification commands:
 
 ```bash
-npm ci
-npm run env:setup
-npm run env:verify
-npm run build:do:web
-npm run build:do:api
+pnpm install --frozen-lockfile
+pnpm run env:setup
+pnpm run env:verify
+pnpm run build:do:web
+pnpm run build:do:api
 docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
 docker build -f Dockerfile.api .
 ```
@@ -83,17 +83,17 @@ docker build -f Dockerfile.api .
 Repo-root runtime commands used by App Platform:
 
 ```bash
-npm run start:do:web
-npm run start:do:api
+pnpm run start:do:web
+pnpm run start:do:api
 ```
 
 Resolved runtime entrypoints:
 
 1. Web:
-   `npm run start:do:web` -> `node ./scripts/start-do-web.mjs`
+   `pnpm run start:do:web` -> `node ./scripts/start-do-web.mjs`
 
 2. API:
-   `npm run start:do:api` -> `node apps/api/dist/main.js`
+   `pnpm run start:do:api` -> `node apps/api/dist/main.js`
 
 Do not change the API entrypoint to `apps/api/dist/src/main.js`. The current Nest build outputs [main.js](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/dist/main.js) directly under `dist`.
 
@@ -102,11 +102,11 @@ Do not change the API entrypoint to `apps/api/dist/src/main.js`. The current Nes
 Run these commands from the repo root before changing production:
 
 ```bash
-npm ci
-npm run env:setup
-npm run env:verify
-npm run build:do:api
-npm run build:do:web
+pnpm install --frozen-lockfile
+pnpm run env:setup
+pnpm run env:verify
+pnpm run build:do:api
+pnpm run build:do:web
 docker build -f Dockerfile.api .
 docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
 ```
@@ -181,26 +181,26 @@ Open the `api-backend` console and run from `/app`.
 Check migration state first:
 
 ```bash
-npm run prisma:migrate:status
+pnpm run prisma:migrate:status
 ```
 
 Deploy Prisma migrations:
 
 ```bash
-npm run prisma:migrate:deploy
+pnpm run prisma:migrate:deploy
 ```
 
 List available seeds:
 
 ```bash
-npm run prisma:seed:list
+pnpm run prisma:seed:list
 ```
 
 Run the admin seed in production with an explicit password:
 
 ```bash
 SEED_ADMIN_PASSWORD='replace-with-a-secure-password' \
-npm run prisma:seed
+pnpm run prisma:seed
 ```
 
 Override email and display name if needed:
@@ -209,16 +209,16 @@ Override email and display name if needed:
 SEED_ADMIN_EMAIL=admin@mytailorandfabrics.com \
 SEED_ADMIN_PASSWORD='replace-with-a-secure-password' \
 SEED_ADMIN_NAME="Main Admin" \
-npm run prisma:seed
+pnpm run prisma:seed
 ```
 
 Important:
 
 1. run Prisma commands in `api-backend`, not `web-frontend`
 2. run them from `/app`, not `/app/apps`
-3. `npm run prisma:seed` now defaults to the `admin` seed and does not depend on `ts-node`
+3. `pnpm run prisma:seed` now defaults to the `admin` seed and does not depend on `ts-node`
 4. in production, `SEED_ADMIN_PASSWORD` is required and there is no insecure fallback password
-5. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `npm run prisma:migrate:deploy` before assuming the database is broken
+5. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `pnpm run prisma:migrate:deploy` before assuming the database is broken
 
 ## Domain and DNS
 
@@ -260,7 +260,7 @@ After every production deployment:
 1. Keep `api-backend` at one instance until the scheduler is extracted into dedicated jobs.
 2. Do not rely on local filesystem persistence in App Platform.
 3. Use managed database backups and DigitalOcean database tooling for backups. Repo-local backup scripts are intentionally not part of the supported production workflow anymore.
-4. If a future release includes Prisma migrations, run `npm run prisma:migrate:deploy` as part of the release checklist.
+4. If a future release includes Prisma migrations, run `pnpm run prisma:migrate:deploy` as part of the release checklist.
 5. If uploads are introduced later, store them in an external object store such as Spaces.
 
 ## Troubleshooting
@@ -270,7 +270,7 @@ If the API console command fails:
 1. confirm you are in the `api-backend` console
 2. confirm your current directory is `/app`
 3. confirm the deployment has the latest commit
-4. run `npm run prisma:seed:list` first to verify the seed entrypoint is available
+4. run `pnpm run prisma:seed:list` first to verify the seed entrypoint is available
 
 If the API container exits with `Cannot find module '/app/apps/api/dist/src/main.js'`:
 
@@ -294,8 +294,8 @@ If TablePlus connects but shows no tables:
 
 1. confirm the selected database is `defaultdb`
 2. confirm you are viewing schema `public`
-3. run `npm run prisma:migrate:status` in the `api-backend` console
-4. run `npm run prisma:migrate:deploy` if migrations are pending
+3. run `pnpm run prisma:migrate:status` in the `api-backend` console
+4. run `pnpm run prisma:migrate:deploy` if migrations are pending
 5. refresh or reconnect TablePlus after migrations complete
 
 ## References

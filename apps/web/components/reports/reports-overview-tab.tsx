@@ -7,11 +7,15 @@ import type {
 } from "@tbms/shared-types";
 import { ReportsFinancialTrendChart } from "@/components/reports/reports-financial-trend-chart";
 import { ReportsDistributionChart } from "@/components/reports/reports-distribution-chart";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { RankedList } from "@tbms/ui/components/ranked-list";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface ReportsOverviewTabProps {
@@ -22,26 +26,18 @@ interface ReportsOverviewTabProps {
   productivity: ProductivityPoint[];
 }
 
-function getDeltaBadge(delta?: number): {
-  label: string;
-  variant: "success" | "destructive" | "outline";
-} {
+function getDeltaBadge(delta?: number): string {
   if (delta === undefined) {
-    return { label: "No comparison", variant: "outline" };
+    return "No comparison";
   }
 
   if (delta === 0) {
-    return { label: "Flat vs previous", variant: "outline" };
+    return "Flat vs previous";
   }
 
   const abs = Math.abs(delta);
   const direction = delta > 0 ? "+" : "-";
-  const label = `${direction}${formatPKR(abs)} vs previous`;
-
-  return {
-    label,
-    variant: delta > 0 ? "success" : "destructive",
-  };
+  return `${direction}${formatPKR(abs)} vs previous`;
 }
 
 export function ReportsOverviewTab({
@@ -62,46 +58,40 @@ export function ReportsOverviewTab({
       <StatsGrid columns="four">
         <StatCard
           title="Revenue"
-          subtitle="Selected period"
+          subtitle="Total period revenue"
           value={formatPKR(summary?.revenue ?? 0)}
-          helperText={`${summary?.totalOrders ?? 0} orders in period`}
+          helperText={revenueDeltaBadge}
+          badgeText={`${summary?.totalOrders ?? 0} orders`}
           tone="success"
           icon={<Banknote className="h-4 w-4" />}
-          badgeText={
-            revenueDeltaBadge.variant === "outline"
-              ? undefined
-              : revenueDeltaBadge.label
-          }
         />
 
         <StatCard
           title="Expenses"
-          subtitle="Selected period"
+          subtitle="Total period expenses"
           value={formatPKR(summary?.expenses ?? 0)}
-          helperText={`${summary?.totalCustomers ?? 0} tracked customers`}
+          helperText={expensesDeltaBadge}
+          badgeText={`${summary?.totalCustomers ?? 0} customers`}
           tone="destructive"
           icon={<ReceiptText className="h-4 w-4" />}
-          badgeText={
-            expensesDeltaBadge.variant === "outline"
-              ? undefined
-              : expensesDeltaBadge.label
-          }
         />
 
         <StatCard
           title="Net"
           subtitle="Revenue minus expenses"
           value={formatPKR(netCurrent)}
-          helperText={netDeltaBadge.label}
-          tone={netCurrent < 0 ? "destructive" : "primary"}
+          helperText={netDeltaBadge}
+          badgeText="Net"
+          tone={netCurrent < 0 ? "destructive" : "info"}
           icon={<Wallet className="h-4 w-4" />}
         />
 
         <StatCard
           title="Overdue Orders"
-          subtitle="Needs attention"
-          value={summary?.overdueCount ?? 0}
+          subtitle="Orders needing attention"
+          value={(summary?.overdueCount ?? 0).toLocaleString()}
           helperText={`${summary?.newToday ?? 0} new today`}
+          badgeText="Overdue"
           tone="warning"
           icon={<AlertTriangle className="h-4 w-4" />}
         />
@@ -126,44 +116,19 @@ export function ReportsOverviewTab({
           />
 
           <Card>
-            <CardHeader layout="rowBetween" surface="mutedSection" trimBottom>
+            <CardHeader>
               <CardTitle>Top Performers</CardTitle>
             </CardHeader>
-            <CardContent spacing="section" className="space-y-2">
-              {loading ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="h-8 animate-pulse rounded bg-muted"
-                  />
-                ))
-              ) : productivity.length === 0 ? (
-                <p className="py-6 text-center text-sm text-muted-foreground">
-                  No productivity records for this range.
-                </p>
-              ) : (
-                productivity.slice(0, 5).map((entry, index) => (
-                  <InfoTile
-                    key={entry.employeeId}
-                    tone="secondary"
-                    padding="md"
-                    layout="between"
-                    interaction="interactive"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" size="xs">
-                        #{index + 1}
-                      </Badge>
-                      <span className="text-sm text-foreground">
-                        {entry.employeeName}
-                      </span>
-                    </div>
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      {entry.totalCompleted} completed
-                    </span>
-                  </InfoTile>
-                ))
-              )}
+            <CardContent>
+              <RankedList
+                loading={loading}
+                emptyMessage="No productivity records for this range."
+                items={productivity.slice(0, 5).map((entry) => ({
+                  id: entry.employeeId,
+                  label: entry.employeeName,
+                  value: `${entry.totalCompleted} completed`,
+                }))}
+              />
             </CardContent>
           </Card>
         </div>

@@ -10,13 +10,13 @@ import {
   CUSTOMER_STATUS_BADGE,
   CUSTOMER_STATUS_LABELS,
 } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Heading } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { SectionHeader } from "@tbms/ui/components/section-header";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
+import { Heading } from "@tbms/ui/components/typography";
 import { formatPKR } from "@/lib/utils";
 
 interface CustomerProfileCardProps {
@@ -31,9 +31,6 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
   return (
     <Card>
       <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <SectionHeader
           title="Customer Profile"
@@ -45,13 +42,13 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
         />
         <Badge
           variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
-          size="xs"
+
         >
           {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-4">
+      <CardContent className="space-y-4">
         <InfoTile tone="secondary">
           <FieldLabel size="compact">Size Number</FieldLabel>
           <p className="mt-1 text-sm font-semibold text-foreground">
@@ -100,7 +97,7 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
         <div className="border-t flex justify-between items-center border-border pt-4">
           <FieldLabel className="mb-1">Account Type</FieldLabel>
-          <Badge variant={customer.isVip ? "warning" : "secondary"} size="xs">
+          <Badge variant={customer.isVip ? "secondary" : "secondary"}>
             {customer.isVip ? "VIP" : "Standard"}
           </Badge>
         </div>

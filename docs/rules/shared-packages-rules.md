@@ -1,6 +1,6 @@
 # Shared Packages Rules
 
-These rules apply to `packages/shared-types` and `packages/shared-constants`.
+These rules apply to `packages/shared-types`, `packages/shared-constants`, and `packages/ui`.
 
 ## 1. Package Responsibilities
 
@@ -10,7 +10,10 @@ These rules apply to `packages/shared-types` and `packages/shared-constants`.
 2. `packages/shared-constants`
    Holds shared permissions, labels, route policy, reusable business constants, formatting helpers, and workflow mappings.
 
-3. Do not place app-specific side effects, environment logic, or framework bootstrapping inside shared packages.
+3. `packages/ui`
+   Holds shared shadcn v4 primitives and theme/token source for the frontend (`@tbms/ui`).
+
+4. Do not place app-specific side effects, environment logic, or framework bootstrapping inside shared packages.
 
 ## 2. Cross-App Contract Rules
 
@@ -30,10 +33,11 @@ These rules apply to `packages/shared-types` and `packages/shared-constants`.
 
 ## 4. Build Output Rules
 
-1. These shared packages currently export from tracked `dist` outputs.
-2. Any source change must keep `dist` in sync.
-3. Do not change package entrypoints without updating both package metadata and consuming apps.
-4. Do not remove `dist` outputs unless the workspace strategy is intentionally redesigned.
+1. `packages/shared-types` and `packages/shared-constants` currently export from tracked `dist` outputs.
+2. Any source change in those two packages must keep `dist` in sync.
+3. `packages/ui` exports directly from `src` and is transpiled by consuming apps.
+4. Do not change package entrypoints without updating both package metadata and consuming apps.
+5. Do not remove `dist` outputs from `shared-types` or `shared-constants` unless the workspace strategy is intentionally redesigned.
 
 ## 5. Compatibility Rules
 
@@ -55,15 +59,16 @@ These rules apply to `packages/shared-types` and `packages/shared-constants`.
 After changing shared packages, run:
 
 ```bash
-npm run build -w @tbms/shared-types
-npm run build -w @tbms/shared-constants
+pnpm --filter @tbms/shared-types build
+pnpm --filter @tbms/shared-constants build
+pnpm --filter @tbms/ui build
 ```
 
 Then run the affected app builds:
 
 ```bash
-npm run build:do:web
-npm run build:do:api
+pnpm run build:do:web
+pnpm run build:do:api
 ```
 
 If the change affects deployment, routing, or auth/session behavior, update the relevant docs in the same task.

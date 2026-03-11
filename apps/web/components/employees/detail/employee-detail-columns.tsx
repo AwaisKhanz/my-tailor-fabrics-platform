@@ -15,17 +15,17 @@ import {
   TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { formatDate, formatDateTime, formatPKR } from "@/lib/utils";
 
 export function createEmployeeHistoryColumns(
@@ -161,7 +161,7 @@ export function createEmployeeTaskColumns({
         <Select
           value={task.status}
           onValueChange={(value) => {
-            if (isTaskStatus(value)) {
+            if (value && isTaskStatus(value)) {
               onTaskStatusChange(task.id, value);
             }
           }}
@@ -232,7 +232,7 @@ export function createEmployeeLedgerColumns({
     {
       header: "Type",
       cell: (entry) => (
-        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[entry.type]} size="xs">
+        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[entry.type]}>
           {LEDGER_ENTRY_TYPE_LABELS[entry.type]}
         </Badge>
       ),

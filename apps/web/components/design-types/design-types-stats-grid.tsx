@@ -1,7 +1,7 @@
 import { Brush, Filter, GitBranch, Shirt } from "lucide-react";
 import { type DesignType } from "@tbms/shared-types";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 
 interface DesignTypesStatsGridProps {
   designTypes: DesignType[];

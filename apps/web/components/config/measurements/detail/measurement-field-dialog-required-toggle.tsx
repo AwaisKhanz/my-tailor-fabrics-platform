@@ -4,9 +4,8 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
-import { Text } from "@/components/ui/typography";
+} from "@tbms/ui/components/form";
+import { Switch } from "@tbms/ui/components/switch";
 import { type FieldFormValues } from "@/hooks/use-measurement-field-dialog";
 
 interface MeasurementFieldDialogRequiredToggleProps {
@@ -20,13 +19,13 @@ export function MeasurementFieldDialogRequiredToggle({
     <FormField
       control={form.control}
       name="isRequired"
-      render={({ field }) => (
+      render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
         <FormItem className="flex items-center justify-between rounded-md border p-4">
           <div className="space-y-0.5">
             <FormLabel className="cursor-pointer">Required Field</FormLabel>
-            <Text as="p" variant="muted">
+            <p className="text-sm text-muted-foreground">
               Make this field mandatory for orders
-            </Text>
+            </p>
           </div>
           <FormControl>
             <Switch checked={field.value} onCheckedChange={field.onChange} />

@@ -6,6 +6,7 @@ import {
   isServer,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { isWebProductionEnvironment } from "@/lib/env";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -43,9 +44,9 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {process.env.NODE_ENV === "development" && (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      {!isWebProductionEnvironment() && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}
     </QueryClientProvider>

@@ -9,10 +9,10 @@ import { CustomerDetailSkeleton } from "@/components/customers/detail/customer-d
 import { CustomerDetailTabs } from "@/components/customers/detail/customer-detail-tabs";
 import { CustomerMeasurementDialog } from "@/components/customers/detail/customer-measurement-dialog";
 import { CustomerProfileCard } from "@/components/customers/detail/customer-profile-card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { EmptyState } from "@tbms/ui/components/empty-state";
+import { DetailSplit, PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { useAuthz } from "@/hooks/use-authz";
 import { useCustomerDetailPage } from "@/hooks/use-customer-detail-page";
 import { buildOrderDetailRoute } from "@/lib/order-routes";

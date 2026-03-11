@@ -5,14 +5,14 @@ import { Check, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useTheme } from "@/components/ThemeProvider";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tbms/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@tbms/ui/components/dropdown-menu";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -20,16 +20,18 @@ export function ThemeToggle() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="secondary"
-          className="relative"
-          aria-label="Toggle theme"
-        >
-          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="secondary"
+            className="relative"
+            aria-label="Toggle theme"
+          />
+        }
+      >
+        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <span className="sr-only">Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuLabel>Color Mode</DropdownMenuLabel>

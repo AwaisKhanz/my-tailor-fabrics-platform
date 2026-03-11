@@ -17,25 +17,30 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20.x
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10.18.3
 
     - name: Install Dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Create Runtime Env Files
-      run: npm run env:setup
+      run: pnpm run env:setup
 
     - name: Verify Environment Contract
-      run: npm run env:verify
+      run: pnpm run env:verify
 
     - name: Generate Prisma Client
-      run: npm run prisma:generate --workspace api
+      run: pnpm run prisma:generate
 
     - name: Build All Workspaces
-      run: npm run build
+      run: pnpm run build
 
     - name: Lint Check
-      run: npm run lint
+      run: pnpm run lint
 
     - name: Build API Docker Image
       run: docker build -f Dockerfile.api .

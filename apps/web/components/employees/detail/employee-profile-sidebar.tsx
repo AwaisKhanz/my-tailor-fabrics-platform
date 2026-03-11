@@ -5,12 +5,12 @@ import {
   EMPLOYEE_STATUS_LABELS,
   PAYMENT_TYPE_LABELS,
 } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@tbms/ui/components/badge";
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { SectionHeader } from "@tbms/ui/components/section-header";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
+import { Separator } from "@tbms/ui/components/separator";
 import { formatDate, formatPKR } from "@/lib/utils";
 
 interface EmployeeProfileSidebarProps {
@@ -24,10 +24,6 @@ export function EmployeeProfileSidebar({
     <div className="space-y-6">
       <Card>
         <CardHeader
-          density="compact"
-          layout="rowBetweenResponsive"
-          surface="mutedSection"
-          trimBottom
         >
           <SectionHeader
             title="Personal Info"
@@ -39,12 +35,12 @@ export function EmployeeProfileSidebar({
           />
           <Badge
             variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"}
-            size="xs"
+
           >
             {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
           </Badge>
         </CardHeader>
-        <CardContent spacing="section" padding="inset" className="space-y-4">
+        <CardContent className="space-y-4">
           <div className="flex items-center gap-3 text-sm">
             <Phone className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium text-foreground">
@@ -72,10 +68,6 @@ export function EmployeeProfileSidebar({
 
       <Card>
         <CardHeader
-          density="compact"
-          layout="rowBetweenResponsive"
-          surface="mutedSection"
-          trimBottom
         >
           <SectionHeader
             title="Employment"
@@ -86,7 +78,7 @@ export function EmployeeProfileSidebar({
             }
           />
         </CardHeader>
-        <CardContent spacing="section" padding="inset" className="space-y-4">
+        <CardContent className="space-y-4">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Join Date</span>
             <span className="font-medium">

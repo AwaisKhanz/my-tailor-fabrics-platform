@@ -7,7 +7,7 @@ export const CUSTOMER_STATUS_LABELS: Record<CustomerStatus, string> = {
 };
 
 export const CUSTOMER_STATUS_BADGE: Record<CustomerStatus, BadgeVariant> = {
-  [CustomerStatus.ACTIVE]: 'success',
+  [CustomerStatus.ACTIVE]: 'default',
   [CustomerStatus.INACTIVE]: 'outline',
   [CustomerStatus.BLACKLISTED]: 'destructive',
 };

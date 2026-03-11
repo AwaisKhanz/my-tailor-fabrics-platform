@@ -7,14 +7,15 @@ import { BranchFormDialog } from "@/components/config/branches/branch-form-dialo
 import { BranchesDirectoryTable } from "@/components/config/branches/branches-directory-table";
 import { BranchesListToolbar } from "@/components/config/branches/branches-list-toolbar";
 import { BranchesPageHeader } from "@/components/config/branches/branches-page-header";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
-import { TableSurface } from "@/components/ui/table-layout";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useBranchesPage } from "@/hooks/use-branches-page";
 import { buildBranchHubRoute } from "@/lib/settings-routes";
-import { PERMISSION } from '@tbms/shared-constants';
+import { PERMISSION } from "@tbms/shared-constants";
 
 export function BranchesTable() {
   const router = useRouter();
@@ -57,44 +58,48 @@ export function BranchesTable() {
   return (
     <PageShell>
       <PageSection spacing="compact">
-        <BranchesPageHeader onCreate={openCreateDialog} canCreate={canManageBranches} />
+        <BranchesPageHeader
+          onCreate={openCreateDialog}
+          canCreate={canManageBranches}
+        />
       </PageSection>
 
-      <PageSection
-        spacing="compact"
-        className="grid auto-rows-fr grid-cols-1 space-y-0 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <StatCard
-          title="Total Branches"
-          subtitle="Across organization"
-          value={totalCount}
-          tone="primary"
-          icon={<Building2 className="h-4 w-4" />}
-        />
-
-        <StatCard
-          title="Active (Page)"
-          subtitle="Visible in listing"
-          value={activeOnPage}
-          tone="success"
-          icon={<CheckCircle2 className="h-4 w-4" />}
-        />
-
-        <StatCard
-          title="Inactive (Page)"
-          subtitle="Needs reactivation"
-          value={inactiveOnPage}
-          tone="warning"
-          icon={<XCircle className="h-4 w-4" />}
-        />
-
-        <StatCard
-          title="Filters"
-          subtitle={hasActiveFilters ? "Search applied" : "Default state"}
-          value={hasActiveFilters ? "Active" : "Clear"}
-          tone="info"
-          icon={<Filter className="h-4 w-4" />}
-        />
+      <PageSection spacing="compact">
+        <StatsGrid columns="four">
+          <StatCard
+            title="Total Branches"
+            subtitle="Organization footprint"
+            value={totalCount}
+            helperText="Configured locations"
+            icon={<Building2 className="h-4 w-4" />}
+          />
+          <StatCard
+            title="Active (Page)"
+            subtitle="Current listing"
+            value={activeOnPage}
+            helperText="Ready for operations"
+            icon={<CheckCircle2 className="h-4 w-4" />}
+            tone="success"
+          />
+          <StatCard
+            title="Inactive (Page)"
+            subtitle="Current listing"
+            value={inactiveOnPage}
+            helperText="Requires reactivation"
+            icon={<XCircle className="h-4 w-4" />}
+            tone="warning"
+          />
+          <StatCard
+            title="Filters"
+            subtitle="Search state"
+            value={hasActiveFilters ? "Active" : "Clear"}
+            helperText={
+              hasActiveFilters ? "Search applied" : "Using default listing"
+            }
+            icon={<Filter className="h-4 w-4" />}
+            tone={hasActiveFilters ? "info" : "default"}
+          />
+        </StatsGrid>
       </PageSection>
 
       <PageSection spacing="compact">

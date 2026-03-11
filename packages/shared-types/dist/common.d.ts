@@ -85,4 +85,4 @@ export declare enum AddonType {
     DESIGN_CHARGE = "DESIGN_CHARGE"
 }
 export declare function isAddonType(value: string): value is AddonType;
-export type BadgeVariant = 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'info' | 'destructive';
+export type BadgeVariant = 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive';

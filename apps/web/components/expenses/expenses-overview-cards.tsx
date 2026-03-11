@@ -1,6 +1,6 @@
 import { Filter, ReceiptText, Wallet } from "lucide-react";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface ExpensesOverviewCardsProps {
@@ -20,30 +20,29 @@ export function ExpensesOverviewCards({
     <StatsGrid columns="three">
       <StatCard
         title="Page Spend"
-        subtitle="Visible records only"
+        subtitle="Visible expense amount"
         value={formatPKR(listedAmount)}
+        badgeText="Visible"
         tone="destructive"
         icon={<Wallet className="h-4 w-4" />}
       />
 
       <StatCard
         title="Records"
-        subtitle="Current page / total"
-        value={listedCount}
-        helperText={`of ${totalCount} total matching records`}
-        tone="primary"
+        subtitle="Rows on current page"
+        value={listedCount.toLocaleString()}
+        helperText={`of ${totalCount.toLocaleString()} total expenses`}
+        tone="info"
         icon={<ReceiptText className="h-4 w-4" />}
       />
 
       <StatCard
         title="Filters"
-        subtitle="Active query state"
-        value={activeFilterCount}
-        helperText="Applied on ledger listing"
-        badgeText={activeFilterCount > 0 ? "ACTIVE" : "CLEAR"}
-        tone="info"
+        subtitle="Current query state"
+        value={activeFilterCount.toLocaleString()}
+        badgeText={activeFilterCount > 0 ? "Active" : "Clear"}
+        tone={activeFilterCount > 0 ? "warning" : "default"}
         icon={<Filter className="h-4 w-4" />}
-        className="sm:col-span-2 xl:col-span-1"
       />
     </StatsGrid>
   );

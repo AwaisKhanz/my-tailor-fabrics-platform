@@ -1,6 +1,6 @@
 import { type Employee, type OrderItemTask, TaskStatus } from "@tbms/shared-types";
-import { DataTable } from "@/components/ui/data-table";
-import { TableSurface } from "@/components/ui/table-layout";
+import { DataTable } from "@tbms/ui/components/data-table";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useTaskAssignmentTable } from "@/hooks/use-task-assignment-table";
 
 interface TaskAssignmentTableProps {

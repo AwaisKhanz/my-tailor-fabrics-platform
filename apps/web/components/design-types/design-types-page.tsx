@@ -4,8 +4,8 @@ import { CreateDesignTypeDialog } from "@/components/design-types/CreateDesignTy
 import { DesignTypesPageHeader } from "@/components/design-types/design-types-page-header";
 import { DesignTypesStatsGrid } from "@/components/design-types/design-types-stats-grid";
 import { DesignTypesTable } from "@/components/design-types/design-types-table";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useDesignTypesPage } from "@/hooks/use-design-types-page";
 import { PERMISSION } from "@tbms/shared-constants";

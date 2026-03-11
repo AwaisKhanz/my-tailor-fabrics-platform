@@ -18,14 +18,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
 import {
   DialogFormActions,
   FormGrid,
   FormStack,
-} from "@/components/ui/form-layout";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+} from "@tbms/ui/components/form-layout";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 
 const measurementSectionDialogFormSchema = z.object({
   name: z.string().trim().min(1, "Section name is required"),
@@ -154,7 +154,7 @@ export function MeasurementSectionDialog({
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
                 <FormItem>
                   <FormLabel>Section Name</FormLabel>
                   <FormControl>

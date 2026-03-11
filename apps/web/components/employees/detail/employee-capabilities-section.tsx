@@ -6,21 +6,20 @@ import type {
   EmployeeCapabilityWindowInput,
   GarmentType,
 } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
-import { FieldError, FieldHint, FieldLabel } from "@/components/ui/field";
-import { FormGrid } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable } from "@tbms/ui/components/data-table";
+import { FieldError, FieldHint, FieldLabel } from "@tbms/ui/components/field";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Text } from "@/components/ui/typography";
+} from "@tbms/ui/components/select";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 import { formatDate } from "@/lib/utils";
 
@@ -68,7 +67,7 @@ export function EmployeeCapabilitiesSection({
       title="Capabilities"
       description="Define which garments and steps this employee can be assigned to."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {activeCapabilities.length} ACTIVE
         </Badge>
       }
@@ -157,8 +156,9 @@ export function EmployeeCapabilitiesSection({
                       <Select
                         value={row.garmentTypeId || "ANY"}
                         onValueChange={(value) => {
+                          const nextValue = value ?? "ANY";
                           const nextGarmentTypeId =
-                            value === "ANY" ? "" : value;
+                            nextValue === "ANY" ? "" : nextValue;
                           const nextStepOptions =
                             getStepOptionsForCapabilityRow(nextGarmentTypeId);
                           updateCapabilityRow(index, {
@@ -193,7 +193,7 @@ export function EmployeeCapabilitiesSection({
                         value={row.stepKey || "ANY_STEP"}
                         onValueChange={(value) =>
                           updateCapabilityRow(index, {
-                            stepKey: value === "ANY_STEP" ? "" : value,
+                            stepKey: (value ?? "ANY_STEP") === "ANY_STEP" ? "" : (value ?? "ANY_STEP"),
                           })
                         }
                       >

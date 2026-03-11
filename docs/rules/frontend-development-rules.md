@@ -6,11 +6,14 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 
 1. Framework: Next.js App Router
 2. Auth/session layer: NextAuth with backend token/session integration
-3. UI primitives: local `components/ui` plus shadcn-style conventions
-4. Styling: Tailwind CSS with semantic tokens and global theme variables
-5. Shared contracts: `@tbms/shared-types`, `@tbms/shared-constants`
-6. HTTP client: centralized axios client in `apps/web/lib/api.ts`
-7. Data cache/query layer: TanStack Query with centralized query keys in `apps/web/lib/query-keys.ts`
+3. UI foundation: shadcn v4 (`base-nova`) under `packages/ui` exported as `@tbms/ui`
+4. Primitive consumption rule: import base primitives directly from `@tbms/ui/components/*` (for example button, badge, input, label, textarea, avatar, checkbox)
+5. Local UI wrappers are not allowed in `apps/web/components/ui`; all shared primitives and composites live in `packages/ui/src/components`
+6. Theme engine: `next-themes` via `apps/web/components/ThemeProvider.tsx`
+7. Styling: semantic token contract defined in `packages/ui/src/styles/globals.css`
+8. Shared contracts: `@tbms/shared-types`, `@tbms/shared-constants`
+9. HTTP client: centralized axios client in `apps/web/lib/api.ts`
+10. Data cache/query layer: TanStack Query with centralized query keys in `apps/web/lib/query-keys.ts`
 
 ## 2. Route and File Structure Rules
 
@@ -18,16 +21,19 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 2. Route files should focus on composition, auth gating, and page assembly.
 3. Stateful page logic, fetch orchestration, and derived UI state belong in hooks under `apps/web/hooks`.
 4. Large route-specific UI should be broken into focused components under `apps/web/components/<domain>`.
-5. Reusable primitives belong in `apps/web/components/ui`, not inside route-local folders.
+5. New reusable primitives should be added to `packages/ui/src/components` and consumed through `@tbms/ui/components/*`.
+6. Do not add new web-local primitive wrappers for shared shadcn components.
 
 ## 3. Design System and Styling Rules
 
-1. Use the global theme and semantic token system defined in:
-   - `apps/web/app/globals.css`
-   - `apps/web/tailwind.config.ts`
-   - `apps/web/lib/ui-styles.ts`
-2. Do not hardcode random colors, gradients, spacing values, or radii when an existing token or semantic class exists.
-3. Prefer shared primitives such as:
+1. Theme and token source of truth lives in:
+   - `packages/ui/src/styles/globals.css`
+   - `packages/ui/components.json`
+   - `apps/web/components.json`
+2. `apps/web/app/layout.tsx` must import `@tbms/ui/globals.css` directly.
+3. Keep shared globals aligned with shadcn defaults; do not reintroduce `--snow-*` tokens or `snow-*` utility conventions.
+4. Do not hardcode random colors, gradients, spacing values, or radii when an existing token or semantic class exists.
+5. Prefer shared primitives such as:
    - `PageShell`
    - `PageSection`
    - `PageHeader`
@@ -35,11 +41,12 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `FormGrid`, `FormStack`, `DialogFormActions`
    - `StatsGrid`, `StatCard`, `InteractiveTile`, `InfoTile`
    - shared buttons, cards, dialogs, tables, and form primitives
-4. Theme behavior must go through the centralized theme flow:
+6. Theme behavior must go through the centralized theme flow:
    - `apps/web/app/layout.tsx`
    - `apps/web/components/ThemeProvider.tsx`
    - `apps/web/lib/theme.ts`
-5. Do not create a second theme state system or route-local theme persistence.
+7. Do not create a second theme state system or route-local theme persistence.
+8. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
 
 ## 4. Data Access Rules
 
@@ -89,7 +96,7 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 
 1. Prefer reusable UI primitives before creating new bespoke markup.
 2. If the same UI pattern appears more than once, extract it.
-3. Form labels, field-level validation text, inline metric tiles, and stats grids must be composed from `apps/web/components/ui` primitives rather than repeated Tailwind class strings inside domain components.
+3. Form labels, field-level validation text, inline metric tiles, and stats grids must be composed from `@tbms/ui/components/*` primitives rather than repeated Tailwind class strings inside domain components.
 4. Domain components may pass layout-only `className` overrides, but visual treatment should be controlled by primitive variants first.
 5. Keep large pages split into:
    - page shell and route
@@ -106,8 +113,9 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 4. Use the existing audit scripts when changing design system behavior:
 
 ```bash
-npm run theme:audit -w web
-npm run snowui:audit -w web
+pnpm --filter web run theme:audit
+pnpm --filter web run snowui:audit
+pnpm --filter web run shadcn:audit
 ```
 
 ## 11. Frontend Verification Rules
@@ -115,15 +123,16 @@ npm run snowui:audit -w web
 For meaningful frontend changes, run the applicable commands from the repo root:
 
 ```bash
-npm run env:verify
-npm run build:do:web
+pnpm run env:verify
+pnpm run build:do:web
 ```
 
 If the change touches theme, shared UI primitives, token usage, or design-system consistency, also run:
 
 ```bash
-npm run theme:audit -w web
-npm run snowui:audit -w web
+pnpm --filter web run theme:audit
+pnpm --filter web run snowui:audit
+pnpm --filter web run shadcn:audit
 ```
 
 If the change affects deployment or auth behavior, update `docs/deployment-guide.md` in the same task.

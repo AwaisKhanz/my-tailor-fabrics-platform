@@ -3,13 +3,13 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable } from "@tbms/ui/components/data-table";
 import {
   TableSearch,
   TableSurface,
   TableToolbar,
-} from "@/components/ui/table-layout";
+} from "@tbms/ui/components/table-layout";
 import { useMeasurementSectionsManager } from "@/hooks/use-measurement-sections-manager";
 
 interface MeasurementSectionsManagerProps {
@@ -74,20 +74,16 @@ export function MeasurementSectionsManager({
               value={search}
               onChange={(event) => updateSearch(event.target.value)}
             />
-
             <Button
-              variant="ghost"
-              size="sm"
-              className="md:ml-auto"
+              variant="outline"
               onClick={resetFilters}
               disabled={!hasActiveFilters}
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
-
             {canManageSections ? (
-              <Button variant="outline" size="sm" onClick={onAddSection}>
+              <Button variant="outline" onClick={onAddSection}>
                 <FolderPlus className="h-4 w-4" />
                 Add Section
               </Button>

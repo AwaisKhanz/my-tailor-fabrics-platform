@@ -1,8 +1,8 @@
 "use client";
 
-import { Form } from "@/components/ui/form";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { Form } from "@tbms/ui/components/form";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import { EmployeeDialogContactFields } from "@/components/employees/dialog/employee-dialog-contact-fields";
 import { EmployeeDialogPrimaryFields } from "@/components/employees/dialog/employee-dialog-primary-fields";
 import { EmployeeDialogWorkFields } from "@/components/employees/dialog/employee-dialog-work-fields";

@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AlertCircle, CircleDollarSign, Package, TimerReset, UserCog } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { OrderStatus } from "@tbms/shared-types";
-import { DetailSplit, PageShell, PageSection } from "@/components/ui/page-shell";
-import { EmptyState } from "@/components/ui/empty-state";
+import { DetailSplit, PageShell, PageSection } from "@tbms/ui/components/page-shell";
+import { EmptyState } from "@tbms/ui/components/empty-state";
 import { OrderCustomerInsightCard } from "@/components/orders/order-customer-insight-card";
 import { OrderDetailBreadcrumb } from "@/components/orders/order-detail-breadcrumb";
 import { OrderDetailDialogs } from "@/components/orders/order-detail-dialogs";
@@ -13,9 +13,15 @@ import { OrderFinancialSummaryCard } from "@/components/orders/order-financial-s
 import { OrderItemsTable } from "@/components/orders/order-items-table";
 import { OrderLifecycleCard } from "@/components/orders/order-lifecycle-card";
 import { OrderTimelineCard } from "@/components/orders/order-timeline-card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { Skeleton } from "@tbms/ui/components/skeleton";
+import { LoadingState } from "@tbms/ui/components/loading-state";
 import { useAuthz } from "@/hooks/use-authz";
 import { useOrderDetailPage } from "@/hooks/use-order-detail-page";
 import { buildEditOrderRoute, ORDERS_ROUTE } from "@/lib/order-routes";
@@ -76,6 +82,11 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       <PageShell>
         <PageSection spacing="compact">
           <div className="space-y-4">
+            <LoadingState
+              compact
+              text="Loading order..."
+              caption="Gathering order details and tasks."
+            />
             <Skeleton className="h-10 w-1/4" />
             <Skeleton className="h-64 w-full" />
           </div>
@@ -123,6 +134,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         />
 
         <OrderDetailHeaderCard
+          status={order.status}
           orderNumber={order.orderNumber}
           statusLabel={statusConfig.label}
           statusVariant={statusConfig.variant}
@@ -147,49 +159,44 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       </PageSection>
 
       <PageSection spacing="compact">
-        <StatsGrid columns="four" flushSectionSpacing>
-          <StatCard
-            title="Pieces"
-            subtitle="Order volume"
-            value={totalPieces}
-            icon={<Package className="h-4 w-4" />}
-            iconTone="primary"
-            valueClassName="text-2xl"
-            className="h-full"
-            contentClassName="p-5"
-          />
-          <StatCard
-            title="Assigned Employees"
-            subtitle="Active assignees"
-            value={assignedTailorsCount}
-            icon={<UserCog className="h-4 w-4" />}
-            iconTone="info"
-            valueClassName="text-2xl"
-            className="h-full"
-            contentClassName="p-5"
-          />
-          <StatCard
-            title="Active Tasks"
-            subtitle="In production"
-            value={totalTaskCount}
-            icon={<TimerReset className="h-4 w-4" />}
-            iconTone="warning"
-            valueClassName="text-2xl"
-            className="h-full"
-            contentClassName="p-5"
-          />
-          <StatCard
-            title="Balance Due"
-            subtitle="Outstanding amount"
-            value={formatPKR(order.balanceDue)}
-            icon={<CircleDollarSign className="h-4 w-4" />}
-            iconTone="destructive"
-            valueTone="destructive"
-            valueClassName="text-2xl"
-            className="h-full"
-            contentClassName="p-5"
-          />
-        </StatsGrid>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Pieces</CardDescription>
+              <CardTitle className="text-3xl">{totalPieces}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Order volume</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Assigned Employees</CardDescription>
+              <CardTitle className="text-3xl">{assignedTailorsCount}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Active assignees</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Active Tasks</CardDescription>
+              <CardTitle className="text-3xl">{totalTaskCount}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">In production</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Balance Due</CardDescription>
+              <CardTitle className="text-3xl">{formatPKR(order.balanceDue)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Outstanding amount</p>
+            </CardContent>
+          </Card>
+        </div>
       </PageSection>
 
       <PageSection>

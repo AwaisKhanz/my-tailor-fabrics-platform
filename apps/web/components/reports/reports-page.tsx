@@ -1,14 +1,13 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@tbms/ui/components/card";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@tbms/ui/components/tabs";
 import { ReportsExportsTab } from "@/components/reports/reports-exports-tab";
 import { ReportsFinancialTab } from "@/components/reports/reports-financial-tab";
 import { ReportsOperationsTab } from "@/components/reports/reports-operations-tab";
 import { ReportsOverviewTab } from "@/components/reports/reports-overview-tab";
+import { ReportsPageHeader } from "@/components/reports/reports-page-header";
 import { ReportsWorkspaceFilters } from "@/components/reports/reports-workspace-filters";
 import { useReportsWorkspace } from "@/hooks/use-reports-workspace";
 import { useAuthz } from "@/hooks/use-authz";
@@ -82,22 +81,13 @@ export function ReportsPage() {
   } as const;
 
   return (
-    <PageShell spacing="default">
+    <PageShell>
       <PageSection spacing="compact">
-        <PageHeader
-          title="Analytics & Intelligence"
-          description="Review performance by period with focused financial and operations views."
-          actions={
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={refreshAnalytics}
-              disabled={loading}
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              {loading ? "Refreshing..." : "Refresh Feed"}
-            </Button>
-          }
+        <ReportsPageHeader
+          loading={loading}
+          onRefresh={() => {
+            void refreshAnalytics();
+          }}
         />
       </PageSection>
 
@@ -115,30 +105,34 @@ export function ReportsPage() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => {
-            if (isReportTabKey(value)) {
-              setActiveTab(value);
-            }
-          }}
-        >
-          <div className="overflow-x-auto pb-1">
-            <TabsList>
-              {REPORT_TABS.map((tab) => (
-                <TabsTrigger key={tab.key} value={tab.key}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+        <Card>
+          <CardContent className="space-y-4 p-4 sm:p-5">
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) => {
+                if (isReportTabKey(value)) {
+                  setActiveTab(value);
+                }
+              }}
+            >
+              <div className="overflow-x-auto pb-1">
+                <TabsList>
+                  {REPORT_TABS.map((tab) => (
+                    <TabsTrigger key={tab.key} value={tab.key}>
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
 
-          {REPORT_TABS.map((tab) => (
-            <TabsContent key={tab.key} value={tab.key} spacing="roomy">
-              {reportTabContent[tab.key]}
-            </TabsContent>
-          ))}
-        </Tabs>
+              {REPORT_TABS.map((tab) => (
+                <TabsContent key={tab.key} value={tab.key}>
+                  {reportTabContent[tab.key]}
+                </TabsContent>
+              ))}
+            </Tabs>
+          </CardContent>
+        </Card>
       </PageSection>
     </PageShell>
   );

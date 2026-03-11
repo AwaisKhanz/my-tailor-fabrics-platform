@@ -4,17 +4,17 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 
 interface UseMeasurementFieldTableColumnsParams {
   canManageFields: boolean;
@@ -65,7 +65,7 @@ export function useMeasurementFieldTableColumns({
 
           if (!showSectionMoveSelect) {
             return (
-              <Badge variant="default" size="xs">
+              <Badge variant="default">
                 {field.section?.name ?? "General"}
               </Badge>
             );
@@ -76,6 +76,9 @@ export function useMeasurementFieldTableColumns({
               <Select
                 value={currentSectionId}
                 onValueChange={(nextSectionId) => {
+                  if (!nextSectionId) {
+                    return;
+                  }
                   void handleMoveFieldSection(field, nextSectionId);
                 }}
                 disabled={movingFieldId === field.id}
@@ -108,7 +111,7 @@ export function useMeasurementFieldTableColumns({
           }
 
           return (
-            <Badge variant="info" size="xs">
+            <Badge variant="secondary">
               {typeLabel}
             </Badge>
           );
@@ -119,7 +122,7 @@ export function useMeasurementFieldTableColumns({
         cell: (field) => (
           <div className="flex items-center gap-2">
             {field.deletedAt ? (
-              <Badge variant="outline" size="xs">
+              <Badge variant="outline">
                 Archived
               </Badge>
             ) : field.isRequired ? (

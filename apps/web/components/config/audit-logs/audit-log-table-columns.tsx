@@ -1,8 +1,8 @@
 "use client";
 
 import type { AuditLogEntry, JsonValue } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import type { ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import type { ColumnDef } from "@tbms/ui/components/data-table";
 import { formatDateTime } from "@/lib/utils";
 
 const ACTION_SUMMARY_MAP: Record<string, string> = {
@@ -14,14 +14,14 @@ const ACTION_SUMMARY_MAP: Record<string, string> = {
 
 const ACTION_BADGE_VARIANT_MAP: Record<
   string,
-  "success" | "info" | "destructive" | "warning" | "outline"
+  "default" | "secondary" | "destructive" | "outline"
 > = {
-  CREATE: "success",
-  UPDATE: "info",
+  CREATE: "default",
+  UPDATE: "secondary",
   DELETE: "destructive",
-  LOGIN: "warning",
-  TOKEN_REFRESH: "warning",
-  LOGOUT: "info",
+  LOGIN: "secondary",
+  TOKEN_REFRESH: "secondary",
+  LOGOUT: "secondary",
   LOGIN_FAILED: "destructive",
 };
 
@@ -68,7 +68,7 @@ function getChangeSummary(record: AuditLogEntry): string {
 
 function getActionBadgeVariant(
   action: string,
-): "success" | "info" | "destructive" | "warning" | "outline" {
+): "default" | "secondary" | "destructive" | "outline" {
   return ACTION_BADGE_VARIANT_MAP[action.toUpperCase()] ?? "outline";
 }
 
@@ -85,7 +85,7 @@ export function createAuditLogColumns(): ColumnDef<AuditLogEntry>[] {
     {
       header: "Action",
       cell: (record) => (
-        <Badge variant={getActionBadgeVariant(record.action)} size="xs">
+        <Badge variant={getActionBadgeVariant(record.action)}>
           {record.action}
         </Badge>
       ),

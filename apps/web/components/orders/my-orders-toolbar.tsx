@@ -1,6 +1,7 @@
 import { RotateCcw, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
+import { ActionStrip } from "@tbms/ui/components/action-strip";
+import { Button } from "@tbms/ui/components/button";
+import { TableSearch, TableToolbar } from "@tbms/ui/components/table-layout";
 
 interface MyOrdersToolbarProps {
   search: string;
@@ -24,12 +25,12 @@ export function MyOrdersToolbar({
     <TableToolbar
       title="Assigned Work Queue"
       total={visibleCount}
+      totalLabel="items"
       activeFilterCount={hasSearch ? 1 : 0}
       controls={
-        <>
+        <ActionStrip width="full" align="start" className="gap-3">
           <TableSearch
             icon={<Search className="h-4 w-4" />}
-            type="text"
             placeholder="Order #, garment type..."
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
@@ -37,16 +38,15 @@ export function MyOrdersToolbar({
           <Button
             variant="ghost"
             size="sm"
-            className="md:ml-auto"
             onClick={onClearSearch}
             disabled={!hasSearch}
+            className="md:ml-auto"
           >
-            <RotateCcw className="mr-2 h-3.5 w-3.5" />
+            <RotateCcw className="mr-2 h-4 w-4" />
             Clear Search
           </Button>
-        </>
+        </ActionStrip>
       }
-      className="px-5 py-4"
     />
   );
 }

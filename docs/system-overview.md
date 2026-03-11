@@ -14,6 +14,9 @@
 4. `packages/shared-constants`
    Shared permissions, labels, workflow presets, and business constants.
 
+5. `packages/ui`
+   Shared shadcn v4 (`base-nova`) primitives and theme tokens for the web app.
+
 ## Runtime Topology
 
 Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabrics` with:
@@ -51,6 +54,10 @@ This split is intentional. The API is exposed on `/backend`, not `/api`, so that
 
 ## Build and Runtime Entry Points
 
+Workspace package manager:
+
+1. `pnpm` with [pnpm-workspace.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/pnpm-workspace.yaml)
+
 1. App spec:
    [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml)
 
@@ -58,13 +65,13 @@ This split is intentional. The API is exposed on `/backend`, not `/api`, so that
    [start-do-web.mjs](/Users/muhammadawais/Documents/My%20Tailors/tbms/scripts/start-do-web.mjs)
 
 3. API startup:
-   `npm run start:do:api` from [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json)
+   `pnpm run start:do:api` from [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json)
 
 4. Web build:
-   `npm run build:do:web`
+   `pnpm run build:do:web`
 
 5. API build:
-   `npm run build:do:api`
+   `pnpm run build:do:api`
 
 ## Operational Constraints
 
@@ -75,8 +82,8 @@ This split is intentional. The API is exposed on `/backend`, not `/api`, so that
 3. Database credentials, auth secrets, and production URLs are injected by App Platform and must not be hardcoded into the repo.
 
 4. The production-safe Prisma seed flow is intentionally simple:
-   - `npm run prisma:seed`
-   - `npm run prisma:seed:list`
+   - `pnpm run prisma:seed`
+   - `pnpm run prisma:seed:list`
 
 ## Current Domains
 

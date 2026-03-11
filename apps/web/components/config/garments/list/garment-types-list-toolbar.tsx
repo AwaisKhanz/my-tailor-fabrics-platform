@@ -1,6 +1,9 @@
-import { RotateCcw, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TableSearch, TableToolbar } from "@/components/ui/table-layout";
+import { RotateCcw } from "lucide-react";
+import { Button } from "@tbms/ui/components/button";
+import {
+  TableSearch,
+  TableToolbar,
+} from "@tbms/ui/components/table-layout";
 
 interface GarmentTypesListToolbarProps {
   totalCount: number;
@@ -32,7 +35,6 @@ export function GarmentTypesListToolbar({
       controls={
         <>
           <TableSearch
-            icon={<Search className="h-4 w-4" />}
             placeholder="Search garment name..."
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
@@ -40,20 +42,17 @@ export function GarmentTypesListToolbar({
 
           <Button
             variant={includeArchived ? "default" : "outline"}
-            size="sm"
             onClick={() => onIncludeArchivedChange(!includeArchived)}
           >
             {includeArchived ? "Showing Archived" : "Show Archived"}
           </Button>
 
           <Button
-            variant="ghost"
-            size="sm"
-            className="md:ml-auto"
+            variant="outline"
             onClick={onReset}
             disabled={!hasActiveFilters}
           >
-            <RotateCcw className="mr-2 h-3.5 w-3.5" />
+            <RotateCcw className="h-4 w-4" />
             Reset
           </Button>
         </>

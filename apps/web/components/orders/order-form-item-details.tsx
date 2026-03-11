@@ -9,19 +9,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import {
   ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME,
 } from "@/components/orders/order-form-item.constants";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@tbms/ui/components/textarea";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -47,13 +47,15 @@ export function OrderFormItemDetails({
         <FormField
           control={form.control}
           name={`items.${index}.garmentTypeId`}
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem className="space-y-2">
               <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
                 Garment Type
               </FormLabel>
               <Select
-                onValueChange={(value) => onSelectGarmentType(index, value)}
+                onValueChange={(value) =>
+                  onSelectGarmentType(index, value ?? "")
+                }
                 value={field.value}
               >
                 <FormControl>
@@ -79,7 +81,7 @@ export function OrderFormItemDetails({
         <FormField
           control={form.control}
           name={`items.${index}.quantity`}
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem className="space-y-2">
               <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
                 Quantity
@@ -97,7 +99,7 @@ export function OrderFormItemDetails({
         <FormField
           control={form.control}
           name={`items.${index}.unitPrice`}
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem className="space-y-2">
               <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
                 Unit Price (Rs)
@@ -114,7 +116,7 @@ export function OrderFormItemDetails({
       <FormField
         control={form.control}
         name={`items.${index}.designTypeId`}
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem className="space-y-2 md:col-span-7">
             <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
               Design Type
@@ -147,7 +149,7 @@ export function OrderFormItemDetails({
       <FormField
         control={form.control}
         name={`items.${index}.fabricSource`}
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem className="space-y-2 md:col-span-5">
             <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
               Fabric Source
@@ -171,7 +173,7 @@ export function OrderFormItemDetails({
       <FormField
         control={form.control}
         name={`items.${index}.description`}
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem className="space-y-2 md:col-span-12">
             <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
               Notes

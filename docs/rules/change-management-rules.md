@@ -34,8 +34,12 @@ Update the relevant operational docs when the underlying behavior changes:
 ## 4. Frontend and Design Change Rules
 
 1. If the design system changes, update the frontend rules and any relevant audit expectations.
-2. If route ownership, auth flow, or API base URL behavior changes, update both frontend rules and deployment docs.
-3. If a reusable UI pattern is promoted to a standard, document it.
+2. If the shadcn foundation (`packages/ui`, `apps/web/components.json`, or theme engine) changes, update the corresponding audit scripts in `apps/web/scripts/`.
+3. If primitive ownership shifts, keep imports aligned with the canonical source (`@tbms/ui/components/*`) and remove stale web-local wrappers entirely.
+4. Do not keep or reintroduce `apps/web/components/ui` files after shared ownership is established.
+5. Keep shared theme globals close to shadcn defaults; do not reintroduce legacy `--snow-*` token systems.
+6. If route ownership, auth flow, or API base URL behavior changes, update both frontend rules and deployment docs.
+7. If a reusable UI pattern is promoted to a standard, document it.
 
 ## 5. Shared Package Change Rules
 
@@ -56,27 +60,28 @@ Run the smallest meaningful set of verification commands for the change, but do 
 Common repo-level checks:
 
 ```bash
-npm run env:verify
+pnpm run env:verify
 ```
 
 Frontend-oriented changes:
 
 ```bash
-npm run build:do:web
+pnpm run build:do:web
+pnpm --filter web run shadcn:audit
 ```
 
 Backend-oriented changes:
 
 ```bash
-npm run build:do:api
-npm run prisma:seed:list
+pnpm run build:do:api
+pnpm run prisma:seed:list
 ```
 
 Shared package changes:
 
 ```bash
-npm run build -w @tbms/shared-types
-npm run build -w @tbms/shared-constants
+pnpm --filter @tbms/shared-types build
+pnpm --filter @tbms/shared-constants build
 ```
 
 ## 8. Operator-Facing Command Rule

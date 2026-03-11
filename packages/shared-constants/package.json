@@ -14,7 +14,7 @@
   },
   "license": "UNLICENSED",
   "peerDependencies": {
-    "@tbms/shared-types": "*"
+    "@tbms/shared-types": "workspace:*"
   },
   "scripts": {
     "build": "tsc",

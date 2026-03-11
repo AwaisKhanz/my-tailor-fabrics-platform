@@ -1,13 +1,16 @@
 FROM node:20-bookworm-slim AS deps
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 COPY packages/shared-constants/package.json packages/shared-constants/package.json
+COPY packages/ui/package.json packages/ui/package.json
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
 WORKDIR /app
@@ -16,7 +19,7 @@ ARG NEXT_PUBLIC_API_URL=/backend
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 COPY . .
-RUN npm run build:do:web
+RUN pnpm run build:do:web
 
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
@@ -38,4 +41,4 @@ COPY --from=builder /app/apps/web/public ./apps/web/.next/standalone/apps/web/pu
 
 EXPOSE 8080
 
-CMD ["npm", "run", "start:do:web"]
+CMD ["node", "scripts/start-do-web.mjs"]

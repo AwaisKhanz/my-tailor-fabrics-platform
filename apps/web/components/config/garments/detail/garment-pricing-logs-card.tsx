@@ -1,12 +1,13 @@
 import { ArrowUpRight, History, Users } from "lucide-react";
 import { type GarmentPriceLog } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Text } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import { formatPKR } from "@/lib/utils";
 
 interface GarmentPricingLogsCardProps {
@@ -16,86 +17,62 @@ interface GarmentPricingLogsCardProps {
 export function GarmentPricingLogsCard({ logs }: GarmentPricingLogsCardProps) {
   return (
     <Card>
-      <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <SectionHeader
-          title="Recent Pricing Logs"
-          icon={
-            <SectionIcon tone="default">
-              <History className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
-        <Badge variant="default" size="xs">
-          {logs.length} entries
-        </Badge>
+      <CardHeader className="pb-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <History className="h-4 w-4 text-muted-foreground" />
+          <div className="space-y-1">
+            <CardTitle className="text-base">Recent Pricing Logs</CardTitle>
+            <CardDescription>Latest pricing changes for this garment</CardDescription>
+          </div>
+        </div>
+        <Badge variant="default">{logs.length} entries</Badge>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset">
+      <CardContent>
         {logs.length > 0 ? (
           <div className="relative space-y-6 before:absolute before:bottom-2 before:left-2.5 before:top-2 before:w-px before:bg-border">
             {logs.map((log) => (
               <div key={log.id} className="relative pl-8">
-                <SectionIcon
-                  tone="default"
-                  size="sm"
-                  framed={false}
-                  className="absolute left-0 top-1.5 z-10 rounded-full"
-                >
+                <div className="absolute left-0 top-1.5 z-10 rounded-full bg-primary/10 p-1">
                   <ArrowUpRight className="h-2.5 w-2.5 text-primary" />
-                </SectionIcon>
-
-                <div className="mb-1 flex items-center justify-between">
-                  <Text as="p" variant="body" className="font-bold">
-                    Price Updated
-                  </Text>
-                  <FieldLabel>
-                    {new Date(log.createdAt).toLocaleString()}
-                  </FieldLabel>
                 </div>
 
-                <InfoTile padding="content" className="space-y-2">
+                <div className="mb-1 flex items-center justify-between">
+                  <p className="text-sm font-semibold">Price Updated</p>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(log.createdAt).toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="space-y-2 rounded-md bg-muted/40 px-3 py-3">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <FieldLabel className="flex shrink-0 items-center gap-1.5">
+                    <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
                       <Users className="h-3 w-3" />
                       {log.changedBy.name}
-                    </FieldLabel>
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 pt-1">
                     <div>
-                      <FieldLabel>Customer Price</FieldLabel>
+                      <p className="text-xs text-muted-foreground">Customer Price</p>
                       <div className="flex items-center gap-2">
-                        <Text
-                          as="span"
-                          variant="muted"
-                          className="text-xs line-through opacity-50"
-                        >
+                        <span className="text-xs text-muted-foreground line-through opacity-50">
                           {formatPKR(log.oldCustomerPrice || 0)}
-                        </Text>
-                        <Text
-                          as="span"
-                          variant="body"
-                          className="text-xs font-bold"
-                        >
+                        </span>
+                        <span className="text-xs font-bold">
                           {formatPKR(log.newCustomerPrice || 0)}
-                        </Text>
+                        </span>
                       </div>
                     </div>
                   </div>
-                </InfoTile>
+                </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="py-12 text-center text-muted-foreground">
             <History className="mx-auto mb-3 h-8 w-8 opacity-20" />
-            <Text as="p" variant="lead">
-              No pricing change logs found yet.
-            </Text>
+            <p className="text-sm">No pricing change logs found yet.</p>
           </div>
         )}
       </CardContent>

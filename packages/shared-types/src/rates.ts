@@ -32,7 +32,7 @@ export interface CreateRateCardInput {
   stepKey: string;
   amount: number;
   effectiveFrom: Date | string;
-  createdById: string;
+  createdById?: string;
 }
 
 export interface RateStatsSummary {

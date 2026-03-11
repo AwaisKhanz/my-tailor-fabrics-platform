@@ -1,5 +1,5 @@
 import { MeasurementForm } from "@/components/customers/MeasurementForm";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 
 interface CustomerMeasurementDialogProps {
   open: boolean;

@@ -50,7 +50,7 @@ export function useOrderFormItems({
   advancePayment,
   watchedCustomerId,
 }: UseOrderFormItemsParams) {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -124,6 +124,22 @@ export function useOrderFormItems({
     [fields.length, remove],
   );
 
+  const moveItem = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (fromIndex === toIndex) {
+        return;
+      }
+      if (fromIndex < 0 || toIndex < 0) {
+        return;
+      }
+      if (fromIndex >= fields.length || toIndex >= fields.length) {
+        return;
+      }
+      move(fromIndex, toIndex);
+    },
+    [fields.length, move],
+  );
+
   const addAddon = useCallback(
     (itemIndex: number) => {
       const currentAddons = form.getValues(`items.${itemIndex}.addons`) || [];
@@ -187,6 +203,7 @@ export function useOrderFormItems({
     selectedCustomer,
     addItem,
     removeItem,
+    moveItem,
     addAddon,
     removeAddon,
     applyGarmentDefaults,

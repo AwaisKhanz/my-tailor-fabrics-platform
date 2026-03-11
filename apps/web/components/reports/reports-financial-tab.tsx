@@ -1,7 +1,8 @@
 import { Banknote, ReceiptText, Scale } from "lucide-react";
 import type { FinancialTrend } from "@tbms/shared-types";
 import { ReportsFinancialTrendChart } from "@/components/reports/reports-financial-trend-chart";
-import { StatCard } from "@/components/ui/stat-card";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { formatPKR } from "@/lib/utils";
 
 interface ReportsFinancialTabProps {
@@ -12,31 +13,32 @@ interface ReportsFinancialTabProps {
 export function ReportsFinancialTab({ loading, trend }: ReportsFinancialTabProps) {
   return (
     <div className="space-y-4">
-      <div className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-3">
+      <StatsGrid columns="threeMd">
         <StatCard
           title="Total Revenue"
-          subtitle="In selected range"
+          subtitle="Range aggregate"
           value={formatPKR(trend?.totals.revenue ?? 0)}
+          badgeText="Revenue"
           tone="success"
           icon={<Banknote className="h-4 w-4" />}
         />
-
         <StatCard
           title="Total Expenses"
-          subtitle="In selected range"
+          subtitle="Range aggregate"
           value={formatPKR(trend?.totals.expenses ?? 0)}
+          badgeText="Expenses"
           tone="destructive"
           icon={<ReceiptText className="h-4 w-4" />}
         />
-
         <StatCard
           title="Net Result"
-          subtitle="Revenue - Expenses"
+          subtitle="Revenue minus expenses"
           value={formatPKR(trend?.totals.net ?? 0)}
-          tone={(trend?.totals.net ?? 0) < 0 ? "destructive" : "primary"}
+          badgeText="Net"
+          tone={(trend?.totals.net ?? 0) < 0 ? "destructive" : "info"}
           icon={<Scale className="h-4 w-4" />}
         />
-      </div>
+      </StatsGrid>
 
       <ReportsFinancialTrendChart
         loading={loading}

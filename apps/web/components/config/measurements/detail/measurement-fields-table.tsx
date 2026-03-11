@@ -3,21 +3,22 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable } from "@tbms/ui/components/data-table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import {
   TableSearch,
   TableSurface,
   TableToolbar,
-} from "@/components/ui/table-layout";
+} from "@tbms/ui/components/table-layout";
 import {
+  ALL_MEASUREMENT_SECTIONS_FILTER,
   ALL_MEASUREMENT_SECTIONS_FILTER_LABEL,
   useMeasurementFieldsTable,
 } from "@/hooks/use-measurement-fields-table";
@@ -100,9 +101,16 @@ export function MeasurementFieldsTable({
               onChange={(event) => updateSearch(event.target.value)}
             />
 
-            <Select value={sectionFilter} onValueChange={updateSectionFilter}>
+            <Select
+              value={sectionFilter}
+              onValueChange={(value) =>
+                updateSectionFilter(value ?? ALL_MEASUREMENT_SECTIONS_FILTER)
+              }
+            >
               <SelectTrigger className="md:w-[220px]">
-                <SelectValue placeholder={ALL_MEASUREMENT_SECTIONS_FILTER_LABEL} />
+                <SelectValue
+                  placeholder={ALL_MEASUREMENT_SECTIONS_FILTER_LABEL}
+                />
               </SelectTrigger>
               <SelectContent>
                 {sectionFilterOptions.map((section) => (
@@ -114,13 +122,11 @@ export function MeasurementFieldsTable({
             </Select>
 
             <Button
-              variant="ghost"
-              size="sm"
-              className="md:ml-auto"
+              variant="outline"
               onClick={resetFilters}
               disabled={!hasActiveFilters}
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
           </>

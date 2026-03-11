@@ -15,7 +15,7 @@ import type {
   SystemSettings,
 } from "@tbms/shared-types";
 import { TaskStatus } from "@tbms/shared-types";
-import { type ColumnDef } from "@/components/ui/data-table";
+import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { useEmployeeCapabilitiesManager } from "@/hooks/use-employee-capabilities-manager";
 import { useEmployeeCompensationManager } from "@/hooks/use-employee-compensation-manager";
 import { useEmployeeDetailTabsTableState } from "@/hooks/use-employee-detail-tabs-table-state";

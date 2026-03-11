@@ -9,17 +9,17 @@ import {
   Trash2,
 } from "lucide-react";
 import { type Branch } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FieldLabel } from "@/components/ui/field";
-import { Text } from "@/components/ui/typography";
+} from "@tbms/ui/components/dropdown-menu";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { Text } from "@tbms/ui/components/typography";
 import { buildBranchHubRoute } from "@/lib/settings-routes";
 
 interface BranchesDirectoryTableProps {
@@ -93,7 +93,7 @@ export function BranchesDirectoryTable({
       {
         header: "Status",
         cell: (branch) => (
-          <Badge variant={branch.isActive ? "success" : "outline"} size="xs">
+          <Badge variant={branch.isActive ? "default" : "outline"}>
             {branch.isActive ? "Active" : "Inactive"}
           </Badge>
         ),
@@ -108,24 +108,24 @@ export function BranchesDirectoryTable({
           >
             {canManageBranches ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Open actions for ${branch.name}`}
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Open actions for ${branch.name}`}
+                    />
+                  }
+                >
+                  <MoreVertical className="h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44 rounded-lg">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={buildBranchHubRoute(branch.id)}
-                      className="flex cursor-pointer items-center p-3 text-xs font-bold"
-                    >
-                      <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
-                      Manage Hub
-                    </Link>
+                  <DropdownMenuItem
+                    render={<Link href={buildBranchHubRoute(branch.id)} />}
+                    className="cursor-pointer p-3 text-xs font-bold"
+                  >
+                    <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
+                    Manage Hub
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => onEdit(branch)}

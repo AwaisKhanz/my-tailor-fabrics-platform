@@ -61,7 +61,7 @@ export class MailController {
   @Roles(...SUPER_ADMIN_ONLY_ROLES)
   @RequirePermissions(PERMISSION['mail.manage'])
   @Post('test')
-  async sendTestMail(@Body() dto: SendTestMailDto) {
+  async sendTestMail(@Body() dto: SendTestMailDto): Promise<unknown> {
     this.assertPublicAccessEnabled();
 
     try {

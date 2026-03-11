@@ -11,11 +11,11 @@ import { GarmentOverviewCard } from "@/components/config/garments/detail/garment
 import { GarmentPricingLogsCard } from "@/components/config/garments/detail/garment-pricing-logs-card";
 import { GarmentPricingSidebar } from "@/components/config/garments/detail/garment-pricing-sidebar";
 import { GarmentRatesSection } from "@/components/config/garments/detail/garment-rates-section";
-import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useGarmentDetailPage } from "@/hooks/use-garment-detail-page";
 import { GARMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import { PERMISSION } from "@tbms/shared-constants";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 
 type GarmentDetailPageProps = {
   garmentId: string;
@@ -65,27 +65,26 @@ export function GarmentDetailPage({
         <GarmentAnalyticsStatsGrid garment={garment} />
       </PageSection>
 
-      <PageSection spacing="compact">
-        <DetailSplit
-          ratio="3-2"
-          gap="spacious"
-          main={
-            <PageSection spacing="compact">
-              <GarmentOverviewCard garment={garment} />
-              <GarmentMeasurementFormsCard garment={garment} />
-              <GarmentRatesSection
-                garment={garment}
-                branches={branches}
-                open={createRateDialogOpen}
-                onOpenChange={setCreateRateDialogOpen}
-                onCreateRate={handleCreateRate}
-                canManageRates={canManageRates}
-              />
-              <GarmentPricingLogsCard logs={garment.priceLogs || []} />
-            </PageSection>
-          }
-          side={<GarmentPricingSidebar garment={garment} />}
-        />
+      <PageSection
+        spacing="compact"
+        className="grid grid-cols-1 gap-8 lg:grid-cols-5"
+      >
+        <div className="space-y-6 lg:col-span-3">
+          <GarmentOverviewCard garment={garment} />
+          <GarmentMeasurementFormsCard garment={garment} />
+          <GarmentRatesSection
+            garment={garment}
+            branches={branches}
+            open={createRateDialogOpen}
+            onOpenChange={setCreateRateDialogOpen}
+            onCreateRate={handleCreateRate}
+            canManageRates={canManageRates}
+          />
+          <GarmentPricingLogsCard logs={garment.priceLogs || []} />
+        </div>
+        <aside className="space-y-6 lg:col-span-2">
+          <GarmentPricingSidebar garment={garment} />
+        </aside>
       </PageSection>
     </PageShell>
   );

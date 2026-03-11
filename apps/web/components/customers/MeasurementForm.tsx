@@ -8,20 +8,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { FormActionRow, FormStack } from "@/components/ui/form-layout";
+} from "@tbms/ui/components/form";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { Input } from "@tbms/ui/components/input";
+import { Button } from "@tbms/ui/components/button";
+import { FormActionRow, FormStack } from "@tbms/ui/components/form-layout";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
-import { Card } from "../ui/card";
+} from "@tbms/ui/components/select";
+import { Card } from "@tbms/ui/components/card";
+import { LoadingState } from "@tbms/ui/components/loading-state";
 import { useMeasurementForm } from "@/hooks/use-measurement-form";
 
 interface MeasurementFormProps {
@@ -55,9 +55,11 @@ export function MeasurementForm({
 
   if (loading)
     return (
-      <div className="flex justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
+      <LoadingState
+        text="Loading measurements..."
+        caption="Fetching category fields."
+        className="py-8"
+      />
     );
 
   return (
@@ -65,7 +67,12 @@ export function MeasurementForm({
       <div className="space-y-2">
         <FieldLabel>Measurement Category</FieldLabel>
         <Select
-          onValueChange={handleCategoryChange}
+          onValueChange={(value) => {
+            if (!value) {
+              return;
+            }
+            handleCategoryChange(value);
+          }}
           defaultValue={initialCategoryId}
         >
           <SelectTrigger>
@@ -104,7 +111,7 @@ export function MeasurementForm({
                           key={field.id}
                           control={form.control}
                           name={field.id}
-                          render={({ field: formField }) => (
+                          render={({ field: formField }: { field: import("react-hook-form").ControllerRenderProps }) => (
                             <FormItem>
                               <FormLabel>
                                 {field.label}{" "}
@@ -120,7 +127,9 @@ export function MeasurementForm({
                               <FormControl>
                                 {field.fieldType === FieldType.DROPDOWN ? (
                                   <Select
-                                    onValueChange={formField.onChange}
+                                    onValueChange={(value) => {
+                                      formField.onChange(value ?? "");
+                                    }}
                                     value={
                                       typeof formField.value === "string"
                                         ? formField.value

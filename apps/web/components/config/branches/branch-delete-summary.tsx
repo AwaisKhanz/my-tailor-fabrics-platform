@@ -1,8 +1,8 @@
 import { AlertTriangle } from "lucide-react";
 import { type Branch } from "@tbms/shared-types";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Text } from "@/components/ui/typography";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Text } from "@tbms/ui/components/typography";
 
 interface BranchDeleteSummaryProps {
   branch: Branch | null;

@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo } from "react";
 import { Clock3, History } from "lucide-react";
 import { type Order } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Text } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { EmptyState } from "@tbms/ui/components/empty-state";
+import { Text } from "@tbms/ui/components/typography";
 import { formatPKR } from "@/lib/utils";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -89,7 +89,7 @@ export function CustomerOrdersTab({
           return (
             <Badge
               variant={statusConfig.variant}
-              size="xs"
+
               className="font-bold"
             >
               {statusConfig.label}
@@ -103,11 +103,11 @@ export function CustomerOrdersTab({
 
   return (
     <Card>
-      <CardHeader layout="rowBetweenResponsive" surface="mutedSection" trimBottom>
+      <CardHeader>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <CardTitle>Order History</CardTitle>
-            <Badge variant="default" size="xs" className="font-semibold">
+            <Badge variant="default" className="font-semibold">
               {orders.length} ORDERS
             </Badge>
           </div>
@@ -117,7 +117,7 @@ export function CustomerOrdersTab({
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="p-0">
+      <CardContent className="p-0">
         {total === 0 ? (
           <div className="p-6">
             <EmptyState

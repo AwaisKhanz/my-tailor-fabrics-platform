@@ -4,8 +4,8 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
 import { type DesignTypeFormValues } from "@/hooks/use-design-type-dialog";
 
 interface DesignTypeDialogSortFieldProps {
@@ -19,7 +19,7 @@ export function DesignTypeDialogSortField({
     <FormField
       control={form.control}
       name="sortOrder"
-      render={({ field }) => (
+      render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
         <FormItem>
           <FormLabel>Sort Order</FormLabel>
           <FormControl>

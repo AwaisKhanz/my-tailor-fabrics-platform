@@ -21,7 +21,7 @@ for (const candidate of candidates) {
 
 if (!serverPath) {
   console.error(
-    "Unable to locate the Next.js standalone server. Run `npm run build:do:web` first.",
+    "Unable to locate the Next.js standalone server. Run `pnpm run build:do:web` first.",
   );
   process.exit(1);
 }

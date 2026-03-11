@@ -12,9 +12,9 @@ import { EmployeeDocumentUploadDialog } from "@/components/employees/detail/empl
 import { EmployeeFinancialCards } from "@/components/employees/detail/employee-financial-cards";
 import { EmployeeLedgerEntryDialog } from "@/components/employees/detail/employee-ledger-entry-dialog";
 import { EmployeeProfileSidebar } from "@/components/employees/detail/employee-profile-sidebar";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
-import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { EmptyState } from "@tbms/ui/components/empty-state";
+import { DetailSplit, PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { useEmployeeDetailPage } from "@/hooks/use-employee-detail-page";
 import { buildOrderDetailRoute } from "@/lib/order-routes";

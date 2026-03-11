@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import {
   Form,
   FormControl,
@@ -10,10 +10,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { SectionIcon } from "@/components/ui/section-icon";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateEmployeeUserAccount } from "@/hooks/queries/employee-queries";
 import { typedZodResolver } from "@/lib/utils/form";
@@ -118,7 +118,7 @@ export function AccountCreationDialog({
           <FormField
             control={form.control}
             name="email"
-            render={({ field }) => (
+            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
@@ -131,7 +131,7 @@ export function AccountCreationDialog({
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
+            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
@@ -144,7 +144,7 @@ export function AccountCreationDialog({
           <FormField
             control={form.control}
             name="confirmPassword"
-            render={({ field }) => (
+            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
               <FormItem>
                 <FormLabel>Confirm Password</FormLabel>
                 <FormControl>

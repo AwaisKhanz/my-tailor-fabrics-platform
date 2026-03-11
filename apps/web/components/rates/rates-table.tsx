@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { Clock, GitBranch, Pencil } from "lucide-react";
 import { type RateCardListItem } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 import { formatPKR } from "@/lib/utils";
 
 interface RatesTableProps {
@@ -45,12 +45,12 @@ export function RatesTable({
         header: "Branch",
         cell: (rate) =>
           rate.branchId ? (
-            <Badge variant="outline" size="xs" className="gap-1">
+            <Badge variant="outline" className="gap-1">
               <GitBranch className="h-2.5 w-2.5" />
               {rate.branch?.code || "Branch"}
             </Badge>
           ) : (
-            <Badge variant="default" size="xs">
+            <Badge variant="default">
               Global
             </Badge>
           ),

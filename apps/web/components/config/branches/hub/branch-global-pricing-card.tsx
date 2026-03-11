@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { Shirt } from "lucide-react";
 import { type BranchDetail } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Text } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import { GARMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 
 interface BranchGlobalPricingCardProps {
@@ -25,106 +26,80 @@ export function BranchGlobalPricingCard({
 
   return (
     <Card>
-      <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <SectionHeader
-          title="Global Pricing Model"
-          icon={
-            <SectionIcon>
-              <Shirt className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
-        <Badge variant="info" size="xs">
-          Global
-        </Badge>
+      <CardHeader className="pb-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Shirt className="h-4 w-4 text-muted-foreground" />
+          <div className="space-y-1">
+            <CardTitle className="text-base">Global Pricing Model</CardTitle>
+            <CardDescription>Shared customer-facing garment prices</CardDescription>
+          </div>
+        </div>
+        <Badge variant="secondary">Global</Badge>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-5">
-        <Text as="p" variant="lead" className="text-sm leading-relaxed">
+      <CardContent className="space-y-5">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           Customer garment prices are controlled from one shared catalog in{" "}
-          <span className="font-semibold text-foreground">
-            {" "}
-            Settings &gt; Garments
-          </span>
+          <span className="font-semibold text-foreground">Settings &gt; Garments</span>
           . This means every branch uses the same customer-facing price list.
-        </Text>
+        </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+          <div className="rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">
               Customer Price Source
-            </Label>
-            <Text
-              as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-foreground"
-            >
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               Global Garment Catalog
-            </Text>
-          </InfoTile>
-          <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            </p>
+          </div>
+          <div className="rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">
               Branch-level Price List
-            </Label>
-            <Text
-              as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-foreground"
-            >
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               Not Supported for Customer Prices
-            </Text>
-          </InfoTile>
-          <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            </p>
+          </div>
+          <div className="rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">
               Active Garment Types
-            </Label>
-            <Text
-              as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-foreground"
-            >
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {garmentTypesCount.toLocaleString()}
-            </Text>
-          </InfoTile>
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <InfoTile padding="md" tone="secondary">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+          <div className="rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">
               Task Rate Overrides
-            </Label>
-            <Text
-              as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-foreground"
-            >
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {hasBranchRateOverrides
                 ? `${branchRateCards.toLocaleString()} branch-specific rates`
                 : "Disabled (no branch-specific rate cards)"}
-            </Text>
-          </InfoTile>
-          <InfoTile padding="md" className="sm:col-span-2" tone="secondary">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+            </p>
+          </div>
+          <div className="sm:col-span-2 rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">
               Global Task Rate Cards
-            </Label>
-            <Text
-              as="p"
-              variant="body"
-              className="mt-1 text-sm font-semibold text-foreground"
-            >
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {globalRateCards.toLocaleString()} default rate cards are
               available system-wide
-            </Text>
-          </InfoTile>
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-start">
-          <Button size="lg" className="w-full sm:w-auto" asChild>
-            <Link href={GARMENTS_SETTINGS_ROUTE}>Manage Global Price List</Link>
+          <Button
+            size="lg"
+            className="w-full sm:w-auto"
+            render={<Link href={GARMENTS_SETTINGS_ROUTE} />}
+          >
+            Manage Global Price List
           </Button>
         </div>
       </CardContent>

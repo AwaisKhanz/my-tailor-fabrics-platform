@@ -66,10 +66,7 @@ export class StatusController {
   @Roles(...ADMIN_ROLES)
   @RequirePermissions(PERMISSION['orders.share'])
   @Post(':token/unlock')
-  async unlockToken(
-    @Param('token') token: string,
-    @Query('ip') ip?: string,
-  ) {
+  async unlockToken(@Param('token') token: string, @Query('ip') ip?: string) {
     const tokenFingerprint = this.fingerprintToken(token);
     const keys = [this.getTokenAttemptKey(token), this.getTokenBlockKey(token)];
 

@@ -3,6 +3,6 @@ export declare const MEASUREMENT_STATUS_LABELS: {
     HIDDEN: string;
 };
 export declare const MEASUREMENT_STATUS_BADGE: {
-    readonly ACTIVE: "success";
+    readonly ACTIVE: "default";
     readonly HIDDEN: "outline";
 };

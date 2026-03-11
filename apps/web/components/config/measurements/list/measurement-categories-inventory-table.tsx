@@ -2,9 +2,9 @@ import { useMemo } from "react";
 import { Edit2, Eye, RotateCcw, Trash2 } from "lucide-react";
 import { MEASUREMENT_STATUS_BADGE, MEASUREMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { type MeasurementCategory } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 
 interface MeasurementCategoriesInventoryTableProps {
   categories: MeasurementCategory[];
@@ -59,7 +59,7 @@ export function MeasurementCategoriesInventoryTable({
       },
       {
         header: "Fields",
-        cell: (category) => <Badge variant="info" size="xs">{category.fields?.length || 0} Fields</Badge>,
+        cell: (category) => <Badge variant="secondary">{category.fields?.length || 0} Fields</Badge>,
       },
       {
         header: "Status",
@@ -72,7 +72,7 @@ export function MeasurementCategoriesInventoryTable({
                   ? MEASUREMENT_STATUS_BADGE.ACTIVE
                   : MEASUREMENT_STATUS_BADGE.HIDDEN
             }
-            size="xs"
+
           >
             {category.deletedAt
               ? "Archived"

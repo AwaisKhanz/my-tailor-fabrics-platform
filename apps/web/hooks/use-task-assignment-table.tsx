@@ -13,17 +13,17 @@ import {
   TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type ColumnDef } from "@/components/ui/data-table";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { type ColumnDef } from "@tbms/ui/components/data-table";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { formatPKR } from "@/lib/utils";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -169,7 +169,7 @@ export function useTaskAssignmentTable({
               disabled={loadingId === task.id}
               value={task.status}
               onValueChange={(value) => {
-                if (isTaskStatus(value)) {
+                if (value && isTaskStatus(value)) {
                   onStatusChange(task.id, value);
                 }
               }}

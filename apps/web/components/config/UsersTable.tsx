@@ -1,14 +1,14 @@
 "use client";
 
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
 import { UserAccountDialog } from "@/components/config/users/user-account-dialog";
 import { UsersAccessTable } from "@/components/config/users/users-access-table";
 import { UsersListToolbar } from "@/components/config/users/users-list-toolbar";
 import { UsersPageHeader } from "@/components/config/users/users-page-header";
 import { UsersStatsGrid } from "@/components/config/users/users-stats-grid";
-import { PageShell } from "@/components/ui/page-shell";
-import { TableSurface } from "@/components/ui/table-layout";
 import { useUsersPage } from "@/hooks/use-users-page";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 
 export function UsersTable() {
   const {
@@ -47,33 +47,39 @@ export function UsersTable() {
 
   return (
     <PageShell>
-      <UsersPageHeader onAddUser={openCreateDialog} />
+      <PageSection spacing="compact">
+        <UsersPageHeader onAddUser={openCreateDialog} />
+      </PageSection>
 
-      <UsersStatsGrid stats={stats} />
+      <PageSection spacing="compact">
+        <UsersStatsGrid stats={stats} />
+      </PageSection>
 
-      <TableSurface>
-        <UsersListToolbar
-          search={search}
-          roleFilter={roleFilter}
-          totalUsersCount={totalUsersCount}
-          hasActiveFilters={hasActiveFilters}
-          onSearchChange={setSearchFilter}
-          onRoleFilterChange={setRoleFilterValue}
-          onResetFilters={resetFilters}
-        />
+      <PageSection spacing="compact">
+        <TableSurface>
+          <UsersListToolbar
+            search={search}
+            roleFilter={roleFilter}
+            totalUsersCount={totalUsersCount}
+            hasActiveFilters={hasActiveFilters}
+            onSearchChange={setSearchFilter}
+            onRoleFilterChange={setRoleFilterValue}
+            onResetFilters={resetFilters}
+          />
 
-        <UsersAccessTable
-          users={users}
-          loading={loading}
-          page={page}
-          total={totalUsersCount}
-          pageSize={pageSize}
-          onEdit={openEditDialog}
-          onDelete={requestDelete}
-          onPageChange={setPage}
-          onToggleActive={toggleUserActive}
-        />
-      </TableSurface>
+          <UsersAccessTable
+            users={users}
+            loading={loading}
+            page={page}
+            total={totalUsersCount}
+            pageSize={pageSize}
+            onEdit={openEditDialog}
+            onDelete={requestDelete}
+            onPageChange={setPage}
+            onToggleActive={toggleUserActive}
+          />
+        </TableSurface>
+      </PageSection>
 
       <UserAccountDialog
         open={dialogOpen}

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+import { Badge } from "@tbms/ui/components/badge";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 import { formatDate, formatPKR } from "@/lib/utils";
 import { type MyAssignedWorkItem } from "@/hooks/use-my-orders-page";
 
@@ -58,7 +58,7 @@ export function MyOrdersTable({
         cell: (item) => {
           const status = item.status;
           return (
-            <Badge variant={ITEM_STATUS_CONFIG[status].variant} size="xs">
+            <Badge variant={ITEM_STATUS_CONFIG[status].variant}>
               {ITEM_STATUS_CONFIG[status].label}
             </Badge>
           );

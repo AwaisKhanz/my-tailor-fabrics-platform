@@ -15,6 +15,13 @@ interface RevenueExpensesRow {
   expenses: number;
 }
 
+const monthKey = (value: string | Date) => {
+  const date = new Date(value);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+};
+
 export function useDashboardPage() {
   const statsQuery = useDashboardStats();
   const designsQuery = useDashboardDesigns();
@@ -54,33 +61,45 @@ export function useDashboardPage() {
 
     const revenueByMonth = new Map(
       revenueExpenses.revenue.map((item) => [
-        new Date(item.month).toISOString(),
+        monthKey(item.month),
         item.total,
       ]),
     );
     const expensesByMonth = new Map(
       revenueExpenses.expenses.map((item) => [
-        new Date(item.month).toISOString(),
+        monthKey(item.month),
         item.total,
       ]),
     );
 
-    const months = Array.from(
-      new Set(
-        Array.from(revenueByMonth.keys()).concat(
-          Array.from(expensesByMonth.keys()),
-        ),
-      ),
+    const allMonthKeys = Array.from(
+      new Set([
+        ...Array.from(revenueByMonth.keys()),
+        ...Array.from(expensesByMonth.keys()),
+      ]),
     ).sort();
 
-    return months.map((monthIso) => ({
-      month: new Date(monthIso).toLocaleDateString("en-US", {
-        month: "short",
-        year: "2-digit",
-      }),
-      revenue: revenueByMonth.get(monthIso) ?? 0,
-      expenses: expensesByMonth.get(monthIso) ?? 0,
-    }));
+    const latestMonth = allMonthKeys.length
+      ? new Date(`${allMonthKeys[allMonthKeys.length - 1]}-01T00:00:00.000Z`)
+      : new Date();
+
+    const monthsToShow = Array.from({ length: 6 }).map((_, index) => {
+      const date = new Date(latestMonth);
+      date.setUTCMonth(latestMonth.getUTCMonth() - (5 - index));
+      return date;
+    });
+
+    return monthsToShow.map((date) => {
+      const key = monthKey(date);
+      return {
+        month: date.toLocaleDateString("en-US", {
+          month: "short",
+          year: "2-digit",
+        }),
+        revenue: revenueByMonth.get(key) ?? 0,
+        expenses: expensesByMonth.get(key) ?? 0,
+      };
+    });
   }, [revenueExpenses]);
 
   const totalGarmentItems = useMemo(

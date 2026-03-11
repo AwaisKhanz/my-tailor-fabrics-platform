@@ -1,17 +1,17 @@
 import { AddonType, isAddonType } from "@tbms/shared-types";
 import { ADDON_TYPE_OPTIONS } from "@tbms/shared-constants";
 import { PlusCircle, XCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@tbms/ui/components/button";
+import { Input } from "@tbms/ui/components/input";
+import { Label } from "@tbms/ui/components/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { InfoTile } from "@/components/ui/info-tile";
+} from "@tbms/ui/components/select";
+import { InfoTile } from "@tbms/ui/components/info-tile";
 import {
   ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME,
 } from "@/components/orders/order-form-item.constants";
@@ -69,7 +69,7 @@ export function OrderFormItemAddons({
                 <Select
                   value={addon.type || AddonType.EXTRA}
                   onValueChange={(value) => {
-                    if (!isAddonType(value)) {
+                    if (!value || !isAddonType(value)) {
                       return;
                     }
                     form.setValue(`items.${index}.addons.${addonIndex}.type`, value, {

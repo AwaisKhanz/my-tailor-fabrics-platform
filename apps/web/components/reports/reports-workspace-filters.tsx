@@ -1,16 +1,17 @@
 import type { TrendGranularity } from "@tbms/shared-types";
 import { CalendarRange } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@tbms/ui/components/badge";
+import { Card, CardContent } from "@tbms/ui/components/card";
+import { FieldLabel, FieldStack } from "@tbms/ui/components/field";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import {
   isReportDatePreset,
   isTrendGranularity,
@@ -54,13 +55,13 @@ export function ReportsWorkspaceFilters({
     <Card>
       <CardContent className="space-y-3 p-4">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:min-w-[440px]">
-            <div className="space-y-1.5">
+          <FormGrid columns="two" className="gap-2 lg:min-w-[440px]">
+            <FieldStack className="space-y-1.5">
               <FieldLabel>Date Range</FieldLabel>
               <Select
-                value={preset}
+                value={String(preset)}
                 onValueChange={(value) => {
-                  if (isReportDatePreset(value)) {
+                  if (value && isReportDatePreset(value)) {
                     onPresetChange(value);
                   }
                 }}
@@ -77,14 +78,14 @@ export function ReportsWorkspaceFilters({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </FieldStack>
 
-            <div className="space-y-1.5">
+            <FieldStack className="space-y-1.5">
               <FieldLabel>Granularity</FieldLabel>
               <Select
-                value={granularity}
+                value={String(granularity)}
                 onValueChange={(value) => {
-                  if (isTrendGranularity(value)) {
+                  if (value && isTrendGranularity(value)) {
                     onGranularityChange(value);
                   }
                 }}
@@ -101,25 +102,20 @@ export function ReportsWorkspaceFilters({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          </div>
+            </FieldStack>
+          </FormGrid>
 
           {preset === "custom" ? null : (
-            <InfoTile
-              tone="secondary"
-              layout="row"
-              padding="md"
-              className="h-9 rounded-md text-xs text-muted-foreground lg:w-fit"
-            >
+            <Badge variant="secondary" className="h-9 px-3 lg:w-fit">
               <CalendarRange className="mr-1.5 h-3.5 w-3.5" />
               {rangeLabel}
-            </InfoTile>
+            </Badge>
           )}
         </div>
 
         {preset === "custom" ? (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:ml-auto lg:max-w-[440px]">
-            <div className="space-y-1.5">
+          <FormGrid columns="two" className="gap-2 lg:ml-auto lg:max-w-[440px]">
+            <FieldStack className="space-y-1.5">
               <FieldLabel className="sr-only">Start Date</FieldLabel>
               <Input
                 type="date"
@@ -127,9 +123,9 @@ export function ReportsWorkspaceFilters({
                 onChange={(event) => onDateChange("from", event.target.value)}
                 className="h-9 text-xs"
               />
-            </div>
+            </FieldStack>
 
-            <div className="space-y-1.5">
+            <FieldStack className="space-y-1.5">
               <FieldLabel className="sr-only">End Date</FieldLabel>
               <Input
                 type="date"
@@ -137,8 +133,8 @@ export function ReportsWorkspaceFilters({
                 onChange={(event) => onDateChange("to", event.target.value)}
                 className="h-9 text-xs"
               />
-            </div>
-          </div>
+            </FieldStack>
+          </FormGrid>
         ) : null}
       </CardContent>
     </Card>

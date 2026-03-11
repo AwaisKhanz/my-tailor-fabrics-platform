@@ -5,10 +5,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FormGrid, FormStack } from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
-import { Heading } from "@/components/ui/typography";
+} from "@tbms/ui/components/form";
+import { FormGrid, FormStack } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
+import { Heading } from "@tbms/ui/components/typography";
 import { PRIMARY_PHONE_PLACEHOLDER } from "@/lib/form-placeholders";
 import { type EmployeeFormValues } from "@/types/employees";
 
@@ -32,7 +32,7 @@ export function EmployeeDialogContactFields({
       <FormField
         control={form.control}
         name="address"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>Residential Address</FormLabel>
             <FormControl>
@@ -47,7 +47,7 @@ export function EmployeeDialogContactFields({
         <FormField
           control={form.control}
           name="emergencyName"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Emergency Contact</FormLabel>
               <FormControl>
@@ -60,7 +60,7 @@ export function EmployeeDialogContactFields({
         <FormField
           control={form.control}
           name="emergencyPhone"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Emergency Phone</FormLabel>
               <FormControl>

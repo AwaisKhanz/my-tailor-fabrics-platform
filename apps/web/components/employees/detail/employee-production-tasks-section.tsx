@@ -1,8 +1,8 @@
 "use client";
 
 import type { OrderItemTask } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 
 interface EmployeeProductionTasksSectionProps {
@@ -30,7 +30,7 @@ export function EmployeeProductionTasksSection({
       title="Production Tasks"
       description="Update assigned task statuses for this employee."
       badge={
-        <Badge variant="default" size="xs" className="font-semibold">
+        <Badge variant="default" className="font-semibold">
           {tasks.length} TASKS
         </Badge>
       }

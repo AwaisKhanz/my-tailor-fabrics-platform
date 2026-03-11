@@ -3,13 +3,15 @@ import { Eye, History, Pencil, Printer } from "lucide-react";
 import { Order, OrderStatus } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { useOrderReceiptPdf } from "@/hooks/queries/order-queries";
+import { buildOrderProgressSteps } from "@/lib/order-progress-steps";
 import { formatPKR } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { Avatar, AvatarFallback } from "@tbms/ui/components/avatar";
+import { ProgressSteps } from "@tbms/ui/components/progress-steps";
 
 interface OrdersListTableProps {
   orders: Order[];
@@ -161,7 +163,7 @@ export function OrdersListTable({
         cell: (order) => {
           const statusConfig = ORDER_STATUS_CONFIG[order.status];
           return (
-            <Badge variant={statusConfig.variant} size="xs" className="px-2">
+            <Badge variant={statusConfig.variant} className="px-2">
               {statusConfig.label}
             </Badge>
           );
@@ -263,7 +265,42 @@ export function OrdersListTable({
       itemLabel="orders"
       emptyMessage="No orders found matching your criteria."
       chrome="flat"
-      onRowClick={(order) => onViewOrder(order.id)}
+      renderExpandedRow={(order) => (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-foreground">
+              Workflow Progress
+            </p>
+            <Badge variant={ORDER_STATUS_CONFIG[order.status].variant}>
+              {ORDER_STATUS_CONFIG[order.status].label}
+            </Badge>
+          </div>
+          <ProgressSteps
+            data={{ steps: buildOrderProgressSteps(order.status) }}
+            className="rounded-xl border border-border bg-background p-3"
+          />
+          <div className="grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+            <p>
+              Created:{" "}
+              <span className="font-medium text-foreground">
+                {formatShortDate(order.createdAt)}
+              </span>
+            </p>
+            <p>
+              Due:{" "}
+              <span className="font-medium text-foreground">
+                {formatShortDate(order.dueDate)}
+              </span>
+            </p>
+            <p>
+              Balance:{" "}
+              <span className="font-medium text-foreground">
+                {formatPKR(order.balanceDue)}
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
     />
   );
 }

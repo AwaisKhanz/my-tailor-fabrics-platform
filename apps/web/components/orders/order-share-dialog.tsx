@@ -1,15 +1,10 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { DialogActionRow, DialogSection } from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@tbms/ui/components/button";
+import { FormStack } from "@tbms/ui/components/form-layout";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
+import { Text } from "@tbms/ui/components/typography";
 import { Copy } from "lucide-react";
 
 interface ShareData {
@@ -33,75 +28,52 @@ export function OrderShareDialog({
   onCopy,
 }: OrderShareDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md">
-        <DialogHeader>
-          <DialogTitle>Public Status Share</DialogTitle>
-          <DialogDescription>
-            Share this link with your customer so they can track their order
-            status.
-          </DialogDescription>
-        </DialogHeader>
-
-        {shareData ? (
-          <DialogSection density="relaxed">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase  text-muted-foreground">
-                Public URL
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  readOnly
-                  value={publicUrl}
-                  className="flex-1 rounded-xl border-border bg-foreground font-mono text-xs text-background shadow-none"
-                />
-                <Button size="icon" onClick={() => onCopy(publicUrl)}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <InfoTile
-              tone="info"
-              padding="contentLg"
-              layout="betweenGap"
-              radius="xl"
-            >
-              <div>
-                <p className="text-xs font-bold uppercase  text-primary/70">
-                  Access PIN
-                </p>
-                <p className="text-3xl font-bold  text-primary">
-                  {shareData.pin}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="font-bold"
-                onClick={() => onCopy(shareData.pin)}
-              >
-                Copy PIN
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Public Status Share"
+      description="Share this link with your customer so they can track their order status."
+      footerActions={
+        <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+          Close
+        </Button>
+      }
+    >
+      {shareData ? (
+        <FormStack density="relaxed">
+          <FormStack density="compact">
+            <FieldLabel size="compact">Public URL</FieldLabel>
+            <div className="flex gap-2">
+              <Input
+                readOnly
+                value={publicUrl}
+                className="flex-1 font-mono text-xs"
+              />
+              <Button size="icon" onClick={() => onCopy(publicUrl)}>
+                <Copy className="h-4 w-4" />
               </Button>
-            </InfoTile>
+            </div>
+          </FormStack>
 
-            <p className="text-center text-xs font-bold text-muted-foreground">
-              * Customers will need the 4-digit PIN to access their order
-              details.
-            </p>
-          </DialogSection>
-        ) : null}
+          <InfoTile tone="info" padding="contentLg" layout="betweenGap" radius="xl">
+            <div>
+              <Text as="p" variant="meta" className="text-primary/70">
+                Access PIN
+              </Text>
+              <Text as="p" variant="body" className="text-3xl font-bold text-primary">
+                {shareData.pin}
+              </Text>
+            </div>
+            <Button size="sm" variant="ghost" onClick={() => onCopy(shareData.pin)}>
+              Copy PIN
+            </Button>
+          </InfoTile>
 
-        <DialogActionRow bordered={false}>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => onOpenChange(false)}
-          >
-            Close
-          </Button>
-        </DialogActionRow>
-      </DialogContent>
-    </Dialog>
+          <Text as="p" variant="meta" className="text-center normal-case">
+            Customers need the 4-digit PIN to access order details.
+          </Text>
+        </FormStack>
+      ) : null}
+    </ScrollableDialog>
   );
 }

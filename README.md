@@ -6,26 +6,32 @@ This monorepo contains the production applications and shared packages for My Ta
 2. `apps/api`: the NestJS API.
 3. `packages/shared-types`: shared cross-app TypeScript contracts.
 4. `packages/shared-constants`: shared policy, labels, and workflow constants.
+5. `packages/ui`: shared shadcn v4 (`base-nova`) UI foundation and theme tokens.
 
 ## Quick Start
 
 From the repo root:
 
 ```bash
-npm ci
-npm run env:setup
-npm run env:verify
-npm run dev
+pnpm install --frozen-lockfile
+pnpm run env:setup
+pnpm run env:verify
+pnpm run dev
 ```
+
+Package manager standard:
+
+1. Use `pnpm` for all workspace operations.
+2. `pnpm-workspace.yaml` is the workspace source of truth.
 
 Useful root commands:
 
 ```bash
-npm run build:do:web
-npm run build:do:api
-npm run prisma:migrate:deploy
-npm run prisma:seed
-npm run prisma:seed:list
+pnpm run build:do:web
+pnpm run build:do:api
+pnpm run prisma:migrate:deploy
+pnpm run prisma:seed
+pnpm run prisma:seed:list
 ```
 
 ## Production

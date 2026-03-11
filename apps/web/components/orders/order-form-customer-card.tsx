@@ -1,25 +1,25 @@
 import { Customer } from "@tbms/shared-types";
 import { UserRound } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+} from "@tbms/ui/components/form";
+import { Input } from "@tbms/ui/components/input";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { Label } from "@tbms/ui/components/label";
+import { SectionHeader } from "@tbms/ui/components/section-header";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -43,10 +43,6 @@ export function OrderFormCustomerCard({
   return (
     <Card>
       <CardHeader
-        density="comfortable"
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <SectionHeader
           title="Customer Information"
@@ -60,12 +56,12 @@ export function OrderFormCustomerCard({
         />
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-6">
+      <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="customerId"
-            render={({ field }) => (
+            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
               <FormItem className="space-y-2">
                 <FormLabel className={fieldLabelClassName}>
                   Customer
@@ -96,7 +92,7 @@ export function OrderFormCustomerCard({
           <FormField
             control={form.control}
             name="dueDate"
-            render={({ field }) => (
+            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
               <FormItem className="space-y-2">
                 <FormLabel className={fieldLabelClassName}>
                   Order Completion Date

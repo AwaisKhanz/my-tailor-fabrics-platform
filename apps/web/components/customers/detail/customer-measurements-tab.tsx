@@ -1,11 +1,11 @@
 import { Ruler } from "lucide-react";
 import { type CustomerMeasurement } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { FieldLabel } from "@/components/ui/field";
-import { Text } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { EmptyState } from "@tbms/ui/components/empty-state";
+import { FieldLabel } from "@tbms/ui/components/field";
+import { Text } from "@tbms/ui/components/typography";
 
 interface CustomerMeasurementsTabProps {
   measurements: CustomerMeasurement[];
@@ -26,14 +26,11 @@ export function CustomerMeasurementsTab({
   return (
     <Card>
       <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <CardTitle>Measurements</CardTitle>
-            <Badge variant="default" size="xs" className="font-semibold">
+            <Badge variant="default" className="font-semibold">
               {measurements.length} SETS
             </Badge>
           </div>
@@ -54,12 +51,12 @@ export function CustomerMeasurementsTab({
         ) : null}
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-4">
+      <CardContent className="space-y-4">
         {measurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {measurements.map((measurement) => (
               <Card key={measurement.id} className="bg-muted shadow-sm">
-                <CardHeader density="compact" surface="cardSection" trimBottom>
+                <CardHeader>
                   <CardTitle className="flex items-center justify-between text-sm">
                     {measurement.category?.name || "Measurement Set"}
                     <FieldLabel className="font-normal opacity-60">
@@ -69,7 +66,7 @@ export function CustomerMeasurementsTab({
                   </CardTitle>
                 </CardHeader>
 
-                <CardContent spacing="section" className="pt-4">
+                <CardContent className="pt-4">
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Object.entries(measurement.values).map(([key, value]) => (
                       <div key={key}>

@@ -1,9 +1,8 @@
 import { AreaChart } from "lucide-react";
 import type { FinancialTrend } from "@tbms/shared-types";
-import { ChartEmptyState } from "@/components/ui/chart-empty-state";
-import { ChartLoadingState } from "@/components/ui/chart-loading-state";
-import { ChartShell } from "@/components/ui/chart-shell";
-import { InfoTile } from "@/components/ui/info-tile";
+import { ChartEmptyState } from "@tbms/ui/components/chart-empty-state";
+import { ChartLoadingState } from "@tbms/ui/components/chart-loading-state";
+import { ChartShell } from "@tbms/ui/components/chart-shell";
 import { ReportsChartLegend } from "@/components/reports/reports-chart-legend";
 import {
   formatChartAxisNumber,
@@ -88,7 +87,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
   } = useFinancialTrendChart(trend);
 
   return (
-    <InfoTile padding="sm" radius="xl" className="overflow-hidden h-full">
+    <div className="h-full overflow-hidden rounded-md bg-muted/40 p-2">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="min-h-[290px] w-full h-full"
@@ -237,6 +236,6 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
           </g>
         ) : null}
       </svg>
-    </InfoTile>
+    </div>
   );
 }

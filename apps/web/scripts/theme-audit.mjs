@@ -5,314 +5,118 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 
-const REQUIRED_ROOT_TOKENS = [
-  "--background",
-  "--foreground",
-  "--card",
-  "--card-foreground",
-  "--popover",
-  "--popover-foreground",
-  "--primary",
-  "--primary-foreground",
-  "--secondary",
-  "--secondary-foreground",
-  "--muted",
-  "--muted-foreground",
-  "--accent",
-  "--accent-foreground",
-  "--destructive",
-  "--destructive-foreground",
-  "--info",
-  "--info-foreground",
-  "--success",
-  "--success-foreground",
-  "--warning",
-  "--warning-foreground",
-  "--border",
-  "--input",
-  "--ring",
-  "--sidebar",
-  "--sidebar-foreground",
-  "--sidebar-border",
-  "--radius",
-  "--shadow-sm",
-  "--shadow",
-];
+function failWithIssues(issues) {
+  if (issues.length === 0) {
+    console.log("Theme audit passed.");
+    return;
+  }
 
-const REQUIRED_DARK_TOKENS = REQUIRED_ROOT_TOKENS.filter(
-  (token) => token !== "--radius",
-);
-
-const REQUIRED_GLOBAL_CLASSES = [
-  ".container",
-  ".card",
-  ".glass",
-  ".meta",
-  ".error",
-];
-
-const BANNED_GLOBAL_CLASSES = [
-  ".page-container",
-  ".section-gap",
-  ".glass-panel",
-  ".screen-title",
-  ".subtitle",
-  ".page-hero",
-  ".workspace-bar-surface",
-  ".sidebar-shell",
-  ".stagger-1",
-  ".stagger-2",
-  ".stagger-3",
-];
-
-const BANNED_THEME_TOKENS = [
-  "--font-ui",
-  "--primary-strong",
-  "--primary-soft",
-  "--secondary-soft",
-  "--secondary-border",
-  "--surface",
-  "--surface-soft",
-  "--surface-strong",
-  "--surface-muted",
-  "--surface-panel",
-  "--surface-input",
-  "--panel-border",
-  "--panel-border-strong",
-  "--nav-surface",
-  "--nav-border",
-  "--code-bg",
-  "--code-foreground",
-  "--highlight-ring",
-  "--sidebar-muted",
-  "--sidebar-surface",
-  "--sidebar-active",
-  "--sidebar-active-foreground",
-  "--status-ok",
-  "--status-info",
-  "--status-success-bg",
-  "--status-success-border",
-  "--status-success-foreground",
-  "--status-warning-bg",
-  "--status-warning-border",
-  "--status-warning-foreground",
-  "--status-danger-bg",
-  "--status-danger-border",
-  "--status-danger-foreground",
-  "--bg-glow-cool",
-  "--bg-glow-warm",
-  "--bg-overlay-start",
-  "--bg-overlay-end",
-  "--elevation-shadow",
-  "--card-shadow",
-  "--button-shadow",
-  "--soft-shadow",
-  "--text-primary",
-  "--text-secondary",
-  "--text-disabled",
-  "--text-inverse",
-  "--divider",
-  "--surface-elevated",
-  "--app-bar",
-  "--app-bar-foreground",
-  "--overlay",
-  "--overlay-strong",
-];
-
-const DELETED_PATHS = [
-  "lib/theme-css.ts",
-  "lib/theme-presets.ts",
-  "components/ThemePresetProvider.tsx",
-  "../../packages/shared-theme",
-];
-
-const REQUIRED_TAILWIND_SNIPPETS = [
-  'ui: ["var(--font-inter)"]',
-  'sans: ["var(--font-inter)"]',
-  'background: "hsl(var(--background) / <alpha-value>)"',
-  'foreground: "hsl(var(--foreground) / <alpha-value>)"',
-  'border: "hsl(var(--border) / <alpha-value>)"',
-  'input: "hsl(var(--input) / <alpha-value>)"',
-  'ring: "hsl(var(--ring) / <alpha-value>)"',
-  'card: {',
-  'popover: {',
-  'primary: {',
-  'secondary: {',
-  'muted: {',
-  'accent: {',
-  'destructive: {',
-  'sidebar: {',
-  'lg: "var(--radius)"',
-  'sm: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--shadow-sm)"',
-  'DEFAULT:\n          "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--shadow)"',
-];
-
-const BANNED_TAILWIND_SNIPPETS = [
-  "var(--font-ui)",
-  "surface: {",
-  "panel: {",
-  "nav: {",
-  "code: {",
-  "highlight: {",
-  "status: {",
-  "appBar:",
-  "text:",
-  "divider:",
-  "inputSurface:",
-  "interaction:",
-  "pending:",
-  "ready:",
-  "overlay:",
-  "soft-shadow",
-  "card-shadow",
-  "button-shadow",
-];
-
-const ALLOWED_EXTRA_TOKEN_PREFIXES = ["--snow-", "--chart-"];
-
-function extractBlock(content, selector) {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = content.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\n\\s*\\}`, "m"));
-  return match?.[1] ?? null;
+  console.error("Theme audit failed.\n");
+  for (const issue of issues) {
+    console.error(`- ${issue}`);
+  }
+  process.exit(1);
 }
 
-function extractTokens(block) {
-  return new Set([...block.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((match) => match[1]));
+async function readJson(relativePath) {
+  const filePath = path.join(ROOT, relativePath);
+  const source = await fs.readFile(filePath, "utf8");
+  return JSON.parse(source);
 }
 
-function diffTokens(actual, expected) {
-  const missing = expected.filter((token) => !actual.has(token));
-  const unexpected = [...actual].filter(
-    (token) =>
-      !expected.includes(token) &&
-      !ALLOWED_EXTRA_TOKEN_PREFIXES.some((prefix) => token.startsWith(prefix)),
-  );
-  return { missing, unexpected };
-}
-
-async function pathExists(relativePath) {
+async function ensureExists(relativePath, issues) {
   try {
     await fs.access(path.join(ROOT, relativePath));
-    return true;
   } catch {
-    return false;
+    issues.push(`Missing required file: ${relativePath}`);
   }
 }
 
 async function main() {
   const issues = [];
 
-  const globalsPath = path.join(ROOT, "app/globals.css");
-  const tailwindPath = path.join(ROOT, "tailwind.config.ts");
-  const themeContractPath = path.join(ROOT, "lib/theme.ts");
-  const packageJsonPath = path.join(ROOT, "package.json");
+  await Promise.all([
+    ensureExists("../../packages/ui/components.json", issues),
+    ensureExists("../../packages/ui/src/styles/globals.css", issues),
+    ensureExists("tailwind.config.ts", issues),
+    ensureExists("app/layout.tsx", issues),
+    ensureExists("components/ThemeProvider.tsx", issues),
+    ensureExists("lib/theme.ts", issues),
+  ]);
 
-  const [globalsCss, tailwindConfig, themeContractSource, packageJsonSource] =
+  const [webPackage, webComponents, uiPackage, uiComponents] =
     await Promise.all([
-      fs.readFile(globalsPath, "utf8"),
-      fs.readFile(tailwindPath, "utf8"),
-      fs.readFile(themeContractPath, "utf8"),
-      fs.readFile(packageJsonPath, "utf8"),
+      readJson("package.json"),
+      readJson("components.json"),
+      readJson("../../packages/ui/package.json"),
+      readJson("../../packages/ui/components.json"),
     ]);
 
-  const rootBlock = extractBlock(globalsCss, ":root");
-  const darkBlock = extractBlock(globalsCss, ".dark");
-
-  if (!rootBlock) {
-    issues.push("Missing :root theme token block in app/globals.css");
-  }
-
-  if (!darkBlock) {
-    issues.push("Missing .dark theme token block in app/globals.css");
-  }
-
-  if (rootBlock) {
-    const diff = diffTokens(extractTokens(rootBlock), REQUIRED_ROOT_TOKENS);
-    if (diff.missing.length > 0) {
-      issues.push(`Missing light theme tokens: ${diff.missing.join(", ")}`);
-    }
-    if (diff.unexpected.length > 0) {
-      issues.push(`Unexpected light theme tokens: ${diff.unexpected.join(", ")}`);
-    }
-  }
-
-  if (darkBlock) {
-    const diff = diffTokens(extractTokens(darkBlock), REQUIRED_DARK_TOKENS);
-    if (diff.missing.length > 0) {
-      issues.push(`Missing dark theme tokens: ${diff.missing.join(", ")}`);
-    }
-    if (diff.unexpected.length > 0) {
-      issues.push(`Unexpected dark theme tokens: ${diff.unexpected.join(", ")}`);
-    }
-  }
-
-  for (const token of BANNED_THEME_TOKENS) {
-    if (globalsCss.includes(token)) {
-      issues.push(`Banned theme token still present in app/globals.css: ${token}`);
-    }
-  }
-
-  for (const selector of REQUIRED_GLOBAL_CLASSES) {
-    if (!globalsCss.includes(selector)) {
-      issues.push(`Missing global utility class in app/globals.css: ${selector}`);
-    }
-  }
-
-  for (const selector of BANNED_GLOBAL_CLASSES) {
-    if (globalsCss.includes(selector)) {
-      issues.push(`Deleted global utility class still present in app/globals.css: ${selector}`);
-    }
-  }
-
-  for (const snippet of REQUIRED_TAILWIND_SNIPPETS) {
-    if (!tailwindConfig.includes(snippet)) {
-      issues.push(`Missing Tailwind semantic mapping snippet: ${snippet}`);
-    }
-  }
-
-  for (const snippet of BANNED_TAILWIND_SNIPPETS) {
-    if (tailwindConfig.includes(snippet)) {
-      issues.push(`Banned Tailwind mapping still present: ${snippet}`);
-    }
-  }
-
-  if (!themeContractSource.includes('export type AppTheme = "light" | "dark"')) {
-    issues.push('lib/theme.ts must export AppTheme = "light" | "dark"');
-  }
-  if (!themeContractSource.includes('THEME_STORAGE_KEY = "masi-lite-theme"')) {
-    issues.push('lib/theme.ts must export THEME_STORAGE_KEY = "masi-lite-theme"');
-  }
-  if (!themeContractSource.includes('THEME_COOKIE_KEY = "masi-lite-theme"')) {
-    issues.push('lib/theme.ts must export THEME_COOKIE_KEY = "masi-lite-theme"');
-  }
-
-  const packageJson = JSON.parse(packageJsonSource);
-  const dependencies = {
-    ...(packageJson.dependencies ?? {}),
-    ...(packageJson.devDependencies ?? {}),
+  const webDeps = {
+    ...(webPackage.dependencies ?? {}),
+    ...(webPackage.devDependencies ?? {}),
   };
-
-  for (const dependency of ["next-themes", "@tbms/shared-theme"]) {
-    if (dependency in dependencies) {
-      issues.push(`Banned dependency still present in apps/web/package.json: ${dependency}`);
-    }
+  if (!("@tbms/ui" in webDeps)) {
+    issues.push("apps/web/package.json must depend on @tbms/ui.");
+  }
+  if (!("next-themes" in webDeps)) {
+    issues.push("apps/web/package.json must depend on next-themes.");
   }
 
-  for (const relativePath of DELETED_PATHS) {
-    if (await pathExists(relativePath)) {
-      issues.push(`Deleted theme path still exists: ${relativePath}`);
-    }
+  if (webComponents.style !== "base-nova") {
+    issues.push(`apps/web/components.json style must be "base-nova".`);
+  }
+  if (webComponents.rtl !== false) {
+    issues.push("apps/web/components.json must keep rtl=false for phase 1.");
+  }
+  if (webComponents?.aliases?.ui !== "@tbms/ui/components") {
+    issues.push('apps/web/components.json aliases.ui must be "@tbms/ui/components".');
+  }
+  if (webComponents?.aliases?.utils !== "@tbms/ui/lib/utils") {
+    issues.push('apps/web/components.json aliases.utils must be "@tbms/ui/lib/utils".');
   }
 
-  if (issues.length > 0) {
-    console.error("Theme audit failed.\n");
-    for (const issue of issues) {
-      console.error(`- ${issue}`);
-    }
-    process.exit(1);
+  if (uiPackage.name !== "@tbms/ui") {
+    issues.push('packages/ui/package.json name must be "@tbms/ui".');
+  }
+  if (!("@base-ui/react" in (uiPackage.dependencies ?? {}))) {
+    issues.push("packages/ui/package.json must include @base-ui/react dependency.");
+  }
+  if (uiComponents.style !== "base-nova") {
+    issues.push(`packages/ui/components.json style must be "base-nova".`);
   }
 
-  console.log("Theme audit passed.");
+  const [layoutSource, themeProviderSource, themeSource, globalsSource, tailwindSource] = await Promise.all([
+    fs.readFile(path.join(ROOT, "app/layout.tsx"), "utf8"),
+    fs.readFile(path.join(ROOT, "components/ThemeProvider.tsx"), "utf8"),
+    fs.readFile(path.join(ROOT, "lib/theme.ts"), "utf8"),
+    fs.readFile(path.join(ROOT, "../../packages/ui/src/styles/globals.css"), "utf8"),
+    fs.readFile(path.join(ROOT, "tailwind.config.ts"), "utf8"),
+  ]);
+
+  if (!layoutSource.includes('import "@tbms/ui/globals.css";')) {
+    issues.push('app/layout.tsx must import "@tbms/ui/globals.css".');
+  }
+
+  if (!themeProviderSource.includes("next-themes")) {
+    issues.push("ThemeProvider must use next-themes.");
+  }
+  if (!themeSource.includes("THEME_STORAGE_KEY")) {
+    issues.push("lib/theme.ts must export THEME_STORAGE_KEY.");
+  }
+  if (themeSource.includes("THEME_COOKIE_KEY")) {
+    issues.push("lib/theme.ts must not export THEME_COOKIE_KEY after next-themes migration.");
+  }
+  if (globalsSource.includes("--snow-") || globalsSource.includes("snow-")) {
+    issues.push(
+      "packages/ui/src/styles/globals.css must not contain legacy snow tokens or snow utility names.",
+    );
+  }
+  if (tailwindSource.includes("snow-") || tailwindSource.includes("--snow-")) {
+    issues.push("tailwind.config.ts must not include legacy snow token mappings.");
+  }
+
+  failWithIssues(issues);
 }
 
 main().catch((error) => {

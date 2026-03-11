@@ -156,7 +156,6 @@ export type BadgeVariant =
   | 'default' 
   | 'secondary'
   | 'outline' 
-  | 'success' 
-  | 'warning' 
-  | 'info' 
+  | 'ghost'
+  | 'link'
   | 'destructive';

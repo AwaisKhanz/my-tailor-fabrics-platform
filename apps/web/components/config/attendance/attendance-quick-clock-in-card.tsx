@@ -1,19 +1,24 @@
 "use client";
 
 import { Clock3, UserCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@tbms/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { FieldError, FieldLabel, FieldStack } from "@tbms/ui/components/field";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+} from "@tbms/ui/components/select";
 import type {
   ClockInFieldErrors,
   EmployeeOption,
@@ -46,75 +51,76 @@ export function AttendanceQuickClockInCard({
 }: AttendanceQuickClockInCardProps) {
   return (
     <Card>
-      <CardHeader surface="mutedSection" trimBottom>
-        <SectionHeader
-          title="Quick Clock-In"
-          description="Record an employee shift start directly from admin settings."
-          icon={
-            <SectionIcon size="sm">
-              <UserCheck className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <UserCheck className="h-4 w-4" />
+          Quick Clock-In
+        </CardTitle>
+        <CardDescription>
+          Record an employee shift start directly from admin settings.
+        </CardDescription>
       </CardHeader>
-      <CardContent
-        spacing="section"
-        className="grid gap-3 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)_auto] md:items-end"
-      >
-        <div className="space-y-2">
-          <FieldLabel size="compact">Employee</FieldLabel>
-          <Select
-            value={clockInEmployeeId}
-            onValueChange={setClockInEmployeeId}
-            disabled={employeesLoading || clockingIn}
-          >
-            <SelectTrigger>
-              <SelectValue
-                placeholder={
-                  employeesLoading ? "Loading employees..." : "Select employee"
-                }
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {activeEmployeeOptions.map((employee) => (
-                <SelectItem key={employee.value} value={employee.value}>
-                  {employee.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {clockInFieldErrors.employeeId ? (
-            <FieldError>{clockInFieldErrors.employeeId}</FieldError>
-          ) : null}
-        </div>
+      <CardContent>
+        <FormGrid columns="three" className="items-end">
+          <FieldStack>
+            <FieldLabel size="compact">Employee</FieldLabel>
+            <Select
+              value={clockInEmployeeId}
+              onValueChange={(value) => setClockInEmployeeId(value ?? "")}
+              disabled={employeesLoading || clockingIn}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    employeesLoading ? "Loading employees..." : "Select employee"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {activeEmployeeOptions.map((employee) => (
+                  <SelectItem key={employee.value} value={employee.value}>
+                    {employee.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {clockInFieldErrors.employeeId ? (
+              <FieldError>{clockInFieldErrors.employeeId}</FieldError>
+            ) : null}
+          </FieldStack>
 
-        <div className="space-y-2">
-          <FieldLabel size="compact">Note (Optional)</FieldLabel>
-          <Input
-            placeholder="Shift note or context..."
-            value={clockInNote}
-            onChange={(event) => setClockInNote(event.target.value)}
-            disabled={clockingIn}
-          />
-          {clockInFieldErrors.note ? (
-            <FieldError>{clockInFieldErrors.note}</FieldError>
-          ) : null}
-        </div>
+          <FieldStack>
+            <FieldLabel size="compact">Note (Optional)</FieldLabel>
+            <Input
+              placeholder="Shift note or context..."
+              value={clockInNote}
+              onChange={(event) => setClockInNote(event.target.value)}
+              disabled={clockingIn}
+            />
+            {clockInFieldErrors.note ? (
+              <FieldError>{clockInFieldErrors.note}</FieldError>
+            ) : null}
+          </FieldStack>
 
-        <Button
-          type="button"
-          variant="default"
-          disabled={clockingIn || !clockInEmployeeId}
-          onClick={() => void clockIn()}
-          className="w-full md:w-auto"
-        >
-          <Clock3 className="h-4 w-4" />
-          {clockingIn ? "Clocking In..." : "Clock In"}
-        </Button>
+          <FieldStack>
+            <FieldLabel as="span" size="compact">
+              Action
+            </FieldLabel>
+            <Button
+              type="button"
+              variant="default"
+              disabled={clockingIn || !clockInEmployeeId}
+              onClick={() => void clockIn()}
+              className="w-full"
+            >
+              <Clock3 className="h-4 w-4" />
+              {clockingIn ? "Clocking In..." : "Clock In"}
+            </Button>
+          </FieldStack>
+        </FormGrid>
+
         {clockInValidationError ? (
-          <FieldError size="sm" className="md:col-span-3">
-            {clockInValidationError}
-          </FieldError>
+          <FieldError className="mt-3">{clockInValidationError}</FieldError>
         ) : null}
       </CardContent>
     </Card>

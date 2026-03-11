@@ -6,7 +6,7 @@ exports.MEASUREMENT_STATUS_LABELS = {
     HIDDEN: 'Hidden',
 };
 exports.MEASUREMENT_STATUS_BADGE = {
-    ACTIVE: 'success',
+    ACTIVE: 'default',
     HIDDEN: 'outline',
 };
 //# sourceMappingURL=measurements.js.map

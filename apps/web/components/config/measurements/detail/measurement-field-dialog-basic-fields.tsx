@@ -8,16 +8,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FormGrid } from "@/components/ui/form-layout";
+} from "@tbms/ui/components/form";
+import { FormGrid } from "@tbms/ui/components/form-layout";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/select";
+import { Input } from "@tbms/ui/components/input";
 import { type FieldFormValues } from "@/hooks/use-measurement-field-dialog";
 
 interface MeasurementFieldDialogBasicFieldsProps {
@@ -47,7 +47,7 @@ export function MeasurementFieldDialogBasicFields({
       <FormField
         control={form.control}
         name="label"
-        render={({ field }) => (
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
           <FormItem>
             <FormLabel>Label</FormLabel>
             <FormControl>
@@ -61,7 +61,7 @@ export function MeasurementFieldDialogBasicFields({
       <FormField
         control={form.control}
         name="sectionName"
-        render={({ field }) => {
+        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => {
           const normalizedCurrentValue = (field.value ?? "")
             .trim()
             .toLowerCase();
@@ -125,14 +125,13 @@ export function MeasurementFieldDialogBasicFields({
           );
         }}
       />
-        <FormGrid columns="two" className="gap-4">
-      <div className="grid grid-cols-2 gap-4">
+      <FormGrid columns="two" className="gap-4">
         <FormField
           control={form.control}
           name="fieldType"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
+            <FormItem>
                 <FormLabel>Field Type</FormLabel>
-              </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -145,6 +144,7 @@ export function MeasurementFieldDialogBasicFields({
                   <SelectItem value="DROPDOWN">Dropdown</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -152,7 +152,7 @@ export function MeasurementFieldDialogBasicFields({
         <FormField
           control={form.control}
           name="unit"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Unit</FormLabel>
               <FormControl>

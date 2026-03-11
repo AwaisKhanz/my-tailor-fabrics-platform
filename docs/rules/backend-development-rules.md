@@ -115,15 +115,15 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 For meaningful backend changes, run the applicable commands from the repo root:
 
 ```bash
-npm run env:verify
-npm run build:do:api
-npm run prisma:seed:list
+pnpm run env:verify
+pnpm run build:do:api
+pnpm run prisma:seed:list
 ```
 
 For schema changes, also run:
 
 ```bash
-npm run prisma:migrate:status
+pnpm run prisma:migrate:status
 ```
 
 If the change affects production schema or release procedure, update `docs/deployment-guide.md` in the same task.

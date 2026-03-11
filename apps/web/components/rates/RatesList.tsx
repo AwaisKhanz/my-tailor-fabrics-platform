@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@tbms/ui/components/badge";
 import { Clock, GitBranch } from "lucide-react";
 import { type RateCardListItem } from "@tbms/shared-types";
 import { formatPKR } from "@/lib/utils";
-import { DataTable, ColumnDef } from "@/components/ui/data-table";
+import { DataTable, ColumnDef } from "@tbms/ui/components/data-table";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;

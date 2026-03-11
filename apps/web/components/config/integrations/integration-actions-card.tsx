@@ -2,18 +2,16 @@
 
 import { useCallback } from "react";
 import { Copy, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@tbms/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { FieldError } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@tbms/ui/components/card";
+import { Input } from "@tbms/ui/components/input";
+import { Label } from "@tbms/ui/components/label";
 import { useToast } from "@/hooks/use-toast";
 
 interface IntegrationActionsCardProps {
@@ -67,15 +65,15 @@ export function IntegrationActionsCard({
 
   return (
     <Card>
-      <CardHeader surface="mutedSection" trimBottom className="space-y-1">
+      <CardHeader className="space-y-1">
         <CardTitle>Integration Actions</CardTitle>
         <CardDescription>
           Generate OAuth authorization URL and validate delivery with a test
           email.
         </CardDescription>
       </CardHeader>
-      <CardContent spacing="section" className="space-y-5 p-5">
-        <InfoTile padding="contentLg" className="space-y-3">
+      <CardContent className="space-y-5 p-5">
+        <div className="space-y-3 rounded-md bg-muted/40 p-4">
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground">
               Authorization URL
@@ -112,18 +110,21 @@ export function IntegrationActionsCard({
                   <Copy className="h-4 w-4" />
                   Copy
                 </Button>
-                <Button type="button" variant="outline" size="sm" asChild>
-                  <a href={authUrl} target="_blank" rel="noreferrer">
-                    <ExternalLink className="h-4 w-4" />
-                    Open URL
-                  </a>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  render={<a href={authUrl} target="_blank" rel="noreferrer" />}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open URL
                 </Button>
               </div>
             </div>
           ) : null}
-        </InfoTile>
+        </div>
 
-        <InfoTile padding="contentLg" className="space-y-3">
+        <div className="space-y-3 rounded-md bg-muted/40 p-4">
           <div className="space-y-1">
             <Label
               htmlFor="integration-test-email"
@@ -139,7 +140,7 @@ export function IntegrationActionsCard({
               onChange={(event) => onTestEmailChange(event.target.value)}
             />
             {testEmailValidationError ? (
-              <FieldError>{testEmailValidationError}</FieldError>
+              <p className="text-sm text-destructive">{testEmailValidationError}</p>
             ) : null}
           </div>
           <Button
@@ -156,7 +157,7 @@ export function IntegrationActionsCard({
               Public mail endpoints are disabled in this environment.
             </p>
           ) : null}
-        </InfoTile>
+        </div>
       </CardContent>
     </Card>
   );

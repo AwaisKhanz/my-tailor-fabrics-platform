@@ -19,8 +19,8 @@ exports.ROLES = [
 exports.ROLE_BADGE = {
     [shared_types_1.Role.SUPER_ADMIN]: 'default',
     [shared_types_1.Role.ADMIN]: 'secondary',
-    [shared_types_1.Role.ENTRY_OPERATOR]: 'warning',
+    [shared_types_1.Role.ENTRY_OPERATOR]: 'secondary',
     [shared_types_1.Role.VIEWER]: 'outline',
-    [shared_types_1.Role.EMPLOYEE]: 'success',
+    [shared_types_1.Role.EMPLOYEE]: 'default',
 };
 //# sourceMappingURL=roles.js.map

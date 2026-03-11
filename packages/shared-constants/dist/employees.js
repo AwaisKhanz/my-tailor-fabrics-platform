@@ -20,7 +20,7 @@ exports.PAYMENT_TYPE_OPTIONS = Object.values(shared_types_1.PaymentType).map((va
     label: exports.PAYMENT_TYPE_LABELS[value],
 }));
 exports.EMPLOYEE_STATUS_BADGE = {
-    [shared_types_1.EmployeeStatus.ACTIVE]: 'success',
+    [shared_types_1.EmployeeStatus.ACTIVE]: 'default',
     [shared_types_1.EmployeeStatus.INACTIVE]: 'outline',
     [shared_types_1.EmployeeStatus.LEFT]: 'destructive',
 };

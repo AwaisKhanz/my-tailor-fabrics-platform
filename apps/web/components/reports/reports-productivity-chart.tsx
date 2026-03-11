@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 import { Users } from "lucide-react";
 import type { ProductivityPoint } from "@tbms/shared-types";
-import { ChartEmptyState } from "@/components/ui/chart-empty-state";
-import { ChartLoadingState } from "@/components/ui/chart-loading-state";
-import { ChartShell } from "@/components/ui/chart-shell";
-import { InfoTile } from "@/components/ui/info-tile";
-import { InteractiveTile } from "@/components/ui/interactive-tile";
-import { ProgressTrack } from "@/components/ui/progress-track";
+import { ChartEmptyState } from "@tbms/ui/components/chart-empty-state";
+import { ChartLoadingState } from "@tbms/ui/components/chart-loading-state";
+import { ChartShell } from "@tbms/ui/components/chart-shell";
+import { InteractiveTile } from "@tbms/ui/components/interactive-tile";
+import { ProgressTrack } from "@tbms/ui/components/progress-track";
 import { ReportsChartLegend } from "@/components/reports/reports-chart-legend";
 import { formatPKR } from "@/lib/utils";
 
@@ -63,7 +62,7 @@ export function ReportsProductivityChart({
       {!loading && topPoints.length > 0 ? (
         <div className="space-y-3">
           {activePoint ? (
-            <InfoTile tone="secondary" padding="md">
+            <div className="rounded-md bg-muted/50 px-3 py-2">
               <p className="text-xs font-semibold text-foreground">
                 {activePoint.employeeName}
               </p>
@@ -71,7 +70,7 @@ export function ReportsProductivityChart({
                 {activePoint.totalCompleted} completed •{" "}
                 {formatPKR(activePoint.payout)}
               </p>
-            </InfoTile>
+            </div>
           ) : null}
 
           {topPoints.map((point) => {

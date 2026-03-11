@@ -37,12 +37,12 @@ runtime_env_files=(
 for file in "${runtime_env_files[@]}"; do
   if [[ ! -e "$file" ]]; then
     echo "Missing runtime env file: $file"
-    echo "Run: npm run env:setup"
+    echo "Run: pnpm run env:setup"
     exit 1
   fi
   if [[ -L "$file" ]]; then
     echo "Symlink is not allowed for runtime env file: $file"
-    echo "Run: npm run env:setup"
+    echo "Run: pnpm run env:setup"
     exit 1
   fi
 done

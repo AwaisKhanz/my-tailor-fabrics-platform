@@ -3,21 +3,13 @@
 import { useEffect, useState } from "react";
 import { confirmPasswordSchema } from "@tbms/shared-types";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field";
-import {
-  DialogActionRow,
-  DialogFormActions,
-  DialogSection,
-  FormStack,
-} from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  FieldError,
+  FieldLabel,
+  FieldStack,
+} from "@tbms/ui/components/field";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 
 interface ConfirmPasswordDialogProps {
   open: boolean;
@@ -65,52 +57,47 @@ export function ConfirmPasswordDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogSection>
-          <FormStack
-            as="form"
-            id="confirm-password-form"
-            density="compact"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void handleConfirm();
+    <ScrollableDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      description={description}
+      footerActions={
+        <DialogFormActions
+          onCancel={() => onOpenChange(false)}
+          submitText="Confirm Action"
+          submittingText="Verifying..."
+          submitting={isLoading}
+          submitFormId="confirm-password-form"
+          submitVariant="destructive"
+        />
+      }
+    >
+      <FormStack
+        as="form"
+        density="compact"
+          id="confirm-password-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleConfirm();
+          }}
+        >
+        <FieldStack>
+          <FieldLabel htmlFor="password">Administrator Password</FieldLabel>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(event) => {
+              setValidationError("");
+              setPassword(event.target.value);
             }}
-          >
-            <div className="grid gap-2">
-              <Label htmlFor="password">Administrator Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => {
-                  setValidationError("");
-                  setPassword(event.target.value);
-                }}
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-              {validationError ? (
-                <FieldError>{validationError}</FieldError>
-              ) : null}
-            </div>
-          </FormStack>
-        </DialogSection>
-        <DialogActionRow bordered={false}>
-          <DialogFormActions
-            onCancel={() => onOpenChange(false)}
-            submitText="Confirm Action"
-            submittingText="Verifying..."
-            submitting={isLoading}
-            submitFormId="confirm-password-form"
-            submitVariant="destructive"
+            placeholder="••••••••"
+            disabled={isLoading}
           />
-        </DialogActionRow>
-      </DialogContent>
-    </Dialog>
+          {validationError ? <FieldError size="sm">{validationError}</FieldError> : null}
+        </FieldStack>
+      </FormStack>
+    </ScrollableDialog>
   );
 }

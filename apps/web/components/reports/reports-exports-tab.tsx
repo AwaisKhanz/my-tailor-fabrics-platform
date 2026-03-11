@@ -1,8 +1,7 @@
 import { FileText } from "lucide-react";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
 import { ReportsExportGrid } from "@/components/reports/reports-export-grid";
 import { ReportsWeeklyPrintCard } from "@/components/reports/reports-weekly-print-card";
+import { SectionHeader } from "@tbms/ui/components/section-header";
 import type { ReportExportType } from "@/hooks/use-reports-workspace";
 
 interface ReportsExportsTabProps {
@@ -23,14 +22,9 @@ export function ReportsExportsTab({
   return (
     <div className="space-y-4">
       <SectionHeader
-        className="px-1"
         title="Document Exports"
-        titleClassName="text-[1.125rem] font-bold"
-        icon={
-          <SectionIcon framed={false} className="rounded-xl">
-            <FileText className="h-4 w-4 text-primary" />
-          </SectionIcon>
-        }
+        description="Generate structured reports for finance, payroll, and operational review."
+        icon={<FileText className="h-4 w-4 text-primary" />}
       />
 
       <ReportsExportGrid

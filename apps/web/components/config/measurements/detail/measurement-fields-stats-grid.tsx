@@ -5,8 +5,8 @@ import {
   Type,
 } from "lucide-react";
 import { type MeasurementField } from "@tbms/shared-types";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 
 interface MeasurementFieldsStatsGridProps {
   fields: MeasurementField[];
@@ -27,32 +27,36 @@ export function MeasurementFieldsStatsGrid({
         title="Fields"
         subtitle="Category definitions"
         value={fields.length.toLocaleString()}
-        tone="primary"
+        helperText="Total configured measurement inputs"
         icon={<ListChecks className="h-4 w-4" />}
+        tone="info"
       />
 
       <StatCard
         title="Required"
         subtitle="Mandatory in forms"
         value={required.toLocaleString()}
-        tone="success"
+        helperText="Must be filled in measurement flow"
         icon={<CheckCircle2 className="h-4 w-4" />}
+        tone="success"
       />
 
       <StatCard
         title="Optional"
         subtitle="Optional input fields"
         value={optional.toLocaleString()}
-        tone="warning"
+        helperText="Supplementary measurements"
         icon={<Type className="h-4 w-4" />}
+        tone="default"
       />
 
       <StatCard
         title="Dropdown Fields"
         subtitle="Controlled options"
         value={dropdownFields.toLocaleString()}
-        tone="info"
+        helperText="Fields using predefined option sets"
         icon={<SlidersHorizontal className="h-4 w-4" />}
+        tone="warning"
       />
     </StatsGrid>
   );

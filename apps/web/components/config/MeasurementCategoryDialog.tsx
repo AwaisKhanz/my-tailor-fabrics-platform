@@ -1,8 +1,8 @@
 "use client";
 
-import { Form } from "@/components/ui/form";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { Form } from "@tbms/ui/components/form";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import { MeasurementCategoryDialogNameField } from "@/components/config/measurements/dialog/measurement-category-dialog-name-field";
 import { useMeasurementCategoryDialog } from "@/hooks/use-measurement-category-dialog";
 import { type MeasurementCategory } from "@tbms/shared-types";

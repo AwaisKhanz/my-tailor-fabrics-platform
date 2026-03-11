@@ -6,11 +6,12 @@ import { PaymentsEmployeeSelectorCard } from "@/components/payments/payments-emp
 import { PaymentsGenerateSalariesDialog } from "@/components/payments/payments-generate-salaries-dialog";
 import { PaymentsHistorySection } from "@/components/payments/payments-history-section";
 import { PaymentsSummaryCards } from "@/components/payments/payments-summary-cards";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageShell, PageSection } from "@/components/ui/page-shell";
+import { ActionStrip } from "@tbms/ui/components/action-strip";
+import { Button } from "@tbms/ui/components/button";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { EmptyState } from "@tbms/ui/components/empty-state";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { useAuthz } from "@/hooks/use-authz";
 import { usePaymentsPage } from "@/hooks/use-payments-page";
 import { PERMISSION } from "@tbms/shared-constants";
@@ -75,33 +76,24 @@ export function PaymentsPage() {
               ? `Manage payouts and settlement history for ${selectedEmployee.fullName}.`
               : "Select an employee to review outstanding balances and disbursement history."
           }
-          density="compact"
           actions={
             canManagePayments ? (
-              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto"
-                  onClick={openGenerateSalariesDialog}
-                >
+              <ActionStrip stack>
+                <Button variant="outline" onClick={openGenerateSalariesDialog}>
                   <CalendarClock className="h-4 w-4" />
                   Generate Monthly Salaries
                 </Button>
                 {canDisburse ? (
-                  <Button
-                    variant="default"
-                    size="lg"
-                    className="w-full sm:w-auto"
-                    onClick={openDisburseDialog}
-                  >
+                  <Button variant="default" onClick={openDisburseDialog}>
                     <Banknote className="h-4 w-4" />
                     Disburse Payment
                   </Button>
                 ) : null}
-              </div>
+              </ActionStrip>
             ) : null
           }
+          surface="card"
+          density="compact"
         />
       </PageSection>
 

@@ -1,9 +1,8 @@
 import { type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { Heading, Text } from "@/components/ui/typography";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent } from "@tbms/ui/components/card";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 
 interface AuthStateAction {
   label: string;
@@ -25,38 +24,28 @@ export function AuthStateCard({
   actions,
 }: AuthStateCardProps) {
   return (
-    <PageShell
-      width="full"
-      spacing="compact"
-      inset="none"
-      className="relative flex min-h-screen items-center justify-center bg-background px-4 py-8"
-    >
-      <PageSection spacing="compact" className="relative w-full max-w-xl">
-        <Card className="rounded-snow-32">
-          <CardContent
-            spacing="section"
-            className="space-y-6 px-8 py-10 text-center"
-          >
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-snow-20 border border-destructive/20 bg-destructive/10">
+    <PageShell width="narrow" viewport="screenRoomy" className="bg-background">
+      <PageSection as="main" layout="center">
+        <Card className="rounded-3xl">
+          <CardContent className="space-y-6 px-8 py-10 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl border border-destructive/20 bg-destructive/10">
               <Icon className="h-10 w-10 text-destructive" />
             </div>
 
-            <Heading as="h1"  variant="page">
-              {title}
-            </Heading>
-            <Text as="p"  variant="lead" className="mx-auto max-w-[440px]">
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+            <p className="mx-auto max-w-[440px] text-sm text-muted-foreground sm:text-base">
               {description}
-            </Text>
+            </p>
 
             <div className="flex w-full flex-col gap-2 pt-2 sm:flex-row sm:justify-center">
               {actions.map((action) => (
                 <Button
                   key={action.href}
-                  asChild
                   variant={action.variant ?? "default"}
                   className="w-full sm:w-auto"
+                  render={<Link href={action.href} />}
                 >
-                  <Link href={action.href}>{action.label}</Link>
+                  {action.label}
                 </Button>
               ))}
             </div>

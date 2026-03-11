@@ -1,11 +1,15 @@
 import { CreditCard } from "lucide-react";
 import { Order } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Label } from "@/components/ui/label";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+import { Button } from "@tbms/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { Label } from "@tbms/ui/components/label";
+import { Separator } from "@tbms/ui/components/separator";
 import { formatDate, formatPKR } from "@/lib/utils";
 
 interface OrderFinancialSummaryCardProps {
@@ -32,30 +36,20 @@ export function OrderFinancialSummaryCard({
 
   return (
     <Card>
-      <CardHeader
-        density="comfortable"
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <SectionHeader
-          title="Financial Summary"
-          titleVariant="dashboard"
-          description="Invoice, received payments, and pending balance."
-          icon={
-            <SectionIcon tone="info" size="lg">
-              <CreditCard className="h-4 w-4 text-primary" />
-            </SectionIcon>
-          }
-        />
+      <CardHeader className="space-y-2">
+        <div className="flex items-center gap-2">
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <CardTitle>Financial Summary</CardTitle>
+        </div>
+        <CardDescription>
+          Invoice, received payments, and pending balance.
+        </CardDescription>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-4">
-        <InfoTile tone="secondary" padding="contentLg" className="space-y-3">
+      <CardContent className="space-y-4">
+        <div className="rounded-md border p-4">
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Subtotal
-            </Label>
+            <Label className="text-xs text-muted-foreground">Subtotal</Label>
             <span className="text-sm font-semibold text-foreground">
               {formatPKR(order.subtotal)}
             </span>
@@ -63,67 +57,61 @@ export function OrderFinancialSummaryCard({
 
           {order.discountAmount > 0 ? (
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold uppercase  text-muted-foreground">
+              <Label className="text-xs text-muted-foreground">
                 Discount{" "}
                 {order.discountType === "PERCENTAGE"
                   ? `(${order.discountValue}%)`
                   : ""}
               </Label>
-              <span className="text-sm font-semibold text-primary">
+              <span className="text-sm font-semibold text-foreground">
                 - {formatPKR(order.discountAmount)}
               </span>
             </div>
           ) : null}
 
-          <div className="flex items-center justify-between border-t border-border pt-3">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Net Invoice
-            </Label>
+          <Separator className="my-3" />
+
+          <div className="flex items-center justify-between">
+            <Label className="text-xs text-muted-foreground">Net Invoice</Label>
             <span className="text-lg font-bold text-foreground">
               {formatPKR(order.totalAmount)}
             </span>
           </div>
-        </InfoTile>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <InfoTile tone="success">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Paid
-            </Label>
-            <p className="mt-1 text-lg font-bold text-primary">
-              {formatPKR(order.totalPaid)}
-            </p>
-          </InfoTile>
-          <InfoTile tone="destructive">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Balance
-            </Label>
-            <p className="mt-1 text-lg font-bold text-destructive">
-              {formatPKR(order.balanceDue)}
-            </p>
-          </InfoTile>
         </div>
 
-        <InfoTile tone="default" padding="content" className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-md border p-3">
+            <Label className="text-xs text-muted-foreground">Paid</Label>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {formatPKR(order.totalPaid)}
+            </p>
+          </div>
+          <div className="rounded-md border p-3">
+            <Label className="text-xs text-muted-foreground">Balance</Label>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {formatPKR(order.balanceDue)}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-md border p-3">
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold uppercase  text-muted-foreground">
-              Posted Payments
-            </Label>
+            <Label className="text-xs text-muted-foreground">Posted Payments</Label>
             <span className="text-xs font-semibold text-muted-foreground">
               {sortedPayments.length}
             </span>
           </div>
 
           {sortedPayments.length === 0 ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-3 text-xs text-muted-foreground">
               No payments have been posted yet.
             </p>
           ) : (
-            <div className="space-y-2">
+            <div className="mt-3 space-y-2">
               {sortedPayments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="flex items-start justify-between gap-3 rounded-lg border   px-3 py-2"
+                  className="flex items-start justify-between gap-3 rounded-md border p-3"
                 >
                   <div className="min-w-0 space-y-0.5">
                     <p className="text-sm font-semibold text-foreground">
@@ -155,14 +143,10 @@ export function OrderFinancialSummaryCard({
               ))}
             </div>
           )}
-        </InfoTile>
+        </div>
 
         {canCapturePayment ? (
-          <Button
-            variant="default"
-            className="h-11 w-full"
-            onClick={onCapturePayment}
-          >
+          <Button variant="default" className="h-11 w-full" onClick={onCapturePayment}>
             Capture Payment
           </Button>
         ) : null}

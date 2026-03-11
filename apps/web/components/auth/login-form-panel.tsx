@@ -1,11 +1,14 @@
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FieldError } from "@/components/ui/field";
-import { FormStack } from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Heading, Text } from "@/components/ui/typography";
+import { AuthDivider } from "@tbms/ui/components/auth-divider";
+import { Button } from "@tbms/ui/components/button";
+import { Checkbox } from "@tbms/ui/components/checkbox";
+import { Label } from "@tbms/ui/components/label";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@tbms/ui/components/input-group";
 import { siteConfig } from "@/lib/config";
 import { ADMIN_LOGIN_EMAIL_PLACEHOLDER } from "@/lib/form-placeholders";
 
@@ -42,127 +45,98 @@ export function LoginFormPanel({
   onSubmit,
 }: LoginFormPanelProps) {
   return (
-    <section className="flex h-full w-full flex-1 flex-col justify-center bg-card px-6 py-8 sm:px-8 lg:px-10">
-      <div className="mx-auto w-full max-w-sm space-y-7 md:space-y-8">
-        <div className="space-y-3 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-semibold uppercase  text-muted-foreground">
-            {siteConfig.shortName}
-          </div>
-          <Heading as="h2" variant="page">
-            Welcome Back
-          </Heading>
-          <Text
-            as="p"
-            variant="lead"
-            className="mx-auto max-w-xs leading-relaxed md:mx-0"
-          >
-            Sign in to manage your tailoring business operations.
-          </Text>
-        </div>
-
-        <FormStack as="form" density="default" onSubmit={onSubmit}>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={ADMIN_LOGIN_EMAIL_PLACEHOLDER}
-                  value={email}
-                  onChange={(event) => onEmailChange(event.target.value)}
-                  className="bg-transparent pl-10"
-                  required
-                  autoComplete="email"
-                />
-              </div>
-              {fieldErrors.email ? (
-                <FieldError>{fieldErrors.email}</FieldError>
-              ) : null}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(event) => onPasswordChange(event.target.value)}
-                  className="bg-transparent pl-10 pr-10"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={onTogglePassword}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              {fieldErrors.password ? (
-                <FieldError>{fieldErrors.password}</FieldError>
-              ) : null}
-            </div>
-          </div>
-
-          {formError ? <FieldError size="sm">{formError}</FieldError> : null}
-
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="stay-signed-in"
-                checked={staySignedIn}
-                onCheckedChange={(checked) =>
-                  onStaySignedInChange(Boolean(checked))
-                }
-                className="h-4 w-4 flex-shrink-0 rounded"
-              />
-              <Label
-                htmlFor="stay-signed-in"
-                className="cursor-pointer whitespace-nowrap text-sm font-medium text-muted-foreground"
-              >
-                Stay signed in
-              </Label>
-            </div>
-
-            <a
-              href={`mailto:${siteConfig.contact.email}`}
-              className="text-sm font-medium text-primary hover:underline"
-            >
-              Need help?
-            </a>
-          </div>
-
-          <Button
-            type="submit"
-            variant="default"
-            size="lg"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? "Signing in..." : "Sign In to Dashboard"}
-          </Button>
-        </FormStack>
-
-        <div className="border-t border-border pt-4 text-center md:text-left">
-          <Text as="p" variant="muted" className="leading-relaxed">
-            &copy; {new Date().getFullYear()} {siteConfig.name}. All rights
-            reserved.
-            <br />
-            Version 2.4.0 ({siteConfig.branding.edition})
-          </Text>
-        </div>
+    <form className="space-y-4" onSubmit={onSubmit}>
+      <div className="space-y-1.5">
+        <Label htmlFor="email">Email Address</Label>
+        <InputGroup className="h-11">
+          <InputGroupAddon align="inline-start">
+            <Mail className="h-4 w-4" />
+          </InputGroupAddon>
+          <InputGroupInput
+            id="email"
+            type="email"
+            placeholder={ADMIN_LOGIN_EMAIL_PLACEHOLDER}
+            value={email}
+            onChange={(event) => onEmailChange(event.target.value)}
+            required
+            autoComplete="email"
+          />
+        </InputGroup>
+        {fieldErrors.email ? (
+          <p className="text-xs font-medium text-destructive">{fieldErrors.email}</p>
+        ) : null}
       </div>
-    </section>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="password">Password</Label>
+        <InputGroup className="h-11">
+          <InputGroupAddon align="inline-start">
+            <Lock className="h-4 w-4" />
+          </InputGroupAddon>
+          <InputGroupInput
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
+            value={password}
+            onChange={(event) => onPasswordChange(event.target.value)}
+            required
+            autoComplete="current-password"
+          />
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              type="button"
+              size="icon-sm"
+              onClick={onTogglePassword}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+        {fieldErrors.password ? (
+          <p className="text-xs font-medium text-destructive">{fieldErrors.password}</p>
+        ) : null}
+      </div>
+
+      {formError ? (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {formError}
+        </div>
+      ) : null}
+
+      <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+        {isLoading ? "Signing in..." : "Sign In to Dashboard"}
+      </Button>
+
+      <AuthDivider>Session</AuthDivider>
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="stay-signed-in"
+            checked={staySignedIn}
+            onCheckedChange={(checked) => onStaySignedInChange(Boolean(checked))}
+            className="h-4 w-4"
+          />
+          <Label
+            htmlFor="stay-signed-in"
+            className="cursor-pointer whitespace-nowrap text-sm font-medium text-muted-foreground"
+          >
+            Stay signed in
+          </Label>
+        </div>
+
+        <a
+          href={`mailto:${siteConfig.contact.email}`}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          Need help?
+        </a>
+      </div>
+    </form>
   );
 }

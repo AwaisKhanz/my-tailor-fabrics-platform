@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { FormStack } from "@/components/ui/form-layout";
-import { DetailSplit, PageSection, PageShell } from "@/components/ui/page-shell";
-import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@tbms/ui/components/button";
+import { Form } from "@tbms/ui/components/form";
+import { FormStack } from "@tbms/ui/components/form-layout";
+import { DetailSplit, PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { PageHeader } from "@tbms/ui/components/page-header";
 import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-card";
 import { OrderFormItemsCard } from "@/components/orders/order-form-items-card";
 import { OrderFormSkeleton } from "@/components/orders/order-form-skeleton";
@@ -30,6 +30,7 @@ export function OrderFormPage() {
     watchedItems,
     addItem,
     removeItem,
+    moveItem,
     addAddon,
     removeAddon,
     applyGarmentDefaults,
@@ -102,6 +103,7 @@ export function OrderFormPage() {
                     garmentTypes={garmentTypes}
                     onAddItem={addItem}
                     onRemoveItem={removeItem}
+                    onMoveItem={moveItem}
                     onAddAddon={addAddon}
                     onRemoveAddon={removeAddon}
                     onSelectGarmentType={applyGarmentDefaults}

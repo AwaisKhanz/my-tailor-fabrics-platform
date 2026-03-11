@@ -12,12 +12,12 @@ export const ORDER_STATUS_CONFIG: Record<
   [OrderStatus.IN_PROGRESS]: {
     label: "IN PROGRESS",
     publicLabel: "In Progress",
-    variant: "warning",
+    variant: "secondary",
   },
   [OrderStatus.READY]: {
     label: "READY",
     publicLabel: "Ready for Pickup",
-    variant: "success",
+    variant: "default",
   },
   [OrderStatus.OVERDUE]: {
     label: "OVERDUE",
@@ -27,12 +27,12 @@ export const ORDER_STATUS_CONFIG: Record<
   [OrderStatus.DELIVERED]: {
     label: "DELIVERED",
     publicLabel: "Delivered",
-    variant: "info",
+    variant: "secondary",
   },
   [OrderStatus.COMPLETED]: {
     label: "COMPLETED",
     publicLabel: "Completed",
-    variant: "success",
+    variant: "default",
   },
   [OrderStatus.CANCELLED]: {
     label: "CANCELLED",
@@ -66,11 +66,11 @@ export const ITEM_STATUS_CONFIG: Record<
   },
   [ItemStatus.IN_PROGRESS]: {
     label: ITEM_STATUS_LABELS[ItemStatus.IN_PROGRESS],
-    variant: 'info',
+    variant: 'secondary',
   },
   [ItemStatus.COMPLETED]: {
     label: ITEM_STATUS_LABELS[ItemStatus.COMPLETED],
-    variant: 'success',
+    variant: 'default',
   },
   [ItemStatus.CANCELLED]: {
     label: ITEM_STATUS_LABELS[ItemStatus.CANCELLED],
@@ -104,7 +104,7 @@ export const TASK_STATUS_CONFIG: Record<
   },
   [TaskStatus.DONE]: {
     label: TASK_STATUS_LABELS[TaskStatus.DONE],
-    variant: 'success',
+    variant: 'default',
   },
   [TaskStatus.CANCELLED]: {
     label: TASK_STATUS_LABELS[TaskStatus.CANCELLED],

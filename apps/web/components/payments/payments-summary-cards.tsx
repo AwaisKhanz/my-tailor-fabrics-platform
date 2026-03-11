@@ -1,9 +1,10 @@
 import { Banknote, CircleDollarSign, WalletCards } from "lucide-react";
 import { type PaymentSummary } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { Button } from "@tbms/ui/components/button";
+import { Skeleton } from "@tbms/ui/components/skeleton";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
+import { LoadingState } from "@tbms/ui/components/loading-state";
 import { formatPKR } from "@/lib/utils";
 
 interface PaymentsSummaryCardsProps {
@@ -25,11 +26,18 @@ export function PaymentsSummaryCards({
 }: PaymentsSummaryCardsProps) {
   if (loading) {
     return (
-      <StatsGrid columns="three">
-        {[1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-28 rounded-xl" />
-        ))}
-      </StatsGrid>
+      <div className="space-y-3">
+        <LoadingState
+          compact
+          text="Loading payments..."
+          caption="Preparing payout and balance summary."
+        />
+        <StatsGrid columns="three">
+          {[1, 2, 3].map((item) => (
+            <Skeleton key={item} className="h-28 rounded-xl" />
+          ))}
+        </StatsGrid>
+      </div>
     );
   }
 
@@ -41,34 +49,34 @@ export function PaymentsSummaryCards({
     <StatsGrid columns="three">
       <StatCard
         title="Total Earned"
-        subtitle="All lifecycle steps"
+        subtitle="Accrued earnings"
         value={formatPKR(summary.totalEarned)}
+        badgeText="Earned"
         tone="success"
         icon={<CircleDollarSign className="h-4 w-4" />}
       />
 
       <StatCard
         title="Total Paid"
-        subtitle="Settled disbursements"
+        subtitle="Settled payouts"
         value={formatPKR(summary.totalPaid)}
-        tone="primary"
+        badgeText="Settled"
+        tone="info"
         icon={<WalletCards className="h-4 w-4" />}
       />
 
       <StatCard
         title="Outstanding Balance"
-        subtitle="Payable amount"
+        subtitle="Current payable amount"
         value={formatPKR(currentBalance)}
-        tone="warning"
+        badgeText={currentBalance > 0 ? "Due" : "Clear"}
+        tone={currentBalance > 0 ? "destructive" : "default"}
         icon={<Banknote className="h-4 w-4" />}
-        badgeText={currentBalance > 0 ? "DUE" : "CLEAR"}
-        valueClassName={currentBalance > 0 ? "" : "text-muted-foreground"}
         action={
           canManagePayments ? (
             <Button
               variant={canDisburse ? "default" : "outline"}
               size="sm"
-              className="w-full sm:w-auto"
               onClick={onDisburse}
               disabled={!canDisburse}
             >

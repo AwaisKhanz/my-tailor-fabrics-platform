@@ -2,11 +2,10 @@ import { Workflow } from "lucide-react";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
-} from "@/components/ui/card";
-import { InfoTile } from "@/components/ui/info-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+  CardTitle,
+} from "@tbms/ui/components/card";
 
 interface SystemSettingsStateCardProps {
   workflowEnabled: boolean;
@@ -19,30 +18,30 @@ export function SystemSettingsStateCard({
 }: SystemSettingsStateCardProps) {
   return (
     <Card>
-      <CardHeader surface="mutedSection" trimBottom>
-        <SectionHeader
-          title="Current State"
-          description="Snapshot of effective system behavior."
-          icon={
-            <SectionIcon size="sm">
-              <Workflow className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
+      <CardHeader>
+        <div className="flex items-start justify-between gap-2">
+          <div className="space-y-1">
+            <CardTitle>Current State</CardTitle>
+            <CardDescription>
+              Snapshot of effective system behavior.
+            </CardDescription>
+          </div>
+          <Workflow className="h-4 w-4 text-muted-foreground" />
+        </div>
       </CardHeader>
-      <CardContent spacing="section" className="space-y-4 p-5 text-sm">
-        <InfoTile layout="betweenGap" padding="md" className="rounded-md">
+      <CardContent className="space-y-4 p-5 text-sm">
+        <div className="flex items-center justify-between rounded-md bg-muted/40 px-3 py-2">
           <span className="text-muted-foreground">Task workflow</span>
           <span className="font-semibold text-foreground">
             {workflowEnabled ? "Active" : "Inactive"}
           </span>
-        </InfoTile>
-        <InfoTile layout="betweenGap" padding="md" className="rounded-md">
+        </div>
+        <div className="flex items-center justify-between rounded-md bg-muted/40 px-3 py-2">
           <span className="text-muted-foreground">Last updated</span>
           <span className="font-medium text-foreground">
             {lastUpdatedText}
           </span>
-        </InfoTile>
+        </div>
       </CardContent>
     </Card>
   );

@@ -4,10 +4,10 @@ import { Banknote } from "lucide-react";
 import {
   type DesignType,
 } from "@tbms/shared-types";
-import { Form } from "@/components/ui/form";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { Text } from "@/components/ui/typography";
+import { Form } from "@tbms/ui/components/form";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
+import { Text } from "@tbms/ui/components/typography";
 import { DesignTypeDialogBasicFields } from "@/components/design-types/dialog/design-type-dialog-basic-fields";
 import { DesignTypeDialogScopeFields } from "@/components/design-types/dialog/design-type-dialog-scope-fields";
 import { DesignTypeDialogSortField } from "@/components/design-types/dialog/design-type-dialog-sort-field";

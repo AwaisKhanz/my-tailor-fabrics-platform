@@ -2,17 +2,17 @@ import { useCallback, useEffect, useMemo } from "react";
 import { CalendarDays, Scissors } from "lucide-react";
 import { ItemStatus, OrderItem } from "@tbms/shared-types";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { FieldLabel } from "@/components/ui/field";
+} from "@tbms/ui/components/card";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { FieldLabel } from "@tbms/ui/components/field";
 import { formatPKR } from "@/lib/utils";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -146,7 +146,7 @@ export function OrderItemsTable({
         return (
           <Badge
             variant={ITEM_STATUS_CONFIG[item.status].variant}
-            size="xs"
+
             className="uppercase "
           >
             {ITEM_STATUS_CONFIG[item.status].label}
@@ -187,34 +187,28 @@ export function OrderItemsTable({
   return (
     <Card>
       <CardHeader
-        density="comfortable"
-        layout="default"
-        surface="default"
-        trimBottom
       >
         <div>
-          <CardTitle className="text-sm text-muted-foreground">
-            Order Items
-          </CardTitle>
+          <CardTitle>Order Items</CardTitle>
           <CardDescription className="mt-1 text-xs">
             Piece breakdown, assignments, and task controls.
           </CardDescription>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="default" size="xs" className="font-bold uppercase ">
+          <Badge variant="outline" className="font-medium">
             {summary.total} pieces
           </Badge>
-          <Badge variant="info" size="xs" className="font-bold uppercase ">
+          <Badge variant="secondary" className="font-medium">
             {summary.inProgress} in progress
           </Badge>
-          <Badge variant="success" size="xs" className="font-bold uppercase ">
+          <Badge variant="outline" className="font-medium">
             {summary.completed} completed
           </Badge>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" className="p-0">
+      <CardContent className="p-0">
         <DataTable
           columns={columns}
           data={pagedItems}

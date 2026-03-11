@@ -4,11 +4,10 @@ import {
   FieldHint,
   FieldLabel,
   FieldStack,
-} from "@/components/ui/field";
-import { DialogFormActions, FormStack } from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { Text } from "@/components/ui/typography";
+} from "@tbms/ui/components/field";
+import { DialogFormActions, FormStack } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import { type BranchFormState } from "@/hooks/use-branch-dialog-manager";
 
 interface BranchFormDialogProps {

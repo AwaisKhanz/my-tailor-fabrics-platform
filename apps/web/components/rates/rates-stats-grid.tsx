@@ -1,7 +1,7 @@
 import { Filter, GitBranch, Globe2, Layers3 } from "lucide-react";
 import { type RateStatsSummary } from "@tbms/shared-types";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
 
 interface RatesStatsGridProps {
   stats: RateStatsSummary;

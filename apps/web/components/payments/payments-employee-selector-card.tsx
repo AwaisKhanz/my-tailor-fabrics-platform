@@ -1,18 +1,23 @@
 import { UserRound } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+import { Badge } from "@tbms/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
+import { FieldLabel, FieldStack } from "@tbms/ui/components/field";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { InfoTile } from "@tbms/ui/components/info-tile";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Text } from "@/components/ui/typography";
+} from "@tbms/ui/components/select";
+import { Text } from "@tbms/ui/components/typography";
 import { type Employee } from "@/types/employees";
 
 interface PaymentsEmployeeSelectorCardProps {
@@ -32,31 +37,23 @@ export function PaymentsEmployeeSelectorCard({
 }: PaymentsEmployeeSelectorCardProps) {
   return (
     <Card>
-      <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <SectionHeader
-          title="Employee Scope"
-          description="Select an employee to load payroll summary and ledger."
-          icon={
-            <SectionIcon size="lg">
-              <UserRound className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
-        <Badge variant="default" size="xs">
-          {employees.length} employees
-        </Badge>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <UserRound className="h-4 w-4" />
+          Employee Scope
+        </CardTitle>
+        <CardDescription>
+          Select an employee to load payroll summary and ledger.
+        </CardDescription>
+        <Badge variant="secondary">{employees.length} employees</Badge>
       </CardHeader>
 
-      <CardContent spacing="section" className="space-y-4">
-        <div className="max-w-xl space-y-2">
+      <CardContent className="space-y-4">
+        <FieldStack className="max-w-xl">
           <FieldLabel>Select Tailor / Staff</FieldLabel>
           <Select
             value={selectedEmployeeId}
-            onValueChange={onEmployeeChange}
+            onValueChange={(value) => onEmployeeChange(value ?? "")}
             disabled={loading}
           >
             <SelectTrigger className="h-10">
@@ -77,33 +74,37 @@ export function PaymentsEmployeeSelectorCard({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </FieldStack>
 
         {selectedEmployee ? (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <InfoTile>
-              <FieldLabel size="compact">Employee</FieldLabel>
-              <Text as="p" variant="body" className="mt-1 font-semibold">
+          <FormGrid columns="three">
+            <InfoTile tone="secondary" padding="content" className="space-y-1">
+              <FieldLabel as="span" size="compact" block>
+                Employee
+              </FieldLabel>
+              <Text className="text-sm font-semibold">
                 {selectedEmployee.fullName}
               </Text>
             </InfoTile>
-            <InfoTile>
-              <FieldLabel size="compact">Code</FieldLabel>
-              <Text as="p" variant="body" className="mt-1 font-semibold">
+            <InfoTile tone="secondary" padding="content" className="space-y-1">
+              <FieldLabel as="span" size="compact" block>
+                Code
+              </FieldLabel>
+              <Text className="text-sm font-semibold">
                 {selectedEmployee.employeeCode}
               </Text>
             </InfoTile>
-            <InfoTile>
-              <FieldLabel size="compact">Role</FieldLabel>
-              <Text as="p" variant="body" className="mt-1 font-semibold">
+            <InfoTile tone="secondary" padding="content" className="space-y-1">
+              <FieldLabel as="span" size="compact" block>
+                Role
+              </FieldLabel>
+              <Text className="text-sm font-semibold">
                 {selectedEmployee.designation || "Staff"}
               </Text>
             </InfoTile>
-          </div>
+          </FormGrid>
         ) : (
-          <Text as="p" variant="muted">
-            No employee selected yet.
-          </Text>
+          <Text variant="muted">No employee selected yet.</Text>
         )}
       </CardContent>
     </Card>

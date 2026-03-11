@@ -3,18 +3,12 @@
 import React from "react";
 import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2 } from "lucide-react";
 import { type WorkflowStepTemplate } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { FieldError, FieldLabel } from "@/components/ui/field";
-import {
-  DialogFormActions,
-  DialogSection,
-  FormGrid,
-  FormStack,
-} from "@/components/ui/form-layout";
-import { InfoTile } from "@/components/ui/info-tile";
-import { Input } from "@/components/ui/input";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@tbms/ui/components/button";
+import { FieldError } from "@tbms/ui/components/field";
+import { DialogFormActions } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
+import { Switch } from "@tbms/ui/components/switch";
 import { useGarmentWorkflowStepEditor } from "@/hooks/use-garment-workflow-step-editor";
 
 interface GarmentWorkflowStepsDialogProps {
@@ -63,9 +57,8 @@ export function GarmentWorkflowStepsDialog({
       onOpenChange={onOpenChange}
       title="Production Workflow Steps"
       description={`Configure the production steps required for ${garmentName}. Tasks are generated in this order when a new order item is added.`}
-      contentSize="2xl"
-      maxWidthClass="sm:max-w-[700px]"
-      maxHeightClass="max-h-[90vh]"
+      contentSize="4xl"
+      maxWidthClass=""
       footerActions={
         <DialogFormActions
           onCancel={() => onOpenChange(false)}
@@ -73,30 +66,26 @@ export function GarmentWorkflowStepsDialog({
           submittingText="Saving..."
           submitting={loading}
           submitFormId="garment-workflow-steps-form"
-          submitVariant="default"
         />
       }
     >
-      <DialogSection className="pt-0">
-        <FormStack
-          as="form"
+      <form
           id="garment-workflow-steps-form"
           onSubmit={(event) => {
             event.preventDefault();
             void submitSteps();
           }}
+          className="space-y-4"
         >
-          {validationError ? <FieldError>{validationError}</FieldError> : null}
+        {validationError ? <FieldError size="sm">{validationError}</FieldError> : null}
           {steps.map((step, index) => (
-            <InfoTile
-              tone="info"
+            <div
               key={step.clientId}
-              padding="content"
-              className={`group flex items-center gap-3 transition-colors ${
+              className={`group flex items-center gap-3 rounded-md bg-muted/40 px-3 py-3 transition-colors ${
                 draggingStepId === step.clientId
-                  ? "border-primary/45 bg-primary/10"
+                  ? "bg-primary/10"
                   : dragOverStepId === step.clientId
-                    ? "border-primary/35 bg-primary/8"
+                    ? "bg-primary/5"
                     : ""
               }`}
               onDragOver={(event) => handleDragOver(event, step.clientId)}
@@ -113,9 +102,9 @@ export function GarmentWorkflowStepsDialog({
                 <span className="text-xs font-bold">{index + 1}</span>
               </div>
 
-              <FormGrid columns={2} className="flex-1">
+              <div className="grid flex-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <FieldLabel>Step Name</FieldLabel>
+                  <p className="text-xs text-muted-foreground">Step Name</p>
                   <Input
                     placeholder="e.g. Cutting"
                     value={step.stepName || ""}
@@ -126,7 +115,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="space-y-1">
-                  <FieldLabel>Unique Key</FieldLabel>
+                  <p className="text-xs text-muted-foreground">Unique Key</p>
                   <Input
                     placeholder="e.g. CUTTING"
                     value={step.stepKey || ""}
@@ -140,11 +129,11 @@ export function GarmentWorkflowStepsDialog({
                     className="h-8 font-mono text-xs uppercase"
                   />
                 </div>
-              </FormGrid>
+              </div>
 
               <div className="flex items-center gap-4 border-l border-r px-2">
                 <div className="flex flex-col items-center gap-1">
-                  <FieldLabel>Required</FieldLabel>
+                  <p className="text-xs text-muted-foreground">Required</p>
                   <Switch
                     checked={step.isRequired}
                     onCheckedChange={(value) =>
@@ -153,7 +142,7 @@ export function GarmentWorkflowStepsDialog({
                   />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <FieldLabel>Active</FieldLabel>
+                  <p className="text-xs text-muted-foreground">Active</p>
                   <Switch
                     checked={step.isActive}
                     onCheckedChange={(value) =>
@@ -193,17 +182,13 @@ export function GarmentWorkflowStepsDialog({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-            </InfoTile>
+            </div>
           ))}
 
           {steps.length === 0 ? (
-            <InfoTile
-              borderStyle="dashedStrong"
-              padding="none"
-              className="py-8 text-center text-muted-foreground"
-            >
+            <div className="rounded-md border border-dashed py-8 text-center text-muted-foreground">
               No steps configured. Add your first step below.
-            </InfoTile>
+            </div>
           ) : null}
 
           <Button
@@ -214,8 +199,7 @@ export function GarmentWorkflowStepsDialog({
           >
             <Plus className="mr-2 h-4 w-4" /> Add Step
           </Button>
-        </FormStack>
-      </DialogSection>
+      </form>
     </ScrollableDialog>
   );
 }

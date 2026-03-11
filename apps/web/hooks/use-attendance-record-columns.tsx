@@ -3,9 +3,9 @@
 import { useMemo } from "react";
 import { Clock3, LogOut } from "lucide-react";
 import { type AttendanceRecord } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
 interface UseAttendanceRecordColumnsParams {
@@ -61,7 +61,7 @@ export function useAttendanceRecordColumns({
               {formatDateTime(record.clockOut)}
             </span>
           ) : (
-            <Badge variant="warning" size="xs">
+            <Badge variant="secondary">
               In Progress
             </Badge>
           ),
@@ -92,7 +92,7 @@ export function useAttendanceRecordColumns({
           record.clockOut ? (
             <span className="text-xs text-muted-foreground">Closed</span>
           ) : !canManageAttendanceEntries ? (
-            <Badge variant="outline" size="xs">
+            <Badge variant="outline">
               Open
             </Badge>
           ) : (

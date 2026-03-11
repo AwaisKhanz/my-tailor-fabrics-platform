@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { cookies } from "next/headers";
-import "./globals.css";
+import "@tbms/ui/globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { QueryProvider } from "@/components/QueryProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@tbms/ui/components/sonner";
 
 import { siteConfig } from "@/lib/config";
-import {
-  THEME_COOKIE_KEY,
-  THEME_STORAGE_KEY,
-  type AppTheme,
-} from "@/lib/theme";
 
 const inter = localFont({
   src: [
@@ -31,53 +25,20 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const cookieTheme = cookieStore.get(THEME_COOKIE_KEY)?.value;
-  const serverTheme: AppTheme | null =
-    cookieTheme === "dark" || cookieTheme === "light" ? cookieTheme : null;
-
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={
-        serverTheme === "dark"
-          ? "dark theme-dark"
-          : serverTheme === "light"
-            ? "theme-light"
-            : undefined
-      }
-    >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(() => {
-              try {
-                const stored = window.localStorage.getItem("${THEME_STORAGE_KEY}");
-                const resolved = stored === "light" || stored === "dark"
-                  ? stored
-                  : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-                document.documentElement.classList.toggle("dark", resolved === "dark");
-                document.documentElement.classList.toggle("theme-dark", resolved === "dark");
-                document.documentElement.classList.toggle("theme-light", resolved === "light");
-                document.cookie = "${THEME_COOKIE_KEY}=" + resolved + "; path=/; max-age=31536000; samesite=lax";
-              } catch {}
-            })();`,
-          }}
-        />
-      </head>
+    <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${inter.variable} ${inter.className} min-h-screen bg-background text-foreground antialiased`}
       >
         <AuthProvider>
           <QueryProvider>
-            <ThemeProvider initialTheme={serverTheme ?? undefined}>
+            <ThemeProvider>
               {children}
               <Toaster />
             </ThemeProvider>

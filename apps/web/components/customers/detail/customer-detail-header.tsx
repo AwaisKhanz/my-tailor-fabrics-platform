@@ -4,12 +4,12 @@ import {
   CUSTOMER_STATUS_BADGE,
   CUSTOMER_STATUS_LABELS,
 } from "@tbms/shared-constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { MetaPill } from "@/components/ui/meta-pill";
-import { Heading } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent } from "@tbms/ui/components/card";
+import { Label } from "@tbms/ui/components/label";
+import { MetaPill } from "@tbms/ui/components/meta-pill";
+import { Heading } from "@tbms/ui/components/typography";
 
 interface CustomerDetailHeaderProps {
   customer: Customer;
@@ -26,7 +26,7 @@ export function CustomerDetailHeader({
 
   return (
     <Card>
-      <CardContent spacing="section" padding="inset" className="space-y-6">
+      <CardContent className="space-y-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
             <Label className="text-xs font-semibold uppercase  text-muted-foreground">
@@ -47,7 +47,7 @@ export function CustomerDetailHeader({
               >
                 {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
               </Badge>
-              <Badge variant="outline" size="xs" className="font-semibold">
+              <Badge variant="outline" className="font-semibold">
                 {customer.sizeNumber}
               </Badge>
             </div>

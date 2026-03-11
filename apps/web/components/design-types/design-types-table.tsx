@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { Edit2, GitBranch, RotateCcw, Search, Trash2 } from "lucide-react";
 import { type Branch, type DesignType, type GarmentType } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { TableSearch, TableSurface, TableToolbar } from "@/components/ui/table-layout";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { TableSearch, TableSurface, TableToolbar } from "@tbms/ui/components/table-layout";
 import { formatPKR } from "@/lib/utils";
 
 interface DesignTypesTableProps {
@@ -65,7 +65,7 @@ export function DesignTypesTable({
               {garmentNameById.get(designType.garmentTypeId) || "Garment"}
             </span>
           ) : (
-            <Badge variant="default" size="xs">
+            <Badge variant="default">
               Universal
             </Badge>
           ),
@@ -74,12 +74,12 @@ export function DesignTypesTable({
         header: "Branch",
         cell: (designType) =>
           designType.branchId ? (
-            <Badge variant="outline" size="xs" className="gap-1">
+            <Badge variant="outline" className="gap-1">
               <GitBranch className="h-2.5 w-2.5" />
               {branchById.get(designType.branchId)?.code || "Branch"}
             </Badge>
           ) : (
-            <Badge variant="info" size="xs">
+            <Badge variant="secondary">
               Global
             </Badge>
           ),

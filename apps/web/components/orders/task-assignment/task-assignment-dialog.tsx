@@ -1,8 +1,8 @@
 "use client";
 
 import { type Employee, type OrderItem } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+import { Button } from "@tbms/ui/components/button";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import { useTaskAssignmentDialog } from "@/hooks/use-task-assignment-dialog";
 import { TaskAssignmentTable } from "@/components/orders/task-assignment/task-assignment-table";
 

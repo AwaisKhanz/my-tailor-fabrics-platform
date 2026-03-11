@@ -2,13 +2,13 @@
 
 import { ShieldCheck } from "lucide-react";
 import type { EmployeeWithRelations } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Heading } from "@/components/ui/typography";
-import { InfoTile } from "@/components/ui/info-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
+import { Heading } from "@tbms/ui/components/typography";
+import { InfoTile } from "@tbms/ui/components/info-tile";
+import { SectionHeader } from "@tbms/ui/components/section-header";
+import { SectionIcon } from "@tbms/ui/components/section-icon";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
 
 interface EmployeeAccountSectionProps {
@@ -29,8 +29,8 @@ export function EmployeeAccountSection({
       description="Provision and review employee login access to the system."
       badge={
         <Badge
-          variant={employee.userAccount ? "success" : "outline"}
-          size="xs"
+          variant={employee.userAccount ? "default" : "outline"}
+
           className="font-semibold"
         >
           {employee.userAccount ? "ACTIVE" : "NOT PROVISIONED"}
@@ -41,7 +41,7 @@ export function EmployeeAccountSection({
       <div className="p-4 sm:p-5">
         {employee.userAccount ? (
           <Card className="bg-muted shadow-sm">
-            <CardHeader density="compact" surface="cardSection" trimBottom>
+            <CardHeader>
               <SectionHeader
                 title="System Access Enabled"
                 titleClassName="text-sm"
@@ -53,7 +53,7 @@ export function EmployeeAccountSection({
                 }
               />
             </CardHeader>
-            <CardContent spacing="section" className="space-y-4">
+            <CardContent className="space-y-4">
               <div className="flex items-center justify-between border-b border-border py-2 text-sm">
                 <span className="text-muted-foreground">Login Email</span>
                 <span className="font-bold ">{employee.userAccount.email}</span>

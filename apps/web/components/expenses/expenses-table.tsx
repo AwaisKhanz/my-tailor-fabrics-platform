@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { Calendar, Tag, Trash2 } from "lucide-react";
 import { type Expense } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import { formatDate, formatPKR } from "@/lib/utils";
 
 interface ExpensesTableProps {
@@ -47,7 +47,7 @@ export function ExpensesTable({
         cell: (expense) => (
           <div className="flex items-center gap-2">
             <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-            <Badge variant="secondary" size="xs">
+            <Badge variant="secondary">
               {expense.category.name}
             </Badge>
           </div>

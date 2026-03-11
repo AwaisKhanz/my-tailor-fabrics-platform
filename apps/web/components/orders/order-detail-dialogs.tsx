@@ -1,5 +1,5 @@
 import type { OrderItem } from "@tbms/shared-types";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
 import { TaskAssignmentDialog } from "@/components/orders/task-assignment/task-assignment-dialog";
 import { OrderPaymentDialog } from "@/components/orders/order-payment-dialog";
 import { OrderShareDialog } from "@/components/orders/order-share-dialog";

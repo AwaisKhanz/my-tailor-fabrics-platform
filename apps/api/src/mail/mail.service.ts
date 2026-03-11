@@ -137,7 +137,12 @@ export class MailService {
     return message;
   }
 
-  async sendMail(to: string, subject: string, text: string, html?: string) {
+  async sendMail(
+    to: string,
+    subject: string,
+    text: string,
+    html?: string,
+  ): Promise<unknown> {
     if (!this.gmailClient) {
       throw new Error(
         'Gmail client is not fully initialized. Ensure GOOGLE_REFRESH_TOKEN and GOOGLE_EMAIL are set in .env.',

@@ -1,5 +1,6 @@
 "use client";
 
+import { Ruler } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { MeasurementFieldDialog } from "@/components/config/MeasurementFieldDialog";
 import { MeasurementSectionDialog } from "@/components/config/MeasurementSectionDialog";
@@ -8,20 +9,20 @@ import { MeasurementCategoryDetailHeader } from "@/components/config/measurement
 import { MeasurementFieldsStatsGrid } from "@/components/config/measurements/detail/measurement-fields-stats-grid";
 import { MeasurementFieldsTable } from "@/components/config/measurements/detail/measurement-fields-table";
 import { MeasurementSectionsManager } from "@/components/config/measurements/detail/measurement-sections-manager";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageShell, PageSection } from "@/components/ui/page-shell";
+import { EmptyState } from "@tbms/ui/components/empty-state";
+import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
+import { Button } from "@tbms/ui/components/button";
+import { FieldError, FieldLabel, FieldStack } from "@tbms/ui/components/field";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { ScrollableDialog } from "@tbms/ui/components/scrollable-dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ScrollableDialog } from "@/components/ui/scrollable-dialog";
+} from "@tbms/ui/components/select";
 import { useAuthz } from "@/hooks/use-authz";
-import { Heading, Text } from "@/components/ui/typography";
 import { useMeasurementCategoryDetailPage } from "@/hooks/use-measurement-category-detail-page";
 import { useMeasurementSectionArchiveDialog } from "@/hooks/use-measurement-section-archive-dialog";
 import { MEASUREMENTS_SETTINGS_ROUTE } from "@/lib/settings-routes";
@@ -81,31 +82,23 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
   if (!loading && notFound) {
     return (
       <PageShell width="narrow">
-        <PageSection spacing="compact">
-          <Card>
-            <CardContent className="flex min-h-[340px] flex-col items-center justify-center p-6 text-center">
-              <Heading as="h2" variant="section">
-                Category Not Found
-              </Heading>
-              <Text as="p" variant="lead" className="mt-2 max-w-md">
-                This measurement category may have been removed or is no longer
-                available.
-              </Text>
-              <Button
-                className="mt-6 w-full sm:w-auto"
-                onClick={() => router.push(MEASUREMENTS_SETTINGS_ROUTE)}
-              >
-                Back to Measurements
-              </Button>
-            </CardContent>
-          </Card>
+        <PageSection className="flex min-h-[60vh] items-center justify-center">
+          <EmptyState
+            icon={Ruler}
+            title="Category Not Found"
+            description="This measurement category may have been removed or is no longer available."
+            action={{
+              label: "Back to Measurements",
+              onClick: () => router.push(MEASUREMENTS_SETTINGS_ROUTE),
+            }}
+          />
         </PageSection>
       </PageShell>
     );
   }
 
   return (
-    <PageShell spacing="spacious">
+    <PageShell>
       <PageSection spacing="compact">
         <MeasurementCategoryBreadcrumbs
           categoryName={category?.name}
@@ -205,9 +198,10 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
                 ? `Archive "${sectionToDelete.name}" from ${category?.name ?? "this category"}.`
                 : undefined
             }
-            maxWidthClass="sm:max-w-lg"
+            contentSize="lg"
+            maxWidthClass=""
             footerActions={
-              <div className="flex w-full justify-end gap-2">
+              <>
                 <Button
                   variant="outline"
                   type="button"
@@ -230,51 +224,49 @@ export function MeasurementCategoryDetail({ id }: { id: string }) {
                 >
                   {isDeletingSection ? "Archiving..." : "Archive Section"}
                 </Button>
-              </div>
+              </>
             }
           >
-            {cannotDeleteSection ? (
-              <Text as="p" variant="body" className="text-destructive">
-                This section contains {fieldsInDeletingSection} field
-                {fieldsInDeletingSection === 1 ? "" : "s"}, but there is no
-                other section to move them into. Create another section first.
-              </Text>
-            ) : (
-              <div className="space-y-4">
-                <Text as="p" variant="body">
-                  {requiresMoveTarget
-                    ? `This section has ${fieldsInDeletingSection} field${fieldsInDeletingSection === 1 ? "" : "s"}. Choose where these fields should move before archiving.`
-                    : "This section has no active fields and will be archived immediately."}
-                </Text>
+              {cannotDeleteSection ? (
+                <FieldError size="sm">
+                  This section contains {fieldsInDeletingSection} field
+                  {fieldsInDeletingSection === 1 ? "" : "s"}, but there is no
+                  other section to move them into. Create another section first.
+                </FieldError>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {requiresMoveTarget
+                      ? `This section has ${fieldsInDeletingSection} field${fieldsInDeletingSection === 1 ? "" : "s"}. Choose where these fields should move before archiving.`
+                      : "This section has no active fields and will be archived immediately."}
+                  </p>
 
-                {requiresMoveTarget ? (
-                  <div className="space-y-2">
-                    <Text
-                      as="p"
-                      variant="muted"
-                      className="font-semibold uppercase "
-                    >
-                      Move existing fields to
-                    </Text>
-                    <Select
-                      value={targetSectionId}
-                      onValueChange={setTargetSectionId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select destination section" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {deleteSectionTargetOptions.map((section) => (
-                          <SelectItem key={section.id} value={section.id}>
-                            {section.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ) : null}
-              </div>
-            )}
+                  {requiresMoveTarget ? (
+                    <FieldStack>
+                      <FieldLabel size="compact">
+                        Move existing fields to
+                      </FieldLabel>
+                      <Select
+                        value={targetSectionId}
+                        onValueChange={(value) =>
+                          setTargetSectionId(value ?? "")
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select destination section" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {deleteSectionTargetOptions.map((section) => (
+                            <SelectItem key={section.id} value={section.id}>
+                              {section.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FieldStack>
+                  ) : null}
+                </div>
+              )}
           </ScrollableDialog>
         </>
       ) : null}

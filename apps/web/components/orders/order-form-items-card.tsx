@@ -1,9 +1,10 @@
 import { DesignType, GarmentType } from "@tbms/shared-types";
 import { Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@tbms/ui/components/badge";
+import { Button } from "@tbms/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { Label } from "@tbms/ui/components/label";
+import { Sortable, SortableItem } from "@tbms/ui/components/reui/sortable";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { FieldArrayWithId, UseFormReturn } from "react-hook-form";
 import { OrderFormItemCard } from "./order-form-item-card";
@@ -15,6 +16,7 @@ interface OrderFormItemsCardProps {
   garmentTypes: GarmentType[];
   onAddItem: () => void;
   onRemoveItem: (itemIndex: number) => void;
+  onMoveItem: (fromIndex: number, toIndex: number) => void;
   onAddAddon: (itemIndex: number) => void;
   onRemoveAddon: (itemIndex: number, addonIndex: number) => void;
   onSelectGarmentType: (itemIndex: number, garmentTypeId: string) => void;
@@ -29,6 +31,7 @@ export function OrderFormItemsCard({
   garmentTypes,
   onAddItem,
   onRemoveItem,
+  onMoveItem,
   onAddAddon,
   onRemoveAddon,
   onSelectGarmentType,
@@ -38,15 +41,11 @@ export function OrderFormItemsCard({
   return (
     <Card>
       <CardHeader
-        density="comfortable"
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
       >
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <CardTitle>Order Items</CardTitle>
-            <Badge variant="default" size="xs" className="font-semibold">
+            <Badge variant="default" className="font-semibold">
               {fields.length} PIECES
             </Badge>
           </div>
@@ -67,32 +66,44 @@ export function OrderFormItemsCard({
         </Button>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-4">
-        {fields.map((field, index) => {
-          const currentItem = watchedItems[index] || {
-            garmentTypeId: "",
-            quantity: 1,
-            unitPrice: 0,
-          };
+      <CardContent>
+        <Sortable
+          value={fields}
+          onValueChange={() => undefined}
+          onMove={({ activeIndex, overIndex }) =>
+            onMoveItem(activeIndex, overIndex)
+          }
+          getItemValue={(item) => item.id}
+          className="space-y-4"
+        >
+          {fields.map((field, index) => {
+            const currentItem = watchedItems[index] || {
+              garmentTypeId: "",
+              quantity: 1,
+              unitPrice: 0,
+            };
 
-          return (
-            <OrderFormItemCard
-              key={field.id}
-              index={index}
-              form={form}
-              garmentTypes={garmentTypes}
-              designTypeOptions={getDesignTypeOptions(
-                currentItem.garmentTypeId,
-              )}
-              lineTotal={getItemLineTotal(currentItem)}
-              canRemove={fields.length > 1}
-              onSelectGarmentType={onSelectGarmentType}
-              onRemoveItem={onRemoveItem}
-              onAddAddon={onAddAddon}
-              onRemoveAddon={onRemoveAddon}
-            />
-          );
-        })}
+            return (
+              <SortableItem key={field.id} value={field.id}>
+                <OrderFormItemCard
+                  index={index}
+                  form={form}
+                  garmentTypes={garmentTypes}
+                  designTypeOptions={getDesignTypeOptions(
+                    currentItem.garmentTypeId,
+                  )}
+                  lineTotal={getItemLineTotal(currentItem)}
+                  canRemove={fields.length > 1}
+                  canReorder={fields.length > 1}
+                  onSelectGarmentType={onSelectGarmentType}
+                  onRemoveItem={onRemoveItem}
+                  onAddAddon={onAddAddon}
+                  onRemoveAddon={onRemoveAddon}
+                />
+              </SortableItem>
+            );
+          })}
+        </Sortable>
       </CardContent>
     </Card>
   );

@@ -13,7 +13,7 @@ These files are intended to be operational rules, not aspirational notes. When t
    Route composition, hooks, design system usage, auth/session behavior, API access boundaries, and frontend verification.
 
 3. [Shared Packages Rules](./shared-packages-rules.md)
-   Rules for `packages/shared-types` and `packages/shared-constants`, including contract boundaries, build outputs, and cross-app sync.
+   Rules for `packages/shared-types`, `packages/shared-constants`, and `packages/ui`, including contract boundaries, build outputs, and cross-app sync.
 
 4. [Change Management Rules](./change-management-rules.md)
    Rules for updating docs, migrations, env contracts, deployment assets, verification steps, and cleanup when behavior changes.

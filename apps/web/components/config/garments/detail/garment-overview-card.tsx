@@ -6,14 +6,14 @@ import {
   Shirt,
 } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile } from "@/components/ui/info-tile";
-import { MetaPill } from "@/components/ui/meta-pill";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Heading, Text } from "@/components/ui/typography";
+import { Badge } from "@tbms/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import { formatDate, formatPKR } from "@/lib/utils";
 
 interface GarmentOverviewCardProps {
@@ -26,105 +26,85 @@ export function GarmentOverviewCard({ garment }: GarmentOverviewCardProps) {
 
   return (
     <Card>
-      <CardHeader
-        layout="rowBetweenResponsive"
-        surface="mutedSection"
-        trimBottom
-      >
-        <SectionHeader
-          title="Garment Profile"
-          icon={
-            <SectionIcon tone="default">
-              <Shirt className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
-        <Badge variant={garment.isActive ? "success" : "outline"} size="xs">
+      <CardHeader className="pb-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Shirt className="h-4 w-4 text-muted-foreground" />
+          <div className="space-y-1">
+            <CardTitle className="text-base">Garment Profile</CardTitle>
+            <CardDescription>Core garment identity and margin snapshot</CardDescription>
+          </div>
+        </div>
+        <Badge variant={garment.isActive ? "default" : "outline"}>
           {garment.isActive ? "Active" : "Inactive"}
         </Badge>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset" className="space-y-5">
+      <CardContent className="space-y-5">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <InfoTile>
-            <FieldLabel size="compact">Sort Order</FieldLabel>
+          <div className="rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs text-muted-foreground">Sort Order</p>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {garment.sortOrder}
             </p>
-          </InfoTile>
-          <InfoTile>
-            <FieldLabel size="compact">Linked Forms / Steps</FieldLabel>
+          </div>
+          <div className="rounded-md bg-muted/40 px-3 py-3">
+            <p className="text-xs text-muted-foreground">Linked Forms / Steps</p>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {measurementFormsCount} form
               {measurementFormsCount === 1 ? "" : "s"} / {workflowStepsCount}{" "}
               step
               {workflowStepsCount === 1 ? "" : "s"}
             </p>
-          </InfoTile>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <InfoTile padding="contentLg" radius="xl" className="space-y-4">
+          <div className="space-y-4 rounded-xl bg-muted/40 p-4">
             <div>
-              <FieldLabel size="compact">Description</FieldLabel>
-              <Text as="p" variant="body" className="mt-1 leading-relaxed">
+              <p className="text-xs text-muted-foreground">Description</p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground">
                 {garment.description ||
                   "No description provided for this garment type."}
-              </Text>
+              </p>
             </div>
 
-            <div className="">
-              <MetaPill tone={"strong"}>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-background px-2 py-1">
                 <CalendarDays className="h-3.5 w-3.5" />
                 <span>Created {formatDate(garment.createdAt)}</span>
-              </MetaPill>
-              <MetaPill tone={"strong"}>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-background px-2 py-1">
                 <Layers3 className="h-3.5 w-3.5" />
                 <span>Updated {formatDate(garment.updatedAt)}</span>
-              </MetaPill>
+              </span>
             </div>
-          </InfoTile>
+          </div>
 
-          <InfoTile
-            tone="secondary"
-            padding="contentLg"
-            radius="xl"
-            className="space-y-4"
-          >
+          <div className="space-y-4 rounded-xl bg-muted/40 p-4">
             <div className="mb-1 flex items-center justify-between">
-              <FieldLabel size="compact" className="text-primary/90">
-                Margin Snapshot
-              </FieldLabel>
+              <p className="text-xs text-primary/90">Margin Snapshot</p>
               <BadgePercent className="h-4 w-4 text-primary" />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <FieldLabel>Owner Margin</FieldLabel>
-                <Heading
-                  as="div"
-                  variant="section"
-                  className="text-lg text-primary"
-                >
+                <p className="text-xs text-muted-foreground">Owner Margin</p>
+                <p className="text-lg font-semibold text-primary">
                   {formatPKR(garment.marginAmount)}
-                </Heading>
+                </p>
               </div>
 
               <div className="space-y-1">
-                <FieldLabel>Margin Rate</FieldLabel>
+                <p className="text-xs text-muted-foreground">Margin Rate</p>
                 <div className="flex items-center gap-1.5">
-                  <Heading
-                    as="div"
-                    variant="section"
-                    className="text-lg text-primary"
-                  >
+                  <p className="text-lg font-semibold text-primary">
                     {garment.marginPercentage}%
-                  </Heading>
+                  </p>
                   <Banknote className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
             </div>
-          </InfoTile>
+          </div>
         </div>
       </CardContent>
     </Card>

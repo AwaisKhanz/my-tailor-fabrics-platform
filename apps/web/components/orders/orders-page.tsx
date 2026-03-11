@@ -11,12 +11,12 @@ import {
 import { Can } from "@/components/auth/can";
 import { OrdersListTable } from "@/components/orders/orders-list-table";
 import { OrdersListToolbar } from "@/components/orders/orders-list-toolbar";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection, PageShell } from "@/components/ui/page-shell";
-import { StatCard } from "@/components/ui/stat-card";
-import { StatsGrid } from "@/components/ui/stats-grid";
-import { TableSurface } from "@/components/ui/table-layout";
+import { Button } from "@tbms/ui/components/button";
+import { PageHeader } from "@tbms/ui/components/page-header";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { StatCard } from "@tbms/ui/components/stat-card";
+import { StatsGrid } from "@tbms/ui/components/stats-grid";
+import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
 import { useOrdersListPage } from "@/hooks/use-orders-list-page";
 import {
@@ -57,13 +57,10 @@ export function OrdersPage() {
         <PageHeader
           title="Orders"
           description="Manage customer orders and production workflow from one place."
-          density="compact"
           actions={
             <Can all={[PERMISSION["orders.create"]]}>
               <Button
                 variant="default"
-                size="lg"
-                className="w-full sm:w-auto"
                 onClick={() => router.push(NEW_ORDER_ROUTE)}
               >
                 <Plus className="h-4 w-4" />
@@ -71,39 +68,42 @@ export function OrdersPage() {
               </Button>
             </Can>
           }
+          surface="card"
+          density="compact"
         />
       </PageSection>
 
       <PageSection spacing="compact">
-        <StatsGrid columns="four" flushSectionSpacing>
+        <StatsGrid columns="four">
           <StatCard
             title="Filtered Value"
-            subtitle="Current query amount"
+            subtitle="Current result set value"
             value={formatPKR(summary.totalValue)}
+            badgeText="Value"
             tone="primary"
             icon={<Wallet className="h-4 w-4" />}
           />
-
           <StatCard
             title="Due in 7 Days"
-            subtitle="Upcoming commitments"
-            value={summary.dueSoonCount}
+            subtitle="Upcoming delivery load"
+            value={summary.dueSoonCount.toLocaleString()}
+            badgeText="Upcoming"
             tone="warning"
             icon={<Clock3 className="h-4 w-4" />}
           />
-
           <StatCard
             title="Overdue"
-            subtitle="Requires action"
-            value={summary.overdueCount}
+            subtitle="Needs immediate action"
+            value={summary.overdueCount.toLocaleString()}
+            badgeText="Action"
             tone="destructive"
             icon={<AlertTriangle className="h-4 w-4" />}
           />
-
           <StatCard
             title="Completed"
-            subtitle="Delivered workflow"
-            value={summary.completedCount}
+            subtitle="Delivered or closed"
+            value={summary.completedCount.toLocaleString()}
+            badgeText="Delivered"
             tone="success"
             icon={<CheckCircle2 className="h-4 w-4" />}
           />

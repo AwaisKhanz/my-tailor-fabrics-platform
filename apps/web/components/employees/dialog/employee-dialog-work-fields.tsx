@@ -10,16 +10,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { FormGrid } from "@/components/ui/form-layout";
-import { Input } from "@/components/ui/input";
+} from "@tbms/ui/components/form";
+import { FormGrid } from "@tbms/ui/components/form-layout";
+import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@tbms/ui/components/select";
 import { type EmployeeFormValues } from "@/types/employees";
 
 interface EmployeeDialogWorkFieldsProps {
@@ -38,7 +38,7 @@ export function EmployeeDialogWorkFields({
         <FormField
           control={form.control}
           name="designation"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Designation</FormLabel>
               <FormControl>
@@ -51,7 +51,7 @@ export function EmployeeDialogWorkFields({
         <FormField
           control={form.control}
           name="status"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Status</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
@@ -78,7 +78,7 @@ export function EmployeeDialogWorkFields({
         <FormField
           control={form.control}
           name="paymentType"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Payment Model</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
@@ -102,7 +102,7 @@ export function EmployeeDialogWorkFields({
         <FormField
           control={form.control}
           name="dateOfJoining"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Date of Joining</FormLabel>
               <FormControl>
@@ -118,7 +118,7 @@ export function EmployeeDialogWorkFields({
         <FormField
           control={form.control}
           name="monthlySalary"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Monthly Salary (Rs.)</FormLabel>
               <FormControl>
@@ -141,7 +141,7 @@ export function EmployeeDialogWorkFields({
         <FormField
           control={form.control}
           name="employmentEndDate"
-          render={({ field }) => (
+          render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
             <FormItem>
               <FormLabel>Employment End Date</FormLabel>
               <FormControl>

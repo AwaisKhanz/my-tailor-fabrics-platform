@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { ChevronRight, ClipboardList, Scale, Settings } from "lucide-react";
 import { type GarmentTypeWithAnalytics } from "@tbms/shared-types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
-import { InfoTile, infoTileVariants } from "@/components/ui/info-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SectionIcon } from "@/components/ui/section-icon";
-import { Text } from "@/components/ui/typography";
+import { Button } from "@tbms/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import {
   buildMeasurementCategoryRoute,
   MEASUREMENTS_SETTINGS_ROUTE,
 } from "@/lib/settings-routes";
-import { cn } from "@/lib/utils";
 
 interface GarmentMeasurementFormsCardProps {
   garment: GarmentTypeWithAnalytics;
@@ -25,65 +25,50 @@ export function GarmentMeasurementFormsCard({
 
   return (
     <Card>
-      <CardHeader layout="rowBetweenStart" surface="mutedSection" trimBottom>
-        <SectionHeader
-          title="Connected Measurement Forms"
-          description="These forms are shown when an order item is created for this garment."
-          descriptionVariant="compact"
-          icon={
-            <SectionIcon tone="default">
-              <ClipboardList className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
+      <CardHeader className="pb-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <ClipboardList className="h-4 w-4 text-muted-foreground" />
+          <div className="space-y-1">
+            <CardTitle className="text-base">Connected Measurement Forms</CardTitle>
+            <CardDescription>
+              These forms are shown when an order item is created for this garment.
+            </CardDescription>
+          </div>
+        </div>
 
         <div className="">
-          {/* <Badge variant="default" size="xs" className="font-bold">
-            {categories.length} Form{categories.length === 1 ? "" : "s"}
-          </Badge> */}
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href={MEASUREMENTS_SETTINGS_ROUTE}>
-              <Settings className="h-3.5 w-3.5" />
-              Manage Forms
-            </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            render={<Link href={MEASUREMENTS_SETTINGS_ROUTE} />}
+          >
+            <Settings className="h-3.5 w-3.5" />
+            Manage Forms
           </Button>
         </div>
       </CardHeader>
 
-      <CardContent spacing="section" padding="inset">
+      <CardContent>
         {categories.length > 0 ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {categories.map((category) => (
               <Link
                 key={category.id}
                 href={buildMeasurementCategoryRoute(category.id)}
-                className={cn(
-                  infoTileVariants({
-                    padding: "content",
-                    layout: "betweenGap",
-                  }),
-                  "group transition-all hover:border-primary/30 hover:bg-primary/5",
-                )}
+                className="group flex items-center justify-between rounded-md bg-muted/40 px-3 py-3 transition-all hover:bg-primary/5"
               >
                 <div className="flex items-center gap-3">
-                  <SectionIcon
-                    tone="default"
-                    framed={false}
-                    className="rounded-md transition-colors group-hover:bg-primary"
-                  >
+                  <div className="rounded-md bg-primary/10 p-2 transition-colors group-hover:bg-primary">
                     <Scale className="h-4 w-4 text-primary" />
-                  </SectionIcon>
+                  </div>
                   <div>
-                    <Text
-                      as="p"
-                      variant="body"
-                      className="font-bold transition-colors group-hover:text-primary"
-                    >
+                    <p className="text-sm font-semibold transition-colors group-hover:text-primary">
                       {category.name}
-                    </Text>
-                    <FieldLabel>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
                       {category.fields?.length ?? 0} measurement fields
-                    </FieldLabel>
+                    </p>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -91,19 +76,12 @@ export function GarmentMeasurementFormsCard({
             ))}
           </div>
         ) : (
-          <InfoTile
-            borderStyle="dashed"
-            padding="none"
-            radius="xl"
-            className="col-span-full py-8 text-center"
-          >
-            <Text as="p" variant="lead">
-              No measurement forms attached.
-            </Text>
-            <FieldLabel block className="mt-1">
+          <div className="col-span-full rounded-xl border border-dashed py-8 text-center">
+            <p className="text-sm text-muted-foreground">No measurement forms attached.</p>
+            <p className="mt-1 text-xs text-muted-foreground">
               Attach forms from garment management settings.
-            </FieldLabel>
-          </InfoTile>
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>

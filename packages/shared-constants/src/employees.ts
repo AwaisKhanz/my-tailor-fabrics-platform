@@ -24,7 +24,7 @@ export const PAYMENT_TYPE_OPTIONS = Object.values(PaymentType).map((value) => ({
 }));
 
 export const EMPLOYEE_STATUS_BADGE: Record<EmployeeStatus, BadgeVariant> = {
-  [EmployeeStatus.ACTIVE]: 'success',
+  [EmployeeStatus.ACTIVE]: 'default',
   [EmployeeStatus.INACTIVE]: 'outline',
   [EmployeeStatus.LEFT]: 'destructive',
 };
