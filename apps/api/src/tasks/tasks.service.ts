@@ -421,14 +421,15 @@ export class TasksService {
     userRole: Role,
     requesterEmployeeId: string | null,
   ) {
-    if (
-      userRole === Role.EMPLOYEE &&
-      requesterEmployeeId &&
-      requesterEmployeeId !== employeeId
-    ) {
-      throw new ForbiddenException(
-        'Employees can only view their own assigned tasks',
-      );
+    if (userRole === Role.EMPLOYEE) {
+      if (!requesterEmployeeId) {
+        throw new ForbiddenException('Employee identity is missing');
+      }
+      if (requesterEmployeeId !== employeeId) {
+        throw new ForbiddenException(
+          'Employees can only view their own assigned tasks',
+        );
+      }
     }
 
     return this.prisma.orderItemTask.findMany({

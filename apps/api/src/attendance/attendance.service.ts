@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -178,6 +179,33 @@ export class AttendanceService {
     }
 
     throw new ConflictException('Unable to process attendance clock-out');
+  }
+
+  async clockOutForEmployee(
+    recordId: string,
+    branchId: string,
+    employeeId: string,
+  ) {
+    const record = await this.prisma.attendanceRecord.findFirst({
+      where: {
+        id: recordId,
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
+      },
+      select: { employeeId: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Attendance record not found');
+    }
+
+    if (record.employeeId !== employeeId) {
+      throw new ForbiddenException(
+        'Employees can only clock out their own attendance records',
+      );
+    }
+
+    return this.clockOut(recordId, branchId);
   }
 
   async findAll(

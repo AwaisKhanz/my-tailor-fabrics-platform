@@ -7,8 +7,8 @@
     "packages/*"
   ],
   "scripts": {
-    "env:setup": "sh ./scripts/setup-env.sh",
-    "env:verify": "sh ./scripts/verify-env-contract.sh",
+    "env:setup": "bash ./scripts/setup-env.sh",
+    "env:verify": "bash ./scripts/verify-env-contract.sh",
     "dev": "npm run env:setup && concurrently -n \"api,web,shared,const\" -c \"cyan,green,yellow,magenta\" \"npm run dev -w api\" \"npm run dev -w web\" \"npm run dev -w @tbms/shared-types\" \"npm run dev -w @tbms/shared-constants\"",
     "build": "npm run build --workspaces",
     "build:do:web": "npm run build -w @tbms/shared-types && npm run build -w @tbms/shared-constants && npm run build -w web",
@@ -16,7 +16,7 @@
     "lint": "npm run lint --workspaces",
     "start:do:web": "node ./scripts/start-do-web.mjs",
     "start:do:api": "node apps/api/dist/main.js",
-    "security:backend:guardrails": "sh ./scripts/security-backend-guardrails.sh",
+    "security:backend:guardrails": "bash ./scripts/security-backend-guardrails.sh",
     "prisma:generate": "npm run prisma:generate -w api",
     "prisma:migrate:dev": "npm exec -w api -- prisma migrate dev",
     "prisma:migrate:status": "npm exec -w api -- prisma migrate status",

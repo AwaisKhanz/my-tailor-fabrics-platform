@@ -1,5 +1,6 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
   Body,
   Patch,
@@ -20,6 +21,7 @@ import {
   ADMIN_ROLES,
   DASHBOARD_READ_ROLES,
   EMPLOYEE_AND_OPERATOR_ROLES,
+  EMPLOYEE_SELF_ROLES,
   PERMISSION,
 } from '@tbms/shared-constants';
 import { AssignTaskDto } from './dto/create-task.dto';
@@ -137,6 +139,23 @@ export class TasksController {
       req.branchId,
       req.user.role,
       req.user.employeeId ?? null,
+    );
+    return success(data);
+  }
+
+  @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequirePermissions(PERMISSION['tasks.read'])
+  @Get('me')
+  async findMine(@Req() req: AuthenticatedRequest) {
+    const employeeId = req.user.employeeId;
+    if (!employeeId) {
+      throw new ForbiddenException('Employee identity is missing');
+    }
+    const data = await this.tasksService.findAllByEmployee(
+      employeeId,
+      req.branchId,
+      req.user.role,
+      employeeId,
     );
     return success(data);
   }

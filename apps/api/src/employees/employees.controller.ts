@@ -216,6 +216,45 @@ export class EmployeesController {
     return success(result);
   }
 
+  // Employee Portal Endpoints
+  @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
+  @Get('my/profile')
+  async getMyProfile(@Req() req: AuthenticatedRequest) {
+    const data = await this.employeesService.getMyProfile(
+      req.user.employeeId!,
+      req.branchId,
+    );
+    return success(data);
+  }
+
+  @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
+  @Get('my/stats')
+  async getMyStats(@Req() req: AuthenticatedRequest) {
+    const data = await this.employeesService.getMyStats(
+      req.user.employeeId!,
+      req.branchId,
+    );
+    return success(data);
+  }
+
+  @Roles(...EMPLOYEE_SELF_ROLES)
+  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
+  @Get('my/items')
+  async getMyItems(
+    @Query() pagination: PaginationQueryDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.employeesService.getMyItems(
+      req.user.employeeId!,
+      req.branchId,
+      pagination.page ?? 1,
+      pagination.limit ?? 20,
+    );
+    return success(data);
+  }
+
   @Roles(...OPERATOR_ROLES)
   @RequirePermissions(PERMISSION['employees.read'])
   @Get(':id/stats')
@@ -259,45 +298,6 @@ export class EmployeesController {
       dto.fileUrl,
       dto.fileType,
       req.user.userId,
-    );
-    return success(data);
-  }
-
-  // Employee Portal Endpoints
-  @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
-  @Get('my/profile')
-  async getMyProfile(@Req() req: AuthenticatedRequest) {
-    const data = await this.employeesService.getMyProfile(
-      req.user.employeeId!,
-      req.branchId,
-    );
-    return success(data);
-  }
-
-  @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
-  @Get('my/stats')
-  async getMyStats(@Req() req: AuthenticatedRequest) {
-    const data = await this.employeesService.getMyStats(
-      req.user.employeeId!,
-      req.branchId,
-    );
-    return success(data);
-  }
-
-  @Roles(...EMPLOYEE_SELF_ROLES)
-  @RequireAnyPermissions(PERMISSION['employees.read'], PERMISSION['tasks.read'])
-  @Get('my/items')
-  async getMyItems(
-    @Query() pagination: PaginationQueryDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
-    const data = await this.employeesService.getMyItems(
-      req.user.employeeId!,
-      req.branchId,
-      pagination.page ?? 1,
-      pagination.limit ?? 20,
     );
     return success(data);
   }

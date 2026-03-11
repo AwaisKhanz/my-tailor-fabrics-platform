@@ -147,6 +147,7 @@ const rolePermissionMatrix: Record<Role, readonly Permission[]> = {
     'measurements.read',
     'branches.read',
     'attendance.read',
+    'attendance.manage',
     'attendance.checkin',
     'search.global',
   ],
