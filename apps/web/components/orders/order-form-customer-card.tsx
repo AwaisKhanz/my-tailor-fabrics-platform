@@ -1,6 +1,11 @@
 import { Customer } from "@tbms/shared-types";
-import { UserRound } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import {
   FormControl,
   FormField,
@@ -9,10 +14,6 @@ import {
   FormMessage,
 } from "@tbms/ui/components/form";
 import { Input } from "@tbms/ui/components/input";
-import { InfoTile } from "@tbms/ui/components/info-tile";
-import { Label } from "@tbms/ui/components/label";
-import { SectionHeader } from "@tbms/ui/components/section-header";
-import { SectionIcon } from "@tbms/ui/components/section-icon";
 import {
   Select,
   SelectContent,
@@ -32,7 +33,7 @@ interface OrderFormCustomerCardProps {
 }
 
 const fieldLabelClassName =
-  "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground";
+  "text-xs font-medium text-muted-foreground";
 
 export function OrderFormCustomerCard({
   form,
@@ -42,18 +43,11 @@ export function OrderFormCustomerCard({
 }: OrderFormCustomerCardProps) {
   return (
     <Card>
-      <CardHeader
-      >
-        <SectionHeader
-          title="Customer Information"
-          titleVariant="section"
-          description="Select the customer and set a delivery timeline."
-          icon={
-            <SectionIcon tone="info" size="lg">
-              <UserRound className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
+      <CardHeader>
+        <CardTitle>Customer Information</CardTitle>
+        <CardDescription>
+          Select the customer and set the expected completion date.
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -107,32 +101,26 @@ export function OrderFormCustomerCard({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <InfoTile tone="secondary">
-            <Label className={fieldLabelClassName}> 
-              Size Number
-            </Label>
+          <div className="rounded-md border p-3">
+            <p className={fieldLabelClassName}>Size Number</p>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.sizeNumber || "-"}
             </p>
-          </InfoTile>
-          <InfoTile tone="secondary">
-            <Label className={fieldLabelClassName}>
-              City
-            </Label>
+          </div>
+          <div className="rounded-md border p-3">
+            <p className={fieldLabelClassName}>City</p>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer?.city || "-"}
             </p>
-          </InfoTile>
-          <InfoTile tone="secondary">
-            <Label className={fieldLabelClassName}>
-              Lifetime Value
-            </Label>
+          </div>
+          <div className="rounded-md border p-3">
+            <p className={fieldLabelClassName}>Lifetime Value</p>
             <p className="mt-1 text-sm font-semibold text-foreground">
               {selectedCustomer
                 ? formatPKR(selectedCustomer.lifetimeValue)
                 : "-"}
             </p>
-          </InfoTile>
+          </div>
         </div>
       </CardContent>
     </Card>

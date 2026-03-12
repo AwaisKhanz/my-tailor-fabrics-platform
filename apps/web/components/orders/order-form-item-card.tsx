@@ -5,7 +5,12 @@ import {
 import { GripVertical, Trash2 } from "lucide-react";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { InfoTile } from "@tbms/ui/components/info-tile";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@tbms/ui/components/card";
 import { SortableItemHandle } from "@tbms/ui/components/reui/sortable";
 import { OrderFormItemAddons } from "@/components/orders/order-form-item-addons";
 import { OrderFormItemDetails } from "@/components/orders/order-form-item-details";
@@ -47,87 +52,74 @@ export function OrderFormItemCard({
   );
 
   return (
-    <InfoTile
-      padding="none"
-      tone="default"
-      radius="xl"
-      className="space-y-5 p-4 sm:p-5"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <InfoTile
-              tone="default"
-              padding="none"
-              className="text-right !text-xs p-1"
-            >
-              PIECE {index + 1}
-            </InfoTile>
-            {selectedGarment ? (
-              <Badge variant="secondary" className="font-bold">
-                {selectedGarment.name}
-              </Badge>
-            ) : null}
+    <Card>
+      <CardHeader>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">Piece {index + 1}</Badge>
+              {selectedGarment ? (
+                <Badge variant="secondary" className="font-semibold">
+                  {selectedGarment.name}
+                </Badge>
+              ) : null}
+            </div>
+            <CardDescription>
+              Configure garment, quantity, pricing, and production details.
+            </CardDescription>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Configure garment, quantity, pricing, and production details.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {canReorder ? (
-            <SortableItemHandle
-              render={(
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label={`Reorder piece ${index + 1}`}
-                  title="Drag to reorder"
-                />
-              )}
-            >
-              <GripVertical className="h-4 w-4" />
-            </SortableItemHandle>
-          ) : null}
-          <InfoTile
-            tone="default"
-            padding="none"
-            className="text-right p-1 !text-xs "
-          >
-            <p className=" text-foreground">
+          <div className="flex items-center gap-2">
+            {canReorder ? (
+              <SortableItemHandle
+                render={(
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label={`Reorder piece ${index + 1}`}
+                    title="Drag to reorder"
+                  />
+                )}
+              >
+                <GripVertical className="h-4 w-4" />
+              </SortableItemHandle>
+            ) : null}
+            <div className="rounded-md border px-2.5 py-1 text-sm font-semibold text-foreground">
               {formatPKR(Math.round(lineTotal * 100))}
-            </p>
-          </InfoTile>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => onRemoveItem(index)}
-            disabled={!canRemove}
-            aria-label={`Remove piece ${index + 1}`}
-            title="Remove piece"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => onRemoveItem(index)}
+              disabled={!canRemove}
+              aria-label={`Remove piece ${index + 1}`}
+              title="Remove piece"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
+      </CardHeader>
 
-      <OrderFormItemDetails
-        index={index}
-        form={form}
-        garmentTypes={garmentTypes}
-        designTypeOptions={designTypeOptions}
-        onSelectGarmentType={onSelectGarmentType}
-      />
+      <CardContent className="space-y-5">
+        <OrderFormItemDetails
+          index={index}
+          form={form}
+          garmentTypes={garmentTypes}
+          designTypeOptions={designTypeOptions}
+          onSelectGarmentType={onSelectGarmentType}
+        />
 
-      <OrderFormItemAddons
-        index={index}
-        form={form}
-        watchedAddons={watchedAddons}
-        onAddAddon={onAddAddon}
-        onRemoveAddon={onRemoveAddon}
-      />
-    </InfoTile>
+        <OrderFormItemAddons
+          index={index}
+          form={form}
+          watchedAddons={watchedAddons}
+          onAddAddon={onAddAddon}
+          onRemoveAddon={onRemoveAddon}
+        />
+      </CardContent>
+    </Card>
   );
 }

@@ -22,7 +22,10 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 3. Shared cross-cutting backend code belongs under:
    - `apps/api/src/common`
    - `apps/api/src/prisma`
-4. Do not create random root-level backend utility files when the concern belongs in a feature module or `common`.
+4. Email rendering templates belong under:
+   - `apps/api/src/mail/templates`
+5. Mail template theme/layout helpers must be reused by all backend-sent emails (no ad hoc inline HTML in feature services).
+6. Do not create random root-level backend utility files when the concern belongs in a feature module or `common`.
 
 ## 3. Prisma and Database Rules
 
@@ -63,6 +66,10 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
    - shared role/permission matrix
    - frontend access logic if the route is user-facing
 7. Employee self-profile endpoints must use the dedicated `employees.self.read` permission instead of reusing broader task or staff employee permissions.
+8. Login flow is two-step for all password-based sign-ins:
+   - first request verifies credentials and issues an email OTP challenge
+   - second request verifies OTP and only then issues JWT/refresh tokens
+9. Do not bypass OTP verification by reintroducing direct password-to-token issuance endpoints.
 
 ## 6. Environment and Runtime Rules
 

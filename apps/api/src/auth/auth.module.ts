@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
+import { MailModule } from '../mail/mail.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { getJwtExpiresIn, getJwtSecret } from '../common/env';
@@ -11,6 +12,7 @@ import { getJwtExpiresIn, getJwtSecret } from '../common/env';
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     PassportModule,
     JwtModule.register({
       secret: getJwtSecret(),

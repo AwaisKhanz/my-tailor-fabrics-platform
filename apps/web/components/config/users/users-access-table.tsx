@@ -1,14 +1,22 @@
+import { useCallback, useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Pencil, Trash2, Users } from "lucide-react";
 import { ROLE_BADGE, ROLE_LABELS } from "@tbms/shared-constants";
 import { type UserAccount } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { Switch } from "@tbms/ui/components/switch";
 import {
   USERS_ALL_BRANCHES_LABEL,
   USERS_MASTER_ACCESS_LABEL,
 } from "@/hooks/use-user-account-manager";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface UsersAccessTableProps {
   users: UserAccount[];
@@ -33,104 +41,152 @@ export function UsersAccessTable({
   onPageChange,
   onToggleActive,
 }: UsersAccessTableProps) {
-  const columns: ColumnDef<UserAccount>[] = [
-    {
-      header: "Staff Member",
-      cell: (user) => (
+  const columns = useMemo<ColumnDef<UserAccount>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Staff Member",
+        cell: ({ row }) => (
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
             <Users className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold leading-tight text-foreground">
-              {user.name}
+              {row.original.name}
             </span>
             <span className="mt-0.5 text-xs text-muted-foreground">
-              ID: STAFF-{user.id ? user.id.slice(0, 3).toUpperCase() : "001"}
+              ID: STAFF-{row.original.id ? row.original.id.slice(0, 3).toUpperCase() : "001"}
             </span>
           </div>
         </div>
       ),
-    },
-    {
-      header: "Email",
-      cell: (user) => (
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => (
         <span className="text-sm font-bold text-muted-foreground">
-          {user.email}
+          {row.original.email}
         </span>
       ),
-    },
-    {
-      header: "Role",
-      cell: (user) => (
-        <Badge variant={ROLE_BADGE[user.role] ?? "outline"}>
-          {ROLE_LABELS[user.role]}
+      },
+      {
+        accessorKey: "role",
+        header: "Role",
+        cell: ({ row }) => (
+        <Badge variant={ROLE_BADGE[row.original.role] ?? "outline"}>
+          {ROLE_LABELS[row.original.role]}
         </Badge>
       ),
-    },
-    {
-      header: "Branch Access",
-      cell: (user) => (
+      },
+      {
+        id: "branchAccess",
+        enableSorting: false,
+        header: "Branch Access",
+        cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="text-sm font-bold text-foreground">
-            {user.branch ? user.branch.name : USERS_ALL_BRANCHES_LABEL}
+            {row.original.branch ? row.original.branch.name : USERS_ALL_BRANCHES_LABEL}
           </span>
           <span className="text-xs text-muted-foreground">
-            {user.branch ? user.branch.code : USERS_MASTER_ACCESS_LABEL}
+            {row.original.branch ? row.original.branch.code : USERS_MASTER_ACCESS_LABEL}
           </span>
         </div>
       ),
-    },
-    {
-      header: "Last Activity",
-      cell: (user) => (
+      },
+      {
+        accessorKey: "lastLoginAt",
+        header: "Last Activity",
+        cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="text-sm font-bold text-foreground">
-            {user.lastLoginAt
-              ? new Date(user.lastLoginAt).toLocaleDateString("en-PK")
+            {row.original.lastLoginAt
+              ? new Date(row.original.lastLoginAt).toLocaleDateString("en-PK")
               : "Never"}
           </span>
           <span className="text-xs text-muted-foreground">System Log</span>
         </div>
       ),
-    },
-    {
-      header: "Access",
-      cell: (user) => (
+      },
+      {
+        id: "access",
+        enableSorting: false,
+        header: "Access",
+        cell: ({ row }) => (
         <Switch
-          checked={user.isActive}
-          onCheckedChange={(nextChecked) => onToggleActive(user, nextChecked)}
+          checked={row.original.isActive}
+          onCheckedChange={(nextChecked) =>
+            onToggleActive(row.original, nextChecked)
+          }
         />
       ),
-    },
-    {
-      header: "Actions",
-      align: "right",
-      cell: (user) => (
+      },
+      {
+        id: "actions",
+        enableSorting: false,
+        header: "Actions",
+        cell: ({ row }) => (
         <div className="flex items-center justify-end gap-1">
-          <Button variant="ghost" size="icon" onClick={() => onEdit(user)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(row.original)}
+          >
             <Pencil className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => onDelete(user)}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onDelete(row.original)}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       ),
+      },
+    ],
+    [onDelete, onEdit, onToggleActive],
+  );
+
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
     },
-  ];
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(() => {
+    return;
+  }, []);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={users}
       loading={loading}
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
+      chrome="flat"
+      pagination={pagination}
+      onPaginationChange={handlePaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={handleSortingChange}
       itemLabel="accounts"
       emptyMessage="No staff accounts found. Create your first user to manage access."
-      chrome="flat"
     />
   );
 }

@@ -18,11 +18,6 @@ import {
   SheetTitle,
 } from "@tbms/ui/components/sheet"
 import { Skeleton } from "@tbms/ui/components/skeleton"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@tbms/ui/components/tooltip"
 import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
@@ -496,29 +491,35 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-function SidebarMenuButton({
-  render,
-  isActive = false,
-  variant = "default",
-  size = "default",
-  tooltip,
-  className,
-  ...props
-}: useRender.ComponentProps<"button"> &
+type SidebarMenuButtonProps = useRender.ComponentProps<"button"> &
   React.ComponentProps<"button"> & {
     isActive?: boolean
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>
-  } & VariantProps<typeof sidebarMenuButtonVariants>) {
-  const { isMobile, state } = useSidebar()
-  const comp = useRender({
+  } & VariantProps<typeof sidebarMenuButtonVariants>
+
+const SidebarMenuButton = React.forwardRef<
+  HTMLButtonElement,
+  SidebarMenuButtonProps
+>(function SidebarMenuButton(
+  {
+    render,
+    isActive = false,
+    variant = "default",
+    size = "default",
+    className,
+    ...props
+  },
+  ref
+) {
+  return useRender({
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
+        ref,
         className: cn(sidebarMenuButtonVariants({ variant, size }), className),
       },
       props
     ),
-    render: !tooltip ? render : <TooltipTrigger render={render} />,
+    render,
     state: {
       slot: "sidebar-menu-button",
       sidebar: "menu-button",
@@ -526,29 +527,7 @@ function SidebarMenuButton({
       active: isActive,
     },
   })
-
-  if (!tooltip) {
-    return comp
-  }
-
-  if (typeof tooltip === "string") {
-    tooltip = {
-      children: tooltip,
-    }
-  }
-
-  return (
-    <Tooltip>
-      {comp}
-      <TooltipContent
-        side="right"
-        align="center"
-        hidden={state !== "collapsed" || isMobile}
-        {...tooltip}
-      />
-    </Tooltip>
-  )
-}
+})
 
 function SidebarMenuAction({
   className,

@@ -35,6 +35,10 @@ export function PaymentsEmployeeSelectorCard({
   selectedEmployee,
   onEmployeeChange,
 }: PaymentsEmployeeSelectorCardProps) {
+  const selectedEmployeeLabel =
+    employees.find((employee) => employee.id === selectedEmployeeId) ??
+    selectedEmployee;
+
   return (
     <Card>
       <CardHeader>
@@ -61,7 +65,16 @@ export function PaymentsEmployeeSelectorCard({
                 placeholder={
                   loading ? "Loading employees..." : "Choose an employee…"
                 }
-              />
+              >
+                {selectedEmployeeLabel ? (
+                  <>
+                    {selectedEmployeeLabel.fullName}
+                    <span className="ml-1 text-muted-foreground opacity-60">
+                      ({selectedEmployeeLabel.employeeCode})
+                    </span>
+                  </>
+                ) : null}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {employees.map((employee) => (

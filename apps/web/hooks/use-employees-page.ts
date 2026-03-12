@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { useEmployeesList } from "@/hooks/queries/employee-queries";
@@ -20,11 +21,12 @@ export function useEmployeesPage() {
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
+  const debouncedSearch = useDebounce(search, 500);
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const employeesQuery = useEmployeesList({
-    search: search.trim() || undefined,
+    search: debouncedSearch.trim() || undefined,
     page,
     limit: pageSize,
   });

@@ -8,3 +8,4 @@ export * from './rates';
 export * from './ledger';
 export * from './authz';
 export * from './audit';
+export * from './branding';

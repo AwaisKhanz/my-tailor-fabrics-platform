@@ -19,8 +19,6 @@ export function AttendanceSettingsPageHeader({
           Refresh
         </Button>
       }
-      surface="card"
-      density="compact"
     />
   );
 }

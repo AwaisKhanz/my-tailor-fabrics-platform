@@ -24,4 +24,5 @@ __exportStar(require("./rates"), exports);
 __exportStar(require("./ledger"), exports);
 __exportStar(require("./authz"), exports);
 __exportStar(require("./audit"), exports);
+__exportStar(require("./branding"), exports);
 //# sourceMappingURL=index.js.map

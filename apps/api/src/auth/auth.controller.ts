@@ -15,6 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { VerifyLoginOtpDto } from './dto/verify-login-otp.dto';
 import type { CookieOptions, Response } from 'express';
 import { Public, Roles } from '../common/decorators/auth.decorators';
 import {
@@ -26,6 +27,7 @@ import { success } from '../common/utils/response.util';
 import type {
   ApiResponse,
   AuthLoginResponseData,
+  AuthLoginOtpChallengeResponseData,
   AuthRefreshResponseData,
 } from '@tbms/shared-types';
 
@@ -66,9 +68,30 @@ export class AuthController {
       blockDuration: 300_000,
     },
   })
+  @Post('login/request-otp')
+  async requestLoginOtp(@Body() loginDto: LoginDto) {
+    const result = await this.authService.requestLoginOtp(loginDto);
+
+    const responseBody: ApiResponse<AuthLoginOtpChallengeResponseData> = {
+      success: true,
+      data: result,
+    };
+
+    return responseBody;
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      limit: 12,
+      ttl: 60_000,
+      blockDuration: 300_000,
+    },
+  })
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    const result = await this.authService.login(loginDto);
+  async login(@Body() verifyDto: VerifyLoginOtpDto, @Res() res: Response) {
+    const result = await this.authService.login(verifyDto);
 
     this.setRefreshCookie(res, result.refreshToken);
 

@@ -63,3 +63,8 @@ Web:
 ## Production Rule
 
 Production secrets belong in DigitalOcean App Platform, not in repo-local `.env.production` files. The example files remain useful as the contract and onboarding template.
+
+For production authentication:
+
+1. Login OTP delivery requires configured API mail environment values (Google mail client credentials, refresh token, and sender email).
+2. If mail credentials are missing or invalid, password login verification cannot complete because OTP email delivery will fail.

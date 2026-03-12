@@ -172,7 +172,16 @@ API service:
 14. `STATUS_PIN_PEPPER`
 15. `ENABLE_INTERNAL_SCHEDULER=true`
 16. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
-17. Google mail secrets only if Gmail integration is in use
+17. `GOOGLE_CLIENT_ID`
+18. `GOOGLE_CLIENT_SECRET`
+19. `GOOGLE_REFRESH_TOKEN`
+20. `GOOGLE_EMAIL`
+21. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
+
+Important:
+
+1. Email OTP login depends on API mail delivery in production.
+2. Do not ship production without valid Google mail credentials configured for `api-backend`.
 
 ## Current DigitalOcean Console Operations
 
@@ -247,7 +256,7 @@ After every production deployment:
 1. `/healthz` returns `200`
 2. `/backend/healthz` returns `200`
 3. `/login` renders correctly
-4. login succeeds
+4. login succeeds through email OTP verification (request OTP, receive code, verify code)
 5. `/api/auth/*` still works
 6. authenticated browser traffic goes to `/backend/*`
 7. `/api/status/*` still works

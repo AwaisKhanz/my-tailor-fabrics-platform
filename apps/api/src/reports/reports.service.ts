@@ -177,12 +177,9 @@ export class ReportsService {
           : { status: EmployeeStatus.ACTIVE, deletedAt: null },
       }),
       this.prisma.order.findMany({
-        where: {
-          ...baseOrderWhere,
-          status: OrderStatus.OVERDUE,
-        },
+        where: baseOrderWhere,
         orderBy: { createdAt: 'desc' },
-        take: 5,
+        take: 10,
         include: {
           customer: true,
           items: true,

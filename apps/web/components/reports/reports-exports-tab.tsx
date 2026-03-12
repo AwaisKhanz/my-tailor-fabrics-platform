@@ -24,7 +24,7 @@ export function ReportsExportsTab({
       <SectionHeader
         title="Document Exports"
         description="Generate structured reports for finance, payroll, and operational review."
-        icon={<FileText className="h-4 w-4 text-primary" />}
+        icon={<FileText className="h-4 sm:h-11 sm:w-11 w-4 text-primary" />}
       />
 
       <ReportsExportGrid

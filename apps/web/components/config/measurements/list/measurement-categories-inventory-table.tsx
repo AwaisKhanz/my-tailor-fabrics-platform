@@ -2,9 +2,15 @@ import { useMemo } from "react";
 import { Edit2, Eye, RotateCcw, Trash2 } from "lucide-react";
 import { MEASUREMENT_STATUS_BADGE, MEASUREMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { type MeasurementCategory } from "@tbms/shared-types";
+import {
+  type ColumnDef,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface MeasurementCategoriesInventoryTableProps {
   categories: MeasurementCategory[];
@@ -38,80 +44,85 @@ export function MeasurementCategoriesInventoryTable({
   const columns = useMemo<ColumnDef<MeasurementCategory>[]>(
     () => [
       {
+        id: "name",
         header: "Category Name",
-        cell: (category) => (
-          category.deletedAt ? (
+        cell: ({ row }) => (
+          row.original.deletedAt ? (
             <span className="font-semibold text-muted-foreground">
-              {category.name}
+              {row.original.name}
             </span>
           ) : (
             <button
               onClick={(event) => {
                 event.stopPropagation();
-                onView(category);
+                onView(row.original);
               }}
               className="font-semibold text-foreground transition-colors hover:text-primary"
             >
-              {category.name}
+              {row.original.name}
             </button>
           )
         ),
       },
       {
+        id: "fields",
         header: "Fields",
-        cell: (category) => <Badge variant="secondary">{category.fields?.length || 0} Fields</Badge>,
+        cell: ({ row }) => (
+          <Badge variant="secondary">{row.original.fields?.length || 0} Fields</Badge>
+        ),
       },
       {
+        id: "status",
         header: "Status",
-        cell: (category) => (
+        cell: ({ row }) => (
           <Badge
             variant={
-              category.deletedAt
+              row.original.deletedAt
                 ? "outline"
-                : category.isActive
+                : row.original.isActive
                   ? MEASUREMENT_STATUS_BADGE.ACTIVE
                   : MEASUREMENT_STATUS_BADGE.HIDDEN
             }
 
           >
-            {category.deletedAt
+            {row.original.deletedAt
               ? "Archived"
-              : category.isActive
+              : row.original.isActive
                 ? MEASUREMENT_STATUS_LABELS.ACTIVE
                 : MEASUREMENT_STATUS_LABELS.HIDDEN}
           </Badge>
         ),
       },
       {
-        header: "Actions",
-        align: "right",
-        cell: (category) => (
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
             <Button
               variant="ghost"
               size="icon"
-              disabled={Boolean(category.deletedAt)}
+              disabled={Boolean(row.original.deletedAt)}
               onClick={(event) => {
                 event.stopPropagation();
-                onView(category);
+                onView(row.original);
               }}
             >
               <Eye className="h-4 w-4" />
             </Button>
             {canManageMeasurements ? (
               <>
-                {category.deletedAt ? (
+                {row.original.deletedAt ? (
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={restoringId === category.id}
+                    disabled={restoringId === row.original.id}
                     onClick={(event) => {
                       event.stopPropagation();
-                      onRestore(category);
+                      onRestore(row.original);
                     }}
                   >
                     <RotateCcw className="h-4 w-4" />
-                    {restoringId === category.id ? "Restoring..." : "Restore"}
+                    {restoringId === row.original.id ? "Restoring..." : "Restore"}
                   </Button>
                 ) : (
                   <>
@@ -120,7 +131,7 @@ export function MeasurementCategoriesInventoryTable({
                       size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
-                        onEdit(category);
+                        onEdit(row.original);
                       }}
                     >
                       <Edit2 className="h-4 w-4" />
@@ -130,7 +141,7 @@ export function MeasurementCategoriesInventoryTable({
                       size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
-                        onDelete(category);
+                        onDelete(row.original);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -146,21 +157,48 @@ export function MeasurementCategoriesInventoryTable({
     [canManageMeasurements, onDelete, onEdit, onRestore, onView, restoringId],
   );
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useMemo(
+    () =>
+      (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+        const next = resolveUpdater(updater, pagination);
+        onPageChange(next.pageIndex + 1);
+      },
+    [onPageChange, pagination],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useMemo(
+    () =>
+      (updater: SortingState | ((old: SortingState) => SortingState)) => {
+        void updater;
+      },
+    [],
+  );
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={categories}
       loading={loading}
       emptyMessage="No categories found."
       itemLabel="categories"
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      pageCount={Math.max(1, Math.ceil(total / pageSize))}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={onSortingChange}
       chrome="flat"
-      onRowClick={(category) => {
-        if (!category.deletedAt) {
-          onView(category);
+      onRowClick={(row) => {
+        if (!row.original.deletedAt) {
+          onView(row.original);
         }
       }}
     />

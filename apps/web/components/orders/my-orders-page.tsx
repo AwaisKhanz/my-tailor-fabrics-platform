@@ -27,8 +27,6 @@ export function MyOrdersPage() {
         <PageHeader
           title="My Work Orders"
           description="Review and manage your assigned tailoring tasks."
-          surface="card"
-          density="compact"
         />
       </PageSection>
 

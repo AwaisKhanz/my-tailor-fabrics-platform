@@ -121,28 +121,12 @@ export function OrderDetailHeaderCard({
     <Card>
       <CardHeader className="space-y-3">
         <CardDescription>Order Details</CardDescription>
-        <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className="text-3xl font-semibold sm:text-4xl">
-            {orderNumber}
-          </CardTitle>
-          <Badge variant={statusVariant}>{statusLabel}</Badge>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-5">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-3">
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
-              <MetaPill>
-                <CalendarDays className="h-3.5 w-3.5" />
-                <span>Created {createdAtLabel}</span>
-              </MetaPill>
-              <MetaPill>
-                <Clock3 className="h-3.5 w-3.5" />
-                <span>Due {dueDateLabel}</span>
-              </MetaPill>
-            </div>
-            <ProgressSteps data={{ steps: progressSteps }} />
+        <div className=" flex flex-wrap justify-between gap-3">
+          <div className="flex  items-center gap-3">
+            <CardTitle className="text-3xl font-semibold sm:text-4xl">
+              {orderNumber}
+            </CardTitle>
+            <Badge variant={statusVariant}>{statusLabel}</Badge>
           </div>
 
           <div
@@ -167,6 +151,24 @@ export function OrderDetailHeaderCard({
                 </Button>
               );
             })}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-5">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-3">
+            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
+              <MetaPill>
+                <CalendarDays className="h-3.5 w-3.5" />
+                <span>Created {createdAtLabel}</span>
+              </MetaPill>
+              <MetaPill>
+                <Clock3 className="h-3.5 w-3.5" />
+                <span>Due {dueDateLabel}</span>
+              </MetaPill>
+            </div>
+            <ProgressSteps data={{ steps: progressSteps }} />
           </div>
         </div>
       </CardContent>

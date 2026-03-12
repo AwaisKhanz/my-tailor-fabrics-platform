@@ -1,12 +1,19 @@
 import { useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import Link from "next/link";
 import { Clock, Edit2, RotateCcw, Shirt, Trash2 } from "lucide-react";
 import { type GarmentType } from "@tbms/shared-types";
 import { GARMENT_STATUS_LABELS } from "@tbms/shared-constants";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { buildGarmentSettingsDetailRoute } from "@/lib/settings-routes";
+import { resolveUpdater } from "@/lib/tanstack";
 import { formatPKR } from "@/lib/utils";
 
 interface GarmentTypesInventoryTableProps {
@@ -45,64 +52,72 @@ export function GarmentTypesInventoryTable({
   const columns = useMemo<ColumnDef<GarmentType>[]>(
     () => [
       {
+        accessorKey: "name",
         header: "Garment Name",
-        cell: (item) => (
+        cell: ({ row }) => (
           <div className="group/row flex items-center gap-4">
             <Link
-              href={buildGarmentSettingsDetailRoute(item.id)}
+              href={buildGarmentSettingsDetailRoute(row.original.id)}
               onClick={(event) => {
-                if (item.deletedAt) {
+                if (row.original.deletedAt) {
                   event.preventDefault();
                 }
               }}
               className="group/link flex flex-col transition-opacity hover:opacity-80"
             >
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover/link:text-primary">
-                {item.name}
+                {row.original.name}
               </span>
               <span className="mt-0.5 text-xs text-muted-foreground">
-                ID: GT-{item.id.slice(-4).toUpperCase()}
+                ID: GT-{row.original.id.slice(-4).toUpperCase()}
               </span>
             </Link>
           </div>
         ),
       },
       {
+        accessorKey: "customerPrice",
         header: "Customer Price",
-        cell: (item) => (
+        cell: ({ row }) => (
           <span className="text-sm font-bold text-foreground">
-            {formatPKR(item.customerPrice)}
+            {formatPKR(row.original.customerPrice)}
           </span>
         ),
       },
       {
+        accessorKey: "isActive",
         header: "Status",
-        cell: (item) => (
+        cell: ({ row }) => (
           <Badge
             variant={
-              item.deletedAt ? "outline" : item.isActive ? "default" : "outline"
+              row.original.deletedAt
+                ? "outline"
+                : row.original.isActive
+                  ? "default"
+                  : "outline"
             }
 
           >
-            {item.deletedAt
+            {row.original.deletedAt
               ? "Archived"
-              : item.isActive
+              : row.original.isActive
                 ? GARMENT_STATUS_LABELS.ACTIVE
                 : GARMENT_STATUS_LABELS.INACTIVE}
           </Badge>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (item) => (
+        cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
             <Button
               variant="ghost"
               size="icon"
               onClick={(event) => {
                 event.stopPropagation();
-                onOpenHistory(item);
+                onOpenHistory(row.original);
               }}
               title="View Price History"
             >
@@ -111,18 +126,18 @@ export function GarmentTypesInventoryTable({
 
             {canManageGarments ? (
               <>
-                {item.deletedAt ? (
+                {row.original.deletedAt ? (
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={restoringId === item.id}
+                    disabled={restoringId === row.original.id}
                     onClick={(event) => {
                       event.stopPropagation();
-                      onRestore(item);
+                      onRestore(row.original);
                     }}
                   >
                     <RotateCcw className="h-4 w-4" />
-                    {restoringId === item.id ? "Restoring..." : "Restore"}
+                    {restoringId === row.original.id ? "Restoring..." : "Restore"}
                   </Button>
                 ) : (
                   <>
@@ -131,7 +146,7 @@ export function GarmentTypesInventoryTable({
                       size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
-                        onEdit(item);
+                        onEdit(row.original);
                       }}
                     >
                       <Edit2 className="h-4 w-4" />
@@ -142,7 +157,7 @@ export function GarmentTypesInventoryTable({
                       size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
-                        onOpenWorkflow(item);
+                        onOpenWorkflow(row.original);
                       }}
                       title="Configure Production Workflow"
                     >
@@ -154,7 +169,7 @@ export function GarmentTypesInventoryTable({
                       size="icon"
                       onClick={(event) => {
                         event.stopPropagation();
-                        onDelete(item);
+                        onDelete(row.original);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -178,19 +193,46 @@ export function GarmentTypesInventoryTable({
     ],
   );
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useMemo<OnChangeFn<PaginationState>>(
+    () => (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useMemo<OnChangeFn<SortingState>>(
+    () => () => {
+      return;
+    },
+    [],
+  );
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={garmentTypes}
       loading={loading}
       emptyMessage="No garment types found."
       itemLabel="types"
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
-      onRowClick={onOpen}
       chrome="flat"
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={onSortingChange}
+      onRowClick={(row) => onOpen(row.original)}
     />
   );
 }

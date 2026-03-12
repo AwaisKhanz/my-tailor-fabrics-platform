@@ -1,11 +1,18 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Clock, GitBranch, Pencil } from "lucide-react";
 import { type RateCardListItem } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldLabel } from "@tbms/ui/components/field";
 import { formatPKR } from "@/lib/utils";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface RatesTableProps {
   rates: RateCardListItem[];
@@ -29,25 +36,31 @@ export function RatesTable({
   const columns = useMemo<ColumnDef<RateCardListItem>[]>(() => {
     const baseColumns: ColumnDef<RateCardListItem>[] = [
       {
+        id: "garmentType",
+        accessorFn: (rate) => rate.garmentType?.name ?? "",
         header: "Garment Type",
-        cell: (rate) => (
+        cell: ({ row }) => (
           <div className="font-medium text-foreground">
-            {rate.garmentType?.name || "Unknown"}
+            {row.original.garmentType?.name || "Unknown"}
           </div>
         ),
       },
       {
-        header: "Step",
         accessorKey: "stepKey",
-        className: "font-bold",
+        header: "Step",
+        cell: ({ row }) => (
+          <span className="font-bold">{row.original.stepKey}</span>
+        ),
       },
       {
+        id: "branch",
+        enableSorting: false,
         header: "Branch",
-        cell: (rate) =>
-          rate.branchId ? (
+        cell: ({ row }) =>
+          row.original.branchId ? (
             <Badge variant="outline" className="gap-1">
               <GitBranch className="h-2.5 w-2.5" />
-              {rate.branch?.code || "Branch"}
+              {row.original.branch?.code || "Branch"}
             </Badge>
           ) : (
             <Badge variant="default">
@@ -56,26 +69,26 @@ export function RatesTable({
           ),
       },
       {
+        accessorKey: "amount",
         header: "Rate",
-        align: "right",
-        cell: (rate) => (
+        cell: ({ row }) => (
           <span className="font-bold text-primary">
-            {formatPKR(rate.amount)}
+            {formatPKR(row.original.amount)}
           </span>
         ),
       },
       {
+        accessorKey: "effectiveFrom",
         header: "Effective",
-        align: "right",
-        cell: (rate) => (
+        cell: ({ row }) => (
           <div className="flex flex-col items-end whitespace-nowrap">
             <FieldLabel className="flex items-center gap-1">
               <Clock className="h-2.5 w-2.5" />
-              {new Date(rate.effectiveFrom).toLocaleDateString()}
+              {new Date(row.original.effectiveFrom).toLocaleDateString()}
             </FieldLabel>
-            {rate.effectiveTo ? (
+            {row.original.effectiveTo ? (
               <FieldLabel>
-                until {new Date(rate.effectiveTo).toLocaleDateString()}
+                until {new Date(row.original.effectiveTo).toLocaleDateString()}
               </FieldLabel>
             ) : null}
           </div>
@@ -90,9 +103,10 @@ export function RatesTable({
     return [
       ...baseColumns,
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (rate) => (
+        cell: ({ row }) => (
           <Button
             type="button"
             variant="ghost"
@@ -100,9 +114,9 @@ export function RatesTable({
             className="h-8 w-8 rounded-lg"
             onClick={(event) => {
               event.stopPropagation();
-              onAdjustRate(rate);
+              onAdjustRate(row.original);
             }}
-            aria-label={`Adjust ${rate.stepKey} rate`}
+            aria-label={`Adjust ${row.original.stepKey} rate`}
             title="Adjust rate"
           >
             <Pencil className="h-4 w-4" />
@@ -112,18 +126,44 @@ export function RatesTable({
     ];
   }, [onAdjustRate]);
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(() => {
+    return;
+  }, []);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={rates}
       loading={loading}
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
+      chrome="flat"
+      pagination={pagination}
+      onPaginationChange={handlePaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={handleSortingChange}
       itemLabel="rate cards"
       emptyMessage="No rate cards match your search."
-      chrome="flat"
     />
   );
 }

@@ -1,14 +1,16 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import type {
   EmployeeCompensationHistoryEntry,
   PaymentType,
 } from "@tbms/shared-types";
 import { PaymentType as PaymentTypeValue } from "@tbms/shared-types";
 import { PAYMENT_TYPE_LABELS } from "@tbms/shared-constants";
+import { type PaginationState, type SortingState } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldError, FieldLabel } from "@tbms/ui/components/field";
 import { FormGrid } from "@tbms/ui/components/form-layout";
 import { InfoTile } from "@tbms/ui/components/info-tile";
@@ -65,6 +67,27 @@ export function EmployeeCompensationSection({
   clearValidationError,
   onSubmit,
 }: EmployeeCompensationSectionProps) {
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: 0,
+      pageSize: Math.max(compensationHistory.length, 1),
+    }),
+    [compensationHistory.length],
+  );
+  const onPaginationChange = useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      void updater;
+    },
+    [],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
+    [],
+  );
+
   return (
     <EmployeeSection
       id="employee-compensation"
@@ -78,34 +101,38 @@ export function EmployeeCompensationSection({
       defaultOpen={false}
     >
       <div className="space-y-4 p-4 sm:p-5">
-        <DataTable<EmployeeCompensationHistoryEntry>
+        <DataTableTanstack
           columns={[
             {
+              id: "model",
               header: "Model",
-              cell: (entry) => (
+              cell: ({ row }) => (
                 <Badge variant="outline">
-                  {PAYMENT_TYPE_LABELS[entry.paymentType]}
+                  {PAYMENT_TYPE_LABELS[row.original.paymentType]}
                 </Badge>
               ),
             },
             {
-              header: "Monthly Salary",
-              align: "right",
-              cell: (entry) => (
-                <span className="font-medium">
-                  {entry.monthlySalary != null
-                    ? formatPKR(entry.monthlySalary)
-                    : "-"}
-                </span>
+              id: "salary",
+              header: () => <div className="text-right">Monthly Salary</div>,
+              cell: ({ row }) => (
+                <div className="text-right">
+                  <span className="font-medium">
+                    {row.original.monthlySalary != null
+                      ? formatPKR(row.original.monthlySalary)
+                      : "-"}
+                  </span>
+                </div>
               ),
             },
             {
+              id: "window",
               header: "Window",
-              cell: (entry) => (
+              cell: ({ row }) => (
                 <span className="text-xs text-muted-foreground">
-                  {formatDate(entry.effectiveFrom)}
-                  {entry.effectiveTo
-                    ? ` → ${formatDate(entry.effectiveTo)}`
+                  {formatDate(row.original.effectiveFrom)}
+                  {row.original.effectiveTo
+                    ? ` → ${formatDate(row.original.effectiveTo)}`
                     : " onwards"}
                 </span>
               ),
@@ -115,6 +142,12 @@ export function EmployeeCompensationSection({
           loading={false}
           chrome="flat"
           emptyMessage="No compensation history available."
+          pagination={pagination}
+          onPaginationChange={onPaginationChange}
+          pageCount={1}
+          totalCount={compensationHistory.length}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
         />
 
         {canManageWorkforceGovernance ? (

@@ -4,6 +4,7 @@ import {
   getGoogleMailEnvironment,
   isPublicMailEndpointsEnabled,
 } from '../common/env';
+import type { MailTemplatePayload } from './templates';
 
 @Injectable()
 export class MailService {
@@ -162,5 +163,12 @@ export class MailService {
         raw: encodedMessage,
       },
     });
+  }
+
+  async sendTemplate(
+    to: string,
+    template: MailTemplatePayload,
+  ): Promise<unknown> {
+    return this.sendMail(to, template.subject, template.text, template.html);
   }
 }

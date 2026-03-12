@@ -1,8 +1,8 @@
 "use client";
 
 import type { AuditLogEntry, JsonValue } from "@tbms/shared-types";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
-import type { ColumnDef } from "@tbms/ui/components/data-table";
 import { formatDateTime } from "@/lib/utils";
 
 const ACTION_SUMMARY_MAP: Record<string, string> = {
@@ -75,65 +75,75 @@ function getActionBadgeVariant(
 export function createAuditLogColumns(): ColumnDef<AuditLogEntry>[] {
   return [
     {
+      accessorKey: "createdAt",
       header: "Timestamp",
-      cell: (record) => (
+      cell: ({ row }) => (
         <span className="text-sm font-medium text-foreground">
-          {formatDateTime(record.createdAt)}
+          {formatDateTime(row.original.createdAt)}
         </span>
       ),
     },
     {
+      accessorKey: "action",
       header: "Action",
-      cell: (record) => (
-        <Badge variant={getActionBadgeVariant(record.action)}>
-          {record.action}
+      cell: ({ row }) => (
+        <Badge variant={getActionBadgeVariant(row.original.action)}>
+          {row.original.action}
         </Badge>
       ),
     },
     {
+      accessorKey: "entity",
       header: "Entity",
-      cell: (record) => (
+      cell: ({ row }) => (
         <div className="space-y-0.5">
-          <p className="text-sm font-semibold text-foreground">{record.entity}</p>
-          <p className="text-xs text-muted-foreground">{record.entityId}</p>
+          <p className="text-sm font-semibold text-foreground">{row.original.entity}</p>
+          <p className="text-xs text-muted-foreground">{row.original.entityId}</p>
         </div>
       ),
     },
     {
+      id: "actor",
+      accessorFn: (record) => record.user?.name || record.actorEmail || "Unknown user",
       header: "Actor",
-      cell: (record) => (
+      cell: ({ row }) => (
         <div className="space-y-0.5">
           <p className="text-sm font-semibold text-foreground">
-            {record.user?.name ||
-              (record.actorEmail ? "Unknown account" : "Unknown user")}
+            {row.original.user?.name ||
+              (row.original.actorEmail ? "Unknown account" : "Unknown user")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {record.user?.email || record.actorEmail || "—"}
+            {row.original.user?.email || row.original.actorEmail || "—"}
           </p>
         </div>
       ),
     },
     {
+      id: "changeSummary",
+      accessorFn: (record) => getChangeSummary(record),
+      enableSorting: false,
       header: "Change Summary",
-      cell: (record) => (
+      cell: ({ row }) => (
         <span className="line-clamp-2 text-sm text-muted-foreground">
-          {getChangeSummary(record)}
+          {getChangeSummary(row.original)}
         </span>
       ),
     },
     {
+      id: "source",
+      accessorFn: (record) => record.ipAddress || "Unknown IP",
+      enableSorting: false,
       header: "Source",
-      cell: (record) => (
+      cell: ({ row }) => (
         <div className="space-y-0.5 text-right">
           <p className="text-sm font-medium text-foreground">
-            {record.ipAddress || "Unknown IP"}
+            {row.original.ipAddress || "Unknown IP"}
           </p>
           <p className="line-clamp-1 max-w-[240px] text-xs text-muted-foreground">
-            {record.userAgent || "User agent unavailable"}
+            {row.original.userAgent || "User agent unavailable"}
           </p>
         </div>
       ),
-      align: "right",
     },
   ];
 }

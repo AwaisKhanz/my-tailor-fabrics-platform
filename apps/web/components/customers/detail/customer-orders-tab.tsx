@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useMemo } from "react";
+import {
+  type ColumnDef,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Clock3, History } from "lucide-react";
 import { type Order } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@tbms/ui/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { EmptyState } from "@tbms/ui/components/empty-state";
 import { Text } from "@tbms/ui/components/typography";
 import { formatPKR } from "@/lib/utils";
+import { resolveUpdater } from "@/lib/tanstack";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 const PAGE_SIZE = 10;
@@ -51,40 +57,42 @@ export function CustomerOrdersTab({
   const columns = useMemo<ColumnDef<Order>[]>(
     () => [
       {
+        accessorKey: "orderNumber",
         header: "Order #",
-        cell: (order) => (
+        cell: ({ row }) => (
           <Text
             as="p"
              variant="body"
             className="font-semibold text-primary"
           >
-            {order.orderNumber}
+            {row.original.orderNumber}
           </Text>
         ),
       },
       {
+        accessorKey: "createdAt",
         header: "Created",
-        cell: (order) => (
+        cell: ({ row }) => (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock3 className="h-3.5 w-3.5" />
-            <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+            <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
           </div>
         ),
       },
       {
+        accessorKey: "totalAmount",
         header: "Total",
-        align: "right",
-        cell: (order) => (
+        cell: ({ row }) => (
           <Text as="p"  variant="body" className="font-semibold">
-            {formatPKR(order.totalAmount)}
+            {formatPKR(row.original.totalAmount)}
           </Text>
         ),
       },
       {
+        accessorKey: "status",
         header: "Status",
-        align: "right",
-        cell: (order) => {
-          const statusConfig = ORDER_STATUS_CONFIG[order.status];
+        cell: ({ row }) => {
+          const statusConfig = ORDER_STATUS_CONFIG[row.original.status];
 
           return (
             <Badge
@@ -98,6 +106,28 @@ export function CustomerOrdersTab({
         },
       },
     ],
+    [],
+  );
+
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      const next = resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
+    },
+    [pagination, setPage],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
     [],
   );
 
@@ -127,17 +157,20 @@ export function CustomerOrdersTab({
             />
           </div>
         ) : (
-          <DataTable
+          <DataTableTanstack
             columns={columns}
             data={pagedOrders}
             itemLabel="orders"
             emptyMessage="No orders found."
-            onRowClick={(order) => onOpenOrder(order.id)}
             chrome="flat"
-            page={page}
-            total={total}
-            limit={pageSize}
-            onPageChange={setPage}
+            pagination={pagination}
+            onPaginationChange={onPaginationChange}
+            pageCount={Math.max(1, Math.ceil(total / pageSize))}
+            totalCount={total}
+            manualPagination
+            sorting={sorting}
+            onSortingChange={onSortingChange}
+            onRowClick={(row) => onOpenOrder(row.original.id)}
           />
         )}
       </CardContent>

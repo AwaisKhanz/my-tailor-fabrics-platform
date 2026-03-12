@@ -1,10 +1,15 @@
+import { useCallback, useMemo } from "react";
+import {
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { RotateCcw, Search } from "lucide-react";
 import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import {
   Select,
   SelectContent,
@@ -23,6 +28,7 @@ import {
   useMeasurementFieldsTable,
 } from "@/hooks/use-measurement-fields-table";
 import { useMeasurementFieldTableColumns } from "@/components/config/measurements/detail/measurement-field-table-columns";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface MeasurementFieldsTableProps {
   fields: MeasurementField[];
@@ -85,6 +91,28 @@ export function MeasurementFieldsTable({
     handleMoveFieldSection,
   });
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      const next = resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
+    },
+    [pagination, setPage],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
+    [],
+  );
+
   return (
     <TableSurface>
       <TableToolbar
@@ -132,7 +160,7 @@ export function MeasurementFieldsTable({
           </>
         }
       />
-      <DataTable
+      <DataTableTanstack
         columns={columns}
         data={pagedFields}
         loading={loading}
@@ -143,10 +171,13 @@ export function MeasurementFieldsTable({
         }
         itemLabel="fields"
         chrome="flat"
-        page={page}
-        total={total}
-        limit={pageSize}
-        onPageChange={setPage}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        pageCount={Math.max(1, Math.ceil(total / pageSize))}
+        totalCount={total}
+        manualPagination
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </TableSurface>
   );

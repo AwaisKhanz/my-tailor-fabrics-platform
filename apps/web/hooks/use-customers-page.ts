@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Customer, CustomerStatus } from "@tbms/shared-types";
 import { CUSTOMER_STATUS_LABELS } from "@tbms/shared-constants";
 import { logDevError } from "@/lib/logger";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import {
   useCustomersList,
@@ -60,6 +61,7 @@ export function useCustomersPage() {
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
+  const debouncedSearch = useDebounce(search, 500);
   const statusTab = parseCustomerStatusTab(values.status);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -69,10 +71,10 @@ export function useCustomersPage() {
 
   const filters = useMemo(
     () => ({
-      search: search.trim() || undefined,
+      search: debouncedSearch.trim() || undefined,
       status: statusTab === "ALL" ? undefined : statusTab,
     }),
-    [search, statusTab],
+    [debouncedSearch, statusTab],
   );
 
   const customersQuery = useCustomersList({

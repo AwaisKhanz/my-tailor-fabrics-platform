@@ -3,7 +3,6 @@ import {
   MapPin,
   Phone,
   ShoppingBag,
-  UserSquare2,
 } from "lucide-react";
 import { type Customer } from "@tbms/shared-types";
 import {
@@ -15,7 +14,6 @@ import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
 import { FieldLabel } from "@tbms/ui/components/field";
 import { InfoTile } from "@tbms/ui/components/info-tile";
 import { SectionHeader } from "@tbms/ui/components/section-header";
-import { SectionIcon } from "@tbms/ui/components/section-icon";
 import { Heading } from "@tbms/ui/components/typography";
 import { formatPKR } from "@/lib/utils";
 
@@ -30,20 +28,12 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
 
   return (
     <Card>
-      <CardHeader
-      >
+      <CardHeader className="flex justify-between items-start w-full">
         <SectionHeader
           title="Customer Profile"
-          icon={
-            <SectionIcon tone="info">
-              <UserSquare2 className="h-4 w-4" />
-            </SectionIcon>
-          }
+          description="Key details and insights about the customer."
         />
-        <Badge
-          variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
-
-        >
+        <Badge variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}>
           {CUSTOMER_STATUS_LABELS[customer.status] ?? customer.status}
         </Badge>
       </CardHeader>

@@ -1,13 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { LogOut, UserCircle2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  ChevronDown,
+  LogOut,
+  Moon,
+  Sun,
+  UserCircle2,
+} from "lucide-react";
 import { siteConfig } from "@/lib/config";
 import { useAuthz } from "@/hooks/use-authz";
 import { getVisibleNavSections } from "@/lib/sidebar-navigation";
 import { BranchSelector } from "@/components/layout/BranchSelector";
+import { useTheme } from "@/components/ThemeProvider";
+import { useBranchStore } from "@/store/useBranchStore";
+import { clearSuperAdminBranchSelectionConfirmed } from "@/lib/branch-context";
 import { HOME_ROUTE } from "@/lib/auth-routes";
 import { USERS_SETTINGS_ROUTE } from "@/lib/settings-routes";
 import {
@@ -18,7 +28,9 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@tbms/ui/components/dropdown-menu";
@@ -38,17 +50,29 @@ import {
 import { PERMISSION } from "@tbms/shared-constants";
 
 function SidebarUserMenu() {
+  const router = useRouter();
   const { data: session } = useSession();
   const { canAll } = useAuthz();
+  const { theme, setTheme } = useTheme();
+  const { clearActiveBranch } = useBranchStore();
   const canAccessSettings = canAll([PERMISSION["users.manage"]]);
   const user = session?.user;
   const initials = (user?.name ?? user?.email ?? "U").slice(0, 1).toUpperCase();
+  const isDark = theme === "dark";
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<SidebarMenuButton size="lg" />}>
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                type="button"
+                size="lg"
+                className="cursor-pointer data-[popup-open]:bg-sidebar-accent data-[popup-open]:text-sidebar-accent-foreground"
+              />
+            }
+          >
             <Avatar size="sm" className="rounded-lg">
               <AvatarImage src="" alt={user?.name ?? "User"} />
               <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
@@ -61,21 +85,55 @@ function SidebarUserMenu() {
                 {user?.email ?? "Workspace user"}
               </span>
             </div>
+            <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-data-[popup-open]/menu-button:rotate-180" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuItem render={<Link href={HOME_ROUTE} />}>
-              <UserCircle2 className="mr-2 h-4 w-4" />
-              My Dashboard
-            </DropdownMenuItem>
-            {canAccessSettings ? (
-              <DropdownMenuItem render={<Link href={USERS_SETTINGS_ROUTE} />}>
-                Staff Accounts
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Account</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => router.push(HOME_ROUTE)}>
+                <UserCircle2 className="mr-2 h-4 w-4" />
+                My Dashboard
               </DropdownMenuItem>
-            ) : null}
+              {canAccessSettings ? (
+                <DropdownMenuItem
+                  onClick={() => router.push(USERS_SETTINGS_ROUTE)}
+                >
+                  Staff Accounts
+                </DropdownMenuItem>
+              ) : null}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => setTheme("light")}
+                className="justify-between"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Sun className="h-4 w-4" />
+                  Light
+                </span>
+                {!isDark ? <Check className="h-4 w-4 text-primary" /> : null}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme("dark")}
+                className="justify-between"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Moon className="h-4 w-4" />
+                  Dark
+                </span>
+                {isDark ? <Check className="h-4 w-4 text-primary" /> : null}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-              onClick={() => signOut()}
+              onClick={() => {
+                clearActiveBranch();
+                clearSuperAdminBranchSelectionConfirmed();
+                void signOut();
+              }}
             >
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
@@ -88,18 +146,63 @@ function SidebarUserMenu() {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
   const pathname = usePathname();
   const { role, canAll } = useAuthz();
-  const sections = getVisibleNavSections(role);
+  const sections = useMemo(() => getVisibleNavSections(role), [role]);
   const canSwitchBranch = canAll([PERMISSION["branch.switch"]]);
+  const sectionHasActivePath = useMemo(
+    () =>
+      sections.reduce<Record<string, boolean>>((accumulator, section) => {
+        const isActive = section.items.some(
+          (item) =>
+            pathname === item.href ||
+            (item.href !== HOME_ROUTE && pathname.startsWith(`${item.href}/`)),
+        );
+        accumulator[section.title] = isActive;
+        return accumulator;
+      }, {}),
+    [pathname, sections],
+  );
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setOpenSections((current) => {
+      const next: Record<string, boolean> = {};
+      sections.forEach((section, index) => {
+        const existing = current[section.title];
+        const hasActivePath = sectionHasActivePath[section.title] || false;
+        next[section.title] =
+          typeof existing === "boolean"
+            ? existing || hasActivePath
+            : hasActivePath || index === 0;
+      });
+
+      const currentKeys = Object.keys(current);
+      const nextKeys = Object.keys(next);
+      if (
+        currentKeys.length === nextKeys.length &&
+        nextKeys.every((key) => current[key] === next[key])
+      ) {
+        return current;
+      }
+
+      return next;
+    });
+  }, [sectionHasActivePath, sections]);
 
   return (
-    <Sidebar collapsible="offcanvas" variant="sidebar" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="offcanvas" variant="inset" {...props}>
+      <SidebarHeader className="pb-1">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href={HOME_ROUTE} />}>
-              <div className="grid min-w-0 leading-tight">
+            <SidebarMenuButton
+              size="lg"
+              variant="outline"
+              className="h-auto rounded-lg px-3 py-2.5"
+              onClick={() => router.push(HOME_ROUTE)}
+            >
+              <div className="grid min-w-0 gap-0.5 leading-tight">
                 <span className="truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Workspace
                 </span>
@@ -110,54 +213,72 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        {canSwitchBranch ? (
+          <div className="rounded-lg border border-sidebar-border/80 bg-sidebar-accent/30 p-2">
+            <Label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Active Branch
+            </Label>
+            <BranchSelector className="h-10 text-sm" />
+          </div>
+        ) : null}
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1 pb-1">
         {sections.map((section) => (
-          <SidebarGroup key={section.title}>
-            <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {section.items.map((item) => {
-                  const ItemIcon = item.icon;
-                  const isActive =
-                    pathname === item.href ||
-                    (item.href !== HOME_ROUTE &&
-                      pathname.startsWith(`${item.href}/`));
+          <SidebarGroup key={section.title} className="p-1">
+            <SidebarGroupLabel
+              render={
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenSections((current) => ({
+                      ...current,
+                      [section.title]: !current[section.title],
+                    }))
+                  }
+                />
+              }
+              className="h-8 cursor-pointer justify-between rounded-md px-2 text-[11px] uppercase tracking-wide hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            >
+              <span>{section.title}</span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 shrink-0 transition-transform ${
+                  openSections[section.title] ? "rotate-0" : "-rotate-90"
+                }`}
+              />
+            </SidebarGroupLabel>
+            {openSections[section.title] ? (
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items.map((item) => {
+                    const ItemIcon = item.icon;
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== HOME_ROUTE &&
+                        pathname.startsWith(`${item.href}/`));
 
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        tooltip={item.title}
-                        isActive={isActive}
-                        render={<Link href={item.href} />}
-                        size={"lg"}
-                      >
-                        <ItemIcon />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
+                    return (
+                      <SidebarMenuItem key={item.href} className="my-1">
+                        <SidebarMenuButton
+                          size={"lg"}
+                          isActive={isActive}
+                          onClick={() => router.push(item.href)}
+                          className="h-9 rounded-lg px-2.5"
+                        >
+                          <ItemIcon />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            ) : null}
           </SidebarGroup>
         ))}
-
-        {canSwitchBranch ? (
-          <SidebarGroup className="mt-auto">
-            <SidebarGroupLabel>Branch</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <Label className="mb-2 text-xs text-muted-foreground">
-                Active Branch
-              </Label>
-              <BranchSelector className="h-8 text-xs" />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : null}
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="gap-2 border-t border-sidebar-border/60 pt-2">
         <SidebarUserMenu />
       </SidebarFooter>
     </Sidebar>

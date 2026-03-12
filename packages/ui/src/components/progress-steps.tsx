@@ -24,6 +24,7 @@ export interface Step {
  */
 export interface ProgressStepsProps {
   className?: string
+  wrap?: boolean
   data?: {
     /** Array of steps to display with their labels and status. */
     steps?: Step[]
@@ -56,7 +57,7 @@ export interface ProgressStepsProps {
  * />
  * ```
  */
-export function ProgressSteps({ data, className }: ProgressStepsProps) {
+export function ProgressSteps({ data, className, wrap = false }: ProgressStepsProps) {
   const resolved: NonNullable<ProgressStepsProps['data']> = data ?? { steps: [] }
   const steps = resolved.steps ?? []
 
@@ -67,7 +68,10 @@ export function ProgressSteps({ data, className }: ProgressStepsProps) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-2 rounded-lg bg-card p-4 sm:flex-row sm:items-center sm:gap-2',
+        'flex flex-col gap-2 rounded-lg bg-card p-4',
+        wrap
+          ? 'sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2'
+          : 'sm:flex-row sm:items-center sm:gap-2',
         className
       )}
     >
@@ -87,18 +91,18 @@ export function ProgressSteps({ data, className }: ProgressStepsProps) {
                 {stepStatus === 'completed' && <Check className="h-3 w-3" />}
               </div>
               {step.label && (
-                <span
-                  className={cn(
-                    'text-xs sm:text-sm',
-                    stepStatus === 'current' && 'font-medium',
-                    stepStatus === 'pending' && 'text-muted-foreground'
-                  )}
-                >
-                  {step.label}
+                  <span
+                    className={cn(
+                      'text-xs sm:text-sm',
+                      stepStatus === 'current' && 'font-medium',
+                      stepStatus === 'pending' && 'text-muted-foreground'
+                    )}
+                  >
+                    {step.label}
                 </span>
               )}
             </div>
-            {index < steps.length - 1 && (
+            {!wrap && index < steps.length - 1 && (
               <div className="hidden sm:block w-4 h-px bg-border" />
             )}
           </div>

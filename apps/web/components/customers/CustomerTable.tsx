@@ -58,8 +58,6 @@ export function CustomerTable() {
               </Button>
             ) : null
           }
-          surface="card"
-          density="compact"
         />
       </PageSection>
 

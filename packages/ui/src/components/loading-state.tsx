@@ -18,16 +18,18 @@ export function LoadingState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/80 bg-muted/25 px-4 py-4 text-center",
-        compact && "border-0 bg-transparent px-0 py-0",
+        "flex flex-col items-center justify-center gap-2  text-center",
+        compact && " px-0 py-0",
         className,
       )}
       {...props}
     >
       <div className="text-primary">
-        <TypewriterLoader typingText={text} typingSpeed={90} />
+        <TypewriterLoader typingText={text} typingSpeed={40} />
       </div>
-      {caption ? <p className="text-xs text-muted-foreground">{caption}</p> : null}
+      {caption ? (
+        <p className="text-xs text-muted-foreground">{caption}</p>
+      ) : null}
     </div>
   );
 }

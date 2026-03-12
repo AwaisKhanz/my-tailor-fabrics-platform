@@ -23,6 +23,10 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 4. Large route-specific UI should be broken into focused components under `apps/web/components/<domain>`.
 5. New reusable primitives should be added to `packages/ui/src/components` and consumed through `@tbms/ui/components/*`.
 6. Do not add new web-local primitive wrappers for shared shadcn components.
+7. New or refactored tables must use the TanStack pattern via shared primitives:
+   - `@tbms/ui/components/data-table-tanstack`
+   - `@tbms/ui/components/data-table-column-header`
+8. Do not introduce new usages of the legacy custom `@tbms/ui/components/data-table` API. Migrate legacy consumers incrementally by page/feature.
 
 ## 3. Design System and Styling Rules
 
@@ -41,13 +45,14 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `FormGrid`, `FormStack`, `DialogFormActions`
    - `StatsGrid`, `StatCard`, `InteractiveTile`, `InfoTile`
    - shared buttons, cards, dialogs, tables, and form primitives
-6. Theme behavior must go through the centralized theme flow:
+6. Table pages must keep API-query state (search, filters, pagination, sorting) in a page hook and URL state where applicable.
+7. Server-driven list pages should wire TanStack pagination/sorting to backend query params instead of client-only transforms.
+8. Theme behavior must go through the centralized theme flow:
    - `apps/web/app/layout.tsx`
    - `apps/web/components/ThemeProvider.tsx`
    - `apps/web/lib/theme.ts`
-7. Do not create a second theme state system or route-local theme persistence.
-8. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
-
+9. Do not create a second theme state system or route-local theme persistence.
+10. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
 ## 4. Data Access Rules
 
 1. Frontend code should use the centralized API client in `apps/web/lib/api.ts`.
@@ -69,6 +74,14 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 2. Do not duplicate permission matrices or role logic in page files.
 3. Route gating and component gating must stay aligned with shared RBAC contracts.
 4. When frontend code references a permission, use the shared `PERMISSION` export from `@tbms/shared-constants` instead of repeating a raw permission string.
+5. Super Admin branch scoping is mandatory at runtime:
+   - After login, dashboard layout must block application pages until an active branch is selected.
+   - The selected branch must be persisted and used for subsequent API requests.
+   - Selection must be explicit for each authenticated login session; do not silently auto-select on fresh super-admin login.
+6. Login UX must follow the backend two-step flow:
+   - submit email/password to request OTP challenge
+   - collect OTP and complete NextAuth credentials sign-in only after verification
+7. OTP input UI must use shared `@tbms/ui` primitives (for example `@tbms/ui/components/input-otp`) rather than web-local wrappers.
 
 ## 6. Shared Contract Rules
 

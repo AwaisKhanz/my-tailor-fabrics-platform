@@ -46,7 +46,7 @@ export function PaymentsSummaryCards({
   }
 
   return (
-    <StatsGrid columns="three">
+    <StatsGrid columns="three" className="mb-6">
       <StatCard
         title="Total Earned"
         subtitle="Accrued earnings"

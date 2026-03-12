@@ -46,6 +46,12 @@ export interface InteractiveSalesChartProps {
   title?: string;
   description?: string;
   currencyFormatter?: (value: number) => string;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+  onConfigure?: () => void;
+  onExportCsv?: () => void;
+  onExportJson?: () => void;
+  onShare?: () => void;
 }
 
 const chartConfig = {
@@ -71,6 +77,12 @@ export function InteractiveSalesChart({
   title = "Revenue vs Expenses",
   description = "Monthly financial movement for the selected period.",
   currencyFormatter = defaultCurrencyFormatter,
+  refreshing = false,
+  onRefresh,
+  onConfigure,
+  onExportCsv,
+  onExportJson,
+  onShare,
 }: InteractiveSalesChartProps) {
   const totals = React.useMemo(() => {
     const revenue = data.reduce((sum, item) => sum + item.revenue, 0);
@@ -90,14 +102,18 @@ export function InteractiveSalesChart({
             size="icon-sm"
             className="max-sm:hidden"
             aria-label="Refresh"
+            onClick={onRefresh}
+            disabled={!onRefresh}
           >
-            <RefreshCwIcon />
+            <RefreshCwIcon className={refreshing ? "animate-spin" : undefined} />
           </Button>
           <Button
             variant="outline"
             size="icon-sm"
             className="max-sm:hidden"
             aria-label="Download"
+            onClick={onExportCsv}
+            disabled={!onExportCsv}
           >
             <ArrowDownToLineIcon />
           </Button>
@@ -108,32 +124,32 @@ export function InteractiveSalesChart({
                   variant="outline"
                   size="icon-sm"
                   aria-label="More options"
-                >
-                  <MoreHorizontalIcon />
-                </Button>
+                />
               }
-            />
+            >
+              <MoreHorizontalIcon />
+            </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Options</DropdownMenuLabel>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={onConfigure} disabled={!onConfigure}>
                   <SettingsIcon />
                   Configure
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <RefreshCwIcon />
+                <DropdownMenuItem onClick={onRefresh} disabled={!onRefresh}>
+                  <RefreshCwIcon className={refreshing ? "animate-spin" : undefined} />
                   Refresh Data
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={onExportCsv} disabled={!onExportCsv}>
                   <ArrowDownToLineIcon />
-                  Export PNG
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FileJsonIcon />
                   Export CSV
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={onExportJson} disabled={!onExportJson}>
+                  <FileJsonIcon />
+                  Export JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onShare} disabled={!onShare}>
                   <Share2Icon />
                   Share Chart
                 </DropdownMenuItem>

@@ -1,11 +1,13 @@
 import { DiscountType } from "@tbms/shared-types";
-import { Calculator, CalendarDays, UserRound } from "lucide-react";
+import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
+  CardTitle,
 } from "@tbms/ui/components/card";
 import {
   FormControl,
@@ -15,10 +17,7 @@ import {
   FormMessage,
 } from "@tbms/ui/components/form";
 import { Input } from "@tbms/ui/components/input";
-import { InfoTile } from "@tbms/ui/components/info-tile";
 import { Label } from "@tbms/ui/components/label";
-import { SectionHeader } from "@tbms/ui/components/section-header";
-import { SectionIcon } from "@tbms/ui/components/section-icon";
 import {
   Select,
   SelectContent,
@@ -27,7 +26,6 @@ import {
   SelectValue,
 } from "@tbms/ui/components/select";
 import { Separator } from "@tbms/ui/components/separator";
-import { Badge } from "@tbms/ui/components/badge";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { UseFormReturn } from "react-hook-form";
@@ -48,8 +46,7 @@ interface OrderFormSummaryCardProps {
   isEditMode: boolean;
 }
 
-const fieldLabelClassName =
-  "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground";
+const fieldLabelClassName = "text-xs font-medium text-muted-foreground";
 
 export function OrderFormSummaryCard({
   form,
@@ -63,54 +60,35 @@ export function OrderFormSummaryCard({
 }: OrderFormSummaryCardProps) {
   return (
     <Card>
-      <CardHeader
-      >
-        <SectionHeader
-          title="Order Summary"
-          description="Review totals and finalize payment details."
-          icon={
-            <SectionIcon tone="info">
-              <Calculator className="h-4 w-4" />
-            </SectionIcon>
-          }
-        />
-        <Badge variant="outline">
-          {itemCount} PIECES
-        </Badge>
+      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <CardTitle>Order Summary</CardTitle>
+          <CardDescription>
+            Review totals and finalize payment details.
+          </CardDescription>
+        </div>
+        <Badge variant="secondary">{itemCount} pieces</Badge>
       </CardHeader>
 
       <CardContent className="space-y-5">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <InfoTile tone="secondary" className="min-h-[84px] space-y-1.5">
-            <span
-              className={`inline-flex items-center gap-1 ${fieldLabelClassName}`}
-            >
-              <UserRound className="h-3.5 w-3.5" />
-              Customer
-            </span>
-            <p className="line-clamp-1 text-sm font-semibold text-foreground">
+          <div className="rounded-md border p-3">
+            <p className={fieldLabelClassName}>Customer</p>
+            <p className="mt-1 line-clamp-1 text-sm font-semibold text-foreground">
               {selectedCustomerName || "Not selected"}
             </p>
-          </InfoTile>
-
-          <InfoTile tone="secondary" className="min-h-[84px] space-y-1.5">
-            <span
-              className={`inline-flex items-center gap-1 ${fieldLabelClassName}`}
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-              Due Date
-            </span>
-            <p className="text-sm font-semibold text-foreground">
+          </div>
+          <div className="rounded-md border p-3">
+            <p className={fieldLabelClassName}>Due Date</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {dueDate || "-"}
             </p>
-          </InfoTile>
+          </div>
         </div>
 
-        <InfoTile tone="secondary" padding="content" className="space-y-3">
+        <div className="space-y-4 rounded-md border p-4">
           <div className="flex items-center justify-between text-sm">
-            <Label className={fieldLabelClassName}>
-              Subtotal
-            </Label>
+            <Label className={fieldLabelClassName}>Subtotal</Label>
             <span className="font-semibold text-foreground">
               {formatPKR(Math.round(totals.subtotal * 100))}
             </span>
@@ -127,7 +105,7 @@ export function OrderFormSummaryCard({
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-10">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
@@ -154,7 +132,7 @@ export function OrderFormSummaryCard({
                     Discount Value
                   </FormLabel>
                   <FormControl>
-                    <Input type="number" className="h-10" {...field} />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,20 +140,18 @@ export function OrderFormSummaryCard({
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-md bg-primary/10 px-2 py-1.5 text-sm text-primary">
-            <Label className={`${fieldLabelClassName} !text-primary`}>
-              Discount
-            </Label>
-            <span className="font-semibold">
+          <div className="flex items-center justify-between text-sm">
+            <Label className={fieldLabelClassName}>Discount</Label>
+            <span className="font-semibold text-foreground">
               - {formatPKR(Math.round(totals.discountAmount * 100))}
             </span>
           </div>
-        </InfoTile>
+        </div>
 
         <Separator />
 
-        <InfoTile padding="content" className="space-y-3">
-          <div className="flex items-center justify-between text-lg font-bold text-foreground">
+        <div className="space-y-3 rounded-md border p-4">
+          <div className="flex items-center justify-between text-lg font-semibold text-foreground">
             <span>Total</span>
             <span>{formatPKR(Math.round(totals.totalAmount * 100))}</span>
           </div>
@@ -200,11 +176,11 @@ export function OrderFormSummaryCard({
             <Label className={`${fieldLabelClassName} !text-destructive`}>
               Balance Due
             </Label>
-            <span className="text-lg font-bold text-destructive">
+            <span className="text-lg font-semibold text-destructive">
               {formatPKR(Math.round(totals.balanceDue * 100))}
             </span>
           </div>
-        </InfoTile>
+        </div>
 
         <FormField
           control={form.control}

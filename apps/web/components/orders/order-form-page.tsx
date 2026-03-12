@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@tbms/ui/components/button";
 import { Form } from "@tbms/ui/components/form";
 import { FormStack } from "@tbms/ui/components/form-layout";
-import { DetailSplit, PageSection, PageShell } from "@tbms/ui/components/page-shell";
+import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { PageHeader } from "@tbms/ui/components/page-header";
 import { OrderFormCustomerCard } from "@/components/orders/order-form-customer-card";
 import { OrderFormItemsCard } from "@/components/orders/order-form-items-card";
@@ -59,7 +59,6 @@ export function OrderFormPage() {
               ? "Update customer, pieces, pricing, and delivery timeline in one focused workflow."
               : "Capture customer details, configure pieces, and finalize pricing before production starts."
           }
-          density="compact"
           actions={
             <>
               <Button
@@ -84,35 +83,32 @@ export function OrderFormPage() {
       <PageSection spacing="compact">
         <Form {...form}>
           <FormStack as="form" density="relaxed" onSubmit={submitForm}>
-            <DetailSplit
-              ratio="3-2"
-              sideClassName="lg:sticky lg:top-6 h-fit"
-              main={
-                <div className="space-y-6">
-                  <OrderFormCustomerCard
-                    form={form}
-                    customers={customers}
-                    loading={loading}
-                    selectedCustomer={selectedCustomer}
-                  />
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-5 xl:items-start">
+              <div className="space-y-6 xl:col-span-3">
+                <OrderFormCustomerCard
+                  form={form}
+                  customers={customers}
+                  loading={loading}
+                  selectedCustomer={selectedCustomer}
+                />
 
-                  <OrderFormItemsCard
-                    form={form}
-                    fields={fields}
-                    watchedItems={watchedItems}
-                    garmentTypes={garmentTypes}
-                    onAddItem={addItem}
-                    onRemoveItem={removeItem}
-                    onMoveItem={moveItem}
-                    onAddAddon={addAddon}
-                    onRemoveAddon={removeAddon}
-                    onSelectGarmentType={applyGarmentDefaults}
-                    getDesignTypeOptions={getAvailableDesignTypes}
-                    getItemLineTotal={getItemLineTotal}
-                  />
-                </div>
-              }
-              side={
+                <OrderFormItemsCard
+                  form={form}
+                  fields={fields}
+                  watchedItems={watchedItems}
+                  garmentTypes={garmentTypes}
+                  onAddItem={addItem}
+                  onRemoveItem={removeItem}
+                  onMoveItem={moveItem}
+                  onAddAddon={addAddon}
+                  onRemoveAddon={removeAddon}
+                  onSelectGarmentType={applyGarmentDefaults}
+                  getDesignTypeOptions={getAvailableDesignTypes}
+                  getItemLineTotal={getItemLineTotal}
+                />
+              </div>
+
+              <div className="xl:col-span-2 xl:sticky xl:top-6">
                 <OrderFormSummaryCard
                   form={form}
                   totals={totals}
@@ -123,8 +119,8 @@ export function OrderFormPage() {
                   submitting={submitting}
                   isEditMode={isEditMode}
                 />
-              }
-            />
+              </div>
+            </div>
           </FormStack>
         </Form>
       </PageSection>

@@ -2,8 +2,13 @@ import { DesignType, GarmentType } from "@tbms/shared-types";
 import { Plus } from "lucide-react";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
-import { Label } from "@tbms/ui/components/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@tbms/ui/components/card";
 import { Sortable, SortableItem } from "@tbms/ui/components/reui/sortable";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import type { FieldArrayWithId, UseFormReturn } from "react-hook-form";
@@ -40,18 +45,17 @@ export function OrderFormItemsCard({
 }: OrderFormItemsCardProps) {
   return (
     <Card>
-      <CardHeader
-      >
-        <div className="space-y-1.5">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
             <CardTitle>Order Items</CardTitle>
-            <Badge variant="default" className="font-semibold">
-              {fields.length} PIECES
+            <Badge variant="secondary" className="font-semibold">
+              {fields.length} pieces
             </Badge>
           </div>
-          <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <CardDescription>
             Configure garment, pricing, and design per piece.
-          </Label>
+          </CardDescription>
         </div>
 
         <Button

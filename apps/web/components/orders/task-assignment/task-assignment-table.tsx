@@ -1,7 +1,15 @@
+"use client";
+
+import { useCallback, useMemo } from "react";
+import {
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { type Employee, type OrderItemTask, TaskStatus } from "@tbms/shared-types";
-import { DataTable } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useTaskAssignmentTable } from "@/hooks/use-task-assignment-table";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface TaskAssignmentTableProps {
   tasks: OrderItemTask[];
@@ -54,19 +62,44 @@ export function TaskAssignmentTable({
       onRateUpdate,
     });
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      const next = resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
+    },
+    [pagination, setPage],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
+    [],
+  );
+
   return (
     <TableSurface shadow="none">
-      <DataTable
+      <DataTableTanstack
         columns={columns}
         data={pagedTasks}
         loading={false}
         itemLabel="tasks"
         emptyMessage="No tasks found. Was the workflow enabled when this order was placed?"
         chrome="flat"
-        page={page}
-        total={total}
-        limit={pageSize}
-        onPageChange={setPage}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        pageCount={Math.max(1, Math.ceil(total / pageSize))}
+        totalCount={total}
+        manualPagination
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </TableSurface>
   );

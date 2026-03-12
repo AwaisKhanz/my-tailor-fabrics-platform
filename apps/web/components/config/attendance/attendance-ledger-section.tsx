@@ -1,8 +1,14 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import { RotateCcw } from "lucide-react";
+import {
+  type ColumnDef,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import {
   Select,
   SelectContent,
@@ -13,6 +19,7 @@ import {
 import { TableSurface, TableToolbar } from "@tbms/ui/components/table-layout";
 import { ALL_EMPLOYEES_FILTER_LABEL, type EmployeeOption } from "@/hooks/use-attendance-settings-page";
 import type { AttendanceRecord } from "@tbms/shared-types";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface AttendanceLedgerSectionProps {
   columns: ColumnDef<AttendanceRecord>[];
@@ -47,6 +54,33 @@ export function AttendanceLedgerSection({
   resetFilters,
   onRowClick,
 }: AttendanceLedgerSectionProps) {
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const onPaginationChange = useCallback(
+    (
+      updater: PaginationState | ((old: PaginationState) => PaginationState),
+    ) => {
+      const next = resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
+    },
+    [pagination, setPage],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+      return;
+    },
+    [],
+  );
+
   return (
     <TableSurface>
       <TableToolbar
@@ -89,18 +123,21 @@ export function AttendanceLedgerSection({
         )}
       />
 
-      <DataTable
+      <DataTableTanstack
         columns={columns}
         data={records}
         loading={loading}
-        page={page}
-        total={total}
-        limit={pageSize}
         itemLabel="records"
         chrome="flat"
         emptyMessage="No attendance records found for the selected filter."
-        onPageChange={setPage}
-        onRowClick={onRowClick}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        pageCount={Math.max(1, Math.ceil(total / pageSize))}
+        totalCount={total}
+        manualPagination
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+        onRowClick={(row) => onRowClick(row.original)}
       />
     </TableSurface>
   );

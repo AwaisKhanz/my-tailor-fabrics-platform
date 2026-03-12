@@ -33,6 +33,8 @@ export function PaymentsPage() {
     historyFilters,
     historyFilterCount,
     historyPageSize,
+    historySortBy,
+    historySortOrder,
     disburseOpen,
     disburseForm,
     disburseValidationError,
@@ -47,6 +49,7 @@ export function PaymentsPage() {
     canDisburse,
     hasSelectedEmployee,
     setHistoryPage,
+    setHistorySort,
     handleEmployeeChange,
     setHistoryFrom,
     setHistoryTo,
@@ -92,8 +95,6 @@ export function PaymentsPage() {
               </ActionStrip>
             ) : null
           }
-          surface="card"
-          density="compact"
         />
       </PageSection>
 
@@ -127,9 +128,12 @@ export function PaymentsPage() {
               limit={historyPageSize}
               filters={historyFilters}
               activeFilterCount={historyFilterCount}
+              sortBy={historySortBy}
+              sortOrder={historySortOrder}
               canManagePayments={canManagePayments}
               reversingPaymentId={reversingPaymentId}
               onPageChange={setHistoryPage}
+              onSortChange={setHistorySort}
               onFromChange={setHistoryFrom}
               onToChange={setHistoryTo}
               onResetFilters={resetHistoryFilters}

@@ -1,9 +1,16 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import type { OrderItem } from "@tbms/shared-types";
+import {
+  type ColumnDef,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { EmployeeSection } from "@/components/employees/detail/employee-detail-section";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface EmployeeWorkHistorySectionProps {
   items: OrderItem[];
@@ -24,6 +31,28 @@ export function EmployeeWorkHistorySection({
   columns,
   onPageChange,
 }: EmployeeWorkHistorySectionProps) {
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize: limit,
+    }),
+    [limit, page],
+  );
+  const onPaginationChange = useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      const next = resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
+    [],
+  );
+
   return (
     <EmployeeSection
       id="employee-history"
@@ -36,16 +65,19 @@ export function EmployeeWorkHistorySection({
       }
       defaultOpen
     >
-      <DataTable
+      <DataTableTanstack
         columns={columns}
         data={items}
         loading={loading}
         emptyMessage="No work items found."
         chrome="flat"
-        page={page}
-        total={total}
-        limit={limit}
-        onPageChange={onPageChange}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        pageCount={Math.max(1, Math.ceil(total / limit))}
+        totalCount={total}
+        manualPagination
+        sorting={sorting}
+        onSortingChange={onSortingChange}
       />
     </EmployeeSection>
   );

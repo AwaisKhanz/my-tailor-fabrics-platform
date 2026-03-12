@@ -9,6 +9,7 @@ import { Button } from "@tbms/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -34,21 +35,23 @@ export function ThemeToggle() {
         <span className="sr-only">Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel>Color Mode</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => setTheme("light")}
-          className={cn("justify-between", !isDark && "text-primary")}
-        >
-          <span>Light</span>
-          {!isDark ? <Check className="h-4 w-4" /> : null}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("dark")}
-          className={cn("justify-between", isDark && "text-primary")}
-        >
-          <span>Dark</span>
-          {isDark ? <Check className="h-4 w-4" /> : null}
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Color Mode</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => setTheme("light")}
+            className={cn("justify-between", !isDark && "text-primary")}
+          >
+            <span>Light</span>
+            {!isDark ? <Check className="h-4 w-4" /> : null}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setTheme("dark")}
+            className={cn("justify-between", isDark && "text-primary")}
+          >
+            <span>Dark</span>
+            {isDark ? <Check className="h-4 w-4" /> : null}
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,4 +1,10 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { ChevronRight, Phone } from "lucide-react";
 import { type Employee } from "@tbms/shared-types";
 import {
@@ -8,8 +14,9 @@ import {
 import { Avatar, AvatarFallback } from "@tbms/ui/components/avatar";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldLabel } from "@tbms/ui/components/field";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface EmployeesListTableProps {
   employees: Employee[];
@@ -33,67 +40,72 @@ export function EmployeesListTable({
   const columns = useMemo<ColumnDef<Employee>[]>(
     () => [
       {
+        accessorKey: "fullName",
         header: "Employee",
-        cell: (employee) => (
+        cell: ({ row }) => (
           <div className="group flex items-center gap-3">
             <Avatar size="default" className="size-9">
               <AvatarFallback className="bg-primary/10 font-bold text-primary">
-                {employee.fullName.charAt(0)}
+                {row.original.fullName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
-                {employee.fullName}
+                {row.original.fullName}
               </span>
               <FieldLabel className="mt-0.5">
-                {employee.employeeCode}
+                {row.original.employeeCode}
               </FieldLabel>
             </div>
           </div>
         ),
       },
       {
+        accessorKey: "designation",
         header: "Designation",
-        cell: (employee) => (
+        cell: ({ row }) => (
           <Badge variant="secondary" className="font-semibold">
-            {employee.designation || "Staff"}
+            {row.original.designation || "Staff"}
           </Badge>
         ),
       },
       {
+        accessorKey: "phone",
         header: "Contact",
-        cell: (employee) => (
+        cell: ({ row }) => (
           <div className="flex items-center gap-1.5 text-xs font-semibold tabular-nums text-foreground">
             <Phone className="h-3 w-3 text-muted-foreground" />
-            {employee.phone}
+            {row.original.phone}
           </div>
         ),
       },
       {
+        accessorKey: "status",
         header: "Status",
-        cell: (employee) => (
+        cell: ({ row }) => (
           <Badge
-            variant={EMPLOYEE_STATUS_BADGE[employee.status] ?? "outline"}
+            variant={EMPLOYEE_STATUS_BADGE[row.original.status] ?? "outline"}
 
             className="font-semibold"
           >
-            {EMPLOYEE_STATUS_LABELS[employee.status] ?? employee.status}
+            {EMPLOYEE_STATUS_LABELS[row.original.status] ?? row.original.status}
           </Badge>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (employee) => (
+        cell: ({ row }) => (
           <div className="flex justify-end pr-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={(event) => {
                 event.stopPropagation();
-                onViewEmployee(employee);
+                onViewEmployee(row.original);
               }}
-              aria-label={`Open ${employee.fullName}`}
+              aria-label={`Open ${row.original.fullName}`}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -104,19 +116,45 @@ export function EmployeesListTable({
     [onViewEmployee],
   );
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(() => {
+    return;
+  }, []);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={employees}
       loading={loading}
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
+      chrome="flat"
+      pagination={pagination}
+      onPaginationChange={handlePaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={handleSortingChange}
       itemLabel="employees"
       emptyMessage="No employees found matching your criteria."
-      chrome="flat"
-      onRowClick={onViewEmployee}
+      onRowClick={(row) => onViewEmployee(row.original)}
     />
   );
 }

@@ -43,6 +43,10 @@ model User {
   refreshToken         String?
   previousRefreshToken String?
   previousRefreshTokenExpiresAt DateTime?
+  pendingLoginChallengeId String?                     @unique
+  pendingLoginOtpHash  String?
+  pendingLoginOtpExpiresAt DateTime?
+  pendingLoginOtpAttempts Int                         @default(0)
   createdAt            DateTime                       @default(now())
   updatedAt            DateTime                       @updatedAt
   deletedAt            DateTime?

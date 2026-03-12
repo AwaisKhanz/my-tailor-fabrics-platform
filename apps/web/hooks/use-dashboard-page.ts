@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   useDashboardDesigns,
   useDashboardGarments,
@@ -8,6 +8,8 @@ import {
   useDashboardRevenueExpenses,
   useDashboardStats,
 } from "@/hooks/queries/report-queries";
+import { readActiveBranchCookie } from "@/lib/branch-context";
+import { useBranchStore } from "@/store/useBranchStore";
 
 interface RevenueExpensesRow {
   month: string;
@@ -23,11 +25,22 @@ const monthKey = (value: string | Date) => {
 };
 
 export function useDashboardPage() {
-  const statsQuery = useDashboardStats();
-  const designsQuery = useDashboardDesigns();
-  const productivityQuery = useDashboardProductivity();
-  const garmentsQuery = useDashboardGarments();
-  const revenueExpensesQuery = useDashboardRevenueExpenses(6);
+  const { activeBranchId, hydrate } = useBranchStore();
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  const selectedBranchId = useMemo(
+    () => activeBranchId ?? readActiveBranchCookie() ?? undefined,
+    [activeBranchId],
+  );
+
+  const statsQuery = useDashboardStats(selectedBranchId);
+  const designsQuery = useDashboardDesigns(undefined, undefined, selectedBranchId);
+  const productivityQuery = useDashboardProductivity(selectedBranchId);
+  const garmentsQuery = useDashboardGarments(selectedBranchId);
+  const revenueExpensesQuery = useDashboardRevenueExpenses(6, selectedBranchId);
 
   const loading =
     statsQuery.isLoading ||
@@ -35,6 +48,12 @@ export function useDashboardPage() {
     productivityQuery.isLoading ||
     garmentsQuery.isLoading ||
     revenueExpensesQuery.isLoading;
+  const refreshing =
+    statsQuery.isFetching ||
+    designsQuery.isFetching ||
+    productivityQuery.isFetching ||
+    garmentsQuery.isFetching ||
+    revenueExpensesQuery.isFetching;
   const error =
     statsQuery.isError ||
     designsQuery.isError ||
@@ -107,8 +126,25 @@ export function useDashboardPage() {
     [garments],
   );
 
+  const refreshDashboard = useCallback(async () => {
+    await Promise.all([
+      statsQuery.refetch(),
+      designsQuery.refetch(),
+      productivityQuery.refetch(),
+      garmentsQuery.refetch(),
+      revenueExpensesQuery.refetch(),
+    ]);
+  }, [
+    designsQuery.refetch,
+    garmentsQuery.refetch,
+    productivityQuery.refetch,
+    revenueExpensesQuery.refetch,
+    statsQuery.refetch,
+  ]);
+
   return {
     loading,
+    refreshing,
     error,
     stats,
     designs,
@@ -116,5 +152,6 @@ export function useDashboardPage() {
     garments,
     revenueExpenseRows,
     totalGarmentItems,
+    refreshDashboard,
   };
 }

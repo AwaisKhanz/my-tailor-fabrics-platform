@@ -92,6 +92,10 @@ export class UsersService {
         refreshToken: state.currentTokenHash,
         previousRefreshToken: state.previousTokenHash ?? null,
         previousRefreshTokenExpiresAt: state.previousTokenExpiresAt ?? null,
+        pendingLoginChallengeId: null,
+        pendingLoginOtpHash: null,
+        pendingLoginOtpExpiresAt: null,
+        pendingLoginOtpAttempts: 0,
         lastLoginAt: at,
       },
       select: {
@@ -264,6 +268,77 @@ export class UsersService {
     });
 
     return result.count === 1;
+  }
+
+  async setPendingLoginOtpState(
+    userId: string,
+    state: {
+      challengeId: string;
+      otpHash: string;
+      expiresAt: Date;
+      attempts?: number;
+    },
+  ) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        pendingLoginChallengeId: state.challengeId,
+        pendingLoginOtpHash: state.otpHash,
+        pendingLoginOtpExpiresAt: state.expiresAt,
+        pendingLoginOtpAttempts: state.attempts ?? 0,
+      },
+      select: {
+        id: true,
+        pendingLoginChallengeId: true,
+        pendingLoginOtpExpiresAt: true,
+        pendingLoginOtpAttempts: true,
+      },
+    });
+  }
+
+  async findAuthUserByLoginChallenge(challengeId: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        pendingLoginChallengeId: challengeId,
+        deletedAt: null,
+      },
+      include: AUTH_USER_INCLUDE,
+    });
+  }
+
+  async incrementPendingLoginOtpAttempts(
+    userId: string,
+    challengeId: string,
+  ) {
+    const updated = await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+        pendingLoginChallengeId: challengeId,
+      },
+      data: {
+        pendingLoginOtpAttempts: {
+          increment: 1,
+        },
+      },
+    });
+
+    return updated.count === 1;
+  }
+
+  async clearPendingLoginOtpState(userId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        pendingLoginChallengeId: null,
+        pendingLoginOtpHash: null,
+        pendingLoginOtpExpiresAt: null,
+        pendingLoginOtpAttempts: 0,
+      },
+      select: {
+        id: true,
+      },
+    });
   }
 
   async findAll(options: UserAccountsQueryInput = {}) {

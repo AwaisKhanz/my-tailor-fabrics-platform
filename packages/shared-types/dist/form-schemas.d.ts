@@ -290,6 +290,11 @@ export declare const loginFormSchema: z.ZodObject<{
 }, z.core.$strip>;
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type LoginFormInput = z.input<typeof loginFormSchema>;
+export declare const loginOtpCodeSchema: z.ZodObject<{
+    otpCode: z.ZodString;
+}, z.core.$strip>;
+export type LoginOtpCodeValues = z.infer<typeof loginOtpCodeSchema>;
+export type LoginOtpCodeInput = z.input<typeof loginOtpCodeSchema>;
 export declare const publicStatusPinSchema: z.ZodObject<{
     pin: z.ZodString;
 }, z.core.$strip>;

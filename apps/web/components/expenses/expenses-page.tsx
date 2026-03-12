@@ -26,6 +26,8 @@ export function ExpensesPage() {
     total,
     page,
     pageSize,
+    sortBy,
+    sortOrder,
     categories,
     categoryFilterOptions,
     filters,
@@ -43,6 +45,7 @@ export function ExpensesPage() {
     setCategoryFilter,
     setFromFilter,
     setToFilter,
+    setSort,
     resetFilters,
     updateFormField,
     openAddDialog,
@@ -107,8 +110,11 @@ export function ExpensesPage() {
             page={page}
             total={total}
             pageSize={pageSize}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
             deletingId={deletingId}
             onPageChange={setPage}
+            onSortChange={setSort}
             onDeleteExpense={requestDeleteExpense}
             canManageExpenses={canManageExpenses}
           />

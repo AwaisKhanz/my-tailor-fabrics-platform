@@ -1,4 +1,10 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Eye, Pencil } from "lucide-react";
 import {
   CUSTOMER_STATUS_BADGE,
@@ -7,9 +13,10 @@ import {
 import { type Customer } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldLabel } from "@tbms/ui/components/field";
 import { formatPKR } from "@/lib/utils";
+import { resolveUpdater } from "@/lib/tanstack";
 
 const AVATAR_COLORS = [
   "bg-primary/10 text-primary",
@@ -65,24 +72,26 @@ export function CustomersDirectoryTable({
   const columns = useMemo<ColumnDef<Customer>[]>(
     () => [
       {
+        accessorKey: "sizeNumber",
         header: "Size Number",
-        cell: (customer) => (
+        cell: ({ row }) => (
           <span
             className="cursor-pointer text-sm font-semibold text-primary hover:underline"
             onClick={(event) => {
               event.stopPropagation();
-              onView(customer);
+              onView(row.original);
             }}
           >
-            {customer.sizeNumber}
+            {row.original.sizeNumber}
           </span>
         ),
       },
       {
+        accessorKey: "fullName",
         header: "Full Name",
-        cell: (customer) => {
-          const initials = getInitials(customer.fullName);
-          const avatarClassName = avatarColor(customer.id);
+        cell: ({ row }) => {
+          const initials = getInitials(row.original.fullName);
+          const avatarClassName = avatarColor(row.original.id);
           return (
             <div className="flex items-center gap-3">
               <div
@@ -92,9 +101,9 @@ export function CustomersDirectoryTable({
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold leading-tight text-foreground">
-                  {customer.fullName}
+                  {row.original.fullName}
                 </span>
-                {customer.isVip ? (
+                {row.original.isVip ? (
                   <Badge variant="secondary">
                     VIP Customer
                   </Badge>
@@ -105,13 +114,15 @@ export function CustomersDirectoryTable({
         },
       },
       {
+        id: "contactInfo",
+        enableSorting: false,
         header: "Contact Info",
-        cell: (customer) => (
+        cell: ({ row }) => (
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold tabular-nums text-foreground">
-              {customer.phone}
+              {row.original.phone}
             </span>
-            {customer.whatsapp ? (
+            {row.original.whatsapp ? (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full bg-primary/50" />
                 <FieldLabel tone="primary">WhatsApp Connected</FieldLabel>
@@ -126,42 +137,46 @@ export function CustomersDirectoryTable({
         ),
       },
       {
+        accessorKey: "city",
         header: "City",
-        cell: (customer) => <FieldLabel>{customer.city || "—"}</FieldLabel>,
+        cell: ({ row }) => <FieldLabel>{row.original.city || "—"}</FieldLabel>,
       },
       {
+        accessorKey: "lifetimeValue",
         header: "Lifetime Value",
-        cell: (customer) => (
+        cell: ({ row }) => (
           <span className="text-sm font-semibold tabular-nums text-foreground">
-            {formatPKR(customer.lifetimeValue)}
+            {formatPKR(row.original.lifetimeValue)}
           </span>
         ),
       },
       {
+        accessorKey: "status",
         header: "Status",
-        cell: (customer) => (
+        cell: ({ row }) => (
           <Badge
-            variant={CUSTOMER_STATUS_BADGE[customer.status] ?? "outline"}
+            variant={CUSTOMER_STATUS_BADGE[row.original.status] ?? "outline"}
 
           >
-            {CUSTOMER_STATUS_LABELS[customer.status] || customer.status}
+            {CUSTOMER_STATUS_LABELS[row.original.status] || row.original.status}
           </Badge>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (customer) => (
+        cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1.5">
             <Button
               variant="ghost"
               size="icon"
               onClick={(event) => {
                 event.stopPropagation();
-                onView(customer);
+                onView(row.original);
               }}
               title="View"
-              aria-label={`View ${customer.fullName}`}
+              aria-label={`View ${row.original.fullName}`}
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -171,10 +186,10 @@ export function CustomersDirectoryTable({
                 size="icon"
                 onClick={(event) => {
                   event.stopPropagation();
-                  onEdit(customer);
+                  onEdit(row.original);
                 }}
                 title="Edit"
-                aria-label={`Edit ${customer.fullName}`}
+                aria-label={`Edit ${row.original.fullName}`}
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -186,19 +201,45 @@ export function CustomersDirectoryTable({
     [canEditCustomer, onEdit, onView],
   );
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(() => {
+    return;
+  }, []);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={customers}
       loading={loading}
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
+      chrome="flat"
+      pagination={pagination}
+      onPaginationChange={handlePaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={handleSortingChange}
       itemLabel="customers"
       emptyMessage="No customers found matching your criteria."
-      chrome="flat"
-      onRowClick={onView}
+      onRowClick={(row) => onView(row.original)}
     />
   );
 }

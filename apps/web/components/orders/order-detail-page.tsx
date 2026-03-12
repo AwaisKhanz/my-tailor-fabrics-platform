@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { OrderStatus } from "@tbms/shared-types";
-import { DetailSplit, PageShell, PageSection } from "@tbms/ui/components/page-shell";
+import { PageShell, PageSection } from "@tbms/ui/components/page-shell";
 import { EmptyState } from "@tbms/ui/components/empty-state";
 import { OrderCustomerInsightCard } from "@/components/orders/order-customer-insight-card";
 import { OrderDetailBreadcrumb } from "@/components/orders/order-detail-breadcrumb";
@@ -200,43 +200,47 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       </PageSection>
 
       <PageSection>
-        <DetailSplit
-          ratio="3-2"
-          main={
-            <div className="space-y-6">
-              <OrderCustomerInsightCard customer={order.customer} />
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-5 xl:items-stretch">
+          <div className="xl:col-span-3">
+            <OrderCustomerInsightCard customer={order.customer} className="h-full" />
+          </div>
 
-              <OrderItemsTable
-                items={order.items}
-                canManageTasks={canManageTasks}
-                onManageTasks={handleManageTasks}
-              />
-            </div>
-          }
-          side={
-            <div className="space-y-6">
-              <OrderFinancialSummaryCard
-                order={order}
-                canCapturePayment={canCapturePayment}
-                canReversePayment={canCapturePayment}
-                reversingPaymentId={reversingPaymentId}
-                onCapturePayment={openPaymentDialog}
-                onReversePayment={requestPaymentReversal}
-              />
+          <div className="xl:col-span-2">
+            <OrderFinancialSummaryCard
+              order={order}
+              className="h-full"
+              canCapturePayment={canCapturePayment}
+              canReversePayment={canCapturePayment}
+              reversingPaymentId={reversingPaymentId}
+              onCapturePayment={openPaymentDialog}
+              onReversePayment={requestPaymentReversal}
+            />
+          </div>
 
-              <OrderLifecycleCard
-                status={order.status}
-                statusLoading={statusLoading}
-                onAdvance={handleAdvanceStatus}
-              />
+          <div className="xl:col-span-3">
+            <OrderItemsTable
+              items={order.items}
+              className="h-full"
+              canManageTasks={canManageTasks}
+              onManageTasks={handleManageTasks}
+            />
+          </div>
 
-              <OrderTimelineCard
-                status={order.status}
-                history={order.statusHistory ?? []}
-              />
-            </div>
-          }
-        />
+          <div className="xl:col-span-2">
+            <OrderLifecycleCard
+              status={order.status}
+              statusLoading={statusLoading}
+              onAdvance={handleAdvanceStatus}
+            />
+          </div>
+
+          <div className="xl:col-span-5">
+            <OrderTimelineCard
+              status={order.status}
+              history={order.statusHistory ?? []}
+            />
+          </div>
+        </div>
       </PageSection>
 
       <OrderDetailDialogs

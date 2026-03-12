@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.integrationTestEmailFormSchema = exports.confirmPasswordSchema = exports.publicStatusPinSchema = exports.loginFormSchema = exports.garmentWorkflowStepsFormSchema = exports.workflowStepInputFormSchema = exports.employeeCompensationChangeFormSchema = exports.employeeCapabilitySnapshotFormSchema = exports.employeeCapabilityWindowInputSchema = exports.employeeDocumentUploadFormSchema = exports.employeeLedgerEntryFormSchema = exports.attendanceClockInFormSchema = exports.taskRateOverrideFormSchema = exports.salaryAccrualGenerationFormSchema = exports.paymentDisbursementFormSchema = exports.orderPaymentFormSchema = exports.rateCardCreateFormSchema = exports.expenseCategoryFormSchema = exports.expenseCreateFormSchema = exports.userAccountUpdateFormSchema = exports.userAccountCreateFormSchema = exports.branchUpdateFormSchema = exports.branchCreateFormSchema = exports.designTypeFormSchema = exports.measurementFieldDialogFormSchema = exports.measurementCategorySchema = exports.measurementFieldSchema = exports.garmentTypeSchema = exports.orderSchema = exports.orderItemSchema = exports.accountCreationSchema = exports.accountSchema = exports.employeeSchema = exports.customerSchema = void 0;
+exports.integrationTestEmailFormSchema = exports.confirmPasswordSchema = exports.publicStatusPinSchema = exports.loginOtpCodeSchema = exports.loginFormSchema = exports.garmentWorkflowStepsFormSchema = exports.workflowStepInputFormSchema = exports.employeeCompensationChangeFormSchema = exports.employeeCapabilitySnapshotFormSchema = exports.employeeCapabilityWindowInputSchema = exports.employeeDocumentUploadFormSchema = exports.employeeLedgerEntryFormSchema = exports.attendanceClockInFormSchema = exports.taskRateOverrideFormSchema = exports.salaryAccrualGenerationFormSchema = exports.paymentDisbursementFormSchema = exports.orderPaymentFormSchema = exports.rateCardCreateFormSchema = exports.expenseCategoryFormSchema = exports.expenseCreateFormSchema = exports.userAccountUpdateFormSchema = exports.userAccountCreateFormSchema = exports.branchUpdateFormSchema = exports.branchCreateFormSchema = exports.designTypeFormSchema = exports.measurementFieldDialogFormSchema = exports.measurementCategorySchema = exports.measurementFieldSchema = exports.garmentTypeSchema = exports.orderSchema = exports.orderItemSchema = exports.accountCreationSchema = exports.accountSchema = exports.employeeSchema = exports.customerSchema = void 0;
 exports.createMeasurementValuesFormSchema = createMeasurementValuesFormSchema;
 const zod_1 = require("zod");
 const common_1 = require("./common");
@@ -380,6 +380,12 @@ exports.garmentWorkflowStepsFormSchema = zod_1.z
 exports.loginFormSchema = zod_1.z.object({
     email: zod_1.z.string().trim().email("Enter a valid email address"),
     password: zod_1.z.string().min(1, "Password is required"),
+});
+exports.loginOtpCodeSchema = zod_1.z.object({
+    otpCode: zod_1.z
+        .string()
+        .trim()
+        .regex(/^\d{6}$/, "Enter the 6-digit verification code."),
 });
 exports.publicStatusPinSchema = zod_1.z.object({
     pin: zod_1.z

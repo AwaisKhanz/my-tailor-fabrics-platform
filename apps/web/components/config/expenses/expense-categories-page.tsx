@@ -1,12 +1,18 @@
 "use client";
 
 import { useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Edit2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { type ExpenseCategory } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
 import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { PageHeader } from "@tbms/ui/components/page-header";
 import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { StatCard } from "@tbms/ui/components/stat-card";
@@ -20,6 +26,7 @@ import { useAuthz } from "@/hooks/use-authz";
 import { useExpenseCategoriesPage } from "@/hooks/use-expense-categories-page";
 import { PERMISSION } from "@tbms/shared-constants";
 import { ExpenseCategoryDialog } from "@/components/config/expenses/expense-category-dialog";
+import { resolveUpdater } from "@/lib/tanstack";
 
 export function ExpenseCategoriesPage() {
   const { canAll } = useAuthz();
@@ -59,23 +66,26 @@ export function ExpenseCategoriesPage() {
   const columns = useMemo<ColumnDef<ExpenseCategory>[]>(
     () => [
       {
+        accessorKey: "name",
         header: "Category Name",
-        cell: (category) => (
-          <span className="font-semibold text-foreground">{category.name}</span>
+        cell: ({ row }) => (
+          <span className="font-semibold text-foreground">{row.original.name}</span>
         ),
       },
       {
+        accessorKey: "isActive",
         header: "Status",
-        cell: (category) => (
-          <Badge variant={category.isActive ? "default" : "outline"}>
-            {category.isActive ? "Active" : "Inactive"}
+        cell: ({ row }) => (
+          <Badge variant={row.original.isActive ? "default" : "outline"}>
+            {row.original.isActive ? "Active" : "Inactive"}
           </Badge>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (category) => (
+        cell: ({ row }) => (
           <div className="flex justify-end gap-2">
             {canManageExpenseCategories ? (
               <>
@@ -85,7 +95,7 @@ export function ExpenseCategoriesPage() {
                   size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
-                    openEditDialog(category);
+                    openEditDialog(row.original);
                   }}
                 >
                   <Edit2 className="h-4 w-4" />
@@ -96,19 +106,19 @@ export function ExpenseCategoriesPage() {
                   size="sm"
                   onClick={(event) => {
                     event.stopPropagation();
-                    void toggleCategoryStatus(category);
+                    void toggleCategoryStatus(row.original);
                   }}
                 >
-                  {category.isActive ? "Disable" : "Enable"}
+                  {row.original.isActive ? "Disable" : "Enable"}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
-                  disabled={deletingId === category.id}
+                  disabled={deletingId === row.original.id}
                   onClick={(event) => {
                     event.stopPropagation();
-                    requestDeleteCategory(category);
+                    requestDeleteCategory(row.original);
                   }}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -131,6 +141,31 @@ export function ExpenseCategoriesPage() {
       toggleCategoryStatus,
     ],
   );
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useMemo<OnChangeFn<PaginationState>>(
+    () => (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
+    },
+    [pagination, setPage],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useMemo<OnChangeFn<SortingState>>(
+    () => () => {
+      return;
+    },
+    [],
+  );
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <PageShell>
@@ -201,18 +236,25 @@ export function ExpenseCategoriesPage() {
             }
           />
 
-          <DataTable
+          <DataTableTanstack
             columns={columns}
             data={categories}
             loading={loading}
             itemLabel="categories"
             emptyMessage="No expense categories found."
             chrome="flat"
-            page={page}
-            total={total}
-            limit={pageSize}
-            onPageChange={setPage}
-            onRowClick={canManageExpenseCategories ? openEditDialog : undefined}
+            pagination={pagination}
+            onPaginationChange={handlePaginationChange}
+            pageCount={pageCount}
+            totalCount={total}
+            manualPagination
+            sorting={sorting}
+            onSortingChange={handleSortingChange}
+            onRowClick={
+              canManageExpenseCategories
+                ? (row) => openEditDialog(row.original)
+                : undefined
+            }
           />
         </TableSurface>
       </PageSection>

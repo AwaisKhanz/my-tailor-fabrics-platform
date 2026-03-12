@@ -52,6 +52,14 @@ Public status PIN submission is body-based:
 
 This split is intentional. The API is exposed on `/backend`, not `/api`, so that NextAuth and the public status flow remain owned by the web app.
 
+## Authentication Flow
+
+1. Web login is orchestrated by NextAuth credentials provider, backed by the API.
+2. Password login is two-step:
+   - `POST /backend/auth/login/request-otp` validates credentials and sends a one-time code by email
+   - `POST /backend/auth/login` verifies the OTP challenge and returns access/refresh tokens
+3. Refresh token remains cookie-bound (`/auth/refresh`), while access token remains session-scoped in NextAuth JWT/session callbacks.
+
 ## Build and Runtime Entry Points
 
 Workspace package manager:

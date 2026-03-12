@@ -14,8 +14,8 @@ const pageHeaderVariants = cva("items-start justify-between rounded-lg", {
       compact: "px-5 py-5 sm:px-6 sm:py-6",
     },
     surface: {
-      card: "bg-card",
-      muted: "bg-muted",
+      card: "bg-muted",
+      muted: "bg-card",
       secondary: "bg-secondary",
     },
   },

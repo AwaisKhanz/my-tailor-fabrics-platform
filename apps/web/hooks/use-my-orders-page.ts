@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { EmployeeAssignedItemsResult } from "@tbms/shared-types";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { useMyItems } from "@/hooks/queries/employee-queries";
@@ -21,6 +22,7 @@ export function useMyOrdersPage() {
   });
 
   const search = values.search;
+  const debouncedSearch = useDebounce(search, 500);
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const myItemsQuery = useMyItems();
@@ -43,7 +45,7 @@ export function useMyOrdersPage() {
   }, [myItemsQuery, toast]);
 
   const filteredItems = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = debouncedSearch.trim().toLowerCase();
     if (!query) {
       return items;
     }
@@ -53,7 +55,7 @@ export function useMyOrdersPage() {
         item.order.orderNumber.toLowerCase().includes(query) ||
         item.garmentTypeName.toLowerCase().includes(query),
     );
-  }, [items, search]);
+  }, [debouncedSearch, items]);
 
   const filteredTotal = filteredItems.length;
   const totalPages = Math.max(1, Math.ceil(filteredTotal / pageSize));

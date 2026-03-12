@@ -11,6 +11,8 @@ import {
 } from "@/hooks/queries/payment-queries";
 
 const PAGE_SIZE = 10;
+export type PaymentHistorySortField = "paidAt" | "createdAt" | "amount";
+export type PaymentHistorySortOrder = "asc" | "desc";
 
 export interface PaymentHistoryFilters {
   from: string;
@@ -32,6 +34,8 @@ export function usePaymentsData(toast: ToastFn) {
       limit: String(PAGE_SIZE),
       from: DEFAULT_PAYMENT_HISTORY_FILTERS.from,
       to: DEFAULT_PAYMENT_HISTORY_FILTERS.to,
+      sortBy: "paidAt",
+      sortOrder: "desc",
     },
   });
 
@@ -46,6 +50,12 @@ export function usePaymentsData(toast: ToastFn) {
     }),
     [values.from, values.to],
   );
+  const historySortBy: PaymentHistorySortField =
+    values.sortBy === "amount" || values.sortBy === "createdAt"
+      ? values.sortBy
+      : "paidAt";
+  const historySortOrder: PaymentHistorySortOrder =
+    values.sortOrder === "asc" ? "asc" : "desc";
   const employeesQuery = useEmployeesDropdown();
   const summaryQuery = useEmployeePaymentSummary(selectedEmployeeId || null);
   const historyQuery = usePaymentHistory(selectedEmployeeId || null, {
@@ -53,6 +63,8 @@ export function usePaymentsData(toast: ToastFn) {
     limit: historyPageSize,
     from: historyFilters.from || undefined,
     to: historyFilters.to || undefined,
+    sortBy: historySortBy,
+    sortOrder: historySortOrder,
   });
 
   const employees: Employee[] = employeesQuery.data?.success
@@ -121,6 +133,8 @@ export function usePaymentsData(toast: ToastFn) {
     setValues({
       from: DEFAULT_PAYMENT_HISTORY_FILTERS.from,
       to: DEFAULT_PAYMENT_HISTORY_FILTERS.to,
+      sortBy: "paidAt",
+      sortOrder: "desc",
       page: "1",
     });
   }, [setValues]);
@@ -128,6 +142,20 @@ export function usePaymentsData(toast: ToastFn) {
   const setHistoryPage = useCallback(
     (nextPage: number) => {
       setValues({ page: String(nextPage) });
+    },
+    [setValues],
+  );
+
+  const setHistorySort = useCallback(
+    (
+      sortBy: PaymentHistorySortField,
+      sortOrder: PaymentHistorySortOrder,
+    ) => {
+      setValues({
+        sortBy,
+        sortOrder,
+        page: "1",
+      });
     },
     [setValues],
   );
@@ -163,6 +191,8 @@ export function usePaymentsData(toast: ToastFn) {
     historyLoading,
     historyPage,
     historyPageSize,
+    historySortBy,
+    historySortOrder,
     historyTotal,
     refreshPayments,
     resetHistoryFilters,
@@ -170,6 +200,7 @@ export function usePaymentsData(toast: ToastFn) {
     selectedEmployeeId,
     setHistoryFrom,
     setHistoryPage,
+    setHistorySort,
     setHistoryTo,
     summary,
     summaryLoading,

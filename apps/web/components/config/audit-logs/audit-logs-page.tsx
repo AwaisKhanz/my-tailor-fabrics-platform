@@ -2,7 +2,13 @@
 
 import { useMemo } from "react";
 import type { AuditLogEntry } from "@tbms/shared-types";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { TableSurface } from "@tbms/ui/components/table-layout";
 import {
@@ -14,6 +20,7 @@ import { AuditLogsFilterToolbar } from "@/components/config/audit-logs/audit-log
 import { AuditLogsPageHeader } from "@/components/config/audit-logs/audit-logs-page-header";
 import { AuditLogsStatsGrid } from "@/components/config/audit-logs/audit-logs-stats-grid";
 import { createAuditLogColumns } from "@/components/config/audit-logs/audit-log-table-columns";
+import { resolveUpdater } from "@/lib/tanstack";
 
 export function AuditLogsPage() {
   const {
@@ -37,6 +44,29 @@ export function AuditLogsPage() {
     () => createAuditLogColumns(),
     [],
   );
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handlePaginationChange = useMemo<OnChangeFn<PaginationState>>(
+    () => (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
+    },
+    [pagination, setPage],
+  );
+  const handleSortingChange = useMemo<OnChangeFn<SortingState>>(
+    () => () => {
+      return;
+    },
+    [],
+  );
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <PageShell>
@@ -61,17 +91,20 @@ export function AuditLogsPage() {
             onSetFilter={setFilter}
             onResetFilters={resetFilters}
           />
-          <DataTable
+          <DataTableTanstack
             columns={columns}
             data={records}
             loading={loading}
             emptyMessage="No audit events found for the selected filters."
             itemLabel="events"
             chrome="flat"
-            page={page}
-            total={total}
-            limit={pageSize}
-            onPageChange={setPage}
+            pagination={pagination}
+            onPaginationChange={handlePaginationChange}
+            pageCount={pageCount}
+            totalCount={total}
+            manualPagination
+            sorting={sorting}
+            onSortingChange={handleSortingChange}
           />
         </TableSurface>
       </PageSection>

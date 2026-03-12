@@ -42,12 +42,15 @@ export function OrdersPage() {
     search,
     statusFilter,
     dateRange,
+    sortBy,
+    sortOrder,
     activeFilterCount,
     summary,
     setPage,
     setSearchFilter,
     setStatus,
     setDate,
+    setSort,
     resetFilters,
   } = useOrdersListPage();
 
@@ -130,6 +133,9 @@ export function OrdersPage() {
             page={page}
             total={total}
             limit={pageSize}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={setSort}
             onPageChange={setPage}
             onViewOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}
             onEditOrder={(orderId) => router.push(buildEditOrderRoute(orderId))}

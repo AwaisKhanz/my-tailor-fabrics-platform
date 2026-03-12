@@ -1,14 +1,16 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type {
   EmployeeCapability,
   EmployeeCapabilityWindowInput,
   GarmentType,
 } from "@tbms/shared-types";
+import { type PaginationState, type SortingState } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldError, FieldHint, FieldLabel } from "@tbms/ui/components/field";
 import { FormGrid } from "@tbms/ui/components/form-layout";
 import { InfoTile } from "@tbms/ui/components/info-tile";
@@ -61,6 +63,29 @@ export function EmployeeCapabilitiesSection({
   getStepOptionsForCapabilityRow,
   onSubmit,
 }: EmployeeCapabilitiesSectionProps) {
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: 0,
+      pageSize: Math.max(activeCapabilities.length, 1),
+    }),
+    [activeCapabilities.length],
+  );
+  const onPaginationChange = useCallback(
+    (
+      updater: PaginationState | ((old: PaginationState) => PaginationState),
+    ) => {
+      void updater;
+    },
+    [],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
+    [],
+  );
+
   return (
     <EmployeeSection
       id="employee-capabilities"
@@ -74,34 +99,37 @@ export function EmployeeCapabilitiesSection({
       defaultOpen
     >
       <div className="space-y-4 p-4 sm:p-5">
-        <DataTable<EmployeeCapability>
+        <DataTableTanstack
           columns={[
             {
+              id: "garmentType",
               header: "Garment Type",
-              cell: (capability) => (
+              cell: ({ row }) => (
                 <span className="font-medium">
-                  {capability.garmentTypeId
-                    ? (garmentNameById.get(capability.garmentTypeId) ??
-                      capability.garmentTypeId)
+                  {row.original.garmentTypeId
+                    ? (garmentNameById.get(row.original.garmentTypeId) ??
+                      row.original.garmentTypeId)
                     : "Any"}
                 </span>
               ),
             },
             {
+              id: "stepKey",
               header: "Step Key",
-              cell: (capability) => (
+              cell: ({ row }) => (
                 <span className="font-mono text-xs">
-                  {capability.stepKey || "Any"}
+                  {row.original.stepKey || "Any"}
                 </span>
               ),
             },
             {
+              id: "effective",
               header: "Effective",
-              cell: (capability) => (
+              cell: ({ row }) => (
                 <span className="text-xs text-muted-foreground">
-                  {formatDate(capability.effectiveFrom)}
-                  {capability.effectiveTo
-                    ? ` → ${formatDate(capability.effectiveTo)}`
+                  {formatDate(row.original.effectiveFrom)}
+                  {row.original.effectiveTo
+                    ? ` → ${formatDate(row.original.effectiveTo)}`
                     : " onwards"}
                 </span>
               ),
@@ -111,6 +139,12 @@ export function EmployeeCapabilitiesSection({
           loading={false}
           chrome="flat"
           emptyMessage="No active capabilities configured."
+          pagination={pagination}
+          onPaginationChange={onPaginationChange}
+          pageCount={1}
+          totalCount={activeCapabilities.length}
+          sorting={sorting}
+          onSortingChange={onSortingChange}
         />
 
         {canManageWorkforceGovernance ? (
@@ -193,7 +227,10 @@ export function EmployeeCapabilitiesSection({
                         value={row.stepKey || "ANY_STEP"}
                         onValueChange={(value) =>
                           updateCapabilityRow(index, {
-                            stepKey: (value ?? "ANY_STEP") === "ANY_STEP" ? "" : (value ?? "ANY_STEP"),
+                            stepKey:
+                              (value ?? "ANY_STEP") === "ANY_STEP"
+                                ? ""
+                                : (value ?? "ANY_STEP"),
                           })
                         }
                       >

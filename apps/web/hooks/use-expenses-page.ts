@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Expense } from "@tbms/shared-types";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateExpenseManager } from "@/hooks/use-create-expense-manager";
 import { useDeleteExpenseManager } from "@/hooks/use-delete-expense-manager";
@@ -14,6 +15,8 @@ import {
 const PAGE_SIZE = 10;
 export const EXPENSES_ALL_CATEGORIES_FILTER = "all";
 export const EXPENSES_ALL_CATEGORIES_LABEL = "All Categories";
+export type ExpenseSortField = "expenseDate" | "amount" | "createdAt";
+export type ExpenseSortOrder = "asc" | "desc";
 
 type ExpenseFilterOption = {
   value: string;
@@ -27,6 +30,8 @@ interface ExpensesFilterParams {
   categoryId?: string;
   from?: string;
   to?: string;
+  sortBy?: ExpenseSortField;
+  sortOrder?: ExpenseSortOrder;
 }
 
 export interface ExpensesFilters {
@@ -46,11 +51,20 @@ export function useExpensesPage() {
       categoryId: EXPENSES_ALL_CATEGORIES_FILTER,
       from: "",
       to: "",
+      sortBy: "expenseDate",
+      sortOrder: "desc",
     },
   });
 
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const debouncedSearch = useDebounce(values.search, 500);
+  const sortBy: ExpenseSortField =
+    values.sortBy === "amount" || values.sortBy === "createdAt"
+      ? values.sortBy
+      : "expenseDate";
+  const sortOrder: ExpenseSortOrder =
+    values.sortOrder === "asc" ? "asc" : "desc";
   const filters = useMemo<ExpensesFilters>(
     () => ({
       search: values.search,
@@ -77,8 +91,8 @@ export function useExpensesPage() {
     if (filters.categoryId !== EXPENSES_ALL_CATEGORIES_FILTER) {
       params.categoryId = filters.categoryId;
     }
-    if (filters.search.trim()) {
-      params.search = filters.search.trim();
+    if (debouncedSearch.trim()) {
+      params.search = debouncedSearch.trim();
     }
     if (filters.from) {
       params.from = filters.from;
@@ -86,9 +100,11 @@ export function useExpensesPage() {
     if (filters.to) {
       params.to = filters.to;
     }
+    params.sortBy = sortBy;
+    params.sortOrder = sortOrder;
 
     return params;
-  }, [filters, page, pageSize]);
+  }, [debouncedSearch, filters, page, pageSize, sortBy, sortOrder]);
 
   const categoriesQuery = useExpenseCategories();
   const expensesQuery = useExpensesList(expenseParams);
@@ -169,6 +185,17 @@ export function useExpensesPage() {
     resetValues();
   }, [resetValues]);
 
+  const setSort = useCallback(
+    (nextSortBy: ExpenseSortField, nextSortOrder: ExpenseSortOrder) => {
+      setValues({
+        sortBy: nextSortBy,
+        sortOrder: nextSortOrder,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
+
   const {
     addOpen,
     form,
@@ -243,6 +270,8 @@ export function useExpensesPage() {
     total,
     page,
     pageSize,
+    sortBy,
+    sortOrder,
     categories,
     categoryFilterOptions,
     filters,
@@ -260,6 +289,7 @@ export function useExpensesPage() {
     setCategoryFilter,
     setFromFilter,
     setToFilter,
+    setSort,
     resetFilters,
     updateFormField,
     openAddDialog,

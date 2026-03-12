@@ -10,10 +10,12 @@ import {
 } from "@tbms/ui/components/card";
 import { Label } from "@tbms/ui/components/label";
 import { Separator } from "@tbms/ui/components/separator";
+import { cn } from "@/lib/utils";
 import { formatDate, formatPKR } from "@/lib/utils";
 
 interface OrderFinancialSummaryCardProps {
   order: Order;
+  className?: string;
   onCapturePayment: () => void;
   onReversePayment?: (paymentId: string) => void;
   canCapturePayment?: boolean;
@@ -23,6 +25,7 @@ interface OrderFinancialSummaryCardProps {
 
 export function OrderFinancialSummaryCard({
   order,
+  className,
   onCapturePayment,
   onReversePayment,
   canCapturePayment = true,
@@ -35,7 +38,7 @@ export function OrderFinancialSummaryCard({
   );
 
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader className="space-y-2">
         <div className="flex items-center gap-2">
           <CreditCard className="h-4 w-4 text-muted-foreground" />

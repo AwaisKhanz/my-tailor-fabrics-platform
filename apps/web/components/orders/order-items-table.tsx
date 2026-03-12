@@ -1,4 +1,9 @@
 import { useCallback, useEffect, useMemo } from "react";
+import {
+  type ColumnDef,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { CalendarDays, Scissors } from "lucide-react";
 import { ItemStatus, OrderItem } from "@tbms/shared-types";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
@@ -11,15 +16,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@tbms/ui/components/card";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldLabel } from "@tbms/ui/components/field";
 import { formatPKR } from "@/lib/utils";
+import { resolveUpdater } from "@/lib/tanstack";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
 interface OrderItemsTableProps {
   items: OrderItem[];
   onManageTasks: (item: OrderItem) => void;
   canManageTasks?: boolean;
+  className?: string;
 }
 
 const PAGE_SIZE = 8;
@@ -35,6 +42,7 @@ export function OrderItemsTable({
   items,
   onManageTasks,
   canManageTasks = true,
+  className,
 }: OrderItemsTableProps) {
   const { setValues, getPositiveInt } = useUrlTableState({
     prefix: "items",
@@ -81,111 +89,139 @@ export function OrderItemsTable({
     };
   }, [items]);
 
-  const columns: ColumnDef<OrderItem>[] = [
-    {
-      header: "Piece",
-      cell: (item) => (
-        <span className="font-semibold text-foreground">#{item.pieceNo}</span>
-      ),
-    },
-    {
-      header: "Item",
-      cell: (item) => (
-        <div className="flex min-w-[180px] items-start gap-2">
-          <Scissors className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {item.garmentTypeName}
-            </p>
-            {item.designType ? (
-              <FieldLabel className="mt-0.5" tone="primary">
-                {item.designType.name}
-              </FieldLabel>
-            ) : null}
-          </div>
-        </div>
-      ),
-    },
-    {
-      header: "Workflow",
-      cell: (item) => {
-        if (item.tasks && item.tasks.length > 0 && canManageTasks) {
-          return (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs font-semibold"
-              onClick={() => onManageTasks(item)}
-            >
-              Manage Tasks
-            </Button>
-          );
-        }
-
-        return (
-          <span className="text-xs font-medium text-muted-foreground">
-            {item.tasks && item.tasks.length > 0
-              ? "No permission to manage"
-              : "No workflow steps"}
+  const columns = useMemo<ColumnDef<OrderItem>[]>(
+    () => [
+      {
+        id: "piece",
+        header: "Piece",
+        cell: ({ row }) => (
+          <span className="font-semibold text-foreground">
+            #{row.original.pieceNo}
           </span>
-        );
+        ),
       },
-    },
-    {
-      header: "Due",
-      cell: (item) => (
-        <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-          <CalendarDays className="h-3 w-3" />
-          {item.dueDate ? formatShortDate(item.dueDate) : "-"}
-        </div>
-      ),
-    },
-    {
-      header: "Status",
-      cell: (item) => {
-        return (
-          <Badge
-            variant={ITEM_STATUS_CONFIG[item.status].variant}
-
-            className="uppercase "
-          >
-            {ITEM_STATUS_CONFIG[item.status].label}
-          </Badge>
-        );
-      },
-    },
-    {
-      header: "Amount",
-      align: "right",
-      cell: (item) => {
-        const addonsTotal = (item.addons || []).reduce(
-          (total, addon) => total + addon.price,
-          0,
-        );
-        const designPrice = item.designType?.defaultPrice || 0;
-        const total =
-          item.unitPrice * item.quantity +
-          designPrice * item.quantity +
-          addonsTotal;
-
-        return (
-          <div className="text-right">
-            <p className="text-sm font-semibold text-foreground">
-              {formatPKR(total)}
-            </p>
-            {addonsTotal > 0 || designPrice > 0 ? (
-              <p className="text-xs text-muted-foreground">
-                +{formatPKR(addonsTotal + designPrice)} extras
+      {
+        id: "item",
+        header: "Item",
+        cell: ({ row }) => (
+          <div className="flex min-w-[180px] items-start gap-2">
+            <Scissors className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-foreground">
+                {row.original.garmentTypeName}
               </p>
-            ) : null}
+              {row.original.designType ? (
+                <FieldLabel className="mt-0.5" tone="primary">
+                  {row.original.designType.name}
+                </FieldLabel>
+              ) : null}
+            </div>
           </div>
-        );
+        ),
       },
+      {
+        id: "workflow",
+        header: "Workflow",
+        cell: ({ row }) => {
+          if (row.original.tasks && row.original.tasks.length > 0 && canManageTasks) {
+            return (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs font-semibold"
+                onClick={() => onManageTasks(row.original)}
+              >
+                Manage Tasks
+              </Button>
+            );
+          }
+
+          return (
+            <span className="text-xs font-medium text-muted-foreground">
+              {row.original.tasks && row.original.tasks.length > 0
+                ? "No permission to manage"
+                : "No workflow steps"}
+            </span>
+          );
+        },
+      },
+      {
+        id: "due",
+        header: "Due",
+        cell: ({ row }) => (
+          <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <CalendarDays className="h-3 w-3" />
+            {row.original.dueDate ? formatShortDate(row.original.dueDate) : "-"}
+          </div>
+        ),
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge
+            variant={ITEM_STATUS_CONFIG[row.original.status].variant}
+            className="uppercase"
+          >
+            {ITEM_STATUS_CONFIG[row.original.status].label}
+          </Badge>
+        ),
+      },
+      {
+        id: "amount",
+        header: () => <div className="text-right">Amount</div>,
+        cell: ({ row }) => {
+          const addonsTotal = (row.original.addons || []).reduce(
+            (total, addon) => total + addon.price,
+            0,
+          );
+          const designPrice = row.original.designType?.defaultPrice || 0;
+          const totalAmount =
+            row.original.unitPrice * row.original.quantity +
+            designPrice * row.original.quantity +
+            addonsTotal;
+
+          return (
+            <div className="text-right">
+              <p className="text-sm font-semibold text-foreground">
+                {formatPKR(totalAmount)}
+              </p>
+              {addonsTotal > 0 || designPrice > 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  +{formatPKR(addonsTotal + designPrice)} extras
+                </p>
+              ) : null}
+            </div>
+          );
+        },
+      },
+    ],
+    [canManageTasks, onManageTasks],
+  );
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useCallback(
+    (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+      const next = resolveUpdater(updater, pagination);
+      setPage(next.pageIndex + 1);
     },
-  ];
+    [pagination, setPage],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useCallback(
+    (updater: SortingState | ((old: SortingState) => SortingState)) => {
+      void updater;
+    },
+    [],
+  );
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader
       >
         <div>
@@ -209,16 +245,19 @@ export function OrderItemsTable({
       </CardHeader>
 
       <CardContent className="p-0">
-        <DataTable
+        <DataTableTanstack
           columns={columns}
           data={pagedItems}
           itemLabel="pieces"
           emptyMessage="No pieces found for this order."
           chrome="flat"
-          page={page}
-          total={total}
-          limit={pageSize}
-          onPageChange={setPage}
+          pagination={pagination}
+          onPaginationChange={onPaginationChange}
+          pageCount={Math.max(1, Math.ceil(total / pageSize))}
+          totalCount={total}
+          manualPagination
+          sorting={sorting}
+          onSortingChange={onSortingChange}
         />
       </CardContent>
     </Card>

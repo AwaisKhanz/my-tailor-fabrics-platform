@@ -29,8 +29,6 @@ export function ReportsPageHeader({
           </Button>
         </ActionStrip>
       }
-      surface="card"
-      density="compact"
     />
   );
 }

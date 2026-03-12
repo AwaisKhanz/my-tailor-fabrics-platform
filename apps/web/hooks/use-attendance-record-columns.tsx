@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 import { Clock3, LogOut } from "lucide-react";
+import { type ColumnDef } from "@tanstack/react-table";
 import { type AttendanceRecord } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
 interface UseAttendanceRecordColumnsParams {
@@ -22,43 +22,48 @@ export function useAttendanceRecordColumns({
   return useMemo<ColumnDef<AttendanceRecord>[]>(
     () => [
       {
+        accessorKey: "date",
         header: "Date",
-        cell: (record) => (
+        cell: ({ row }) => (
           <span className="text-sm font-medium text-foreground">
-            {formatDate(record.date)}
+            {formatDate(row.original.date)}
           </span>
         ),
       },
       {
+        id: "employee",
+        accessorFn: (record) => record.employee?.fullName ?? "Unknown employee",
         header: "Employee",
-        cell: (record) => (
+        cell: ({ row }) => (
           <div className="space-y-0.5">
             <p className="text-sm font-semibold text-foreground">
-              {record.employee?.fullName ?? "Unknown employee"}
+              {row.original.employee?.fullName ?? "Unknown employee"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {record.employee?.employeeCode ?? "No code"}
-              {record.employee?.designation
-                ? ` • ${record.employee.designation}`
+              {row.original.employee?.employeeCode ?? "No code"}
+              {row.original.employee?.designation
+                ? ` • ${row.original.employee.designation}`
                 : ""}
             </p>
           </div>
         ),
       },
       {
+        accessorKey: "clockIn",
         header: "Clock In",
-        cell: (record) => (
+        cell: ({ row }) => (
           <span className="text-sm text-foreground">
-            {formatDateTime(record.clockIn)}
+            {formatDateTime(row.original.clockIn)}
           </span>
         ),
       },
       {
+        accessorKey: "clockOut",
         header: "Clock Out",
-        cell: (record) =>
-          record.clockOut ? (
+        cell: ({ row }) =>
+          row.original.clockOut ? (
             <span className="text-sm text-foreground">
-              {formatDateTime(record.clockOut)}
+              {formatDateTime(row.original.clockOut)}
             </span>
           ) : (
             <Badge variant="secondary">
@@ -67,29 +72,33 @@ export function useAttendanceRecordColumns({
           ),
       },
       {
+        id: "hoursWorked",
+        accessorFn: (record) =>
+          typeof record.hoursWorked === "number" ? record.hoursWorked : -1,
         header: "Hours",
-        align: "right",
-        cell: (record) => (
-          <span className="font-semibold text-foreground">
-            {typeof record.hoursWorked === "number"
-              ? `${record.hoursWorked.toFixed(2)}h`
+        cell: ({ row }) => (
+          <span className="font-semibold text-foreground tabular-nums">
+            {typeof row.original.hoursWorked === "number"
+              ? `${row.original.hoursWorked.toFixed(2)}h`
               : "—"}
           </span>
         ),
       },
       {
+        accessorKey: "note",
         header: "Note",
-        cell: (record) => (
+        cell: ({ row }) => (
           <span className="line-clamp-2 text-sm text-muted-foreground">
-            {record.note || "—"}
+            {row.original.note || "—"}
           </span>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (record) =>
-          record.clockOut ? (
+        cell: ({ row }) =>
+          row.original.clockOut ? (
             <span className="text-xs text-muted-foreground">Closed</span>
           ) : !canManageAttendanceEntries ? (
             <Badge variant="outline">
@@ -100,10 +109,10 @@ export function useAttendanceRecordColumns({
               type="button"
               variant="outline"
               size="sm"
-              disabled={clockingOutId === record.id}
+              disabled={clockingOutId === row.original.id}
               onClick={(event) => {
                 event.stopPropagation();
-                void clockOut(record.id);
+                void clockOut(row.original.id);
               }}
             >
               <LogOut className="h-4 w-4" />

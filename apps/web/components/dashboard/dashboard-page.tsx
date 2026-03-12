@@ -25,8 +25,15 @@ export function DashboardPage() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const { loading, error, stats, revenueExpenseRows, garments } =
-    useDashboardPage();
+  const {
+    loading,
+    refreshing,
+    error,
+    stats,
+    revenueExpenseRows,
+    garments,
+    refreshDashboard,
+  } = useDashboardPage();
 
   const role = session?.user?.role;
   const roleLabel = role && isRole(role) ? ROLE_LABELS[role] : undefined;
@@ -96,7 +103,14 @@ export function DashboardPage() {
       </PageSection>
 
       <PageSection spacing="compact">
-        <DashboardChartAreaInteractive data={chartData} />
+        <DashboardChartAreaInteractive
+          data={chartData}
+          refreshing={refreshing}
+          onRefresh={() => {
+            void refreshDashboard();
+          }}
+          onConfigure={() => router.push(REPORTS_ROUTE)}
+        />
       </PageSection>
 
       <PageSection spacing="compact">

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuditLogEntry, AuditLogsStats } from "@tbms/shared-types";
 import { AUDIT_ACTIONS, AUDIT_FILTER_ENTITIES } from "@tbms/shared-constants";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
@@ -70,6 +71,7 @@ export function useAuditLogsPage() {
 
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
+  const debouncedSearch = useDebounce(values.search, 500);
   const filters = useMemo<FiltersState>(
     () => ({
       search: values.search,
@@ -85,7 +87,7 @@ export function useAuditLogsPage() {
     () => ({
       page,
       limit: pageSize,
-      search: filters.search.trim() || undefined,
+      search: debouncedSearch.trim() || undefined,
       action: filters.action !== ALL_FILTER ? filters.action : undefined,
       entity: filters.entity !== ALL_FILTER ? filters.entity : undefined,
       from: filters.from || undefined,
@@ -95,8 +97,8 @@ export function useAuditLogsPage() {
       filters.action,
       filters.entity,
       filters.from,
-      filters.search,
       filters.to,
+      debouncedSearch,
       page,
       pageSize,
     ],

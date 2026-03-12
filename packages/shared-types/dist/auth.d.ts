@@ -13,6 +13,19 @@ export interface AuthLoginResponseData {
     accessToken: string;
     user: AuthenticatedUserSnapshot;
 }
+export interface AuthLoginRequestOtpInput {
+    email: string;
+    password: string;
+}
+export interface AuthLoginVerifyOtpInput {
+    challengeId: string;
+    otpCode: string;
+}
+export interface AuthLoginOtpChallengeResponseData {
+    challengeId: string;
+    destinationEmailMasked: string;
+    expiresInSeconds: number;
+}
 export interface AuthRefreshResponseData {
     accessToken: string;
 }

@@ -1,4 +1,10 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import Link from "next/link";
 import {
   Ban,
@@ -11,7 +17,7 @@ import {
 import { type Branch } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +27,7 @@ import {
 import { FieldLabel } from "@tbms/ui/components/field";
 import { Text } from "@tbms/ui/components/typography";
 import { buildBranchHubRoute } from "@/lib/settings-routes";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface BranchesDirectoryTableProps {
   branches: Branch[];
@@ -52,56 +59,61 @@ export function BranchesDirectoryTable({
   const columns = useMemo<ColumnDef<Branch>[]>(
     () => [
       {
+        accessorKey: "name",
         header: "Branch",
-        cell: (branch) => (
+        cell: ({ row }) => (
           <Link
-            href={buildBranchHubRoute(branch.id)}
+            href={buildBranchHubRoute(row.original.id)}
             className="group inline-flex max-w-[220px] flex-col"
           >
             <span className="truncate text-sm font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
-              {branch.name}
+              {row.original.name}
             </span>
             <FieldLabel className="mt-0.5">
-              {branch.code.toUpperCase()}
+              {row.original.code.toUpperCase()}
             </FieldLabel>
           </Link>
         ),
       },
       {
+        accessorKey: "phone",
         header: "Contact",
-        cell: (branch) => (
+        cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-foreground">
-              {branch.phone || "No phone provided"}
+              {row.original.phone || "No phone provided"}
             </span>
             <FieldLabel className="mt-0.5">Branch Hotline</FieldLabel>
           </div>
         ),
       },
       {
+        accessorKey: "address",
         header: "Address",
-        cell: (branch) => (
+        cell: ({ row }) => (
           <Text
             as="p"
             variant="body"
             className="max-w-[260px] font-medium leading-snug text-muted-foreground"
           >
-            {branch.address || "No address provided"}
+            {row.original.address || "No address provided"}
           </Text>
         ),
       },
       {
+        accessorKey: "isActive",
         header: "Status",
-        cell: (branch) => (
-          <Badge variant={branch.isActive ? "default" : "outline"}>
-            {branch.isActive ? "Active" : "Inactive"}
+        cell: ({ row }) => (
+          <Badge variant={row.original.isActive ? "default" : "outline"}>
+            {row.original.isActive ? "Active" : "Inactive"}
           </Badge>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (branch) => (
+        cell: ({ row }) => (
           <div
             className="flex justify-end"
             onClick={(event) => event.stopPropagation()}
@@ -113,7 +125,7 @@ export function BranchesDirectoryTable({
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Open actions for ${branch.name}`}
+                      aria-label={`Open actions for ${row.original.name}`}
                     />
                   }
                 >
@@ -121,24 +133,24 @@ export function BranchesDirectoryTable({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44 rounded-lg">
                   <DropdownMenuItem
-                    render={<Link href={buildBranchHubRoute(branch.id)} />}
+                    render={<Link href={buildBranchHubRoute(row.original.id)} />}
                     className="cursor-pointer p-3 text-xs font-bold"
                   >
                     <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
                     Manage Hub
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onEdit(branch)}
+                    onClick={() => onEdit(row.original)}
                     className="cursor-pointer p-3 text-xs font-bold"
                   >
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit Branch
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onToggleActive(branch)}
+                    onClick={() => onToggleActive(row.original)}
                     className="cursor-pointer p-3 text-xs font-bold text-foreground"
                   >
-                    {branch.isActive ? (
+                    {row.original.isActive ? (
                       <>
                         <Ban className="mr-2 h-4 w-4 text-secondary-foreground" />
                         Deactivate
@@ -151,7 +163,7 @@ export function BranchesDirectoryTable({
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onDelete(branch)}
+                    onClick={() => onDelete(row.original)}
                     className="cursor-pointer p-3 text-xs font-bold text-destructive focus:text-destructive"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -163,8 +175,8 @@ export function BranchesDirectoryTable({
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={`View ${branch.name}`}
-                onClick={() => onOpenBranch(branch)}
+                aria-label={`View ${row.original.name}`}
+                onClick={() => onOpenBranch(row.original)}
               >
                 <LayoutDashboard className="h-4 w-4" />
               </Button>
@@ -176,19 +188,45 @@ export function BranchesDirectoryTable({
     [canManageBranches, onDelete, onEdit, onOpenBranch, onToggleActive],
   );
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(() => {
+    return;
+  }, []);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={branches}
       loading={loading}
       emptyMessage="No branches yet. Create your first branch to get started."
       itemLabel="branches"
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
-      onRowClick={onOpenBranch}
       chrome="flat"
+      pagination={pagination}
+      onPaginationChange={handlePaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={handleSortingChange}
+      onRowClick={(row) => onOpenBranch(row.original)}
     />
   );
 }

@@ -1,8 +1,14 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { VerifyLoginOtpDto } from './dto/verify-login-otp.dto';
 import {
   getJwtRefreshExpiresIn,
   getJwtRefreshRotationGraceMs,
@@ -10,12 +16,16 @@ import {
 } from '../common/env';
 import { emitSecurityEvent } from '../common/utils/security-event.util';
 import { isRole } from '@tbms/shared-constants';
+import type { AuthLoginOtpChallengeResponseData } from '@tbms/shared-types';
+import { MailService } from '../mail/mail.service';
 import type {
   AccessTokenClaims,
   AuthTokenClaims,
   AuthTokenPair,
   RefreshTokenClaims,
 } from './types/auth-tokens';
+import { randomInt, randomUUID } from 'crypto';
+import { buildLoginOtpTemplate } from '../mail/templates';
 
 type AuthUserPayload = Pick<
   AuthTokenClaims,
@@ -26,6 +36,10 @@ type AuthUserPayload = Pick<
 };
 
 const REFRESH_TOKEN_HASH_ROUNDS = 12;
+const LOGIN_OTP_HASH_ROUNDS = 10;
+const LOGIN_OTP_LENGTH = 6;
+const LOGIN_OTP_EXPIRES_MS = 10 * 60 * 1000;
+const LOGIN_OTP_MAX_ATTEMPTS = 5;
 
 @Injectable()
 export class AuthService {
@@ -34,6 +48,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async validateUser(email: string, pass: string) {
@@ -74,16 +89,144 @@ export class AuthService {
     };
   }
 
-  async login(loginDto: LoginDto) {
+  private createLoginOtpCode(): string {
+    const min = 10 ** (LOGIN_OTP_LENGTH - 1);
+    const max = 10 ** LOGIN_OTP_LENGTH;
+    return String(randomInt(min, max));
+  }
+
+  private maskEmail(email: string): string {
+    const [localPart, domain] = email.split('@');
+    if (!localPart || !domain) {
+      return email;
+    }
+
+    const visiblePrefix = localPart.slice(0, 2);
+    const maskedLength = Math.max(localPart.length - visiblePrefix.length, 1);
+    return `${visiblePrefix}${'*'.repeat(maskedLength)}@${domain}`;
+  }
+
+  private async sendLoginOtpEmail(
+    destinationEmail: string,
+    otpCode: string,
+  ): Promise<void> {
+    const expiresInMinutes = Math.floor(LOGIN_OTP_EXPIRES_MS / 60_000);
+    const template = buildLoginOtpTemplate({
+      otpCode,
+      expiresInMinutes,
+    });
+
+    await this.mailService.sendTemplate(destinationEmail, template);
+  }
+
+  async requestLoginOtp(
+    loginDto: LoginDto,
+  ): Promise<AuthLoginOtpChallengeResponseData> {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      emitSecurityEvent(this.logger, 'auth_login_failed', {
+      emitSecurityEvent(this.logger, 'auth_login_otp_request_failed', {
         email: loginDto.email.trim().toLowerCase(),
       });
       throw new UnauthorizedException('Invalid credentials');
     }
+
     if (!isRole(user.role)) {
       throw new UnauthorizedException('Invalid user role state');
+    }
+
+    const challengeId = randomUUID();
+    const otpCode = this.createLoginOtpCode();
+    const otpHash = await bcrypt.hash(otpCode, LOGIN_OTP_HASH_ROUNDS);
+    const expiresAt = new Date(Date.now() + LOGIN_OTP_EXPIRES_MS);
+
+    await this.usersService.setPendingLoginOtpState(user.id, {
+      challengeId,
+      otpHash,
+      expiresAt,
+      attempts: 0,
+    });
+
+    try {
+      await this.sendLoginOtpEmail(user.email, otpCode);
+    } catch (error) {
+      await this.usersService.clearPendingLoginOtpState(user.id);
+      this.logger.error('Failed to send login OTP email', error);
+      throw new ServiceUnavailableException(
+        'Could not send verification code. Please try again.',
+      );
+    }
+
+    emitSecurityEvent(this.logger, 'auth_login_otp_sent', {
+      userId: user.id,
+      email: user.email,
+    });
+
+    return {
+      challengeId,
+      destinationEmailMasked: this.maskEmail(user.email),
+      expiresInSeconds: Math.floor(LOGIN_OTP_EXPIRES_MS / 1000),
+    };
+  }
+
+  async login(verifyDto: VerifyLoginOtpDto) {
+    const user = await this.usersService.findAuthUserByLoginChallenge(
+      verifyDto.challengeId,
+    );
+    if (!this.usersService.isAuthEligible(user)) {
+      emitSecurityEvent(this.logger, 'auth_login_otp_verify_failed', {
+        challengeId: verifyDto.challengeId,
+        reason: 'invalid_challenge',
+      });
+      throw new UnauthorizedException('Invalid or expired verification code');
+    }
+    if (!isRole(user.role)) {
+      throw new UnauthorizedException('Invalid user role state');
+    }
+    if (
+      !user.pendingLoginOtpHash ||
+      !user.pendingLoginOtpExpiresAt ||
+      user.pendingLoginChallengeId !== verifyDto.challengeId
+    ) {
+      emitSecurityEvent(this.logger, 'auth_login_otp_verify_failed', {
+        userId: user.id,
+        reason: 'missing_pending_otp_state',
+      });
+      throw new UnauthorizedException('Invalid or expired verification code');
+    }
+    if (user.pendingLoginOtpExpiresAt.getTime() < Date.now()) {
+      await this.usersService.clearPendingLoginOtpState(user.id);
+      emitSecurityEvent(this.logger, 'auth_login_otp_verify_failed', {
+        userId: user.id,
+        reason: 'otp_expired',
+      });
+      throw new UnauthorizedException('Verification code has expired');
+    }
+    if (user.pendingLoginOtpAttempts >= LOGIN_OTP_MAX_ATTEMPTS) {
+      await this.usersService.clearPendingLoginOtpState(user.id);
+      emitSecurityEvent(this.logger, 'auth_login_otp_verify_failed', {
+        userId: user.id,
+        reason: 'max_attempts_reached',
+      });
+      throw new UnauthorizedException('Too many invalid attempts');
+    }
+
+    const otpMatches = await bcrypt.compare(
+      verifyDto.otpCode,
+      user.pendingLoginOtpHash,
+    );
+    if (!otpMatches) {
+      await this.usersService.incrementPendingLoginOtpAttempts(
+        user.id,
+        verifyDto.challengeId,
+      );
+      if (user.pendingLoginOtpAttempts + 1 >= LOGIN_OTP_MAX_ATTEMPTS) {
+        await this.usersService.clearPendingLoginOtpState(user.id);
+      }
+      emitSecurityEvent(this.logger, 'auth_login_otp_verify_failed', {
+        userId: user.id,
+        reason: 'invalid_otp_code',
+      });
+      throw new UnauthorizedException('Invalid verification code');
     }
 
     const authUser = this.toAuthUserPayload(user);

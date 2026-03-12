@@ -565,6 +565,16 @@ export const loginFormSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type LoginFormInput = z.input<typeof loginFormSchema>;
 
+export const loginOtpCodeSchema = z.object({
+  otpCode: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Enter the 6-digit verification code."),
+});
+
+export type LoginOtpCodeValues = z.infer<typeof loginOtpCodeSchema>;
+export type LoginOtpCodeInput = z.input<typeof loginOtpCodeSchema>;
+
 export const publicStatusPinSchema = z.object({
   pin: z
     .string()

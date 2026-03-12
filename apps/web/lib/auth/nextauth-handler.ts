@@ -25,6 +25,8 @@ function createAuthHandler() {
         credentials: {
           email: { label: "Email", type: "email" },
           password: { label: "Password", type: "password" },
+          challengeId: { label: "Challenge ID", type: "text" },
+          otpCode: { label: "OTP Code", type: "text" },
         },
         async authorize(credentials) {
           return loginWithCredentials(apiBaseUrl, credentials);

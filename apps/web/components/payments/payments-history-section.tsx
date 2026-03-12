@@ -1,12 +1,24 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Calendar, RotateCcw } from "lucide-react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { type Payment } from "@tbms/shared-types";
 import { Button } from "@tbms/ui/components/button";
+import { DataTableColumnHeader } from "@tbms/ui/components/data-table-column-header";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { Input } from "@tbms/ui/components/input";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
 import { TableSurface, TableToolbar } from "@tbms/ui/components/table-layout";
+import { resolveUpdater } from "@/lib/tanstack";
 import { formatDate, formatPKR } from "@/lib/utils";
-import { type PaymentHistoryFilters } from "@/hooks/use-payments-data";
+import {
+  type PaymentHistoryFilters,
+  type PaymentHistorySortField,
+  type PaymentHistorySortOrder,
+} from "@/hooks/use-payments-data";
 
 interface PaymentsHistorySectionProps {
   history: Payment[];
@@ -16,13 +28,23 @@ interface PaymentsHistorySectionProps {
   limit: number;
   filters: PaymentHistoryFilters;
   activeFilterCount: number;
+  sortBy: PaymentHistorySortField;
+  sortOrder: PaymentHistorySortOrder;
   canManagePayments?: boolean;
   reversingPaymentId?: string | null;
   onPageChange: (page: number) => void;
+  onSortChange: (
+    sortBy: PaymentHistorySortField,
+    sortOrder: PaymentHistorySortOrder,
+  ) => void;
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   onResetFilters: () => void;
   onReversePayment?: (paymentId: string) => void;
+}
+
+function isPaymentSortField(value: string): value is PaymentHistorySortField {
+  return value === "paidAt" || value === "createdAt" || value === "amount";
 }
 
 export function PaymentsHistorySection({
@@ -33,9 +55,12 @@ export function PaymentsHistorySection({
   limit,
   filters,
   activeFilterCount,
+  sortBy,
+  sortOrder,
   canManagePayments = false,
   reversingPaymentId = null,
   onPageChange,
+  onSortChange,
   onFromChange,
   onToChange,
   onResetFilters,
@@ -45,17 +70,20 @@ export function PaymentsHistorySection({
     const actionColumn: ColumnDef<Payment> | null =
       canManagePayments && onReversePayment
         ? {
+            id: "actions",
+            enableSorting: false,
             header: "Actions",
-            align: "right",
-            cell: (payment) => (
+            cell: ({ row }) => (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={reversingPaymentId === payment.id}
-                onClick={() => onReversePayment(payment.id)}
+                disabled={reversingPaymentId === row.original.id}
+                onClick={() => onReversePayment(row.original.id)}
               >
-                {reversingPaymentId === payment.id ? "Reversing..." : "Reverse"}
+                {reversingPaymentId === row.original.id
+                  ? "Reversing..."
+                  : "Reverse"}
               </Button>
             ),
           }
@@ -63,30 +91,43 @@ export function PaymentsHistorySection({
 
     return [
       {
-        header: "Paid Date",
-        cell: (payment) => (
+        accessorKey: "paidAt",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Paid Date" />
+        ),
+        cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium">
-              {formatDate(payment.paidAt)}
+              {formatDate(row.original.paidAt)}
             </span>
           </div>
         ),
       },
       {
+        accessorKey: "note",
+        enableSorting: false,
         header: "Note",
-        cell: (payment) => (
+        cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {payment.note || "—"}
+            {row.original.note || "—"}
           </span>
         ),
       },
       {
-        header: "Amount",
-        align: "right",
-        cell: (payment) => (
+        accessorKey: "amount",
+        header: ({ column }) => (
+          <div className="text-right">
+            <DataTableColumnHeader
+              column={column}
+              title="Amount"
+              className="ml-auto"
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
           <span className="font-bold text-primary">
-            {formatPKR(payment.amount)}
+            {formatPKR(row.original.amount)}
           </span>
         ),
       },
@@ -95,6 +136,52 @@ export function PaymentsHistorySection({
   }, [canManagePayments, onReversePayment, reversingPaymentId]);
 
   const hasActiveFilters = activeFilterCount > 0;
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize: limit,
+    }),
+    [limit, page],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next = resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(
+    () => [
+      {
+        id: sortBy,
+        desc: sortOrder === "desc",
+      },
+    ],
+    [sortBy, sortOrder],
+  );
+
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(
+    (updater) => {
+      const next = resolveUpdater(updater, sorting);
+      const firstSort = next[0];
+
+      if (!firstSort) {
+        onSortChange("paidAt", "desc");
+        return;
+      }
+
+      if (!isPaymentSortField(firstSort.id)) {
+        return;
+      }
+
+      onSortChange(firstSort.id, firstSort.desc ? "desc" : "asc");
+    },
+    [onSortChange, sorting],
+  );
+
+  const pageCount = Math.max(1, Math.ceil(total / limit));
 
   return (
     <TableSurface>
@@ -131,17 +218,21 @@ export function PaymentsHistorySection({
         )}
       />
 
-      <DataTable
+      <DataTableTanstack
         columns={columns}
         data={history}
         loading={loading}
-        page={page}
-        total={total}
-        limit={limit}
-        onPageChange={onPageChange}
+        chrome="flat"
+        pagination={pagination}
+        onPaginationChange={handlePaginationChange}
+        pageCount={pageCount}
+        totalCount={total}
+        manualPagination
+        sorting={sorting}
+        onSortingChange={handleSortingChange}
+        manualSorting
         itemLabel="payments"
         emptyMessage="No payment records found for this employee."
-        chrome="flat"
       />
     </TableSurface>
   );

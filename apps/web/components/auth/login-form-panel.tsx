@@ -9,12 +9,23 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@tbms/ui/components/input-group";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@tbms/ui/components/input-otp";
 import { siteConfig } from "@/lib/config";
 import { ADMIN_LOGIN_EMAIL_PLACEHOLDER } from "@/lib/form-placeholders";
 
 interface LoginFormPanelProps {
+  loginStep: "credentials" | "otp";
   email: string;
   password: string;
+  otpCode: string;
+  otpError: string;
+  otpMaskedDestination: string;
+  otpExpiresInMinutes: number;
   showPassword: boolean;
   staySignedIn: boolean;
   isLoading: boolean;
@@ -25,14 +36,23 @@ interface LoginFormPanelProps {
   formError: string;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
+  onOtpCodeChange: (value: string) => void;
   onTogglePassword: () => void;
   onStaySignedInChange: (checked: boolean) => void;
   onSubmit: (event: React.FormEvent) => void;
+  onVerifyOtp: (event: React.FormEvent) => void;
+  onResendOtp: () => void;
+  onBackToCredentials: () => void;
 }
 
 export function LoginFormPanel({
+  loginStep,
   email,
   password,
+  otpCode,
+  otpError,
+  otpMaskedDestination,
+  otpExpiresInMinutes,
   showPassword,
   staySignedIn,
   isLoading,
@@ -40,10 +60,83 @@ export function LoginFormPanel({
   formError,
   onEmailChange,
   onPasswordChange,
+  onOtpCodeChange,
   onTogglePassword,
   onStaySignedInChange,
   onSubmit,
+  onVerifyOtp,
+  onResendOtp,
+  onBackToCredentials,
 }: LoginFormPanelProps) {
+  if (loginStep === "otp") {
+    return (
+      <form className="space-y-4" onSubmit={onVerifyOtp}>
+        <div className="space-y-1">
+          <p className="text-sm font-medium">Enter verification code</p>
+          <p className="text-sm text-muted-foreground">
+            We sent a 6-digit code to{" "}
+            <span className="font-medium">{otpMaskedDestination}</span>.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Code expires in about {otpExpiresInMinutes} minute
+            {otpExpiresInMinutes > 1 ? "s" : ""}.
+          </p>
+        </div>
+
+        <div className="space-y-2 w-full">
+          <InputOTP
+            maxLength={6}
+            value={otpCode}
+            onChange={onOtpCodeChange}
+            className="w-full"
+            pattern="^[0-9]+$"
+            autoFocus
+          >
+            <InputOTPGroup>
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+            </InputOTPGroup>
+            <InputOTPSeparator />
+            <InputOTPGroup>
+              <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
+            </InputOTPGroup>
+          </InputOTP>
+          {otpError ? (
+            <p className="text-xs font-medium text-destructive">{otpError}</p>
+          ) : null}
+        </div>
+
+        <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+          {isLoading ? "Verifying..." : "Verify & Sign In"}
+        </Button>
+
+        <div className="flex items-center justify-between gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onBackToCredentials}
+            disabled={isLoading}
+          >
+            Change email/password
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onResendOtp}
+            disabled={isLoading}
+          >
+            Resend code
+          </Button>
+        </div>
+      </form>
+    );
+  }
+
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="space-y-1.5">
@@ -63,7 +156,9 @@ export function LoginFormPanel({
           />
         </InputGroup>
         {fieldErrors.email ? (
-          <p className="text-xs font-medium text-destructive">{fieldErrors.email}</p>
+          <p className="text-xs font-medium text-destructive">
+            {fieldErrors.email}
+          </p>
         ) : null}
       </div>
 
@@ -98,7 +193,9 @@ export function LoginFormPanel({
           </InputGroupAddon>
         </InputGroup>
         {fieldErrors.password ? (
-          <p className="text-xs font-medium text-destructive">{fieldErrors.password}</p>
+          <p className="text-xs font-medium text-destructive">
+            {fieldErrors.password}
+          </p>
         ) : null}
       </div>
 
@@ -119,7 +216,9 @@ export function LoginFormPanel({
           <Checkbox
             id="stay-signed-in"
             checked={staySignedIn}
-            onCheckedChange={(checked) => onStaySignedInChange(Boolean(checked))}
+            onCheckedChange={(checked) =>
+              onStaySignedInChange(Boolean(checked))
+            }
             className="h-4 w-4"
           />
           <Label

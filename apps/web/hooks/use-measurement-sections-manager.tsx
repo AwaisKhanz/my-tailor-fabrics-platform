@@ -11,9 +11,9 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { Label } from "@tbms/ui/components/label";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 
@@ -155,56 +155,60 @@ export function useMeasurementSectionsManager({
   const columns = useMemo<ColumnDef<SectionRow>[]>(
     () => [
       {
+        id: "section",
         header: "Section",
-        cell: (row) => (
+        cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Badge variant="outline">
-              #{row.section.sortOrder + 1}
+              #{row.original.section.sortOrder + 1}
             </Badge>
             <span className="font-semibold text-foreground">
-              {row.section.name}
+              {row.original.section.name}
             </span>
           </div>
         ),
       },
       {
+        id: "fields",
         header: "Fields",
-        cell: (row) => (
+        cell: ({ row }) => (
           <Badge variant="default">
-            {row.fieldCount} field{row.fieldCount === 1 ? "" : "s"}
+            {row.original.fieldCount} field{row.original.fieldCount === 1 ? "" : "s"}
           </Badge>
         ),
       },
       {
+        id: "required",
         header: "Required",
-        cell: (row) => (
+        cell: ({ row }) => (
           <Badge variant="default">
-            {row.requiredCount} required
+            {row.original.requiredCount} required
           </Badge>
         ),
       },
       {
+        id: "sort",
         header: "Sort",
-        cell: (row) => (
+        cell: ({ row }) => (
           <Label className="text-xs font-semibold uppercase text-muted-foreground">
-            {row.section.sortOrder}
+            {row.original.section.sortOrder}
           </Label>
         ),
       },
       {
-        header: "Actions",
-        align: "right",
-        cell: (row) => (
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1.5">
             {canManageSections ? (
               <>
-                {row.section.deletedAt ? (
+                {row.original.section.deletedAt ? (
                   onRestoreSection ? (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onRestoreSection(row.section)}
-                      aria-label={`Restore section ${row.section.name}`}
+                      onClick={() => onRestoreSection(row.original.section)}
+                      aria-label={`Restore section ${row.original.section.name}`}
                     >
                       <RotateCcw className="h-4 w-4" />
                       Restore
@@ -215,7 +219,7 @@ export function useMeasurementSectionsManager({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onAddFieldToSection(row.section.id)}
+                      onClick={() => onAddFieldToSection(row.original.section.id)}
                     >
                       <FolderPlus className="h-4 w-4" />
                       Add Field
@@ -223,27 +227,27 @@ export function useMeasurementSectionsManager({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onEditSection(row.section)}
-                      aria-label={`Edit section ${row.section.name}`}
+                      onClick={() => onEditSection(row.original.section)}
+                      aria-label={`Edit section ${row.original.section.name}`}
                     >
                       <PencilLine className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => onDeleteSection(row.section)}
-                      aria-label={`Delete section ${row.section.name}`}
+                      onClick={() => onDeleteSection(row.original.section)}
+                      aria-label={`Delete section ${row.original.section.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
                 )}
-                {row.section.deletedAt ? (
+                {row.original.section.deletedAt ? (
                   <Button
                     variant="outline"
                     size="sm"
                     disabled
-                    aria-label={`Section ${row.section.name} is archived`}
+                    aria-label={`Section ${row.original.section.name} is archived`}
                   >
                     Archived
                   </Button>

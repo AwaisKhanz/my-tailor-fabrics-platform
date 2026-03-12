@@ -1,11 +1,18 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Edit2, GitBranch, RotateCcw, Search, Trash2 } from "lucide-react";
 import { type Branch, type DesignType, type GarmentType } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { TableSearch, TableSurface, TableToolbar } from "@tbms/ui/components/table-layout";
 import { formatPKR } from "@/lib/utils";
+import { resolveUpdater } from "@/lib/tanstack";
 
 interface DesignTypesTableProps {
   loading: boolean;
@@ -54,15 +61,20 @@ export function DesignTypesTable({
   const columns = useMemo<ColumnDef<DesignType>[]>(
     () => [
       {
+        accessorKey: "name",
         header: "Name",
-        cell: (designType) => <div className="font-bold text-foreground">{designType.name}</div>,
+        cell: ({ row }) => (
+          <div className="font-bold text-foreground">{row.original.name}</div>
+        ),
       },
       {
+        id: "application",
+        enableSorting: false,
         header: "Application",
-        cell: (designType) =>
-          designType.garmentTypeId ? (
+        cell: ({ row }) =>
+          row.original.garmentTypeId ? (
             <span className="text-xs font-medium">
-              {garmentNameById.get(designType.garmentTypeId) || "Garment"}
+              {garmentNameById.get(row.original.garmentTypeId) || "Garment"}
             </span>
           ) : (
             <Badge variant="default">
@@ -71,12 +83,14 @@ export function DesignTypesTable({
           ),
       },
       {
+        id: "branch",
+        enableSorting: false,
         header: "Branch",
-        cell: (designType) =>
-          designType.branchId ? (
+        cell: ({ row }) =>
+          row.original.branchId ? (
             <Badge variant="outline" className="gap-1">
               <GitBranch className="h-2.5 w-2.5" />
-              {branchById.get(designType.branchId)?.code || "Branch"}
+              {branchById.get(row.original.branchId)?.code || "Branch"}
             </Badge>
           ) : (
             <Badge variant="secondary">
@@ -85,21 +99,22 @@ export function DesignTypesTable({
           ),
       },
       {
+        accessorKey: "defaultPrice",
         header: "Customer Price",
-        align: "right",
-        cell: (designType) => <span className="font-bold">{formatPKR(designType.defaultPrice)}</span>,
+        cell: ({ row }) => <span className="font-bold">{formatPKR(row.original.defaultPrice)}</span>,
       },
       {
+        accessorKey: "defaultRate",
         header: "Worker Rate",
-        align: "right",
-        cell: (designType) => (
-          <span className="font-bold text-primary">{formatPKR(designType.defaultRate)}</span>
+        cell: ({ row }) => (
+          <span className="font-bold text-primary">{formatPKR(row.original.defaultRate)}</span>
         ),
       },
       {
+        id: "actions",
+        enableSorting: false,
         header: "Actions",
-        align: "right",
-        cell: (designType) => (
+        cell: ({ row }) => (
           <div className="flex justify-end gap-2">
             {canManageDesignTypes ? (
               <>
@@ -108,7 +123,7 @@ export function DesignTypesTable({
                   size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onEdit(designType);
+                    onEdit(row.original);
                   }}
                 >
                   <Edit2 className="h-4 w-4" />
@@ -118,7 +133,7 @@ export function DesignTypesTable({
                   size="icon"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onDelete(designType);
+                    onDelete(row.original);
                   }}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -133,6 +148,29 @@ export function DesignTypesTable({
     ],
     [branchById, canManageDesignTypes, garmentNameById, onDelete, onEdit],
   );
+
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+
+  const handlePaginationChange = useCallback<OnChangeFn<PaginationState>>(
+    (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+
+  const sorting = useMemo<SortingState>(() => [], []);
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(() => {
+    return;
+  }, []);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <TableSurface>
@@ -162,18 +200,21 @@ export function DesignTypesTable({
           </>
         }
       />
-      <DataTable
+      <DataTableTanstack
         columns={columns}
         data={designTypes}
         loading={loading}
         itemLabel="design types"
         emptyMessage="No design types have been defined yet."
         chrome="flat"
-        page={page}
-        total={total}
-        limit={pageSize}
-        onPageChange={onPageChange}
-        onRowClick={canManageDesignTypes ? onEdit : undefined}
+        pagination={pagination}
+        onPaginationChange={handlePaginationChange}
+        pageCount={pageCount}
+        totalCount={total}
+        manualPagination
+        sorting={sorting}
+        onSortingChange={handleSortingChange}
+        onRowClick={canManageDesignTypes ? (row) => onEdit(row.original) : undefined}
       />
     </TableSurface>
   );

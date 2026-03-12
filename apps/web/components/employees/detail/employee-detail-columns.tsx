@@ -1,23 +1,23 @@
 "use client";
 
 import { ChevronRight, RotateCcw } from "lucide-react";
-import type {
-  AttendanceRecord,
-  EmployeeLedgerEntry,
-  OrderItem,
-  OrderItemTask,
-  TaskStatus,
+import {
+  type AttendanceRecord,
+  type EmployeeLedgerEntry,
+  type OrderItem,
+  type OrderItemTask,
+  type TaskStatus,
+  isTaskStatus,
 } from "@tbms/shared-types";
-import { isTaskStatus } from "@tbms/shared-types";
 import {
   LEDGER_ENTRY_TYPE_BADGE,
   LEDGER_ENTRY_TYPE_LABELS,
   TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { FieldLabel } from "@tbms/ui/components/field";
 import {
   Select,
@@ -33,52 +33,59 @@ export function createEmployeeHistoryColumns(
 ): ColumnDef<OrderItem>[] {
   return [
     {
+      id: "orderNumber",
       header: "Order #",
-      cell: (item) => (
-        <span className="font-bold">{item.order?.orderNumber || "-"}</span>
+      cell: ({ row }) => (
+        <span className="font-bold">{row.original.order?.orderNumber || "-"}</span>
       ),
     },
     {
+      id: "garment",
       header: "Garment",
-      cell: (item) => (
+      cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-medium">{item.garmentTypeName}</span>
+          <span className="font-medium">{row.original.garmentTypeName}</span>
           <span className="text-xs text-muted-foreground">
-            {item.completedAt
-              ? `Completed: ${formatDate(item.completedAt)}`
+            {row.original.completedAt
+              ? `Completed: ${formatDate(row.original.completedAt)}`
               : "Pending"}
           </span>
         </div>
       ),
     },
     {
+      id: "status",
       header: "Status",
-      cell: (item) => (
+      cell: ({ row }) => (
         <Badge variant="outline" className="scale-90">
-          {item.status}
+          {row.original.status}
         </Badge>
       ),
     },
     {
-      header: "Price",
-      align: "right",
-      cell: (item) => (
-        <span className="text-right font-bold text-primary">
-          {formatPKR(item.unitPrice)}
-        </span>
+      id: "price",
+      header: () => <div className="text-right">Price</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <span className="font-bold text-primary">
+            {formatPKR(row.original.unitPrice)}
+          </span>
+        </div>
       ),
     },
     {
-      header: "",
-      align: "right",
-      cell: (item) => (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onViewOrder(item.orderId)}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+      id: "action",
+      header: () => <div className="text-right" />,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onViewOrder(row.original.orderId)}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       ),
     },
   ];
@@ -87,16 +94,18 @@ export function createEmployeeHistoryColumns(
 export function createEmployeeAttendanceColumns(): ColumnDef<AttendanceRecord>[] {
   return [
     {
+      id: "date",
       header: "Date",
-      cell: (record) => (
-        <span className="font-medium">{formatDate(record.date)}</span>
+      cell: ({ row }) => (
+        <span className="font-medium">{formatDate(row.original.date)}</span>
       ),
     },
     {
+      id: "clockIn",
       header: "Clock In",
-      cell: (record) => (
+      cell: ({ row }) => (
         <span className="text-xs font-medium text-primary">
-          {new Date(record.clockIn).toLocaleTimeString([], {
+          {new Date(row.original.clockIn).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
@@ -104,11 +113,12 @@ export function createEmployeeAttendanceColumns(): ColumnDef<AttendanceRecord>[]
       ),
     },
     {
+      id: "clockOut",
       header: "Clock Out",
-      cell: (record) => (
+      cell: ({ row }) => (
         <span className="text-xs font-medium text-destructive">
-          {record.clockOut
-            ? new Date(record.clockOut).toLocaleTimeString([], {
+          {row.original.clockOut
+            ? new Date(row.original.clockOut).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })
@@ -117,12 +127,14 @@ export function createEmployeeAttendanceColumns(): ColumnDef<AttendanceRecord>[]
       ),
     },
     {
-      header: "Hours",
-      align: "right",
-      cell: (record) => (
-        <span className="font-bold">
-          {record.hoursWorked?.toFixed(1) || "0.0"}h
-        </span>
+      id: "hours",
+      header: () => <div className="text-right">Hours</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <span className="font-bold">
+            {row.original.hoursWorked?.toFixed(1) || "0.0"}h
+          </span>
+        </div>
       ),
     },
   ];
@@ -139,30 +151,33 @@ export function createEmployeeTaskColumns({
 }: EmployeeTaskColumnsOptions): ColumnDef<OrderItemTask>[] {
   return [
     {
+      id: "orderNumber",
       header: "Order #",
-      cell: (task) => (
-        <span className="font-bold">{task.item?.order.orderNumber || "-"}</span>
+      cell: ({ row }) => (
+        <span className="font-bold">
+          {row.original.item?.order.orderNumber || "-"}
+        </span>
       ),
     },
     {
+      id: "itemStep",
       header: "Item/Step",
-      cell: (task) => (
+      cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-medium">
-            {task.item?.garmentTypeName || "-"}
-          </span>
-          <FieldLabel className="font-mono">{task.stepName}</FieldLabel>
+          <span className="font-medium">{row.original.item?.garmentTypeName || "-"}</span>
+          <FieldLabel className="font-mono">{row.original.stepName}</FieldLabel>
         </div>
       ),
     },
     {
+      id: "status",
       header: "Status",
-      cell: (task) => (
+      cell: ({ row }) => (
         <Select
-          value={task.status}
+          value={row.original.status}
           onValueChange={(value) => {
             if (value && isTaskStatus(value)) {
-              onTaskStatusChange(task.id, value);
+              onTaskStatusChange(row.original.id, value);
             }
           }}
           disabled={!canManageTaskStatus}
@@ -185,27 +200,31 @@ export function createEmployeeTaskColumns({
       ),
     },
     {
-      header: "Rate",
-      align: "right",
-      cell: (task) => (
-        <span className="font-bold text-primary">
-          {formatPKR(
-            getEffectiveTaskRate(
-              task.rateSnapshot,
-              task.rateOverride,
-              task.designRateSnapshot,
-            ),
-          )}
-        </span>
+      id: "rate",
+      header: () => <div className="text-right">Rate</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <span className="font-bold text-primary">
+            {formatPKR(
+              getEffectiveTaskRate(
+                row.original.rateSnapshot,
+                row.original.rateOverride,
+                row.original.designRateSnapshot,
+              ),
+            )}
+          </span>
+        </div>
       ),
     },
     {
-      header: "Last Update",
-      align: "right",
-      cell: (task) => (
-        <span className="text-xs text-muted-foreground">
-          {formatDateTime(task.updatedAt)}
-        </span>
+      id: "lastUpdate",
+      header: () => <div className="text-right">Last Update</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <span className="text-xs text-muted-foreground">
+            {formatDateTime(row.original.updatedAt)}
+          </span>
+        </div>
       ),
     },
   ];
@@ -222,69 +241,77 @@ export function createEmployeeLedgerColumns({
 }: EmployeeLedgerColumnsOptions): ColumnDef<EmployeeLedgerEntry>[] {
   return [
     {
+      id: "date",
       header: "Date",
-      cell: (entry) => (
+      cell: ({ row }) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {formatDateTime(entry.createdAt)}
+          {formatDateTime(row.original.createdAt)}
         </span>
       ),
     },
     {
+      id: "type",
       header: "Type",
-      cell: (entry) => (
-        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[entry.type]}>
-          {LEDGER_ENTRY_TYPE_LABELS[entry.type]}
+      cell: ({ row }) => (
+        <Badge variant={LEDGER_ENTRY_TYPE_BADGE[row.original.type]}>
+          {LEDGER_ENTRY_TYPE_LABELS[row.original.type]}
         </Badge>
       ),
     },
     {
-      header: "Amount",
-      align: "right",
-      cell: (entry) => (
-        <span
-          className={`text-sm font-bold ${entry.amount >= 0 ? "text-primary" : "text-destructive"}`}
-        >
-          {entry.amount >= 0 ? "+" : ""}
-          {formatPKR(Math.abs(entry.amount))}
-        </span>
+      id: "amount",
+      header: () => <div className="text-right">Amount</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <span
+            className={`text-sm font-bold ${row.original.amount >= 0 ? "text-primary" : "text-destructive"}`}
+          >
+            {row.original.amount >= 0 ? "+" : ""}
+            {formatPKR(Math.abs(row.original.amount))}
+          </span>
+        </div>
       ),
     },
     {
+      id: "taskNote",
       header: "Task / Note",
-      cell: (entry) => (
+      cell: ({ row }) => (
         <div className="flex max-w-xs flex-col">
-          {entry.orderItemTask ? (
+          {row.original.orderItemTask ? (
             <span className="text-xs font-semibold">
-              {entry.orderItemTask.stepName} -{" "}
-              {entry.orderItemTask.orderItem?.garmentTypeName}
+              {row.original.orderItemTask.stepName} -{" "}
+              {row.original.orderItemTask.orderItem?.garmentTypeName}
             </span>
           ) : null}
-          {entry.note ? (
-            <span className="text-xs text-muted-foreground">{entry.note}</span>
+          {row.original.note ? (
+            <span className="text-xs text-muted-foreground">{row.original.note}</span>
           ) : null}
         </div>
       ),
     },
     {
+      id: "order",
       header: "Order #",
-      cell: (entry) => (
+      cell: ({ row }) => (
         <span className="text-xs text-muted-foreground">
-          {entry.orderItemTask?.orderItem?.order?.orderNumber ?? "-"}
+          {row.original.orderItemTask?.orderItem?.order?.orderNumber ?? "-"}
         </span>
       ),
     },
     {
-      header: "Action",
-      align: "right",
-      cell: (entry) =>
+      id: "action",
+      header: () => <div className="text-right">Action</div>,
+      cell: ({ row }) =>
         canManageLedger ? (
-          <Button
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => onReverseLedgerEntry(entry.id)}
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
+          <div className="text-right">
+            <Button
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => onReverseLedgerEntry(row.original.id)}
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          </div>
         ) : null,
     },
   ];

@@ -4,9 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { loginFormSchema } from "@tbms/shared-types";
+import { loginFormSchema, loginOtpCodeSchema } from "@tbms/shared-types";
 import { useToast } from "@/hooks/use-toast";
 import { buildExpiredLoginRoute, HOME_ROUTE } from "@/lib/auth-routes";
+import { getWebApiBaseUrl } from "@/lib/env";
+import { requestLoginOtpChallenge } from "@/lib/auth/backend-auth";
+
+interface OtpChallengeState {
+  challengeId: string;
+  destinationEmailMasked: string;
+  expiresInSeconds: number;
+}
 
 export function useLoginPage() {
   const router = useRouter();
@@ -18,12 +26,18 @@ export function useLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpChallenge, setOtpChallenge] = useState<OtpChallengeState | null>(
+    null,
+  );
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string;
     password?: string;
   }>({});
   const [formError, setFormError] = useState("");
+  const [otpError, setOtpError] = useState("");
   const handledInvalidSessionRef = useRef(false);
+  const apiBaseUrl = getWebApiBaseUrl();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -76,17 +90,76 @@ export function useLoginPage() {
       setIsLoading(true);
 
       try {
-        const result = await signIn("credentials", {
+        const challengeResponse = await requestLoginOtpChallenge(apiBaseUrl, {
           email: data.email,
           password: data.password,
+        });
+
+        if (!challengeResponse.success || !challengeResponse.data) {
+          toast({
+            variant: "destructive",
+            title: "Verification Failed",
+            description:
+              challengeResponse.message ??
+              "Could not send verification code. Please try again.",
+          });
+          return;
+        }
+
+        toast({
+          title: "Verification code sent",
+          description: `Enter the code sent to ${challengeResponse.data.destinationEmailMasked}.`,
+        });
+        setOtpChallenge(challengeResponse.data);
+        setOtpCode("");
+        setOtpError("");
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [apiBaseUrl, email, password, toast],
+  );
+
+  const handleVerifyOtp = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      if (!otpChallenge) {
+        return;
+      }
+
+      const otpValidation = loginOtpCodeSchema.safeParse({ otpCode });
+      if (!otpValidation.success) {
+        setOtpError(
+          otpValidation.error.flatten().fieldErrors.otpCode?.[0] ??
+            "Enter the 6-digit verification code.",
+        );
+        return;
+      }
+
+      setOtpError("");
+      setIsLoading(true);
+
+      try {
+        const result = await signIn("credentials", {
+          email,
+          password,
+          challengeId: otpChallenge.challengeId,
+          otpCode: otpValidation.data.otpCode,
           redirect: false,
         });
 
         if (result?.error) {
+          setOtpError("Invalid or expired verification code.");
           toast({
             variant: "destructive",
-            title: "Login Failed",
-            description: "Invalid email or password",
+            title: "Verification Failed",
+            description: "Invalid or expired verification code.",
           });
           return;
         }
@@ -95,7 +168,6 @@ export function useLoginPage() {
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-
         router.push(HOME_ROUTE);
       } catch {
         toast({
@@ -107,8 +179,73 @@ export function useLoginPage() {
         setIsLoading(false);
       }
     },
-    [email, password, router, toast],
+    [email, otpChallenge, otpCode, password, router, toast],
   );
+
+  const handleResendOtp = useCallback(async () => {
+    const parsedResult = loginFormSchema.safeParse({ email, password });
+    if (!parsedResult.success) {
+      setFormError("Please re-enter email and password to resend OTP.");
+      setOtpChallenge(null);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const challengeResponse = await requestLoginOtpChallenge(apiBaseUrl, {
+        email: parsedResult.data.email,
+        password: parsedResult.data.password,
+      });
+
+      if (!challengeResponse.success || !challengeResponse.data) {
+        toast({
+          variant: "destructive",
+          title: "Resend Failed",
+          description:
+            challengeResponse.message ??
+            "Could not resend verification code. Please try again.",
+        });
+        return;
+      }
+
+      setOtpChallenge(challengeResponse.data);
+      setOtpCode("");
+      setOtpError("");
+      toast({
+        title: "Code resent",
+        description: `A new code was sent to ${challengeResponse.data.destinationEmailMasked}.`,
+      });
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Resend Failed",
+        description: "Could not resend verification code.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiBaseUrl, email, password, toast]);
+
+  const handleBackToCredentials = useCallback(() => {
+    setOtpChallenge(null);
+    setOtpCode("");
+    setOtpError("");
+  }, []);
+
+  const loginStep: "credentials" | "otp" = otpChallenge
+    ? "otp"
+    : "credentials";
+
+  const otpExpiresInMinutes = otpChallenge
+    ? Math.max(1, Math.ceil(otpChallenge.expiresInSeconds / 60))
+    : 0;
+
+  const otpMaskedDestination = otpChallenge?.destinationEmailMasked ?? "";
+
+  const handleOtpCodeChange = useCallback((value: string) => {
+    setOtpError("");
+    setOtpCode(value);
+  }, []);
 
   return {
     status,
@@ -117,6 +254,11 @@ export function useLoginPage() {
     showPassword,
     staySignedIn,
     isLoading,
+    loginStep,
+    otpCode,
+    otpError,
+    otpExpiresInMinutes,
+    otpMaskedDestination,
     fieldErrors,
     formError,
     setEmail: (value: string) => {
@@ -130,7 +272,11 @@ export function useLoginPage() {
       setPassword(value);
     },
     setStaySignedIn,
+    handleOtpCodeChange,
     togglePasswordVisibility,
     handleSubmit,
+    handleVerifyOtp,
+    handleResendOtp,
+    handleBackToCredentials,
   };
 }

@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { OrderStatus } from "@tbms/shared-types";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
 import { useOrdersList, useOrdersSummary } from "@/hooks/queries/order-queries";
 
@@ -10,6 +11,23 @@ const PAGE_SIZE = 10;
 
 export type OrdersStatusFilter = OrderStatus | "ALL";
 export type OrdersDateRange = "7" | "30" | "90" | "all";
+export type OrdersSortField =
+  | "orderDate"
+  | "dueDate"
+  | "orderNumber"
+  | "customer"
+  | "totalAmount"
+  | "status";
+export type OrdersSortOrder = "asc" | "desc";
+
+export const ORDER_SORT_FIELD_VALUES: readonly OrdersSortField[] = [
+  "orderDate",
+  "dueDate",
+  "orderNumber",
+  "customer",
+  "totalAmount",
+  "status",
+];
 
 export const ORDER_STATUS_FILTER_VALUES: readonly OrdersStatusFilter[] = [
   "ALL",
@@ -65,6 +83,14 @@ export function isOrdersDateRange(value: string): value is OrdersDateRange {
   return ORDER_DATE_RANGE_VALUES.some((range) => range === value);
 }
 
+function isOrdersSortField(value: string): value is OrdersSortField {
+  return ORDER_SORT_FIELD_VALUES.some((field) => field === value);
+}
+
+function isOrdersSortOrder(value: string): value is OrdersSortOrder {
+  return value === "asc" || value === "desc";
+}
+
 function parseOrdersStatusFilter(value: string): OrdersStatusFilter {
   if (value === "ALL") {
     return "ALL";
@@ -75,6 +101,14 @@ function parseOrdersStatusFilter(value: string): OrdersStatusFilter {
 
 function parseOrdersDateRange(value: string): OrdersDateRange {
   return isOrdersDateRange(value) ? value : "30";
+}
+
+function parseOrdersSortField(value: string): OrdersSortField {
+  return isOrdersSortField(value) ? value : "orderDate";
+}
+
+function parseOrdersSortOrder(value: string): OrdersSortOrder {
+  return isOrdersSortOrder(value) ? value : "desc";
 }
 
 function getFromIsoByRange(range: OrdersDateRange): string | undefined {
@@ -97,22 +131,38 @@ export function useOrdersListPage() {
       search: "",
       status: "ALL",
       range: "30",
+      sortBy: "orderDate",
+      sortOrder: "desc",
     },
   });
 
   const page = getPositiveInt("page", 1);
   const pageSize = getPositiveInt("limit", PAGE_SIZE);
   const search = values.search;
+  const debouncedSearch = useDebounce(search, 500);
   const statusFilter = parseOrdersStatusFilter(values.status);
   const dateRange = parseOrdersDateRange(values.range);
+  const sortBy = parseOrdersSortField(values.sortBy);
+  const sortOrder = parseOrdersSortOrder(values.sortOrder);
 
   const baseFilters = useMemo(
     () => ({
       status: statusFilter === "ALL" ? undefined : statusFilter,
-      search: search.trim() || undefined,
+      search: debouncedSearch.trim() || undefined,
+      from: getFromIsoByRange(dateRange),
+      sortBy,
+      sortOrder,
+    }),
+    [dateRange, debouncedSearch, sortBy, sortOrder, statusFilter],
+  );
+
+  const summaryFilters = useMemo(
+    () => ({
+      status: statusFilter === "ALL" ? undefined : statusFilter,
+      search: debouncedSearch.trim() || undefined,
       from: getFromIsoByRange(dateRange),
     }),
-    [dateRange, search, statusFilter],
+    [dateRange, debouncedSearch, statusFilter],
   );
 
   const ordersQuery = useOrdersList({
@@ -121,7 +171,7 @@ export function useOrdersListPage() {
     limit: pageSize,
   });
 
-  const summaryQuery = useOrdersSummary(baseFilters);
+  const summaryQuery = useOrdersSummary(summaryFilters);
 
   const loading = ordersQuery.isLoading || summaryQuery.isLoading;
   const orders = ordersQuery.data?.success ? ordersQuery.data.data.data : [];
@@ -176,6 +226,17 @@ export function useOrdersListPage() {
     [setValues],
   );
 
+  const setSort = useCallback(
+    (nextSortBy: OrdersSortField, nextSortOrder: OrdersSortOrder) => {
+      setValues({
+        sortBy: nextSortBy,
+        sortOrder: nextSortOrder,
+        page: "1",
+      });
+    },
+    [setValues],
+  );
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (search.trim().length > 0) {
@@ -199,12 +260,15 @@ export function useOrdersListPage() {
     search,
     statusFilter,
     dateRange,
+    sortBy,
+    sortOrder,
     summary,
     activeFilterCount,
     setPage,
     setSearchFilter,
     setStatus,
     setDate,
+    setSort,
     resetFilters,
   };
 }

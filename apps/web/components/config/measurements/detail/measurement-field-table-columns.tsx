@@ -4,9 +4,9 @@ import {
   type MeasurementField,
   type MeasurementSection,
 } from "@tbms/shared-types";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { FieldLabel } from "@tbms/ui/components/field";
 import {
   Select,
@@ -46,27 +46,31 @@ export function useMeasurementFieldTableColumns({
   return useMemo<ColumnDef<MeasurementField>[]>(
     () => [
       {
+        id: "label",
         header: "Field Label",
-        cell: (field) => (
-          <span className="font-semibold text-foreground">{field.label}</span>
+        cell: ({ row }) => (
+          <span className="font-semibold text-foreground">
+            {row.original.label}
+          </span>
         ),
       },
       {
+        id: "section",
         header: "Section",
-        cell: (field) => {
+        cell: ({ row }) => {
           const currentSectionId =
-            field.sectionId ?? moveSectionOptions[0]?.id ?? "";
+            row.original.sectionId ?? moveSectionOptions[0]?.id ?? "";
           const showSectionMoveSelect =
             canManageFields &&
             Boolean(onMoveFieldSection) &&
             moveSectionOptions.length > 0 &&
-            !field.deletedAt &&
+            !row.original.deletedAt &&
             Boolean(currentSectionId);
 
           if (!showSectionMoveSelect) {
             return (
               <Badge variant="default">
-                {field.section?.name ?? "General"}
+                {row.original.section?.name ?? "General"}
               </Badge>
             );
           }
@@ -79,9 +83,9 @@ export function useMeasurementFieldTableColumns({
                   if (!nextSectionId) {
                     return;
                   }
-                  void handleMoveFieldSection(field, nextSectionId);
+                  void handleMoveFieldSection(row.original, nextSectionId);
                 }}
-                disabled={movingFieldId === field.id}
+                disabled={movingFieldId === row.original.id}
               >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue />
@@ -99,14 +103,15 @@ export function useMeasurementFieldTableColumns({
         },
       },
       {
+        id: "dataType",
         header: "Data Type",
-        cell: (field) => {
+        cell: ({ row }) => {
           let typeLabel = "Text";
-          if (field.fieldType === "NUMBER") {
-            typeLabel = field.unit?.trim()
-              ? `Number (${field.unit.trim()})`
+          if (row.original.fieldType === "NUMBER") {
+            typeLabel = row.original.unit?.trim()
+              ? `Number (${row.original.unit.trim()})`
               : "Number";
-          } else if (field.fieldType === "DROPDOWN") {
+          } else if (row.original.fieldType === "DROPDOWN") {
             typeLabel = "Dropdown";
           }
 
@@ -118,14 +123,15 @@ export function useMeasurementFieldTableColumns({
         },
       },
       {
+        id: "status",
         header: "Status",
-        cell: (field) => (
+        cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            {field.deletedAt ? (
+            {row.original.deletedAt ? (
               <Badge variant="outline">
                 Archived
               </Badge>
-            ) : field.isRequired ? (
+            ) : row.original.isRequired ? (
               <div className="flex items-center gap-1.5 text-primary">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <FieldLabel tone="primary">Required</FieldLabel>
@@ -140,18 +146,18 @@ export function useMeasurementFieldTableColumns({
         ),
       },
       {
-        header: "Actions",
-        align: "right",
-        cell: (field) => (
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1">
             {canManageFields ? (
               <>
-                {field.deletedAt ? (
+                {row.original.deletedAt ? (
                   onRestoreField ? (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onRestoreField(field)}
+                      onClick={() => onRestoreField(row.original)}
                     >
                       <RotateCcw className="h-4 w-4" />
                       Restore
@@ -162,14 +168,14 @@ export function useMeasurementFieldTableColumns({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onEditField(field)}
+                      onClick={() => onEditField(row.original)}
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => onDeleteField(field)}
+                      onClick={() => onDeleteField(row.original)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import {
+  clearActiveBranchCookie,
   readActiveBranchCookie,
   writeActiveBranchCookie,
 } from '@/lib/branch-context';
@@ -14,6 +15,7 @@ interface BranchState {
   activeBranchId: string | null;
   availableBranches: Branch[];
   setActiveBranch: (branchId: string) => void;
+  clearActiveBranch: () => void;
   setAvailableBranches: (branches: Branch[]) => void;
   hydrate: () => void;
 }
@@ -25,6 +27,11 @@ export const useBranchStore = create<BranchState>((set) => ({
   setActiveBranch: (branchId: string) => {
     writeActiveBranchCookie(branchId);
     set({ activeBranchId: branchId });
+  },
+
+  clearActiveBranch: () => {
+    clearActiveBranchCookie();
+    set({ activeBranchId: null });
   },
 
   setAvailableBranches: (branches: Branch[]) => {

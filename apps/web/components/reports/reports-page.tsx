@@ -2,7 +2,12 @@
 
 import { Card, CardContent } from "@tbms/ui/components/card";
 import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@tbms/ui/components/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@tbms/ui/components/tabs";
 import { ReportsExportsTab } from "@/components/reports/reports-exports-tab";
 import { ReportsFinancialTab } from "@/components/reports/reports-financial-tab";
 import { ReportsOperationsTab } from "@/components/reports/reports-operations-tab";
@@ -114,9 +119,10 @@ export function ReportsPage() {
                   setActiveTab(value);
                 }
               }}
+              className={"flex flex-col"}
             >
-              <div className="overflow-x-auto pb-1">
-                <TabsList>
+              <div className="overflow-x-auto pb-3">
+                <TabsList content="sd">
                   {REPORT_TABS.map((tab) => (
                     <TabsTrigger key={tab.key} value={tab.key}>
                       {tab.label}

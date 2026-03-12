@@ -13,9 +13,9 @@ import {
   TASK_STATUS_OPTIONS,
   getEffectiveTaskRate,
 } from "@tbms/shared-constants";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { type ColumnDef } from "@tbms/ui/components/data-table";
 import { Input } from "@tbms/ui/components/input";
 import {
   Select,
@@ -97,23 +97,25 @@ export function useTaskAssignmentTable({
   const columns = useMemo<ColumnDef<OrderItemTask>[]>(
     () => [
       {
+        id: "step",
         header: "Step",
-        cell: (task) => (
+        cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="font-bold text-foreground">{task.stepName}</span>
+            <span className="font-bold text-foreground">{row.original.stepName}</span>
             <span className="font-mono text-xs uppercase text-muted-foreground">
-              {task.stepKey}
+              {row.original.stepKey}
             </span>
           </div>
         ),
       },
       {
+        id: "assignedEmployee",
         header: "Assigned Employee",
-        cell: (task) => {
-          const eligibleEmployees = eligibleEmployeesByTask[task.id] ?? [];
-          const assignedEmployeeOption = task.assignedEmployeeId
+        cell: ({ row }) => {
+          const eligibleEmployees = eligibleEmployeesByTask[row.original.id] ?? [];
+          const assignedEmployeeOption = row.original.assignedEmployeeId
             ? employees.find(
-                (employee) => employee.id === task.assignedEmployeeId,
+                (employee) => employee.id === row.original.assignedEmployeeId,
               )
             : undefined;
           const assignmentOptions = assignedEmployeeOption
@@ -128,16 +130,16 @@ export function useTaskAssignmentTable({
             : eligibleEmployees;
           const hasSelectableEmployee = assignmentOptions.length > 0;
           const canModifyAssignment =
-            loadingId !== task.id &&
-            (hasSelectableEmployee || Boolean(task.assignedEmployeeId));
+            loadingId !== row.original.id &&
+            (hasSelectableEmployee || Boolean(row.original.assignedEmployeeId));
 
           return (
             <div className="min-w-[180px]">
               <Select
                 disabled={!canModifyAssignment}
-                value={task.assignedEmployeeId || "unassigned"}
+                value={row.original.assignedEmployeeId || "unassigned"}
                 onValueChange={(value) => {
-                  onAssign(task.id, value === "unassigned" ? null : value);
+                  onAssign(row.original.id, value === "unassigned" ? null : value);
                 }}
               >
                 <SelectTrigger className="h-8 text-xs font-semibold">
@@ -152,7 +154,7 @@ export function useTaskAssignmentTable({
                   ))}
                 </SelectContent>
               </Select>
-              {!hasSelectableEmployee && !task.assignedEmployeeId ? (
+              {!hasSelectableEmployee && !row.original.assignedEmployeeId ? (
                 <p className="mt-1 text-xs text-secondary-foreground">
                   No eligible employees for this step.
                 </p>
@@ -162,24 +164,25 @@ export function useTaskAssignmentTable({
         },
       },
       {
+        id: "status",
         header: "Status",
-        cell: (task) => (
+        cell: ({ row }) => (
           <div className="min-w-[140px]">
             <Select
-              disabled={loadingId === task.id}
-              value={task.status}
+              disabled={loadingId === row.original.id}
+              value={row.original.status}
               onValueChange={(value) => {
                 if (value && isTaskStatus(value)) {
-                  onStatusChange(task.id, value);
+                  onStatusChange(row.original.id, value);
                 }
               }}
             >
               <SelectTrigger className="h-8 border-transparent bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground focus:ring-0 focus:ring-offset-0">
                 <Badge
-                  variant={TASK_STATUS_CONFIG[task.status].variant}
+                  variant={TASK_STATUS_CONFIG[row.original.status].variant}
                   className="w-full justify-center uppercase"
                 >
-                  {TASK_STATUS_CONFIG[task.status].label}
+                  {TASK_STATUS_CONFIG[row.original.status].label}
                 </Badge>
               </SelectTrigger>
               <SelectContent>
@@ -194,16 +197,16 @@ export function useTaskAssignmentTable({
         ),
       },
       {
-        header: "Labor Rate",
-        align: "right",
-        cell: (task) => {
+        id: "rate",
+        header: () => <div className="text-right">Labor Rate</div>,
+        cell: ({ row }) => {
           const effectiveRateInRupees =
             getEffectiveTaskRate(
-              task.rateSnapshot,
-              task.rateOverride,
-              task.designRateSnapshot,
+              row.original.rateSnapshot,
+              row.original.rateOverride,
+              row.original.designRateSnapshot,
             ) / 100;
-          const isEditing = editingRateId === task.id;
+          const isEditing = editingRateId === row.original.id;
 
           if (isEditing) {
             return (
@@ -217,7 +220,7 @@ export function useTaskAssignmentTable({
                     autoFocus
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
-                        onRateUpdate(task.id);
+                        onRateUpdate(row.original.id);
                       }
                       if (event.key === "Escape") {
                         onCancelRateEdit();
@@ -228,7 +231,7 @@ export function useTaskAssignmentTable({
                     variant="secondary"
                     size="icon"
                     className="h-7 w-7"
-                    onClick={() => onRateUpdate(task.id)}
+                    onClick={() => onRateUpdate(row.original.id)}
                   >
                     <Check className="h-3 w-3" />
                   </Button>
@@ -254,24 +257,24 @@ export function useTaskAssignmentTable({
               <div className="flex flex-col items-end">
                 <span
                   className={`text-sm font-bold ${
-                    task.rateOverride
+                    row.original.rateOverride
                       ? "text-primary"
-                      : task.designRateSnapshot
+                      : row.original.designRateSnapshot
                         ? "text-primary/80"
                         : "text-foreground"
                   }`}
                 >
                   {formatPKR(
                     getEffectiveTaskRate(
-                      task.rateSnapshot,
-                      task.rateOverride,
-                      task.designRateSnapshot,
+                      row.original.rateSnapshot,
+                      row.original.rateOverride,
+                      row.original.designRateSnapshot,
                     ),
                   )}
                 </span>
-                {task.rateOverride ? (
+                {row.original.rateOverride ? (
                   <span className="text-xs text-muted-foreground line-through">
-                    Base: {formatPKR(task.rateSnapshot ?? 0)}
+                    Base: {formatPKR(row.original.rateSnapshot ?? 0)}
                   </span>
                 ) : null}
               </div>
@@ -279,7 +282,9 @@ export function useTaskAssignmentTable({
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => onStartRateEdit(task.id, effectiveRateInRupees)}
+                onClick={() =>
+                  onStartRateEdit(row.original.id, effectiveRateInRupees)
+                }
               >
                 <Edit2 className="h-3 w-3 text-muted-foreground" />
               </Button>

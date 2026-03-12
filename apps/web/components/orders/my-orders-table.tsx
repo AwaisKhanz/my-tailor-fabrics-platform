@@ -1,9 +1,16 @@
 import { useMemo } from "react";
+import {
+  type ColumnDef,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@tbms/ui/components/badge";
-import { DataTable, type ColumnDef } from "@tbms/ui/components/data-table";
+import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { FieldLabel } from "@tbms/ui/components/field";
 import { formatDate, formatPKR } from "@/lib/utils";
+import { resolveUpdater } from "@/lib/tanstack";
 import { type MyAssignedWorkItem } from "@/hooks/use-my-orders-page";
 
 interface MyOrdersTableProps {
@@ -26,37 +33,43 @@ export function MyOrdersTable({
   const columns = useMemo<ColumnDef<MyAssignedWorkItem>[]>(
     () => [
       {
+        id: "orderNumber",
+        accessorFn: (item) => item.order.orderNumber,
         header: "Order #",
-        cell: (item) => (
+        cell: ({ row }) => (
           <span className="font-bold text-primary">
-            {item.order.orderNumber}
+            {row.original.order.orderNumber}
           </span>
         ),
       },
       {
+        accessorKey: "garmentTypeName",
         header: "Garment Type",
-        cell: (item) => (
+        cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="text-sm font-semibold leading-tight text-foreground">
-              {item.garmentTypeName}
+              {row.original.garmentTypeName}
             </span>
             <FieldLabel className="mt-0.5">
-              {item.description || "—"}
+              {row.original.description || "—"}
             </FieldLabel>
           </div>
         ),
       },
       {
+        id: "dueDate",
+        accessorFn: (item) => item.dueDate ?? item.order.dueDate ?? "",
         header: "Due Date",
-        cell: (item) => {
-          const dueDate = item.dueDate ?? item.order.dueDate ?? "";
+        cell: ({ row }) => {
+          const dueDate = row.original.dueDate ?? row.original.order.dueDate ?? "";
           return <FieldLabel>{formatDate(dueDate)}</FieldLabel>;
         },
       },
       {
+        accessorKey: "status",
         header: "Status",
-        cell: (item) => {
-          const status = item.status;
+        cell: ({ row }) => {
+          const status = row.original.status;
           return (
             <Badge variant={ITEM_STATUS_CONFIG[status].variant}>
               {ITEM_STATUS_CONFIG[status].label}
@@ -65,11 +78,11 @@ export function MyOrdersTable({
         },
       },
       {
+        accessorKey: "unitPrice",
         header: "Price",
-        align: "right",
-        cell: (item) => (
+        cell: ({ row }) => (
           <span className="whitespace-nowrap text-sm font-semibold text-primary">
-            {formatPKR(item.unitPrice)}
+            {formatPKR(row.original.unitPrice)}
           </span>
         ),
       },
@@ -77,18 +90,45 @@ export function MyOrdersTable({
     [],
   );
 
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(page - 1, 0),
+      pageSize,
+    }),
+    [page, pageSize],
+  );
+  const onPaginationChange = useMemo<OnChangeFn<PaginationState>>(
+    () => (updater) => {
+      const next =
+        resolveUpdater(updater, pagination);
+      onPageChange(next.pageIndex + 1);
+    },
+    [onPageChange, pagination],
+  );
+  const sorting = useMemo<SortingState>(() => [], []);
+  const onSortingChange = useMemo<OnChangeFn<SortingState>>(
+    () => () => {
+      return;
+    },
+    [],
+  );
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
   return (
-    <DataTable
+    <DataTableTanstack
       columns={columns}
       data={items}
       loading={loading}
       itemLabel="items"
       emptyMessage="You don't have any orders assigned to you at the moment."
       chrome="flat"
-      page={page}
-      total={total}
-      limit={pageSize}
-      onPageChange={onPageChange}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      pageCount={pageCount}
+      totalCount={total}
+      manualPagination
+      sorting={sorting}
+      onSortingChange={onSortingChange}
     />
   );
 }

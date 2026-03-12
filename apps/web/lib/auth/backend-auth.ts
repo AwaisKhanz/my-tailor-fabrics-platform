@@ -2,7 +2,9 @@ import axios from "axios";
 import type { JWT } from "next-auth/jwt";
 import type {
   ApiResponse,
+  AuthLoginOtpChallengeResponseData,
   AuthLoginResponseData,
+  AuthLoginRequestOtpInput,
   AuthRefreshResponseData,
 } from "@tbms/shared-types";
 import { decodeJwtExpiryMs } from "@/lib/auth/jwt";
@@ -40,9 +42,16 @@ export function extractCookieValue(
 
 export async function loginWithCredentials(
   apiBaseUrl: string,
-  credentials: { email?: string; password?: string } | undefined,
+  credentials:
+    | {
+        email?: string;
+        password?: string;
+        challengeId?: string;
+        otpCode?: string;
+      }
+    | undefined,
 ) {
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials?.challengeId || !credentials?.otpCode) {
     return null;
   }
 
@@ -50,8 +59,8 @@ export async function loginWithCredentials(
     const response = await axios.post<ApiResponse<AuthLoginResponseData>>(
       `${apiBaseUrl}/auth/login`,
       {
-        email: credentials.email,
-        password: credentials.password,
+        challengeId: credentials.challengeId,
+        otpCode: credentials.otpCode,
       },
     );
 
@@ -76,6 +85,18 @@ export async function loginWithCredentials(
   } catch {
     return null;
   }
+}
+
+export async function requestLoginOtpChallenge(
+  apiBaseUrl: string,
+  payload: AuthLoginRequestOtpInput,
+): Promise<ApiResponse<AuthLoginOtpChallengeResponseData>> {
+  const response = await axios.post<ApiResponse<AuthLoginOtpChallengeResponseData>>(
+    `${apiBaseUrl}/auth/login/request-otp`,
+    payload,
+  );
+
+  return response.data;
 }
 
 export async function refreshAccessToken(

@@ -22,8 +22,6 @@ export function AuditLogsPageHeader({ onRefresh }: AuditLogsPageHeaderProps) {
           Refresh
         </Button>
       }
-      surface="card"
-      density="compact"
     />
   );
 }

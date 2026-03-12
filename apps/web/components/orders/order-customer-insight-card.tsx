@@ -1,3 +1,4 @@
+import { Order, type MeasurementValues } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import {
   Card,
@@ -13,7 +14,7 @@ import {
   TableCell,
   TableRow,
 } from "@tbms/ui/components/table";
-import { Order, type MeasurementValues } from "@tbms/shared-types";
+import { cn } from "@/lib/utils";
 
 interface MeasurementDisplayItem {
   label: string;
@@ -22,6 +23,7 @@ interface MeasurementDisplayItem {
 
 interface OrderCustomerInsightCardProps {
   customer: Order["customer"];
+  className?: string;
 }
 
 function getMeasurementPreview(
@@ -48,11 +50,12 @@ function getMeasurementPreview(
 
 export function OrderCustomerInsightCard({
   customer,
+  className,
 }: OrderCustomerInsightCardProps) {
   const measurementPreview = getMeasurementPreview(customer);
 
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -87,10 +90,10 @@ export function OrderCustomerInsightCard({
           </div>
         </div>
 
-        <div className="rounded-md border">
+        <div className="rounded-md border ">
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div>
-              <h4 className="text-sm font-medium">Measurement Snapshot</h4>
+              <h4 className="text-sm font-mediu">Measurement Snapshot</h4>
               <p className="text-xs text-muted-foreground">
                 Latest captured values for this customer.
               </p>

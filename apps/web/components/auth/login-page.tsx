@@ -8,8 +8,13 @@ import { siteConfig } from "@/lib/config";
 
 export function LoginPage() {
   const {
+    loginStep,
     email,
     password,
+    otpCode,
+    otpError,
+    otpMaskedDestination,
+    otpExpiresInMinutes,
     showPassword,
     staySignedIn,
     isLoading,
@@ -18,8 +23,12 @@ export function LoginPage() {
     setEmail,
     setPassword,
     setStaySignedIn,
+    handleOtpCodeChange,
     togglePasswordVisibility,
     handleSubmit,
+    handleVerifyOtp,
+    handleResendOtp,
+    handleBackToCredentials,
   } = useLoginPage();
 
   return (
@@ -40,8 +49,13 @@ export function LoginPage() {
       }
     >
       <LoginFormPanel
+          loginStep={loginStep}
           email={email}
           password={password}
+          otpCode={otpCode}
+          otpError={otpError}
+          otpMaskedDestination={otpMaskedDestination}
+          otpExpiresInMinutes={otpExpiresInMinutes}
           showPassword={showPassword}
           staySignedIn={staySignedIn}
           isLoading={isLoading}
@@ -49,9 +63,13 @@ export function LoginPage() {
           formError={formError}
           onEmailChange={setEmail}
           onPasswordChange={setPassword}
+          onOtpCodeChange={handleOtpCodeChange}
           onTogglePassword={togglePasswordVisibility}
           onStaySignedInChange={setStaySignedIn}
           onSubmit={handleSubmit}
+          onVerifyOtp={handleVerifyOtp}
+          onResendOtp={handleResendOtp}
+          onBackToCredentials={handleBackToCredentials}
       />
     </AuthPage>
   );
