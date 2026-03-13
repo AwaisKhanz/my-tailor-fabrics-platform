@@ -281,6 +281,14 @@ If the API console command fails:
 3. confirm the deployment has the latest commit
 4. run `pnpm run prisma:seed:list` first to verify the seed entrypoint is available
 
+If deploy-on-push fails during API image build with:
+`ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`:
+
+1. ensure [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api) uses:
+   `RUN CI=true pnpm prune --prod --no-optional`
+2. commit and push the Dockerfile change
+3. trigger a new deployment
+
 If the API container exits with `Cannot find module '/app/apps/api/dist/src/main.js'`:
 
 1. confirm [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json) still defines `start:do:api` as `node apps/api/dist/main.js`
