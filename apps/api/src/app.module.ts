@@ -38,6 +38,7 @@ import {
 } from './common/env';
 
 const cacheLogger = new Logger('CacheModule');
+const redisReconnectDelayMs = 5000;
 const schedulerImports = isInternalSchedulerEnabled()
   ? [ScheduleModule.forRoot(), SchedulerModule]
   : [];
@@ -82,10 +83,32 @@ const schedulerImports = isInternalSchedulerEnabled()
         }
 
         try {
+          const cacheStore = await redisStore({
+            url: redisUrl,
+            socket: {
+              keepAlive: 5000,
+              reconnectStrategy: (retries: number) =>
+                Math.min((retries + 1) * 250, redisReconnectDelayMs),
+            },
+          });
+
+          cacheStore.client.on('error', (error: Error) => {
+            cacheLogger.error(
+              `Redis cache client error: ${error.message}`,
+              error.stack,
+            );
+          });
+
+          cacheStore.client.on('reconnecting', () => {
+            cacheLogger.warn('Redis cache client reconnecting...');
+          });
+
+          cacheStore.client.on('ready', () => {
+            cacheLogger.log('Redis cache client is ready.');
+          });
+
           return {
-            store: await redisStore({
-              url: redisUrl,
-            }),
+            store: cacheStore,
           };
         } catch (error) {
           if (isProduction) {
