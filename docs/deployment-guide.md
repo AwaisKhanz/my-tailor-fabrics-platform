@@ -285,9 +285,15 @@ If deploy-on-push fails during API image build with:
 `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`:
 
 1. ensure [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api) uses:
-   `RUN CI=true pnpm prune --prod --no-optional`
+   `RUN CI=true pnpm prune --prod --no-optional` only if you intentionally keep prune enabled
 2. commit and push the Dockerfile change
 3. trigger a new deployment
+
+If API runtime fails with `Cannot find module '@nestjs/core'`:
+
+1. remove runtime prune from [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api) in monorepo builds
+2. ensure `node_modules` is copied from the built workspace image (`builder` / `prod-deps` stage without prune)
+3. commit and push, then wait for a fresh deploy-on-push rollout
 
 If the API container exits with `Cannot find module '/app/apps/api/dist/src/main.js'`:
 

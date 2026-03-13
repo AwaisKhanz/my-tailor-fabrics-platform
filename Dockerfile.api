@@ -23,7 +23,9 @@ RUN pnpm run build:do:api
 
 FROM builder AS prod-deps
 WORKDIR /app
-RUN CI=true pnpm prune --prod --no-optional
+# Keep workspace node_modules from the fully built image.
+# `pnpm prune --prod` in this monorepo Docker context can remove runtime deps
+# that are still required by apps/api at container startup.
 
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
