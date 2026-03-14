@@ -26,7 +26,7 @@ type ApiToastConfig = {
 };
 
 declare module 'axios' {
-  export interface InternalAxiosRequestConfig<_D = unknown> {
+  export interface InternalAxiosRequestConfig {
     tbmsToast?: ApiToastConfig;
   }
 }
