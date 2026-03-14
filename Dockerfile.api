@@ -47,6 +47,8 @@ COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/packages/shared-types ./packages/shared-types
 COPY --from=builder /app/packages/shared-constants ./packages/shared-constants
+COPY --from=builder /app/packages/shared-types ./node_modules/@tbms/shared-types
+COPY --from=builder /app/packages/shared-constants ./node_modules/@tbms/shared-constants
 
 EXPOSE 8080
 

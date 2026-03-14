@@ -296,6 +296,13 @@ If API runtime fails with `Cannot find module '@nestjs/core'`:
 3. ensure `node_modules` is copied from the built workspace image (`builder` / `prod-deps` stage without prune)
 4. commit and push, then wait for a fresh deploy-on-push rollout
 
+If API runtime fails with `Cannot find module '@tbms/shared-types'` (or `@tbms/shared-constants`):
+
+1. ensure [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api) copies shared workspace packages into both:
+   - `/app/packages/shared-*`
+   - `/app/node_modules/@tbms/shared-*`
+2. rebuild and redeploy so runtime `require('@tbms/shared-types')` resolves inside the container
+
 If the API container exits with `Cannot find module '/app/apps/api/dist/src/main.js'`:
 
 1. confirm [package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/package.json) still defines `start:do:api` as `node apps/api/dist/main.js`
