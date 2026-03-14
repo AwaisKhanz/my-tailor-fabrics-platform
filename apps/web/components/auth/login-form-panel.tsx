@@ -12,7 +12,6 @@ import {
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSeparator,
   InputOTPSlot,
 } from "@tbms/ui/components/input-otp";
 import { siteConfig } from "@/lib/config";
