@@ -12,6 +12,17 @@ const seedRegistry = {
   branch: branchSeed,
 };
 
+function buildSeedConfig(target) {
+  switch (target) {
+    case 'admin':
+      return { admin: getSeedAdminConfig() };
+    case 'branch':
+      return { branch: getSeedBranchConfig() };
+    default:
+      throw new Error(`No config resolver for seed target: ${target}`);
+  }
+}
+
 function printAvailableSeeds() {
   console.log('Available seeds:');
   for (const seed of Object.values(seedRegistry)) {
@@ -37,15 +48,11 @@ async function main() {
   }
 
   const prisma = new PrismaClient();
-  const config = {
-    admin: getSeedAdminConfig(),
-    branch: getSeedBranchConfig(),
-  };
-
   try {
     console.log(`Running seed target(s): ${requestedTargets.join(', ')}`);
 
     for (const target of requestedTargets) {
+      const config = buildSeedConfig(target);
       await seedRegistry[target].run({ prisma, config });
     }
 
