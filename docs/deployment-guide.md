@@ -292,8 +292,9 @@ If deploy-on-push fails during API image build with:
 If API runtime fails with `Cannot find module '@nestjs/core'`:
 
 1. remove runtime prune from [Dockerfile.api](/Users/muhammadawais/Documents/My%20Tailors/tbms/Dockerfile.api) in monorepo builds
-2. ensure `node_modules` is copied from the built workspace image (`builder` / `prod-deps` stage without prune)
-3. commit and push, then wait for a fresh deploy-on-push rollout
+2. use hoisted install layout in Docker (`pnpm install --frozen-lockfile --node-linker=hoisted`)
+3. ensure `node_modules` is copied from the built workspace image (`builder` / `prod-deps` stage without prune)
+4. commit and push, then wait for a fresh deploy-on-push rollout
 
 If the API container exits with `Cannot find module '/app/apps/api/dist/src/main.js'`:
 
