@@ -81,7 +81,7 @@ export function DashboardPage() {
       </PageSection>
 
       {error ? (
-        <PageSection spacing="compact">
+        <PageSection spacing="default">
           <Card className="border-destructive/25 bg-destructive/5">
             <CardContent className="flex items-center gap-3 py-5">
               <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -98,11 +98,11 @@ export function DashboardPage() {
         </PageSection>
       ) : null}
 
-      <PageSection spacing="compact">
+      <PageSection spacing="default">
         <DashboardSectionCards loading={loading} stats={stats} />
       </PageSection>
 
-      <PageSection spacing="compact">
+      <PageSection spacing="default">
         <DashboardChartAreaInteractive
           data={chartData}
           refreshing={refreshing}
@@ -113,11 +113,11 @@ export function DashboardPage() {
         />
       </PageSection>
 
-      <PageSection spacing="compact">
+      <PageSection spacing="default">
         <DashboardTopGarmentsTable loading={loading} garments={garments} />
       </PageSection>
 
-      <PageSection spacing="compact">
+      <PageSection spacing="default">
         <DashboardDataTable
           orders={stats?.recentOrders ?? []}
           onOpenOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}

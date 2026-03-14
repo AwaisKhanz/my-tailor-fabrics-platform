@@ -6,7 +6,84 @@ import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { cn } from "@tbms/ui/lib/utils";
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
 
-const Select = SelectPrimitive.Root;
+function getSelectItemLabel(node: React.ReactNode): string | undefined {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    const parts = node
+      .map((child) => getSelectItemLabel(child))
+      .filter((part): part is string => Boolean(part));
+    return parts.length > 0 ? parts.join("") : undefined;
+  }
+
+  if (React.isValidElement(node)) {
+    const props = node.props as { children?: React.ReactNode };
+    return getSelectItemLabel(props.children);
+  }
+
+  return undefined;
+}
+
+function collectSelectItems(
+  node: React.ReactNode,
+  items: Array<{ value: unknown; label: React.ReactNode }>,
+): void {
+  React.Children.forEach(node, (child) => {
+    if (!React.isValidElement(child)) {
+      return;
+    }
+
+    if (child.type === SelectItem) {
+      const props = child.props as {
+        value?: unknown;
+        label?: string;
+        children?: React.ReactNode;
+      };
+
+      const label = props.label ?? getSelectItemLabel(props.children);
+
+      if (label) {
+        items.push({
+          value: props.value ?? null,
+          label,
+        });
+      }
+    }
+
+    const props = child.props as { children?: React.ReactNode };
+    if (props.children) {
+      collectSelectItems(props.children, items);
+    }
+  });
+}
+
+function Select<Value, Multiple extends boolean | undefined = false>({
+  children,
+  items,
+  ...props
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+  const resolvedItems = React.useMemo(() => {
+    if (items) {
+      return items;
+    }
+
+    const inferredItems: Array<{ value: unknown; label: React.ReactNode }> = [];
+    collectSelectItems(children, inferredItems);
+
+    return inferredItems.length > 0 ? inferredItems : undefined;
+  }, [children, items]);
+
+  return (
+    <SelectPrimitive.Root<Value, Multiple>
+      {...props}
+      items={resolvedItems as SelectPrimitive.Root.Props<Value, Multiple>["items"]}
+    >
+      {children}
+    </SelectPrimitive.Root>
+  );
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
@@ -22,7 +99,10 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
-      className={cn("flex flex-1 text-left text-sm", className)}
+      className={cn(
+        "flex min-w-0 flex-1 truncate text-left text-sm",
+        className,
+      )}
       {...props}
     />
   );
@@ -41,7 +121,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-fit px-2 items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2.5 pl-3 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-10 data-[size=sm]:h-9 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex min-w-0 w-full max-w-full px-2 items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2.5 pl-3 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-10 data-[size=sm]:h-9 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:flex *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 *:data-[slot=select-value]:truncate dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -114,11 +194,19 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  label,
   ...props
 }: SelectPrimitive.Item.Props) {
+  const resolvedLabel =
+    label ??
+    (typeof children === "string" || typeof children === "number"
+      ? String(children)
+      : undefined);
+
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
+      label={resolvedLabel}
       className={cn(
         "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-2 pr-8 pl-2 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className,

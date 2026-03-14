@@ -24,6 +24,7 @@ These rules apply to `packages/shared-types`, `packages/shared-constants`, and `
 5. Label and enum display in app code should use shared exported maps and enums instead of hand-built string formatting.
 6. Keep self-scope permissions explicit (for example `employees.self.read`) instead of overloading broader staff permissions.
 7. Shared brand primitives that are consumed by multiple apps (for example mail template theme tokens) must live in `@tbms/shared-constants`, not in app-local files.
+8. Shared user branch-scope contracts must use `null` as the explicit `All Branches` sentinel when a user is globally scoped. Frontend updates must send `branchId: null` when clearing branch scope; omitting the field means "leave existing branch scope unchanged."
 
 ## 3. File Structure Rules
 

@@ -12,7 +12,7 @@ const pageShellVariants = cva("mx-auto w-full", {
     },
     spacing: {
       compact: "space-y-4 lg:space-y-5",
-      default: "space-y-6 lg:space-y-7",
+      default: "space-y-2 lg:space-y-4",
       spacious: "space-y-8 lg:space-y-9",
     },
     inset: {

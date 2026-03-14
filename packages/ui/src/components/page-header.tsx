@@ -2,6 +2,7 @@ import * as React from "react";
 import { cva } from "class-variance-authority";
 import { Heading, Text } from "@tbms/ui/components/typography";
 import { cn } from "@tbms/ui/lib/utils";
+import { Card } from "./card";
 
 const pageHeaderVariants = cva("items-start justify-between rounded-lg", {
   variants: {
@@ -67,13 +68,7 @@ export function PageHeader({
   const resolvedActionLayout = actionLayout ?? (actionWrap ? "wrap" : "inline");
 
   return (
-    <div
-      data-ui="page-header"
-      className={cn(
-        pageHeaderVariants({ layout: resolvedLayout, density, surface }),
-        className,
-      )}
-    >
+    <Card data-ui="page-header" className=" px-4">
       <div className="min-w-0">
         <Heading as="h4" variant="stat">
           {title}
@@ -97,6 +92,6 @@ export function PageHeader({
           {actions}
         </div>
       ) : null}
-    </div>
+    </Card>
   );
 }

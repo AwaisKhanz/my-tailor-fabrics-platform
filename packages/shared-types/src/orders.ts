@@ -261,6 +261,8 @@ export interface UpdateDesignTypeInput {
   name?: string;
   defaultPrice?: number;
   defaultRate?: number;
+  branchId?: string | null;
+  garmentTypeId?: string | null;
   sortOrder?: number;
   isActive?: boolean;
 }

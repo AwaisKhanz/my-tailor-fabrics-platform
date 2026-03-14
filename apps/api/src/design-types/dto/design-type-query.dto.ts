@@ -13,7 +13,6 @@ export class ListDesignTypesQueryDto {
   @IsOptional()
   @Transform(transformOptionalString)
   @IsString()
-  @IsCuidString()
   garmentTypeId?: string;
 
   @IsOptional()

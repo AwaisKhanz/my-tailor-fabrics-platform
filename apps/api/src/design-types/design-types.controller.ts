@@ -98,9 +98,13 @@ export class DesignTypesController {
     @Req() req: AuthenticatedRequest,
   ) {
     const scopedBranchId = resolveBranchScopeForMutation(req, undefined);
+    const dto = {
+      ...updateDesignTypeDto,
+      branchId: resolveBranchScopeForMutation(req, updateDesignTypeDto.branchId),
+    };
     const data = await this.designTypesService.update(
       id,
-      updateDesignTypeDto,
+      dto,
       scopedBranchId,
     );
     return success(data);

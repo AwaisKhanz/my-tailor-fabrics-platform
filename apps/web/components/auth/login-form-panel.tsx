@@ -89,19 +89,35 @@ export function LoginFormPanel({
             value={otpCode}
             onChange={onOtpCodeChange}
             className="w-full"
+            containerClassName="w-full items-stretch gap-3"
             pattern="^[0-9]+$"
             autoFocus
           >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPSeparator />
-            <InputOTPGroup>
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
+            <InputOTPGroup className="grid flex-1 grid-cols-6">
+              <InputOTPSlot
+                index={0}
+                className="h-12 w-full min-w-0 text-xl font-semibold sm:h-14 sm:text-2xl"
+              />
+              <InputOTPSlot
+                index={1}
+                className="h-12 w-full min-w-0 text-xl font-semibold sm:h-14 sm:text-2xl"
+              />
+              <InputOTPSlot
+                index={2}
+                className="h-12 w-full min-w-0 text-xl font-semibold sm:h-14   sm:text-2xl"
+              />
+              <InputOTPSlot
+                index={3}
+                className="h-12 w-full min-w-0 text-xl font-semibold sm:h-14 sm:text-2xl"
+              />
+              <InputOTPSlot
+                index={4}
+                className="h-12 w-full min-w-0 text-xl font-semibold sm:h-14   sm:text-2xl"
+              />
+              <InputOTPSlot
+                index={5}
+                className="h-12 w-full min-w-0 text-xl font-semibold sm:h-14 sm:text-2xl"
+              />
             </InputOTPGroup>
           </InputOTP>
           {otpError ? (

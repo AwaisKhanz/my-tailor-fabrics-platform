@@ -31,12 +31,12 @@ export interface CreateUserInput {
     email: string;
     password?: string;
     role: Role;
-    branchId?: string;
+    branchId?: string | null;
 }
 export interface UpdateUserInput {
     name?: string;
     email?: string;
     password?: string;
     role?: Role;
-    branchId?: string;
+    branchId?: string | null;
 }

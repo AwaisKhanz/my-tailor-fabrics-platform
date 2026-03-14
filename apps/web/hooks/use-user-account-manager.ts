@@ -21,6 +21,11 @@ const ALL_BRANCHES_OPTION = {
   label: USERS_ALL_BRANCHES_LABEL,
 } as const;
 
+const ROLES_WITH_GLOBAL_BRANCH_SCOPE = new Set<Role>([
+  Role.SUPER_ADMIN,
+  Role.VIEWER,
+]);
+
 export interface UserFormState {
   name: string;
   email: string;
@@ -63,18 +68,24 @@ export function useUserAccountManager({
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<UserFieldErrors>({});
 
-  const userBranchOptions = useMemo(
-    () => [
-      ALL_BRANCHES_OPTION,
-      ...branches
+  const branchOptions = useMemo(
+    () =>
+      branches
         .filter((branch) => branch.id)
         .map((branch) => ({
           value: branch.id,
           label: `${branch.name} (${branch.code})`,
         })),
-    ],
     [branches],
   );
+
+  const userBranchOptions = useMemo(() => {
+    if (ROLES_WITH_GLOBAL_BRANCH_SCOPE.has(form.role)) {
+      return [ALL_BRANCHES_OPTION, ...branchOptions];
+    }
+
+    return branchOptions;
+  }, [branchOptions, form.role]);
 
   const openCreateDialog = useCallback(() => {
     setEditingUser(null);
@@ -108,11 +119,31 @@ export function useUserAccountManager({
     }
   }, []);
 
-  const updateFormField = useCallback<UpdateUserFormField>((field, value) => {
-    setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
-    setFormError("");
-    setForm((previous) => ({ ...previous, [field]: value }));
-  }, []);
+  const updateFormField = useCallback<UpdateUserFormField>(
+    (field, value) => {
+      setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
+      setFormError("");
+      setForm((previous) => {
+        if (field !== "role") {
+          return { ...previous, [field]: value };
+        }
+
+        const nextRole = value as Role;
+        const nextBranchId =
+          !ROLES_WITH_GLOBAL_BRANCH_SCOPE.has(nextRole) &&
+          previous.branchId === USERS_ALL_BRANCHES_VALUE
+            ? branchOptions[0]?.value ?? ""
+            : previous.branchId;
+
+        return {
+          ...previous,
+          role: nextRole,
+          branchId: nextBranchId,
+        };
+      });
+    },
+    [branchOptions],
+  );
 
   const saveUser = useCallback(async () => {
     const parsedResult = editingUser
@@ -150,9 +181,9 @@ export function useUserAccountManager({
         password: validated.password?.trim() || undefined,
         role: validated.role,
         branchId:
-          validated.branchId === USERS_ALL_BRANCHES_VALUE || !validated.branchId
-            ? undefined
-            : validated.branchId,
+          validated.branchId === USERS_ALL_BRANCHES_VALUE
+            ? null
+            : validated.branchId || undefined,
       };
 
       if (editingUser) {

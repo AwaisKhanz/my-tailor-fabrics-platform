@@ -124,7 +124,7 @@ export function BranchSelector({ className }: BranchSelectorProps) {
       }}
     >
       <SelectTrigger
-        className={cn("h-10 w-full text-sm font-semibold", className)}
+        className={cn("h-10 min-w-0 w-full text-sm font-semibold", className)}
       >
         <SelectValue placeholder="Select Branch">
           {selectedBranch ? `${selectedBranch.name} (${selectedBranch.code})` : null}

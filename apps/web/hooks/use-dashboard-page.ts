@@ -17,6 +17,11 @@ interface RevenueExpensesRow {
   expenses: number;
 }
 
+interface UseDashboardPageOptions {
+  enableDashboardStats?: boolean;
+  enableReportingInsights?: boolean;
+}
+
 const monthKey = (value: string | Date) => {
   const date = new Date(value);
   const year = date.getUTCFullYear();
@@ -24,7 +29,10 @@ const monthKey = (value: string | Date) => {
   return `${year}-${month}`;
 };
 
-export function useDashboardPage() {
+export function useDashboardPage({
+  enableDashboardStats = true,
+  enableReportingInsights = true,
+}: UseDashboardPageOptions = {}) {
   const { activeBranchId, hydrate } = useBranchStore();
 
   useEffect(() => {
@@ -36,30 +44,47 @@ export function useDashboardPage() {
     [activeBranchId],
   );
 
-  const statsQuery = useDashboardStats(selectedBranchId);
-  const designsQuery = useDashboardDesigns(undefined, undefined, selectedBranchId);
-  const productivityQuery = useDashboardProductivity(selectedBranchId);
-  const garmentsQuery = useDashboardGarments(selectedBranchId);
-  const revenueExpensesQuery = useDashboardRevenueExpenses(6, selectedBranchId);
+  const statsQuery = useDashboardStats(selectedBranchId, enableDashboardStats);
+  const designsQuery = useDashboardDesigns(
+    undefined,
+    undefined,
+    selectedBranchId,
+    enableReportingInsights,
+  );
+  const productivityQuery = useDashboardProductivity(
+    selectedBranchId,
+    enableReportingInsights,
+  );
+  const garmentsQuery = useDashboardGarments(
+    selectedBranchId,
+    undefined,
+    undefined,
+    enableReportingInsights,
+  );
+  const revenueExpensesQuery = useDashboardRevenueExpenses(
+    6,
+    selectedBranchId,
+    enableReportingInsights,
+  );
 
   const loading =
-    statsQuery.isLoading ||
-    designsQuery.isLoading ||
-    productivityQuery.isLoading ||
-    garmentsQuery.isLoading ||
-    revenueExpensesQuery.isLoading;
+    (enableDashboardStats && statsQuery.isLoading) ||
+    (enableReportingInsights && designsQuery.isLoading) ||
+    (enableReportingInsights && productivityQuery.isLoading) ||
+    (enableReportingInsights && garmentsQuery.isLoading) ||
+    (enableReportingInsights && revenueExpensesQuery.isLoading);
   const refreshing =
-    statsQuery.isFetching ||
-    designsQuery.isFetching ||
-    productivityQuery.isFetching ||
-    garmentsQuery.isFetching ||
-    revenueExpensesQuery.isFetching;
+    (enableDashboardStats && statsQuery.isFetching) ||
+    (enableReportingInsights && designsQuery.isFetching) ||
+    (enableReportingInsights && productivityQuery.isFetching) ||
+    (enableReportingInsights && garmentsQuery.isFetching) ||
+    (enableReportingInsights && revenueExpensesQuery.isFetching);
   const error =
-    statsQuery.isError ||
-    designsQuery.isError ||
-    productivityQuery.isError ||
-    garmentsQuery.isError ||
-    revenueExpensesQuery.isError;
+    (enableDashboardStats && statsQuery.isError) ||
+    (enableReportingInsights && designsQuery.isError) ||
+    (enableReportingInsights && productivityQuery.isError) ||
+    (enableReportingInsights && garmentsQuery.isError) ||
+    (enableReportingInsights && revenueExpensesQuery.isError);
 
   const stats = statsQuery.data?.success ? statsQuery.data.data : null;
   const designs = designsQuery.data?.success
@@ -127,14 +152,25 @@ export function useDashboardPage() {
   );
 
   const refreshDashboard = useCallback(async () => {
-    await Promise.all([
-      statsQuery.refetch(),
-      designsQuery.refetch(),
-      productivityQuery.refetch(),
-      garmentsQuery.refetch(),
-      revenueExpensesQuery.refetch(),
-    ]);
+    const refreshes: Array<Promise<unknown>> = [];
+
+    if (enableDashboardStats) {
+      refreshes.push(statsQuery.refetch());
+    }
+
+    if (enableReportingInsights) {
+      refreshes.push(
+        designsQuery.refetch(),
+        productivityQuery.refetch(),
+        garmentsQuery.refetch(),
+        revenueExpensesQuery.refetch(),
+      );
+    }
+
+    await Promise.all(refreshes);
   }, [
+    enableDashboardStats,
+    enableReportingInsights,
     designsQuery.refetch,
     garmentsQuery.refetch,
     productivityQuery.refetch,
@@ -153,5 +189,6 @@ export function useDashboardPage() {
     revenueExpenseRows,
     totalGarmentItems,
     refreshDashboard,
+    selectedBranchId,
   };
 }

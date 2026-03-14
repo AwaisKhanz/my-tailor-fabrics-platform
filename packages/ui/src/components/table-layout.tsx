@@ -2,12 +2,13 @@ import * as React from "react";
 import { Search } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "@tbms/ui/components/badge";
+import { DecorIcon } from "@tbms/ui/components/decor-icon";
 import { Input } from "@tbms/ui/components/input";
 import { Heading } from "@tbms/ui/components/typography";
 import { cn } from "@tbms/ui/lib/utils";
 
 const tableSurfaceVariants = cva(
-  "overflow-hidden rounded-2xl border border-border bg-card",
+  "group/table-surface relative isolate overflow-hidden rounded-lg border border-border/80 bg-linear-to-b from-background via-card via-65% to-muted/30 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.9),0_1px_2px_0_hsl(0_0%_0%/0.06),0_20px_44px_-26px_hsl(0_0%_0%/0.24)] dark:border-white/12 dark:bg-card dark:[background-image:linear-gradient(180deg,hsl(0_0%_100%/.04),transparent_24%),radial-gradient(58%_86%_at_14%_0%,hsl(0_0%_100%/.10),transparent_60%)] dark:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.14),0_1px_2px_0_hsl(0_0%_0%/0.42),0_18px_40px_-24px_hsl(0_0%_0%/0.72)]",
   {
     variants: {
       shadow: {
@@ -40,9 +41,9 @@ export type TableToolbarProps = {
 const tableToolbarVariants = cva("border-b border-border px-4 py-5", {
   variants: {
     surface: {
-      secondary: "bg-card",
-      muted: "bg-muted",
-      card: "bg-card",
+      secondary: "bg-transparent",
+      muted: "bg-muted/30",
+      card: "bg-transparent",
     },
     density: {
       default: "",
@@ -67,7 +68,16 @@ export function TableSurface({
 }: TableSurfaceProps) {
   return (
     <div className={cn(tableSurfaceVariants({ shadow }), className)} {...props}>
-      {children}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_100%_100%,hsl(0_0%_0%/.045),transparent_38%)] dark:bg-[radial-gradient(100%_100%_at_0%_0%,hsl(0_0%_100%/.05),transparent_42%)]" />
+        <div className="absolute inset-y-6 left-0 w-px bg-border/80" />
+        <div className="absolute inset-y-6 right-0 w-px bg-border/80" />
+        <div className="absolute inset-x-6 top-0 h-px bg-border/80" />
+        <div className="absolute inset-x-6 bottom-0 h-px bg-border/80" />
+        <DecorIcon position="top-right" className="stroke-border" />
+        <DecorIcon position="bottom-left" className="stroke-border" />
+      </div>
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }

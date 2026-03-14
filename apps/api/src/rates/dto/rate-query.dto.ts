@@ -13,7 +13,6 @@ export class SearchRatesQueryDto {
 export class RateHistoryQueryDto {
   @Transform(transformOptionalString)
   @IsString()
-  @IsCuidString()
   garmentTypeId!: string;
 
   @Transform(transformOptionalString)

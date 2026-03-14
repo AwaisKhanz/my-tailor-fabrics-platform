@@ -150,24 +150,26 @@ export function MeasurementSectionDialog({
           onSubmit={submitForm}
           density="relaxed"
         >
-          <FormGrid>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
-                <FormItem>
-                  <FormLabel>Section Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Upper Body, Lower Body, Extras"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </FormGrid>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({
+              field,
+            }: {
+              field: import("react-hook-form").ControllerRenderProps;
+            }) => (
+              <FormItem>
+                <FormLabel>Section Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., Upper Body, Lower Body, Extras"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </FormStack>
       </Form>
     </ScrollableDialog>

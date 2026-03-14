@@ -34,10 +34,12 @@ interface EmployeeStatsSnapshot {
 
 interface UseEmployeeDetailDataParams {
   employeeId: string | null;
+  canReadSystemSettings?: boolean;
 }
 
 export function useEmployeeDetailData({
   employeeId,
+  canReadSystemSettings = true,
 }: UseEmployeeDetailDataParams) {
   const { toast } = useToast();
   const employeeQuery = useEmployee(employeeId);
@@ -47,7 +49,7 @@ export function useEmployeeDetailData({
     employeeId ? { employeeId, limit: 10 } : { limit: 10 },
   );
   const tasksQuery = useTasksByEmployee(employeeId);
-  const systemSettingsQuery = useSystemSettings();
+  const systemSettingsQuery = useSystemSettings(canReadSystemSettings);
   const garmentTypesQuery = useGarmentTypesList();
   const capabilitiesQuery = useEmployeeCapabilities(employeeId);
   const compensationQuery = useEmployeeCompensationHistory(employeeId);
@@ -66,7 +68,7 @@ export function useEmployeeDetailData({
     itemsQuery.isLoading ||
     attendanceQuery.isLoading ||
     tasksQuery.isLoading ||
-    systemSettingsQuery.isLoading ||
+    (canReadSystemSettings && systemSettingsQuery.isLoading) ||
     garmentTypesQuery.isLoading ||
     capabilitiesQuery.isLoading ||
     compensationQuery.isLoading;
@@ -118,7 +120,7 @@ export function useEmployeeDetailData({
         itemsQuery.refetch(),
         attendanceQuery.refetch(),
         tasksQuery.refetch(),
-        systemSettingsQuery.refetch(),
+        ...(canReadSystemSettings ? [systemSettingsQuery.refetch()] : []),
         garmentTypesQuery.refetch(),
         capabilitiesQuery.refetch(),
         compensationQuery.refetch(),
@@ -139,6 +141,7 @@ export function useEmployeeDetailData({
     garmentTypesQuery,
     itemsQuery,
     statsQuery,
+    canReadSystemSettings,
     systemSettingsQuery,
     tasksQuery,
     toast,

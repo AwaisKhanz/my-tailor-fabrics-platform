@@ -37,22 +37,28 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 2. `apps/web/app/layout.tsx` must import `@tbms/ui/globals.css` directly.
 3. Keep shared globals aligned with shadcn defaults; do not reintroduce `--snow-*` tokens or `snow-*` utility conventions.
 4. Do not hardcode random colors, gradients, spacing values, or radii when an existing token or semantic class exists.
-5. Prefer shared primitives such as:
+5. Shared card-like surfaces should keep a deliberate elevated treatment in both light and dark themes instead of becoming flat in light mode.
+6. Whole-app atmosphere backgrounds should be implemented in shared theme globals so pages inherit one consistent gradient system across light and dark modes.
+7. Prefer shared primitives such as:
    - `PageShell`
    - `PageSection`
    - `PageHeader`
+   - `Sidebar` with shared shell variants such as `card` when navigation should visually match shared card surfaces
+   - shared `Select` primitives that default to full-width field behavior unless a narrower width is intentionally requested
    - `FieldLabel`, `FieldError`, `FieldHint`, `FieldStack`
    - `FormGrid`, `FormStack`, `DialogFormActions`
    - `StatsGrid`, `StatCard`, `InteractiveTile`, `InfoTile`
    - shared buttons, cards, dialogs, tables, and form primitives
-6. Table pages must keep API-query state (search, filters, pagination, sorting) in a page hook and URL state where applicable.
-7. Server-driven list pages should wire TanStack pagination/sorting to backend query params instead of client-only transforms.
-8. Theme behavior must go through the centralized theme flow:
+8. Table pages must keep API-query state (search, filters, pagination, sorting) in a page hook and URL state where applicable.
+9. Server-driven list pages should wire TanStack pagination/sorting to backend query params instead of client-only transforms.
+10. Theme behavior must go through the centralized theme flow:
    - `apps/web/app/layout.tsx`
    - `apps/web/components/ThemeProvider.tsx`
    - `apps/web/lib/theme.ts`
-9. Do not create a second theme state system or route-local theme persistence.
-10. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
+11. Do not create a second theme state system or route-local theme persistence.
+12. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
+13. Selects and other option-based controls must display human-readable labels from shared maps or option labels, never raw enum keys in the UI.
+14. Role-based default-home redirects must not override `/` for users who already have `dashboard.read`; sidebar visibility, middleware, and route guards must stay consistent.
 ## 4. Data Access Rules
 
 1. Frontend code should use the centralized API client in `apps/web/lib/api.ts`.
@@ -63,6 +69,10 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 6. Components should not create their own axios instances.
 7. Do not bypass the centralized auth refresh, branch header, and 401 recovery flow.
 8. If a new backend endpoint is added for frontend use, add or update the corresponding typed client helper.
+9. Frontend data hooks must gate privileged queries with the same permission checks that gate the UI; do not fire admin/finance/settings requests for roles that cannot read them.
+10. Money fields must use one consistent web boundary: forms accept rupee-friendly values, centralized API helpers convert writes to paisa, and read/display paths treat stored money values as paisa.
+11. Write mutations (`POST`/`PUT`/`PATCH`/`DELETE`) should rely on the centralized API toast fallback in `apps/web/lib/api.ts` so users always receive success/failure feedback even when a page-level handler misses it.
+12. If a specific action already has a custom page toast copy, suppress duplicate global toasts through axios request config (`tbmsToast.suppressSuccess` or `tbmsToast.suppressError`) instead of bypassing centralized API helpers.
 
 ## 5. Auth and Authorization Rules
 
@@ -82,6 +92,7 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - submit email/password to request OTP challenge
    - collect OTP and complete NextAuth credentials sign-in only after verification
 7. OTP input UI must use shared `@tbms/ui` primitives (for example `@tbms/ui/components/input-otp`) rather than web-local wrappers.
+8. User-account branch scope controls must stay aligned with backend branch guard behavior. If a role is allowed to use global `All Branches` scope, the UI may offer that option; if the backend requires a concrete branch for that role, the dialog must force a branch selection instead.
 
 ## 6. Shared Contract Rules
 

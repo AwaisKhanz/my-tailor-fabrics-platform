@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@tbms/ui/lib/utils";
 
-const statsGridVariants = cva("grid auto-rows-fr gap-4 lg:gap-5", {
+const statsGridVariants = cva("grid auto-rows-fr gap-2 lg:gap-4", {
   variants: {
     columns: {
       two: "grid-cols-1 sm:grid-cols-2",
@@ -22,7 +22,8 @@ const statsGridVariants = cva("grid auto-rows-fr gap-4 lg:gap-5", {
 });
 
 export interface StatsGridProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof statsGridVariants> {}
 
 export function StatsGrid({
@@ -33,7 +34,9 @@ export function StatsGrid({
 }: StatsGridProps) {
   return (
     <div
-      className={cn(statsGridVariants({ columns, flushSectionSpacing, className }))}
+      className={cn(
+        statsGridVariants({ columns, flushSectionSpacing, className }),
+      )}
       {...props}
     />
   );

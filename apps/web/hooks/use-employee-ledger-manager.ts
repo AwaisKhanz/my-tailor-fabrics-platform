@@ -23,6 +23,7 @@ type ToastFn = ReturnType<typeof useToast>["toast"];
 
 interface UseEmployeeLedgerManagerParams {
   employeeId: string | null;
+  enabled?: boolean;
   fetchEmployeeData: () => Promise<void>;
   toast: ToastFn;
 }
@@ -33,6 +34,7 @@ function parseLedgerEntryType(value: string): LedgerEntryType | undefined {
 
 export function useEmployeeLedgerManager({
   employeeId,
+  enabled = true,
   fetchEmployeeData,
   toast,
 }: UseEmployeeLedgerManagerParams) {
@@ -59,7 +61,7 @@ export function useEmployeeLedgerManager({
     type: parseLedgerEntryType(ledgerType),
     page: ledgerPage,
     limit: ledgerLimit,
-  });
+  }, enabled);
   const ledgerEntries: EmployeeLedgerEntry[] = ledgerQuery.data?.success
     ? ledgerQuery.data.data.entries
     : [];

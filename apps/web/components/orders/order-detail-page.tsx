@@ -35,6 +35,12 @@ type OrderDetailPageProps = {
 export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
   const router = useRouter();
   const { canAll } = useAuthz();
+  const canEditAction = canAll([PERMISSION["orders.update"]]);
+  const canShareAction = canAll([PERMISSION["orders.share"]]);
+  const canCancelAction = canAll([PERMISSION["orders.cancel"]]);
+  const canPrintReceipt = canAll([PERMISSION["orders.receipt"]]);
+  const canCapturePayment = canAll([PERMISSION["payments.manage"]]);
+  const canManageTasks = canAll([PERMISSION["tasks.assign"]]);
   const {
     loading,
     order,
@@ -75,7 +81,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
     assignedTailorsCount,
     totalTaskCount,
     publicShareUrl,
-  } = useOrderDetailPage(orderId);
+  } = useOrderDetailPage(orderId, { canManageTasks });
 
   if (loading) {
     return (
@@ -118,13 +124,6 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
   const canCancel =
     order.status !== OrderStatus.CANCELLED &&
     order.status !== OrderStatus.COMPLETED;
-  const canEditAction = canAll([PERMISSION["orders.update"]]);
-  const canShareAction = canAll([PERMISSION["orders.share"]]);
-  const canCancelAction = canAll([PERMISSION["orders.cancel"]]);
-  const canPrintReceipt = canAll([PERMISSION["orders.receipt"]]);
-  const canCapturePayment = canAll([PERMISSION["payments.manage"]]);
-  const canManageTasks = canAll([PERMISSION["tasks.assign"]]);
-
   return (
     <PageShell>
       <PageSection spacing="compact">

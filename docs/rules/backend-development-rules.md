@@ -61,15 +61,18 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 3. Roles, permissions, and route policy definitions belong in shared packages, not backend-local duplicates.
 4. When backend code references a permission, use the shared `PERMISSION` export from `@tbms/shared-constants` instead of repeating a raw string literal.
 5. Branch scoping must use the existing branch resolution and scope helpers, not one-off branch filters.
-6. If a new protected capability is added, update:
+6. Backend branch guards must stay aligned with the user-account branch-scope model. If a role is allowed to have `branchId = null` as global `All Branches` scope, the guard must pass that request through with null scope instead of rejecting it as unassigned.
+7. For branch-scoped catalog resources that support global records via `branchId = null`, mutation lookups must allow both the active branch and the global record. Read and write scope rules must stay aligned.
+8. Do not enforce CUID-only validation on foreign-key string fields unless the shared contract and live data model actually guarantee CUID identifiers. Validation rules must match real persisted IDs.
+9. If a new protected capability is added, update:
    - shared permission contracts
    - shared role/permission matrix
    - frontend access logic if the route is user-facing
-7. Employee self-profile endpoints must use the dedicated `employees.self.read` permission instead of reusing broader task or staff employee permissions.
-8. Login flow is two-step for all password-based sign-ins:
+10. Employee self-profile endpoints must use the dedicated `employees.self.read` permission instead of reusing broader task or staff employee permissions.
+11. Login flow is two-step for all password-based sign-ins:
    - first request verifies credentials and issues an email OTP challenge
    - second request verifies OTP and only then issues JWT/refresh tokens
-9. Do not bypass OTP verification by reintroducing direct password-to-token issuance endpoints.
+12. Do not bypass OTP verification by reintroducing direct password-to-token issuance endpoints.
 
 ## 6. Environment and Runtime Rules
 

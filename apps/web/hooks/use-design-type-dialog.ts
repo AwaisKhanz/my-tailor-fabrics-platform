@@ -63,8 +63,8 @@ export function useDesignTypeDialog({
     if (initialData) {
       form.reset({
         name: initialData.name,
-        defaultPrice: initialData.defaultPrice,
-        defaultRate: initialData.defaultRate,
+        defaultPrice: initialData.defaultPrice / 100,
+        defaultRate: initialData.defaultRate / 100,
         garmentTypeId: initialData.garmentTypeId || DESIGN_TYPE_ALL_SCOPE,
         branchId: initialData.branchId || DESIGN_TYPE_ALL_SCOPE,
         sortOrder: initialData.sortOrder ?? 0,
@@ -88,7 +88,15 @@ export function useDesignTypeDialog({
         };
 
         if (initialData) {
-          const updatePayload: UpdateDesignTypeInput = basePayload;
+          const updatePayload: UpdateDesignTypeInput = {
+            ...basePayload,
+            garmentTypeId:
+              values.garmentTypeId === DESIGN_TYPE_ALL_SCOPE
+                ? null
+                : values.garmentTypeId,
+            branchId:
+              values.branchId === DESIGN_TYPE_ALL_SCOPE ? null : values.branchId,
+          };
           await onSubmit({ mode: "update", data: updatePayload });
         } else {
           const createPayload: CreateDesignTypeInput = {

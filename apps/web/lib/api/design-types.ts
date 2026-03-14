@@ -6,6 +6,7 @@ import type {
   DesignTypesQueryInput,
   UpdateDesignTypeInput,
 } from '@tbms/shared-types';
+import { toPaisaFromRupees } from '@/lib/utils/money';
 
 export const designTypesApi = {
   findAll: async (params: DesignTypesQueryInput = {}) => {
@@ -19,12 +20,28 @@ export const designTypesApi = {
   },
 
   create: async (data: CreateDesignTypeInput) => {
-    const response = await api.post<ApiResponse<DesignType>>('/design-types', data);
+    const payload: CreateDesignTypeInput = {
+      ...data,
+      defaultPrice: toPaisaFromRupees(data.defaultPrice),
+      defaultRate: toPaisaFromRupees(data.defaultRate),
+    };
+    const response = await api.post<ApiResponse<DesignType>>('/design-types', payload);
     return response.data;
   },
 
   update: async (id: string, data: UpdateDesignTypeInput) => {
-    const response = await api.patch<ApiResponse<DesignType>>(`/design-types/${id}`, data);
+    const payload: UpdateDesignTypeInput = {
+      ...data,
+      defaultPrice:
+        data.defaultPrice === undefined
+          ? undefined
+          : toPaisaFromRupees(data.defaultPrice),
+      defaultRate:
+        data.defaultRate === undefined
+          ? undefined
+          : toPaisaFromRupees(data.defaultRate),
+    };
+    const response = await api.patch<ApiResponse<DesignType>>(`/design-types/${id}`, payload);
     return response.data;
   },
 

@@ -65,7 +65,11 @@ export class DesignTypesService {
       where: {
         id,
         deletedAt: null,
-        ...(scopeBranchId ? { branchId: scopeBranchId } : {}),
+        ...(scopeBranchId
+          ? {
+              OR: [{ branchId: scopeBranchId }, { branchId: null }],
+            }
+          : {}),
       },
       select: { id: true },
     });
@@ -85,7 +89,11 @@ export class DesignTypesService {
       where: {
         id,
         deletedAt: null,
-        ...(scopeBranchId ? { branchId: scopeBranchId } : {}),
+        ...(scopeBranchId
+          ? {
+              OR: [{ branchId: scopeBranchId }, { branchId: null }],
+            }
+          : {}),
       },
       select: { id: true },
     });

@@ -33,7 +33,7 @@ export interface CreateUserInput {
   email: string;
   password?: string;
   role: Role;
-  branchId?: string;
+  branchId?: string | null;
 }
 
 export interface UpdateUserInput {
@@ -41,5 +41,5 @@ export interface UpdateUserInput {
   email?: string;
   password?: string;
   role?: Role;
-  branchId?: string;
+  branchId?: string | null;
 }

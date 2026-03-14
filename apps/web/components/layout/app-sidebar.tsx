@@ -48,6 +48,8 @@ import {
   SidebarMenuItem,
 } from "@tbms/ui/components/sidebar";
 import { PERMISSION } from "@tbms/shared-constants";
+import { Button } from "@tbms/ui/components/button";
+import { Card } from "@tbms/ui/components/card";
 
 function SidebarUserMenu() {
   const router = useRouter();
@@ -69,7 +71,7 @@ function SidebarUserMenu() {
               <SidebarMenuButton
                 type="button"
                 size="lg"
-                className="cursor-pointer data-[popup-open]:bg-sidebar-accent data-[popup-open]:text-sidebar-accent-foreground"
+                className="cursor-pointer hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent active:text-transparent"
               />
             }
           >
@@ -85,7 +87,7 @@ function SidebarUserMenu() {
                 {user?.email ?? "Workspace user"}
               </span>
             </div>
-            <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-data-[popup-open]/menu-button:rotate-180" />
+            <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-data-popup-open]/menu-button:rotate-180" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuGroup>
@@ -192,43 +194,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [sectionHasActivePath, sections]);
 
   return (
-    <Sidebar collapsible="offcanvas" variant="inset" {...props}>
-      <SidebarHeader className="pb-1">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              variant="outline"
-              className="h-auto rounded-lg px-3 py-2.5"
-              onClick={() => router.push(HOME_ROUTE)}
-            >
-              <div className="grid min-w-0 gap-0.5 leading-tight">
-                <span className="truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Workspace
-                </span>
-                <span className="truncate text-base font-semibold">
-                  {siteConfig.shortName}
-                </span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+    <Sidebar collapsible="offcanvas" variant="card" {...props}>
+      <Card
+        onClick={() => router.push(HOME_ROUTE)}
+        className="p-3 rounded-b-none border-none"
+      >
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-xs font-semibold uppercase tracking-wider ">
+            Workspace
+          </span>
+          <span className="truncate text-base font-semibold">
+            {siteConfig.shortName}
+          </span>
+        </div>
+
         {canSwitchBranch ? (
-          <div className="rounded-lg border border-sidebar-border/80 bg-sidebar-accent/30 p-2">
-            <Label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <div className=" w-full min-w-0 rounded-lg">
+            <Label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-shadow-primary-foreground">
               Active Branch
             </Label>
-            <BranchSelector className="h-10 text-sm" />
+            <BranchSelector className="h-10 text-sm w-full" />
           </div>
         ) : null}
-      </SidebarHeader>
+      </Card>
 
       <SidebarContent className="px-1 pb-1">
         {sections.map((section) => (
           <SidebarGroup key={section.title} className="p-1">
             <SidebarGroupLabel
               render={
-                <button
+                <Button
                   type="button"
                   onClick={() =>
                     setOpenSections((current) => ({
@@ -238,7 +233,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   }
                 />
               }
-              className="h-8 cursor-pointer justify-between rounded-md px-2 text-[11px] uppercase tracking-wide hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+              className={`h-10 cursor-pointer justify-between rounded-lg px-2 text-[11px] uppercase tracking-wide bg-transparent ${openSections[section.title] ? "text-primary" : "text-muted-foreground"}`}
             >
               <span>{section.title}</span>
               <ChevronDown
@@ -258,12 +253,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         pathname.startsWith(`${item.href}/`));
 
                     return (
-                      <SidebarMenuItem key={item.href} className="my-1">
+                      <SidebarMenuItem
+                        key={item.href}
+                        className="my-1  rounded-lg"
+                      >
                         <SidebarMenuButton
                           size={"lg"}
                           isActive={isActive}
                           onClick={() => router.push(item.href)}
-                          className="h-9 rounded-lg px-2.5"
+                          className="sh-10 rounded-lg px-2.5 cursor-pointer"
                         >
                           <ItemIcon />
                           <span>{item.title}</span>
@@ -278,9 +276,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="gap-2 border-t border-sidebar-border/60 pt-2">
+      <Card className=" rounded-t-none border-none">
         <SidebarUserMenu />
-      </SidebarFooter>
+      </Card>
     </Sidebar>
   );
 }

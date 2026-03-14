@@ -27,11 +27,19 @@ type EmployeeDetailPageProps = {
 
 export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
   const router = useRouter();
-  const { canAll } = useAuthz();
+  const { canAll, canAny } = useAuthz();
   const canManageEmployees = canAll([PERMISSION["employees.manage"]]);
   const canManageAccounts = canAll([PERMISSION["users.manage"]]);
+  const canReadLedger = canAny([
+    PERMISSION["ledger.read"],
+    PERMISSION["ledger.manage"],
+  ]);
   const canManageLedger = canAll([PERMISSION["ledger.manage"]]);
   const canManageTaskStatus = canAll([PERMISSION["tasks.update"]]);
+  const canReadSystemSettings = canAll([
+    PERMISSION["settings.read"],
+    PERMISSION["system.manage"],
+  ]);
   const {
     loading,
     employee,
@@ -90,7 +98,11 @@ export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
     requestLedgerEntryReverse,
     closeLedgerEntryReverseDialog,
     confirmLedgerEntryReverse,
-  } = useEmployeeDetailPage({ employeeId });
+  } = useEmployeeDetailPage({
+    employeeId,
+    canReadLedger,
+    canReadSystemSettings,
+  });
 
   const refreshEmployeeData = () => {
     void fetchEmployeeData();
@@ -179,6 +191,7 @@ export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
               onSaveCapabilitiesSnapshot={saveCapabilitiesSnapshot}
               onScheduleCompensationChange={scheduleCompensationChange}
               canManageTaskStatus={canManageTaskStatus}
+              canReadLedger={canReadLedger}
               canManageLedger={canManageLedger}
               canManageDocuments={canManageEmployees}
               canManageAccount={canManageAccounts}

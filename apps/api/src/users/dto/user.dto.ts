@@ -32,7 +32,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   @IsCuidString()
-  branchId?: string;
+  branchId?: string | null;
 }
 
 export class UpdateUserDto {
@@ -57,7 +57,7 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @IsCuidString()
-  branchId?: string;
+  branchId?: string | null;
 }
 
 export class SetUserActiveDto {

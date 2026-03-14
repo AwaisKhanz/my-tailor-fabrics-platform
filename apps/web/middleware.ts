@@ -40,7 +40,9 @@ export async function middleware(request: NextRequest) {
   if (token && userRole) {
     if (pathname === HOME_ROUTE) {
       const homePath = DEFAULT_HOME_BY_ROLE[userRole];
-      if (homePath && homePath !== HOME_ROUTE) {
+      const canAccessDashboard = canRoleAccessPathname(userRole, HOME_ROUTE);
+
+      if (homePath && homePath !== HOME_ROUTE && !canAccessDashboard) {
         return NextResponse.redirect(new URL(homePath, request.url));
       }
     }

@@ -11,10 +11,11 @@ import type {
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
-export function useDashboardStats(branchId?: string) {
+export function useDashboardStats(branchId?: string, enabled = true) {
   return useQuery({
     queryKey: reportKeys.dashboard(branchId),
     queryFn: () => reportsApi.getDashboardStats(branchId),
+    enabled,
   });
 }
 
@@ -22,17 +23,20 @@ export function useDashboardDesigns(
   from?: string,
   to?: string,
   branchId?: string,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: reportKeys.designs({ from, to, branchId }),
     queryFn: () => reportsApi.getDesigns(from, to, branchId),
+    enabled,
   });
 }
 
-export function useDashboardProductivity(branchId?: string) {
+export function useDashboardProductivity(branchId?: string, enabled = true) {
   return useQuery({
     queryKey: reportKeys.productivity({ branchId }),
     queryFn: () => reportsApi.getProductivity(branchId),
+    enabled,
   });
 }
 
@@ -40,17 +44,24 @@ export function useDashboardGarments(
   branchId?: string,
   from?: string,
   to?: string,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: reportKeys.garmentRevenue({ branchId, from, to }),
     queryFn: () => reportsApi.getGarments(branchId, from, to),
+    enabled,
   });
 }
 
-export function useDashboardRevenueExpenses(months = 6, branchId?: string) {
+export function useDashboardRevenueExpenses(
+  months = 6,
+  branchId?: string,
+  enabled = true,
+) {
   return useQuery({
     queryKey: reportKeys.revenueExpenses({ months, branchId }),
     queryFn: () => reportsApi.getRevenueVsExpenses(months, branchId),
+    enabled,
   });
 }
 

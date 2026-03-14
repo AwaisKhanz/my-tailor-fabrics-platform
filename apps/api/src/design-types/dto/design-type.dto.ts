@@ -18,7 +18,6 @@ export class CreateDesignTypeDto {
 
   @IsOptional()
   @IsString()
-  @IsCuidString()
   garmentTypeId?: string;
 
   @IsOptional()
@@ -42,6 +41,15 @@ export class UpdateDesignTypeDto {
   @IsOptional()
   @IsNumber()
   defaultRate?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsCuidString()
+  branchId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  garmentTypeId?: string | null;
 
   @IsOptional()
   @IsNumber()

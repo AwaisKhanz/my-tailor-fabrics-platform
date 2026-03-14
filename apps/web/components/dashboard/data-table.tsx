@@ -61,7 +61,8 @@ export function DashboardDataTable({
   const recentOrders = [...orders]
     .sort(
       (left, right) =>
-        new Date(right.orderDate).getTime() - new Date(left.orderDate).getTime(),
+        new Date(right.orderDate).getTime() -
+        new Date(left.orderDate).getTime(),
     )
     .slice(0, 6);
 

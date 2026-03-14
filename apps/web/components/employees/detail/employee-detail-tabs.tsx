@@ -73,6 +73,7 @@ interface EmployeeDetailTabsProps {
     change: CompensationChangeInput,
   ) => Promise<boolean>;
   canManageTaskStatus?: boolean;
+  canReadLedger?: boolean;
   canManageLedger?: boolean;
   canManageDocuments?: boolean;
   canManageAccount?: boolean;
@@ -111,6 +112,7 @@ export function EmployeeDetailTabs({
   onSaveCapabilitiesSnapshot,
   onScheduleCompensationChange,
   canManageTaskStatus = true,
+  canReadLedger = true,
   canManageLedger = true,
   canManageDocuments = true,
   canManageAccount = true,
@@ -198,11 +200,13 @@ export function EmployeeDetailTabs({
   const ledgerColumns: ColumnDef<EmployeeLedgerEntry>[] = useMemo(
     () =>
       createEmployeeLedgerColumns({
-        canManageLedger,
+        canManageLedger: canReadLedger && canManageLedger,
         onReverseLedgerEntry,
       }),
-    [canManageLedger, onReverseLedgerEntry],
+    [canManageLedger, canReadLedger, onReverseLedgerEntry],
   );
+
+  const shouldShowTasksSection = systemSettings?.useTaskWorkflow ?? tasks.length > 0;
 
   return (
     <div className="space-y-6">
@@ -242,7 +246,7 @@ export function EmployeeDetailTabs({
         onSubmit={submitCompensationChange}
       />
 
-      {systemSettings?.useTaskWorkflow ? (
+      {shouldShowTasksSection ? (
         <EmployeeProductionTasksSection
           tasks={pagedTasks}
           loading={loading}
@@ -264,25 +268,27 @@ export function EmployeeDetailTabs({
         onPageChange={setHistoryPage}
       />
 
-      <EmployeeLedgerSection
-        ledgerEntries={ledgerEntries}
-        ledgerLoading={ledgerLoading}
-        ledgerFrom={ledgerFrom}
-        ledgerTo={ledgerTo}
-        ledgerType={ledgerType}
-        ledgerTypeFilterOptions={ledgerTypeFilterOptions}
-        ledgerPage={ledgerPage}
-        ledgerTotal={ledgerTotal}
-        ledgerLimit={ledgerLimit}
-        columns={ledgerColumns}
-        canManageLedger={canManageLedger}
-        allTypesLabel={EMPLOYEE_LEDGER_ALL_TYPES_LABEL}
-        setLedgerFrom={setLedgerFrom}
-        setLedgerTo={setLedgerTo}
-        setLedgerType={setLedgerType}
-        onFetchLedger={onFetchLedger}
-        onOpenLedgerDialog={onOpenLedgerDialog}
-      />
+      {canReadLedger ? (
+        <EmployeeLedgerSection
+          ledgerEntries={ledgerEntries}
+          ledgerLoading={ledgerLoading}
+          ledgerFrom={ledgerFrom}
+          ledgerTo={ledgerTo}
+          ledgerType={ledgerType}
+          ledgerTypeFilterOptions={ledgerTypeFilterOptions}
+          ledgerPage={ledgerPage}
+          ledgerTotal={ledgerTotal}
+          ledgerLimit={ledgerLimit}
+          columns={ledgerColumns}
+          canManageLedger={canManageLedger}
+          allTypesLabel={EMPLOYEE_LEDGER_ALL_TYPES_LABEL}
+          setLedgerFrom={setLedgerFrom}
+          setLedgerTo={setLedgerTo}
+          setLedgerType={setLedgerType}
+          onFetchLedger={onFetchLedger}
+          onOpenLedgerDialog={onOpenLedgerDialog}
+        />
+      ) : null}
 
       <EmployeeAttendanceSection
         attendance={pagedAttendance}

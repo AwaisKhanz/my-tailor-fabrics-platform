@@ -15,7 +15,6 @@ export class CreateRateDto {
   branchId?: string | null;
 
   @IsString()
-  @IsCuidString()
   garmentTypeId!: string;
 
   @IsOptional()

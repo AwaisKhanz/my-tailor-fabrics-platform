@@ -6,15 +6,15 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.65rem;
+  --radius: 0rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
+  --primary: oklch(0.648 0.2 131.684);
+  --primary-foreground: oklch(0.986 0.031 120.757);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
@@ -24,20 +24,20 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.852 0.199 91.936);
-  --chart-1: oklch(0.905 0.182 98.111);
-  --chart-2: oklch(0.795 0.184 86.047);
-  --chart-3: oklch(0.681 0.162 75.834);
-  --chart-4: oklch(0.554 0.135 66.442);
-  --chart-5: oklch(0.476 0.114 61.907);
+  --ring: oklch(0.841 0.238 128.85);
+  --chart-1: oklch(0.871 0.15 154.449);
+  --chart-2: oklch(0.723 0.219 149.579);
+  --chart-3: oklch(0.627 0.194 149.214);
+  --chart-4: oklch(0.527 0.154 150.069);
+  --chart-5: oklch(0.448 0.119 151.328);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.681 0.162 75.834);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+  --sidebar-primary: oklch(0.648 0.2 131.684);
+  --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
   --sidebar-accent: oklch(0.967 0.001 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.852 0.199 91.936);
+  --sidebar-ring: oklch(0.841 0.238 128.85);
 }
 
 .dark {
@@ -47,8 +47,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.795 0.184 86.047);
-  --primary-foreground: oklch(0.421 0.095 57.708);
+  --primary: oklch(0.648 0.2 131.684);
+  --primary-foreground: oklch(0.986 0.031 120.757);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.274 0.006 286.033);
@@ -58,20 +58,20 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.421 0.095 57.708);
-  --chart-1: oklch(0.905 0.182 98.111);
-  --chart-2: oklch(0.795 0.184 86.047);
-  --chart-3: oklch(0.681 0.162 75.834);
-  --chart-4: oklch(0.554 0.135 66.442);
-  --chart-5: oklch(0.476 0.114 61.907);
+  --ring: oklch(0.405 0.101 131.063);
+  --chart-1: oklch(0.871 0.15 154.449);
+  --chart-2: oklch(0.723 0.219 149.579);
+  --chart-3: oklch(0.627 0.194 149.214);
+  --chart-4: oklch(0.527 0.154 150.069);
+  --chart-5: oklch(0.448 0.119 151.328);
   --sidebar: oklch(0.21 0.006 285.885);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.795 0.184 86.047);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+  --sidebar-primary: oklch(0.768 0.233 130.85);
+  --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
   --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.421 0.095 57.708);
+  --sidebar-ring: oklch(0.405 0.101 131.063);
 }
 
 @theme inline {
@@ -127,5 +127,51 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      /* EXTREMELY subtle primary vignette – almost invisible */
+      radial-gradient(
+        120rem 70rem at 3% -30%,
+        color-mix(in oklab, var(--primary) 4%, transparent) 0%,
+        transparent 78%
+      ),
+      /* Barely-there neutral depth on the right */
+        radial-gradient(
+          80rem 45rem at 97% 8%,
+          color-mix(in oklab, var(--foreground) 2.5%, transparent) 0%,
+          transparent 72%
+        ),
+      /* Micro depth only – 0.8% max shift so it feels flat but expensive */
+        linear-gradient(
+          180deg,
+          color-mix(in oklab, var(--background) 99.2%, var(--foreground) 0.8%)
+            0%,
+          var(--background) 50%,
+          color-mix(in oklab, var(--background) 99.3%, var(--primary) 0.7%) 100%
+        );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  .dark body {
+    background-image:
+      /* Ultra-soft foreground bloom (barely noticeable) */
+      radial-gradient(
+        110rem 65rem at 8% -22%,
+        color-mix(in oklab, var(--foreground) 3.5%, transparent) 0%,
+        transparent 76%
+      ),
+      /* Tiny primary kiss on the right – 6% max */
+        radial-gradient(
+          72rem 40rem at 94% 10%,
+          color-mix(in oklab, var(--primary) 6%, transparent) 0%,
+          transparent 74%
+        ),
+      /* Almost flat linear – just enough to stop it feeling dead */
+        linear-gradient(
+          180deg,
+          color-mix(in oklab, var(--background) 98%, black 2%) 0%,
+          var(--background) 49%,
+          color-mix(in oklab, var(--background) 98.5%, var(--primary) 1.5%) 100%
+        );
   }
 }

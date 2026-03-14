@@ -7,9 +7,15 @@ import { useOrderDetail } from "@/hooks/use-order-detail";
 import { useOrderReceiptPdf } from "@/hooks/queries/order-queries";
 import { useToast } from "@/hooks/use-toast";
 
-export function useOrderDetailPage(orderId: string) {
+export function useOrderDetailPage(
+  orderId: string,
+  options: { canManageTasks?: boolean } = {},
+) {
   const { toast } = useToast();
-  const orderDetail = useOrderDetail(orderId);
+  const { canManageTasks = false } = options;
+  const orderDetail = useOrderDetail(orderId, {
+    enableEmployeeDropdown: canManageTasks,
+  });
   const orderReceiptPdfMutation = useOrderReceiptPdf();
 
   const [paymentOpen, setPaymentOpen] = useState(false);

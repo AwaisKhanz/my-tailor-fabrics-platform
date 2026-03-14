@@ -112,7 +112,7 @@ export class UsersService {
     return normalizeEmailAddress(email);
   }
 
-  private resolveBranchId(value?: string): string | null | undefined {
+  private resolveBranchId(value?: string | null): string | null | undefined {
     if (value === undefined) return undefined;
     return value || null;
   }

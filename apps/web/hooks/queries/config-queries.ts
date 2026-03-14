@@ -409,10 +409,11 @@ export function useRestoreMeasurementField() {
 
 // ─── System Settings ──────────────────────────────────────────────────────────
 
-export function useSystemSettings() {
+export function useSystemSettings(enabled = true) {
   return useQuery({
     queryKey: systemSettingsKey,
     queryFn: () => configApi.getSystemSettings(),
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }

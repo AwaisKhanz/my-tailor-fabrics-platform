@@ -16,6 +16,87 @@ let cachedSession: Session | null = null;
 let cachedSessionAt = 0;
 let pendingSessionRequest: Promise<Session | null> | null = null;
 const retriedRequestConfigs = new WeakSet<object>();
+const WRITE_METHODS = new Set(['post', 'put', 'patch', 'delete']);
+
+type ApiToastConfig = {
+  successMessage?: string;
+  errorMessage?: string;
+  suppressSuccess?: boolean;
+  suppressError?: boolean;
+};
+
+declare module 'axios' {
+  export interface InternalAxiosRequestConfig<D = any> {
+    tbmsToast?: ApiToastConfig;
+  }
+}
+
+function isWriteMethod(method?: string): boolean {
+  if (!method) {
+    return false;
+  }
+  return WRITE_METHODS.has(method.toLowerCase());
+}
+
+function getDefaultSuccessMessage(method?: string): string {
+  switch (method?.toLowerCase()) {
+    case 'post':
+      return 'Created successfully';
+    case 'delete':
+      return 'Deleted successfully';
+    case 'put':
+    case 'patch':
+      return 'Updated successfully';
+    default:
+      return 'Action completed successfully';
+  }
+}
+
+function getErrorMessage(error: unknown): string {
+  if (!axios.isAxiosError(error)) {
+    return 'Request failed. Please try again.';
+  }
+
+  const payload = error.response?.data;
+  if (typeof payload === 'object' && payload !== null) {
+    const maybeMessage = (payload as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string' && maybeMessage.trim().length > 0) {
+      return maybeMessage;
+    }
+    if (Array.isArray(maybeMessage) && maybeMessage.length > 0) {
+      const firstMessage = maybeMessage.find(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0,
+      );
+      if (firstMessage) {
+        return firstMessage;
+      }
+    }
+  }
+
+  if (typeof error.message === 'string' && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return 'Request failed. Please try again.';
+}
+
+function emitToast(
+  input:
+    | {
+        title: string;
+        description?: string;
+        variant?: 'success' | 'destructive';
+      }
+    | undefined,
+): void {
+  if (!input || typeof window === 'undefined') {
+    return;
+  }
+
+  void import('@/hooks/use-toast').then(({ toast }) => {
+    toast(input);
+  });
+}
 
 function isSessionPayload(value: unknown): value is Session {
   if (!value || typeof value !== 'object') {
@@ -212,7 +293,21 @@ api.interceptors.request.use(
 
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (typeof window !== 'undefined' && isWriteMethod(response.config.method)) {
+      const toastConfig = response.config.tbmsToast;
+      if (!toastConfig?.suppressSuccess) {
+        emitToast({
+          title:
+            toastConfig?.successMessage ??
+            getDefaultSuccessMessage(response.config.method),
+          variant: 'success',
+        });
+      }
+    }
+
+    return response;
+  },
   async (error) => {
     // Log connection diagnostics only in development.
     if (!error.response) {
@@ -255,6 +350,22 @@ api.interceptors.response.use(
       }
     }
     
+    if (!axios.isCancel(error)) {
+      const requestConfig = axios.isAxiosError(error) ? error.config : undefined;
+      const shouldShowWriteErrorToast =
+        typeof window !== 'undefined' &&
+        isWriteMethod(requestConfig?.method) &&
+        !requestConfig?.tbmsToast?.suppressError;
+
+      if (shouldShowWriteErrorToast) {
+        emitToast({
+          title: requestConfig?.tbmsToast?.errorMessage ?? 'Action failed',
+          description: getErrorMessage(error),
+          variant: 'destructive',
+        });
+      }
+    }
+
     return Promise.reject(error);
   }
 );

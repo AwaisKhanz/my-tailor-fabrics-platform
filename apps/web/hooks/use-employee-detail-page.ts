@@ -21,10 +21,14 @@ import {
 
 interface UseEmployeeDetailPageParams {
   employeeId: string | null;
+  canReadLedger?: boolean;
+  canReadSystemSettings?: boolean;
 }
 
 export function useEmployeeDetailPage({
   employeeId,
+  canReadLedger = true,
+  canReadSystemSettings = true,
 }: UseEmployeeDetailPageParams) {
   const { toast } = useToast();
   const replaceEmployeeCapabilitiesMutation = useReplaceEmployeeCapabilities();
@@ -46,6 +50,7 @@ export function useEmployeeDetailPage({
     fetchEmployeeData,
   } = useEmployeeDetailData({
     employeeId,
+    canReadSystemSettings,
   });
 
   const [accountDialogOpen, setAccountDialogOpen] = useState(false);
@@ -100,6 +105,7 @@ export function useEmployeeDetailPage({
     confirmLedgerEntryReverse,
   } = useEmployeeLedgerManager({
     employeeId,
+    enabled: canReadLedger,
     fetchEmployeeData,
     toast,
   });

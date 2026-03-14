@@ -22,11 +22,12 @@ export function useLedgerBalance(employeeId: string | null) {
 export function useLedgerStatement(
   employeeId: string | null,
   params: LedgerStatementParams = {},
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ledgerKeys.statement(employeeId ?? "", params),
     queryFn: () => ledgerApi.getStatement(employeeId!, params),
-    enabled: !!employeeId,
+    enabled: !!employeeId && enabled,
   });
 }
 

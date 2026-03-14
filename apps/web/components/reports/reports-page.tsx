@@ -96,18 +96,16 @@ export function ReportsPage() {
         />
       </PageSection>
 
-      <PageSection spacing="compact">
-        <ReportsWorkspaceFilters
-          preset={preset}
-          presetOptions={datePresetOptions}
-          dateRange={dateRange}
-          granularity={granularity}
-          loading={loading}
-          onPresetChange={applyPreset}
-          onDateChange={setDateRangeValue}
-          onGranularityChange={setGranularity}
-        />
-      </PageSection>
+      <ReportsWorkspaceFilters
+        preset={preset}
+        presetOptions={datePresetOptions}
+        dateRange={dateRange}
+        granularity={granularity}
+        loading={loading}
+        onPresetChange={applyPreset}
+        onDateChange={setDateRangeValue}
+        onGranularityChange={setGranularity}
+      />
 
       <PageSection spacing="compact">
         <Card>

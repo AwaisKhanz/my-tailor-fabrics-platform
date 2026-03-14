@@ -25,12 +25,16 @@ export interface OrderShareData {
   pin: string;
 }
 
-export function useOrderDetail(orderId: string | null) {
+export function useOrderDetail(
+  orderId: string | null,
+  options: { enableEmployeeDropdown?: boolean } = {},
+) {
   const router = useRouter();
   const { toast } = useToast();
+  const { enableEmployeeDropdown = true } = options;
 
   const orderQuery = useOrder(orderId);
-  const employeesQuery = useEmployeesDropdown();
+  const employeesQuery = useEmployeesDropdown(enableEmployeeDropdown);
   const updateStatusMutation = useUpdateOrderStatus();
   const addPaymentMutation = useAddOrderPayment();
   const reversePaymentMutation = useReverseOrderPayment();

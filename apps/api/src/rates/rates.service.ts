@@ -202,6 +202,7 @@ export class RatesService {
 
     const where: Prisma.RateCardWhereInput = {
       deletedAt: null,
+      effectiveTo: null,
       ...(filters.length > 0 ? { AND: filters } : {}),
     };
 
@@ -232,11 +233,13 @@ export class RatesService {
     if (options.branchId) {
       const branchScopedWhere: Prisma.RateCardWhereInput = {
         deletedAt: null,
+        effectiveTo: null,
         branchId: options.branchId,
         ...(searchWhere ? { AND: [searchWhere] } : {}),
       };
       const globalWhere: Prisma.RateCardWhereInput = {
         deletedAt: null,
+        effectiveTo: null,
         branchId: null,
         ...(searchWhere ? { AND: [searchWhere] } : {}),
       };
@@ -255,6 +258,7 @@ export class RatesService {
 
     const scopedWhere: Prisma.RateCardWhereInput = {
       deletedAt: null,
+      effectiveTo: null,
       ...(searchWhere ? { AND: [searchWhere] } : {}),
     };
 
@@ -264,6 +268,7 @@ export class RatesService {
       this.prisma.rateCard.count({
         where: {
           deletedAt: null,
+          effectiveTo: null,
           branchId: null,
           ...(searchWhere ? { AND: [searchWhere] } : {}),
         },
@@ -271,6 +276,7 @@ export class RatesService {
       this.prisma.rateCard.count({
         where: {
           deletedAt: null,
+          effectiveTo: null,
           NOT: { branchId: null },
           ...(searchWhere ? { AND: [searchWhere] } : {}),
         },

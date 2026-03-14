@@ -25,11 +25,12 @@ export function useEmployeesList(params: EmployeeListQueryInput = {}) {
 }
 
 /** Flat list of all employees for select/dropdown use (limit 200). */
-export function useEmployeesDropdown() {
+export function useEmployeesDropdown(enabled = true) {
   return useQuery({
     queryKey: employeeKeys.dropdown(),
     queryFn: () => employeesApi.getEmployees({ limit: 200 }),
     staleTime: 2 * 60 * 1000, // Names rarely change — cache longer
+    enabled,
   });
 }
 

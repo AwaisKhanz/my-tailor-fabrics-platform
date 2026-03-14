@@ -59,7 +59,12 @@ export class BranchGuard implements CanActivate {
       return true;
     }
 
-    // All other roles are strictly scoped to their assigned branch
+    if (!user.branchId && user.role === Role.VIEWER) {
+      request.branchId = null;
+      return true;
+    }
+
+    // All other non-super-admin roles are strictly scoped to their assigned branch
     if (!user.branchId) {
       emitSecurityEvent(this.logger, 'branch_scope_denied', {
         reason: 'user_without_branch_assignment',
