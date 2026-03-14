@@ -190,26 +190,43 @@ Open the `api-backend` console and run from `/app`.
 Check migration state first:
 
 ```bash
-pnpm run prisma:migrate:status
+npm run prisma:migrate:status
 ```
 
 Deploy Prisma migrations:
 
 ```bash
-pnpm run prisma:migrate:deploy
+npm run prisma:migrate:deploy
 ```
 
 List available seeds:
 
 ```bash
-pnpm run prisma:seed:list
+npm run prisma:seed:list
+```
+
+Create/ensure the main branch seed target:
+
+```bash
+SEED_TARGET=branch npm run prisma:seed
+```
+
+Override seeded branch details if needed:
+
+```bash
+SEED_TARGET=branch \
+SEED_BRANCH_CODE=MAIN \
+SEED_BRANCH_NAME="Main Branch" \
+SEED_BRANCH_ADDRESS="Your address" \
+SEED_BRANCH_PHONE="+92..." \
+npm run prisma:seed
 ```
 
 Run the admin seed in production with an explicit password:
 
 ```bash
 SEED_ADMIN_PASSWORD='replace-with-a-secure-password' \
-pnpm run prisma:seed
+npm run prisma:seed
 ```
 
 Override email and display name if needed:
@@ -218,7 +235,7 @@ Override email and display name if needed:
 SEED_ADMIN_EMAIL=admin@mytailorandfabrics.com \
 SEED_ADMIN_PASSWORD='replace-with-a-secure-password' \
 SEED_ADMIN_NAME="Main Admin" \
-pnpm run prisma:seed
+npm run prisma:seed
 ```
 
 Important:
@@ -227,7 +244,7 @@ Important:
 2. run them from `/app`, not `/app/apps`
 3. `pnpm run prisma:seed` now defaults to the `admin` seed and does not depend on `ts-node`
 4. in production, `SEED_ADMIN_PASSWORD` is required and there is no insecure fallback password
-5. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `pnpm run prisma:migrate:deploy` before assuming the database is broken
+5. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `npm run prisma:migrate:deploy` before assuming the database is broken
 
 If you are already inside `/app/apps/api`:
 
@@ -242,6 +259,7 @@ Notes:
 
 1. `pnpm` is not required when you run scripts from `/app/apps/api`
 2. these scripts are now defined directly in [apps/api/package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/package.json) for console ergonomics
+3. seed targets now include `admin` and `branch`; select with `SEED_TARGET=<name>` (or comma-separated targets)
 
 ## Domain and DNS
 

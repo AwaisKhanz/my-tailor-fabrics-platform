@@ -46,7 +46,17 @@ function getSeedAdminConfig() {
   };
 }
 
+function getSeedBranchConfig() {
+  return {
+    code: resolveOptionalEnv('SEED_BRANCH_CODE') ?? 'MAIN',
+    name: resolveOptionalEnv('SEED_BRANCH_NAME') ?? 'Main Branch',
+    address: resolveOptionalEnv('SEED_BRANCH_ADDRESS'),
+    phone: resolveOptionalEnv('SEED_BRANCH_PHONE'),
+  };
+}
+
 module.exports = {
   parseRequestedTargets,
   getSeedAdminConfig,
+  getSeedBranchConfig,
 };

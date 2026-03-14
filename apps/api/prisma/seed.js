@@ -1,9 +1,15 @@
 const { PrismaClient } = require('@prisma/client');
 const adminSeed = require('./seeds/admin');
-const { parseRequestedTargets, getSeedAdminConfig } = require('./seed-env');
+const branchSeed = require('./seeds/branch');
+const {
+  parseRequestedTargets,
+  getSeedAdminConfig,
+  getSeedBranchConfig,
+} = require('./seed-env');
 
 const seedRegistry = {
   admin: adminSeed,
+  branch: branchSeed,
 };
 
 function printAvailableSeeds() {
@@ -33,6 +39,7 @@ async function main() {
   const prisma = new PrismaClient();
   const config = {
     admin: getSeedAdminConfig(),
+    branch: getSeedBranchConfig(),
   };
 
   try {
