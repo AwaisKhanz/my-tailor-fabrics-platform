@@ -229,6 +229,20 @@ Important:
 4. in production, `SEED_ADMIN_PASSWORD` is required and there is no insecure fallback password
 5. if TablePlus connects successfully but shows an empty `defaultdb.public`, run `pnpm run prisma:migrate:deploy` before assuming the database is broken
 
+If you are already inside `/app/apps/api`:
+
+```bash
+npm run prisma:migrate:status
+npm run prisma:migrate:deploy
+npm run prisma:seed:list
+SEED_ADMIN_PASSWORD='replace-with-a-secure-password' npm run prisma:seed
+```
+
+Notes:
+
+1. `pnpm` is not required when you run scripts from `/app/apps/api`
+2. these scripts are now defined directly in [apps/api/package.json](/Users/muhammadawais/Documents/My%20Tailors/tbms/apps/api/package.json) for console ergonomics
+
 ## Domain and DNS
 
 Current target domain rollout:
