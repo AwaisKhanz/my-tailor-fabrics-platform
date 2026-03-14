@@ -14,15 +14,15 @@
     "start:do:web": "node ./scripts/start-do-web.mjs",
     "start:do:api": "node apps/api/dist/main.js",
     "security:backend:guardrails": "bash ./scripts/security-backend-guardrails.sh",
-    "prisma:generate": "pnpm --filter api prisma:generate",
-    "prisma:migrate:dev": "pnpm --filter api exec prisma migrate dev",
-    "prisma:migrate:status": "pnpm --filter api exec prisma migrate status",
-    "prisma:migrate:deploy": "pnpm --filter api exec prisma migrate deploy",
-    "prisma:migrate:reset": "pnpm --filter api exec prisma migrate reset",
-    "prisma:db:push": "pnpm --filter api exec prisma db push",
-    "prisma:seed": "pnpm --filter api exec prisma db seed",
-    "prisma:seed:list": "pnpm --filter api exec prisma db seed -- --list",
-    "prisma:studio": "pnpm --filter api exec prisma studio"
+    "prisma:generate": "npm --prefix ./apps/api run prisma:generate",
+    "prisma:migrate:dev": "npm --prefix ./apps/api run prisma:migrate:dev",
+    "prisma:migrate:status": "npm --prefix ./apps/api run prisma:migrate:status",
+    "prisma:migrate:deploy": "npm --prefix ./apps/api run prisma:migrate:deploy",
+    "prisma:migrate:reset": "npm --prefix ./apps/api run prisma:migrate:reset",
+    "prisma:db:push": "npm --prefix ./apps/api run prisma:db:push",
+    "prisma:seed": "npm --prefix ./apps/api run prisma:seed",
+    "prisma:seed:list": "npm --prefix ./apps/api run prisma:seed:list",
+    "prisma:studio": "npm --prefix ./apps/api exec prisma studio"
   },
   "prisma": {
     "schema": "apps/api/prisma/schema.prisma"
