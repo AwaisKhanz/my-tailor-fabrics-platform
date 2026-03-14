@@ -296,10 +296,12 @@ api.interceptors.response.use(
   (response) => {
     if (typeof window !== 'undefined' && isWriteMethod(response.config.method)) {
       const toastConfig = response.config.tbmsToast;
-      if (!toastConfig?.suppressSuccess) {
+      // Success toasts are opt-in to avoid duplicate messages when
+      // feature-level handlers already show explicit success feedback.
+      if (toastConfig && !toastConfig.suppressSuccess) {
         emitToast({
           title:
-            toastConfig?.successMessage ??
+            toastConfig.successMessage ??
             getDefaultSuccessMessage(response.config.method),
           variant: 'success',
         });
