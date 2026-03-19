@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo } from "react";
-import { Check, Edit2, X } from "lucide-react";
 import {
   type Employee,
   isTaskStatus,
@@ -15,8 +14,6 @@ import {
 } from "@tbms/shared-constants";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@tbms/ui/components/badge";
-import { Button } from "@tbms/ui/components/button";
-import { Input } from "@tbms/ui/components/input";
 import {
   Select,
   SelectContent,
@@ -37,15 +34,8 @@ interface UseTaskAssignmentTableParams {
     Array<Pick<Employee, "id" | "fullName">>
   >;
   loadingId: string | null;
-  editingRateId: string | null;
-  tempRate: string;
-  rateValidationError: string;
-  onTempRateChange: (value: string) => void;
   onAssign: (taskId: string, employeeId: string | null) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
-  onStartRateEdit: (taskId: string, currentRateInRupees: number) => void;
-  onCancelRateEdit: () => void;
-  onRateUpdate: (taskId: string) => void;
 }
 
 export function useTaskAssignmentTable({
@@ -53,15 +43,8 @@ export function useTaskAssignmentTable({
   employees,
   eligibleEmployeesByTask,
   loadingId,
-  editingRateId,
-  tempRate,
-  rateValidationError,
-  onTempRateChange,
   onAssign,
   onStatusChange,
-  onStartRateEdit,
-  onCancelRateEdit,
-  onRateUpdate,
 }: UseTaskAssignmentTableParams) {
   const { setValues, getPositiveInt } = useUrlTableState({
     prefix: "tasks",
@@ -94,6 +77,36 @@ export function useTaskAssignmentTable({
     return tasks.slice(start, start + pageSize);
   }, [tasks, page, pageSize]);
 
+  const taskSequenceMetaById = useMemo(() => {
+    let blockingStepName: string | null = null;
+
+    return tasks.reduce<
+      Record<
+        string,
+        {
+          stepNumber: number;
+          blockedByStepName: string | null;
+        }
+      >
+    >((acc, task, index) => {
+      acc[task.id] = {
+        stepNumber: index + 1,
+        blockedByStepName: blockingStepName,
+      };
+
+      const unlocksNext =
+        task.status === TaskStatus.DONE || task.status === TaskStatus.CANCELLED;
+
+      if (!unlocksNext && blockingStepName === null) {
+        blockingStepName = task.stepName;
+      } else if (blockingStepName === task.stepName && unlocksNext) {
+        blockingStepName = null;
+      }
+
+      return acc;
+    }, {});
+  }, [tasks]);
+
   const columns = useMemo<ColumnDef<OrderItemTask>[]>(
     () => [
       {
@@ -101,9 +114,18 @@ export function useTaskAssignmentTable({
         header: "Step",
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="font-bold text-foreground">{row.original.stepName}</span>
-            <span className="font-mono text-xs uppercase text-muted-foreground">
-              {row.original.stepKey}
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Step{" "}
+              {taskSequenceMetaById[row.original.id]?.stepNumber ??
+                row.index + 1}
+            </span>
+            <span className="font-bold text-foreground">
+              {row.original.stepName}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {taskSequenceMetaById[row.original.id]?.blockedByStepName
+                ? `Unlocks after ${taskSequenceMetaById[row.original.id]?.blockedByStepName}`
+                : "Ready for this piece"}
             </span>
           </div>
         ),
@@ -112,7 +134,9 @@ export function useTaskAssignmentTable({
         id: "assignedEmployee",
         header: "Assigned Employee",
         cell: ({ row }) => {
-          const eligibleEmployees = eligibleEmployeesByTask[row.original.id] ?? [];
+          const taskMeta = taskSequenceMetaById[row.original.id];
+          const eligibleEmployees =
+            eligibleEmployeesByTask[row.original.id] ?? [];
           const assignedEmployeeOption = row.original.assignedEmployeeId
             ? employees.find(
                 (employee) => employee.id === row.original.assignedEmployeeId,
@@ -139,7 +163,10 @@ export function useTaskAssignmentTable({
                 disabled={!canModifyAssignment}
                 value={row.original.assignedEmployeeId || "unassigned"}
                 onValueChange={(value) => {
-                  onAssign(row.original.id, value === "unassigned" ? null : value);
+                  onAssign(
+                    row.original.id,
+                    value === "unassigned" ? null : value,
+                  );
                 }}
               >
                 <SelectTrigger className="h-8 text-xs font-semibold">
@@ -158,6 +185,11 @@ export function useTaskAssignmentTable({
                 <p className="mt-1 text-xs text-secondary-foreground">
                   No eligible employees for this step.
                 </p>
+              ) : taskMeta?.blockedByStepName ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Planning is allowed, but this step stays locked until{" "}
+                  {taskMeta.blockedByStepName} is finished.
+                </p>
               ) : null}
             </div>
           );
@@ -166,94 +198,74 @@ export function useTaskAssignmentTable({
       {
         id: "status",
         header: "Status",
-        cell: ({ row }) => (
-          <div className="min-w-[140px]">
-            <Select
-              disabled={loadingId === row.original.id}
-              value={row.original.status}
-              onValueChange={(value) => {
-                if (value && isTaskStatus(value)) {
-                  onStatusChange(row.original.id, value);
-                }
-              }}
-            >
-              <SelectTrigger className="h-8 border-transparent bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground focus:ring-0 focus:ring-offset-0">
-                <Badge
-                  variant={TASK_STATUS_CONFIG[row.original.status].variant}
-                  className="w-full justify-center uppercase"
-                >
-                  {TASK_STATUS_CONFIG[row.original.status].label}
-                </Badge>
-              </SelectTrigger>
-              <SelectContent>
-                {TASK_STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const taskMeta = taskSequenceMetaById[row.original.id];
+          const sequenceLockedReason = taskMeta?.blockedByStepName
+            ? `Complete ${taskMeta.blockedByStepName} first.`
+            : null;
+          const assignmentLockedReason =
+            !row.original.assignedEmployeeId &&
+            row.original.status !== TaskStatus.CANCELLED
+              ? "Assign an employee before starting this step."
+              : null;
+          const statusLockedReason =
+            sequenceLockedReason ?? assignmentLockedReason;
+
+          return (
+            <div className=" ">
+              <Select
+                disabled={loadingId === row.original.id}
+                value={row.original.status}
+                onValueChange={(value) => {
+                  if (value && isTaskStatus(value)) {
+                    onStatusChange(row.original.id, value);
+                  }
+                }}
+              >
+                <SelectTrigger className="h-8 border-transparent !bg-transparent p-0 text-muted-foreground  disabled:cursor-not-allowed disabled:opacity-100">
+                  <Badge
+                    variant={TASK_STATUS_CONFIG[row.original.status].variant}
+                    className="w-full justify-center uppercase"
+                  >
+                    {TASK_STATUS_CONFIG[row.original.status].label}
+                  </Badge>
+                </SelectTrigger>
+                <SelectContent>
+                  {TASK_STATUS_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      disabled={
+                        (option.value === TaskStatus.IN_PROGRESS ||
+                          option.value === TaskStatus.DONE) &&
+                        Boolean(statusLockedReason)
+                      }
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {statusLockedReason ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {statusLockedReason}
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Move this step forward only when work really starts or
+                  finishes.
+                </p>
+              )}
+            </div>
+          );
+        },
       },
       {
         id: "rate",
-        header: () => <div className="text-right">Labor Rate</div>,
+        header: () => <div className="text-right">Fixed Labor Rate</div>,
         cell: ({ row }) => {
-          const effectiveRateInRupees =
-            getEffectiveTaskRate(
-              row.original.rateSnapshot,
-              row.original.rateOverride,
-              row.original.designRateSnapshot,
-            ) / 100;
-          const isEditing = editingRateId === row.original.id;
-
-          if (isEditing) {
-            return (
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center justify-end gap-1">
-                  <Input
-                    className="h-7 w-20 text-right text-xs"
-                    type="number"
-                    value={tempRate}
-                    onChange={(event) => onTempRateChange(event.target.value)}
-                    autoFocus
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        onRateUpdate(row.original.id);
-                      }
-                      if (event.key === "Escape") {
-                        onCancelRateEdit();
-                      }
-                    }}
-                  />
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => onRateUpdate(row.original.id)}
-                  >
-                    <Check className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={onCancelRateEdit}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-                {rateValidationError ? (
-                  <p className="text-xs text-destructive">
-                    {rateValidationError}
-                  </p>
-                ) : null}
-              </div>
-            );
-          }
-
           return (
-            <div className="group flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-2">
               <div className="flex flex-col items-end">
                 <span
                   className={`text-sm font-bold ${
@@ -272,40 +284,28 @@ export function useTaskAssignmentTable({
                     ),
                   )}
                 </span>
-                {row.original.rateOverride ? (
-                  <span className="text-xs text-muted-foreground line-through">
-                    Base: {formatPKR(row.original.rateSnapshot ?? 0)}
+                {row.original.designRateSnapshot ? (
+                  <span className="text-xs text-muted-foreground">
+                    Includes design rate
+                  </span>
+                ) : row.original.rateSnapshot ? (
+                  <span className="text-xs text-muted-foreground">
+                    Auto from labor setup
                   </span>
                 ) : null}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() =>
-                  onStartRateEdit(row.original.id, effectiveRateInRupees)
-                }
-              >
-                <Edit2 className="h-3 w-3 text-muted-foreground" />
-              </Button>
             </div>
           );
         },
       },
     ],
     [
-      editingRateId,
       employees,
       eligibleEmployeesByTask,
       loadingId,
       onAssign,
-      onCancelRateEdit,
-      onRateUpdate,
-      onStartRateEdit,
       onStatusChange,
-      onTempRateChange,
-      rateValidationError,
-      tempRate,
+      taskSequenceMetaById,
     ],
   );
 

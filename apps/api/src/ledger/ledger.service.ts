@@ -36,6 +36,15 @@ const LEDGER_ENTRY_TYPE_TO_PRISMA: Record<
 export class LedgerService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async resolveEntryBranchId(
+    employeeId: string,
+    branchId?: string | null,
+    tx?: Prisma.TransactionClient,
+  ): Promise<string> {
+    const employee = await this.assertEmployeeScope(employeeId, branchId, tx);
+    return branchId ?? employee.branchId;
+  }
+
   private parseLedgerEntryType(rawType?: string): LedgerEntryType | undefined {
     if (!rawType) {
       return undefined;
@@ -55,7 +64,7 @@ export class LedgerService {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx ?? this.prisma;
-    await requireEmployeeInScope(client, { employeeId, branchId });
+    return requireEmployeeInScope(client, { employeeId, branchId });
   }
 
   private async queryBalanceSummary(
@@ -95,16 +104,22 @@ export class LedgerService {
    * Negative amount = PAYOUT / ADVANCE / DEDUCTION.
    */
   async createEntry(
-    dto: CreateLedgerEntryInput,
+    dto: Omit<CreateLedgerEntryInput, 'branchId'> & {
+      branchId?: string | null;
+    },
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx ?? this.prisma;
-    await this.assertEmployeeScope(dto.employeeId, dto.branchId, tx);
+    const resolvedBranchId = await this.resolveEntryBranchId(
+      dto.employeeId,
+      dto.branchId,
+      tx,
+    );
 
     return client.employeeLedgerEntry.create({
       data: {
         employeeId: dto.employeeId,
-        branchId: dto.branchId,
+        branchId: resolvedBranchId,
         type: this.toPrismaLedgerEntryType(dto.type),
         amount: dto.amount,
         orderItemTaskId: dto.orderItemTaskId ?? null,

@@ -140,6 +140,17 @@ export const rateKeys = {
   stats: (filters: object) => [...rateKeys.all, "stats", filters] as const,
 };
 
+// ─── Fabrics ────────────────────────────────────────────────────────────────
+
+export const fabricKeys = {
+  all: ["fabrics"] as const,
+  lists: () => [...fabricKeys.all, "list"] as const,
+  list: (filters: object) => [...fabricKeys.lists(), filters] as const,
+  details: () => [...fabricKeys.all, "detail"] as const,
+  detail: (id: string) => [...fabricKeys.details(), id] as const,
+  stats: (filters: object) => [...fabricKeys.all, "stats", filters] as const,
+};
+
 // ─── Design Types ────────────────────────────────────────────────────────────
 
 export const designTypeKeys = {
@@ -155,15 +166,6 @@ export const userKeys = {
   all: ["users"] as const,
   list: (filters: object) => [...userKeys.all, "list", filters] as const,
   stats: () => [...userKeys.all, "stats"] as const,
-};
-
-// ─── Attendance ──────────────────────────────────────────────────────────────
-
-export const attendanceKeys = {
-  all: ["attendance"] as const,
-  list: (filters: object) => [...attendanceKeys.all, "list", filters] as const,
-  employeeSummary: (employeeId: string) =>
-    [...attendanceKeys.all, "summary", employeeId] as const,
 };
 
 // ─── Audit Logs ──────────────────────────────────────────────────────────────

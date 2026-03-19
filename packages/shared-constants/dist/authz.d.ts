@@ -31,6 +31,8 @@ export declare const PERMISSION: {
     readonly 'tasks.rate.override': "tasks.rate.override";
     readonly 'rates.read': "rates.read";
     readonly 'rates.manage': "rates.manage";
+    readonly 'fabrics.read': "fabrics.read";
+    readonly 'fabrics.manage': "fabrics.manage";
     readonly 'designTypes.read': "designTypes.read";
     readonly 'designTypes.manage': "designTypes.manage";
     readonly 'garments.read': "garments.read";
@@ -44,9 +46,6 @@ export declare const PERMISSION: {
     readonly 'branches.manage': "branches.manage";
     readonly 'users.read': "users.read";
     readonly 'users.manage': "users.manage";
-    readonly 'attendance.read': "attendance.read";
-    readonly 'attendance.manage': "attendance.manage";
-    readonly 'attendance.checkin': "attendance.checkin";
     readonly 'audit.read': "audit.read";
     readonly 'mail.manage': "mail.manage";
     readonly 'system.manage': "system.manage";

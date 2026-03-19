@@ -23,9 +23,15 @@ interface ReceiptOrder {
   branch: { name: string };
   items: {
     id: string;
+    pieceNo: number;
     garmentTypeName: string;
     quantity: number;
     unitPrice: number;
+    fabricSource: string;
+    shopFabricNameSnapshot?: string | null;
+    shopFabricPriceSnapshot?: number | null;
+    shopFabricTotalSnapshot?: number | null;
+    customerFabricNote?: string | null;
     designType?: { name: string; defaultPrice: number } | null;
     addons: { id: string; name: string; price: number }[];
   }[];
@@ -44,6 +50,7 @@ type ReceiptOrderRecord = Prisma.OrderGetPayload<{
       include: {
         designType: true;
         addons: true;
+        shopFabric: true;
       };
     };
   };
@@ -144,14 +151,22 @@ function drawReceiptItem(
   const designPrice = item.designType?.defaultPrice || 0;
   const addonsPrice =
     item.addons?.reduce((sum, addon) => sum + addon.price, 0) || 0;
+  const shopFabricTotal = item.shopFabricTotalSnapshot || 0;
   const itemTotal =
-    item.unitPrice * item.quantity + designPrice * item.quantity + addonsPrice;
+    item.unitPrice * item.quantity +
+    designPrice * item.quantity +
+    addonsPrice +
+    shopFabricTotal;
   const subRows = [
+    {
+      label: `Tailoring (${formatPdfCurrency(item.unitPrice)} x ${item.quantity})`,
+      amount: formatPdfCurrency(item.unitPrice * item.quantity),
+    },
     ...(item.designType
       ? [
           {
             label: `Design: ${item.designType.name}`,
-            amount: `(+${formatPdfCurrency(item.designType.defaultPrice)})`,
+            amount: `(+${formatPdfCurrency(item.designType.defaultPrice * item.quantity)})`,
           },
         ]
       : []),
@@ -159,6 +174,22 @@ function drawReceiptItem(
       label: `Addon: ${addon.name}`,
       amount: `(+${formatPdfCurrency(addon.price)})`,
     })),
+    ...(shopFabricTotal > 0
+      ? [
+          {
+            label: `Shop Fabric: ${item.shopFabricNameSnapshot || 'Fabric'}`,
+            amount: `(+${formatPdfCurrency(shopFabricTotal)})`,
+          },
+        ]
+      : []),
+    ...(item.fabricSource === 'CUSTOMER' && item.customerFabricNote
+      ? [
+          {
+            label: `Customer Fabric Note: ${item.customerFabricNote}`,
+            amount: '',
+          },
+        ]
+      : []),
   ];
 
   const mainHeight =
@@ -195,7 +226,7 @@ function drawReceiptItem(
     .font('Helvetica-Bold')
     .fontSize(10)
     .fillColor('#111827')
-    .text(item.garmentTypeName, startX, rowY, {
+    .text(`Piece ${item.pieceNo} - ${item.garmentTypeName}`, startX, rowY, {
       width: nameWidth,
     });
   doc.font('Helvetica').text(String(item.quantity), startX + nameWidth, rowY, {
@@ -286,9 +317,16 @@ export class ReceiptService {
       },
       items: order.items.map((item) => ({
         id: item.id,
+        pieceNo: item.pieceNo,
         garmentTypeName: item.garmentTypeName,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
+        fabricSource: item.fabricSource,
+        shopFabricNameSnapshot:
+          item.shopFabricNameSnapshot ?? item.shopFabric?.name ?? null,
+        shopFabricPriceSnapshot: item.shopFabricPriceSnapshot,
+        shopFabricTotalSnapshot: item.shopFabricTotalSnapshot,
+        customerFabricNote: item.customerFabricNote,
         designType: item.designType
           ? {
               name: item.designType.name,
@@ -324,6 +362,7 @@ export class ReceiptService {
           include: {
             designType: true,
             addons: { where: { deletedAt: null } },
+            shopFabric: true,
           },
         },
       },

@@ -78,7 +78,9 @@ function Select<Value, Multiple extends boolean | undefined = false>({
   return (
     <SelectPrimitive.Root<Value, Multiple>
       {...props}
-      items={resolvedItems as SelectPrimitive.Root.Props<Value, Multiple>["items"]}
+      items={
+        resolvedItems as SelectPrimitive.Root.Props<Value, Multiple>["items"]
+      }
     >
       {children}
     </SelectPrimitive.Root>

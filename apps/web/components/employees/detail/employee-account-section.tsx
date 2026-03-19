@@ -36,7 +36,8 @@ export function EmployeeAccountSection({
           {employee.userAccount ? "ACTIVE" : "NOT PROVISIONED"}
         </Badge>
       }
-      defaultOpen={false}
+      defaultOpen
+      collapsible={false}
     >
       <div className="p-4 sm:p-5">
         {employee.userAccount ? (

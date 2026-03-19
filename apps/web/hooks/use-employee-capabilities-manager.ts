@@ -30,25 +30,54 @@ interface UseEmployeeCapabilitiesManagerParams {
   ) => Promise<boolean>;
 }
 
+export type EmployeeCapabilityStatus = "ACTIVE" | "UPCOMING" | "EXPIRED";
+
+export interface EmployeeCapabilityWithStatus extends EmployeeCapability {
+  status: EmployeeCapabilityStatus;
+}
+
 export function useEmployeeCapabilitiesManager({
   capabilities,
   garmentTypes,
   onSaveCapabilitiesSnapshot,
 }: UseEmployeeCapabilitiesManagerParams) {
-  const activeCapabilities = useMemo(() => {
+  const capabilitiesWithStatus = useMemo<EmployeeCapabilityWithStatus[]>(() => {
     const now = new Date();
-    return capabilities.filter((capability) => {
-      const effectiveFrom = new Date(capability.effectiveFrom);
-      const effectiveTo = capability.effectiveTo
-        ? new Date(capability.effectiveTo)
-        : null;
-      return (
-        effectiveFrom <= now &&
-        (effectiveTo === null || effectiveTo >= now) &&
-        !capability.deletedAt
-      );
-    });
+    return capabilities
+      .filter((capability) => !capability.deletedAt)
+      .map((capability) => {
+        const effectiveFrom = new Date(capability.effectiveFrom);
+        const effectiveTo = capability.effectiveTo
+          ? new Date(capability.effectiveTo)
+          : null;
+
+        const status: EmployeeCapabilityStatus =
+          effectiveFrom > now
+            ? "UPCOMING"
+            : effectiveTo && effectiveTo < now
+              ? "EXPIRED"
+              : "ACTIVE";
+
+        return {
+          ...capability,
+          status,
+        };
+      });
   }, [capabilities]);
+
+  const activeCapabilities = useMemo(
+    () =>
+      capabilitiesWithStatus.filter((capability) => capability.status === "ACTIVE"),
+    [capabilitiesWithStatus],
+  );
+
+  const upcomingCapabilities = useMemo(
+    () =>
+      capabilitiesWithStatus.filter(
+        (capability) => capability.status === "UPCOMING",
+      ),
+    [capabilitiesWithStatus],
+  );
 
   const garmentNameById = useMemo(
     () =>
@@ -116,9 +145,15 @@ export function useEmployeeCapabilitiesManager({
             stepKey: capability.stepKey ?? "",
             note: capability.note ?? "",
           }))
+        : upcomingCapabilities.length > 0
+          ? upcomingCapabilities.map((capability) => ({
+              garmentTypeId: capability.garmentTypeId ?? "",
+              stepKey: capability.stepKey ?? "",
+              note: capability.note ?? "",
+            }))
         : [{ garmentTypeId: "", stepKey: "", note: "" }];
     setCapabilityRows(seededRows);
-  }, [activeCapabilities]);
+  }, [activeCapabilities, upcomingCapabilities]);
 
   const addCapabilityRow = useCallback(() => {
     setCapabilityValidationError("");
@@ -187,6 +222,8 @@ export function useEmployeeCapabilitiesManager({
 
   return {
     activeCapabilities,
+    upcomingCapabilities,
+    capabilitiesWithStatus,
     garmentNameById,
     capabilityEffectiveFrom,
     capabilityNote,

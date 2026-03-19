@@ -43,11 +43,6 @@ export class LedgerController {
     @Req() req: AuthenticatedRequest,
   ) {
     const branchId = resolveBranchScopeForMutation(req, dto.branchId ?? null);
-    if (!branchId) {
-      throw new BadRequestException(
-        'Branch scope is required to create a ledger entry',
-      );
-    }
 
     if (dto.type === LedgerEntryType.SALARY) {
       throw new BadRequestException(

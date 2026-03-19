@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   createMeasurementValuesFormSchema,
+  type CustomerMeasurement,
   type MeasurementCategory,
   type MeasurementValues,
   FieldType,
@@ -14,10 +15,12 @@ import { logDevError } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
 
 interface UseMeasurementFormParams {
+  open: boolean;
   customerId: string;
   onSuccess: () => void;
   initialCategoryId?: string;
   initialValues?: MeasurementValues;
+  measurements?: CustomerMeasurement[];
 }
 
 type MeasurementField = MeasurementCategory["fields"][number];
@@ -30,10 +33,12 @@ export interface MeasurementFieldGroup {
 }
 
 export function useMeasurementForm({
+  open,
   customerId,
   onSuccess,
   initialCategoryId,
   initialValues,
+  measurements,
 }: UseMeasurementFormParams) {
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] =
@@ -108,9 +113,28 @@ export function useMeasurementForm({
       });
   }, [selectedCategory]);
 
+  const measurementValuesByCategory = useMemo(() => {
+    const valuesByCategory = new Map<string, MeasurementValues>();
+
+    (measurements ?? []).forEach((measurement) => {
+      valuesByCategory.set(measurement.categoryId, measurement.values ?? {});
+    });
+
+    if (initialCategoryId && initialValues) {
+      valuesByCategory.set(initialCategoryId, initialValues);
+    }
+
+    return valuesByCategory;
+  }, [initialCategoryId, initialValues, measurements]);
+
   useEffect(() => {
+    if (!open) {
+      return;
+    }
+
     if (!categories.length) {
       setSelectedCategory(null);
+      form.reset({});
       return;
     }
 
@@ -120,12 +144,16 @@ export function useMeasurementForm({
       );
       if (initialCategory) {
         setSelectedCategory(initialCategory);
+        form.clearErrors();
+        form.reset(measurementValuesByCategory.get(initialCategory.id) ?? {});
         return;
       }
     }
 
-    setSelectedCategory(categories[0] || null);
-  }, [categories, initialCategoryId]);
+    setSelectedCategory(null);
+    form.clearErrors();
+    form.reset({});
+  }, [categories, form, initialCategoryId, measurementValuesByCategory, open]);
 
   useEffect(() => {
     if (!categoriesQuery.isError) {
@@ -146,12 +174,7 @@ export function useMeasurementForm({
 
     setSelectedCategory(category);
     form.clearErrors();
-    if (categoryId === initialCategoryId) {
-      form.reset(initialValues || {});
-      return;
-    }
-
-    form.reset({});
+    form.reset(measurementValuesByCategory.get(categoryId) ?? {});
   };
 
   async function onSubmit(values: MeasurementValues) {

@@ -5,6 +5,7 @@ export * from './measurements';
 export * from './employees';
 export * from './customers';
 export * from './rates';
+export * from './fabrics';
 export * from './ledger';
 export * from './authz';
 export * from './audit';

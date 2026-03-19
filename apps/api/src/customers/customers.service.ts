@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { OrderStatus as PrismaOrderStatus, Prisma } from '@prisma/client';
 import {
   CreateCustomerDto,
   UpdateCustomerDto,
@@ -76,6 +76,12 @@ function toSharedFieldType(fieldType: string): FieldType {
 }
 
 const MAX_SIZE_NUMBER_GENERATION_ATTEMPTS = 5;
+
+type CustomerOrderMetrics = {
+  totalOrders: number;
+  totalSpent: number;
+  totalPaid: number;
+};
 
 @Injectable()
 export class CustomersService {
@@ -152,6 +158,100 @@ export class CustomersService {
     return false;
   }
 
+  private async getCustomerOrderMetricsMap(
+    customerIds: readonly string[],
+    branchId: string | null,
+  ): Promise<Map<string, CustomerOrderMetrics>> {
+    const metricsByCustomerId = new Map<string, CustomerOrderMetrics>();
+
+    if (customerIds.length === 0) {
+      return metricsByCustomerId;
+    }
+
+    const orderWhere: Prisma.OrderWhereInput = {
+      customerId: { in: [...customerIds] },
+      deletedAt: null,
+      ...(branchId ? { branchId } : {}),
+    };
+
+    const [orderCounts, financialSums] = await Promise.all([
+      this.prisma.order.groupBy({
+        by: ['customerId'],
+        where: orderWhere,
+        _count: {
+          _all: true,
+        },
+      }),
+      this.prisma.order.groupBy({
+        by: ['customerId'],
+        where: {
+          ...orderWhere,
+          status: {
+            not: PrismaOrderStatus.CANCELLED,
+          },
+        },
+        _sum: {
+          totalAmount: true,
+          totalPaid: true,
+        },
+      }),
+    ]);
+
+    for (const customerId of customerIds) {
+      metricsByCustomerId.set(customerId, {
+        totalOrders: 0,
+        totalSpent: 0,
+        totalPaid: 0,
+      });
+    }
+
+    for (const countRow of orderCounts) {
+      const current = metricsByCustomerId.get(countRow.customerId);
+      if (!current) {
+        continue;
+      }
+
+      current.totalOrders = countRow._count._all;
+    }
+
+    for (const sumRow of financialSums) {
+      const current = metricsByCustomerId.get(sumRow.customerId);
+      if (!current) {
+        continue;
+      }
+
+      current.totalSpent = sumRow._sum.totalAmount ?? 0;
+      current.totalPaid = sumRow._sum.totalPaid ?? 0;
+    }
+
+    return metricsByCustomerId;
+  }
+
+  private withCustomerMetrics<
+    TCustomer extends {
+      id: string;
+      lifetimeValue: number;
+      stats?: {
+        totalOrders: number;
+        totalSpent: number;
+        totalPaid: number;
+      };
+    },
+  >(
+    customer: TCustomer,
+    metrics: CustomerOrderMetrics,
+  ): TCustomer {
+    return {
+      ...customer,
+      lifetimeValue: metrics.totalSpent,
+      stats: {
+        totalOrders: metrics.totalOrders,
+        totalSpent: metrics.totalSpent,
+        totalPaid: metrics.totalPaid,
+      },
+    };
+  }
+
   async create(createCustomerDto: CreateCustomerDto, branchId: string) {
     for (
       let attempt = 1;
@@ -206,10 +306,57 @@ export class CustomersService {
         branchId,
         safeLimit,
       );
+
+      const customerIds = results.map((result) => result.id);
+      if (customerIds.length === 0) {
+        return {
+          data: [],
+          total: 0,
+          meta: buildPaginationMeta(0, {
+            page: 1,
+            limit: safeLimit,
+          }),
+        };
+      }
+
+      const matchedCustomers = await this.prisma.customer.findMany({
+        where: {
+          id: { in: customerIds },
+          deletedAt: null,
+          ...(branchId ? { branchId } : {}),
+          ...(typeof isVip === 'boolean' ? { isVip } : {}),
+          ...(status ? { status } : {}),
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const metricsByCustomerId = await this.getCustomerOrderMetricsMap(
+        matchedCustomers.map((customer) => customer.id),
+        branchId,
+      );
+      const customersById = new Map(
+        matchedCustomers.map((customer) => [
+          customer.id,
+          this.withCustomerMetrics(
+            customer,
+            metricsByCustomerId.get(customer.id) ?? {
+              totalOrders: 0,
+              totalSpent: 0,
+              totalPaid: 0,
+            },
+          ),
+        ]),
+      );
+      const orderedCustomers = customerIds
+        .map((customerId) => customersById.get(customerId))
+        .filter((customer): customer is NonNullable<typeof customer> =>
+          Boolean(customer),
+        );
+
       return {
-        data: results,
-        total: results.length,
-        meta: buildPaginationMeta(results.length, {
+        data: orderedCustomers,
+        total: orderedCustomers.length,
+        meta: buildPaginationMeta(orderedCustomers.length, {
           page: 1,
           limit: safeLimit,
         }),
@@ -235,7 +382,23 @@ export class CustomersService {
       this.prisma.customer.count({ where }),
     ]);
 
-    return toPaginatedResponse(data, total, pagination);
+    const metricsByCustomerId = await this.getCustomerOrderMetricsMap(
+      data.map((customer) => customer.id),
+      branchId,
+    );
+
+    const customersWithMetrics = data.map((customer) =>
+      this.withCustomerMetrics(
+        customer,
+        metricsByCustomerId.get(customer.id) ?? {
+          totalOrders: 0,
+          totalSpent: 0,
+          totalPaid: 0,
+        },
+      ),
+    );
+
+    return toPaginatedResponse(customersWithMetrics, total, pagination);
   }
 
   async getSummary(
@@ -281,32 +444,26 @@ export class CustomersService {
     });
     if (!customer) throw new NotFoundException('Customer not found');
 
-    // PRD Requirement: Include order summary
-    const [totalOrders, stats] = await Promise.all([
-      this.prisma.order.count({
-        where: {
-          customerId: id,
-          deletedAt: null,
-          ...(branchId ? { branchId } : {}),
-        },
-      }),
-      this.prisma.order.aggregate({
-        where: {
-          customerId: id,
-          deletedAt: null,
-          ...(branchId ? { branchId } : {}),
-        },
-        _sum: { totalPaid: true },
-      }),
-    ]);
-
-    return {
-      ...customer,
-      stats: {
-        totalOrders,
-        totalSpent: stats._sum.totalPaid || 0,
-      },
+    const metricsByCustomerId = await this.getCustomerOrderMetricsMap(
+      [customer.id],
+      branchId,
+    );
+    const metrics = metricsByCustomerId.get(customer.id) ?? {
+      totalOrders: 0,
+      totalSpent: 0,
+      totalPaid: 0,
     };
+
+    if (customer.lifetimeValue !== metrics.totalSpent) {
+      await this.prisma.customer.update({
+        where: { id: customer.id },
+        data: {
+          lifetimeValue: metrics.totalSpent,
+        },
+      });
+    }
+
+    return this.withCustomerMetrics(customer, metrics);
   }
 
   async update(

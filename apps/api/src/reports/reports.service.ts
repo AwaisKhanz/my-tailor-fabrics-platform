@@ -5,7 +5,6 @@ import {
   DistributionPoint,
   EmployeeStatus,
   ItemStatus,
-  LedgerEntryType,
   EmployeeProductivity,
   OrderStatus,
   FinancialTrend,
@@ -115,35 +114,19 @@ export class ReportsService {
       range,
     );
 
-    // Outstanding balances are operationally current and intentionally not date-windowed.
-    const earnedBranchCondition = branchId
-      ? Prisma.sql`AND le."branchId" = ${branchId}`
-      : Prisma.empty;
-
-    const totalEarnedQuery = await this.prisma.$queryRaw<[{ total: bigint }]>(
-      Prisma.sql`
-        SELECT COALESCE(SUM(le.amount), 0) AS total
-        FROM "EmployeeLedgerEntry" le
-        WHERE le.type = CAST(${LedgerEntryType.EARNING} AS "LedgerEntryType")
-          AND le."deletedAt" IS NULL
-          ${earnedBranchCondition}
-      `,
-    );
-
-    const totalPaid = await this.prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: branchId
-        ? {
-            deletedAt: null,
-            reversedAt: null,
-            employee: { branchId, deletedAt: null },
-          }
-        : { deletedAt: null, reversedAt: null, employee: { deletedAt: null } },
+    // Outstanding receivables are operationally current and intentionally not date-windowed.
+    const receivablesResult = await this.prisma.order.aggregate({
+      _sum: { balanceDue: true },
+      where: {
+        deletedAt: null,
+        ...(branchId ? { branchId } : {}),
+        status: {
+          not: OrderStatus.CANCELLED,
+        },
+      },
     });
 
-    const totalEarned = Number(totalEarnedQuery[0]?.total ?? 0);
-    const paidOut = totalPaid._sum.amount ?? 0;
-    const outstandingBalances = totalEarned - paidOut;
+    const outstandingBalances = receivablesResult._sum.balanceDue ?? 0;
 
     const overdueCount = await this.prisma.order.count({
       where: {

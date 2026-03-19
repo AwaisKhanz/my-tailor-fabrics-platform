@@ -113,25 +113,48 @@ export const accountCreationSchema = z
 
 export type AccountCreationFormValues = z.infer<typeof accountCreationSchema>;
 
-export const orderItemSchema = z.object({
-  id: z.string().optional(),
-  garmentTypeId: z.string().min(1, "Garment type is required"),
-  quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-  unitPrice: z.coerce.number().min(0, "Price must be at least 0"),
-  dueDate: z.string().optional(),
-  description: z.string().optional(),
-  fabricSource: z.nativeEnum(FabricSource).default(FabricSource.SHOP),
-  designTypeId: z.string().optional(),
-  addons: z
-    .array(
-      z.object({
-        type: z.nativeEnum(AddonType),
-        name: z.string().min(1, "Addon name is required"),
-        price: z.coerce.number().min(0, "Addon price must be at least 0"),
-      }),
-    )
-    .optional(),
-});
+export const orderItemSchema = z
+  .object({
+    id: z.string().optional(),
+    garmentTypeId: z.string().min(1, "Garment type is required"),
+    quantity: z.coerce.number().min(1, "Quantity must be at least 1").default(1),
+    unitPrice: z.coerce.number().min(0, "Price must be at least 0"),
+    dueDate: z.string().optional(),
+    description: z.string().optional(),
+    fabricSource: z.nativeEnum(FabricSource).default(FabricSource.SHOP),
+    shopFabricId: z.string().trim().optional().nullable(),
+    shopFabricPrice: optionalNumberInput,
+    customerFabricNote: z.string().trim().optional().nullable(),
+    designTypeId: z.string().optional(),
+    addons: z
+      .array(
+        z.object({
+          type: z.nativeEnum(AddonType),
+          name: z.string().min(1, "Addon name is required"),
+          price: z.coerce.number().min(0, "Addon price must be at least 0"),
+        }),
+      )
+      .optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.fabricSource === FabricSource.SHOP) {
+      if (!value.shopFabricId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["shopFabricId"],
+          message: "Select a shop fabric.",
+        });
+      }
+
+      if (value.shopFabricPrice === undefined || value.shopFabricPrice < 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["shopFabricPrice"],
+          message: "Fabric price must be zero or greater.",
+        });
+      }
+    }
+  });
 
 export type OrderItemFormValues = z.infer<typeof orderItemSchema>;
 
@@ -409,18 +432,6 @@ export const taskRateOverrideFormSchema = z.object({
 
 export type TaskRateOverrideFormValues = z.infer<typeof taskRateOverrideFormSchema>;
 export type TaskRateOverrideFormInput = z.input<typeof taskRateOverrideFormSchema>;
-
-export const attendanceClockInFormSchema = z.object({
-  employeeId: z.string().trim().min(1, "Select an employee to clock in."),
-  note: optionalTrimmedText,
-});
-
-export type AttendanceClockInFormValues = z.infer<
-  typeof attendanceClockInFormSchema
->;
-export type AttendanceClockInFormInput = z.input<
-  typeof attendanceClockInFormSchema
->;
 
 export const employeeLedgerEntryFormSchema = z.object({
   type: z.nativeEnum(LedgerEntryType),

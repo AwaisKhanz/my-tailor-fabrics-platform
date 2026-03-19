@@ -41,11 +41,18 @@ export function toOrderItemCreateData(
     unitPrice: item.unitPrice,
     description: item.description,
     fabricSource: toPrismaFabricSource(item.fabricSource),
+    shopFabricPriceSnapshot: item.shopFabricPriceSnapshot,
+    shopFabricTotalSnapshot: item.shopFabricTotal,
+    shopFabricNameSnapshot: item.shopFabricNameSnapshot,
+    customerFabricNote: item.customerFabricNote,
     dueDate: item.dueDate,
     garmentTypeName: item.garmentTypeName,
     garmentType: { connect: { id: item.garmentTypeId } },
     designType: item.designTypeId
       ? { connect: { id: item.designTypeId } }
+      : undefined,
+    shopFabric: item.shopFabricId
+      ? { connect: { id: item.shopFabricId } }
       : undefined,
     addons: {
       create: toOrderItemAddonCreateData(item.addons),
@@ -60,7 +67,14 @@ export function toSingleOrderItemCreateData(params: {
   unitPrice: number;
   item: Pick<
     OrderItemDto,
-    'description' | 'fabricSource' | 'dueDate' | 'designTypeId' | 'addons'
+    | 'description'
+    | 'fabricSource'
+    | 'dueDate'
+    | 'designTypeId'
+    | 'addons'
+    | 'shopFabricId'
+    | 'shopFabricPrice'
+    | 'customerFabricNote'
   >;
 }): Prisma.OrderItemUncheckedCreateInput {
   return {
@@ -72,8 +86,12 @@ export function toSingleOrderItemCreateData(params: {
     unitPrice: params.unitPrice,
     description: params.item.description,
     fabricSource: toPrismaFabricSource(
-      params.item.fabricSource ?? SharedFabricSource.SHOP,
+      params.item.fabricSource ?? SharedFabricSource.CUSTOMER,
     ),
+    shopFabricId: params.item.shopFabricId ?? null,
+    shopFabricPriceSnapshot: params.item.shopFabricPrice ?? null,
+    shopFabricTotalSnapshot: params.item.shopFabricPrice ?? null,
+    customerFabricNote: params.item.customerFabricNote ?? null,
     dueDate: params.item.dueDate ? new Date(params.item.dueDate) : null,
     designTypeId: params.item.designTypeId || null,
     addons: {
@@ -85,7 +103,14 @@ export function toSingleOrderItemCreateData(params: {
 export function toOrderItemUpdateData(
   item: Pick<
     UpdateOrderItemDto,
-    'unitPrice' | 'designTypeId' | 'description' | 'addons'
+    | 'unitPrice'
+    | 'designTypeId'
+    | 'description'
+    | 'addons'
+    | 'fabricSource'
+    | 'shopFabricId'
+    | 'shopFabricPrice'
+    | 'customerFabricNote'
   >,
 ): Prisma.OrderItemUpdateInput {
   const data: Prisma.OrderItemUpdateInput = {};
@@ -102,6 +127,25 @@ export function toOrderItemUpdateData(
 
   if (item.description !== undefined) {
     data.description = item.description;
+  }
+
+  if (item.fabricSource !== undefined) {
+    data.fabricSource = toPrismaFabricSource(item.fabricSource);
+  }
+
+  if (item.shopFabricId !== undefined) {
+    data.shopFabric = item.shopFabricId
+      ? { connect: { id: item.shopFabricId } }
+      : { disconnect: true };
+  }
+
+  if (item.shopFabricPrice !== undefined) {
+    data.shopFabricPriceSnapshot = item.shopFabricPrice;
+    data.shopFabricTotalSnapshot = item.shopFabricPrice;
+  }
+
+  if (item.customerFabricNote !== undefined) {
+    data.customerFabricNote = item.customerFabricNote;
   }
 
   if (item.addons) {

@@ -19,15 +19,8 @@ interface TaskAssignmentTableProps {
     Array<Pick<Employee, "id" | "fullName">>
   >;
   loadingId: string | null;
-  editingRateId: string | null;
-  tempRate: string;
-  rateValidationError: string;
-  onTempRateChange: (value: string) => void;
   onAssign: (taskId: string, employeeId: string | null) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
-  onStartRateEdit: (taskId: string, currentRateInRupees: number) => void;
-  onCancelRateEdit: () => void;
-  onRateUpdate: (taskId: string) => void;
 }
 
 export function TaskAssignmentTable({
@@ -35,15 +28,8 @@ export function TaskAssignmentTable({
   employees,
   eligibleEmployeesByTask,
   loadingId,
-  editingRateId,
-  tempRate,
-  rateValidationError,
-  onTempRateChange,
   onAssign,
   onStatusChange,
-  onStartRateEdit,
-  onCancelRateEdit,
-  onRateUpdate,
 }: TaskAssignmentTableProps) {
   const { columns, pagedTasks, page, pageSize, total, setPage } =
     useTaskAssignmentTable({
@@ -51,15 +37,8 @@ export function TaskAssignmentTable({
       employees,
       eligibleEmployeesByTask,
       loadingId,
-      editingRateId,
-      tempRate,
-      rateValidationError,
-      onTempRateChange,
       onAssign,
       onStatusChange,
-      onStartRateEdit,
-      onCancelRateEdit,
-      onRateUpdate,
     });
 
   const pagination = useMemo<PaginationState>(

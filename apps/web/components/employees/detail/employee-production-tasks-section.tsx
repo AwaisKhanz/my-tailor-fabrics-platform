@@ -60,10 +60,11 @@ export function EmployeeProductionTasksSection({
       description="Update assigned task statuses for this employee."
       badge={
         <Badge variant="default" className="font-semibold">
-          {tasks.length} TASKS
+          {total} TASKS
         </Badge>
       }
       defaultOpen
+      collapsible={false}
     >
       <DataTableTanstack
         columns={columns}

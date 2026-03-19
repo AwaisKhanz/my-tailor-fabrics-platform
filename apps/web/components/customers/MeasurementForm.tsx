@@ -1,6 +1,10 @@
 "use client";
 
-import { type MeasurementValues, FieldType } from "@tbms/shared-types";
+import {
+  type CustomerMeasurement,
+  type MeasurementValues,
+  FieldType,
+} from "@tbms/shared-types";
 import {
   Form,
   FormControl,
@@ -25,17 +29,21 @@ import { LoadingState } from "@tbms/ui/components/loading-state";
 import { useMeasurementForm } from "@/hooks/use-measurement-form";
 
 interface MeasurementFormProps {
+  open: boolean;
   customerId: string;
   onSuccess: () => void;
   initialCategoryId?: string;
   initialValues?: MeasurementValues;
+  measurements?: CustomerMeasurement[];
 }
 
 export function MeasurementForm({
+  open,
   customerId,
   onSuccess,
   initialCategoryId,
   initialValues,
+  measurements,
 }: MeasurementFormProps) {
   const {
     form,
@@ -47,10 +55,12 @@ export function MeasurementForm({
     handleCategoryChange,
     onSubmit,
   } = useMeasurementForm({
+    open,
     customerId,
     onSuccess,
     initialCategoryId,
     initialValues,
+    measurements,
   });
 
   if (loading)
@@ -73,10 +83,12 @@ export function MeasurementForm({
             }
             handleCategoryChange(value);
           }}
-          defaultValue={initialCategoryId}
+          value={selectedCategory?.id ?? ""}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select Garment Category" />
+            <SelectValue placeholder="Select Garment Category">
+              {selectedCategory?.name}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {categories.map((cat) => (

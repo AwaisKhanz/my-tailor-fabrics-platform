@@ -22,7 +22,6 @@ import { AppConfigModule } from './config/config.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ReportsModule } from './reports/reports.module';
 import { ExpensesModule } from './expenses/expenses.module';
-import { AttendanceModule } from './attendance/attendance.module';
 import { BranchesModule } from './branches/branches.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
@@ -31,6 +30,7 @@ import { RatesModule } from './rates/rates.module';
 import { LedgerModule } from './ledger/ledger.module';
 import { DesignTypesModule } from './design-types/design-types.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
+import { FabricsModule } from './fabrics/fabrics.module';
 import {
   getRedisUrl,
   isInternalSchedulerEnabled,
@@ -133,13 +133,13 @@ const schedulerImports = isInternalSchedulerEnabled()
     PaymentsModule,
     ReportsModule,
     ExpensesModule,
-    AttendanceModule,
     BranchesModule,
     MailModule,
     TasksModule,
     RatesModule,
     LedgerModule,
     DesignTypesModule,
+    FabricsModule,
     AuditLogsModule,
     ...schedulerImports,
   ],

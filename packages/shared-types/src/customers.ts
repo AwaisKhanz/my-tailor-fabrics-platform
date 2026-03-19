@@ -29,13 +29,14 @@ export interface Customer {
   notes?: string | null;
   status: CustomerStatus;
   isVip: boolean;
-  lifetimeValue: number;  // paisas: total paid across all orders
+  lifetimeValue: number; // paisas: booked value across non-cancelled orders
   createdAt: string;
   updatedAt: string;
   measurements?: CustomerMeasurement[];
   stats?: {
     totalOrders: number;
     totalSpent: number;
+    totalPaid: number;
   };
 }
 

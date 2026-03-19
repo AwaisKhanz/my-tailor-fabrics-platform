@@ -119,11 +119,6 @@ const AUDIT_ENTITY_RULES: readonly AuditEntityRule[] = [
     matches: (routePath) => routePath.includes('/expenses'),
   },
   {
-    entity: 'AttendanceRecord',
-    paramKeys: ['recordId', 'id', 'employeeId'],
-    matches: (routePath) => routePath.includes('/attendance'),
-  },
-  {
     entity: 'Branch',
     paramKeys: ['id'],
     matches: (routePath) => routePath.includes('/branches'),
@@ -339,10 +334,6 @@ export class AuditInterceptor implements NestInterceptor {
           return this.prisma.expense.findFirst({ where: { id: entityId } });
         case 'ExpenseCategory':
           return this.prisma.expenseCategory.findFirst({
-            where: { id: entityId },
-          });
-        case 'AttendanceRecord':
-          return this.prisma.attendanceRecord.findFirst({
             where: { id: entityId },
           });
         case 'Branch':

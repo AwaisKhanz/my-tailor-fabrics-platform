@@ -46,11 +46,14 @@ export type AccountCreationFormValues = z.infer<typeof accountCreationSchema>;
 export declare const orderItemSchema: z.ZodObject<{
     id: z.ZodOptional<z.ZodString>;
     garmentTypeId: z.ZodString;
-    quantity: z.ZodCoercedNumber<unknown>;
+    quantity: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
     unitPrice: z.ZodCoercedNumber<unknown>;
     dueDate: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodString>;
     fabricSource: z.ZodDefault<z.ZodEnum<typeof FabricSource>>;
+    shopFabricId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
+    shopFabricPrice: z.ZodPipe<z.ZodTransform<{} | undefined, unknown>, z.ZodOptional<z.ZodNumber>>;
+    customerFabricNote: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     designTypeId: z.ZodOptional<z.ZodString>;
     addons: z.ZodOptional<z.ZodArray<z.ZodObject<{
         type: z.ZodEnum<typeof AddonType>;
@@ -65,11 +68,14 @@ export declare const orderSchema: z.ZodObject<{
     items: z.ZodArray<z.ZodObject<{
         id: z.ZodOptional<z.ZodString>;
         garmentTypeId: z.ZodString;
-        quantity: z.ZodCoercedNumber<unknown>;
+        quantity: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
         unitPrice: z.ZodCoercedNumber<unknown>;
         dueDate: z.ZodOptional<z.ZodString>;
         description: z.ZodOptional<z.ZodString>;
         fabricSource: z.ZodDefault<z.ZodEnum<typeof FabricSource>>;
+        shopFabricId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
+        shopFabricPrice: z.ZodPipe<z.ZodTransform<{} | undefined, unknown>, z.ZodOptional<z.ZodNumber>>;
+        customerFabricNote: z.ZodNullable<z.ZodOptional<z.ZodString>>;
         designTypeId: z.ZodOptional<z.ZodString>;
         addons: z.ZodOptional<z.ZodArray<z.ZodObject<{
             type: z.ZodEnum<typeof AddonType>;
@@ -221,12 +227,6 @@ export declare const taskRateOverrideFormSchema: z.ZodObject<{
 }, z.core.$strip>;
 export type TaskRateOverrideFormValues = z.infer<typeof taskRateOverrideFormSchema>;
 export type TaskRateOverrideFormInput = z.input<typeof taskRateOverrideFormSchema>;
-export declare const attendanceClockInFormSchema: z.ZodObject<{
-    employeeId: z.ZodString;
-    note: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
-export type AttendanceClockInFormValues = z.infer<typeof attendanceClockInFormSchema>;
-export type AttendanceClockInFormInput = z.input<typeof attendanceClockInFormSchema>;
 export declare const employeeLedgerEntryFormSchema: z.ZodObject<{
     type: z.ZodEnum<typeof LedgerEntryType>;
     amount: z.ZodCoercedNumber<unknown>;

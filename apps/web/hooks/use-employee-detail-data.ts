@@ -9,14 +9,12 @@ import {
   useEmployeeStats,
   useEmployeeCapabilities,
 } from "@/hooks/queries/employee-queries";
-import { useAttendanceList } from "@/hooks/queries/attendance-queries";
 import {
   useGarmentTypesList,
   useSystemSettings,
 } from "@/hooks/queries/config-queries";
 import { useTasksByEmployee } from "@/hooks/queries/order-queries";
 import type {
-  AttendanceRecord,
   EmployeeCapability,
   EmployeeCompensationHistoryEntry,
   EmployeeWithRelations,
@@ -45,9 +43,6 @@ export function useEmployeeDetailData({
   const employeeQuery = useEmployee(employeeId);
   const statsQuery = useEmployeeStats(employeeId);
   const itemsQuery = useEmployeeItems(employeeId);
-  const attendanceQuery = useAttendanceList(
-    employeeId ? { employeeId, limit: 10 } : { limit: 10 },
-  );
   const tasksQuery = useTasksByEmployee(employeeId);
   const systemSettingsQuery = useSystemSettings(canReadSystemSettings);
   const garmentTypesQuery = useGarmentTypesList();
@@ -66,7 +61,6 @@ export function useEmployeeDetailData({
     employeeQuery.isLoading ||
     statsQuery.isLoading ||
     itemsQuery.isLoading ||
-    attendanceQuery.isLoading ||
     tasksQuery.isLoading ||
     (canReadSystemSettings && systemSettingsQuery.isLoading) ||
     garmentTypesQuery.isLoading ||
@@ -96,9 +90,6 @@ export function useEmployeeDetailData({
   const tasks: OrderItemTask[] = tasksQuery.data?.success
     ? tasksQuery.data.data
     : [];
-  const attendance: AttendanceRecord[] = attendanceQuery.data?.success
-    ? attendanceQuery.data.data.data
-    : [];
   const systemSettings: SystemSettings | null = systemSettingsQuery.data
     ?.success
     ? systemSettingsQuery.data.data
@@ -118,7 +109,6 @@ export function useEmployeeDetailData({
         employeeQuery.refetch(),
         statsQuery.refetch(),
         itemsQuery.refetch(),
-        attendanceQuery.refetch(),
         tasksQuery.refetch(),
         ...(canReadSystemSettings ? [systemSettingsQuery.refetch()] : []),
         garmentTypesQuery.refetch(),
@@ -133,7 +123,6 @@ export function useEmployeeDetailData({
       });
     }
   }, [
-    attendanceQuery,
     capabilitiesQuery,
     compensationQuery,
     employeeId,
@@ -153,7 +142,6 @@ export function useEmployeeDetailData({
     stats,
     items,
     tasks,
-    attendance,
     systemSettings,
     garmentTypes,
     capabilities,

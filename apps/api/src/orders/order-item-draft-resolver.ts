@@ -16,6 +16,11 @@ export type ResolvedOrderItemDraft = {
   addonsTotal: number;
   description: string | undefined;
   fabricSource: SharedFabricSource;
+  shopFabricId: string | null;
+  shopFabricPriceSnapshot: number | null;
+  shopFabricTotal: number;
+  shopFabricNameSnapshot: string | null;
+  customerFabricNote: string | null;
   dueDate: Date | null;
   designTypeId: string | null;
   addons: OrderItemAddonDto[];
@@ -24,9 +29,11 @@ export type ResolvedOrderItemDraft = {
 export async function resolveOrderItemDrafts(
   tx: Prisma.TransactionClient,
   items: OrderItemDto[],
+  branchId: string,
+  initialPieceNumbers: Record<string, number> = {},
 ): Promise<ResolvedOrderItemDraft[]> {
   const resolvedItems: ResolvedOrderItemDraft[] = [];
-  const pieceMap: Record<string, number> = {};
+  const pieceMap: Record<string, number> = { ...initialPieceNumbers };
 
   for (const item of items) {
     const type = await tx.garmentType.findUnique({
@@ -59,6 +66,52 @@ export async function resolveOrderItemDrafts(
         0,
       );
       const designPrice = designType?.defaultPrice || 0;
+      const fabricSource = item.fabricSource ?? SharedFabricSource.CUSTOMER;
+
+      let shopFabricId: string | null = null;
+      let shopFabricPriceSnapshot: number | null = null;
+      let shopFabricTotal = 0;
+      let shopFabricNameSnapshot: string | null = null;
+      let customerFabricNote: string | null = null;
+
+      if (fabricSource === SharedFabricSource.SHOP) {
+        if (!item.shopFabricId) {
+          throw new BadRequestException(
+            `Shop fabric selection is required for ${type.name}`,
+          );
+        }
+
+        const fabric = await tx.shopFabric.findFirst({
+          where: {
+            id: item.shopFabricId,
+            branchId,
+            isActive: true,
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            name: true,
+            brand: true,
+            sellingRate: true,
+          },
+        });
+
+        if (!fabric) {
+          throw new BadRequestException(
+            `Selected shop fabric is not available for ${type.name}`,
+          );
+        }
+
+        shopFabricId = fabric.id;
+        shopFabricPriceSnapshot = item.shopFabricPrice ?? fabric.sellingRate;
+        shopFabricTotal = shopFabricPriceSnapshot;
+        shopFabricNameSnapshot = fabric.brand
+          ? `${fabric.name} (${fabric.brand})`
+          : fabric.name;
+      } else {
+        const normalizedFabricNote = item.customerFabricNote?.trim();
+        customerFabricNote = normalizedFabricNote || null;
+      }
 
       resolvedItems.push({
         garmentTypeId: type.id,
@@ -69,7 +122,12 @@ export async function resolveOrderItemDrafts(
         designPrice,
         addonsTotal: addonsPrice,
         description: item.description,
-        fabricSource: item.fabricSource ?? SharedFabricSource.SHOP,
+        fabricSource,
+        shopFabricId,
+        shopFabricPriceSnapshot,
+        shopFabricTotal,
+        shopFabricNameSnapshot,
+        customerFabricNote,
         dueDate: item.dueDate ? new Date(item.dueDate) : null,
         designTypeId: item.designTypeId || null,
         addons: item.addons || [],

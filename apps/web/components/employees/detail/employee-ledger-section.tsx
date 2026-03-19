@@ -109,7 +109,8 @@ export function EmployeeLedgerSection({
           </Button>
         ) : null
       }
-      defaultOpen={false}
+      defaultOpen
+      collapsible={false}
       onFirstOpen={() => {
         if (ledgerEntries.length === 0 && !ledgerLoading) {
           onFetchLedger(1);

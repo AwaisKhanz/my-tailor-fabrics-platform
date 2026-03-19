@@ -18,7 +18,6 @@ model Branch {
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
   deletedAt         DateTime?
-  attendanceRecords AttendanceRecord[]
   customers         Customer[]
   employees         Employee[]
   expenses          Expense[]
@@ -28,6 +27,7 @@ model Branch {
   ledgerEntries     EmployeeLedgerEntry[]
   salaryAccruals    SalaryAccrual[]
   designTypes       DesignType[]
+  shopFabrics       ShopFabric[]
 }
 
 model User {
@@ -96,7 +96,6 @@ model Employee {
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
   deletedAt         DateTime?
-  attendanceRecords AttendanceRecord[]
   branch            Branch                   @relation(fields: [branchId], references: [id])
   documents         EmployeeDocument[]
   assignedTasks     OrderItemTask[]
@@ -321,18 +320,43 @@ model OrderItem {
   deletedAt       DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  fabricSource    FabricSource     @default(SHOP)
+  fabricSource    FabricSource     @default(CUSTOMER)
   pieceNo         Int              @default(1)
+  shopFabricId    String?
+  shopFabricPriceSnapshot Int?
+  shopFabricTotalSnapshot Int?
+  shopFabricNameSnapshot String?
+  customerFabricNote String?
   garmentType     GarmentType      @relation(fields: [garmentTypeId], references: [id])
   order           Order            @relation(fields: [orderId], references: [id])
   tasks           OrderItemTask[]
   addons          OrderItemAddon[]
   designTypeId    String?
   designType      DesignType?      @relation(fields: [designTypeId], references: [id])
+  shopFabric      ShopFabric?      @relation(fields: [shopFabricId], references: [id])
 
   @@unique([orderId, garmentTypeId, pieceNo])
   @@index([orderId])
   @@index([garmentTypeId])
+}
+
+model ShopFabric {
+  id            String                @id @default(cuid())
+  branchId      String
+  name          String
+  brand         String?
+  code          String?
+  sellingRate   Int
+  isActive      Boolean               @default(true)
+  notes         String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  deletedAt     DateTime?
+  branch        Branch                @relation(fields: [branchId], references: [id])
+  orderItems    OrderItem[]
+
+  @@index([branchId, isActive, deletedAt])
+  @@index([branchId, name])
 }
 
 model OrderPayment {
@@ -438,25 +462,6 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([userId])
   @@index([createdAt])
-}
-
-model AttendanceRecord {
-  id          String    @id @default(cuid())
-  employeeId  String
-  branchId    String
-  date        DateTime
-  clockIn     DateTime
-  clockOut    DateTime?
-  hoursWorked Float?
-  note        String?
-  createdAt   DateTime  @default(now())
-  deletedAt   DateTime?
-  updatedAt   DateTime  @updatedAt
-  branch      Branch    @relation(fields: [branchId], references: [id])
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-
-  @@index([employeeId, date])
-  @@index([branchId, date])
 }
 
 model GarmentPriceLog {

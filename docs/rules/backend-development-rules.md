@@ -53,6 +53,15 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 3. Keep financial and lifecycle calculations centralized in helpers such as `apps/api/src/orders/money.ts`.
 4. Do not duplicate money or totals logic inline across multiple services.
 5. Side effects that may run more than once must be designed to be idempotent.
+6. Piece-first order writes that touch shop fabric pricing must remain transactional:
+   - order item creation, update, removal, cancellation, and fabric-source changes must keep order totals and piece snapshots consistent in the same transaction
+   - shop fabric price and total must be stored as snapshots on the order item so historical orders survive later catalog price changes
+7. Production-task workflow is always enabled for live order operations:
+   - order-item create, order-item replacement, and order-item garment/design changes must always refresh piece tasks from garment workflow templates
+   - backend order flows must not depend on an admin-facing toggle before generating piece tasks
+8. Per-piece production tasks must enforce sequential workflow on status changes:
+   - a task may only move to `IN_PROGRESS` or `DONE` after all earlier steps for that same piece are `DONE` or `CANCELLED`
+   - a task may only move to `IN_PROGRESS` or `DONE` when an employee is assigned
 
 ## 5. Auth, RBAC, and Scope Rules
 
@@ -63,16 +72,19 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 5. Branch scoping must use the existing branch resolution and scope helpers, not one-off branch filters.
 6. Backend branch guards must stay aligned with the user-account branch-scope model. If a role is allowed to have `branchId = null` as global `All Branches` scope, the guard must pass that request through with null scope instead of rejecting it as unassigned.
 7. For branch-scoped catalog resources that support global records via `branchId = null`, mutation lookups must allow both the active branch and the global record. Read and write scope rules must stay aligned.
-8. Do not enforce CUID-only validation on foreign-key string fields unless the shared contract and live data model actually guarantee CUID identifiers. Validation rules must match real persisted IDs.
-9. If a new protected capability is added, update:
+8. Branch-scoped operational catalogs such as shop fabrics must never leak across branches. Fabric list, detail, and pricing lookups must always resolve against the effective branch scope header.
+9. Do not enforce CUID-only validation on foreign-key string fields unless the shared contract and live data model actually guarantee CUID identifiers. Validation rules must match real persisted IDs.
+10. If a new protected capability is added, update:
    - shared permission contracts
    - shared role/permission matrix
    - frontend access logic if the route is user-facing
-10. Employee self-profile endpoints must use the dedicated `employees.self.read` permission instead of reusing broader task or staff employee permissions.
-11. Login flow is two-step for all password-based sign-ins:
+11. Employee self-profile endpoints must use the dedicated `employees.self.read` permission instead of reusing broader task or staff employee permissions.
+12. Login flow is two-step for all password-based sign-ins:
    - first request verifies credentials and issues an email OTP challenge
    - second request verifies OTP and only then issues JWT/refresh tokens
-12. Do not bypass OTP verification by reintroducing direct password-to-token issuance endpoints.
+13. Do not bypass OTP verification by reintroducing direct password-to-token issuance endpoints.
+14. Attendance is not part of the live My Tailor & Fabrics workflow.
+   Do not add attendance routes, payroll logic, or attendance-based employee summaries unless the product requirements are explicitly changed and the shared contracts, frontend routes, and deployment docs are updated in the same task.
 
 ## 6. Environment and Runtime Rules
 

@@ -12,6 +12,7 @@ interface CustomerDetailTabsProps {
     fieldId: string,
   ) => string;
   onUpdateMeasurements: () => void;
+  onEditMeasurement: (measurement: CustomerMeasurement) => void;
   onOpenOrder: (orderId: string) => void;
   canUpdateMeasurements?: boolean;
 }
@@ -22,6 +23,7 @@ export function CustomerDetailTabs({
   notes,
   getMeasurementLabel,
   onUpdateMeasurements,
+  onEditMeasurement,
   onOpenOrder,
   canUpdateMeasurements = true,
 }: CustomerDetailTabsProps) {
@@ -32,6 +34,7 @@ export function CustomerDetailTabs({
           measurements={measurements}
           getMeasurementLabel={getMeasurementLabel}
           onUpdateMeasurements={onUpdateMeasurements}
+          onEditMeasurement={onEditMeasurement}
           canUpdateMeasurements={canUpdateMeasurements}
         />
       </section>

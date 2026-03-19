@@ -21,6 +21,7 @@ __exportStar(require("./measurements"), exports);
 __exportStar(require("./employees"), exports);
 __exportStar(require("./customers"), exports);
 __exportStar(require("./rates"), exports);
+__exportStar(require("./fabrics"), exports);
 __exportStar(require("./ledger"), exports);
 __exportStar(require("./authz"), exports);
 __exportStar(require("./audit"), exports);

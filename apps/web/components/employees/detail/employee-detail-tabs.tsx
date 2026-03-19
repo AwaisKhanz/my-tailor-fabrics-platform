@@ -3,9 +3,7 @@
 import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import type {
-  AttendanceRecord,
   CompensationChangeInput,
-  EmployeeCapability,
   EmployeeCapabilitySnapshot,
   EmployeeCompensationHistoryEntry,
   EmployeeLedgerEntry,
@@ -16,33 +14,40 @@ import type {
   SystemSettings,
 } from "@tbms/shared-types";
 import { TaskStatus } from "@tbms/shared-types";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@tbms/ui/components/tabs";
+import { Card, CardContent } from "@tbms/ui/components/card";
 import { useEmployeeCapabilitiesManager } from "@/hooks/use-employee-capabilities-manager";
 import { useEmployeeCompensationManager } from "@/hooks/use-employee-compensation-manager";
 import { useEmployeeDetailTabsTableState } from "@/hooks/use-employee-detail-tabs-table-state";
 import { EMPLOYEE_LEDGER_ALL_TYPES_LABEL } from "@/hooks/use-employee-ledger-manager";
-import { EmployeeAccountSection } from "@/components/employees/detail/employee-account-section";
-import { EmployeeAttendanceSection } from "@/components/employees/detail/employee-attendance-section";
-import { EmployeeCapabilitiesSection } from "@/components/employees/detail/employee-capabilities-section";
 import {
-  createEmployeeAttendanceColumns,
   createEmployeeHistoryColumns,
   createEmployeeLedgerColumns,
   createEmployeeTaskColumns,
 } from "@/components/employees/detail/employee-detail-columns";
-import { EmployeeCompensationSection } from "@/components/employees/detail/employee-compensation-section";
-import { EmployeeDocumentsSection } from "@/components/employees/detail/employee-documents-section";
-import { EmployeeLedgerSection } from "@/components/employees/detail/employee-ledger-section";
-import { EmployeeProductionTasksSection } from "@/components/employees/detail/employee-production-tasks-section";
-import { EmployeeWorkHistorySection } from "@/components/employees/detail/employee-work-history-section";
+import { EmployeeOverviewTab } from "@/components/employees/detail/employee-overview-tab";
+import { EmployeeWorkTab } from "@/components/employees/detail/employee-work-tab";
+import { EmployeeMoneyTab } from "@/components/employees/detail/employee-money-tab";
+import { EmployeeAdminTab } from "@/components/employees/detail/employee-admin-tab";
+
 interface EmployeeDetailTabsProps {
   loading: boolean;
   employee: EmployeeWithRelations;
+  stats: {
+    totalEarned: number;
+    totalPaid: number;
+    currentBalance: number;
+  };
   systemSettings: SystemSettings | null;
   items: OrderItem[];
   tasks: OrderItemTask[];
-  attendance: AttendanceRecord[];
   garmentTypes: GarmentType[];
-  capabilities: EmployeeCapability[];
+  capabilities: import("@tbms/shared-types").EmployeeCapability[];
   compensationHistory: EmployeeCompensationHistoryEntry[];
   ledgerEntries: EmployeeLedgerEntry[];
   ledgerLoading: boolean;
@@ -80,13 +85,20 @@ interface EmployeeDetailTabsProps {
   canManageWorkforceGovernance?: boolean;
 }
 
+const EMPLOYEE_TABS = [
+  { key: "overview", label: "Overview" },
+  { key: "work", label: "Work" },
+  { key: "money", label: "Money" },
+  { key: "admin", label: "Admin" },
+] as const;
+
 export function EmployeeDetailTabs({
   loading,
   employee,
+  stats,
   systemSettings,
   items,
   tasks,
-  attendance,
   garmentTypes,
   capabilities,
   compensationHistory,
@@ -129,19 +141,15 @@ export function EmployeeDetailTabs({
     historyTotal,
     setHistoryPage,
     pagedItems,
-    attendancePage,
-    attendanceLimit,
-    attendanceTotal,
-    setAttendancePage,
-    pagedAttendance,
   } = useEmployeeDetailTabsTableState({
     tasks,
     items,
-    attendance,
   });
 
   const {
     activeCapabilities,
+    upcomingCapabilities,
+    capabilitiesWithStatus,
     garmentNameById,
     capabilityEffectiveFrom,
     capabilityNote,
@@ -159,6 +167,7 @@ export function EmployeeDetailTabs({
     garmentTypes,
     onSaveCapabilitiesSnapshot,
   });
+
   const {
     paymentType: compensationPaymentType,
     monthlySalary: compensationMonthlySalary,
@@ -183,11 +192,6 @@ export function EmployeeDetailTabs({
     [onViewOrder],
   );
 
-  const attendanceColumns: ColumnDef<AttendanceRecord>[] = useMemo(
-    () => createEmployeeAttendanceColumns(),
-    [],
-  );
-
   const taskColumns: ColumnDef<OrderItemTask>[] = useMemo(
     () =>
       createEmployeeTaskColumns({
@@ -206,111 +210,123 @@ export function EmployeeDetailTabs({
     [canManageLedger, canReadLedger, onReverseLedgerEntry],
   );
 
-  const shouldShowTasksSection = systemSettings?.useTaskWorkflow ?? tasks.length > 0;
+  const shouldShowTasksSection =
+    systemSettings?.useTaskWorkflow ?? tasks.length > 0;
+  const activeTaskCount = tasks.filter(
+    (task) => task.status !== TaskStatus.DONE && task.status !== TaskStatus.CANCELLED,
+  ).length;
 
   return (
-    <div className="space-y-6">
-      <EmployeeCapabilitiesSection
-        activeCapabilities={activeCapabilities}
-        garmentTypes={garmentTypes}
-        garmentNameById={garmentNameById}
-        capabilityEffectiveFrom={capabilityEffectiveFrom}
-        capabilityNote={capabilityNote}
-        capabilityRows={capabilityRows}
-        capabilityValidationError={capabilityValidationError}
-        canManageWorkforceGovernance={canManageWorkforceGovernance}
-        setCapabilityEffectiveFrom={setCapabilityEffectiveFrom}
-        setCapabilityNote={setCapabilityNote}
-        addCapabilityRow={addCapabilityRow}
-        removeCapabilityRow={removeCapabilityRow}
-        updateCapabilityRow={updateCapabilityRow}
-        getStepOptionsForCapabilityRow={getStepOptionsForCapabilityRow}
-        onSubmit={submitCapabilitiesSnapshot}
-      />
+    <Card>
+      <CardContent className="space-y-5 p-4 sm:p-5">
+        <Tabs defaultValue="overview" className="flex flex-col gap-5">
+          <div className="overflow-x-auto">
+            <TabsList variant="line" className="min-w-max">
+              {EMPLOYEE_TABS.map((tab) => (
+                <TabsTrigger key={tab.key} value={tab.key} className="px-3 py-2 text-sm">
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
-      <EmployeeCompensationSection
-        compensationHistory={compensationHistory}
-        canManageWorkforceGovernance={canManageWorkforceGovernance}
-        paymentType={compensationPaymentType}
-        monthlySalary={compensationMonthlySalary}
-        effectiveFrom={compensationEffectiveFrom}
-        note={compensationNote}
-        fieldErrors={compensationFieldErrors}
-        validationError={compensationValidationError}
-        setPaymentType={setCompensationPaymentType}
-        setMonthlySalary={setCompensationMonthlySalary}
-        setEffectiveFrom={setCompensationEffectiveFrom}
-        setNote={setCompensationNote}
-        clearFieldError={clearCompensationFieldError}
-        clearValidationError={clearCompensationValidationError}
-        onSubmit={submitCompensationChange}
-      />
+          <TabsContent value="overview">
+            <EmployeeOverviewTab
+              employee={employee}
+              stats={stats}
+              activeTaskCount={activeTaskCount}
+              capabilitiesWithStatus={capabilitiesWithStatus}
+              garmentNameById={garmentNameById}
+              compensationHistory={compensationHistory}
+              tasks={tasks}
+              ledgerEntries={ledgerEntries}
+            />
+          </TabsContent>
 
-      {shouldShowTasksSection ? (
-        <EmployeeProductionTasksSection
-          tasks={pagedTasks}
-          loading={loading}
-          page={taskPage}
-          total={taskTotal}
-          limit={taskLimit}
-          columns={taskColumns}
-          onPageChange={setTaskPage}
-        />
-      ) : null}
+          <TabsContent value="work">
+            <EmployeeWorkTab
+              garmentTypes={garmentTypes}
+              capabilitiesWithStatus={capabilitiesWithStatus}
+              activeCapabilitiesCount={activeCapabilities.length}
+              upcomingCapabilitiesCount={upcomingCapabilities.length}
+              garmentNameById={garmentNameById}
+              capabilityEffectiveFrom={capabilityEffectiveFrom}
+              capabilityNote={capabilityNote}
+              capabilityRows={capabilityRows}
+              capabilityValidationError={capabilityValidationError}
+              canManageWorkforceGovernance={canManageWorkforceGovernance}
+              setCapabilityEffectiveFrom={setCapabilityEffectiveFrom}
+              setCapabilityNote={setCapabilityNote}
+              addCapabilityRow={addCapabilityRow}
+              removeCapabilityRow={removeCapabilityRow}
+              updateCapabilityRow={updateCapabilityRow}
+              getStepOptionsForCapabilityRow={getStepOptionsForCapabilityRow}
+              submitCapabilitiesSnapshot={submitCapabilitiesSnapshot}
+              shouldShowTasksSection={shouldShowTasksSection}
+              pagedTasks={pagedTasks}
+              loading={loading}
+              taskPage={taskPage}
+              taskTotal={taskTotal}
+              taskLimit={taskLimit}
+              taskColumns={taskColumns}
+              setTaskPage={setTaskPage}
+              pagedItems={pagedItems}
+              historyPage={historyPage}
+              historyTotal={historyTotal}
+              historyLimit={historyLimit}
+              historyColumns={historyColumns}
+              setHistoryPage={setHistoryPage}
+            />
+          </TabsContent>
 
-      <EmployeeWorkHistorySection
-        items={pagedItems}
-        loading={loading}
-        page={historyPage}
-        total={historyTotal}
-        limit={historyLimit}
-        columns={historyColumns}
-        onPageChange={setHistoryPage}
-      />
+          <TabsContent value="money">
+            <EmployeeMoneyTab
+              compensationHistory={compensationHistory}
+              canManageWorkforceGovernance={canManageWorkforceGovernance}
+              paymentType={compensationPaymentType}
+              monthlySalary={compensationMonthlySalary}
+              effectiveFrom={compensationEffectiveFrom}
+              note={compensationNote}
+              fieldErrors={compensationFieldErrors}
+              validationError={compensationValidationError}
+              setPaymentType={setCompensationPaymentType}
+              setMonthlySalary={setCompensationMonthlySalary}
+              setEffectiveFrom={setCompensationEffectiveFrom}
+              setNote={setCompensationNote}
+              clearFieldError={clearCompensationFieldError}
+              clearValidationError={clearCompensationValidationError}
+              onSubmit={submitCompensationChange}
+              ledgerEntries={ledgerEntries}
+              ledgerLoading={ledgerLoading}
+              ledgerFrom={ledgerFrom}
+              ledgerTo={ledgerTo}
+              ledgerType={ledgerType}
+              ledgerTypeFilterOptions={ledgerTypeFilterOptions}
+              ledgerPage={ledgerPage}
+              ledgerTotal={ledgerTotal}
+              ledgerLimit={ledgerLimit}
+              columns={ledgerColumns}
+              canManageLedger={canReadLedger && canManageLedger}
+              allTypesLabel={EMPLOYEE_LEDGER_ALL_TYPES_LABEL}
+              setLedgerFrom={setLedgerFrom}
+              setLedgerTo={setLedgerTo}
+              setLedgerType={setLedgerType}
+              onFetchLedger={onFetchLedger}
+              onOpenLedgerDialog={onOpenLedgerDialog}
+            />
+          </TabsContent>
 
-      {canReadLedger ? (
-        <EmployeeLedgerSection
-          ledgerEntries={ledgerEntries}
-          ledgerLoading={ledgerLoading}
-          ledgerFrom={ledgerFrom}
-          ledgerTo={ledgerTo}
-          ledgerType={ledgerType}
-          ledgerTypeFilterOptions={ledgerTypeFilterOptions}
-          ledgerPage={ledgerPage}
-          ledgerTotal={ledgerTotal}
-          ledgerLimit={ledgerLimit}
-          columns={ledgerColumns}
-          canManageLedger={canManageLedger}
-          allTypesLabel={EMPLOYEE_LEDGER_ALL_TYPES_LABEL}
-          setLedgerFrom={setLedgerFrom}
-          setLedgerTo={setLedgerTo}
-          setLedgerType={setLedgerType}
-          onFetchLedger={onFetchLedger}
-          onOpenLedgerDialog={onOpenLedgerDialog}
-        />
-      ) : null}
-
-      <EmployeeAttendanceSection
-        attendance={pagedAttendance}
-        loading={loading}
-        page={attendancePage}
-        total={attendanceTotal}
-        limit={attendanceLimit}
-        columns={attendanceColumns}
-        onPageChange={setAttendancePage}
-      />
-
-      <EmployeeDocumentsSection
-        documents={employee.documents}
-        canManageDocuments={canManageDocuments}
-        onOpenDocumentDialog={onOpenDocumentDialog}
-      />
-
-      <EmployeeAccountSection
-        employee={employee}
-        canManageAccount={canManageAccount}
-        onOpenAccountDialog={onOpenAccountDialog}
-      />
-    </div>
+          <TabsContent value="admin">
+            <EmployeeAdminTab
+              employee={employee}
+              canManageDocuments={canManageDocuments}
+              canManageAccount={canManageAccount}
+              onOpenDocumentDialog={onOpenDocumentDialog}
+              onOpenAccountDialog={onOpenAccountDialog}
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }

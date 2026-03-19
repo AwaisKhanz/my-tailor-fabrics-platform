@@ -40,6 +40,8 @@ export function CustomerDetailPage({
     orders,
     editDialogOpen,
     measurementDialogOpen,
+    measurementDialogInitialCategoryId,
+    measurementDialogInitialValues,
     getMeasurementLabel,
     openEditDialog,
     closeEditDialog,
@@ -100,16 +102,16 @@ export function CustomerDetailPage({
 
           <StatCard
             title="Total Spent"
-            subtitle="Confirmed transactions"
+            subtitle="Booked order value"
             value={formatPKR(customer.stats?.totalSpent ?? 0)}
             tone="success"
             icon={<Banknote className="h-4 w-4" />}
           />
 
           <StatCard
-            title="Lifetime Value"
-            subtitle="Customer contribution"
-            value={formatPKR(customer.lifetimeValue)}
+            title="Payments Received"
+            subtitle="Recorded collections"
+            value={formatPKR(customer.stats?.totalPaid ?? 0)}
             tone="info"
             icon={<Wallet className="h-4 w-4" />}
           />
@@ -136,6 +138,7 @@ export function CustomerDetailPage({
               notes={customer.notes}
               getMeasurementLabel={getMeasurementLabel}
               onUpdateMeasurements={openMeasurementDialog}
+              onEditMeasurement={openMeasurementDialog}
               onOpenOrder={(orderId) => router.push(buildOrderDetailRoute(orderId))}
               canUpdateMeasurements={canManageMeasurements}
             />
@@ -158,6 +161,9 @@ export function CustomerDetailPage({
           open={measurementDialogOpen}
           customerId={customer.id}
           onOpenChange={closeMeasurementDialog}
+          initialCategoryId={measurementDialogInitialCategoryId}
+          initialValues={measurementDialogInitialValues}
+          measurements={customer.measurements || []}
           onSuccess={() => {
             closeMeasurementDialog(false);
             refreshCustomerData();

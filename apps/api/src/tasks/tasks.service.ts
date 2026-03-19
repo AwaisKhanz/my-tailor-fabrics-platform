@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { TaskStatus, LedgerEntryType, Role } from '@tbms/shared-types';
 import { getEffectiveTaskRate } from '@tbms/shared-constants';
 import { requireEmployeeInScope } from '../common/utils/employee-scope.util';
 import { EmployeesService } from '../employees/employees.service';
+import { deriveOrderItemStatusFromTaskStatuses } from '../orders/order-item-status';
 
 type LedgerSyncResult = {
   created: number;
@@ -133,6 +135,40 @@ export class TasksService {
     }
 
     return { created: 0, updated: 1, deleted };
+  }
+
+  private async syncOrderItemStatusFromTasks(
+    tx: Prisma.TransactionClient,
+    orderItemId: string,
+  ) {
+    const tasks = await tx.orderItemTask.findMany({
+      where: {
+        orderItemId,
+        deletedAt: null,
+      },
+      select: {
+        status: true,
+      },
+    });
+
+    const nextStatus = deriveOrderItemStatusFromTaskStatuses(
+      tasks.map((task) => task.status),
+    );
+
+    if (!nextStatus) {
+      return null;
+    }
+
+    return tx.orderItem.update({
+      where: { id: orderItemId },
+      data: {
+        status: nextStatus,
+      },
+      select: {
+        id: true,
+        status: true,
+      },
+    });
   }
 
   async reconcileTaskEarnings(branchId: string | null, updatedById: string) {
@@ -288,6 +324,8 @@ export class TasksService {
         await this.deactivateTaskEarningEntries(tx, taskId);
       }
 
+      await this.syncOrderItemStatusFromTasks(tx, taskInTransaction.orderItemId);
+
       return updatedTask;
     });
   }
@@ -368,8 +406,43 @@ export class TasksService {
         }
       }
 
+      const isAdvancingTask =
+        status === TaskStatus.IN_PROGRESS || status === TaskStatus.DONE;
+
+      if (isAdvancingTask) {
+        const blockingTask = await tx.orderItemTask.findFirst({
+          where: {
+            orderItemId: task.orderItemId,
+            deletedAt: null,
+            sortOrder: { lt: task.sortOrder },
+            status: {
+              notIn: [PrismaTaskStatus.DONE, PrismaTaskStatus.CANCELLED],
+            },
+          },
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            stepName: true,
+          },
+        });
+
+        if (blockingTask) {
+          throw new BadRequestException(
+            `Complete ${blockingTask.stepName} before moving ${task.stepName}.`,
+          );
+        }
+
+        if (!task.assignedEmployeeId) {
+          throw new BadRequestException(
+            'Assign an employee before starting or completing this step.',
+          );
+        }
+      }
+
       const data: Prisma.OrderItemTaskUpdateInput = { status };
       if (status === TaskStatus.IN_PROGRESS && !task.startedAt) {
+        data.startedAt = new Date();
+      }
+      if (status === TaskStatus.DONE && !task.startedAt) {
         data.startedAt = new Date();
       }
       if (status === TaskStatus.DONE && !task.completedAt) {
@@ -393,6 +466,8 @@ export class TasksService {
       } else {
         await this.deactivateTaskEarningEntries(tx, taskId);
       }
+
+      await this.syncOrderItemStatusFromTasks(tx, task.orderItemId);
 
       return updatedTask;
     });

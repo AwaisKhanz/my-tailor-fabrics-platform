@@ -18,6 +18,7 @@ import {
   PaymentType,
   type TaskStatus,
 } from "@tbms/shared-types";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
 interface UseEmployeeDetailPageParams {
   employeeId: string | null;
@@ -41,7 +42,6 @@ export function useEmployeeDetailPage({
     stats,
     items,
     tasks,
-    attendance,
     systemSettings,
     garmentTypes,
     capabilities,
@@ -123,8 +123,15 @@ export function useEmployeeDetailPage({
         });
         toast({ title: "Status Updated" });
         await fetchEmployeeData();
-      } catch {
-        toast({ title: "Update Failed", variant: "destructive" });
+      } catch (error: unknown) {
+        toast({
+          title: "Update Failed",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Could not update task status.",
+          ),
+          variant: "destructive",
+        });
       }
     },
     [employeeId, fetchEmployeeData, toast, updateOrderTaskStatusMutation],
@@ -226,7 +233,6 @@ export function useEmployeeDetailPage({
     stats,
     items,
     tasks,
-    attendance,
     systemSettings,
     garmentTypes,
     capabilities,

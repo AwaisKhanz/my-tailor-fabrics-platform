@@ -103,3 +103,29 @@ Workspace package manager:
 
 3. Starter fallback:
    `jellyfish-app-n3bi3.ondigitalocean.app`
+
+## Current Operational Workflow
+
+1. Order capture is piece-first.
+   Each visible order item in the web flow represents one physical piece, allowing different designs, notes, and fabric sources within the same order.
+
+2. Shop fabric pricing is a branch-scoped operational domain.
+   The API and web app now manage a branch fabric catalog and piece-level fabric price snapshots for order create and edit flows.
+
+3. Order item pricing is snapshot-based.
+   Tailoring, design, addons, and shop-fabric pricing are stored on the order item so historical detail pages and receipts remain stable after catalog changes.
+
+4. Production steps are managed in sequence per piece.
+   Staff can plan assignments ahead of time, but a later step only moves into active work after earlier steps for that same piece are completed or cancelled.
+
+5. Order item status is always workflow-derived.
+   Production-task generation is a fixed platform rule for piece-first orders. A piece stays `Pending` until work starts, becomes `In Progress` once any production step starts or finishes, becomes `Completed` when all remaining active steps are done, and becomes `Cancelled` only when every remaining step is cancelled.
+
+6. Customer value metrics are split intentionally.
+   Customer booked value is derived from non-cancelled order totals, while collected cash is tracked separately from recorded order payments.
+
+7. Dashboard receivables use live customer balances.
+   The dashboard outstanding-balance card reflects summed order `balanceDue` for non-cancelled orders in the active branch scope, not employee payroll liabilities.
+
+8. Attendance is not a live operational domain.
+   The current system does not include attendance tracking, attendance settings, or attendance-based employee workflows.

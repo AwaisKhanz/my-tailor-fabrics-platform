@@ -39,15 +39,6 @@ export async function recordOrderPayment(
       },
     },
   });
-
-  await tx.customer.update({
-    where: { id: params.customerId },
-    data: {
-      lifetimeValue: {
-        increment: params.amount,
-      },
-    },
-  });
 }
 
 export async function reverseRecordedOrderPayment(
@@ -67,15 +58,6 @@ export async function reverseRecordedOrderPayment(
     where: { id: params.orderId },
     data: {
       totalPaid: {
-        decrement: params.amount,
-      },
-    },
-  });
-
-  await tx.customer.update({
-    where: { id: params.customerId },
-    data: {
-      lifetimeValue: {
         decrement: params.amount,
       },
     },

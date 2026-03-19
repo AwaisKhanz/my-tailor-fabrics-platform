@@ -1,5 +1,6 @@
+import { useMemo } from "react";
 import { CreditCard } from "lucide-react";
-import { Order } from "@tbms/shared-types";
+import { FabricSource, Order } from "@tbms/shared-types";
 import { Button } from "@tbms/ui/components/button";
 import {
   Card,
@@ -36,6 +37,40 @@ export function OrderFinancialSummaryCard({
     (left, right) =>
       new Date(right.paidAt).getTime() - new Date(left.paidAt).getTime(),
   );
+  const pricingBreakdown = useMemo(
+    () =>
+      order.items.reduce(
+        (summary, item) => {
+          const addonsTotal = (item.addons ?? []).reduce(
+            (total, addon) => total + addon.price,
+            0,
+          );
+          const designTotal = (item.designType?.defaultPrice ?? 0) * item.quantity;
+          const tailoringTotal = item.unitPrice * item.quantity;
+          const shopFabricTotal = item.shopFabricTotalSnapshot ?? 0;
+
+          summary.tailoring += tailoringTotal;
+          summary.designs += designTotal;
+          summary.addons += addonsTotal;
+          summary.shopFabric += shopFabricTotal;
+          if (item.fabricSource === FabricSource.SHOP) {
+            summary.shopFabricPieces += 1;
+          } else {
+            summary.customerFabricPieces += 1;
+          }
+          return summary;
+        },
+        {
+          tailoring: 0,
+          designs: 0,
+          addons: 0,
+          shopFabric: 0,
+          customerFabricPieces: 0,
+          shopFabricPieces: 0,
+        },
+      ),
+    [order.items],
+  );
 
   return (
     <Card className={cn(className)}>
@@ -56,6 +91,31 @@ export function OrderFinancialSummaryCard({
             <span className="text-sm font-semibold text-foreground">
               {formatPKR(order.subtotal)}
             </span>
+          </div>
+          <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between">
+              <span>Tailoring</span>
+              <span>{formatPKR(pricingBreakdown.tailoring)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Designs</span>
+              <span>{formatPKR(pricingBreakdown.designs)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Addons</span>
+              <span>{formatPKR(pricingBreakdown.addons)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Shop Fabric</span>
+              <span>{formatPKR(pricingBreakdown.shopFabric)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Piece Mix</span>
+              <span>
+                {pricingBreakdown.customerFabricPieces} customer /{" "}
+                {pricingBreakdown.shopFabricPieces} shop
+              </span>
+            </div>
           </div>
 
           {order.discountAmount > 0 ? (

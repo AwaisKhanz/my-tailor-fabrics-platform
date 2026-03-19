@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { type OrderItem, OrderStatus } from "@tbms/shared-types";
 import { useOrderDetail } from "@/hooks/use-order-detail";
@@ -22,7 +22,7 @@ export function useOrderDetailPage(
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [taskOpen, setTaskOpen] = useState(false);
-  const [taskItem, setTaskItem] = useState<OrderItem | null>(null);
+  const [taskItemId, setTaskItemId] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [paymentToReverseId, setPaymentToReverseId] = useState<string | null>(
     null,
@@ -69,8 +69,8 @@ export function useOrderDetailPage(
     [orderDetail],
   );
 
-  const refreshOrder = useCallback(() => {
-    void orderDetail.fetchOrder();
+  const refreshOrder = useCallback(async () => {
+    await orderDetail.fetchOrder();
   }, [orderDetail]);
 
   const handleShareStatus = useCallback(async () => {
@@ -160,9 +160,19 @@ export function useOrderDetailPage(
   );
 
   const handleManageTasks = useCallback((item: OrderItem) => {
-    setTaskItem(item);
+    setTaskItemId(item.id);
     setTaskOpen(true);
   }, []);
+
+  const taskItem = useMemo(() => {
+    if (!taskItemId || !orderDetail.order) {
+      return null;
+    }
+
+    return (
+      orderDetail.order.items.find((item) => item.id === taskItemId) ?? null
+    );
+  }, [orderDetail.order, taskItemId]);
 
   const statusConfig = orderDetail.order
     ? ORDER_STATUS_CONFIG[orderDetail.order.status]
@@ -202,7 +212,12 @@ export function useOrderDetailPage(
     handlePaymentAmountChange,
     handlePaymentNoteChange,
     taskOpen,
-    setTaskOpen,
+    setTaskOpen: (open: boolean) => {
+      setTaskOpen(open);
+      if (!open) {
+        setTaskItemId(null);
+      }
+    },
     taskItem,
     shareOpen,
     handleAddPayment,

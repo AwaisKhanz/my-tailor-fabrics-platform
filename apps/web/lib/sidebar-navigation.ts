@@ -17,8 +17,7 @@ import {
   Ruler,
   UserCog,
   Layout,
-  SlidersHorizontal,
-  Clock3,
+  Package2,
   Wallet,
   PlugZap,
   ClipboardList,
@@ -32,17 +31,16 @@ import { HOME_ROUTE } from "@/lib/auth-routes";
 import { CUSTOMERS_ROUTE, EMPLOYEES_ROUTE } from "@/lib/people-routes";
 import { MY_ORDERS_ROUTE, ORDERS_ROUTE } from "@/lib/order-routes";
 import {
-  ATTENDANCE_SETTINGS_ROUTE,
   AUDIT_LOGS_SETTINGS_ROUTE,
   BRANCHES_SETTINGS_ROUTE,
   DESIGN_TYPES_SETTINGS_ROUTE,
   EXPENSE_CATEGORIES_SETTINGS_ROUTE,
+  FABRICS_SETTINGS_ROUTE,
   GARMENTS_SETTINGS_ROUTE,
   INTEGRATIONS_SETTINGS_ROUTE,
   MEASUREMENTS_SETTINGS_ROUTE,
   RATES_SETTINGS_ROUTE,
   SETTINGS_ROUTE,
-  SYSTEM_SETTINGS_ROUTE,
   USERS_SETTINGS_ROUTE,
 } from "@/lib/settings-routes";
 
@@ -135,6 +133,12 @@ const NAV_SECTIONS: NavSection[] = [
         roles: SETTINGS_ROLES,
       },
       {
+        title: "Fabric Pricing",
+        href: FABRICS_SETTINGS_ROUTE,
+        icon: Package2,
+        roles: SETTINGS_ROLES,
+      },
+      {
         title: "Labor Rates",
         href: RATES_SETTINGS_ROUTE,
         icon: Banknote,
@@ -167,18 +171,6 @@ const NAV_SECTIONS: NavSection[] = [
         title: "Staff Accounts",
         href: USERS_SETTINGS_ROUTE,
         icon: UserCog,
-        roles: SETTINGS_ROLES,
-      },
-      {
-        title: "Attendance",
-        href: ATTENDANCE_SETTINGS_ROUTE,
-        icon: Clock3,
-        roles: SETTINGS_ROLES,
-      },
-      {
-        title: "System Controls",
-        href: SYSTEM_SETTINGS_ROUTE,
-        icon: SlidersHorizontal,
         roles: SETTINGS_ROLES,
       },
       {

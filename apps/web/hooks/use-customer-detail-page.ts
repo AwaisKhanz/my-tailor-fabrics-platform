@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   type CustomerDetail,
   type CustomerMeasurement,
+  type MeasurementValues,
   type MeasurementCategory,
   type Order,
 } from "@tbms/shared-types";
@@ -46,6 +47,10 @@ export function useCustomerDetailPage({
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [measurementDialogOpen, setMeasurementDialogOpen] = useState(false);
+  const [measurementDialogInitialCategoryId, setMeasurementDialogInitialCategoryId] =
+    useState<string>();
+  const [measurementDialogInitialValues, setMeasurementDialogInitialValues] =
+    useState<MeasurementValues>();
 
   const fetchCustomerData = useCallback(async () => {
     if (!customerId) {
@@ -117,12 +122,23 @@ export function useCustomerDetailPage({
     setEditDialogOpen(open);
   }, []);
 
-  const openMeasurementDialog = useCallback(() => {
+  const openMeasurementDialog = useCallback((measurement?: CustomerMeasurement) => {
+    if (measurement) {
+      setMeasurementDialogInitialCategoryId(measurement.categoryId);
+      setMeasurementDialogInitialValues(measurement.values);
+    } else {
+      setMeasurementDialogInitialCategoryId(undefined);
+      setMeasurementDialogInitialValues(undefined);
+    }
     setMeasurementDialogOpen(true);
   }, []);
 
   const closeMeasurementDialog = useCallback((open: boolean) => {
     setMeasurementDialogOpen(open);
+    if (!open) {
+      setMeasurementDialogInitialCategoryId(undefined);
+      setMeasurementDialogInitialValues(undefined);
+    }
   }, []);
 
   return {
@@ -132,6 +148,8 @@ export function useCustomerDetailPage({
     orders,
     editDialogOpen,
     measurementDialogOpen,
+    measurementDialogInitialCategoryId,
+    measurementDialogInitialValues,
     getMeasurementLabel,
     openEditDialog,
     closeEditDialog,

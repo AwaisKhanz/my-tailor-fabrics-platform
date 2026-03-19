@@ -15,6 +15,7 @@ import {
   type EmployeeLedgerEntry,
 } from "@tbms/shared-types";
 import { LEDGER_ENTRY_TYPE_OPTIONS } from "@tbms/shared-constants";
+import { getApiErrorMessageOrFallback } from "@/lib/utils/error";
 
 export const EMPLOYEE_LEDGER_ALL_TYPES_FILTER = "all";
 export const EMPLOYEE_LEDGER_ALL_TYPES_LABEL = "All Types";
@@ -211,10 +212,13 @@ export function useEmployeeLedgerManager({
         setNewEntryNoteState("");
         await Promise.all([fetchLedger(1), fetchEmployeeData()]);
       }
-    } catch {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: "Failed to create ledger entry",
+        description: getApiErrorMessageOrFallback(
+          error,
+          "Failed to create ledger entry",
+        ),
         variant: "destructive",
       });
     }
@@ -244,10 +248,13 @@ export function useEmployeeLedgerManager({
           toast({ title: "Entry Reversed" });
           await Promise.all([fetchLedger(ledgerPage), fetchEmployeeData()]);
         }
-      } catch {
+      } catch (error: unknown) {
         toast({
           title: "Error",
-          description: "Failed to reverse entry",
+          description: getApiErrorMessageOrFallback(
+            error,
+            "Failed to reverse entry",
+          ),
           variant: "destructive",
         });
       }

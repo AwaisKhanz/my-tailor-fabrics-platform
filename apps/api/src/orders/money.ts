@@ -12,6 +12,7 @@ export type OrderSubtotalLine = {
   quantity?: number;
   designPrice?: number | null;
   addonsTotal?: number;
+  shopFabricTotal?: number;
 };
 
 export function calculateOrderSubtotal(
@@ -21,9 +22,14 @@ export function calculateOrderSubtotal(
     const quantity = line.quantity ?? 1;
     const designPrice = line.designPrice ?? 0;
     const addonsTotal = line.addonsTotal ?? 0;
+    const shopFabricTotal = line.shopFabricTotal ?? 0;
 
     return (
-      sum + line.unitPrice * quantity + designPrice * quantity + addonsTotal
+      sum +
+      line.unitPrice * quantity +
+      designPrice * quantity +
+      addonsTotal +
+      shopFabricTotal
     );
   }, 0);
 }

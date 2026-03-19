@@ -32,6 +32,7 @@ export interface Customer {
     stats?: {
         totalOrders: number;
         totalSpent: number;
+        totalPaid: number;
     };
 }
 export interface CustomerMeasurement {

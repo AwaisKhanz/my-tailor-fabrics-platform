@@ -14,6 +14,7 @@ export interface EmployeeSectionProps {
   badge?: ReactNode;
   action?: ReactNode;
   defaultOpen?: boolean;
+  collapsible?: boolean;
   onFirstOpen?: () => void;
   children: ReactNode;
 }
@@ -25,6 +26,7 @@ export function EmployeeSection({
   badge,
   action,
   defaultOpen = true,
+  collapsible = true,
   onFirstOpen,
   children,
 }: EmployeeSectionProps) {
@@ -52,8 +54,7 @@ export function EmployeeSection({
 
   return (
     <Card id={id}>
-      <CardHeader
-      >
+      <CardHeader>
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <CardTitle>{title}</CardTitle>
@@ -66,26 +67,28 @@ export function EmployeeSection({
 
         <div className="ml-auto flex w-full items-center justify-end gap-2 sm:w-auto">
           {action}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="shrink-0"
-            aria-expanded={isOpen}
-            aria-controls={`${id}-content`}
-            onClick={handleToggle}
-          >
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 transition-transform",
-                isOpen && "rotate-180",
-              )}
-            />
-          </Button>
+          {collapsible ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              aria-expanded={isOpen}
+              aria-controls={`${id}-content`}
+              onClick={handleToggle}
+            >
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform",
+                  isOpen && "rotate-180",
+                )}
+              />
+            </Button>
+          ) : null}
         </div>
       </CardHeader>
 
-      {isOpen ? (
+      {isOpen || !collapsible ? (
         <CardContent id={`${id}-content`} className="p-0">
           {children}
         </CardContent>

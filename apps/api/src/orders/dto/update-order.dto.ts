@@ -41,7 +41,6 @@ export class UpdateOrderItemDto {
 
   @IsString()
   @IsOptional()
-  @IsCuidString()
   garmentTypeId?: string;
 
   @IsNumber()
@@ -56,6 +55,20 @@ export class UpdateOrderItemDto {
   @IsEnum(FabricSource)
   @IsOptional()
   fabricSource?: FabricSource;
+
+  @IsString()
+  @IsOptional()
+  @IsCuidString()
+  shopFabricId?: string | null;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  shopFabricPrice?: number | null;
+
+  @IsString()
+  @IsOptional()
+  customerFabricNote?: string | null;
 
   @IsDateString()
   @IsOptional()

@@ -8,7 +8,7 @@ export function EmployeeDetailSkeleton() {
       <LoadingState
         compact
         text="Loading employee..."
-        caption="Fetching profile, attendance, and task history."
+        caption="Fetching profile, task history, and compensation details."
       />
       <Skeleton className="h-28 w-full" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

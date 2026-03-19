@@ -1,11 +1,15 @@
 import { OrderStatus, ItemStatus, DiscountType, TaskStatus, FabricSource, AddonType, PaginatedResponse } from './common';
 import { EmployeeLedgerEntry } from './ledger';
+import { ShopFabric } from './fabrics';
 export interface OrderItemInput {
     garmentTypeId: string;
     quantity: number;
     unitPrice?: number;
     description?: string;
     fabricSource?: FabricSource;
+    shopFabricId?: string | null;
+    shopFabricPrice?: number | null;
+    customerFabricNote?: string | null;
     dueDate?: string;
     designTypeId?: string | null;
     addons?: {
@@ -89,6 +93,12 @@ export interface OrderItem {
     unitPrice: number;
     description?: string;
     fabricSource: FabricSource;
+    shopFabricId?: string | null;
+    shopFabric?: Pick<ShopFabric, 'id' | 'name' | 'brand' | 'code'> | null;
+    shopFabricPriceSnapshot?: number | null;
+    shopFabricTotalSnapshot?: number | null;
+    shopFabricNameSnapshot?: string | null;
+    customerFabricNote?: string | null;
     dueDate?: string;
     completedAt?: string | null;
     status: ItemStatus;

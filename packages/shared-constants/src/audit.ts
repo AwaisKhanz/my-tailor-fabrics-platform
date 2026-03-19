@@ -19,7 +19,6 @@ export const AUDIT_ENTITIES = [
   'Payment',
   'Expense',
   'ExpenseCategory',
-  'AttendanceRecord',
   'Branch',
   'User',
   'GarmentType',

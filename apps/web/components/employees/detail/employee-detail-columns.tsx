@@ -2,7 +2,6 @@
 
 import { ChevronRight, RotateCcw } from "lucide-react";
 import {
-  type AttendanceRecord,
   type EmployeeLedgerEntry,
   type OrderItem,
   type OrderItemTask,
@@ -85,55 +84,6 @@ export function createEmployeeHistoryColumns(
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-        </div>
-      ),
-    },
-  ];
-}
-
-export function createEmployeeAttendanceColumns(): ColumnDef<AttendanceRecord>[] {
-  return [
-    {
-      id: "date",
-      header: "Date",
-      cell: ({ row }) => (
-        <span className="font-medium">{formatDate(row.original.date)}</span>
-      ),
-    },
-    {
-      id: "clockIn",
-      header: "Clock In",
-      cell: ({ row }) => (
-        <span className="text-xs font-medium text-primary">
-          {new Date(row.original.clockIn).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </span>
-      ),
-    },
-    {
-      id: "clockOut",
-      header: "Clock Out",
-      cell: ({ row }) => (
-        <span className="text-xs font-medium text-destructive">
-          {row.original.clockOut
-            ? new Date(row.original.clockOut).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "---"}
-        </span>
-      ),
-    },
-    {
-      id: "hours",
-      header: () => <div className="text-right">Hours</div>,
-      cell: ({ row }) => (
-        <div className="text-right">
-          <span className="font-bold">
-            {row.original.hoursWorked?.toFixed(1) || "0.0"}h
-          </span>
         </div>
       ),
     },

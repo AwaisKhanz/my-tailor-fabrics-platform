@@ -21,7 +21,6 @@ import { IsCuidString } from '../../common/validators/is-cuid-string';
 export class EmployeeCapabilityWindowInputDto {
   @IsString()
   @IsOptional()
-  @IsCuidString()
   garmentTypeId?: string;
 
   @IsString()
@@ -82,7 +81,6 @@ export class EligibleEmployeesQueryDto {
   @Transform(transformOptionalString)
   @IsString()
   @IsNotEmpty()
-  @IsCuidString()
   garmentTypeId!: string;
 
   @Transform(transformOptionalString)

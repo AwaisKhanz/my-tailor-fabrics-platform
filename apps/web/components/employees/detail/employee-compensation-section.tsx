@@ -15,6 +15,7 @@ import { FieldError, FieldLabel } from "@tbms/ui/components/field";
 import { FormGrid } from "@tbms/ui/components/form-layout";
 import { InfoTile } from "@tbms/ui/components/info-tile";
 import { Input } from "@tbms/ui/components/input";
+import { SectionHeader } from "@tbms/ui/components/section-header";
 import {
   Select,
   SelectContent,
@@ -98,154 +99,169 @@ export function EmployeeCompensationSection({
           {compensationHistory.length} CHANGES
         </Badge>
       }
-      defaultOpen={false}
+      defaultOpen
+      collapsible={false}
     >
       <div className="space-y-4 p-4 sm:p-5">
-        <DataTableTanstack
-          columns={[
-            {
-              id: "model",
-              header: "Model",
-              cell: ({ row }) => (
-                <Badge variant="outline">
-                  {PAYMENT_TYPE_LABELS[row.original.paymentType]}
-                </Badge>
-              ),
-            },
-            {
-              id: "salary",
-              header: () => <div className="text-right">Monthly Salary</div>,
-              cell: ({ row }) => (
-                <div className="text-right">
-                  <span className="font-medium">
-                    {row.original.monthlySalary != null
-                      ? formatPKR(row.original.monthlySalary)
-                      : "-"}
-                  </span>
-                </div>
-              ),
-            },
-            {
-              id: "window",
-              header: "Window",
-              cell: ({ row }) => (
-                <span className="text-xs text-muted-foreground">
-                  {formatDate(row.original.effectiveFrom)}
-                  {row.original.effectiveTo
-                    ? ` → ${formatDate(row.original.effectiveTo)}`
-                    : " onwards"}
-                </span>
-              ),
-            },
-          ]}
-          data={compensationHistory}
-          loading={false}
-          chrome="flat"
-          emptyMessage="No compensation history available."
-          pagination={pagination}
-          onPaginationChange={onPaginationChange}
-          pageCount={1}
-          totalCount={compensationHistory.length}
-          sorting={sorting}
-          onSortingChange={onSortingChange}
-        />
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,1fr)]">
+          <InfoTile tone="secondary" padding="contentLg" className="space-y-4">
+            <SectionHeader
+              title="Compensation History"
+              description="Read past and scheduled pay windows before creating a new compensation update."
+              titleClassName="text-sm"
+            />
+            <DataTableTanstack
+              columns={[
+                {
+                  id: "model",
+                  header: "Model",
+                  cell: ({ row }) => (
+                    <Badge variant="outline">
+                      {PAYMENT_TYPE_LABELS[row.original.paymentType]}
+                    </Badge>
+                  ),
+                },
+                {
+                  id: "salary",
+                  header: () => <div className="text-right">Monthly Salary</div>,
+                  cell: ({ row }) => (
+                    <div className="text-right">
+                      <span className="font-medium">
+                        {row.original.monthlySalary != null
+                          ? formatPKR(row.original.monthlySalary)
+                          : "-"}
+                      </span>
+                    </div>
+                  ),
+                },
+                {
+                  id: "window",
+                  header: "Window",
+                  cell: ({ row }) => (
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(row.original.effectiveFrom)}
+                      {row.original.effectiveTo
+                        ? ` → ${formatDate(row.original.effectiveTo)}`
+                        : " onwards"}
+                    </span>
+                  ),
+                },
+              ]}
+              data={compensationHistory}
+              loading={false}
+              chrome="flat"
+              emptyMessage="No compensation history available."
+              pagination={pagination}
+              onPaginationChange={onPaginationChange}
+              pageCount={1}
+              totalCount={compensationHistory.length}
+              sorting={sorting}
+              onSortingChange={onSortingChange}
+            />
+          </InfoTile>
 
-        {canManageWorkforceGovernance ? (
-          <InfoTile tone="default" padding="contentLg" className="space-y-4">
-            {validationError ? (
-              <FieldError size="sm">{validationError}</FieldError>
-            ) : null}
-            <FormGrid>
-              <div>
-                <FieldLabel>Payment Model</FieldLabel>
-                <Select
-                  value={paymentType}
-                  onValueChange={(value) => {
-                    if (
-                      value === PaymentTypeValue.PER_PIECE ||
-                      value === PaymentTypeValue.MONTHLY_FIXED
-                    ) {
-                      clearFieldError("paymentType");
-                      clearValidationError();
-                      setPaymentType(value);
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={PaymentTypeValue.PER_PIECE}>
-                      Per Piece
-                    </SelectItem>
-                    <SelectItem value={PaymentTypeValue.MONTHLY_FIXED}>
-                      Monthly Fixed
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {fieldErrors.paymentType ? (
-                  <FieldError inset>{fieldErrors.paymentType}</FieldError>
-                ) : null}
-              </div>
-
-              {paymentType === PaymentTypeValue.MONTHLY_FIXED ? (
+          {canManageWorkforceGovernance ? (
+            <InfoTile tone="default" padding="contentLg" className="space-y-4">
+              <SectionHeader
+                title="Schedule Compensation Change"
+                description="Create the next pay window in one focused admin action instead of editing the history table inline."
+                titleClassName="text-sm"
+              />
+              {validationError ? (
+                <FieldError size="sm">{validationError}</FieldError>
+              ) : null}
+              <FormGrid>
                 <div>
-                  <FieldLabel>Monthly Salary (Rs)</FieldLabel>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={monthlySalary}
-                    onChange={(event) => {
-                      clearFieldError("monthlySalary");
-                      clearValidationError();
-                      setMonthlySalary(event.target.value);
+                  <FieldLabel>Payment Model</FieldLabel>
+                  <Select
+                    value={paymentType}
+                    onValueChange={(value) => {
+                      if (
+                        value === PaymentTypeValue.PER_PIECE ||
+                        value === PaymentTypeValue.MONTHLY_FIXED
+                      ) {
+                        clearFieldError("paymentType");
+                        clearValidationError();
+                        setPaymentType(value);
+                      }
                     }}
-                  />
-                  {fieldErrors.monthlySalary ? (
-                    <FieldError inset>{fieldErrors.monthlySalary}</FieldError>
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={PaymentTypeValue.PER_PIECE}>
+                        Per Piece
+                      </SelectItem>
+                      <SelectItem value={PaymentTypeValue.MONTHLY_FIXED}>
+                        Monthly Fixed
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {fieldErrors.paymentType ? (
+                    <FieldError inset>{fieldErrors.paymentType}</FieldError>
                   ) : null}
                 </div>
-              ) : null}
 
-              <div>
-                <FieldLabel>Effective From</FieldLabel>
-                <Input
-                  type="date"
-                  value={effectiveFrom}
-                  onChange={(event) => {
-                    clearFieldError("effectiveFrom");
-                    clearValidationError();
-                    setEffectiveFrom(event.target.value);
-                  }}
-                />
-                {fieldErrors.effectiveFrom ? (
-                  <FieldError inset>{fieldErrors.effectiveFrom}</FieldError>
+                {paymentType === PaymentTypeValue.MONTHLY_FIXED ? (
+                  <div>
+                    <FieldLabel>Monthly Salary (Rs)</FieldLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={monthlySalary}
+                      onChange={(event) => {
+                        clearFieldError("monthlySalary");
+                        clearValidationError();
+                        setMonthlySalary(event.target.value);
+                      }}
+                    />
+                    {fieldErrors.monthlySalary ? (
+                      <FieldError inset>{fieldErrors.monthlySalary}</FieldError>
+                    ) : null}
+                  </div>
                 ) : null}
-              </div>
-              <div>
-                <FieldLabel>Note</FieldLabel>
-                <Input
-                  value={note}
-                  onChange={(event) => {
-                    clearFieldError("note");
-                    clearValidationError();
-                    setNote(event.target.value);
-                  }}
-                  placeholder="Optional"
-                />
-                {fieldErrors.note ? (
-                  <FieldError inset>{fieldErrors.note}</FieldError>
-                ) : null}
-              </div>
-            </FormGrid>
 
-            <div className="flex justify-end">
-              <Button type="button" size="sm" onClick={onSubmit}>
-                Schedule Compensation Change
-              </Button>
-            </div>
-          </InfoTile>
-        ) : null}
+                <div>
+                  <FieldLabel>Effective From</FieldLabel>
+                  <Input
+                    type="date"
+                    value={effectiveFrom}
+                    onChange={(event) => {
+                      clearFieldError("effectiveFrom");
+                      clearValidationError();
+                      setEffectiveFrom(event.target.value);
+                    }}
+                  />
+                  {fieldErrors.effectiveFrom ? (
+                    <FieldError inset>{fieldErrors.effectiveFrom}</FieldError>
+                  ) : null}
+                </div>
+                <div>
+                  <FieldLabel>Note</FieldLabel>
+                  <Input
+                    value={note}
+                    onChange={(event) => {
+                      clearFieldError("note");
+                      clearValidationError();
+                      setNote(event.target.value);
+                    }}
+                    placeholder="Optional"
+                  />
+                  {fieldErrors.note ? (
+                    <FieldError inset>{fieldErrors.note}</FieldError>
+                  ) : null}
+                </div>
+              </FormGrid>
+
+              <div className="flex justify-end">
+                <Button type="button" size="sm" onClick={onSubmit}>
+                  Schedule Compensation Change
+                </Button>
+              </div>
+            </InfoTile>
+          ) : null}
+        </div>
       </div>
     </EmployeeSection>
   );

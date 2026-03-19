@@ -31,6 +31,11 @@ function toCreateOrderApiPayload(data: CreateOrderInput): CreateOrderInput {
         item.unitPrice === undefined
           ? undefined
           : toPaisaFromRupees(item.unitPrice),
+      shopFabricPrice:
+        item.shopFabricPrice === undefined ||
+        item.shopFabricPrice === null
+          ? item.shopFabricPrice
+          : toPaisaFromRupees(item.shopFabricPrice),
       addons: item.addons?.map((addon) => ({
         ...addon,
         price: toPaisaFromRupees(addon.price),
@@ -56,6 +61,11 @@ function toUpdateOrderApiPayload(data: UpdateOrderInput): UpdateOrderInput {
         item.unitPrice === undefined
           ? undefined
           : toPaisaFromRupees(item.unitPrice),
+      shopFabricPrice:
+        item.shopFabricPrice === undefined ||
+        item.shopFabricPrice === null
+          ? item.shopFabricPrice
+          : toPaisaFromRupees(item.shopFabricPrice),
       addons: item.addons?.map((addon) => ({
         ...addon,
         price: toPaisaFromRupees(addon.price),

@@ -42,7 +42,8 @@ export function EmployeeDocumentsSection({
           </Button>
         ) : null
       }
-      defaultOpen={false}
+      defaultOpen
+      collapsible={false}
     >
       <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
         {documents?.map((document) => (

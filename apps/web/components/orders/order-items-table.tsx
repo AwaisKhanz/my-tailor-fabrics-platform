@@ -5,7 +5,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { CalendarDays, Scissors } from "lucide-react";
-import { ItemStatus, OrderItem } from "@tbms/shared-types";
+import { FabricSource, ItemStatus, OrderItem } from "@tbms/shared-types";
 import { ITEM_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
@@ -146,6 +146,42 @@ export function OrderItemsTable({
         },
       },
       {
+        id: "fabric",
+        header: "Fabric",
+        cell: ({ row }) => {
+          const fabricName =
+            row.original.shopFabricNameSnapshot ??
+            row.original.shopFabric?.name ??
+            "Shop Fabric";
+
+          if (row.original.fabricSource === FabricSource.SHOP) {
+            return (
+              <div className="min-w-[180px] space-y-1">
+                <Badge variant="secondary">Shop Fabric</Badge>
+                <p className="text-sm font-semibold text-foreground">
+                  {fabricName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {row.original.shopFabricTotalSnapshot
+                    ? `Charge ${formatPKR(row.original.shopFabricTotalSnapshot)}`
+                    : "Catalog price will apply"}
+                </p>
+              </div>
+            );
+          }
+
+          return (
+            <div className="min-w-[180px] space-y-1">
+              <Badge variant="outline">Customer Fabric</Badge>
+              <p className="text-xs text-muted-foreground">
+                {row.original.customerFabricNote?.trim() ||
+                  "Customer supplied fabric for this piece."}
+              </p>
+            </div>
+          );
+        },
+      },
+      {
         id: "due",
         header: "Due",
         cell: ({ row }) => (
@@ -176,20 +212,37 @@ export function OrderItemsTable({
             0,
           );
           const designPrice = row.original.designType?.defaultPrice || 0;
+          const tailoringTotal = row.original.unitPrice * row.original.quantity;
+          const designTotal = designPrice * row.original.quantity;
+          const shopFabricTotal = row.original.shopFabricTotalSnapshot || 0;
           const totalAmount =
-            row.original.unitPrice * row.original.quantity +
-            designPrice * row.original.quantity +
-            addonsTotal;
+            tailoringTotal + designTotal + addonsTotal + shopFabricTotal;
 
           return (
             <div className="text-right">
               <p className="text-sm font-semibold text-foreground">
                 {formatPKR(totalAmount)}
               </p>
-              {addonsTotal > 0 || designPrice > 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  +{formatPKR(addonsTotal + designPrice)} extras
-                </p>
+              {addonsTotal > 0 || designPrice > 0 || shopFabricTotal > 0 ? (
+                <div className="mt-1 space-y-1 text-xs text-muted-foreground">
+                  <p>Tailoring: {formatPKR(tailoringTotal)}</p>
+                  {row.original.designType ? (
+                    <p>
+                      Design: {row.original.designType.name} (
+                      +{formatPKR(designTotal)})
+                    </p>
+                  ) : null}
+                  {(row.original.addons || []).map((addon) => (
+                    <p key={addon.id}>
+                      {addon.name} (+{formatPKR(addon.price)})
+                    </p>
+                  ))}
+                  {shopFabricTotal > 0 ? (
+                    <p>
+                      Shop Fabric: +{formatPKR(shopFabricTotal)}
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           );

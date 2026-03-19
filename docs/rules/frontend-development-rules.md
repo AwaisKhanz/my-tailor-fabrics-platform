@@ -59,6 +59,23 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 12. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
 13. Selects and other option-based controls must display human-readable labels from shared maps or option labels, never raw enum keys in the UI.
 14. Role-based default-home redirects must not override `/` for users who already have `dashboard.read`; sidebar visibility, middleware, and route guards must stay consistent.
+15. Order create/edit UX is piece-first:
+   - each visible piece card represents one physical piece and must submit `quantity = 1`
+   - mixed designs, mixed fabric sources, and piece-specific notes belong on separate piece cards, not in one bulk quantity row
+   - long order capture flows should use a step-based wizard with a persistent pricing summary instead of one overloaded form
+16. There is no standalone system-settings admin screen in the live product.
+   - do not add or reintroduce `/settings/system` unless product requirements explicitly restore a system-controls surface and the backend/docs are updated in the same change
+   - production-task workflow should be treated as a platform rule, not a user-managed toggle
+17. Production-task management UIs must respect step order per piece:
+   - later steps should present as locked until previous piece steps are finished
+   - inline task dialogs should treat labor rate as read-only context unless a dedicated rate-management workflow is explicitly opened elsewhere
+18. High-density employee/staff detail pages should use a compact overview plus tabbed workspace pattern:
+   - keep identity, employment snapshot, and key top metrics close to the header
+   - group operational, financial, and admin workflows into focused tabs instead of one long mixed accordion page
+   - avoid detached narrow side rails when the same information can be absorbed into an overview tab or summary band
+19. Attendance UI is not part of the live business workflow.
+   Do not add attendance pages, settings entries, employee-detail sections, or query hooks unless product requirements explicitly restore the feature and the backend/shared contracts are updated in the same task.
+
 ## 4. Data Access Rules
 
 1. Frontend code should use the centralized API client in `apps/web/lib/api.ts`.
@@ -71,8 +88,12 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 8. If a new backend endpoint is added for frontend use, add or update the corresponding typed client helper.
 9. Frontend data hooks must gate privileged queries with the same permission checks that gate the UI; do not fire admin/finance/settings requests for roles that cannot read them.
 10. Money fields must use one consistent web boundary: forms accept rupee-friendly values, centralized API helpers convert writes to paisa, and read/display paths treat stored money values as paisa.
-11. Write mutations (`POST`/`PUT`/`PATCH`/`DELETE`) should rely on the centralized API toast fallback in `apps/web/lib/api.ts` so users always receive success/failure feedback even when a page-level handler misses it.
-12. If a specific action already has a custom page toast copy, suppress duplicate global toasts through axios request config (`tbmsToast.suppressSuccess` or `tbmsToast.suppressError`) instead of bypassing centralized API helpers.
+11. Shop-fabric pricing is branch-scoped and piece-scoped:
+   - piece forms must load branch fabrics from the centralized fabrics query helpers
+   - `fabricSource = SHOP` must collect the selected fabric item and a piece-level fabric price input or snapshot value
+   - order detail and receipt screens must display shop-fabric charges separately from tailoring, design, and addon totals
+12. Write mutations (`POST`/`PUT`/`PATCH`/`DELETE`) should rely on the centralized API toast fallback in `apps/web/lib/api.ts` so users always receive success/failure feedback even when a page-level handler misses it.
+13. If a specific action already has a custom page toast copy, suppress duplicate global toasts through axios request config (`tbmsToast.suppressSuccess` or `tbmsToast.suppressError`) instead of bypassing centralized API helpers.
 
 ## 5. Auth and Authorization Rules
 

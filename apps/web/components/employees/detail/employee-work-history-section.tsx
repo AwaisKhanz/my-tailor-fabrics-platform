@@ -60,10 +60,11 @@ export function EmployeeWorkHistorySection({
       description="Review completed and pending order items handled by this employee."
       badge={
         <Badge variant="default" className="font-semibold">
-          {items.length} ITEMS
+          {total} ITEMS
         </Badge>
       }
       defaultOpen
+      collapsible={false}
     >
       <DataTableTanstack
         columns={columns}

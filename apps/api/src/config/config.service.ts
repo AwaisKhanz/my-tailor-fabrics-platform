@@ -123,7 +123,12 @@ export class ConfigService {
 
     if (!settings) {
       settings = await this.prisma.systemSettings.create({
-        data: { id: 'default' },
+        data: { id: 'default', useTaskWorkflow: true },
+      });
+    } else if (!settings.useTaskWorkflow) {
+      settings = await this.prisma.systemSettings.update({
+        where: { id: 'default' },
+        data: { useTaskWorkflow: true },
       });
     }
 
@@ -135,8 +140,8 @@ export class ConfigService {
   ): Promise<SystemSettings> {
     const settings = await this.prisma.systemSettings.upsert({
       where: { id: 'default' },
-      update: dto,
-      create: { id: 'default', ...dto },
+      update: { ...dto, useTaskWorkflow: true },
+      create: { id: 'default', ...dto, useTaskWorkflow: true },
     });
 
     return settings;
@@ -241,7 +246,7 @@ export class ConfigService {
         JOIN "Order" o ON o.id = oi."orderId"
         WHERE oi."garmentTypeId" = ${id}
           AND oit."deletedAt" IS NULL
-          AND oit.status = ${TaskStatus.DONE}
+          AND oit.status = ${TaskStatus.DONE}::"TaskStatus"
           AND o."deletedAt" IS NULL
       `,
     );
@@ -270,7 +275,7 @@ export class ConfigService {
         JOIN "Order" o ON o.id = oi."orderId"
         WHERE oi."garmentTypeId" = ${id}
           AND oit."assignedEmployeeId" IS NOT NULL
-          AND oit."status" = ${TaskStatus.DONE}
+          AND oit."status" = ${TaskStatus.DONE}::"TaskStatus"
           AND oit."deletedAt" IS NULL
           AND oi."deletedAt" IS NULL
           AND o."deletedAt" IS NULL

@@ -1,4 +1,4 @@
-import { Banknote, CheckCircle2 } from "lucide-react";
+import { Banknote, CheckCircle2, ClipboardList } from "lucide-react";
 import { StatCard } from "@tbms/ui/components/stat-card";
 import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { formatPKR } from "@/lib/utils";
@@ -9,11 +9,15 @@ interface EmployeeFinancialCardsProps {
     totalPaid: number;
     currentBalance: number;
   };
+  activeTaskCount?: number;
 }
 
-export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
+export function EmployeeFinancialCards({
+  stats,
+  activeTaskCount = 0,
+}: EmployeeFinancialCardsProps) {
   return (
-    <StatsGrid columns="three">
+    <StatsGrid columns="four">
       <StatCard
         title="Lifetime Earned"
         subtitle="Total generated payouts"
@@ -36,7 +40,14 @@ export function EmployeeFinancialCards({ stats }: EmployeeFinancialCardsProps) {
         value={formatPKR(stats.currentBalance)}
         tone="warning"
         icon={<Banknote className="h-4 w-4" />}
-        className="sm:col-span-2 xl:col-span-1"
+      />
+
+      <StatCard
+        title="Active Tasks"
+        subtitle="Open work items needing attention"
+        value={String(activeTaskCount)}
+        tone="info"
+        icon={<ClipboardList className="h-4 w-4" />}
       />
     </StatsGrid>
   );

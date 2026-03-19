@@ -199,6 +199,12 @@ Deploy Prisma migrations:
 npm run prisma:migrate:deploy
 ```
 
+This step is mandatory before using the piece-first order workflow or `/settings/fabrics`, because the current release adds:
+
+1. `ShopFabric`
+2. piece-level shop-fabric snapshot columns on `OrderItem`
+3. removal of the legacy `AttendanceRecord` table and attendance module
+
 List available seeds:
 
 ```bash
@@ -302,7 +308,11 @@ After every production deployment:
 2. Do not rely on local filesystem persistence in App Platform.
 3. Use managed database backups and DigitalOcean database tooling for backups. Repo-local backup scripts are intentionally not part of the supported production workflow anymore.
 4. If a future release includes Prisma migrations, run `pnpm run prisma:migrate:deploy` as part of the release checklist.
-5. If uploads are introduced later, store them in an external object store such as Spaces.
+5. Releases that touch order pricing or fabric inventory must be smoke-tested from the web UI after deploy:
+   - create an order with at least one shop-fabric piece
+   - confirm stock drops in `/settings/fabrics`
+   - print a receipt and verify shop-fabric charges appear in the breakdown
+6. If uploads are introduced later, store them in an external object store such as Spaces.
 
 ## Troubleshooting
 

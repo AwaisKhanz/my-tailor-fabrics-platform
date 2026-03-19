@@ -11,7 +11,7 @@ interface TaskAssignmentDialogProps {
   onOpenChange: (open: boolean) => void;
   orderItem: OrderItem | null;
   employees: Array<Pick<Employee, "id" | "fullName">>;
-  onSuccess: () => void;
+  onSuccess: () => Promise<void> | void;
 }
 
 export function TaskAssignmentDialog({
@@ -25,15 +25,8 @@ export function TaskAssignmentDialog({
     tasks,
     eligibleEmployeesByTask,
     loadingId,
-    editingRateId,
-    tempRate,
-    rateValidationError,
-    setTempRate,
     handleAssign,
     handleStatusChange,
-    startRateEdit,
-    cancelRateEdit,
-    updateTaskRate,
   } = useTaskAssignmentDialog(orderItem, employees, onSuccess);
 
   if (!orderItem) {
@@ -45,7 +38,7 @@ export function TaskAssignmentDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={`Production Tasks: ${orderItem.garmentTypeName} (Piece #${orderItem.pieceNo})`}
-      description="Manage production steps for this specific piece. Assignments and statuses are tracked independently per piece."
+      description="Complete this piece step by step. Later steps unlock only after the previous production step is finished."
       footerActions={
         <div className="flex w-full justify-end gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -61,15 +54,8 @@ export function TaskAssignmentDialog({
         employees={employees}
         eligibleEmployeesByTask={eligibleEmployeesByTask}
         loadingId={loadingId}
-        editingRateId={editingRateId}
-        tempRate={tempRate}
-        rateValidationError={rateValidationError}
-        onTempRateChange={setTempRate}
         onAssign={handleAssign}
         onStatusChange={handleStatusChange}
-        onStartRateEdit={startRateEdit}
-        onCancelRateEdit={cancelRateEdit}
-        onRateUpdate={updateTaskRate}
       />
     </ScrollableDialog>
   );

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.integrationTestEmailFormSchema = exports.confirmPasswordSchema = exports.publicStatusPinSchema = exports.loginOtpCodeSchema = exports.loginFormSchema = exports.garmentWorkflowStepsFormSchema = exports.workflowStepInputFormSchema = exports.employeeCompensationChangeFormSchema = exports.employeeCapabilitySnapshotFormSchema = exports.employeeCapabilityWindowInputSchema = exports.employeeDocumentUploadFormSchema = exports.employeeLedgerEntryFormSchema = exports.attendanceClockInFormSchema = exports.taskRateOverrideFormSchema = exports.salaryAccrualGenerationFormSchema = exports.paymentDisbursementFormSchema = exports.orderPaymentFormSchema = exports.rateCardCreateFormSchema = exports.expenseCategoryFormSchema = exports.expenseCreateFormSchema = exports.userAccountUpdateFormSchema = exports.userAccountCreateFormSchema = exports.branchUpdateFormSchema = exports.branchCreateFormSchema = exports.designTypeFormSchema = exports.measurementFieldDialogFormSchema = exports.measurementCategorySchema = exports.measurementFieldSchema = exports.garmentTypeSchema = exports.orderSchema = exports.orderItemSchema = exports.accountCreationSchema = exports.accountSchema = exports.employeeSchema = exports.customerSchema = void 0;
+exports.integrationTestEmailFormSchema = exports.confirmPasswordSchema = exports.publicStatusPinSchema = exports.loginOtpCodeSchema = exports.loginFormSchema = exports.garmentWorkflowStepsFormSchema = exports.workflowStepInputFormSchema = exports.employeeCompensationChangeFormSchema = exports.employeeCapabilitySnapshotFormSchema = exports.employeeCapabilityWindowInputSchema = exports.employeeDocumentUploadFormSchema = exports.employeeLedgerEntryFormSchema = exports.taskRateOverrideFormSchema = exports.salaryAccrualGenerationFormSchema = exports.paymentDisbursementFormSchema = exports.orderPaymentFormSchema = exports.rateCardCreateFormSchema = exports.expenseCategoryFormSchema = exports.expenseCreateFormSchema = exports.userAccountUpdateFormSchema = exports.userAccountCreateFormSchema = exports.branchUpdateFormSchema = exports.branchCreateFormSchema = exports.designTypeFormSchema = exports.measurementFieldDialogFormSchema = exports.measurementCategorySchema = exports.measurementFieldSchema = exports.garmentTypeSchema = exports.orderSchema = exports.orderItemSchema = exports.accountCreationSchema = exports.accountSchema = exports.employeeSchema = exports.customerSchema = void 0;
 exports.createMeasurementValuesFormSchema = createMeasurementValuesFormSchema;
 const zod_1 = require("zod");
 const common_1 = require("./common");
@@ -86,14 +86,18 @@ exports.accountCreationSchema = zod_1.z
     message: "Passwords do not match",
     path: ["confirmPassword"],
 });
-exports.orderItemSchema = zod_1.z.object({
+exports.orderItemSchema = zod_1.z
+    .object({
     id: zod_1.z.string().optional(),
     garmentTypeId: zod_1.z.string().min(1, "Garment type is required"),
-    quantity: zod_1.z.coerce.number().min(1, "Quantity must be at least 1"),
+    quantity: zod_1.z.coerce.number().min(1, "Quantity must be at least 1").default(1),
     unitPrice: zod_1.z.coerce.number().min(0, "Price must be at least 0"),
     dueDate: zod_1.z.string().optional(),
     description: zod_1.z.string().optional(),
     fabricSource: zod_1.z.nativeEnum(common_1.FabricSource).default(common_1.FabricSource.SHOP),
+    shopFabricId: zod_1.z.string().trim().optional().nullable(),
+    shopFabricPrice: optionalNumberInput,
+    customerFabricNote: zod_1.z.string().trim().optional().nullable(),
     designTypeId: zod_1.z.string().optional(),
     addons: zod_1.z
         .array(zod_1.z.object({
@@ -102,6 +106,24 @@ exports.orderItemSchema = zod_1.z.object({
         price: zod_1.z.coerce.number().min(0, "Addon price must be at least 0"),
     }))
         .optional(),
+})
+    .superRefine((value, ctx) => {
+    if (value.fabricSource === common_1.FabricSource.SHOP) {
+        if (!value.shopFabricId) {
+            ctx.addIssue({
+                code: zod_1.z.ZodIssueCode.custom,
+                path: ["shopFabricId"],
+                message: "Select a shop fabric.",
+            });
+        }
+        if (value.shopFabricPrice === undefined || value.shopFabricPrice < 0) {
+            ctx.addIssue({
+                code: zod_1.z.ZodIssueCode.custom,
+                path: ["shopFabricPrice"],
+                message: "Fabric price must be zero or greater.",
+            });
+        }
+    }
 });
 exports.orderSchema = zod_1.z.object({
     customerId: zod_1.z.string().min(1, "Customer is required"),
@@ -283,10 +305,6 @@ exports.salaryAccrualGenerationFormSchema = zod_1.z.object({
 });
 exports.taskRateOverrideFormSchema = zod_1.z.object({
     amount: zod_1.z.coerce.number().min(0, "Rate must be zero or greater."),
-});
-exports.attendanceClockInFormSchema = zod_1.z.object({
-    employeeId: zod_1.z.string().trim().min(1, "Select an employee to clock in."),
-    note: optionalTrimmedText,
 });
 exports.employeeLedgerEntryFormSchema = zod_1.z.object({
     type: zod_1.z.nativeEnum(common_1.LedgerEntryType),

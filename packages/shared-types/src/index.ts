@@ -10,7 +10,7 @@ export * from './users';
 export * from './rates';
 export * from './payments';
 export * from './expenses';
-export * from './attendance';
+export * from './fabrics';
 export * from './branches';
 export * from './ledger';
 export * from './reports';

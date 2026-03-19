@@ -13,6 +13,7 @@ import {
 import { AddPaymentDto } from './dto/add-payment.dto';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import {
+  AddonType,
   FabricSource as SharedFabricSource,
   ItemStatus,
   LedgerEntryType,
@@ -52,11 +53,10 @@ import {
   recordOrderPayment,
   reverseRecordedOrderPayment,
 } from './order-payment-lifecycle';
+import { deriveOrderItemStatusFromTaskStatuses } from './order-item-status';
 import {
   buildOrderCreateData,
   buildOrderUpdateData,
-  toOrderItemUpdateData,
-  toSingleOrderItemCreateData,
 } from './order-create-mapping';
 import { recordOrderStatusHistory } from './order-status-history';
 
@@ -76,6 +76,7 @@ export class OrdersService {
         quantity: item.quantity,
         designPrice: item.designPrice,
         addonsTotal: item.addonsTotal,
+        shopFabricTotal: item.shopFabricTotal,
       })),
     );
   }
@@ -105,8 +106,38 @@ export class OrdersService {
           (sum, addon) => sum + (addon.price || 0),
           0,
         ),
+        shopFabricTotal: item.shopFabricTotalSnapshot ?? 0,
       })),
     );
+  }
+
+  private async syncCustomerLifetimeValue(
+    customerId: string,
+    db: PrismaService | Prisma.TransactionClient,
+  ) {
+    const totals = await db.order.aggregate({
+      where: {
+        customerId,
+        deletedAt: null,
+        status: {
+          not: PrismaOrderStatus.CANCELLED,
+        },
+      },
+      _sum: {
+        totalAmount: true,
+      },
+    });
+
+    const lifetimeValue = totals._sum.totalAmount ?? 0;
+
+    await db.customer.update({
+      where: { id: customerId },
+      data: {
+        lifetimeValue,
+      },
+    });
+
+    return lifetimeValue;
   }
 
   private async cancelActiveTasksForOrderItems(
@@ -222,6 +253,7 @@ export class OrdersService {
       const resolvedItems = await resolveOrderItemDrafts(
         tx,
         createOrderDto.items,
+        orderBranchId,
       );
 
       const subtotal = this.calculateDraftOrderSubtotal(resolvedItems);
@@ -254,19 +286,14 @@ export class OrdersService {
         },
       });
 
-      // 5.1 If System Settings useTaskWorkflow is enabled, generate tasks
-      const settings = await tx.systemSettings.findUnique({
-        where: { id: 'default' },
-      });
-      if (settings?.useTaskWorkflow) {
-        for (const item of newOrder.items) {
-          await this.generateTasksForItem(
-            item.id,
-            item.garmentTypeId,
-            orderBranchId,
-            tx,
-          );
-        }
+      // 5.1 Production-task workflow is always enabled for piece-first orders.
+      for (const item of newOrder.items) {
+        await this.generateTasksForItem(
+          item.id,
+          item.garmentTypeId,
+          orderBranchId,
+          tx,
+        );
       }
 
       // 5.5 Recalculate Totals (sets subtotal, discountAmount, totalAmount, balanceDue correctly)
@@ -305,7 +332,12 @@ export class OrdersService {
     // 2. Get order for discount info and totalPaid
     const order = await db.order.findUnique({
       where: { id: orderId },
-      select: { discountType: true, discountValue: true, totalPaid: true },
+      select: {
+        customerId: true,
+        discountType: true,
+        discountValue: true,
+        totalPaid: true,
+      },
     });
 
     if (!order)
@@ -319,7 +351,7 @@ export class OrdersService {
     );
 
     // 4. Update Order
-    return db.order.update({
+    const updatedOrder = await db.order.update({
       where: { id: orderId },
       data: {
         subtotal,
@@ -329,6 +361,10 @@ export class OrdersService {
       },
       include: { items: true },
     });
+
+    await this.syncCustomerLifetimeValue(order.customerId, db);
+
+    return updatedOrder;
   }
 
   async findAll(
@@ -449,8 +485,10 @@ export class OrdersService {
           orderBy: { pieceNo: 'asc' },
           include: {
             designType: true,
+            shopFabric: true,
             addons: { where: { deletedAt: null } },
             tasks: {
+              where: { deletedAt: null },
               orderBy: { sortOrder: 'asc' },
               include: {
                 designType: true,
@@ -473,7 +511,53 @@ export class OrdersService {
     });
 
     if (!order) throw new NotFoundException('Order not found');
-    return order;
+
+    const mismatchedItemStatuses = order.items
+      .map((item) => {
+        const derivedStatus = deriveOrderItemStatusFromTaskStatuses(
+          item.tasks.map((task) => task.status),
+        );
+
+        if (!derivedStatus || derivedStatus === item.status) {
+          return null;
+        }
+
+        return {
+          itemId: item.id,
+          status: derivedStatus,
+        };
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          itemId: string;
+          status: ItemStatus;
+        } => item !== null,
+      );
+
+    if (mismatchedItemStatuses.length > 0) {
+      await Promise.all(
+        mismatchedItemStatuses.map((item) =>
+          this.prisma.orderItem.update({
+            where: { id: item.itemId },
+            data: { status: item.status },
+          }),
+        ),
+      );
+    }
+
+    const correctedStatuses = new Map(
+      mismatchedItemStatuses.map((item) => [item.itemId, item.status]),
+    );
+
+    return {
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        status: correctedStatuses.get(item.id) ?? item.status,
+      })),
+    };
   }
 
   async addPayment(
@@ -583,10 +667,14 @@ export class OrdersService {
       });
 
       // 2. Update
-      return tx.order.update({
+      const updatedOrder = await tx.order.update({
         where: { id },
         data: { status: nextStatus },
       });
+
+      await this.syncCustomerLifetimeValue(order.customerId, tx);
+
+      return updatedOrder;
     });
   }
 
@@ -664,7 +752,14 @@ export class OrdersService {
     return await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findFirst({
         where: { id, deletedAt: null, ...(branchId ? { branchId } : {}) },
-        include: { items: true },
+        include: {
+          items: {
+            where: { deletedAt: null },
+            include: {
+              addons: { where: { deletedAt: null } },
+            },
+          },
+        },
       });
       if (!order) throw new NotFoundException('Order not found');
 
@@ -701,29 +796,246 @@ export class OrdersService {
         data,
       });
 
-      // Handle items (Sync basic fields like unitPrice and designTypeId for existing items)
       if (dto.items && Array.isArray(dto.items)) {
+        if (dto.items.length === 0) {
+          throw new BadRequestException('Order must contain at least one item');
+        }
+
+        const existingItemsById = new Map(order.items.map((item) => [item.id, item]));
+        const incomingIds = new Set(
+          dto.items.map((item) => item.id).filter((value): value is string => Boolean(value)),
+        );
+        const itemsToRemove = order.items.filter((item) => !incomingIds.has(item.id));
+
+        if (itemsToRemove.length > 0) {
+          await this.cancelActiveTasksForOrderItems(
+            itemsToRemove.map((item) => item.id),
+            tx,
+          );
+
+          await tx.orderItem.updateMany({
+            where: {
+              id: { in: itemsToRemove.map((item) => item.id) },
+            },
+            data: {
+              deletedAt: new Date(),
+              status: ItemStatus.CANCELLED,
+            },
+          });
+        }
+
+        const pieceSeed: Record<string, number> = {};
+        for (const item of order.items) {
+          if (itemsToRemove.some((removedItem) => removedItem.id === item.id)) {
+            continue;
+          }
+          pieceSeed[item.garmentTypeId] = Math.max(
+            pieceSeed[item.garmentTypeId] ?? 0,
+            item.pieceNo,
+          );
+        }
+
+        const newlyCreatedItems: Array<{
+          id: string;
+          garmentTypeId: string;
+        }> = [];
+
         for (const itemDto of dto.items) {
           if (itemDto.id) {
-            const existingItem = await tx.orderItem.findFirst({
-              where: {
-                id: itemDto.id,
-                orderId: id,
-                deletedAt: null,
-              },
-              select: { id: true, garmentTypeId: true },
-            });
+            const existingItem = existingItemsById.get(itemDto.id);
             if (!existingItem) {
               throw new NotFoundException('Order item not found');
             }
 
-            // Update all pieces of this "logical" item if they share the same base configuration?
-            // Actually, in our DB, each piece is an individual OrderItem.
-            // But from the frontend's perspective, they might be sending IDs of specific pieces.
+            const nextGarmentTypeId =
+              itemDto.garmentTypeId ?? existingItem.garmentTypeId;
+            const nextItemDraft: OrderItemDto = {
+              garmentTypeId: nextGarmentTypeId,
+              quantity: 1,
+              unitPrice: itemDto.unitPrice ?? existingItem.unitPrice,
+              description:
+                itemDto.description !== undefined
+                  ? itemDto.description
+                  : existingItem.description ?? undefined,
+              fabricSource:
+                itemDto.fabricSource ??
+                (existingItem.fabricSource as unknown as SharedFabricSource),
+              shopFabricId:
+                itemDto.shopFabricId !== undefined
+                  ? itemDto.shopFabricId ?? undefined
+                  : existingItem.shopFabricId ?? undefined,
+              shopFabricPrice:
+                itemDto.shopFabricPrice !== undefined
+                  ? itemDto.shopFabricPrice ?? undefined
+                  : existingItem.shopFabricPriceSnapshot ?? undefined,
+              customerFabricNote:
+                itemDto.customerFabricNote !== undefined
+                  ? itemDto.customerFabricNote ?? undefined
+                  : existingItem.customerFabricNote ?? undefined,
+              dueDate:
+                itemDto.dueDate ??
+                existingItem.dueDate?.toISOString() ??
+                undefined,
+              designTypeId:
+                itemDto.designTypeId !== undefined
+                  ? itemDto.designTypeId ?? undefined
+                  : existingItem.designTypeId ?? undefined,
+              addons:
+                itemDto.addons ??
+                existingItem.addons.map((addon) => ({
+                  type: addon.type as unknown as AddonType,
+                  name: addon.name,
+                  price: addon.price,
+                  cost: addon.cost ?? undefined,
+                })),
+            };
+
+            const [resolvedItem] = await resolveOrderItemDrafts(
+              tx,
+              [nextItemDraft],
+              branchId,
+              {
+                [nextGarmentTypeId]:
+                  nextGarmentTypeId === existingItem.garmentTypeId
+                    ? existingItem.pieceNo - 1
+                    : pieceSeed[nextGarmentTypeId] ?? 0,
+              },
+            );
+
+            pieceSeed[nextGarmentTypeId] = Math.max(
+              pieceSeed[nextGarmentTypeId] ?? 0,
+              resolvedItem.pieceNo,
+            );
+
             await tx.orderItem.update({
               where: { id: existingItem.id },
-              data: toOrderItemUpdateData(itemDto),
+              data: {
+                garmentType: { connect: { id: resolvedItem.garmentTypeId } },
+                garmentTypeName: resolvedItem.garmentTypeName,
+                pieceNo: resolvedItem.pieceNo,
+                quantity: 1,
+                unitPrice: resolvedItem.unitPrice,
+                description: resolvedItem.description,
+                fabricSource: resolvedItem.fabricSource,
+                shopFabric: resolvedItem.shopFabricId
+                  ? { connect: { id: resolvedItem.shopFabricId } }
+                  : { disconnect: true },
+                shopFabricPriceSnapshot: resolvedItem.shopFabricPriceSnapshot,
+                shopFabricTotalSnapshot: resolvedItem.shopFabricTotal,
+                shopFabricNameSnapshot: resolvedItem.shopFabricNameSnapshot,
+                customerFabricNote: resolvedItem.customerFabricNote,
+                dueDate: resolvedItem.dueDate,
+                designType: resolvedItem.designTypeId
+                  ? { connect: { id: resolvedItem.designTypeId } }
+                  : { disconnect: true },
+                addons: {
+                  deleteMany: {},
+                  create: resolvedItem.addons.map((addon) => ({
+                    type: addon.type,
+                    name: addon.name,
+                    price: addon.price,
+                    cost: addon.cost,
+                  })),
+                },
+              },
             });
+
+            const needsTaskRefresh =
+              existingItem.garmentTypeId !== resolvedItem.garmentTypeId ||
+              existingItem.designTypeId !== resolvedItem.designTypeId;
+
+            if (needsTaskRefresh) {
+              await this.cancelActiveTasksForOrderItems([existingItem.id], tx);
+              await this.generateTasksForItem(
+                existingItem.id,
+                resolvedItem.garmentTypeId,
+                branchId,
+                tx,
+              );
+            }
+            continue;
+          }
+
+          const nextGarmentTypeId = itemDto.garmentTypeId;
+          if (!nextGarmentTypeId) {
+            throw new BadRequestException('Garment type is required for new pieces');
+          }
+          const createItemDraft: OrderItemDto = {
+            garmentTypeId: nextGarmentTypeId,
+            quantity: itemDto.quantity || 1,
+            unitPrice: itemDto.unitPrice,
+            description: itemDto.description,
+            fabricSource: itemDto.fabricSource,
+            shopFabricId: itemDto.shopFabricId ?? undefined,
+            shopFabricPrice: itemDto.shopFabricPrice ?? undefined,
+            customerFabricNote: itemDto.customerFabricNote ?? undefined,
+            dueDate: itemDto.dueDate,
+            designTypeId: itemDto.designTypeId ?? undefined,
+            addons: itemDto.addons,
+          };
+          const resolvedItems = await resolveOrderItemDrafts(
+            tx,
+            [createItemDraft],
+            branchId,
+            {
+              [nextGarmentTypeId]:
+                pieceSeed[nextGarmentTypeId] ?? 0,
+            },
+          );
+
+          for (const resolvedItem of resolvedItems) {
+            pieceSeed[resolvedItem.garmentTypeId] = Math.max(
+              pieceSeed[resolvedItem.garmentTypeId] ?? 0,
+              resolvedItem.pieceNo,
+            );
+
+            const createdItem = await tx.orderItem.create({
+              data: {
+                order: { connect: { id } },
+                garmentType: { connect: { id: resolvedItem.garmentTypeId } },
+                garmentTypeName: resolvedItem.garmentTypeName,
+                pieceNo: resolvedItem.pieceNo,
+                quantity: 1,
+                unitPrice: resolvedItem.unitPrice,
+                description: resolvedItem.description,
+                fabricSource: resolvedItem.fabricSource,
+                shopFabric: resolvedItem.shopFabricId
+                  ? { connect: { id: resolvedItem.shopFabricId } }
+                  : undefined,
+                shopFabricPriceSnapshot: resolvedItem.shopFabricPriceSnapshot,
+                shopFabricTotalSnapshot: resolvedItem.shopFabricTotal,
+                shopFabricNameSnapshot: resolvedItem.shopFabricNameSnapshot,
+                customerFabricNote: resolvedItem.customerFabricNote,
+                dueDate: resolvedItem.dueDate,
+                designType: resolvedItem.designTypeId
+                  ? { connect: { id: resolvedItem.designTypeId } }
+                  : undefined,
+                addons: {
+                  create: resolvedItem.addons.map((addon) => ({
+                    type: addon.type,
+                    name: addon.name,
+                    price: addon.price,
+                    cost: addon.cost,
+                  })),
+                },
+              },
+            });
+
+            newlyCreatedItems.push({
+              id: createdItem.id,
+              garmentTypeId: createdItem.garmentTypeId,
+            });
+          }
+        }
+
+        if (newlyCreatedItems.length > 0) {
+          for (const item of newlyCreatedItems) {
+            await this.generateTasksForItem(
+              item.id,
+              item.garmentTypeId,
+              branchId,
+              tx,
+            );
           }
         }
       }
@@ -825,6 +1137,8 @@ export class OrdersService {
         data: { status: PrismaOrderStatus.CANCELLED, deletedAt: new Date() },
       });
 
+      await this.syncCustomerLifetimeValue(order.customerId, tx);
+
       await recordOrderStatusHistory(tx, {
         orderId: id,
         fromStatus: order.status,
@@ -848,59 +1162,61 @@ export class OrdersService {
       });
       if (!order) throw new NotFoundException('Order not found');
 
-      const type = await tx.garmentType.findUnique({
-        where: { id: itemDto.garmentTypeId },
-      });
-
-      if (!type || !type.isActive) {
-        throw new BadRequestException('Garment type not found or inactive');
-      }
-
-      const customerPrice =
-        itemDto.unitPrice !== undefined && itemDto.unitPrice !== 0
-          ? itemDto.unitPrice
-          : type.customerPrice;
-
-      // 1. Find max pieceNo for this garment type in this order
       const lastItem = await tx.orderItem.findFirst({
         where: { orderId, garmentTypeId: itemDto.garmentTypeId },
         orderBy: { pieceNo: 'desc' },
       });
-      let nextPieceNo = (lastItem?.pieceNo || 0) + 1;
+      const resolvedItems = await resolveOrderItemDrafts(
+        tx,
+        [{ ...itemDto, quantity: itemDto.quantity || 1 }],
+        order.branchId,
+        { [itemDto.garmentTypeId]: lastItem?.pieceNo || 0 },
+      );
 
-      const quantity = itemDto.quantity || 1;
       const createdItems = [];
 
-      for (let i = 0; i < quantity; i++) {
+      for (const resolvedItem of resolvedItems) {
         const orderItem = await tx.orderItem.create({
-          data: toSingleOrderItemCreateData({
-            orderId,
-            garmentType: type,
-            pieceNo: nextPieceNo++,
-            unitPrice: customerPrice,
-            item: {
-              description: itemDto.description,
-              fabricSource: itemDto.fabricSource ?? SharedFabricSource.SHOP,
-              dueDate: itemDto.dueDate,
-              designTypeId: itemDto.designTypeId,
-              addons: itemDto.addons,
+          data: {
+            order: { connect: { id: orderId } },
+            garmentType: { connect: { id: resolvedItem.garmentTypeId } },
+            garmentTypeName: resolvedItem.garmentTypeName,
+            pieceNo: resolvedItem.pieceNo,
+            quantity: 1,
+            unitPrice: resolvedItem.unitPrice,
+            description: resolvedItem.description,
+            fabricSource: resolvedItem.fabricSource,
+            shopFabric: resolvedItem.shopFabricId
+              ? { connect: { id: resolvedItem.shopFabricId } }
+              : undefined,
+            shopFabricPriceSnapshot: resolvedItem.shopFabricPriceSnapshot,
+            shopFabricTotalSnapshot: resolvedItem.shopFabricTotal,
+            shopFabricNameSnapshot: resolvedItem.shopFabricNameSnapshot,
+            customerFabricNote: resolvedItem.customerFabricNote,
+            dueDate: resolvedItem.dueDate,
+            designType: resolvedItem.designTypeId
+              ? { connect: { id: resolvedItem.designTypeId } }
+              : undefined,
+            addons: {
+              create: resolvedItem.addons.map((addon) => ({
+                type: addon.type,
+                name: addon.name,
+                price: addon.price,
+                cost: addon.cost,
+              })),
             },
-          }),
+          },
         });
         createdItems.push(orderItem);
+      }
 
-        // 2. Generate Tasks
-        const settings = await tx.systemSettings.findUnique({
-          where: { id: 'default' },
-        });
-        if (settings?.useTaskWorkflow) {
-          await this.generateTasksForItem(
-            orderItem.id,
-            orderItem.garmentTypeId,
-            order.branchId,
-            tx,
-          );
-        }
+      for (const orderItem of createdItems) {
+        await this.generateTasksForItem(
+          orderItem.id,
+          orderItem.garmentTypeId,
+          order.branchId,
+          tx,
+        );
       }
 
       return this.recalcOrderTotals(orderId, tx);

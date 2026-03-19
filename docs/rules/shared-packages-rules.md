@@ -25,6 +25,16 @@ These rules apply to `packages/shared-types`, `packages/shared-constants`, and `
 6. Keep self-scope permissions explicit (for example `employees.self.read`) instead of overloading broader staff permissions.
 7. Shared brand primitives that are consumed by multiple apps (for example mail template theme tokens) must live in `@tbms/shared-constants`, not in app-local files.
 8. Shared user branch-scope contracts must use `null` as the explicit `All Branches` sentinel when a user is globally scoped. Frontend updates must send `branchId: null` when clearing branch scope; omitting the field means "leave existing branch scope unchanged."
+9. Piece-first order contracts and shop-fabric catalog contracts must stay in shared packages:
+   - order item input/response types must carry piece-level fabric fields and snapshot values
+   - shop fabric catalog and pricing types must remain shared because both apps read and write them
+   - money values inside shared contracts remain paisa at rest even when the web form accepts rupee-friendly input
+10. Customer financial metrics must distinguish booked order value from collected payments:
+   - `Customer.lifetimeValue` represents booked value across non-cancelled orders
+   - `customer.stats.totalSpent` represents booked order value shown in customer detail
+   - collected cash stays separate as `customer.stats.totalPaid`
+11. Attendance contracts and permissions are intentionally absent from the live shared surface.
+    Do not reintroduce attendance DTOs, attendance permissions, or attendance route policies unless the product scope explicitly restores attendance and both apps are updated together.
 
 ## 3. File Structure Rules
 

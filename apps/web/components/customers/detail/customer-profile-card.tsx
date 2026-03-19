@@ -85,6 +85,13 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
           </div>
         </div>
 
+        <div className="rounded-md border border-border/70 bg-muted/20 px-3 py-2.5">
+          <FieldLabel size="compact">Payments Received</FieldLabel>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {formatPKR(customer.stats?.totalPaid || 0)}
+          </p>
+        </div>
+
         <div className="border-t flex justify-between items-center border-border pt-4">
           <FieldLabel className="mb-1">Account Type</FieldLabel>
           <Badge variant={customer.isVip ? "secondary" : "secondary"}>

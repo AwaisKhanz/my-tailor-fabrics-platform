@@ -27,7 +27,7 @@ interface OrderDetailDialogsProps {
   paymentValidationError: string | null;
   processingPayment: boolean;
   publicShareUrl: string | null;
-  refreshOrder: () => void;
+  refreshOrder: () => Promise<void> | void;
   reversingPaymentId: string | null;
   setTaskOpen: (open: boolean) => void;
   shareData: { token: string; pin: string } | null;

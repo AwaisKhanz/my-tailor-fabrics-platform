@@ -1,4 +1,4 @@
-import { Ruler } from "lucide-react";
+import { Pencil, Ruler } from "lucide-react";
 import { type CustomerMeasurement } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
@@ -10,6 +10,7 @@ import { Text } from "@tbms/ui/components/typography";
 interface CustomerMeasurementsTabProps {
   measurements: CustomerMeasurement[];
   onUpdateMeasurements: () => void;
+  onEditMeasurement: (measurement: CustomerMeasurement) => void;
   getMeasurementLabel: (
     measurement: CustomerMeasurement,
     fieldId: string,
@@ -20,6 +21,7 @@ interface CustomerMeasurementsTabProps {
 export function CustomerMeasurementsTab({
   measurements,
   onUpdateMeasurements,
+  onEditMeasurement,
   getMeasurementLabel,
   canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
@@ -57,13 +59,32 @@ export function CustomerMeasurementsTab({
             {measurements.map((measurement) => (
               <Card key={measurement.id} className="bg-muted shadow-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between text-sm">
-                    {measurement.category?.name || "Measurement Set"}
-                    <FieldLabel className="font-normal opacity-60">
-                      Updated:{" "}
-                      {new Date(measurement.updatedAt).toLocaleDateString()}
-                    </FieldLabel>
-                  </CardTitle>
+                  <div className="flex items-start justify-between gap-3">
+                    <CardTitle className="text-sm">
+                      {measurement.category?.name || "Measurement Set"}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <FieldLabel className="font-normal opacity-60">
+                        Updated:{" "}
+                        {new Date(measurement.updatedAt).toLocaleDateString()}
+                      </FieldLabel>
+                      {canUpdateMeasurements ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => onEditMeasurement(measurement)}
+                          aria-label={`Edit ${
+                            measurement.category?.name || "measurement set"
+                          }`}
+                          title="Edit measurement set"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
                 </CardHeader>
 
                 <CardContent className="pt-4">
