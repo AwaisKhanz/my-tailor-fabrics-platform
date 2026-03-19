@@ -35,7 +35,7 @@ export function ReportsFinancialTrendChart({
       legend={
         <ReportsChartLegend
           items={[
-            { label: "Revenue", toneClassName: "bg-chart-1" },
+            { label: "Cash Collected", toneClassName: "bg-chart-1" },
             { label: "Expenses", toneClassName: "bg-chart-2" },
             { label: "Net", toneClassName: "bg-chart-3" },
           ]}
@@ -225,7 +225,7 @@ function FinancialTrendSvg({ trend }: { trend: FinancialTrend }) {
               {activePoint.label}
             </text>
             <text x="12" y="35" className="fill-chart-1 text-xs">
-              Revenue: {formatPKR(activePoint.revenue)}
+              Cash Collected: {formatPKR(activePoint.revenue)}
             </text>
             <text x="12" y="49" className="fill-chart-2 text-xs">
               Expenses: {formatPKR(activePoint.expenses)}

@@ -398,6 +398,18 @@ export class OrdersService {
     filters: OrdersFindFilters = {},
   ): Promise<OrdersListSummary> {
     const whereClause = buildOrdersWhereClause(branchId, filters);
+    const totalValueWhere: Prisma.OrderWhereInput = filters.status
+      ? whereClause
+      : {
+          AND: [
+            whereClause,
+            {
+              status: {
+                not: PrismaOrderStatus.CANCELLED,
+              },
+            },
+          ],
+        };
 
     const now = new Date();
     const weekAhead = new Date(now);
@@ -406,7 +418,7 @@ export class OrdersService {
     const [totals, dueSoonCount, overdueCount, completedCount] =
       await Promise.all([
         this.prisma.order.aggregate({
-          where: whereClause,
+          where: totalValueWhere,
           _sum: { totalAmount: true },
         }),
         this.prisma.order.count({

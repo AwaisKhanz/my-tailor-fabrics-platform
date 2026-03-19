@@ -40,10 +40,10 @@ export function DashboardSectionCards({
       ) : null}
       <StatsGrid columns="four">
         <StatCard
-          title="Total Revenue"
-          subtitle="Confirmed inflow"
+          title="Cash Collected"
+          subtitle="Confirmed payments"
           value={<Value loading={loading} value={revenue} />}
-          helperText="Updated from report totals"
+          helperText="Posted order payments received"
           badgeText="Live"
           tone="success"
           icon={<TrendingUp className="h-4 w-4" />}
@@ -61,7 +61,7 @@ export function DashboardSectionCards({
           title="Outstanding Balance"
           subtitle="Pending receivables"
           value={<Value loading={loading} value={outstanding} />}
-          helperText="Needs recovery attention"
+          helperText="Unpaid balance across active orders"
           badgeText="Follow-up"
           tone="destructive"
           icon={<TrendingDown className="h-4 w-4" />}

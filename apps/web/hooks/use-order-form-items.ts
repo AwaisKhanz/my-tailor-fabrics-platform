@@ -320,6 +320,16 @@ export function useOrderFormItems({
 
   const applyShopFabricDefaults = useCallback(
     (itemIndex: number, fabricId: string) => {
+      if (!fabricId) {
+        form.setValue(`items.${itemIndex}.shopFabricId`, undefined, {
+          shouldDirty: true,
+        });
+        form.setValue(`items.${itemIndex}.shopFabricPrice`, undefined, {
+          shouldDirty: true,
+        });
+        return;
+      }
+
       const selectedFabric = shopFabricMap.get(fabricId);
       form.setValue(`items.${itemIndex}.shopFabricId`, fabricId, {
         shouldDirty: true,

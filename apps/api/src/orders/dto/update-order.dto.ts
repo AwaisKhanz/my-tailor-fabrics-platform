@@ -58,7 +58,6 @@ export class UpdateOrderItemDto {
 
   @IsString()
   @IsOptional()
-  @IsCuidString()
   shopFabricId?: string | null;
 
   @IsNumber()
@@ -76,7 +75,6 @@ export class UpdateOrderItemDto {
 
   @IsString()
   @IsOptional()
-  @IsCuidString()
   designTypeId?: string;
 
   @IsArray()

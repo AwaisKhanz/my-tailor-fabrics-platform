@@ -429,6 +429,7 @@ export function useOrderFormPage() {
             item.fabricSource === FabricSource.CUSTOMER
               ? item.customerFabricNote || item.description || null
               : null,
+          designTypeId: item.designTypeId || null,
           addons: item.addons?.map((addon) => ({
             ...addon,
             price: Number(addon.price || 0),

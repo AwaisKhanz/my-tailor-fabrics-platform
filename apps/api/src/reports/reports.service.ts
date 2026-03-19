@@ -338,14 +338,42 @@ export class ReportsService {
     const range = resolveOptionalDateRange(from, to);
 
     const result = await this.prisma.$queryRaw<
-      { label: string; value: bigint }[]
+      { label: string; value: number }[]
     >(
       Prisma.sql`
-        SELECT oi."garmentTypeName" as label, SUM(oi."unitPrice" * oi.quantity) as value
+        SELECT
+          oi."garmentTypeName" AS label,
+          COALESCE(
+            SUM(
+              (
+                oi."unitPrice"
+                + COALESCE(oi."shopFabricTotalSnapshot", 0)
+                + COALESCE(addon_totals."addonTotal", 0)
+                + COALESCE(design_totals."designTotal", 0)
+              ) * oi.quantity
+            ),
+            0
+          )::double precision AS value
         FROM "OrderItem" oi
         JOIN "Order" o ON o.id = oi."orderId"
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(SUM(a.price), 0) AS "addonTotal"
+          FROM "OrderItemAddon" a
+          WHERE a."orderItemId" = oi.id
+            AND a."deletedAt" IS NULL
+        ) addon_totals ON TRUE
+        LEFT JOIN LATERAL (
+          SELECT
+            CASE
+              WHEN dt."defaultPrice" IS NULL THEN 0
+              ELSE dt."defaultPrice"
+            END AS "designTotal"
+          FROM "DesignType" dt
+          WHERE dt.id = oi."designTypeId"
+        ) design_totals ON TRUE
         WHERE oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
           AND o."deletedAt" IS NULL
+          AND o.status <> CAST(${OrderStatus.CANCELLED} AS "OrderStatus")
           ${branchCondition}
           ${getSqlDateCondition('orderCreatedAt', range)}
         GROUP BY oi."garmentTypeName"
@@ -377,6 +405,7 @@ export class ReportsService {
           JOIN "Order" o ON o.id = oi."orderId"
           LEFT JOIN "DesignType" dt ON dt.id = oi."designTypeId"
           WHERE o."deletedAt" IS NULL
+            AND o.status <> CAST(${OrderStatus.CANCELLED} AS "OrderStatus")
             AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
             AND oi."designTypeId" IS NOT NULL
             ${branchCondition}
@@ -395,6 +424,7 @@ export class ReportsService {
           JOIN "OrderItem" oi ON oi.id = a."orderItemId"
           JOIN "Order" o ON o.id = oi."orderId"
           WHERE o."deletedAt" IS NULL
+            AND o.status <> CAST(${OrderStatus.CANCELLED} AS "OrderStatus")
             AND a."deletedAt" IS NULL
             AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
             ${branchCondition}
@@ -408,10 +438,36 @@ export class ReportsService {
           SELECT
             LOWER(REPLACE(oi."garmentTypeName", ' ', '-')) AS key,
             oi."garmentTypeName" AS label,
-            COALESCE(SUM(oi."unitPrice" * oi.quantity), 0)::double precision AS value
+            COALESCE(
+              SUM(
+                (
+                  oi."unitPrice"
+                  + COALESCE(oi."shopFabricTotalSnapshot", 0)
+                  + COALESCE(addon_totals."addonTotal", 0)
+                  + COALESCE(design_totals."designTotal", 0)
+                ) * oi.quantity
+              ),
+              0
+            )::double precision AS value
           FROM "OrderItem" oi
           JOIN "Order" o ON o.id = oi."orderId"
+          LEFT JOIN LATERAL (
+            SELECT COALESCE(SUM(a.price), 0) AS "addonTotal"
+            FROM "OrderItemAddon" a
+            WHERE a."orderItemId" = oi.id
+              AND a."deletedAt" IS NULL
+          ) addon_totals ON TRUE
+          LEFT JOIN LATERAL (
+            SELECT
+              CASE
+                WHEN dt."defaultPrice" IS NULL THEN 0
+                ELSE dt."defaultPrice"
+              END AS "designTotal"
+            FROM "DesignType" dt
+            WHERE dt.id = oi."designTypeId"
+          ) design_totals ON TRUE
           WHERE o."deletedAt" IS NULL
+            AND o.status <> CAST(${OrderStatus.CANCELLED} AS "OrderStatus")
             AND oi.status <> CAST(${ItemStatus.CANCELLED} AS "ItemStatus")
             ${branchCondition}
             ${getSqlDateCondition('orderCreatedAt', range)}

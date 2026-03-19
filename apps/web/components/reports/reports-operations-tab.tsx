@@ -20,7 +20,7 @@ export function ReportsOperationsTab({
         <ReportsDistributionChart
           loading={loading}
           title="Design Demand"
-          description="Revenue-weighted demand by design type."
+          description="Non-cancelled booked design contribution by design type."
           points={distributions?.designs ?? []}
           mode="bar"
           valueFormatter={(value) => formatPKR(value)}
@@ -29,7 +29,7 @@ export function ReportsOperationsTab({
         <ReportsDistributionChart
           loading={loading}
           title="Addon Contribution"
-          description="Addon categories split across selected orders."
+          description="Non-cancelled addon contribution across selected orders."
           points={distributions?.addons ?? []}
           mode="donut"
           valueFormatter={(value) => formatPKR(value)}

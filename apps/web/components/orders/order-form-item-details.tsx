@@ -21,6 +21,8 @@ import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 
+const EMPTY_SHOP_FABRIC_VALUE = "__NO_SHOP_FABRIC__";
+
 interface OrderFormItemDetailsProps {
   index: number;
   form: UseFormReturn<OrderFormValues>;
@@ -231,8 +233,13 @@ export function OrderFormItemDetails({
                     Shop Fabric
                   </FormLabel>
                   <Select
-                    onValueChange={(value) => onSelectShopFabric(index, value)}
-                    value={field.value || undefined}
+                    onValueChange={(value) =>
+                      onSelectShopFabric(
+                        index,
+                        value === EMPTY_SHOP_FABRIC_VALUE ? "" : value,
+                      )
+                    }
+                    value={field.value ?? EMPTY_SHOP_FABRIC_VALUE}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -240,6 +247,9 @@ export function OrderFormItemDetails({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value={EMPTY_SHOP_FABRIC_VALUE}>
+                        Select branch fabric
+                      </SelectItem>
                       {shopFabrics.map((fabric) => (
                         <SelectItem key={fabric.id} value={fabric.id}>
                           {fabric.name}

@@ -46,7 +46,7 @@ export function DashboardChartAreaInteractive({
   }, []);
 
   const handleExportCsv = React.useCallback(() => {
-    const header = "Month,Revenue,Expenses";
+    const header = "Month,Cash Collected,Expenses";
     const rows = chartRows.map(
       (row) => `${row.label},${row.revenue},${row.expenses}`,
     );
@@ -56,7 +56,7 @@ export function DashboardChartAreaInteractive({
     );
     toast({
       title: "CSV exported",
-      description: "Revenue vs Expenses data was downloaded.",
+      description: "Cash collected vs expenses data was downloaded.",
       variant: "success",
     });
   }, [chartRows, downloadText]);
@@ -68,7 +68,7 @@ export function DashboardChartAreaInteractive({
     );
     toast({
       title: "JSON exported",
-      description: "Revenue vs Expenses data was downloaded.",
+      description: "Cash collected vs expenses data was downloaded.",
       variant: "success",
     });
   }, [chartRows, downloadText]);
@@ -84,12 +84,12 @@ export function DashboardChartAreaInteractive({
       return;
     }
 
-    const text = `${latest.label}: Revenue ${formatPKR(latest.revenue)}, Expenses ${formatPKR(latest.expenses)}.`;
+    const text = `${latest.label}: Cash collected ${formatPKR(latest.revenue)}, Expenses ${formatPKR(latest.expenses)}.`;
 
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Revenue vs Expenses",
+          title: "Cash Collected vs Expenses",
           text,
         });
         return;
@@ -121,8 +121,8 @@ export function DashboardChartAreaInteractive({
 
   return (
     <InteractiveSalesChart
-      title="Revenue vs Expenses"
-      description="Monthly financial movement for the selected period."
+      title="Cash Collected vs Expenses"
+      description="Monthly posted payments versus operating expenses for the selected period."
       data={chartRows}
       currencyFormatter={formatPKR}
       refreshing={refreshing}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   createMeasurementValuesFormSchema,
@@ -45,6 +45,7 @@ export function useMeasurementForm({
     useState<MeasurementCategory | null>(null);
   const categoriesQuery = useMeasurementCategories();
   const upsertMeasurementsMutation = useUpsertCustomerMeasurements();
+  const dialogSyncKeyRef = useRef<string | null>(null);
 
   const categories: MeasurementCategory[] = categoriesQuery.data?.success
     ? categoriesQuery.data.data.data
@@ -127,32 +128,44 @@ export function useMeasurementForm({
     return valuesByCategory;
   }, [initialCategoryId, initialValues, measurements]);
 
+  const getValuesForCategory = (categoryId: string): MeasurementValues =>
+    measurementValuesByCategory.get(categoryId) ?? {};
+
   useEffect(() => {
     if (!open) {
+      dialogSyncKeyRef.current = null;
       return;
     }
 
     if (!categories.length) {
+      if (dialogSyncKeyRef.current === "__empty__") {
+        return;
+      }
+
+      dialogSyncKeyRef.current = "__empty__";
       setSelectedCategory(null);
       form.reset({});
       return;
     }
 
-    if (initialCategoryId) {
-      const initialCategory = categories.find(
-        (item) => item.id === initialCategoryId,
-      );
-      if (initialCategory) {
-        setSelectedCategory(initialCategory);
-        form.clearErrors();
-        form.reset(measurementValuesByCategory.get(initialCategory.id) ?? {});
-        return;
-      }
+    const initialCategory = initialCategoryId
+      ? categories.find((item) => item.id === initialCategoryId) ?? null
+      : null;
+    const nextCategory = initialCategory ?? null;
+    const nextValues = nextCategory ? getValuesForCategory(nextCategory.id) : {};
+    const syncKey = JSON.stringify({
+      categoryId: nextCategory?.id ?? null,
+      values: nextValues,
+    });
+
+    if (dialogSyncKeyRef.current === syncKey) {
+      return;
     }
 
-    setSelectedCategory(null);
+    dialogSyncKeyRef.current = syncKey;
+    setSelectedCategory(nextCategory);
     form.clearErrors();
-    form.reset({});
+    form.reset(nextValues);
   }, [categories, form, initialCategoryId, measurementValuesByCategory, open]);
 
   useEffect(() => {
@@ -174,7 +187,7 @@ export function useMeasurementForm({
 
     setSelectedCategory(category);
     form.clearErrors();
-    form.reset(measurementValuesByCategory.get(categoryId) ?? {});
+    form.reset(getValuesForCategory(categoryId));
   };
 
   async function onSubmit(values: MeasurementValues) {

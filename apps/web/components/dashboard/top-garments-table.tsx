@@ -40,7 +40,7 @@ export function DashboardTopGarmentsTable({
 
       <ProductSalesTable
         title="Top Garment Sales"
-        description="Best performing garments by revenue in the selected period."
+        description="Best performing garments by non-cancelled booked invoice value in the selected period."
         rows={rows}
         emptyText="No garment sales data yet."
         currencyFormatter={formatPKR}

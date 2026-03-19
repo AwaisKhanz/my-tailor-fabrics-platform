@@ -15,10 +15,10 @@ export function ReportsFinancialTab({ loading, trend }: ReportsFinancialTabProps
     <div className="space-y-4">
       <StatsGrid columns="threeMd">
         <StatCard
-          title="Total Revenue"
-          subtitle="Range aggregate"
+          title="Cash Collected"
+          subtitle="Posted payments in range"
           value={formatPKR(trend?.totals.revenue ?? 0)}
-          badgeText="Revenue"
+          badgeText="Collected"
           tone="success"
           icon={<Banknote className="h-4 w-4" />}
         />
@@ -32,7 +32,7 @@ export function ReportsFinancialTab({ loading, trend }: ReportsFinancialTabProps
         />
         <StatCard
           title="Net Result"
-          subtitle="Revenue minus expenses"
+          subtitle="Cash collected minus expenses"
           value={formatPKR(trend?.totals.net ?? 0)}
           badgeText="Net"
           tone={(trend?.totals.net ?? 0) < 0 ? "destructive" : "info"}
@@ -43,8 +43,8 @@ export function ReportsFinancialTab({ loading, trend }: ReportsFinancialTabProps
       <ReportsFinancialTrendChart
         loading={loading}
         trend={trend}
-        title="Revenue vs Expenses"
-        description="Period trend with Revenue, Expenses, and Net overlay."
+        title="Cash Collected vs Expenses"
+        description="Period trend with cash collected, expenses, and net overlay."
       />
     </div>
   );

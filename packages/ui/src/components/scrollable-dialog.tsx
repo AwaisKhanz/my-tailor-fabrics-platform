@@ -37,6 +37,38 @@ export function ScrollableDialog({
   maxWidthClass = "sm:max-w-md",
   maxHeightClass = "max-h-[90vh]",
 }: ScrollableDialogProps) {
+  React.useEffect(() => {
+    if (!open || typeof document === "undefined") {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      const activeElement = document.activeElement;
+      if (
+        activeElement instanceof HTMLElement &&
+        !activeElement.closest("[data-slot='dialog-content']")
+      ) {
+        activeElement.blur();
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen && typeof document !== "undefined") {
+        const activeElement = document.activeElement;
+        if (activeElement instanceof HTMLElement) {
+          activeElement.blur();
+        }
+      }
+
+      onOpenChange(nextOpen);
+    },
+    [onOpenChange],
+  );
+
   const contentSizeClassMap: Record<
     NonNullable<ScrollableDialogProps["contentSize"]>,
     string
@@ -53,7 +85,7 @@ export function ScrollableDialog({
   const contentSizeClass = contentSizeClassMap[contentSize];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className={cn(
           contentSizeClass,

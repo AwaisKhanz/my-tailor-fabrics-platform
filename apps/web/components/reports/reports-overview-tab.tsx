@@ -57,8 +57,8 @@ export function ReportsOverviewTab({
     <div className="space-y-4">
       <StatsGrid columns="four">
         <StatCard
-          title="Revenue"
-          subtitle="Total period revenue"
+          title="Cash Collected"
+          subtitle="Posted payments in selected period"
           value={formatPKR(summary?.revenue ?? 0)}
           helperText={revenueDeltaBadge}
           badgeText={`${summary?.totalOrders ?? 0} orders`}
@@ -78,7 +78,7 @@ export function ReportsOverviewTab({
 
         <StatCard
           title="Net"
-          subtitle="Revenue minus expenses"
+          subtitle="Cash collected minus expenses"
           value={formatPKR(netCurrent)}
           helperText={netDeltaBadge}
           badgeText="Net"
@@ -102,14 +102,14 @@ export function ReportsOverviewTab({
           loading={loading}
           trend={financialTrend}
           title="Financial Pulse"
-          description="Revenue, expense, and net movement for the selected timeframe."
+          description="Cash collected, expenses, and net movement for the selected timeframe."
         />
 
         <div className="space-y-4">
           <ReportsDistributionChart
             loading={loading}
             title="Garment Mix"
-            description="Contribution split across garment categories."
+            description="Non-cancelled booked invoice contribution across garment categories."
             points={distributions?.garments ?? []}
             mode="donut"
             valueFormatter={(value) => formatPKR(value)}

@@ -27,6 +27,23 @@ import {
 } from "@tbms/ui/components/select";
 import { formatDate, formatDateTime, formatPKR } from "@/lib/utils";
 
+function getWorkHistorySubtitle(item: OrderItem) {
+  if (item.completedAt) {
+    return `Completed: ${formatDate(item.completedAt)}`;
+  }
+
+  switch (item.status) {
+    case "COMPLETED":
+      return "Completed";
+    case "IN_PROGRESS":
+      return "In Progress";
+    case "CANCELLED":
+      return "Cancelled";
+    default:
+      return "Pending";
+  }
+}
+
 export function createEmployeeHistoryColumns(
   onViewOrder: (orderId: string) => void,
 ): ColumnDef<OrderItem>[] {
@@ -45,9 +62,7 @@ export function createEmployeeHistoryColumns(
         <div className="flex flex-col">
           <span className="font-medium">{row.original.garmentTypeName}</span>
           <span className="text-xs text-muted-foreground">
-            {row.original.completedAt
-              ? `Completed: ${formatDate(row.original.completedAt)}`
-              : "Pending"}
+            {getWorkHistorySubtitle(row.original)}
           </span>
         </div>
       ),

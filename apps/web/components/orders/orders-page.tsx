@@ -79,8 +79,8 @@ export function OrdersPage() {
       <PageSection spacing="compact">
         <StatsGrid columns="four">
           <StatCard
-            title="Filtered Value"
-            subtitle="Current result set value"
+            title="Booked Value"
+            subtitle="Non-cancelled orders in current result set"
             value={formatPKR(summary.totalValue)}
             badgeText="Value"
             tone="primary"
