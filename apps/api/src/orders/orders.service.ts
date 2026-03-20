@@ -530,7 +530,7 @@ export class OrdersService {
           item.tasks.map((task) => task.status),
         );
 
-        if (!derivedStatus || derivedStatus === item.status) {
+        if (!derivedStatus || derivedStatus === (item.status as ItemStatus)) {
           return null;
         }
 
@@ -813,11 +813,17 @@ export class OrdersService {
           throw new BadRequestException('Order must contain at least one item');
         }
 
-        const existingItemsById = new Map(order.items.map((item) => [item.id, item]));
-        const incomingIds = new Set(
-          dto.items.map((item) => item.id).filter((value): value is string => Boolean(value)),
+        const existingItemsById = new Map(
+          order.items.map((item) => [item.id, item]),
         );
-        const itemsToRemove = order.items.filter((item) => !incomingIds.has(item.id));
+        const incomingIds = new Set(
+          dto.items
+            .map((item) => item.id)
+            .filter((value): value is string => Boolean(value)),
+        );
+        const itemsToRemove = order.items.filter(
+          (item) => !incomingIds.has(item.id),
+        );
 
         if (itemsToRemove.length > 0) {
           await this.cancelActiveTasksForOrderItems(
@@ -868,30 +874,30 @@ export class OrdersService {
               description:
                 itemDto.description !== undefined
                   ? itemDto.description
-                  : existingItem.description ?? undefined,
+                  : (existingItem.description ?? undefined),
               fabricSource:
                 itemDto.fabricSource ??
                 (existingItem.fabricSource as unknown as SharedFabricSource),
               shopFabricId:
                 itemDto.shopFabricId !== undefined
-                  ? itemDto.shopFabricId ?? undefined
-                  : existingItem.shopFabricId ?? undefined,
+                  ? (itemDto.shopFabricId ?? undefined)
+                  : (existingItem.shopFabricId ?? undefined),
               shopFabricPrice:
                 itemDto.shopFabricPrice !== undefined
-                  ? itemDto.shopFabricPrice ?? undefined
-                  : existingItem.shopFabricPriceSnapshot ?? undefined,
+                  ? (itemDto.shopFabricPrice ?? undefined)
+                  : (existingItem.shopFabricPriceSnapshot ?? undefined),
               customerFabricNote:
                 itemDto.customerFabricNote !== undefined
-                  ? itemDto.customerFabricNote ?? undefined
-                  : existingItem.customerFabricNote ?? undefined,
+                  ? (itemDto.customerFabricNote ?? undefined)
+                  : (existingItem.customerFabricNote ?? undefined),
               dueDate:
                 itemDto.dueDate ??
                 existingItem.dueDate?.toISOString() ??
                 undefined,
               designTypeId:
                 itemDto.designTypeId !== undefined
-                  ? itemDto.designTypeId ?? undefined
-                  : existingItem.designTypeId ?? undefined,
+                  ? (itemDto.designTypeId ?? undefined)
+                  : (existingItem.designTypeId ?? undefined),
               addons:
                 itemDto.addons ??
                 existingItem.addons.map((addon) => ({
@@ -910,7 +916,7 @@ export class OrdersService {
                 [nextGarmentTypeId]:
                   nextGarmentTypeId === existingItem.garmentTypeId
                     ? existingItem.pieceNo - 1
-                    : pieceSeed[nextGarmentTypeId] ?? 0,
+                    : (pieceSeed[nextGarmentTypeId] ?? 0),
               },
             );
 
@@ -970,7 +976,9 @@ export class OrdersService {
 
           const nextGarmentTypeId = itemDto.garmentTypeId;
           if (!nextGarmentTypeId) {
-            throw new BadRequestException('Garment type is required for new pieces');
+            throw new BadRequestException(
+              'Garment type is required for new pieces',
+            );
           }
           const createItemDraft: OrderItemDto = {
             garmentTypeId: nextGarmentTypeId,
@@ -990,8 +998,7 @@ export class OrdersService {
             [createItemDraft],
             branchId,
             {
-              [nextGarmentTypeId]:
-                pieceSeed[nextGarmentTypeId] ?? 0,
+              [nextGarmentTypeId]: pieceSeed[nextGarmentTypeId] ?? 0,
             },
           );
 

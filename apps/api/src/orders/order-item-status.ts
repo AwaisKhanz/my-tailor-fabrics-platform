@@ -20,8 +20,7 @@ export function deriveOrderItemStatusFromTaskStatuses(
 
   const allWorkFinished = taskStatuses.every(
     (status) =>
-      status === PrismaTaskStatus.DONE ||
-      status === PrismaTaskStatus.CANCELLED,
+      status === PrismaTaskStatus.DONE || status === PrismaTaskStatus.CANCELLED,
   );
 
   if (allWorkFinished) {

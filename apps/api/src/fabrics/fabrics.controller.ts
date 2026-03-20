@@ -8,7 +8,11 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ADMIN_ROLES, OPERATOR_ROLES, PERMISSION } from '@tbms/shared-constants';
+import {
+  ADMIN_ROLES,
+  OPERATOR_ROLES,
+  PERMISSION,
+} from '@tbms/shared-constants';
 import { Roles } from '../common/decorators/auth.decorators';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
@@ -78,7 +82,8 @@ export class FabricsController {
     @Req() req: AuthenticatedRequest,
   ) {
     const data = await this.fabricsService.create(
-      resolveBranchScopeForMutation(req, dto.branchId) ?? requireBranchScope(req),
+      resolveBranchScopeForMutation(req, dto.branchId) ??
+        requireBranchScope(req),
       dto,
     );
     return success(data);
@@ -92,14 +97,12 @@ export class FabricsController {
     @Body() dto: UpdateShopFabricDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const data = await this.fabricsService.update(
-      id,
-      requireBranchScope(req),
-      {
-        ...dto,
-        branchId: resolveBranchScopeForMutation(req, dto.branchId) ?? requireBranchScope(req),
-      },
-    );
+    const data = await this.fabricsService.update(id, requireBranchScope(req), {
+      ...dto,
+      branchId:
+        resolveBranchScopeForMutation(req, dto.branchId) ??
+        requireBranchScope(req),
+    });
     return success(data);
   }
 }

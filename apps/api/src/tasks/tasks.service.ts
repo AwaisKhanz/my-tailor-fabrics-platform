@@ -324,7 +324,10 @@ export class TasksService {
         await this.deactivateTaskEarningEntries(tx, taskId);
       }
 
-      await this.syncOrderItemStatusFromTasks(tx, taskInTransaction.orderItemId);
+      await this.syncOrderItemStatusFromTasks(
+        tx,
+        taskInTransaction.orderItemId,
+      );
 
       return updatedTask;
     });

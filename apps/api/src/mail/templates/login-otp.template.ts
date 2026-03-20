@@ -1,8 +1,5 @@
 import type { MailTemplatePayload } from './types';
-import {
-  buildBrandedHtmlTemplate,
-  buildBrandedTextTemplate,
-} from './layout';
+import { buildBrandedHtmlTemplate, buildBrandedTextTemplate } from './layout';
 
 export interface LoginOtpTemplateInput {
   otpCode: string;
@@ -24,8 +21,7 @@ export function buildLoginOtpTemplate(
       `This code expires in ${input.expiresInMinutes} minute${input.expiresInMinutes > 1 ? 's' : ''}.`,
       'If you did not request this login, please contact support immediately.',
     ],
-    footerNote:
-      'For your security, never share this code with anyone.',
+    footerNote: 'For your security, never share this code with anyone.',
   } as const;
 
   return {
@@ -34,4 +30,3 @@ export function buildLoginOtpTemplate(
     html: buildBrandedHtmlTemplate(templateInput),
   };
 }
-

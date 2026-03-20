@@ -90,7 +90,9 @@ export class FabricsService {
     });
 
     if (existing) {
-      throw new ConflictException('A fabric with this code already exists in the branch');
+      throw new ConflictException(
+        'A fabric with this code already exists in the branch',
+      );
     }
   }
 
@@ -140,7 +142,11 @@ export class FabricsService {
   }
 
   async getStats(branchId: string, search?: string) {
-    const baseWhere = this.buildWhere({ branchId, search, includeArchived: false });
+    const baseWhere = this.buildWhere({
+      branchId,
+      search,
+      includeArchived: false,
+    });
     const [totalItems, activeItems, inactiveItems] = await Promise.all([
       this.prisma.shopFabric.count({ where: baseWhere }),
       this.prisma.shopFabric.count({
@@ -197,24 +203,38 @@ export class FabricsService {
   ) {
     const existing = await this.getScopedFabric(id, currentBranchId);
     const nextBranchId = this.normalizeText(dto.branchId) ?? existing.branchId;
-    const nextName = dto.name !== undefined ? this.normalizeText(dto.name) : existing.name;
+    const nextName =
+      dto.name !== undefined ? this.normalizeText(dto.name) : existing.name;
 
     if (!nextName) {
       throw new BadRequestException('Fabric name is required');
     }
 
-    await this.ensureCodeAvailable(nextBranchId, dto.code ?? existing.code ?? undefined, id);
+    await this.ensureCodeAvailable(
+      nextBranchId,
+      dto.code ?? existing.code ?? undefined,
+      id,
+    );
 
     return this.prisma.shopFabric.update({
       where: { id },
       data: {
         branchId: nextBranchId,
         name: nextName,
-        brand: dto.brand !== undefined ? this.normalizeText(dto.brand) ?? null : undefined,
-        code: dto.code !== undefined ? this.normalizeText(dto.code) ?? null : undefined,
+        brand:
+          dto.brand !== undefined
+            ? (this.normalizeText(dto.brand) ?? null)
+            : undefined,
+        code:
+          dto.code !== undefined
+            ? (this.normalizeText(dto.code) ?? null)
+            : undefined,
         sellingRate: dto.sellingRate,
         isActive: dto.isActive,
-        notes: dto.notes !== undefined ? this.normalizeText(dto.notes) ?? null : undefined,
+        notes:
+          dto.notes !== undefined
+            ? (this.normalizeText(dto.notes) ?? null)
+            : undefined,
       },
       select: FABRIC_SELECT,
     });
@@ -236,7 +256,9 @@ export class FabricsService {
     });
 
     if (!fabric) {
-      throw new BadRequestException('Selected shop fabric is not available in this branch');
+      throw new BadRequestException(
+        'Selected shop fabric is not available in this branch',
+      );
     }
 
     return fabric;

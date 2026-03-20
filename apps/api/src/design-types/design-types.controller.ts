@@ -100,13 +100,12 @@ export class DesignTypesController {
     const scopedBranchId = resolveBranchScopeForMutation(req, undefined);
     const dto = {
       ...updateDesignTypeDto,
-      branchId: resolveBranchScopeForMutation(req, updateDesignTypeDto.branchId),
+      branchId: resolveBranchScopeForMutation(
+        req,
+        updateDesignTypeDto.branchId,
+      ),
     };
-    const data = await this.designTypesService.update(
-      id,
-      dto,
-      scopedBranchId,
-    );
+    const data = await this.designTypesService.update(id, dto, scopedBranchId);
     return success(data);
   }
 

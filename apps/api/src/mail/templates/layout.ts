@@ -22,7 +22,12 @@ export function escapeHtml(value: string): string {
 export function buildBrandedTextTemplate(
   input: BrandedMailTemplateInput,
 ): string {
-  const lines: string[] = ['My Tailor & Fabrics', '', input.title, input.subtitle];
+  const lines: string[] = [
+    'My Tailor & Fabrics',
+    '',
+    input.title,
+    input.subtitle,
+  ];
 
   if (input.calloutLabel && input.calloutValue) {
     lines.push('', `${input.calloutLabel}: ${input.calloutValue}`);

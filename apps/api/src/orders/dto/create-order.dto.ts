@@ -10,11 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  AddonType,
-  DiscountType,
-  FabricSource,
-} from '@tbms/shared-types';
+import { AddonType, DiscountType, FabricSource } from '@tbms/shared-types';
 import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class OrderItemDto {

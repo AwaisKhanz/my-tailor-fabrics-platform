@@ -16,7 +16,6 @@ import {
   transformOptionalBoolean,
   transformOptionalString,
 } from '../../common/dto/query-transformers';
-import { IsCuidString } from '../../common/validators/is-cuid-string';
 
 export class EmployeeCapabilityWindowInputDto {
   @IsString()
