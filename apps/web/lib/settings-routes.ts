@@ -1,4 +1,6 @@
-export const SETTINGS_ROUTE = "/settings";
+import { toPortalRoute } from '@/lib/portal-routing';
+
+export const SETTINGS_ROUTE = toPortalRoute("/settings");
 
 export const BRANCHES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/branches`;
 export const GARMENTS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/garments`;

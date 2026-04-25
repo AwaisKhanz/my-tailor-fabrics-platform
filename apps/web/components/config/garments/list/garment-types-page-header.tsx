@@ -14,7 +14,7 @@ export function GarmentTypesPageHeader({
   return (
     <PageHeader
       title="Garment Management"
-      description="Configure garment types, inventory pricing models, and production rates."
+      description="Combine measurement forms, customer pricing, and workflow setup into the garments your staff will actually sell."
       actions={
         canCreate ? (
           <Button variant="default" onClick={onAdd}>

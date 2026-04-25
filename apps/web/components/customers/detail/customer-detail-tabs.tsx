@@ -1,12 +1,19 @@
-import { type CustomerMeasurement, type Order } from "@tbms/shared-types";
+import { type CustomerDetail, type CustomerMeasurement, type Order } from "@tbms/shared-types";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@tbms/ui/components/tabs";
+import { CustomerOverviewTab } from "@/components/customers/detail/customer-overview-tab";
 import { CustomerMeasurementsTab } from "@/components/customers/detail/customer-measurements-tab";
 import { CustomerOrdersTab } from "@/components/customers/detail/customer-orders-tab";
-import { CustomerNotesTab } from "@/components/customers/detail/customer-notes-tab";
+import { CustomerPaymentsTab } from "@/components/customers/detail/customer-payments-tab";
 
 interface CustomerDetailTabsProps {
+  customer: CustomerDetail;
   measurements: CustomerMeasurement[];
   orders: Order[];
-  notes?: string | null;
   getMeasurementLabel: (
     measurement: CustomerMeasurement,
     fieldId: string,
@@ -18,9 +25,9 @@ interface CustomerDetailTabsProps {
 }
 
 export function CustomerDetailTabs({
+  customer,
   measurements,
   orders,
-  notes,
   getMeasurementLabel,
   onUpdateMeasurements,
   onEditMeasurement,
@@ -28,8 +35,33 @@ export function CustomerDetailTabs({
   canUpdateMeasurements = true,
 }: CustomerDetailTabsProps) {
   return (
-    <div className="space-y-6">
-      <section>
+    <Tabs defaultValue="overview" className="flex flex-col gap-6">
+      <div className="overflow-x-auto">
+        <TabsList variant="line" className="min-w-max">
+          <TabsTrigger value="overview" className="px-3 py-2 text-sm">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="measurements" className="px-3 py-2 text-sm">
+            Measurements
+          </TabsTrigger>
+          <TabsTrigger value="orders" className="px-3 py-2 text-sm">
+            Orders
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="px-3 py-2 text-sm">
+            Payments
+          </TabsTrigger>
+        </TabsList>
+      </div>
+
+      <TabsContent value="overview" className="mt-0">
+        <CustomerOverviewTab
+          customer={customer}
+          orders={orders}
+          measurements={measurements}
+        />
+      </TabsContent>
+
+      <TabsContent value="measurements" className="mt-0">
         <CustomerMeasurementsTab
           measurements={measurements}
           getMeasurementLabel={getMeasurementLabel}
@@ -37,15 +69,19 @@ export function CustomerDetailTabs({
           onEditMeasurement={onEditMeasurement}
           canUpdateMeasurements={canUpdateMeasurements}
         />
-      </section>
+      </TabsContent>
 
-      <section>
+      <TabsContent value="orders" className="mt-0">
         <CustomerOrdersTab orders={orders} onOpenOrder={onOpenOrder} />
-      </section>
+      </TabsContent>
 
-      <section>
-        <CustomerNotesTab notes={notes} />
-      </section>
-    </div>
+      <TabsContent value="payments" className="mt-0">
+        <CustomerPaymentsTab
+          customer={customer}
+          orders={orders}
+          onOpenOrder={onOpenOrder}
+        />
+      </TabsContent>
+    </Tabs>
   );
 }

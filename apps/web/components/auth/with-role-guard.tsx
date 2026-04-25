@@ -11,6 +11,7 @@ import {
   sessionHasAnyPermission,
 } from "@/lib/authz";
 import { UNAUTHORIZED_ROUTE } from "@/lib/auth-routes";
+import { stripPortalRoutePrefix } from "@/lib/portal-routing";
 
 type GuardOptions = {
   redirectTo?: string;
@@ -57,10 +58,13 @@ export function withRouteGuard<P extends object>(
   pathname: string,
   options: RouteGuardOptions = {},
 ) {
-  const routePolicy = resolveRoutePermissionPolicy(pathname);
+  const policyPathname = stripPortalRoutePrefix(pathname);
+  const routePolicy = resolveRoutePermissionPolicy(policyPathname);
 
   if (!routePolicy) {
-    throw new Error(`Missing shared route permission policy for ${pathname}`);
+    throw new Error(
+      `Missing shared route permission policy for ${policyPathname}`,
+    );
   }
 
   return withRoleGuard(WrappedComponent, {

@@ -35,6 +35,8 @@ These rules apply to `packages/shared-types`, `packages/shared-constants`, and `
    - collected cash stays separate as `customer.stats.totalPaid`
 11. Attendance contracts and permissions are intentionally absent from the live shared surface.
     Do not reintroduce attendance DTOs, attendance permissions, or attendance route policies unless the product scope explicitly restores attendance and both apps are updated together.
+12. Shared reporting/dashboard UI blocks must allow consumer-defined business labels when the same primitive is used for different financial meanings.
+    Do not hardcode generic terms such as `Revenue` inside reusable charts or ranked tables when the consuming screen may need clearer labels like `Cash Collected` or `Booked Sales`.
 
 ## 3. File Structure Rules
 

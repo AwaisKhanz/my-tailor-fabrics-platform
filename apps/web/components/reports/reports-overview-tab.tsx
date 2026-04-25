@@ -61,7 +61,7 @@ export function ReportsOverviewTab({
           subtitle="Posted payments in selected period"
           value={formatPKR(summary?.revenue ?? 0)}
           helperText={revenueDeltaBadge}
-          badgeText={`${summary?.totalOrders ?? 0} orders`}
+          badgeText={`${summary?.totalOrders ?? 0} booked orders`}
           tone="success"
           icon={<Banknote className="h-4 w-4" />}
         />
@@ -81,7 +81,7 @@ export function ReportsOverviewTab({
           subtitle="Cash collected minus expenses"
           value={formatPKR(netCurrent)}
           helperText={netDeltaBadge}
-          badgeText="Net"
+          badgeText="Net cash"
           tone={netCurrent < 0 ? "destructive" : "info"}
           icon={<Wallet className="h-4 w-4" />}
         />

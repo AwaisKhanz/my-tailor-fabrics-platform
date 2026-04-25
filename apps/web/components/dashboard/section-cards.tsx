@@ -58,10 +58,10 @@ export function DashboardSectionCards({
           icon={<TrendingDown className="h-4 w-4" />}
         />
         <StatCard
-          title="Outstanding Balance"
-          subtitle="Pending receivables"
+          title="Outstanding Receivables"
+          subtitle="Pending customer collections"
           value={<Value loading={loading} value={outstanding} />}
-          helperText="Unpaid balance across active orders"
+          helperText="Unpaid balance across non-cancelled orders"
           badgeText="Follow-up"
           tone="destructive"
           icon={<TrendingDown className="h-4 w-4" />}

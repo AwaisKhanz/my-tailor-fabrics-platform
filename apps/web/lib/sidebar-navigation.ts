@@ -43,6 +43,7 @@ import {
   SETTINGS_ROUTE,
   USERS_SETTINGS_ROUTE,
 } from "@/lib/settings-routes";
+import { stripPortalRoutePrefix } from "@/lib/portal-routing";
 
 export interface NavItem {
   title: string;
@@ -56,7 +57,7 @@ export interface NavSection {
   items: NavItem[];
 }
 
-const SETTINGS_ROLES = FRONTEND_ROUTE_ROLES[SETTINGS_ROUTE];
+const SETTINGS_ROLES = FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(SETTINGS_ROUTE)];
 
 const NAV_SECTIONS: NavSection[] = [
   {
@@ -66,31 +67,31 @@ const NAV_SECTIONS: NavSection[] = [
         title: "Dashboard",
         href: HOME_ROUTE,
         icon: PieChart,
-        roles: FRONTEND_ROUTE_ROLES[HOME_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(HOME_ROUTE)],
       },
       {
         title: "My Orders",
         href: MY_ORDERS_ROUTE,
         icon: LayoutDashboard,
-        roles: FRONTEND_ROUTE_ROLES[MY_ORDERS_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(MY_ORDERS_ROUTE)],
       },
       {
         title: "Orders",
         href: ORDERS_ROUTE,
         icon: ShoppingBag,
-        roles: FRONTEND_ROUTE_ROLES[ORDERS_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(ORDERS_ROUTE)],
       },
       {
         title: "Customers",
         href: CUSTOMERS_ROUTE,
         icon: Users,
-        roles: FRONTEND_ROUTE_ROLES[CUSTOMERS_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(CUSTOMERS_ROUTE)],
       },
       {
         title: "Employees",
         href: EMPLOYEES_ROUTE,
         icon: Briefcase,
-        roles: FRONTEND_ROUTE_ROLES[EMPLOYEES_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(EMPLOYEES_ROUTE)],
       },
     ],
   },
@@ -101,19 +102,19 @@ const NAV_SECTIONS: NavSection[] = [
         title: "Payments",
         href: PAYMENTS_ROUTE,
         icon: Banknote,
-        roles: FRONTEND_ROUTE_ROLES[PAYMENTS_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(PAYMENTS_ROUTE)],
       },
       {
         title: "Expenses",
         href: EXPENSES_ROUTE,
         icon: Banknote,
-        roles: FRONTEND_ROUTE_ROLES[EXPENSES_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(EXPENSES_ROUTE)],
       },
       {
         title: "Reports",
         href: REPORTS_ROUTE,
         icon: BarChart,
-        roles: FRONTEND_ROUTE_ROLES[REPORTS_ROUTE],
+        roles: FRONTEND_ROUTE_ROLES[stripPortalRoutePrefix(REPORTS_ROUTE)],
       },
     ],
   },
@@ -198,7 +199,8 @@ export function getVisibleNavSections(role: Role | null): NavSection[] {
     ...section,
     items: section.items.filter(
       (item) =>
-        item.roles.includes(role) && canRoleAccessPathname(role, item.href),
+        item.roles.includes(role) &&
+        canRoleAccessPathname(role, stripPortalRoutePrefix(item.href)),
     ),
   })).filter((section) => section.items.length > 0);
 }

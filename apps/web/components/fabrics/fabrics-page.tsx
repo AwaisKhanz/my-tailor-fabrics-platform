@@ -11,6 +11,7 @@ import { Edit2, Package2, Plus, RefreshCcw, Tags } from "lucide-react";
 import { PERMISSION } from "@tbms/shared-constants";
 import { type ShopFabric } from "@tbms/shared-types";
 import { FabricFormDialog } from "@/components/fabrics/fabric-form-dialog";
+import { SetupFlowBanner } from "@/components/config/setup/setup-flow-banner";
 import { useAuthz } from "@/hooks/use-authz";
 import { useFabricsPage } from "@/hooks/use-fabrics-page";
 import { formatPKR } from "@/lib/utils";
@@ -169,6 +170,17 @@ export function FabricsPage() {
               </Button>
             ) : null
           }
+        />
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <SetupFlowBanner
+          title="Optional pricing layer for shop fabric"
+          description="Fabric pricing is only needed when the shop supplies cloth. The order wizard will use these branch prices automatically."
+          currentStep="Fabric Pricing"
+          previousStep="Branches and garments should already be ready"
+          nextStep="Orders can apply shop-fabric charges without manual typing"
+          sequence={["Measurements", "Garments", "Fabric Pricing", "Labor Rates", "Orders"]}
         />
       </PageSection>
 

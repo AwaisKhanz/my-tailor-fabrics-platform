@@ -140,6 +140,10 @@ Current repo behavior:
 1. pushes to `main` trigger deployment automatically
 2. spec changes should still be committed to [app.prod.yaml](/Users/muhammadawais/Documents/My%20Tailors/tbms/.do/app.prod.yaml)
 3. service names in the live app must remain `web-frontend` and `api-backend` to match internal references such as `${api-backend.PRIVATE_URL}`
+4. domain split is now intentional:
+   - `mytailorandfabrics.com` and `www.mytailorandfabrics.com` serve the public marketing site
+   - `portal.mytailorandfabrics.com` serves the authenticated business portal
+   - apex requests must never fall through to portal login redirects; only the portal hostname should own `/login` and protected dashboard routing
 
 ## Required Environment and Secrets
 
@@ -151,8 +155,13 @@ Web service:
 2. `PORT=8080`
 3. `NEXT_PUBLIC_API_URL=/backend`
 4. `INTERNAL_API_URL=${api-backend.PRIVATE_URL}`
-5. `NEXTAUTH_URL=${APP_URL}`
-6. `NEXTAUTH_SECRET`
+5. `NEXTAUTH_URL=https://portal.mytailorandfabrics.com`
+6. `PORTAL_BASE_URL=https://portal.mytailorandfabrics.com`
+7. `NEXT_PUBLIC_PORTAL_BASE_URL=https://portal.mytailorandfabrics.com`
+8. `MARKETING_SITE_URL=https://mytailorandfabrics.com`
+9. `NEXT_PUBLIC_MARKETING_SITE_URL=https://mytailorandfabrics.com`
+10. `NEXT_PUBLIC_MARKETING_WHATSAPP_URL=https://wa.me/<verified-number>` when a real public WhatsApp number is ready; leave unset to route marketing CTAs to the inquiry section
+11. `NEXTAUTH_SECRET`
 
 API service:
 
@@ -160,28 +169,30 @@ API service:
 2. `PORT=8080`
 3. `TRUST_PROXY=1`
 4. `TZ=Asia/Karachi`
-5. `FRONTEND_URL=${APP_URL}`
-6. `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
-7. `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
-8. `REDIS_URL=${tbms-production-valkey.DATABASE_URL}`
-9. `JWT_SECRET`
-10. `JWT_REFRESH_SECRET`
-11. `JWT_EXPIRES_IN=15m`
-12. `JWT_REFRESH_EXPIRES_IN=7d`
-13. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
-14. `STATUS_PIN_PEPPER`
-15. `ENABLE_INTERNAL_SCHEDULER=true`
-16. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
-17. `GOOGLE_CLIENT_ID`
-18. `GOOGLE_CLIENT_SECRET`
-19. `GOOGLE_REFRESH_TOKEN`
-20. `GOOGLE_EMAIL`
-21. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
+5. `FRONTEND_URL=https://portal.mytailorandfabrics.com`
+6. `MARKETING_SITE_URL=https://mytailorandfabrics.com`
+7. `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
+8. `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
+9. `REDIS_URL=${tbms-production-valkey.DATABASE_URL}`
+10. `JWT_SECRET`
+11. `JWT_REFRESH_SECRET`
+12. `JWT_EXPIRES_IN=15m`
+13. `JWT_REFRESH_EXPIRES_IN=7d`
+14. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
+15. `STATUS_PIN_PEPPER`
+16. `ENABLE_INTERNAL_SCHEDULER=true`
+17. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
+18. `GOOGLE_CLIENT_ID`
+19. `GOOGLE_CLIENT_SECRET`
+20. `GOOGLE_REFRESH_TOKEN`
+21. `GOOGLE_EMAIL`
+22. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
 
 Important:
 
 1. Email OTP login depends on API mail delivery in production.
 2. Do not ship production without valid Google mail credentials configured for `api-backend`.
+3. Public inquiry form delivery also depends on the same mail configuration unless you intentionally accept logged-but-unsent inquiries.
 
 ## Current DigitalOcean Console Operations
 

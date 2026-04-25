@@ -1,3 +1,5 @@
-export const PAYMENTS_ROUTE = "/payments";
-export const EXPENSES_ROUTE = "/expenses";
-export const REPORTS_ROUTE = "/reports";
+import { toPortalRoute } from '@/lib/portal-routing';
+
+export const PAYMENTS_ROUTE = toPortalRoute("/payments");
+export const EXPENSES_ROUTE = toPortalRoute("/expenses");
+export const REPORTS_ROUTE = toPortalRoute("/reports");

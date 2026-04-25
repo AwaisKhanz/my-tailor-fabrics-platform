@@ -215,8 +215,7 @@ export function OrderFormItemsCard({
             </Badge>
           </div>
           <CardDescription>
-            One card equals one physical piece. Keep the exceptions separate,
-            and use copy when several pieces start the same way.
+            Add one physical piece at a time. Use copy only when several pieces start the same way, then edit the exceptions.
           </CardDescription>
         </div>
 

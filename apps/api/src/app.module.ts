@@ -31,6 +31,7 @@ import { LedgerModule } from './ledger/ledger.module';
 import { DesignTypesModule } from './design-types/design-types.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { FabricsModule } from './fabrics/fabrics.module';
+import { MarketingModule } from './marketing/marketing.module';
 import {
   getRedisUrl,
   isInternalSchedulerEnabled,
@@ -141,6 +142,7 @@ const schedulerImports = isInternalSchedulerEnabled()
     DesignTypesModule,
     FabricsModule,
     AuditLogsModule,
+    MarketingModule,
     ...schedulerImports,
   ],
   controllers: [AppController],

@@ -1,8 +1,9 @@
+import { toPortalRoute } from '@/lib/portal-routing';
 import { OrderStatus } from "@tbms/shared-types";
 
-export const ORDERS_ROUTE = "/orders";
-export const MY_ORDERS_ROUTE = "/my-orders";
-export const NEW_ORDER_ROUTE = "/orders/new";
+export const ORDERS_ROUTE = toPortalRoute("/orders");
+export const MY_ORDERS_ROUTE = toPortalRoute("/my-orders");
+export const NEW_ORDER_ROUTE = toPortalRoute("/orders/new");
 
 export function buildOrderDetailRoute(orderId: string) {
   return `${ORDERS_ROUTE}/${orderId}`;

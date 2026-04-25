@@ -20,13 +20,7 @@ function Card({
       {...props}
     >
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_100%_100%,hsl(0_0%_0%/.045),transparent_38%)] dark:bg-[radial-gradient(100%_100%_at_0%_0%,hsl(0_0%_100%/.05),transparent_42%)]" />
-        <div className="absolute inset-y-6 left-0 w-px bg-border/80" />
-        <div className="absolute inset-y-6 right-0 w-px bg-border/80" />
-        <div className="absolute inset-x-6 top-0 h-px bg-border/80" />
-        <div className="absolute inset-x-6 bottom-0 h-px bg-border/80" />
-        <DecorIcon position="top-right" className="stroke-border" />
-        <DecorIcon position="bottom-left" className="stroke-border" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_100%_100%,hsl(0_0%_0%/.045),transparent_38%)] dark:bg-[radial-gradient(100%_150%_at_0%_0%,hsl(0_0%_100%/.05),transparent_150%)]" />
       </div>
       {children}
     </div>

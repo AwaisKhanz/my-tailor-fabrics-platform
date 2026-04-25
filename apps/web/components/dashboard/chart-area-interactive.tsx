@@ -51,7 +51,7 @@ export function DashboardChartAreaInteractive({
       (row) => `${row.label},${row.revenue},${row.expenses}`,
     );
     downloadText(
-      "revenue-vs-expenses.csv",
+      "cash-collected-vs-expenses.csv",
       [header, ...rows].join("\n"),
     );
     toast({
@@ -63,7 +63,7 @@ export function DashboardChartAreaInteractive({
 
   const handleExportJson = React.useCallback(() => {
     downloadText(
-      "revenue-vs-expenses.json",
+      "cash-collected-vs-expenses.json",
       JSON.stringify(chartRows, null, 2),
     );
     toast({
@@ -107,7 +107,7 @@ export function DashboardChartAreaInteractive({
       await navigator.clipboard.writeText(text);
       toast({
         title: "Copied to clipboard",
-        description: "Latest revenue/expenses summary is ready to paste.",
+        description: "Latest cash-collected vs expenses summary is ready to paste.",
         variant: "success",
       });
     } catch {
@@ -123,6 +123,11 @@ export function DashboardChartAreaInteractive({
     <InteractiveSalesChart
       title="Cash Collected vs Expenses"
       description="Monthly posted payments versus operating expenses for the selected period."
+      primarySeriesLabel="Cash Collected"
+      secondarySeriesLabel="Expenses"
+      primaryTotalLabel="Cash Collected"
+      secondaryTotalLabel="Expenses"
+      netTotalLabel="Net Cash"
       data={chartRows}
       currencyFormatter={formatPKR}
       refreshing={refreshing}

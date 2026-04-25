@@ -26,6 +26,8 @@ export interface ProductSalesTableRow {
 export interface ProductSalesTableProps {
   title?: string;
   description?: string;
+  itemLabel?: string;
+  valueLabel?: string;
   rows: ProductSalesTableRow[];
   maxRows?: number;
   emptyText?: string;
@@ -42,6 +44,8 @@ const defaultCurrencyFormatter = (value: number) =>
 export function ProductSalesTable({
   title = "Top Selling Products",
   description = "Your highest performing products for this period.",
+  itemLabel = "Garment",
+  valueLabel = "Revenue",
   rows,
   maxRows = 5,
   emptyText = "No product sales data available.",
@@ -75,8 +79,8 @@ export function ProductSalesTable({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[90px]">Rank</TableHead>
-              <TableHead>Garment</TableHead>
-              <TableHead className="text-right">Revenue</TableHead>
+              <TableHead>{itemLabel}</TableHead>
+              <TableHead className="text-right">{valueLabel}</TableHead>
               <TableHead className="text-right">Share</TableHead>
             </TableRow>
           </TableHeader>

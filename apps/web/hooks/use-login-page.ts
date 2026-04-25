@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { buildExpiredLoginRoute, HOME_ROUTE } from "@/lib/auth-routes";
 import { getWebApiBaseUrl } from "@/lib/env";
 import { requestLoginOtpChallenge } from "@/lib/auth/backend-auth";
+import { stripPortalRoutePrefix, usesPortalPathPrefix } from "@/lib/portal-routing";
 
 interface OtpChallengeState {
   challengeId: string;
@@ -38,6 +39,25 @@ export function useLoginPage() {
   const [otpError, setOtpError] = useState("");
   const handledInvalidSessionRef = useRef(false);
   const apiBaseUrl = getWebApiBaseUrl();
+
+  const resolvePostLoginPath = useCallback((candidateUrl?: string | null) => {
+    if (!candidateUrl) {
+      return HOME_ROUTE;
+    }
+
+    try {
+      const target = new URL(candidateUrl, window.location.origin);
+      const normalizedPath = target.pathname || "/";
+
+      if (usesPortalPathPrefix() && stripPortalRoutePrefix(normalizedPath) === "/") {
+        return HOME_ROUTE;
+      }
+
+      return `${normalizedPath}${target.search}${target.hash}`;
+    } catch {
+      return HOME_ROUTE;
+    }
+  }, []);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -151,6 +171,7 @@ export function useLoginPage() {
           password,
           challengeId: otpChallenge.challengeId,
           otpCode: otpValidation.data.otpCode,
+          callbackUrl: HOME_ROUTE,
           redirect: false,
         });
 
@@ -168,7 +189,7 @@ export function useLoginPage() {
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
-        router.push(HOME_ROUTE);
+        router.push(resolvePostLoginPath(result?.url));
       } catch {
         toast({
           variant: "destructive",
@@ -179,7 +200,7 @@ export function useLoginPage() {
         setIsLoading(false);
       }
     },
-    [email, otpChallenge, otpCode, password, router, toast],
+    [email, otpChallenge, otpCode, password, resolvePostLoginPath, router, toast],
   );
 
   const handleResendOtp = useCallback(async () => {

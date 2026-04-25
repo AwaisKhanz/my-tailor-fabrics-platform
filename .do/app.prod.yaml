@@ -6,6 +6,8 @@ domains:
     type: PRIMARY
   - domain: www.mytailorandfabrics.com
     type: ALIAS
+  - domain: portal.mytailorandfabrics.com
+    type: ALIAS
 
 ingress:
   rules:
@@ -53,7 +55,19 @@ services:
         value: ${api-backend.PRIVATE_URL}
       - key: NEXTAUTH_URL
         scope: RUN_TIME
-        value: ${APP_URL}
+        value: https://portal.mytailorandfabrics.com
+      - key: PORTAL_BASE_URL
+        scope: RUN_TIME
+        value: https://portal.mytailorandfabrics.com
+      - key: NEXT_PUBLIC_PORTAL_BASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://portal.mytailorandfabrics.com
+      - key: MARKETING_SITE_URL
+        scope: RUN_TIME
+        value: https://mytailorandfabrics.com
+      - key: NEXT_PUBLIC_MARKETING_SITE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://mytailorandfabrics.com
       - key: NEXTAUTH_SECRET
         scope: RUN_TIME
         type: SECRET
@@ -90,7 +104,10 @@ services:
         value: Asia/Karachi
       - key: FRONTEND_URL
         scope: RUN_TIME
-        value: ${APP_URL}
+        value: https://portal.mytailorandfabrics.com
+      - key: MARKETING_SITE_URL
+        scope: RUN_TIME
+        value: https://mytailorandfabrics.com
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${tbms-production-db.DATABASE_URL}

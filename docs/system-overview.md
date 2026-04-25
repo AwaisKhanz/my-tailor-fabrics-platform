@@ -36,7 +36,7 @@ Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabric
 ## Routing Model
 
 1. `/`
-   Served by the web app.
+   Served by the web app. On the apex domain it resolves to the public marketing homepage; on the portal hostname it resolves to the authenticated portal.
 
 2. `/backend/*`
    Routed to the Nest API.
@@ -46,6 +46,12 @@ Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabric
 
 4. `/api/status/*`
    Handled by the Next.js public order-status proxy route.
+
+5. Hostname split inside the web app:
+   - `mytailorandfabrics.com` and `www.mytailorandfabrics.com` rewrite to the public marketing route tree under `apps/web/app/site`
+   - `portal.mytailorandfabrics.com` keeps the existing dashboard/auth route tree
+   - `/site` remains an internal implementation path; public users should only see apex-domain marketing URLs and portal users should only see portal-domain auth/dashboard URLs
+   - local development keeps the public site at `/` and exposes the portal under `/portal`
 
 Public status PIN submission is body-based:
 `POST /api/status/:token` with `{ "pin": "1234" }`.
@@ -101,7 +107,10 @@ Workspace package manager:
 2. Alias:
    `www.mytailorandfabrics.com`
 
-3. Starter fallback:
+3. Portal:
+   `portal.mytailorandfabrics.com`
+
+4. Starter fallback:
    `jellyfish-app-n3bi3.ondigitalocean.app`
 
 ## Current Operational Workflow
@@ -129,3 +138,10 @@ Workspace package manager:
 
 8. Attendance is not a live operational domain.
    The current system does not include attendance tracking, attendance settings, or attendance-based employee workflows.
+
+9. Public inquiries are handled through the API.
+   The marketing-site contact form submits to the Nest API public endpoint (`POST /public/contact`), which validates the inquiry, throttles abuse, and reuses the branded mail templating system for notifications.
+10. Public marketing UI is curated, not ad hoc.
+   Public marketing pages are composed under `apps/web/components/marketing/*` using the normal shared `@tbms/ui` primitives.
+11. Public marketing contact CTAs are config-backed.
+   A verified `NEXT_PUBLIC_MARKETING_WHATSAPP_URL` enables direct WhatsApp CTAs; without it, the public site uses an on-page inquiry fallback so placeholder contact links are not exposed.

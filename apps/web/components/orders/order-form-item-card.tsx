@@ -6,14 +6,7 @@ import {
   GarmentType,
   ShopFabric,
 } from "@tbms/shared-types";
-import {
-  ChevronDown,
-  Copy,
-  GripVertical,
-  Layers3,
-  PackagePlus,
-  Trash2,
-} from "lucide-react";
+import { ChevronDown, Copy, GripVertical, Layers3, PackagePlus, Trash2 } from "lucide-react";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
 import {
@@ -34,6 +27,7 @@ import {
 import { SortableItemHandle } from "@tbms/ui/components/reui/sortable";
 import { OrderFormItemAddons } from "@/components/orders/order-form-item-addons";
 import { OrderFormItemDetails } from "@/components/orders/order-form-item-details";
+import { OrderFormItemOptionalFields } from "@/components/orders/order-form-item-optional-fields";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import { useWatch, type UseFormReturn } from "react-hook-form";
@@ -82,6 +76,7 @@ export function OrderFormItemCard({
   onRemoveAddon,
 }: OrderFormItemCardProps) {
   const [duplicateMenuOpen, setDuplicateMenuOpen] = useState(false);
+  const [showOptionalDetails, setShowOptionalDetails] = useState(false);
   const watchedItem =
     useWatch({
       control: form.control,
@@ -188,11 +183,28 @@ export function OrderFormItemCard({
     return `${garmentLabel} • ${designLabel} • ${fabricLabel}`;
   }, [liveItem, selectedDesignType?.name, selectedFabric?.name, selectedGarment?.name]);
 
+  const optionalContentCount =
+    (liveItem?.description?.trim() ? 1 : 0) +
+    (liveItem?.customerFabricNote?.trim() ? 1 : 0) +
+    ((liveItem?.addons?.length ?? 0) > 0 ? 1 : 0);
+  const hasOptionalContent = optionalContentCount > 0;
+  const optionalSummaryLabel = hasOptionalContent
+    ? `${optionalContentCount} optional section${optionalContentCount === 1 ? "" : "s"} filled`
+    : "No optional details added";
+  const optionalActionLabel = showOptionalDetails
+    ? "Hide notes & add-ons"
+    : hasOptionalContent
+      ? "Review notes & add-ons"
+      : "Add notes or add-ons";
+  const summaryChipsWithOptional = hasOptionalContent
+    ? [...summaryChips, optionalSummaryLabel]
+    : summaryChips;
+
   return (
     <Card>
-      <CardHeader className="space-y-3">
+      <CardHeader className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1.5">
+          <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <label className="mr-1 inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Checkbox
@@ -207,7 +219,7 @@ export function OrderFormItemCard({
             <CardDescription className="text-sm">{summaryLine}</CardDescription>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/10 p-1.5">
             {canReorder ? (
               <SortableItemHandle
                 render={
@@ -230,7 +242,7 @@ export function OrderFormItemCard({
                 }
               >
                 <Copy className="h-4 w-4" />
-                Copy
+                Copy setup
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuGroup>
@@ -256,7 +268,7 @@ export function OrderFormItemCard({
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="rounded-md bg-muted/40 px-3 py-1.5 text-sm font-semibold text-foreground">
+            <div className="rounded-md border bg-background px-3 py-1.5 text-sm font-semibold text-foreground">
               {formatPKR(Math.round(lineTotal * 100))}
             </div>
             <Button
@@ -284,7 +296,7 @@ export function OrderFormItemCard({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          {summaryChips.map((chip) => (
+          {summaryChipsWithOptional.map((chip) => (
             <Badge key={`${index}-${chip}`} variant="outline" className="text-xs font-medium">
               {chip}
             </Badge>
@@ -306,13 +318,47 @@ export function OrderFormItemCard({
             getItemLineTotal={getItemLineTotal}
           />
 
-          <OrderFormItemAddons
-            index={index}
-            form={form}
-            watchedAddons={liveItem?.addons || []}
-            onAddAddon={onAddAddon}
-            onRemoveAddon={onRemoveAddon}
-          />
+          <section className="rounded-md border border-dashed bg-muted/5">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  Optional details
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Keep this closed for clean piece setup, and open it only when this piece needs extra notes or charges.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowOptionalDetails((current) => !current)}
+              >
+                {optionalActionLabel}
+              </Button>
+            </div>
+
+            {showOptionalDetails ? (
+              <div className="space-y-4 border-t border-border/70 px-4 py-4">
+                <OrderFormItemOptionalFields
+                  index={index}
+                  form={form}
+                  fabricSource={liveItem?.fabricSource ?? FabricSource.CUSTOMER}
+                />
+                <OrderFormItemAddons
+                  index={index}
+                  form={form}
+                  watchedAddons={liveItem?.addons || []}
+                  onAddAddon={onAddAddon}
+                  onRemoveAddon={onRemoveAddon}
+                />
+              </div>
+            ) : (
+              <div className="border-t border-border/70 px-4 py-3 text-sm text-muted-foreground">
+                {optionalSummaryLabel}
+              </div>
+            )}
+          </section>
         </CardContent>
       ) : null}
     </Card>

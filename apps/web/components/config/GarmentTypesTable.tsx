@@ -8,6 +8,7 @@ import { GarmentTypesInventoryTable } from "@/components/config/garments/list/ga
 import { GarmentTypesListToolbar } from "@/components/config/garments/list/garment-types-list-toolbar";
 import { GarmentTypesPageHeader } from "@/components/config/garments/list/garment-types-page-header";
 import { GarmentTypesStatsGrid } from "@/components/config/garments/list/garment-types-stats-grid";
+import { SetupFlowBanner } from "@/components/config/setup/setup-flow-banner";
 import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
 import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { TableSurface } from "@tbms/ui/components/table-layout";
@@ -63,6 +64,17 @@ export function GarmentTypesTable() {
         <GarmentTypesPageHeader
           onAdd={openCreateDialog}
           canCreate={canManageGarments}
+        />
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <SetupFlowBanner
+          title="Build garments after measurements"
+          description="Garments combine measurement categories, customer pricing, and production workflows so the order wizard can stay guided and automatic."
+          currentStep="Garments"
+          previousStep="Measurements should already be configured"
+          nextStep="Define production steps and labor rates for each garment"
+          sequence={["Measurements", "Garments", "Production Steps", "Labor Rates", "Orders"]}
         />
       </PageSection>
 

@@ -50,6 +50,9 @@ export function OrderFormPage() {
     getItemLineTotal,
     goToNextStep,
     goToPreviousStep,
+    currentStepCanContinue,
+    nextStepLabel,
+    currentStepHelperText,
     submitForm,
   } = useOrderFormPage();
 
@@ -168,6 +171,9 @@ export function OrderFormPage() {
                   canManageDiscounts={canManageDiscounts}
                   currentStep={currentStep}
                   totalSteps={steps.length}
+                  canProceed={currentStepCanContinue}
+                  nextStepLabel={nextStepLabel}
+                  currentStepHelperText={currentStepHelperText}
                   onBack={goToPreviousStep}
                   onNext={goToNextStep}
                 />

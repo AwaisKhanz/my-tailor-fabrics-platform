@@ -25,15 +25,9 @@ import { InfoTile } from "@tbms/ui/components/info-tile";
 import { SectionHeader } from "@tbms/ui/components/section-header";
 import { StatsGrid } from "@tbms/ui/components/stats-grid";
 import { formatDate, formatDateTime, formatPKR } from "@/lib/utils";
-import { EmployeeFinancialCards } from "@/components/employees/detail/employee-financial-cards";
 
 interface EmployeeOverviewTabProps {
   employee: EmployeeWithRelations;
-  stats: {
-    totalEarned: number;
-    totalPaid: number;
-    currentBalance: number;
-  };
   activeTaskCount: number;
   capabilitiesWithStatus: EmployeeCapabilityWithStatus[];
   garmentNameById: Map<string, string>;
@@ -87,7 +81,6 @@ function getNextCompensation(
 
 export function EmployeeOverviewTab({
   employee,
-  stats,
   activeTaskCount,
   capabilitiesWithStatus,
   garmentNameById,
@@ -116,11 +109,6 @@ export function EmployeeOverviewTab({
   )[0];
   return (
     <div className="space-y-6">
-      <EmployeeFinancialCards
-        stats={stats}
-        activeTaskCount={activeTaskCount}
-      />
-
       <div className="grid gap-4 xl:grid-cols-2">
         <Card>
           <CardHeader>
@@ -284,13 +272,7 @@ export function EmployeeOverviewTab({
             </InfoTile>
             <InfoTile tone="secondary" padding="content" className="space-y-1">
               <FieldLabel>Open production tasks</FieldLabel>
-              <p className="text-2xl font-semibold text-foreground">
-                {
-                  tasks.filter(
-                    (task) => task.status !== "DONE" && task.status !== "CANCELLED",
-                  ).length
-                }
-              </p>
+              <p className="text-2xl font-semibold text-foreground">{activeTaskCount}</p>
               <p className="text-xs text-muted-foreground">
                 Tasks still requiring employee attention
               </p>

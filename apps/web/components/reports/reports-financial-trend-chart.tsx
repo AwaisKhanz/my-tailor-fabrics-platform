@@ -48,7 +48,7 @@ export function ReportsFinancialTrendChart({
         <ChartEmptyState
           icon={AreaChart}
           title="No financial trend data"
-          description="Try another date range to load revenue and expense movement."
+          description="Try another date range to load cash-collected and expense movement."
         />
       ) : null}
 

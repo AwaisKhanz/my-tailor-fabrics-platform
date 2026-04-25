@@ -44,7 +44,7 @@ export function ReportsFinancialTab({ loading, trend }: ReportsFinancialTabProps
         loading={loading}
         trend={trend}
         title="Cash Collected vs Expenses"
-        description="Period trend with cash collected, expenses, and net overlay."
+        description="Period trend with cash collected, expenses, and net cash movement."
       />
     </div>
   );

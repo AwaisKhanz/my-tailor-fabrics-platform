@@ -45,6 +45,11 @@ export interface InteractiveSalesChartProps {
   data: InteractiveSalesChartRow[];
   title?: string;
   description?: string;
+  primarySeriesLabel?: string;
+  secondarySeriesLabel?: string;
+  primaryTotalLabel?: string;
+  secondaryTotalLabel?: string;
+  netTotalLabel?: string;
   currencyFormatter?: (value: number) => string;
   refreshing?: boolean;
   onRefresh?: () => void;
@@ -53,17 +58,6 @@ export interface InteractiveSalesChartProps {
   onExportJson?: () => void;
   onShare?: () => void;
 }
-
-const chartConfig = {
-  revenue: {
-    label: "Revenue",
-    color: "var(--chart-1)",
-  },
-  expenses: {
-    label: "Expenses",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig;
 
 const defaultCurrencyFormatter = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -76,6 +70,11 @@ export function InteractiveSalesChart({
   data,
   title = "Revenue vs Expenses",
   description = "Monthly financial movement for the selected period.",
+  primarySeriesLabel = "Revenue",
+  secondarySeriesLabel = "Expenses",
+  primaryTotalLabel = "Revenue",
+  secondaryTotalLabel = "Expenses",
+  netTotalLabel = "Net",
   currencyFormatter = defaultCurrencyFormatter,
   refreshing = false,
   onRefresh,
@@ -84,6 +83,21 @@ export function InteractiveSalesChart({
   onExportJson,
   onShare,
 }: InteractiveSalesChartProps) {
+  const chartConfig = React.useMemo(
+    () =>
+      ({
+        revenue: {
+          label: primarySeriesLabel,
+          color: "var(--chart-1)",
+        },
+        expenses: {
+          label: secondarySeriesLabel,
+          color: "var(--chart-2)",
+        },
+      }) satisfies ChartConfig,
+    [primarySeriesLabel, secondarySeriesLabel],
+  );
+
   const totals = React.useMemo(() => {
     const revenue = data.reduce((sum, item) => sum + item.revenue, 0);
     const expenses = data.reduce((sum, item) => sum + item.expenses, 0);
@@ -160,7 +174,9 @@ export function InteractiveSalesChart({
 
         <div className="mt-4 flex items-center gap-6">
           <div className="space-y-1.5">
-            <p className="text-muted-foreground text-sm font-medium">Revenue</p>
+            <p className="text-muted-foreground text-sm font-medium">
+              {primaryTotalLabel}
+            </p>
             <p className="text-lg leading-none font-bold sm:text-2xl">
               {currencyFormatter(totals.revenue)}
             </p>
@@ -168,7 +184,7 @@ export function InteractiveSalesChart({
           <div className="bg-border h-10 w-px" />
           <div className="space-y-1.5">
             <p className="text-muted-foreground text-sm font-medium">
-              Expenses
+              {secondaryTotalLabel}
             </p>
             <p className="text-lg leading-none font-bold sm:text-2xl">
               {currencyFormatter(totals.expenses)}
@@ -176,7 +192,9 @@ export function InteractiveSalesChart({
           </div>
           <div className="bg-border h-10 w-px max-sm:hidden" />
           <div className="space-y-1.5 max-sm:hidden">
-            <p className="text-muted-foreground text-sm font-medium">Net</p>
+            <p className="text-muted-foreground text-sm font-medium">
+              {netTotalLabel}
+            </p>
             <p className="text-lg leading-none font-bold sm:text-2xl">
               {currencyFormatter(totals.net)}
             </p>

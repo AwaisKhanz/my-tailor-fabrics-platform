@@ -107,6 +107,28 @@ export function GarmentTypesInventoryTable({
         ),
       },
       {
+        id: "setup",
+        header: "Setup",
+        cell: ({ row }) => {
+          const measurementCount = row.original.measurementCategories?.length ?? 0;
+          const workflowCount =
+            row.original.workflowSteps?.filter((step) => step.isActive).length ?? 0;
+
+          return (
+            <div className="space-y-1 text-sm">
+              <div className="font-medium text-foreground">
+                {measurementCount} measurement form
+                {measurementCount === 1 ? "" : "s"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {workflowCount} active workflow step
+                {workflowCount === 1 ? "" : "s"}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
         id: "actions",
         enableSorting: false,
         header: "Actions",

@@ -14,7 +14,7 @@ export function MeasurementCategoriesPageHeader({
   return (
     <PageHeader
       title="Measurement Configuration"
-      description="Define and manage measurement fields for your tailoring categories."
+      description="Define the real tailoring fields your team needs before garments and customer profiles can be set up properly."
       actions={
         canCreate ? (
           <Button variant="default" onClick={onAdd}>

@@ -38,11 +38,6 @@ import { EmployeeAdminTab } from "@/components/employees/detail/employee-admin-t
 interface EmployeeDetailTabsProps {
   loading: boolean;
   employee: EmployeeWithRelations;
-  stats: {
-    totalEarned: number;
-    totalPaid: number;
-    currentBalance: number;
-  };
   systemSettings: SystemSettings | null;
   items: OrderItem[];
   tasks: OrderItemTask[];
@@ -95,7 +90,6 @@ const EMPLOYEE_TABS = [
 export function EmployeeDetailTabs({
   loading,
   employee,
-  stats,
   systemSettings,
   items,
   tasks,
@@ -233,7 +227,6 @@ export function EmployeeDetailTabs({
           <TabsContent value="overview">
             <EmployeeOverviewTab
               employee={employee}
-              stats={stats}
               activeTaskCount={activeTaskCount}
               capabilitiesWithStatus={capabilitiesWithStatus}
               garmentNameById={garmentNameById}

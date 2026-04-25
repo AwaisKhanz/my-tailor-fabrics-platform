@@ -8,10 +8,10 @@ import { Clock3, History } from "lucide-react";
 import { type Order } from "@tbms/shared-types";
 import { ORDER_STATUS_CONFIG } from "@tbms/shared-constants";
 import { Badge } from "@tbms/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
 import { DataTableTanstack } from "@tbms/ui/components/data-table-tanstack";
 import { EmptyState } from "@tbms/ui/components/empty-state";
-import { Text } from "@tbms/ui/components/typography";
+import { SectionHeader } from "@tbms/ui/components/section-header";
 import { formatPKR } from "@/lib/utils";
 import { resolveUpdater } from "@/lib/tanstack";
 import { useUrlTableState } from "@/hooks/use-url-table-state";
@@ -60,13 +60,9 @@ export function CustomerOrdersTab({
         accessorKey: "orderNumber",
         header: "Order #",
         cell: ({ row }) => (
-          <Text
-            as="p"
-             variant="body"
-            className="font-semibold text-primary"
-          >
+          <p className="font-semibold text-primary">
             {row.original.orderNumber}
-          </Text>
+          </p>
         ),
       },
       {
@@ -83,9 +79,9 @@ export function CustomerOrdersTab({
         accessorKey: "totalAmount",
         header: "Total",
         cell: ({ row }) => (
-          <Text as="p"  variant="body" className="font-semibold">
+          <p className="font-semibold text-foreground">
             {formatPKR(row.original.totalAmount)}
-          </Text>
+          </p>
         ),
       },
       {
@@ -136,14 +132,14 @@ export function CustomerOrdersTab({
       <CardHeader>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle>Order History</CardTitle>
+            <SectionHeader
+              title="Order History"
+              description="Every order for this customer, with live status and booked value."
+            />
             <Badge variant="default" className="font-semibold">
               {orders.length} ORDERS
             </Badge>
           </div>
-          <Text as="p"  variant="muted">
-            Review all customer orders with current status and amount details.
-          </Text>
         </div>
       </CardHeader>
 

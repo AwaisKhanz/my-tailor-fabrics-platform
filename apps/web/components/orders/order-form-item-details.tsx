@@ -16,7 +16,6 @@ import {
 import {
   ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME,
 } from "@/components/orders/order-form-item.constants";
-import { Textarea } from "@tbms/ui/components/textarea";
 import { formatPKR } from "@/lib/utils";
 import type { OrderFormValues } from "@/types/orders/schemas";
 import { useWatch, type UseFormReturn } from "react-hook-form";
@@ -58,6 +57,9 @@ export function OrderFormItemDetails({
   const selectedShopFabric = shopFabrics.find(
     (fabric) => fabric.id === watchedItem.shopFabricId,
   );
+  const selectedDesignType = designTypeOptions.find(
+    (designType) => designType.id === watchedItem.designTypeId,
+  );
   const normalizedItem: OrderFormValues["items"][number] = {
     id: watchedItem.id,
     garmentTypeId: watchedItem.garmentTypeId ?? "",
@@ -80,23 +82,23 @@ export function OrderFormItemDetails({
     })),
   };
   const lineTotal = getItemLineTotal(normalizedItem);
+  const addonTotal = (normalizedItem.addons ?? []).reduce(
+    (total, addon) => total + Number(addon.price ?? 0),
+    0,
+  );
+  const shopFabricCharge =
+    fabricSource === FabricSource.SHOP
+      ? Number(
+          normalizedItem.shopFabricPrice ??
+            (selectedShopFabric ? selectedShopFabric.sellingRate / 100 : 0),
+        )
+      : 0;
   const tailoringPriceLabel =
     selectedGarment || Number(watchedItem.unitPrice ?? 0) > 0
       ? formatPKR(Math.round(Number(watchedItem.unitPrice ?? 0) * 100))
       : "-";
-  const shopFabricPriceLabel =
-    selectedShopFabric || normalizedItem.shopFabricPrice !== undefined
-      ? formatPKR(
-          Math.round(
-            Number(
-              normalizedItem.shopFabricPrice ??
-                (selectedShopFabric ? selectedShopFabric.sellingRate / 100 : 0),
-            ) * 100,
-          ),
-        )
-      : "-";
-  const chargeTileClassName =
-    "rounded-md border bg-muted/20 px-4 py-3 min-h-[104px]";
+  const chargeStripCardClassName =
+    "flex min-h-[92px] flex-col justify-between rounded-md border bg-muted/15 px-4 py-3";
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
@@ -194,30 +196,42 @@ export function OrderFormItemDetails({
         )}
       />
 
-      <div className={`md:col-span-12 ${fabricSource === FabricSource.SHOP ? "lg:col-span-4" : "lg:col-span-6"}`}>
-        <div className={chargeTileClassName}>
-          <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Tailoring Charge</p>
-          <p className="mt-1 text-base font-semibold text-foreground">
-            {tailoringPriceLabel}
-          </p>
-        </div>
-      </div>
-      {fabricSource === FabricSource.SHOP ? (
-        <div className="md:col-span-12 lg:col-span-4">
-          <div className={chargeTileClassName}>
-            <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Fabric Charge</p>
+      <div className="md:col-span-12">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(4,minmax(0,1fr))_minmax(180px,1.15fr)]">
+          <div className={chargeStripCardClassName}>
+            <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Tailoring Charge</p>
             <p className="mt-1 text-base font-semibold text-foreground">
-              {shopFabricPriceLabel}
+              {tailoringPriceLabel}
             </p>
           </div>
-        </div>
-      ) : null}
-      <div className={`md:col-span-12 ${fabricSource === FabricSource.SHOP ? "lg:col-span-4" : "lg:col-span-6"}`}>
-        <div className={chargeTileClassName}>
-          <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Piece Total</p>
-          <p className="mt-1 text-lg font-semibold text-foreground">
-            {formatPKR(Math.round(lineTotal * 100))}
-          </p>
+          <div className={chargeStripCardClassName}>
+            <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Design Charge</p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              {selectedDesignType ? formatPKR(selectedDesignType.defaultPrice) : formatPKR(0)}
+            </p>
+          </div>
+          <div className={chargeStripCardClassName}>
+            <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
+              {fabricSource === FabricSource.SHOP ? "Fabric Charge" : "Customer Fabric"}
+            </p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              {fabricSource === FabricSource.SHOP
+                ? formatPKR(Math.round(shopFabricCharge * 100))
+                : "No shop charge"}
+            </p>
+          </div>
+          <div className={chargeStripCardClassName}>
+            <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Add-ons</p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              {formatPKR(Math.round(addonTotal * 100))}
+            </p>
+          </div>
+          <div className={chargeStripCardClassName}>
+            <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Piece Total</p>
+            <p className="mt-1 text-xl font-semibold text-foreground">
+              {formatPKR(Math.round(lineTotal * 100))}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -267,7 +281,7 @@ export function OrderFormItemDetails({
           <div className="md:col-span-12 lg:col-span-4">
             <div className="space-y-2">
               <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Fabric Details</p>
-              <div className="grid min-h-[76px] grid-cols-2 gap-3 rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
+              <div className="grid min-h-[88px] grid-cols-2 gap-3 rounded-md border border-dashed px-4 py-4 text-sm text-muted-foreground">
                 <div>
                   <p className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>Brand</p>
                   <p className="mt-1 font-medium text-foreground">
@@ -288,57 +302,7 @@ export function OrderFormItemDetails({
             </div>
           </div>
         </>
-      ) : (
-        <div className="md:col-span-12 lg:col-span-6">
-          <FormField
-            control={form.control}
-            name={`items.${index}.customerFabricNote`}
-            render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-                  Customer Fabric Note
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    className="field-sizing-fixed min-h-[96px] resize-y"
-                    placeholder="Color, cut, print, tags, or any fabric handling note"
-                    rows={3}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
-
-      <FormField
-        control={form.control}
-        name={`items.${index}.description`}
-        render={({ field }: { field: import("react-hook-form").ControllerRenderProps }) => (
-          <FormItem
-            className={`space-y-2 ${
-              fabricSource === FabricSource.CUSTOMER
-                ? "md:col-span-12 lg:col-span-6"
-                : "md:col-span-12"
-            }`}
-          >
-            <FormLabel className={ORDER_FORM_ITEM_FIELD_LABEL_CLASS_NAME}>
-              Piece Notes
-            </FormLabel>
-            <FormControl>
-              <Textarea
-                className="field-sizing-fixed min-h-[112px] resize-y"
-                placeholder="Collar style, sleeve notes, lining notes, delivery notes"
-                rows={4}
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      ) : null}
     </div>
   );
 }

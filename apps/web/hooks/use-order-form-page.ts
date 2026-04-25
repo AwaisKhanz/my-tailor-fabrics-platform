@@ -357,6 +357,40 @@ export function useOrderFormPage() {
     ],
   );
 
+  const customerStepReady = Boolean(watchedCustomerId && watchedDueDate);
+  const piecesStepReady =
+    watchedItems.length > 0 &&
+    watchedItems.every((item) => {
+      if (!item.garmentTypeId) {
+        return false;
+      }
+
+      if (item.fabricSource === FabricSource.SHOP && !item.shopFabricId) {
+        return false;
+      }
+
+      return true;
+    });
+
+  const currentStepCanContinue =
+    currentStep === 0 ? customerStepReady : currentStep === 1 ? piecesStepReady : false;
+  const nextStepLabel =
+    currentStep === 0
+      ? ORDER_FORM_STEPS[1]
+      : currentStep === 1
+        ? ORDER_FORM_STEPS[2]
+        : null;
+  const currentStepHelperText =
+    currentStep === 0
+      ? customerStepReady
+        ? "Customer details are ready. Continue to piece setup when you are happy with the due date."
+        : "Select a customer and a due date before piece setup unlocks."
+      : currentStep === 1
+        ? piecesStepReady
+          ? "Every piece has the required setup. Review can open now."
+          : "Finish garment selection and any required shop-fabric choice for every piece before review."
+        : "Review the invoice, then capture discount and advance details before saving.";
+
   const validateStep = useCallback(
     async (stepIndex: number) => {
       if (stepIndex === 0) {
@@ -566,6 +600,11 @@ export function useOrderFormPage() {
     getItemLineTotal,
     goToNextStep,
     goToPreviousStep,
+    customerStepReady,
+    piecesStepReady,
+    currentStepCanContinue,
+    nextStepLabel,
+    currentStepHelperText,
     setCurrentStep,
     submitForm: form.handleSubmit(onSubmit, onInvalid),
   };

@@ -2,9 +2,10 @@ import { Pencil, Ruler } from "lucide-react";
 import { type CustomerMeasurement } from "@tbms/shared-types";
 import { Badge } from "@tbms/ui/components/badge";
 import { Button } from "@tbms/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@tbms/ui/components/card";
+import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
 import { EmptyState } from "@tbms/ui/components/empty-state";
 import { FieldLabel } from "@tbms/ui/components/field";
+import { SectionHeader } from "@tbms/ui/components/section-header";
 import { Text } from "@tbms/ui/components/typography";
 
 interface CustomerMeasurementsTabProps {
@@ -25,21 +26,24 @@ export function CustomerMeasurementsTab({
   getMeasurementLabel,
   canUpdateMeasurements = true,
 }: CustomerMeasurementsTabProps) {
+  const sortedMeasurements = [...measurements].sort(
+    (a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  );
+
   return (
     <Card>
-      <CardHeader
-      >
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <CardTitle>Measurements</CardTitle>
+            <SectionHeader
+              title="Measurements"
+              description="Saved sizing profiles for quick repeat order entry and fitting accuracy."
+            />
             <Badge variant="default" className="font-semibold">
               {measurements.length} SETS
             </Badge>
           </div>
-          <Text as="p" variant="muted">
-            Keep sizing data updated for better fit accuracy and quicker order
-            entry.
-          </Text>
         </div>
         {canUpdateMeasurements ? (
           <Button
@@ -54,15 +58,20 @@ export function CustomerMeasurementsTab({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {measurements.length > 0 ? (
+        {sortedMeasurements.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {measurements.map((measurement) => (
-              <Card key={measurement.id} className="bg-muted shadow-sm">
+            {sortedMeasurements.map((measurement) => (
+              <Card key={measurement.id} className="bg-muted/15 shadow-none">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-3">
-                    <CardTitle className="text-sm">
-                      {measurement.category?.name || "Measurement Set"}
-                    </CardTitle>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-foreground">
+                        {measurement.category?.name || "Measurement Set"}
+                      </p>
+                      <Text as="p" variant="muted">
+                        {Object.keys(measurement.values).length} saved fields
+                      </Text>
+                    </div>
                     <div className="flex items-center gap-2">
                       <FieldLabel className="font-normal opacity-60">
                         Updated:{" "}
@@ -88,7 +97,7 @@ export function CustomerMeasurementsTab({
                 </CardHeader>
 
                 <CardContent className="pt-4">
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
                     {Object.entries(measurement.values).map(([key, value]) => (
                       <div key={key}>
                         <FieldLabel block className="mb-0.5">

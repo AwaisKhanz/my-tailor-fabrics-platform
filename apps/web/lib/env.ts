@@ -1,4 +1,6 @@
 const isProduction = process.env.NODE_ENV === 'production';
+const DEFAULT_PORTAL_DEV_URL = 'http://portal.mytailorandfabrics.localhost:3000';
+const DEFAULT_MARKETING_DEV_URL = 'http://mytailorandfabrics.localhost:3000';
 
 function resolveEnv(name: string, value: string | undefined, devFallback: string): string {
   if (value && value.trim().length > 0) {
@@ -10,6 +12,10 @@ function resolveEnv(name: string, value: string | undefined, devFallback: string
   }
 
   return devFallback;
+}
+
+function normalizeUrl(rawUrl: string): string {
+  return rawUrl.replace(/\/$/, '');
 }
 
 export function isWebProductionEnvironment(): boolean {
@@ -48,10 +54,75 @@ export function getNextAuthSecret(): string {
   );
 }
 
-export function getNextAuthUrl(): string {
-  return resolveEnv(
-    'NEXTAUTH_URL',
-    process.env.NEXTAUTH_URL,
-    'http://localhost:3000',
+export function getPortalBaseUrl(): string {
+  return normalizeUrl(
+    resolveEnv(
+      'NEXT_PUBLIC_PORTAL_BASE_URL or PORTAL_BASE_URL or NEXTAUTH_URL',
+      process.env.NEXT_PUBLIC_PORTAL_BASE_URL ??
+        process.env.PORTAL_BASE_URL ??
+        process.env.NEXTAUTH_URL,
+      DEFAULT_PORTAL_DEV_URL,
+    ),
   );
+}
+
+export function getNextAuthUrl(): string {
+  return normalizeUrl(
+    resolveEnv(
+      'NEXTAUTH_URL',
+      process.env.NEXTAUTH_URL,
+      'http://localhost:3000',
+    ),
+  );
+}
+
+export function getPublicPortalBaseUrl(): string {
+  return normalizeUrl(
+    resolveEnv(
+      'NEXT_PUBLIC_PORTAL_BASE_URL or PORTAL_BASE_URL or NEXTAUTH_URL',
+      process.env.NEXT_PUBLIC_PORTAL_BASE_URL ??
+        process.env.PORTAL_BASE_URL ??
+        process.env.NEXTAUTH_URL,
+      DEFAULT_PORTAL_DEV_URL,
+    ),
+  );
+}
+
+export function getMarketingSiteUrl(): string {
+  return normalizeUrl(
+    resolveEnv(
+      'NEXT_PUBLIC_MARKETING_SITE_URL or MARKETING_SITE_URL',
+      process.env.NEXT_PUBLIC_MARKETING_SITE_URL ??
+        process.env.MARKETING_SITE_URL,
+      DEFAULT_MARKETING_DEV_URL,
+    ),
+  );
+}
+
+export function getPublicMarketingSiteUrl(): string {
+  return normalizeUrl(
+    resolveEnv(
+      'NEXT_PUBLIC_MARKETING_SITE_URL or MARKETING_SITE_URL',
+      process.env.NEXT_PUBLIC_MARKETING_SITE_URL ??
+        process.env.MARKETING_SITE_URL,
+      DEFAULT_MARKETING_DEV_URL,
+    ),
+  );
+}
+
+export function getPublicMarketingWhatsappUrl(): string | undefined {
+  const value = process.env.NEXT_PUBLIC_MARKETING_WHATSAPP_URL;
+  return value && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function getHostnameFromUrl(url: string): string {
+  return new URL(url).hostname.toLowerCase();
+}
+
+export function getPortalHostname(): string {
+  return getHostnameFromUrl(getPortalBaseUrl());
+}
+
+export function getMarketingHostname(): string {
+  return getHostnameFromUrl(getMarketingSiteUrl());
 }

@@ -17,7 +17,7 @@ export function RatesPageHeader({
       description={
         <span className="inline-flex items-center gap-2">
           <BanknoteIcon className="h-3.5 w-3.5" />
-          Manage step-based production payouts and effective dates.
+          Finalize branch-level step payouts after garment workflows are ready.
         </span>
       }
       actions={canCreateRate ? (

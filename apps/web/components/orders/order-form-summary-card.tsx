@@ -53,6 +53,9 @@ interface OrderFormSummaryCardProps {
   canManageDiscounts: boolean;
   currentStep: number;
   totalSteps: number;
+  canProceed: boolean;
+  nextStepLabel: string | null;
+  currentStepHelperText: string;
   onBack: () => void;
   onNext: () => void;
 }
@@ -71,6 +74,9 @@ export function OrderFormSummaryCard({
   canManageDiscounts,
   currentStep,
   totalSteps,
+  canProceed,
+  nextStepLabel,
+  currentStepHelperText,
   onBack,
   onNext,
 }: OrderFormSummaryCardProps) {
@@ -89,6 +95,14 @@ export function OrderFormSummaryCard({
       </CardHeader>
 
       <CardContent className="space-y-5">
+        <div className="rounded-md border border-dashed p-3 text-sm">
+          <p className="font-semibold text-foreground">
+            Step {currentStep + 1} of {totalSteps}
+            {isFinalStep ? ": Final review" : nextStepLabel ? `: Continue to ${nextStepLabel}` : ""}
+          </p>
+          <p className="mt-1 text-muted-foreground">{currentStepHelperText}</p>
+        </div>
+
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="rounded-md border p-3">
             <p className={fieldLabelClassName}>Customer</p>
@@ -302,9 +316,9 @@ export function OrderFormSummaryCard({
             size="lg"
             className="w-full"
             onClick={onNext}
-            disabled={loading || submitting}
+            disabled={loading || submitting || !canProceed}
           >
-            Continue
+            {nextStepLabel ? `Continue to ${nextStepLabel}` : "Continue"}
           </Button>
         )}
       </CardFooter>

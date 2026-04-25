@@ -1,8 +1,7 @@
 import {
-  Banknote,
+  Mail,
   MapPin,
   Phone,
-  ShoppingBag,
 } from "lucide-react";
 import { type Customer } from "@tbms/shared-types";
 import {
@@ -14,8 +13,6 @@ import { Card, CardContent, CardHeader } from "@tbms/ui/components/card";
 import { FieldLabel } from "@tbms/ui/components/field";
 import { InfoTile } from "@tbms/ui/components/info-tile";
 import { SectionHeader } from "@tbms/ui/components/section-header";
-import { Heading } from "@tbms/ui/components/typography";
-import { formatPKR } from "@/lib/utils";
 
 interface CustomerProfileCardProps {
   customer: Customer;
@@ -63,34 +60,19 @@ export function CustomerProfileCard({ customer }: CustomerProfileCardProps) {
           <span>{addressLine || "No address added yet"}</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
-          <div>
-            <FieldLabel className="mb-1">Total Orders</FieldLabel>
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4 text-primary" />
-              <Heading as="div" variant="section" className="text-base">
-                {customer.stats?.totalOrders || 0}
-              </Heading>
-            </div>
+        {customer.email ? (
+          <div className="flex items-center gap-3 text-sm">
+            <Mail className="h-4 w-4 text-muted-foreground" />
+            <span>{customer.email}</span>
           </div>
+        ) : null}
 
-          <div>
-            <FieldLabel className="mb-1">Total Spent</FieldLabel>
-            <div className="flex items-center gap-2">
-              <Banknote className="h-4 w-4 text-primary" />
-              <Heading as="div" variant="section" className="text-base">
-                {formatPKR(customer.stats?.totalSpent || 0)}
-              </Heading>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-md border border-border/70 bg-muted/20 px-3 py-2.5">
-          <FieldLabel size="compact">Payments Received</FieldLabel>
-          <p className="mt-1 text-sm font-semibold text-foreground">
-            {formatPKR(customer.stats?.totalPaid || 0)}
+        <InfoTile tone="secondary">
+          <FieldLabel size="compact">Profile Notes</FieldLabel>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {customer.notes || "No special notes or preferences recorded yet."}
           </p>
-        </div>
+        </InfoTile>
 
         <div className="border-t flex justify-between items-center border-border pt-4">
           <FieldLabel className="mb-1">Account Type</FieldLabel>

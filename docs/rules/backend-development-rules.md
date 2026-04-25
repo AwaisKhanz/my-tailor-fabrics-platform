@@ -85,6 +85,10 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 13. Do not bypass OTP verification by reintroducing direct password-to-token issuance endpoints.
 14. Attendance is not part of the live My Tailor & Fabrics workflow.
    Do not add attendance routes, payroll logic, or attendance-based employee summaries unless the product requirements are explicitly changed and the shared contracts, frontend routes, and deployment docs are updated in the same task.
+15. Public marketing inquiries are a first-class public endpoint:
+   - public contact/inquiry endpoints must live in a dedicated backend feature module, not inside auth or admin mail controllers
+   - they must use `@Public()`, DTO validation, and request throttling
+   - if the endpoint sends email, it must reuse the branded mail template system under `apps/api/src/mail/templates`
 
 ## 6. Environment and Runtime Rules
 
@@ -94,7 +98,11 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
    Do not read `process.env` directly outside `env.ts` or `seed-env.js`.
 4. Production-only required values must fail fast through typed env helpers.
 5. Public mail endpoints, scheduler behavior, proxy trust, and security-sensitive flags must remain centrally configured.
-6. Runtime bootstrap security belongs in `main.ts`.
+6. CORS origin allowlists must stay aligned with the live domain split:
+   - `FRONTEND_URL` represents the authenticated portal host
+   - `MARKETING_SITE_URL` represents the public marketing host
+   - API bootstrap must allow both through typed env helpers rather than hardcoded strings
+7. Runtime bootstrap security belongs in `main.ts`.
    Do not bypass:
    - helmet
    - CORS policy

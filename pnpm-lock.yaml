@@ -201,6 +201,12 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.2(react@18.3.1))
+      '@hugeicons/core-free-icons':
+        specifier: ^4.0.0
+        version: 4.0.0
+      '@hugeicons/react':
+        specifier: ^1.1.6
+        version: 1.1.6(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@18.3.1)
@@ -240,6 +246,9 @@ importers:
       lucide-react:
         specifier: ^0.575.0
         version: 0.575.0(react@18.3.1)
+      motion:
+        specifier: ^12.35.2
+        version: 12.35.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next:
         specifier: 14.2.35
         version: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -852,6 +861,14 @@ packages:
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
     peerDependencies:
       react-hook-form: ^7.55.0
+
+  '@hugeicons/core-free-icons@4.0.0':
+    resolution: {integrity: sha512-bzfbKumv3ke3ajbe2MyXi9i0I/cdsZ6n/mO9EfIPNSL++pHLqs7nSGRIVUtjF4xrrEyVkfhxssv4Jek8DPA6gA==}
+
+  '@hugeicons/react@1.1.6':
+    resolution: {integrity: sha512-c2LhXJMAW5wN1pC/smBXG0YPqUON6ceR/ZdXHCjEI9KvB+hjtqYjmzIxok5hAQOeXGz0WtORgCQMzqewFKAZwg==}
+    peerDependencies:
+      react: '>=16.0.0'
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6784,6 +6801,12 @@ snapshots:
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.71.2(react@18.3.1)
+
+  '@hugeicons/core-free-icons@4.0.0': {}
+
+  '@hugeicons/react@1.1.6(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
 
   '@humanfs/core@0.19.1': {}
 

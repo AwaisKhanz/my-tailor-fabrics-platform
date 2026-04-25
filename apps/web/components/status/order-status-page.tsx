@@ -80,7 +80,9 @@ export function OrderStatusPage({ token }: OrderStatusPageProps) {
           &copy; {new Date().getFullYear()} {siteConfig.name}. All rights
           reserved.
           <br />
-          Contact us at {siteConfig.contact.phone} for any concerns.
+          {siteConfig.contact.phone
+            ? `Contact us at ${siteConfig.contact.phone} for any concerns.`
+            : "Please contact the tailor shop for any concerns."}
         </Text>
       </PageSection>
     </PageShell>

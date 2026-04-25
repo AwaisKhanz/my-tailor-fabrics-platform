@@ -27,6 +27,13 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `@tbms/ui/components/data-table-tanstack`
    - `@tbms/ui/components/data-table-column-header`
 8. Do not introduce new usages of the legacy custom `@tbms/ui/components/data-table` API. Migrate legacy consumers incrementally by page/feature.
+9. Public marketing pages and the authenticated portal share the same Next.js app, but not the same hostname experience:
+   - apex and `www` hostnames serve the public marketing site
+   - `portal.mytailorandfabrics.com` serves the authenticated business portal
+   - public marketing pages should live under `apps/web/app/site/*` and be reached through middleware host rewriting rather than by moving portal routes out of `apps/web/app`
+   - the internal `/site` path is an implementation detail only and must never be exposed as the public brand URL
+   - on the apex marketing host, `/` must resolve to marketing content before any portal auth or permission redirect logic is considered
+   - local development should keep the marketing experience at `/` and expose the portal under `/portal`, including `/portal/login` for authentication
 
 ## 3. Design System and Styling Rules
 
@@ -63,6 +70,8 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - each visible piece card represents one physical piece and must submit `quantity = 1`
    - mixed designs, mixed fabric sources, and piece-specific notes belong on separate piece cards, not in one bulk quantity row
    - long order capture flows should use a step-based wizard with a persistent pricing summary instead of one overloaded form
+   - later wizard steps should stay visually locked until the required earlier step is valid
+   - piece cards should separate required setup from optional notes/add-ons so counter staff are not forced to parse every extra field on every piece
 16. There is no standalone system-settings admin screen in the live product.
    - do not add or reintroduce `/settings/system` unless product requirements explicitly restore a system-controls surface and the backend/docs are updated in the same change
    - production-task workflow should be treated as a platform rule, not a user-managed toggle
@@ -73,8 +82,22 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - keep identity, employment snapshot, and key top metrics close to the header
    - group operational, financial, and admin workflows into focused tabs instead of one long mixed accordion page
    - avoid detached narrow side rails when the same information can be absorbed into an overview tab or summary band
-19. Attendance UI is not part of the live business workflow.
+19. Customer detail pages should use a calm tabbed workspace instead of stacked mixed cards:
+   - keep the page header focused on identity and primary actions
+   - put financial summary, latest measurements, and latest order state in an `Overview` tab
+   - keep `Measurements`, `Orders`, and `Payments` in separate tabs so front-desk users can find the right thing without scrolling through unrelated sections
+20. Setup/configuration pages should teach dependency order:
+   - list pages for measurements, garments, fabrics, and labor rates should include a short setup-sequence guide that explains what comes before the current page and what it unlocks next
+   - the generic `/settings` landing route should send admins to the first practical setup step instead of dropping them into the middle of the chain
+21. Attendance UI is not part of the live business workflow.
    Do not add attendance pages, settings entries, employee-detail sections, or query hooks unless product requirements explicitly restore the feature and the backend/shared contracts are updated in the same task.
+22. Marketing-site UX must feel like a tailoring brand, not a SaaS dashboard:
+   - keep public navigation simple and focused on the currently live marketing surface; while the public site is landing-page only, use section anchors such as `Services`, `Process`, `Preview`, and `Testimonials` rather than links to unfinished standalone pages
+   - prefer verified WhatsApp and inquiry conversion patterns over admin-style forms
+   - do not hard-code placeholder public contact links, phone numbers, or street addresses; use typed web config/env helpers and safe internal fallbacks when real public contact data is not available
+   - keep the public marketing shell visually distinct from the portal shell even though both run inside the same Next.js app
+23. Marketing page composition belongs under `apps/web/components/marketing`.
+   - keep the marketing site visually distinct from the portal, but prefer the normal shared `@tbms/ui/components/*` primitives instead of a second experimental UI namespace unless product requirements explicitly justify one
 
 ## 4. Data Access Rules
 

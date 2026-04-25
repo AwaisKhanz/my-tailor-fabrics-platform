@@ -5,6 +5,7 @@ import { RatesPageHeader } from "@/components/rates/rates-page-header";
 import { RatesSearchStats } from "@/components/rates/rates-search-stats";
 import { RatesStatsGrid } from "@/components/rates/rates-stats-grid";
 import { RatesTable } from "@/components/rates/rates-table";
+import { SetupFlowBanner } from "@/components/config/setup/setup-flow-banner";
 import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
 import { TableSurface } from "@tbms/ui/components/table-layout";
 import { useAuthz } from "@/hooks/use-authz";
@@ -44,6 +45,17 @@ export function RatesPage() {
         <RatesPageHeader
           onCreate={openCreateRateDialog}
           canCreateRate={canManageRates}
+        />
+      </PageSection>
+
+      <PageSection spacing="compact">
+        <SetupFlowBanner
+          title="Finish setup with labor rates"
+          description="Rates connect each garment step to its branch-specific payout, so task earnings and employee balances stay automatic."
+          currentStep="Labor Rates"
+          previousStep="Measurements, garments, and production steps should already exist"
+          nextStep="Orders can now create production tasks with the correct payouts"
+          sequence={["Measurements", "Garments", "Production Steps", "Labor Rates", "Orders"]}
         />
       </PageSection>
 

@@ -10,6 +10,7 @@ import { EmployeeDetailSkeleton } from "@/components/employees/detail/employee-d
 import { EmployeeDetailTabs } from "@/components/employees/detail/employee-detail-tabs";
 import { EmployeeDocumentUploadDialog } from "@/components/employees/detail/employee-document-upload-dialog";
 import { EmployeeLedgerEntryDialog } from "@/components/employees/detail/employee-ledger-entry-dialog";
+import { EmployeeFinancialCards } from "@/components/employees/detail/employee-financial-cards";
 import { ConfirmDialog } from "@tbms/ui/components/confirm-dialog";
 import { EmptyState } from "@tbms/ui/components/empty-state";
 import { PageSection, PageShell } from "@tbms/ui/components/page-shell";
@@ -143,10 +144,18 @@ export function EmployeeDetailPage({ employeeId }: EmployeeDetailPageProps) {
       </PageSection>
 
       <PageSection spacing="compact">
+        <EmployeeFinancialCards
+          stats={stats}
+          activeTaskCount={tasks.filter(
+            (task) => task.status !== "DONE" && task.status !== "CANCELLED",
+          ).length}
+        />
+      </PageSection>
+
+      <PageSection spacing="compact">
         <EmployeeDetailTabs
           loading={loading}
           employee={employee}
-          stats={stats}
           systemSettings={systemSettings}
           items={items}
           tasks={tasks}

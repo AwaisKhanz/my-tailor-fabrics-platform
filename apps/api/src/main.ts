@@ -8,7 +8,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import {
   assertSecurityEnvironment,
-  getFrontendUrl,
+  getAllowedFrontendOrigins,
   getServerPort,
   getTrustProxyConfig,
 } from './common/env';
@@ -23,7 +23,7 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({
-    origin: getFrontendUrl(),
+    origin: getAllowedFrontendOrigins(),
     credentials: true,
   });
 

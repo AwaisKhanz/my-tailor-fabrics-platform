@@ -144,6 +144,26 @@ export function getFrontendUrl(): string {
   );
 }
 
+function normalizeUrl(rawUrl: string): string {
+  return rawUrl.replace(/\/$/, '');
+}
+
+export function getMarketingSiteUrl(): string {
+  return normalizeUrl(
+    resolveEnv(
+      'MARKETING_SITE_URL',
+      process.env.MARKETING_SITE_URL,
+      'http://localhost:3000',
+    ),
+  );
+}
+
+export function getAllowedFrontendOrigins(): string[] {
+  return Array.from(
+    new Set([normalizeUrl(getFrontendUrl()), normalizeUrl(getMarketingSiteUrl())]),
+  );
+}
+
 export function isPublicMailEndpointsEnabled(): boolean {
   if (!isProduction) {
     return true;
@@ -287,6 +307,7 @@ export function assertSecurityEnvironment(): void {
   void getJwtRefreshCookieMaxAgeMs();
   void getJwtRefreshRotationGraceMs();
   void getFrontendUrl();
+  void getMarketingSiteUrl();
   void getStatusPinPepper();
   void getTrustProxyConfig();
   void getServerPort();
