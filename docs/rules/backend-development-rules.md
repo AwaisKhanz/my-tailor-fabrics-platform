@@ -7,7 +7,7 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 1. Framework: NestJS
 2. ORM: Prisma
 3. Database: PostgreSQL
-4. Cache/queue-style runtime dependency: Valkey/Redis client usage
+4. Cache/runtime model: in-process Nest cache only; no external cache/queue service dependency
 5. Auth model: backend-issued JWT with web-session facade
 6. Shared cross-app contracts: `@tbms/shared-types`, `@tbms/shared-constants`
 

@@ -36,7 +36,7 @@ export default function FeatureSteps({
     }, autoPlayInterval);
 
     return () => clearInterval(timer);
-  }, [autoPlayInterval, state.feature, features.length]);
+  }, [autoPlayInterval, features.length]);
 
   const currentFeature = state.feature;
   const progressKey = state.tick;
@@ -45,7 +45,7 @@ export default function FeatureSteps({
     <LazyMotion features={domMax}>
       <div
         className={cn(
-          "mx-auto flex w-full max-w-[1440px] flex-col md:flex-row md:items-stretch",
+          "mx-auto flex w-full flex-col md:flex-row md:items-stretch",
           className
         )}
       >
@@ -57,15 +57,15 @@ export default function FeatureSteps({
               onClick={() => {
                 setState((prev) => ({ feature: index, tick: prev.tick + 1 }));
               }}
-              className="relative cursor-pointer bg-card/80 p-4 transition-colors hover:bg-muted/40 md:p-10"
+              className="relative cursor-pointer bg-card/80 p-4 transition-colors hover:bg-muted/40 md:p-7"
             >
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 {feature.step ?? `Step ${index + 1}`}
               </p>
-              <h3 className="text-base leading-none text-foreground md:text-lg">
+              <h3 className="text-base font-semibold leading-none text-foreground md:text-lg">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {feature.content}
               </p>
               {index === currentFeature && (
@@ -103,7 +103,7 @@ export default function FeatureSteps({
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="rounded object-cover"
+              className="rounded-2xl object-cover"
             />
           </m.div>
         </div>

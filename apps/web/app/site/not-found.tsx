@@ -5,9 +5,9 @@ export default function MarketingNotFoundPage() {
   return (
     <section className="mx-auto flex min-h-[70vh] max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8">
       <Card className="w-full border-border/70 bg-card/80 text-center backdrop-blur-sm">
-        <CardHeader className="space-y-4">
+        <CardHeader className="flex flex-col gap-4">
           <CardTitle className="text-3xl sm:text-4xl">That page is not part of the public tailoring site.</CardTitle>
-          <CardDescription className="mx-auto max-w-2xl text-base leading-8">
+          <CardDescription className="mx-auto max-w-2xl text-base leading-7">
             Let&apos;s take you back to the main My Tailor & Fabrics landing page where you can explore the current sections and start an inquiry.
           </CardDescription>
         </CardHeader>

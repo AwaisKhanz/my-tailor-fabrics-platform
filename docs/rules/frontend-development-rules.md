@@ -46,7 +46,8 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
 4. Do not hardcode random colors, gradients, spacing values, or radii when an existing token or semantic class exists.
 5. Shared card-like surfaces should keep a deliberate elevated treatment in both light and dark themes instead of becoming flat in light mode.
 6. Whole-app atmosphere backgrounds should be implemented in shared theme globals so pages inherit one consistent gradient system across light and dark modes.
-7. Prefer shared primitives such as:
+7. Primary action tokens should stay brand-gold in both light and dark themes; use neutral foreground/secondary tokens for black or charcoal actions instead of redefining `--primary` to black.
+8. Prefer shared primitives such as:
    - `PageShell`
    - `PageSection`
    - `PageHeader`
@@ -56,47 +57,47 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `FormGrid`, `FormStack`, `DialogFormActions`
    - `StatsGrid`, `StatCard`, `InteractiveTile`, `InfoTile`
    - shared buttons, cards, dialogs, tables, and form primitives
-8. Table pages must keep API-query state (search, filters, pagination, sorting) in a page hook and URL state where applicable.
-9. Server-driven list pages should wire TanStack pagination/sorting to backend query params instead of client-only transforms.
-10. Theme behavior must go through the centralized theme flow:
+9. Table pages must keep API-query state (search, filters, pagination, sorting) in a page hook and URL state where applicable.
+10. Server-driven list pages should wire TanStack pagination/sorting to backend query params instead of client-only transforms.
+11. Theme behavior must go through the centralized theme flow:
    - `apps/web/app/layout.tsx`
    - `apps/web/components/ThemeProvider.tsx`
    - `apps/web/lib/theme.ts`
-11. Do not create a second theme state system or route-local theme persistence.
-12. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
-13. Selects and other option-based controls must display human-readable labels from shared maps or option labels, never raw enum keys in the UI.
-14. Role-based default-home redirects must not override `/` for users who already have `dashboard.read`; sidebar visibility, middleware, and route guards must stay consistent.
-15. Order create/edit UX is piece-first:
+12. Do not create a second theme state system or route-local theme persistence.
+13. Base primitives must be imported from `@tbms/ui/components/*` instead of `@/components/ui/*`.
+14. Selects and other option-based controls must display human-readable labels from shared maps or option labels, never raw enum keys in the UI.
+15. Role-based default-home redirects must not override `/` for users who already have `dashboard.read`; sidebar visibility, middleware, and route guards must stay consistent.
+16. Order create/edit UX is piece-first:
    - each visible piece card represents one physical piece and must submit `quantity = 1`
    - mixed designs, mixed fabric sources, and piece-specific notes belong on separate piece cards, not in one bulk quantity row
    - long order capture flows should use a step-based wizard with a persistent pricing summary instead of one overloaded form
    - later wizard steps should stay visually locked until the required earlier step is valid
    - piece cards should separate required setup from optional notes/add-ons so counter staff are not forced to parse every extra field on every piece
-16. There is no standalone system-settings admin screen in the live product.
+17. There is no standalone system-settings admin screen in the live product.
    - do not add or reintroduce `/settings/system` unless product requirements explicitly restore a system-controls surface and the backend/docs are updated in the same change
    - production-task workflow should be treated as a platform rule, not a user-managed toggle
-17. Production-task management UIs must respect step order per piece:
+18. Production-task management UIs must respect step order per piece:
    - later steps should present as locked until previous piece steps are finished
    - inline task dialogs should treat labor rate as read-only context unless a dedicated rate-management workflow is explicitly opened elsewhere
-18. High-density employee/staff detail pages should use a compact overview plus tabbed workspace pattern:
+19. High-density employee/staff detail pages should use a compact overview plus tabbed workspace pattern:
    - keep identity, employment snapshot, and key top metrics close to the header
    - group operational, financial, and admin workflows into focused tabs instead of one long mixed accordion page
    - avoid detached narrow side rails when the same information can be absorbed into an overview tab or summary band
-19. Customer detail pages should use a calm tabbed workspace instead of stacked mixed cards:
+20. Customer detail pages should use a calm tabbed workspace instead of stacked mixed cards:
    - keep the page header focused on identity and primary actions
    - put financial summary, latest measurements, and latest order state in an `Overview` tab
    - keep `Measurements`, `Orders`, and `Payments` in separate tabs so front-desk users can find the right thing without scrolling through unrelated sections
-20. Setup/configuration pages should teach dependency order:
+21. Setup/configuration pages should teach dependency order:
    - list pages for measurements, garments, fabrics, and labor rates should include a short setup-sequence guide that explains what comes before the current page and what it unlocks next
    - the generic `/settings` landing route should send admins to the first practical setup step instead of dropping them into the middle of the chain
-21. Attendance UI is not part of the live business workflow.
+22. Attendance UI is not part of the live business workflow.
    Do not add attendance pages, settings entries, employee-detail sections, or query hooks unless product requirements explicitly restore the feature and the backend/shared contracts are updated in the same task.
-22. Marketing-site UX must feel like a tailoring brand, not a SaaS dashboard:
+23. Marketing-site UX must feel like a tailoring brand, not a SaaS dashboard:
    - keep public navigation simple and focused on the currently live marketing surface; while the public site is landing-page only, use section anchors such as `Services`, `Process`, `Preview`, and `Testimonials` rather than links to unfinished standalone pages
    - prefer verified WhatsApp and inquiry conversion patterns over admin-style forms
    - do not hard-code placeholder public contact links, phone numbers, or street addresses; use typed web config/env helpers and safe internal fallbacks when real public contact data is not available
    - keep the public marketing shell visually distinct from the portal shell even though both run inside the same Next.js app
-23. Marketing page composition belongs under `apps/web/components/marketing`.
+24. Marketing page composition belongs under `apps/web/components/marketing`.
    - keep the marketing site visually distinct from the portal, but prefer the normal shared `@tbms/ui/components/*` primitives instead of a second experimental UI namespace unless product requirements explicitly justify one
 
 ## 4. Data Access Rules

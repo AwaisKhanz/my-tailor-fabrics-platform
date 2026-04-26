@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Quote, Sparkles } from "lucide-react";
+import { Quote } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@tbms/ui/components/avatar";
 import { Button } from "@tbms/ui/components/button";
@@ -27,9 +27,9 @@ function getInitials(name: string) {
 export function MarketingTestimonials({
   testimonials,
   className,
-  title = "What our customers say",
-  description = "Real feedback from customers who trusted My Tailor & Fabrics for tailoring, fitting, and finishing.",
-  eyebrow = "Testimonials",
+  title = "What customers notice.",
+  description = "Short notes from customers who came for fit and finishing.",
+  eyebrow = "Reviews",
   maxDisplayed = 6,
 }: {
   testimonials: MarketingTestimonial[];
@@ -47,17 +47,16 @@ export function MarketingTestimonials({
   );
 
   return (
-    <div className={cn("space-y-8", className)}>
+    <div className={cn("flex flex-col gap-8", className)}>
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-          <Sparkles className="h-3.5 w-3.5" />
+        <div className="inline-flex w-fit items-center rounded-full border border-border px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.24em] text-foreground">
           {eyebrow}
         </div>
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             {title}
           </h2>
-          <p className="text-base leading-8 text-muted-foreground sm:text-lg">
+          <p className="max-w-2xl text-base leading-7 text-muted-foreground">
             {description}
           </p>
         </div>
@@ -97,7 +96,7 @@ export function MarketingTestimonials({
                   </div>
                 </div>
 
-                <p className="text-base leading-8 text-foreground">
+                <p className="text-base leading-7 text-foreground">
                   “{testimonial.quote}”
                 </p>
               </CardContent>

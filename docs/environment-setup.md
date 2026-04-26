@@ -89,3 +89,4 @@ For production authentication:
 3. API CORS and public contact-inquiry delivery now also depend on:
    - `FRONTEND_URL` for the portal origin
    - `MARKETING_SITE_URL` for the public marketing origin
+4. API cache is in-process and does not require an external cache service environment variable.

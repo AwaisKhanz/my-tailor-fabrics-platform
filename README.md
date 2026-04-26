@@ -36,7 +36,7 @@ pnpm run prisma:seed:list
 
 ## Production
 
-Production runs on DigitalOcean App Platform as a single app with separate `web-frontend` and `api-backend` services, managed PostgreSQL, and managed Valkey.
+Production runs on DigitalOcean App Platform as a single app with separate `web-frontend` and `api-backend` services backed by managed PostgreSQL.
 
 ## Internal Naming
 

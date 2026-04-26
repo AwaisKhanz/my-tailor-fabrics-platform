@@ -6,7 +6,7 @@
    Next.js 14 App Router frontend, NextAuth session handling, browser and server API clients.
 
 2. `apps/api`
-   NestJS backend, Prisma ORM, JWT auth, RBAC, scheduler, and business workflows.
+   NestJS backend, Prisma ORM, in-process cache, JWT auth, RBAC, scheduler, and business workflows.
 
 3. `packages/shared-types`
    Shared DTOs, API response shapes, and cross-app TypeScript contracts.
@@ -29,9 +29,6 @@ Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabric
 
 3. `tbms-production-db`
    Managed PostgreSQL in `sgp1`.
-
-4. `tbms-production-valkey`
-   Managed Valkey in `sgp1`.
 
 ## Routing Model
 

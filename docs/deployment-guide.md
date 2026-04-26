@@ -18,7 +18,6 @@ Current production topology:
 
 4. Managed databases:
    - PostgreSQL: `tbms-production-db` in `sgp1`
-   - Valkey: `tbms-production-valkey` in `sgp1`
 
 5. Domains:
    - primary: `mytailorandfabrics.com`
@@ -173,20 +172,19 @@ API service:
 6. `MARKETING_SITE_URL=https://mytailorandfabrics.com`
 7. `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
 8. `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
-9. `REDIS_URL=${tbms-production-valkey.DATABASE_URL}`
-10. `JWT_SECRET`
-11. `JWT_REFRESH_SECRET`
-12. `JWT_EXPIRES_IN=15m`
-13. `JWT_REFRESH_EXPIRES_IN=7d`
-14. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
-15. `STATUS_PIN_PEPPER`
-16. `ENABLE_INTERNAL_SCHEDULER=true`
-17. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
-18. `GOOGLE_CLIENT_ID`
-19. `GOOGLE_CLIENT_SECRET`
-20. `GOOGLE_REFRESH_TOKEN`
-21. `GOOGLE_EMAIL`
-22. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
+9. `JWT_SECRET`
+10. `JWT_REFRESH_SECRET`
+11. `JWT_EXPIRES_IN=15m`
+12. `JWT_REFRESH_EXPIRES_IN=7d`
+13. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
+14. `STATUS_PIN_PEPPER`
+15. `ENABLE_INTERNAL_SCHEDULER=true`
+16. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
+17. `GOOGLE_CLIENT_ID`
+18. `GOOGLE_CLIENT_SECRET`
+19. `GOOGLE_REFRESH_TOKEN`
+20. `GOOGLE_EMAIL`
+21. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
 
 Important:
 
@@ -310,7 +308,7 @@ After every production deployment:
 6. authenticated browser traffic goes to `/backend/*`
 7. `/api/status/*` still works
 8. public status PIN is submitted in request body (not URL query string)
-9. API starts with PostgreSQL and Valkey connected
+9. API starts with PostgreSQL connected
 10. both App Platform components become `HEALTHY`
 
 ## Operational Rules

@@ -252,10 +252,6 @@ export function getServerPort(): number {
   return parsedPort;
 }
 
-export function getRedisUrl(): string | undefined {
-  return resolveOptionalEnv(process.env.REDIS_URL);
-}
-
 export function isInternalSchedulerEnabled(): boolean {
   const rawValue = resolveOptionalEnv(process.env.ENABLE_INTERNAL_SCHEDULER);
 

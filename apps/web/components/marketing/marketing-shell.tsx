@@ -97,7 +97,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                 <SheetTitle>{siteConfig.name}</SheetTitle>
                 <SheetDescription>Premium tailoring and direct consultation.</SheetDescription>
               </SheetHeader>
-              <div className="space-y-3 px-4 pb-6">
+              <div className="flex flex-col gap-3 px-4 pb-6">
                 {marketingNavItems.map((item) => (
                   <Link
                     key={item.href}
@@ -129,17 +129,17 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
       <main>{children}</main>
 
       <footer className="border-t border-border/70 bg-muted/30">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_1fr] lg:px-8">
-          <div className="space-y-4">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-24 pt-10 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:pb-10">
+          <div className="flex flex-col gap-3">
             <p className="text-2xl font-semibold tracking-tight">My Tailor & Fabrics</p>
             <p className="max-w-md text-sm leading-7 text-muted-foreground">
-              Bespoke tailoring, guided fittings, and refined finishing for garments that should feel personal.
+              Bespoke tailoring, guided fittings, and refined finishing for garments that feel personal.
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3 lg:items-end">
             <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground">Explore</h3>
-            <div className="flex flex-col gap-2 text-sm">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm lg:justify-end">
               {marketingNavItems.map((item) => (
                 <Link key={item.href} href={resolveLinkHref(pathname, item.href)} className="text-foreground/90 transition-colors hover:text-primary">
                   {item.label}
@@ -147,22 +147,6 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
               ))}
               <Link href={portalLink} className="text-foreground/90 transition-colors hover:text-primary">
                 Portal Login
-              </Link>
-            </div>
-          </div>
-
-          <div className="space-y-4 text-sm">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground">Start Here</h3>
-            <p className="max-w-sm leading-7 text-muted-foreground">
-              For consultation, fittings, and garment discussion, start with the landing-page actions or WhatsApp.
-            </p>
-            <div className="flex flex-col gap-2">
-              <Link href={siteConfig.contactAction.href} className={primaryLinkClass}>
-                <MessageCircle className="h-4 w-4" />
-                {siteConfig.contactAction.label}
-              </Link>
-              <Link href="/#services" className={secondaryLinkClass}>
-                Explore Services
               </Link>
             </div>
           </div>

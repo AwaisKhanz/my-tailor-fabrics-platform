@@ -114,9 +114,6 @@ services:
       - key: DIRECT_URL
         scope: RUN_TIME
         value: ${tbms-production-db.DATABASE_URL}
-      - key: REDIS_URL
-        scope: RUN_TIME
-        value: ${tbms-production-valkey.DATABASE_URL}
       - key: JWT_SECRET
         scope: RUN_TIME
         type: SECRET
@@ -172,8 +169,3 @@ databases:
     cluster_name: tbms-production-db
     db_name: defaultdb
     db_user: doadmin
-  - name: tbms-production-valkey
-    engine: VALKEY
-    version: "8"
-    production: true
-    cluster_name: tbms-production-valkey

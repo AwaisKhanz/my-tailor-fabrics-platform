@@ -50,44 +50,44 @@ export const marketingNavItems: MarketingNavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/#services' },
   { label: 'Process', href: '/#process' },
-  { label: 'Preview', href: '/#preview' },
-  { label: 'Testimonials', href: '/#testimonials' },
+  { label: 'Atelier', href: '/#atelier' },
+  { label: 'Reviews', href: '/#testimonials' },
+  { label: 'Inquiry', href: '/#contact' },
 ];
+
+export const marketingHeroBackgroundImage =
+  "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1800&q=85";
 
 export const heroStats: MarketingStat[] = [
   {
-    value: '1:1',
-    label: 'Consultation',
-    caption: 'Every order starts with a direct fitting conversation.',
+    value: 'Fit',
+    label: 'Measured',
+    caption: 'Garment-specific sizing.',
   },
   {
-    value: 'BYO',
-    label: 'Fabric support',
-    caption: 'Bring your own fabric or ask for guidance before stitching.',
+    value: 'Cloth',
+    label: 'Guided',
+    caption: 'Fabric weight and finish advice.',
   },
   {
-    value: 'Fit-led',
-    label: 'Finishing',
-    caption: 'Buttons, lining, cuffs, and shape are handled with intention.',
+    value: 'Finish',
+    label: 'Refined',
+    caption: 'Details checked before handover.',
   },
 ];
 
 export const trustHighlights: MarketingHighlight[] = [
   {
-    title: 'Precise fitting',
-    description: 'Garment-specific measurements and fit guidance.',
+    title: 'Measured fit',
+    description: 'Garment-specific measurements.',
   },
   {
     title: 'Fabric guidance',
-    description: 'Bring your own fabric or ask for help choosing the right weight and finish.',
+    description: 'Help choosing weight, fall, and finish.',
   },
   {
-    title: 'Refined finishing',
-    description: 'Buttons, lining, cuffs, and final presentation are treated as part of the craft.',
-  },
-  {
-    title: 'Clear coordination',
-    description: 'WhatsApp follow-up keeps fittings, approvals, and delivery easy to track.',
+    title: 'Quiet finishing',
+    description: 'Clean cuffs, buttons, lining, and final checks.',
   },
 ];
 
@@ -96,7 +96,7 @@ export const marketingVerticalTabItems: MarketingVerticalTabItem[] = [
     id: "01",
     title: "Bespoke Shalwar Kameez",
     description:
-      "Traditional wear with clean proportions, careful measurements, and finishing that feels refined from the first fitting.",
+      "Traditional wear shaped around clean proportions and comfortable movement.",
     image:
       "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1200&q=80",
   },
@@ -104,7 +104,7 @@ export const marketingVerticalTabItems: MarketingVerticalTabItem[] = [
     id: "02",
     title: "Coats & Sherwani",
     description:
-      "Formal tailoring with structure, lining, and occasion-ready finishing for garments that need more presence.",
+      "Structured occasion wear with lining, balance, and a more formal presence.",
     image:
       "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80",
   },
@@ -112,7 +112,7 @@ export const marketingVerticalTabItems: MarketingVerticalTabItem[] = [
     id: "03",
     title: "Waistcoats & Layers",
     description:
-      "Layering pieces that sharpen the full look and sit properly over traditional and semi-formal outfits.",
+      "Layering pieces cut to sit neatly over traditional and semi-formal outfits.",
     image:
       "https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?auto=format&fit=crop&w=1200&q=80",
   },
@@ -120,7 +120,7 @@ export const marketingVerticalTabItems: MarketingVerticalTabItem[] = [
     id: "04",
     title: "Suits, Trousers & Shirts",
     description:
-      "Smart formal wear tailored for clean movement, repeat confidence, and a more polished overall silhouette.",
+      "Formal essentials tailored for a sharper silhouette and everyday confidence.",
     image:
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
   },
@@ -128,7 +128,7 @@ export const marketingVerticalTabItems: MarketingVerticalTabItem[] = [
     id: "05",
     title: "Alterations & Finishing",
     description:
-      "Refinement work for garments that need shape correction, tapering, length balance, or improved finishing details.",
+      "Shape correction, tapering, length balance, and finishing refinements.",
     image:
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80",
   },
@@ -138,56 +138,56 @@ export const processFeatureSteps: MarketingProcessFeatureStep[] = [
   {
     step: 'Step 01',
     title: 'Consultation',
-    description: 'We discuss the garment, fabric, fit, and occasion before anything is stitched.',
+    description: 'We clarify the garment, fabric, fit, and occasion.',
     image:
       'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80',
   },
   {
     step: 'Step 02',
     title: 'Measurements',
-    description: 'Measurements are taken for the specific garment so the fit feels intentional, not generic.',
+    description: 'Measurements are taken for the exact garment being made.',
     image:
       'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1200&q=80',
   },
   {
     step: 'Step 03',
     title: 'Tailoring',
-    description: 'Cutting, stitching, and finishing move through a guided process with attention to detail.',
+    description: 'Cutting, stitching, and finishing move through a guided flow.',
     image:
       'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80',
   },
   {
     step: 'Step 04',
     title: 'Fitting & Delivery',
-    description: 'Final checks and handover happen with fit confidence so the garment feels ready to wear.',
+    description: 'Final checks confirm the garment feels ready to wear.',
     image:
       'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
 export const marketingStudioPreview: MarketingStudioPreview = {
-  eyebrow: "Studio Preview",
-  title: "A quick look at the care behind fitting and finishing.",
+  eyebrow: "Atelier",
+  title: "Fabric, measurement, and finishing in one calm flow.",
   description:
-    "The work starts with fabric, measurements, and small finishing decisions that shape how the garment feels when it is worn.",
+    "A good garment is built through small decisions made before the final fitting.",
   image:
     "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1600&q=80",
 };
 
 export const testimonials: MarketingTestimonial[] = [
   {
-    quote: 'The fit felt right from the first trial and the finishing looked much cleaner than I expected.',
+    quote: 'The fit felt right from the first trial.',
     customer: 'Ahsan R.',
-    context: 'Wedding season order',
+    context: 'Wedding order',
   },
   {
-    quote: 'They made the fabric and finishing decisions feel simple and guided instead of confusing.',
+    quote: 'Fabric and finishing decisions felt simple.',
     customer: 'Hamza M.',
-    context: 'Formal wear repeat customer',
+    context: 'Formal wear',
   },
   {
-    quote: 'The finishing is what made the garment stand out once everything came together.',
+    quote: 'The finishing made the outfit stand out.',
     customer: 'Bilal K.',
-    context: 'Sherwani and waistcoat order',
+    context: 'Sherwani order',
   },
 ];
