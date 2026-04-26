@@ -1,6 +1,6 @@
 const isProduction = process.env.NODE_ENV === 'production';
-const DEFAULT_PORTAL_DEV_URL = 'http://portal.mytailorandfabrics.localhost:3000';
-const DEFAULT_MARKETING_DEV_URL = 'http://mytailorandfabrics.localhost:3000';
+const DEFAULT_PORTAL_DEV_URL = 'http://localhost:3000/portal';
+const DEFAULT_MARKETING_DEV_URL = 'http://localhost:3000';
 
 function resolveEnv(name: string, value: string | undefined, devFallback: string): string {
   if (value && value.trim().length > 0) {

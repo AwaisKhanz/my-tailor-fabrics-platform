@@ -48,10 +48,11 @@ Web:
 
 1. Next.js reads env files from `apps/web`
 2. only `NEXT_PUBLIC_*` values are safe for client-side exposure
-3. hostname-aware web routing uses:
-   - `NEXTAUTH_URL` and `PORTAL_BASE_URL` for the portal hostname
-   - `MARKETING_SITE_URL` for the public marketing hostname
-   - `NEXT_PUBLIC_PORTAL_BASE_URL` and `NEXT_PUBLIC_MARKETING_SITE_URL` for client-side cross-host links such as `Portal Login`
+3. public/portal web routing uses:
+   - `NEXTAUTH_URL` for the canonical root origin used by NextAuth callbacks
+   - `PORTAL_BASE_URL` for the portal entry URL, including `/portal` when the portal shares the marketing domain
+   - `MARKETING_SITE_URL` for the public marketing root URL
+   - `NEXT_PUBLIC_PORTAL_BASE_URL` and `NEXT_PUBLIC_MARKETING_SITE_URL` for browser-visible links such as `Portal Login`
    - `NEXT_PUBLIC_MARKETING_WHATSAPP_URL` only when a verified public WhatsApp link is available; otherwise marketing CTAs fall back to the on-page inquiry section instead of using placeholder numbers
 
 ## Local Development Routing
@@ -62,7 +63,7 @@ Local development uses one host with a portal path prefix:
 2. portal site: `http://localhost:3000/portal`
 3. portal login: `http://localhost:3000/portal/login`
 
-This keeps local usage simple while preserving the real production split:
+This keeps local usage simple and matches production:
 
 1. the public landing site stays at `/`
 2. the business app stays under `/portal`

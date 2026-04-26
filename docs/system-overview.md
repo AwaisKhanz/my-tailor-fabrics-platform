@@ -33,27 +33,30 @@ Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabric
 ## Routing Model
 
 1. `/`
-   Served by the web app. On the apex domain it resolves to the public marketing homepage; on the portal hostname it resolves to the authenticated portal.
+   Served by the web app as the public marketing homepage.
 
-2. `/backend/*`
+2. `/portal/*`
+   Served by the same web app as the authenticated business portal. Portal login is `/portal/login`.
+
+3. `/backend/*`
    Routed to the Nest API.
 
-3. `/api/auth/*`
+4. `/api/auth/*`
    Handled by the Next.js app for NextAuth.
 
-4. `/api/status/*`
+5. `/api/status/*`
    Handled by the Next.js public order-status proxy route.
 
-5. Hostname split inside the web app:
-   - `mytailorandfabrics.com` and `www.mytailorandfabrics.com` rewrite to the public marketing route tree under `apps/web/app/site`
-   - `portal.mytailorandfabrics.com` keeps the existing dashboard/auth route tree
-   - `/site` remains an internal implementation path; public users should only see apex-domain marketing URLs and portal users should only see portal-domain auth/dashboard URLs
-   - local development keeps the public site at `/` and exposes the portal under `/portal`
+6. Single-domain routing inside the web app:
+   - `mytailorandfabrics.com` and `www.mytailorandfabrics.com` rewrite `/` to the public marketing route tree under `apps/web/app/site`
+   - `/portal/*` rewrites to the existing dashboard/auth route tree
+   - `/site` remains an internal implementation path; public users should see marketing URLs at `/`, and portal users should see auth/dashboard URLs under `/portal`
+   - local development keeps the same public `/` and portal `/portal` structure
 
 Public status PIN submission is body-based:
 `POST /api/status/:token` with `{ "pin": "1234" }`.
 
-This split is intentional. The API is exposed on `/backend`, not `/api`, so that NextAuth and the public status flow remain owned by the web app.
+This routing separation is intentional. The API is exposed on `/backend`, not `/api`, so that NextAuth and the public status flow remain owned by the web app.
 
 ## Authentication Flow
 
@@ -104,10 +107,7 @@ Workspace package manager:
 2. Alias:
    `www.mytailorandfabrics.com`
 
-3. Portal:
-   `portal.mytailorandfabrics.com`
-
-4. Starter fallback:
+3. Starter fallback:
    `jellyfish-app-n3bi3.ondigitalocean.app`
 
 ## Current Operational Workflow

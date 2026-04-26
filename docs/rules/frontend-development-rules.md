@@ -27,13 +27,13 @@ These rules apply to `apps/web`, UI behavior, route structure, hooks, theme usag
    - `@tbms/ui/components/data-table-tanstack`
    - `@tbms/ui/components/data-table-column-header`
 8. Do not introduce new usages of the legacy custom `@tbms/ui/components/data-table` API. Migrate legacy consumers incrementally by page/feature.
-9. Public marketing pages and the authenticated portal share the same Next.js app, but not the same hostname experience:
-   - apex and `www` hostnames serve the public marketing site
-   - `portal.mytailorandfabrics.com` serves the authenticated business portal
+9. Public marketing pages and the authenticated portal share the same Next.js app and production hostname:
+   - `mytailorandfabrics.com` and `www.mytailorandfabrics.com` serve the public marketing site at `/`
+   - the authenticated business portal lives under `/portal`, including `/portal/login`
    - public marketing pages should live under `apps/web/app/site/*` and be reached through middleware host rewriting rather than by moving portal routes out of `apps/web/app`
    - the internal `/site` path is an implementation detail only and must never be exposed as the public brand URL
    - on the apex marketing host, `/` must resolve to marketing content before any portal auth or permission redirect logic is considered
-   - local development should keep the marketing experience at `/` and expose the portal under `/portal`, including `/portal/login` for authentication
+   - local development should use the same shape: marketing at `/` and portal under `/portal`
 
 ## 3. Design System and Styling Rules
 

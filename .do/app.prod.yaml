@@ -6,9 +6,6 @@ domains:
     type: PRIMARY
   - domain: www.mytailorandfabrics.com
     type: ALIAS
-  - domain: portal.mytailorandfabrics.com
-    type: ALIAS
-
 ingress:
   rules:
     - component:
@@ -55,13 +52,13 @@ services:
         value: ${api-backend.PRIVATE_URL}
       - key: NEXTAUTH_URL
         scope: RUN_TIME
-        value: https://portal.mytailorandfabrics.com
+        value: https://mytailorandfabrics.com
       - key: PORTAL_BASE_URL
         scope: RUN_TIME
-        value: https://portal.mytailorandfabrics.com
+        value: https://mytailorandfabrics.com/portal
       - key: NEXT_PUBLIC_PORTAL_BASE_URL
         scope: RUN_AND_BUILD_TIME
-        value: https://portal.mytailorandfabrics.com
+        value: https://mytailorandfabrics.com/portal
       - key: MARKETING_SITE_URL
         scope: RUN_TIME
         value: https://mytailorandfabrics.com
@@ -104,7 +101,7 @@ services:
         value: Asia/Karachi
       - key: FRONTEND_URL
         scope: RUN_TIME
-        value: https://portal.mytailorandfabrics.com
+        value: https://mytailorandfabrics.com
       - key: MARKETING_SITE_URL
         scope: RUN_TIME
         value: https://mytailorandfabrics.com
