@@ -80,8 +80,6 @@ docker build \
   --build-arg NEXTAUTH_URL=https://mytailorandfabrics.com \
   --build-arg PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
   --build-arg NEXT_PUBLIC_PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
-  --build-arg MARKETING_SITE_URL=https://mytailorandfabrics.com \
-  --build-arg NEXT_PUBLIC_MARKETING_SITE_URL=https://mytailorandfabrics.com \
   -f Dockerfile.web .
 docker build -f Dockerfile.api .
 ```
@@ -119,8 +117,6 @@ docker build \
   --build-arg NEXTAUTH_URL=https://mytailorandfabrics.com \
   --build-arg PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
   --build-arg NEXT_PUBLIC_PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
-  --build-arg MARKETING_SITE_URL=https://mytailorandfabrics.com \
-  --build-arg NEXT_PUBLIC_MARKETING_SITE_URL=https://mytailorandfabrics.com \
   -f Dockerfile.web .
 ```
 
@@ -171,10 +167,8 @@ Web service:
 5. `NEXTAUTH_URL=https://mytailorandfabrics.com`
 6. `PORTAL_BASE_URL=https://mytailorandfabrics.com/portal`
 7. `NEXT_PUBLIC_PORTAL_BASE_URL=https://mytailorandfabrics.com/portal`
-8. `MARKETING_SITE_URL=https://mytailorandfabrics.com`
-9. `NEXT_PUBLIC_MARKETING_SITE_URL=https://mytailorandfabrics.com`
-10. `NEXT_PUBLIC_MARKETING_WHATSAPP_URL=https://wa.me/<verified-number>` when a real public WhatsApp number is ready; leave unset to route marketing CTAs to the inquiry section
-11. `NEXTAUTH_SECRET`
+8. `NEXT_PUBLIC_MARKETING_WHATSAPP_URL=https://wa.me/<verified-number>` when a real public WhatsApp number is ready; leave unset to route marketing CTAs to the inquiry section
+9. `NEXTAUTH_SECRET`
 
 API service:
 
@@ -183,22 +177,21 @@ API service:
 3. `TRUST_PROXY=1`
 4. `TZ=Asia/Karachi`
 5. `FRONTEND_URL=https://mytailorandfabrics.com`
-6. `MARKETING_SITE_URL=https://mytailorandfabrics.com`
-7. `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
-8. `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
-9. `JWT_SECRET`
-10. `JWT_REFRESH_SECRET`
-11. `JWT_EXPIRES_IN=15m`
-12. `JWT_REFRESH_EXPIRES_IN=7d`
-13. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
-14. `STATUS_PIN_PEPPER`
-15. `ENABLE_INTERNAL_SCHEDULER=true`
-16. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
-17. `GOOGLE_CLIENT_ID`
-18. `GOOGLE_CLIENT_SECRET`
-19. `GOOGLE_REFRESH_TOKEN`
-20. `GOOGLE_EMAIL`
-21. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
+6. `DATABASE_URL=${tbms-production-db.DATABASE_URL}`
+7. `DIRECT_URL=${tbms-production-db.DATABASE_URL}`
+8. `JWT_SECRET`
+9. `JWT_REFRESH_SECRET`
+10. `JWT_EXPIRES_IN=15m`
+11. `JWT_REFRESH_EXPIRES_IN=7d`
+12. `JWT_REFRESH_ROTATION_GRACE_SECONDS=30`
+13. `STATUS_PIN_PEPPER`
+14. `ENABLE_INTERNAL_SCHEDULER=true`
+15. `ENABLE_PUBLIC_MAIL_ENDPOINTS=false`
+16. `GOOGLE_CLIENT_ID`
+17. `GOOGLE_CLIENT_SECRET`
+18. `GOOGLE_REFRESH_TOKEN`
+19. `GOOGLE_EMAIL`
+20. `GOOGLE_REDIRECT_URI` (optional override; defaults to `https://developers.google.com/oauthplayground`)
 
 Important:
 

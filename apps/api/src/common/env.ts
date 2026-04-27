@@ -149,13 +149,7 @@ function normalizeUrl(rawUrl: string): string {
 }
 
 export function getMarketingSiteUrl(): string {
-  return normalizeUrl(
-    resolveEnv(
-      'MARKETING_SITE_URL',
-      process.env.MARKETING_SITE_URL,
-      'http://localhost:3000',
-    ),
-  );
+  return normalizeUrl(getFrontendUrl());
 }
 
 export function getAllowedFrontendOrigins(): string[] {

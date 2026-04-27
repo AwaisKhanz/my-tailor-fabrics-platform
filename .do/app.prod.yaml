@@ -59,12 +59,6 @@ services:
       - key: NEXT_PUBLIC_PORTAL_BASE_URL
         scope: RUN_AND_BUILD_TIME
         value: https://mytailorandfabrics.com/portal
-      - key: MARKETING_SITE_URL
-        scope: RUN_TIME
-        value: https://mytailorandfabrics.com
-      - key: NEXT_PUBLIC_MARKETING_SITE_URL
-        scope: RUN_AND_BUILD_TIME
-        value: https://mytailorandfabrics.com
       - key: NEXTAUTH_SECRET
         scope: RUN_TIME
         type: SECRET
@@ -100,9 +94,6 @@ services:
         scope: RUN_TIME
         value: Asia/Karachi
       - key: FRONTEND_URL
-        scope: RUN_TIME
-        value: https://mytailorandfabrics.com
-      - key: MARKETING_SITE_URL
         scope: RUN_TIME
         value: https://mytailorandfabrics.com
       - key: DATABASE_URL

@@ -51,8 +51,8 @@ Web:
 3. public/portal web routing uses:
    - `NEXTAUTH_URL` for the canonical root origin used by NextAuth callbacks
    - `PORTAL_BASE_URL` for the portal entry URL, including `/portal` when the portal shares the marketing domain
-   - `MARKETING_SITE_URL` for the public marketing root URL
-   - `NEXT_PUBLIC_PORTAL_BASE_URL` and `NEXT_PUBLIC_MARKETING_SITE_URL` for browser-visible links such as `Portal Login`
+   - the public marketing root URL defaults to `NEXTAUTH_URL` in the single-domain production setup
+   - `NEXT_PUBLIC_PORTAL_BASE_URL` for browser-visible links such as `Portal Login`
    - `NEXT_PUBLIC_MARKETING_WHATSAPP_URL` only when a verified public WhatsApp link is available; otherwise marketing CTAs fall back to the on-page inquiry section instead of using placeholder numbers
 
 ## Local Development Routing
@@ -88,6 +88,5 @@ For production authentication:
 1. Login OTP delivery requires configured API mail environment values (Google mail client credentials, refresh token, and sender email).
 2. If mail credentials are missing or invalid, password login verification cannot complete because OTP email delivery will fail.
 3. API CORS and public contact-inquiry delivery now also depend on:
-   - `FRONTEND_URL` for the portal origin
-   - `MARKETING_SITE_URL` for the public marketing origin
+   - `FRONTEND_URL` for the canonical web origin
 4. API cache is in-process and does not require an external cache service environment variable.

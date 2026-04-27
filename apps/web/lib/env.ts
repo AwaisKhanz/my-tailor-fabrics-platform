@@ -1,6 +1,5 @@
 const isProduction = process.env.NODE_ENV === 'production';
 const DEFAULT_PORTAL_DEV_URL = 'http://localhost:3000/portal';
-const DEFAULT_MARKETING_DEV_URL = 'http://localhost:3000';
 
 function resolveEnv(name: string, value: string | undefined, devFallback: string): string {
   if (value && value.trim().length > 0) {
@@ -89,25 +88,11 @@ export function getPublicPortalBaseUrl(): string {
 }
 
 export function getMarketingSiteUrl(): string {
-  return normalizeUrl(
-    resolveEnv(
-      'NEXT_PUBLIC_MARKETING_SITE_URL or MARKETING_SITE_URL',
-      process.env.NEXT_PUBLIC_MARKETING_SITE_URL ??
-        process.env.MARKETING_SITE_URL,
-      DEFAULT_MARKETING_DEV_URL,
-    ),
-  );
+  return getNextAuthUrl();
 }
 
 export function getPublicMarketingSiteUrl(): string {
-  return normalizeUrl(
-    resolveEnv(
-      'NEXT_PUBLIC_MARKETING_SITE_URL or MARKETING_SITE_URL',
-      process.env.NEXT_PUBLIC_MARKETING_SITE_URL ??
-        process.env.MARKETING_SITE_URL,
-      DEFAULT_MARKETING_DEV_URL,
-    ),
-  );
+  return getNextAuthUrl();
 }
 
 export function getPublicMarketingWhatsappUrl(): string | undefined {

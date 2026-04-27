@@ -99,9 +99,8 @@ These rules apply to `apps/api`, Prisma schema and migrations, backend seeds, au
 4. Production-only required values must fail fast through typed env helpers.
 5. Public mail endpoints, scheduler behavior, proxy trust, and security-sensitive flags must remain centrally configured.
 6. CORS origin allowlists must stay aligned with the live single-domain routing model:
-   - `FRONTEND_URL` represents the canonical web origin that hosts `/portal`
-   - `MARKETING_SITE_URL` represents the canonical public marketing origin
-   - API bootstrap must allow both through typed env helpers rather than hardcoded strings
+   - `FRONTEND_URL` represents the canonical web origin that hosts both `/` and `/portal`
+   - API bootstrap must resolve it through typed env helpers rather than hardcoded strings
 7. Runtime bootstrap security belongs in `main.ts`.
    Do not bypass:
    - helmet

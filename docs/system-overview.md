@@ -52,6 +52,7 @@ Production runs as one DigitalOcean App Platform app named `my-tailor-and-fabric
    - `/portal/*` rewrites to the existing dashboard/auth route tree
    - `/site` remains an internal implementation path; public users should see marketing URLs at `/`, and portal users should see auth/dashboard URLs under `/portal`
    - local development keeps the same public `/` and portal `/portal` structure
+   - API CORS uses `FRONTEND_URL` as the canonical web origin for both `/` and `/portal`
 
 Public status PIN submission is body-based:
 `POST /api/status/:token` with `{ "pin": "1234" }`.
