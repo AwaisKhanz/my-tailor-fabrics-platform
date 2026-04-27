@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -33,12 +34,14 @@ export function MarketingImageHero({
       )}
       aria-label="My Tailor & Fabrics hero section"
     >
-      <img
+      <Image
         src={backgroundImage}
         alt=""
         aria-hidden="true"
-        loading="eager"
-        decoding="async"
+        priority
+        fill
+        unoptimized
+        sizes="100vw"
         className="absolute inset-0 -z-30 h-full w-full object-cover object-center"
       />
       <div className="absolute inset-0 -z-20 bg-background/25" />

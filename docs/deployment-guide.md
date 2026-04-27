@@ -75,7 +75,14 @@ pnpm run env:setup
 pnpm run env:verify
 pnpm run build:do:web
 pnpm run build:do:api
-docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=/backend \
+  --build-arg NEXTAUTH_URL=https://mytailorandfabrics.com \
+  --build-arg PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
+  --build-arg NEXT_PUBLIC_PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
+  --build-arg MARKETING_SITE_URL=https://mytailorandfabrics.com \
+  --build-arg NEXT_PUBLIC_MARKETING_SITE_URL=https://mytailorandfabrics.com \
+  -f Dockerfile.web .
 docker build -f Dockerfile.api .
 ```
 
@@ -107,7 +114,14 @@ pnpm run env:verify
 pnpm run build:do:api
 pnpm run build:do:web
 docker build -f Dockerfile.api .
-docker build --build-arg NEXT_PUBLIC_API_URL=/backend -f Dockerfile.web .
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=/backend \
+  --build-arg NEXTAUTH_URL=https://mytailorandfabrics.com \
+  --build-arg PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
+  --build-arg NEXT_PUBLIC_PORTAL_BASE_URL=https://mytailorandfabrics.com/portal \
+  --build-arg MARKETING_SITE_URL=https://mytailorandfabrics.com \
+  --build-arg NEXT_PUBLIC_MARKETING_SITE_URL=https://mytailorandfabrics.com \
+  -f Dockerfile.web .
 ```
 
 What these checks cover:

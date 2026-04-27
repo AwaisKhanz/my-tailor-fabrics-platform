@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@tbms/ui/components/button";
 import { Card, CardContent } from "@tbms/ui/components/card";
 import FeatureSteps from "@/components/feature-steps";
@@ -92,11 +93,16 @@ export function MarketingHomePage() {
             description={marketingStudioPreview.description}
           />
           <figure className="relative overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
-            <img
-              src={marketingStudioPreview.image}
-              alt="Tailoring fabric and garment preparation"
-              className="aspect-[4/3] w-full object-cover sm:aspect-[16/10]"
-            />
+            <div className="relative aspect-[4/3] w-full sm:aspect-[16/10]">
+              <Image
+                src={marketingStudioPreview.image}
+                alt="Tailoring fabric and garment preparation"
+                fill
+                unoptimized
+                sizes="(max-width: 1024px) 100vw, 54vw"
+                className="object-cover"
+              />
+            </div>
             <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent p-5 text-sm leading-6 text-foreground">
               Small details are checked before the final fitting.
             </figcaption>

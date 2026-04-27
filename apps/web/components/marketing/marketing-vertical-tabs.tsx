@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, m } from "motion/react";
 import {
   ArrowLeft01Icon,
@@ -164,9 +165,12 @@ export function MarketingVerticalTabs({
                   className="absolute inset-0 h-full w-full cursor-pointer"
                   onClick={handleNext}
                 >
-                  <img
+                  <Image
                     src={items[activeIndex].image}
                     alt={items[activeIndex].title}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 1024px) 100vw, 58vw"
                     className="m-0 block h-full w-full object-cover p-0 transition-transform duration-700 hover:scale-105"
                   />
 

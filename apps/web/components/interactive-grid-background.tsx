@@ -151,7 +151,16 @@ export function InteractiveGridBackground({
       container.removeEventListener("mouseleave", onMouseLeave);
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [gridGap, dotSize, color, highlightColor, radius, resolvedTheme]);
+  }, [
+    gridGap,
+    dotSize,
+    color,
+    highlightColor,
+    lightHighlightColor,
+    darkHighlightColor,
+    radius,
+    resolvedTheme,
+  ]);
 
   return (
     <div
