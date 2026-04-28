@@ -26,6 +26,10 @@ import type {
 } from './types/auth-tokens';
 import { randomInt, randomUUID } from 'crypto';
 import { buildLoginOtpTemplate } from '../mail/templates';
+import {
+  getErrorStack,
+  summarizeExternalError,
+} from '../common/utils/error-summary.util';
 
 type AuthUserPayload = Pick<
   AuthTokenClaims,
@@ -150,7 +154,10 @@ export class AuthService {
       await this.sendLoginOtpEmail(user.email, otpCode);
     } catch (error) {
       await this.usersService.clearPendingLoginOtpState(user.id);
-      this.logger.error('Failed to send login OTP email', error);
+      this.logger.error(
+        `Failed to send login OTP email: ${summarizeExternalError(error)}`,
+        getErrorStack(error),
+      );
       throw new ServiceUnavailableException(
         'Could not send verification code. Please try again.',
       );

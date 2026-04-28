@@ -5,6 +5,10 @@ import {
   isPublicMailEndpointsEnabled,
 } from '../common/env';
 import type { MailTemplatePayload } from './templates';
+import {
+  getErrorStack,
+  summarizeExternalError,
+} from '../common/utils/error-summary.util';
 
 @Injectable()
 export class MailService {
@@ -69,7 +73,10 @@ export class MailService {
           `Mail service fully initialized via official Gmail API for ${this.senderEmail}`,
         );
       } catch (err) {
-        this.logger.error('Failed to initialize Gmail Client', err);
+        this.logger.error(
+          `Failed to initialize Gmail Client: ${summarizeExternalError(err)}`,
+          getErrorStack(err),
+        );
       }
     } else {
       this.logger.warn(
