@@ -1,13 +1,7 @@
-import { getMarketingSiteUrl, getPortalBaseUrl } from '@/lib/env';
-
 const LOCAL_PORTAL_PREFIX = '/portal';
 
-function getHostname(url: string): string {
-  return new URL(url).hostname.toLowerCase();
-}
-
 export function usesPortalPathPrefix(): boolean {
-  return getHostname(getPortalBaseUrl()) === getHostname(getMarketingSiteUrl());
+  return true;
 }
 
 export function getPortalRoutePrefix(): string {
