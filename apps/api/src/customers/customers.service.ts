@@ -237,10 +237,7 @@ export class CustomersService {
         totalPaid: number;
       };
     },
-  >(
-    customer: TCustomer,
-    metrics: CustomerOrderMetrics,
-  ): TCustomer {
+  >(customer: TCustomer, metrics: CustomerOrderMetrics): TCustomer {
     return {
       ...customer,
       lifetimeValue: metrics.totalSpent,

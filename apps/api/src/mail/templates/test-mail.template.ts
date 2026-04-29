@@ -1,8 +1,5 @@
 import type { MailTemplatePayload } from './types';
-import {
-  buildBrandedHtmlTemplate,
-  buildBrandedTextTemplate,
-} from './layout';
+import { buildBrandedHtmlTemplate, buildBrandedTextTemplate } from './layout';
 
 export function buildTestMailTemplate(): MailTemplatePayload {
   const subject = 'My Tailor & Fabrics - Mail Integration Test';
@@ -14,7 +11,8 @@ export function buildTestMailTemplate(): MailTemplatePayload {
       'This is a test email from My Tailor & Fabrics.',
       'If you received this message, your sender credentials and transport are working correctly.',
     ],
-    footerNote: 'You can now use this channel for OTP and operational notifications.',
+    footerNote:
+      'You can now use this channel for OTP and operational notifications.',
   } as const;
 
   return {
@@ -23,4 +21,3 @@ export function buildTestMailTemplate(): MailTemplatePayload {
     html: buildBrandedHtmlTemplate(templateInput),
   };
 }
-

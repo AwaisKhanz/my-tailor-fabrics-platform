@@ -3,4 +3,3 @@ export interface MailTemplatePayload {
   text: string;
   html: string;
 }
-

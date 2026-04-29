@@ -306,10 +306,7 @@ export class UsersService {
     });
   }
 
-  async incrementPendingLoginOtpAttempts(
-    userId: string,
-    challengeId: string,
-  ) {
+  async incrementPendingLoginOtpAttempts(userId: string, challengeId: string) {
     const updated = await this.prisma.user.updateMany({
       where: {
         id: userId,
